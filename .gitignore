@@ -1,1 +1,9 @@
-*__pycache__*
+# ignore compiled python 2 files
+*.pyc
+
+# ignore compiled python 3 files and vscode stuff
+__pycache__
+.vscode/
+
+# ignore generated pdf files
+*.pdf
