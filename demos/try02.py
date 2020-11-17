@@ -3,17 +3,17 @@ sys.path.append("../")
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cuqi.ProbDist.Distribution import Gaussian
+from cuqi.Distribution import Gaussian
 
 # 2D Gaussian
 d = 2
 mean = np.array([0, 0])
 std = np.array([1, 1])
-R = np.array([[1,-0.7],[-0.7,1]])
+R = np.array([[1, -0.7], [-0.7, 1]])
 pX_1 = Gaussian(mean, std, R)
 
 # draw samples
-N = 10
+N = 100
 s = pX_1.sample(N)
 
 # evaluation of PDF

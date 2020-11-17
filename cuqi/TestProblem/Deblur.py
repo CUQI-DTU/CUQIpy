@@ -4,7 +4,7 @@ from scipy.integrate import quad_vec
 
 
 #=============================================================================
-class deblur(object):
+class Deblur(object):
     
     def __init__(self, a = 48, noise_std = 0.1, dim = 128, bnds = [0, 1]):
         self.dim = dim
@@ -24,7 +24,7 @@ class deblur(object):
 
         # forward model
         # self.forward = lambda x: A @ x
-        
+
         # Generate inverse-crime free data
         self.sigma_obs = noise_std
         self.corrmat = np.eye(dim)
@@ -35,7 +35,7 @@ class deblur(object):
 
     def data_conv(self, kernel):
         np.random.seed(1)
-        
+
         # f is piecewise constant
         x_min, x_max = self.t[0], self.t[-1]
         vals = np.array([0, 2, 3, 2, 0, 1, 0])

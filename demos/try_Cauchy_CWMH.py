@@ -8,20 +8,18 @@ import sys
 sys.path.append("../")
 import time
 import numpy as np
-import scipy as sp
-import scipy.sparse
 import matplotlib
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.TestProblem.deblur import deblur
-from cuqi.Samplers.MCMC_algorithms import CWMH, RWMH
-from cuqi.ProbDist.Distribution import Gaussian, Cauchy_diff
+from cuqi.TestProblem.Deblur import Deblur
+from cuqi.Samplers import CWMH, RWMH
+from cuqi.Distribution import Gaussian, Cauchy_diff
 
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = deblur()
+test = Deblur()
 n = test.dim
 tt = test.t
 
@@ -31,9 +29,9 @@ tt = test.t
 # compute truth and noisy convolved data
 norm_f = np.linalg.norm(test.f_true)
 
-# Gaussian likelihood params 
+# Gaussian likelihood params
 b = test.data
-m = len(b)                             # number of data points 
+m = len(b)                             # number of data points
 likelihood = Gaussian(test.forward, test.sigma_obs, test.corrmat)
 def likelihood_logpdf(x): return likelihood.logpdf(b, x)
 
@@ -51,13 +49,13 @@ def prior_logpdf(x): return prior.logpdf(x)
 # =============================================================================
 def target(x): return likelihood_logpdf(x) + prior_logpdf(x)
 def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
-scale = 0.2*np.ones(n)
-x0 = 0.5*np.ones(n) 
+scale = 0.05*np.ones(n)
+x0 = 0.5*np.ones(n)
 MCMC = CWMH(target, proposal, scale, x0)
 # MCMC = RWMH(target, proposal, scale, x0)
 
 # run sampler
-Ns = int(1e4)      # number of samples
+Ns = int(5e3)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
@@ -68,9 +66,8 @@ print('Elapsed time:', time.time() - ti)
 med_xpos = np.median(x_s, axis=1) # sp.stats.mode
 sigma_xpos = x_s.std(axis=1)
 lo95, up95 = np.percentile(x_s, [2.5, 97.5], axis=1)
-#
 relerr = round(np.linalg.norm(med_xpos - test.f_true)/norm_f*100, 2)
-print('\nRelerror median:', relerr)
+print('\nRelerror median:', relerr, '\n')
 
 # =============================================================================
 # plots

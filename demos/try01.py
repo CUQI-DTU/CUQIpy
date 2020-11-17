@@ -6,7 +6,7 @@ sys.path.append("../")
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cuqi.ProbDist.Distribution import Normal
+from cuqi.Distribution import Normal
 
 mean = -2.0
 std = 4.0

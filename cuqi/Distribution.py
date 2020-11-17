@@ -74,7 +74,7 @@ class Normal(object):
 
 
 # ========================================================================
-class gamma(object):
+class Gamma(object):
 
     def __init__(self, shape, rate):
         self.shape = shape
@@ -104,8 +104,9 @@ class Gaussian(object):
     def __init__(self, mean, std, corrmat):
         self.mean = mean
         self.std = std
-        self.std = corrmat
+        self.R = corrmat
         self.dim = len(np.diag(corrmat))
+        #self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
         if isinstance(std, (list, tuple, np.ndarray)):
@@ -141,11 +142,11 @@ class Gaussian(object):
         # self.U = u @ np.diag(np.sqrt(s_pinv))
 
     def logpdf(self, x1, x2):
-        if isinstance(self.mean, (list, tuple, np.ndarray)):
-            mu = self.mean
-        else:
+        if callable(self.mean):
             mu = self.mean(x2)   # mean is variable
-        xLinv = (x1 - mu) @ self.Linv
+        else:
+            mu = self.mean       # mean is fix
+        xLinv = (x1 - mu) @ self.Linv.T
         quadform = np.sum(np.square(xLinv), 1) if (len(xLinv.shape) > 1) else np.sum(np.square(xLinv))
         # = sps.multivariate_normal.logpdf(x1, mu, self.Sigma)
         return -0.5*(self.logdet + quadform + self.dim*np.log(2*np.pi))

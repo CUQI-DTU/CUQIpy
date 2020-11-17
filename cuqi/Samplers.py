@@ -94,7 +94,7 @@ class CWMH(object):
         # remove burn-in
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
-        acccomp = acc[:, Nb:].mean(axis=1)   
+        acccomp = acc[:, Nb:].mean(axis=1)
         print('\nAverage acceptance rate all components:', acccomp.mean(), '\n')
         #
         return samples, target_eval, acccomp
