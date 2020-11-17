@@ -12,8 +12,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.TestProblem.Deblur import Deblur
-from cuqi.Samplers import CWMH, RWMH
+from cuqi.TestProblem import Deblur
+from cuqi.Sampler import CWMH, RWMH
 from cuqi.Distribution import Gaussian, Cauchy_diff
 
 # =============================================================================
@@ -85,10 +85,10 @@ plt.ylabel('Target function values')
 plt.tight_layout()
 
 plt.figure()
-plt.plot(tt, test.f_true,'-', color='forestgreen', linewidth=3, label='True')
-plt.plot(tt, med_xpos,'--', color='crimson', label='median')
-plt.fill_between(tt, up95, lo95, color='dodgerblue',alpha=0.25)
-plt.legend(loc = 'upper right', shadow = False, ncol = 1, fancybox = True, prop = {'size':15})
+plt.plot(tt, test.f_true, '-', color='forestgreen', linewidth=3, label='True')
+plt.plot(tt, med_xpos, '--', color='crimson', label='median')
+plt.fill_between(tt, up95, lo95, color='dodgerblue', alpha=0.25)
+plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
 plt.xticks(np.linspace(tt[0], tt[-1], 5))
 plt.xlim([tt[0], tt[-1]])
 plt.ylim(-0.5, 3.5)
