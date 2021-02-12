@@ -207,3 +207,12 @@ class Laplace_diff(object):
     # def sample(self):   # TODO
     #     p = np.random.rand(self.dim)
     #     return self.loc - self.scale*np.sign(p-1/2)*np.log(1-2*abs(p-1/2))
+
+
+class GMRF(object):
+    def __init__(self):
+        raise NotImplementedError
+      
+class Uniform(object):
+    def __init__(self):
+        raise NotImplementedError

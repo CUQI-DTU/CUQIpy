@@ -1,7 +1,7 @@
-class Linear(object):
+class Samples(object):
     def __init__(self):
         raise NotImplementedError
         
-class Generic(object):
+class Statistics(object):
     def __init__(self):
         raise NotImplementedError        
