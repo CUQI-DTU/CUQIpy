@@ -1,5 +1,3 @@
-import inspect
-
 class Generic(object):
     
     def __init__(self,forward,dim=[]):
