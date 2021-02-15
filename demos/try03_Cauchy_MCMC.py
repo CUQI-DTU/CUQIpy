@@ -30,7 +30,7 @@ norm_f = np.linalg.norm(test.f_true)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-likelihood = cuqi.Distribution.Gaussian(test.forward, test.sigma_obs, test.corrmat)
+likelihood = cuqi.Distribution.Gaussian(test.Model.forward, test.sigma_obs, test.corrmat)
 def likelihood_logpdf(x): return likelihood.logpdf(b, x)
 
 # =============================================================================

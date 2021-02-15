@@ -2,6 +2,8 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
 
+from cuqi.Model import Linear
+
 
 #=============================================================================
 class Deblur(object):
@@ -23,15 +25,12 @@ class Deblur(object):
         self.A = csc_matrix(A)   # make A sparse
 
         # forward model
-        # self.forward = lambda x: A @ x
+        self.Model = Linear(lambda x: A @ x,lambda y: A.T @ y, dim=np.shape(A))
 
         # Generate inverse-crime free data
         self.sigma_obs = noise_std
         self.corrmat = np.eye(dim)
         self.data, self.f_true, self.g_true = self.data_conv(kernel)
-
-    def forward(self, x):
-        return self.A @ x
 
     def data_conv(self, kernel):
         np.random.seed(1)
