@@ -246,3 +246,12 @@ class RWMH(object):
             acc = 0
         #
         return x_next, target_eval_next, acc
+
+
+class BasicMH(object):
+    def __init__(self):
+        raise NotImplementedError
+        
+class pCN(object):
+    def __init__(self):
+        raise NotImplementedError
