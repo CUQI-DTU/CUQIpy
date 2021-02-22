@@ -18,6 +18,27 @@ class Type1(object):
         self.likelihood = noise
         self.likelihood.mean = lambda *args: self.model.forward(*args)
         
+    def MAP(self):
+        #MAP computed the MAP estimate of the posterior
+        
+        #Linear model with Gaussian likelihood and prior
+        if isinstance(self.model, cuqi.Model.Linear) and isinstance(self.likelihood,cuqi.Distribution.Gaussian) and isinstance(self.prior,cuqi.Distribution.Gaussian):
+            
+            A  = self.model.get_matrix()
+            b  = self.data
+            Ce = self.likelihood.Sigma
+            x0 = self.prior.mean
+            Cx = self.prior.Sigma
+
+            #Basic map estimate using closed-form expression
+            #Tarantola 2005 (3.37-3.38)
+            rhs = b-A@x0
+            sysm = A@Cx@A.T+Ce
+            
+            return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+        
+
+        
     def sample(self,Ns=100):
         
         # Gaussian Likelihood, Cauchy prior

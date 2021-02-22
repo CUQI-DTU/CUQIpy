@@ -1,3 +1,5 @@
+import numpy as np
+
 class Generic(object):
     
     def __init__(self,forward,dim=[]):
@@ -30,5 +32,16 @@ class Linear(Generic):
             
         #Add adjoint
         self.adjoint = adjoint
+        
+    def get_matrix(self):
+        mat = np.zeros((self.dim[0],self.dim[1]))
+        e = np.zeros(self.dim[1])
+        
+        for i in range(self.dim[1]):
+            e[i] = 1
+            mat[:,i] = self.forward(e)
+            e[i] = 0
+            
+        return mat
         
         
