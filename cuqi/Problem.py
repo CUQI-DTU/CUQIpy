@@ -67,6 +67,34 @@ class Type1(object):
             print('Elapsed time:', time.time() - ti)
             
             return x_s
+        
+        # Gaussian Likelihood, Cauchy prior
+        if isinstance(self.likelihood, cuqi.Distribution.Gaussian) and isinstance(self.prior, cuqi.Distribution.Gaussian):
+            
+            # Dimension
+            n = self.prior.dim
+            
+            # Set up target and proposal
+            def target(x): return self.likelihood.logpdf(self.data,x) #ToDo: Likelihood should only depend on x (not data)
+            def proposal(ns): return self.prior.sample(ns)
+            
+            scale = 0.02
+            x0 = np.zeros(n)
+            
+            #ToDO: Switch to pCN
+            MCMC = cuqi.Sampler.RWMH(target,proposal,scale,x0)
+            
+            #Run sampler
+            ti = time.time()
+            x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
+            print('Elapsed time:', time.time() - ti)
+            
+            return x_s
+            
+        #If no implementation exists give error
+        else:
+            raise NotImplementedError('Sampler is not implemented in Type1 problem for model: {}, likelihood: {} and prior: {}. Check documentation for available combinations.'.format(type(self.model),type(self.likelihood),type(self.prior)))
+        
 
             
 class Type2(object):

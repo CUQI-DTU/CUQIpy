@@ -29,7 +29,7 @@ n = tp.model.dim[1];    # Number of unknowns
 
 #%% Two choices of prior
 
-#prior1 = cuqi.Distribution.GMRF(np.zeros(n,1), 25, n, 1, 'zero')
+prior1 = cuqi.Distribution.Gaussian(np.zeros(n), 0.5*np.ones(n),np.eye(n))
 
 loc = np.zeros(n)
 delta = 1
@@ -37,13 +37,13 @@ scale = delta*h
 prior2 = cuqi.Distribution.Cauchy_diff(loc, scale, 'neumann')
 
 #%% Generate and display some prior samples
-#sp1 = prior1.sample(5)
+sp1 = prior1.sample(5)
 #sp2 = prior2.sample(5)
 
-#figure
-#subplot(1,2,1)
-#sp1.plot(5)
-#title('GMRF')
+plt.figure
+plt.subplot(1,2,1)
+plt.plot(sp1)
+title('Gaussian')
 #subplot(1,2,2)
 #sp2.plot(5)
 #title('Cauchy')
@@ -54,7 +54,7 @@ Ns = 1000
 #%% 1.  "High level"  - set up cuqi Problem
 
 #Problem structure b = A(x)+e represented as Problem.type1 so far
-IP = cuqi.Problem.Type1(b,A,e,prior2)
+IP = cuqi.Problem.Type1(b,A,e,prior1)
 #%%
 #cuqi.Problem simply sets up likelihood and posterior for us
 results = IP.sample(Ns) 
@@ -63,10 +63,10 @@ results = IP.sample(Ns)
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
 
 #The blur TestProblem is a subclass of cuqi.Problem, just need to add prior
-tp.prior = prior2
+tp.prior = prior1
 
 #Use UQ convenience method:
-UQresults = tp.sample(Ns)
+#UQresults = tp.sample(Ns)
 
 #%%
 norm_f = np.linalg.norm(tp.f_true)
@@ -82,7 +82,7 @@ plt.plot(tp.t, tp.f_true, 'k-')
 plt.plot(tp.t, tp.g_true, 'b-')
 plt.plot(tp.t, b, 'r.')
 plt.tight_layout()
-
+#%%
 plt.figure()
 plt.plot(tp.t, tp.f_true, '-', color='forestgreen', linewidth=3, label='True')
 plt.plot(tp.t, med_xpos, '--', color='crimson', label='median')
