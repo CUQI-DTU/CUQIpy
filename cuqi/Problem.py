@@ -37,6 +37,10 @@ class Type1(object):
             
             return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
         
+        #If no implementation exists give error
+        else:
+            raise NotImplementedError('MAP estimate is not implemented in Type1 problem for model: {}, likelihood: {} and prior: {}. Check documentation for available combinations.'.format(type(self.model),type(self.likelihood),type(self.prior)))
+        
 
         
     def sample(self,Ns=100):
