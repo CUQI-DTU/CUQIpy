@@ -3,14 +3,14 @@ sys.path.append("../")
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cuqi.Distribution import Gaussian
+import cuqi
 
 # 2D Gaussian
 d = 2
 mean = np.array([0, 0])
 std = np.array([1, 1])
 R = np.array([[1, -0.7], [-0.7, 1]])
-pX_1 = Gaussian(mean, std, R)
+pX_1 = cuqi.Distribution.Gaussian(mean, std, R)
 
 # draw samples
 N = 1000

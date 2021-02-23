@@ -12,14 +12,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.TestProblem import Deblur
-from cuqi.Sampler import CWMH, RWMH
-from cuqi.Distribution import Gaussian, Cauchy_diff
+import cuqi
 
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = Deblur()
+test = cuqi.TestProblem.Deblur()
 n = test.dim
 tt = test.t
 
@@ -32,7 +30,7 @@ norm_f = np.linalg.norm(test.f_true)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-likelihood = Gaussian(test.forward, test.sigma_obs, test.corrmat)
+likelihood = cuqi.Distribution.Gaussian(test.forward, test.sigma_obs, test.corrmat)
 def likelihood_logpdf(x): return likelihood.logpdf(b, x)
 
 # =============================================================================
@@ -41,7 +39,7 @@ def likelihood_logpdf(x): return likelihood.logpdf(b, x)
 loc = np.zeros(n)
 delta = 1
 scale = delta*test.h
-prior = Cauchy_diff(loc, scale, 'neumann')
+prior = cuqi.Distribution.Cauchy_diff(loc, scale, 'neumann')
 def prior_logpdf(x): return prior.logpdf(x)
 
 # =============================================================================
