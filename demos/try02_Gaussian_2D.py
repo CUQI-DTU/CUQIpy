@@ -21,7 +21,7 @@ m, n = 200, 200
 X, Y = np.meshgrid(np.linspace(-4, 4, m), np.linspace(-4, 4, n))
 Xf, Yf = X.flatten(), Y.flatten()
 pos = np.vstack([Xf, Yf]).T   # pos is (m*n, d)
-Z = pX_1.pdf(pos, []).reshape((m, n))
+Z = pX_1.pdf(pos).reshape((m, n))
 
 # plot
 plt.figure()

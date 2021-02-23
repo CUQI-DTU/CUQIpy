@@ -55,7 +55,7 @@ class CWMH(object):
         target_eval = np.empty(Ns)
         acc = np.zeros((self.n, Ns), dtype=int)
 
-        # initial state    
+        # initial state
         samples[:, 0] = self.x0
         target_eval[0] = self.target(self.x0)
         acc[:, 0] = np.ones(self.n)
