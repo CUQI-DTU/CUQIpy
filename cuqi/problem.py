@@ -22,7 +22,7 @@ class Type1(object):
         #MAP computed the MAP estimate of the posterior
         
         #Linear model with Gaussian likelihood and prior
-        if isinstance(self.model, cuqi.Model.Linear) and isinstance(self.likelihood,cuqi.Distribution.Gaussian) and isinstance(self.prior,cuqi.Distribution.Gaussian):
+        if isinstance(self.model, cuqi.model.Linear) and isinstance(self.likelihood,cuqi.distribution.Gaussian) and isinstance(self.prior,cuqi.distribution.Gaussian):
             
             A  = self.model.get_matrix()
             b  = self.data
@@ -46,7 +46,7 @@ class Type1(object):
     def sample(self,Ns=100):
         
         # Gaussian Likelihood, Cauchy prior
-        if isinstance(self.likelihood, cuqi.Distribution.Gaussian) and isinstance(self.prior, cuqi.Distribution.Cauchy_diff):
+        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Cauchy_diff):
             
             # Dimension
             n = self.prior.dim
@@ -58,7 +58,7 @@ class Type1(object):
             # Set up sampler
             scale = 0.05*np.ones(n)
             x0 = 0.5*np.ones(n)
-            MCMC = cuqi.Sampler.CWMH(target, proposal, scale, x0)
+            MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
             
             # Run sampler
             Nb = int(0.2*Ns)   # burn-in
@@ -69,7 +69,7 @@ class Type1(object):
             return x_s
         
         # Gaussian Likelihood, Cauchy prior
-        if isinstance(self.likelihood, cuqi.Distribution.Gaussian) and isinstance(self.prior, cuqi.Distribution.Gaussian):
+        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
             
             # Dimension
             n = self.prior.dim
@@ -82,7 +82,7 @@ class Type1(object):
             x0 = np.zeros(n)
             
             #ToDO: Switch to pCN
-            MCMC = cuqi.Sampler.RWMH(target,proposal,scale,x0)
+            MCMC = cuqi.sampler.RWMH(target,proposal,scale,x0)
             
             #Run sampler
             ti = time.time()

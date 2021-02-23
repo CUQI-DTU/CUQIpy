@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import cuqi
 
 #%% %Cuqi deblur test problem
-tp = cuqi.TestProblem.Deblur() #Default values
+tp = cuqi.testproblem.Deblur() #Default values
 
 #%% Plot true, blurred and noisy data
 plt.figure
@@ -29,12 +29,12 @@ n = tp.model.dim[1];    # Number of unknowns
 
 #%% Two choices of prior
 
-prior1 = cuqi.Distribution.Gaussian(np.zeros(n), 0.5*np.ones(n),np.eye(n))
+prior1 = cuqi.distribution.Gaussian(np.zeros(n), 0.5*np.ones(n),np.eye(n))
 
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-prior2 = cuqi.Distribution.Cauchy_diff(loc, scale, 'neumann')
+prior2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 
 #%% Generate and display some prior samples
 sp1 = prior1.sample(5)
@@ -43,7 +43,7 @@ sp1 = prior1.sample(5)
 plt.figure
 plt.subplot(1,2,1)
 plt.plot(sp1)
-title('Gaussian')
+plt.title('Gaussian')
 #subplot(1,2,2)
 #sp2.plot(5)
 #title('Cauchy')
@@ -54,7 +54,7 @@ Ns = 1000
 #%% 1.  "High level"  - set up cuqi Problem
 
 #Problem structure b = A(x)+e represented as Problem.type1 so far
-IP = cuqi.Problem.Type1(b,A,e,prior1)
+IP = cuqi.problem.Type1(b,A,e,prior2)
 #%%
 #cuqi.Problem simply sets up likelihood and posterior for us
 results = IP.sample(Ns) 
@@ -63,7 +63,7 @@ results = IP.sample(Ns)
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
 
 #The blur TestProblem is a subclass of cuqi.Problem, just need to add prior
-tp.prior = prior1
+tp.prior = prior2
 
 #Use UQ convenience method:
 #UQresults = tp.sample(Ns)
