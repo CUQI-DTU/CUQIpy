@@ -12,6 +12,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # myfuns
+from cuqi.Sampler import CWMH
 import cuqi
 
 # =============================================================================
