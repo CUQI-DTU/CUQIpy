@@ -52,7 +52,6 @@ def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 scale = 0.05*np.ones(n)
 x0 = 0.5*np.ones(n)
 MCMC = CWMH(target, proposal, scale, x0)
-# MCMC = RWMH(target, proposal, scale, x0)
 
 # run sampler
 Ns = int(5e3)      # number of samples

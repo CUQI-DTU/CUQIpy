@@ -141,7 +141,7 @@ class Gaussian(object):
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
 
-    def logpdf(self, x1, x2):
+    def logpdf(self, x1, **x2):
         if callable(self.mean):
             mu = self.mean(x2)   # mean is variable
         else:
@@ -151,7 +151,7 @@ class Gaussian(object):
         # = sps.multivariate_normal.logpdf(x1, mu, self.Sigma)
         return -0.5*(self.logdet + quadform + self.dim*np.log(2*np.pi))
 
-    def pdf(self, x1, x2):
+    def pdf(self, x1, **x2):
         # = sps.multivariate_normal.pdf(x1, self.mean, self.Sigma)
         return np.exp(self.logpdf(x1, x2))
 
@@ -159,7 +159,7 @@ class Gaussian(object):
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
     def sample(self, N):   # TODO
-        return np.random.multivariate_normal(self.mean, self.Sigma, N)
+        return np.random.multivariate_normal(self.mean, self.Sigma, N).flatten()
 
 
 # ========================================================================
