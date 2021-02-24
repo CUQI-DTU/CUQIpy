@@ -29,7 +29,7 @@ n = tp.model.dim[1];    # Number of unknowns
 
 #%% Two choices of prior
 
-prior1 = cuqi.distribution.Gaussian(np.zeros(n), 0.5*np.ones(n),np.eye(n))
+prior1 = cuqi.distribution.Gaussian(np.zeros(n), 1*np.ones(n),np.eye(n))
 
 loc = np.zeros(n)
 delta = 1
@@ -49,12 +49,12 @@ plt.title('Gaussian')
 #title('Cauchy')
 
 #%% Number of samples
-Ns = 1000
+Ns = 2000
 
 #%% 1.  "High level"  - set up cuqi Problem
 
 #Problem structure b = A(x)+e represented as Problem.type1 so far
-IP = cuqi.problem.Type1(b,A,e,prior2)
+IP = cuqi.problem.Type1(b,A,e,prior1)
 #%%
 #cuqi.Problem simply sets up likelihood and posterior for us
 results = IP.sample(Ns) 

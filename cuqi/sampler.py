@@ -345,7 +345,7 @@ class pCN(object):
 
     def single_update(self, x_t, loglike_eval_t):
         # propose state
-        xi = self.prior.sample(1)   # sample from the prior
+        xi = self.prior.sample(1).flatten()   # sample from the prior
         x_star = np.sqrt(1-self.scale**2)*x_t + self.scale*xi   # pCN proposal
 
         # evaluate target

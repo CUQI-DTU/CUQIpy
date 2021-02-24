@@ -44,7 +44,7 @@ class Type1(object):
 
         
     def sample(self,Ns=100):
-        
+
         # Gaussian Likelihood, Cauchy prior
         if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Cauchy_diff):
             
@@ -68,7 +68,7 @@ class Type1(object):
             
             return x_s
         
-        # Gaussian Likelihood, Cauchy prior
+        # Gaussian Likelihood, Gaussian prior
         if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
             
             # Dimension
@@ -76,13 +76,13 @@ class Type1(object):
             
             # Set up target and proposal
             def target(x): return self.likelihood.logpdf(self.data,x) #ToDo: Likelihood should only depend on x (not data)
-            def proposal(ns): return self.prior.sample(ns)
+            #def proposal(ns): return self.prior.sample(ns)
             
             scale = 0.02
             x0 = np.zeros(n)
             
             #ToDO: Switch to pCN
-            MCMC = cuqi.sampler.RWMH(target,proposal,scale,x0)
+            MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
             
             #Run sampler
             ti = time.time()
