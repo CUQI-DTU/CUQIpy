@@ -18,9 +18,10 @@ import cuqi
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = cuqi.TestProblem.Deblur()
-n = test.dim
+test = cuqi.testproblem.Deblur()
+n = test.model.dim[1]
 tt = test.t
+h = test.meshsize
 
 # =============================================================================
 # data and noise
@@ -31,16 +32,15 @@ norm_f = np.linalg.norm(test.f_true)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-likelihood = cuqi.Distribution.Gaussian(test.forward, test.sigma_obs, test.corrmat)
-def likelihood_logpdf(x): return likelihood.logpdf(b, x)
+def likelihood_logpdf(x): return test.likelihood.logpdf(b, x)
 
 # =============================================================================
 # prior
 # =============================================================================
 loc = np.zeros(n)
 delta = 1
-scale = delta*test.h
-prior = cuqi.Distribution.Cauchy_diff(loc, scale, 'neumann')
+scale = delta*h
+prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 def prior_logpdf(x): return prior.logpdf(x)
 
 # =============================================================================

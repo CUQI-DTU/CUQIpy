@@ -159,7 +159,7 @@ class Gaussian(object):
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
     def sample(self, N):   # TODO
-        return np.random.multivariate_normal(self.mean, self.Sigma, N)
+        return np.reshape(np.random.multivariate_normal(self.mean, self.Sigma, N),[self.dim,N])
 
 
 # ========================================================================
