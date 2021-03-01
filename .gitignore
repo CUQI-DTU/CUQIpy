@@ -10,3 +10,6 @@ __pycache__
 
 # ignore notebook checkpoints
 .ipynb_checkpoints/
+
+#Windows related
+desktop.ini
