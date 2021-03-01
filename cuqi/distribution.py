@@ -54,7 +54,28 @@ class Cauchy_diff(object):
 
 # ========================================================================
 class Normal(object):
+    """
+    Normal probability distribution. Generates instance of cuqi.distribution.Normal
 
+    
+    Parameters
+    ------------
+    mean: mean of distribution
+    std: standard deviation
+    dim: dimension of distribution (only needed if dim>1)
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulatiuve probability function
+    
+    Example
+    -----------
+    #Generate Normal with mean 2 and standard deviation 1
+    p = cuqi.distribution.Normal(mean=2, std=1)
+    """
     def __init__(self, mean, std, dim=1):
         self.mean = mean
         self.std = std
@@ -70,6 +91,20 @@ class Normal(object):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
     def sample(self):
+        """
+        Draw sample(s) from distrubtion
+        
+        Example
+        -------
+        p = cuqi.distribution.Normal(mean=2, std=1) #Define distribution
+        s = p.sample() #Sample from distribution
+        
+
+        Returns
+        -------
+        Generated sample(s)
+
+        """
         return np.random.normal(self.mean, self.std, self.dim)
 
 
