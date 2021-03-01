@@ -62,7 +62,6 @@ class Normal(object):
     ------------
     mean: mean of distribution
     std: standard deviation
-    dim: dimension of distribution (only needed if dim>1)
     
     Methods
     -----------
@@ -76,10 +75,11 @@ class Normal(object):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean, std, dim=1):
+    def __init__(self, mean, std):
         self.mean = mean
         self.std = std
-        self.dim = dim
+        
+        self.dim = np.size(mean)
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
@@ -90,7 +90,7 @@ class Normal(object):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self):
+    def sample(self,N=1):
         """
         Draw sample(s) from distrubtion
         
@@ -105,7 +105,8 @@ class Normal(object):
         Generated sample(s)
 
         """
-        return np.random.normal(self.mean, self.std, self.dim)
+        
+        return np.random.normal(self.mean, self.std, (N,self.dim))
 
 
 # ========================================================================

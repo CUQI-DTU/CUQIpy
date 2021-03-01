@@ -69,6 +69,7 @@ class Type1(object):
             return x_s
         
         # Gaussian Likelihood, Gaussian prior
+
         if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
             
             # Dimension

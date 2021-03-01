@@ -54,8 +54,8 @@ Ns = 2000
 #%% 1.  "High level"  - set up cuqi Problem
 
 #Problem structure b = A(x)+e represented as Problem.type1 so far
-IP = cuqi.problem.Type1(b,A,e,prior1)
-#%%
+IP = cuqi.problem.Type1(b,A,e,prior2)
+
 #cuqi.Problem simply sets up likelihood and posterior for us
 results = IP.sample(Ns) 
 
@@ -63,7 +63,7 @@ results = IP.sample(Ns)
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
 
 #The blur TestProblem is a subclass of cuqi.Problem, just need to add prior
-tp.prior = prior2
+#tp.prior = prior2
 
 #Use UQ convenience method:
 #UQresults = tp.sample(Ns)
