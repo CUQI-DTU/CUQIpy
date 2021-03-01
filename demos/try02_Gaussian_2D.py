@@ -10,7 +10,7 @@ d = 2
 mean = np.array([0, 0])
 std = np.array([1, 1])
 R = np.array([[1, -0.7], [-0.7, 1]])
-pX_1 = cuqi.Distribution.Gaussian(mean, std, R)
+pX_1 = cuqi.distribution.Gaussian(mean, std, R)
 
 # draw samples
 N = 1000
@@ -21,7 +21,7 @@ m, n = 200, 200
 X, Y = np.meshgrid(np.linspace(-4, 4, m), np.linspace(-4, 4, n))
 Xf, Yf = X.flatten(), Y.flatten()
 pos = np.vstack([Xf, Yf]).T   # pos is (m*n, d)
-Z = pX_1.pdf(pos, []).reshape((m, n))
+Z = pX_1.pdf(pos).reshape((m, n))
 
 # plot
 plt.figure()

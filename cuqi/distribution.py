@@ -54,11 +54,32 @@ class Cauchy_diff(object):
 
 # ========================================================================
 class Normal(object):
+    """
+    Normal probability distribution. Generates instance of cuqi.distribution.Normal
 
-    def __init__(self, mean, std, dim):
+    
+    Parameters
+    ------------
+    mean: mean of distribution
+    std: standard deviation
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulatiuve probability function
+    
+    Example
+    -----------
+    #Generate Normal with mean 2 and standard deviation 1
+    p = cuqi.distribution.Normal(mean=2, std=1)
+    """
+    def __init__(self, mean, std):
         self.mean = mean
         self.std = std
-        self.dim = dim
+        
+        self.dim = np.size(mean)
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
@@ -69,8 +90,23 @@ class Normal(object):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self):
-        return np.random.normal(self.mean, self.std, self.dim)
+    def sample(self,N=1):
+        """
+        Draw sample(s) from distrubtion
+        
+        Example
+        -------
+        p = cuqi.distribution.Normal(mean=2, std=1) #Define distribution
+        s = p.sample() #Sample from distribution
+        
+
+        Returns
+        -------
+        Generated sample(s)
+
+        """
+        
+        return np.random.normal(self.mean, self.std, (N,self.dim))
 
 
 # ========================================================================
@@ -141,9 +177,9 @@ class Gaussian(object):
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
 
-    def logpdf(self, x1, x2):
+    def logpdf(self, x1, *x2):
         if callable(self.mean):
-            mu = self.mean(x2)   # mean is variable
+            mu = self.mean(x2[0])   # mean is variable
         else:
             mu = self.mean       # mean is fix
         xLinv = (x1 - mu) @ self.Linv.T
@@ -151,15 +187,15 @@ class Gaussian(object):
         # = sps.multivariate_normal.logpdf(x1, mu, self.Sigma)
         return -0.5*(self.logdet + quadform + self.dim*np.log(2*np.pi))
 
-    def pdf(self, x1, x2):
+    def pdf(self, x1, *x2):
         # = sps.multivariate_normal.pdf(x1, self.mean, self.Sigma)
-        return np.exp(self.logpdf(x1, x2))
+        return np.exp(self.logpdf(x1, *x2))
 
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
     def sample(self, N):   # TODO
-        return np.random.multivariate_normal(self.mean, self.Sigma, N)
+        return np.reshape(np.random.multivariate_normal(self.mean, self.Sigma, N),[self.dim,N])
 
 
 # ========================================================================

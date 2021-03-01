@@ -12,7 +12,7 @@ mean = -2.0
 std = 4.0
 dims = (5, 1)
 
-pX = cuqi.Distribution.Normal(mean, std, dims)
+pX = cuqi.distribution.Normal(mean, std, dims)
 
 s = pX.sample()
 print(s)
