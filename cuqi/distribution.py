@@ -55,7 +55,7 @@ class Cauchy_diff(object):
 # ========================================================================
 class Normal(object):
 
-    def __init__(self, mean, std, dim):
+    def __init__(self, mean, std, dim=1):
         self.mean = mean
         self.std = std
         self.dim = dim
