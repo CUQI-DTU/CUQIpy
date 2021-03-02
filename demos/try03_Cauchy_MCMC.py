@@ -8,11 +8,9 @@ import sys
 sys.path.append("../")
 import time
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import CWMH
 import cuqi
 
 # =============================================================================
@@ -50,7 +48,7 @@ def target(x): return likelihood_logpdf(x) + prior_logpdf(x)
 def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 scale = 0.05*np.ones(n)
 x0 = 0.5*np.ones(n)
-MCMC = CWMH(target, proposal, scale, x0)
+MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
 
 # run sampler
 Ns = int(5e3)      # number of samples
@@ -92,4 +90,4 @@ plt.xlim([tt[0], tt[-1]])
 plt.ylim(-0.5, 3.5)
 plt.tight_layout()
 # plt.savefig('fig.png', format='png', dpi=150, bbox_inches='tight')
-plt.show()
+#plt.show()
