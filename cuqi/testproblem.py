@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
 
-from cuqi.model import Linear
+from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import Type1
 
@@ -24,7 +24,7 @@ class Deblur(Type1):
         A = csc_matrix(A)   # make A sparse
 
         # Store forward model
-        model = Linear(lambda x: A @ x,lambda y: A.T @ y, dim=np.shape(A))
+        model = LinearModel(lambda x: A @ x,lambda y: A.T @ y, dim=np.shape(A))
         
         # Store Noise model
         noise = Gaussian(np.zeros(dim),noise_std,np.eye(dim))

@@ -1,6 +1,7 @@
 import numpy as np
 
-class Generic(object):
+class Model(object):
+    # Generic Model class.
     
     def __init__(self,forward,dim=[]):
         
@@ -17,14 +18,14 @@ class Generic(object):
     def forward(self, x):
         return self.forward_func(x)
     
-class Linear(Generic):
-    # Linear forward model with forward and adjoint.
-    # Only accepts functions for now
+class LinearModel(Model):
+    # Linear forward model with forward and adjoint (transpose).
+    # Only accepts callable functions for now.
     
     def __init__(self,forward,adjoint,dim=[]):
         
-        #Store exactly as with generic
-        Generic.__init__(self,forward,dim)
+        #Initialize Model class
+        Model.__init__(self,forward,dim)
         
         #Check if input is callable
         if callable(adjoint) is not True:
