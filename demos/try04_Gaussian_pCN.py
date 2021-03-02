@@ -12,8 +12,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.Sampler import pCN, RWMH
-from cuqi.Distribution import Gaussian
+from cuqi.sampler import pCN, RWMH
+from cuqi.distribution import Gaussian
 
 # ==========================================================================
 # sample a Gaussian
