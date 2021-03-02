@@ -22,10 +22,12 @@ yy = pX.pdf(xx)
 
 plt.figure()
 plt.plot(xx, pX.pdf(xx))
+plt.title('pdf')
 
 plt.figure()
 plt.plot(xx, pX.cdf(xx))
+plt.title('cdf')
 
 plt.figure()
 plt.plot(xx, pX.logpdf(xx))
-plt.show()
+plt.title('logpdf')
