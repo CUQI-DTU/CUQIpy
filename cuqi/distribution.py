@@ -1,9 +1,14 @@
+import sys
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
-from scipy.sparse import spdiags, eye
-from scipy.linalg import eigh
+from scipy.sparse import diags, spdiags, eye, kron, vstack
+from scipy.sparse import linalg as splinalg
+from scipy.linalg import eigh, dft, eigvalsh, pinvh
 
+# import sksparse
+# from sksparse.cholmod import cholesky
+eps = np.finfo(float).eps
 
 # ========================================================================
 class Cauchy_diff(object):
@@ -77,8 +82,7 @@ class Normal(object):
     """
     def __init__(self, mean, std):
         self.mean = mean
-        self.std = std
-        
+        self.std = std        
         self.dim = np.size(mean)
 
     def pdf(self, x):
@@ -142,7 +146,7 @@ class Gaussian(object):
         self.std = std
         self.R = corrmat
         self.dim = len(np.diag(corrmat))
-        #self = sps.multivariate_normal(mean, (std**2)*corrmat)
+        # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
         if isinstance(std, (list, tuple, np.ndarray)):
@@ -198,6 +202,118 @@ class Gaussian(object):
         return np.reshape(np.random.multivariate_normal(self.mean, self.Sigma, N),[self.dim,N])
 
 
+
+# ========================================================================
+class GMRF(Gaussian):
+        
+    def __init__(self, mean, prec, N, dom, BCs):
+        self.mean = mean.reshape(len(mean), 1)
+        self.prec = prec
+        self.N = N          # partition size
+        self.BCs = BCs      # boundary conditions
+        
+        # BCs: 1D difference matrix 
+        one_vec = np.ones(N)
+        dgn = np.vstack([-one_vec, one_vec])
+        if (BCs == 'zero'):
+            locs = [-1, 0]
+            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
+        elif (BCs == 'periodic'):
+            locs = [-1, 0]
+            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
+            Dmat[-1, 0] = 1
+            Dmat[0, -1] = -1
+        elif (BCs == 'neumann'):
+            locs = [0, 1]
+            Dmat = spdiags(dgn, locs, N, N).tocsc()
+            Dmat[-1, -1] = 0
+        elif (BCs == 'none'):
+            Dmat = eye(N, dtype=int)
+        else:
+            sys.exit('Unexpected BC type (choose from zero, periodic, neumann)')
+        
+        # structure matrix
+        if (dom == 1):
+            self.dim = N
+            self.D = Dmat
+            self.L = (Dmat.T @ Dmat).tocsc()
+        elif (dom == 2):            
+            self.dim = N**2
+            I = eye(N, dtype=int)
+            Ds = kron(I, Dmat)
+            Dt = kron(Dmat, I)
+            self.D = vstack([Ds, Dt])
+            self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
+            
+        # work-around to compute sparse Cholesky
+        def sparse_cholesky(A):
+            # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
+            LU = splinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
+  
+            # check the matrix A is positive definite
+            if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
+                return LU.L @ (diags(LU.U.diagonal()**0.5))
+            else:
+                sys.exit('The matrix is not positive semi-definite')
+        
+        # compute Cholesky and det
+        if (BCs == 'zero'):    # only for PSD matrices
+            self.rank = self.dim
+            self.chol = sparse_cholesky(self.L)
+            self.logdet = 2*sum(np.log(self.chol.diagonal()))
+            # L_cholmod = cholesky(self.L, ordering_method='natural')
+            # self.chol = L_cholmod
+            # self.logdet = L_cholmod.logdet()
+            # 
+            # np.log(np.linalg.det(self.L.todense()))
+        elif (BCs == 'periodic') or (BCs == 'neumann'):
+            self.rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
+            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(self.dim, dtype=int))
+            if (self.dim > 5000):  # approximate to avoid 'excesive' time
+                self.logdet = 2*sum(np.log(self.chol.diagonal()))
+            else:
+                # eigval = eigvalsh(self.L.todense())
+                self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
+                self.logdet = sum(np.log(self.L_eigval))
+
+    def logpdf(self, x):
+        const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
+        y = const - 0.5*( self.prec*((x-self.mean).T @ (self.L @ (x-self.mean))) )
+        y = np.diag(y)
+        # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
+        return y
+
+    def pdf(self, x):
+        # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
+        return np.exp(self.logpdf(x))
+
+    def sample(self, Ns):
+        if (self.BCs == 'zero'):
+            xi = np.random.randn(self.dim, Ns)   # standard Gaussian
+            s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
+            # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
+                        
+        elif (self.BCs == 'periodic'):
+            xi = np.random.randn(self.dim, Ns) + 1j*np.random.randn(self.dim, Ns) 
+            F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
+            # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
+            eigv = np.hstack([self.L_eigval, self.L_eigval[-1]])  # repeat last eigval to complete dim
+            L_sqrt = diags(np.sqrt(eigv)) 
+            s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
+            # L_sqrt = pinvh(np.diag(np.sqrt(eigv)))
+            # s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ (L_sqrt @ xi))
+            
+        elif (self.BCs == 'neumann'):
+            xi = np.random.randn(self.D.shape[0], Ns)   # standard Gaussian
+            s = self.mean + (1/np.sqrt(self.prec))* \
+                splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self.D.T @ xi)))) 
+        else:
+            sys.exit('Unexpected BC type (choose from zero, periodic, neumann)')
+
+        return s
+        
+
+
 # ========================================================================
 class Laplace_diff(object):
 
@@ -245,10 +361,6 @@ class Laplace_diff(object):
     #     return self.loc - self.scale*np.sign(p-1/2)*np.log(1-2*abs(p-1/2))
 
 
-class GMRF(object):
-    def __init__(self):
-        raise NotImplementedError
-      
 class Uniform(object):
     def __init__(self):
         raise NotImplementedError
