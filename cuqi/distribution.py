@@ -230,7 +230,7 @@ class GMRF(Gaussian):
         elif (BCs == 'none'):
             Dmat = eye(N, dtype=int)
         else:
-            sys.exit('Unexpected BC type (choose from zero, periodic, neumann)')
+            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
         
         # structure matrix
         if (dom == 1):
@@ -254,7 +254,7 @@ class GMRF(Gaussian):
             if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
                 return LU.L @ (diags(LU.U.diagonal()**0.5))
             else:
-                sys.exit('The matrix is not positive semi-definite')
+                raise TypeError('The matrix is not positive semi-definite')
         
         # compute Cholesky and det
         if (BCs == 'zero'):    # only for PSD matrices
@@ -308,7 +308,7 @@ class GMRF(Gaussian):
             s = self.mean + (1/np.sqrt(self.prec))* \
                 splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self.D.T @ xi)))) 
         else:
-            sys.exit('Unexpected BC type (choose from zero, periodic, neumann)')
+            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
 
         return s
         
