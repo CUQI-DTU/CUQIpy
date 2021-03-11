@@ -22,7 +22,7 @@ class Type1(object):
         #MAP computed the MAP estimate of the posterior
         
         #Linear model with Gaussian likelihood and prior
-        if isinstance(self.model, cuqi.model.Linear) and isinstance(self.likelihood,cuqi.distribution.Gaussian) and isinstance(self.prior,cuqi.distribution.Gaussian):
+        if isinstance(self.model, cuqi.model.LinearModel) and isinstance(self.likelihood,cuqi.distribution.Gaussian) and isinstance(self.prior,cuqi.distribution.Gaussian):
             
             A  = self.model.get_matrix()
             b  = self.data
