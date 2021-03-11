@@ -16,7 +16,7 @@ pX = cuqi.distribution.Normal(mean, std)
 s = pX.sample()
 print(s)
 
-#%% Plot pdf, cdf and logpdf
+#Plot pdf, cdf and logpdf
 xx = np.linspace(mean-3*std, mean+3*std, num=1001)
 yy = pX.pdf(xx)
 
