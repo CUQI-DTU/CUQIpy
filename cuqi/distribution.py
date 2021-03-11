@@ -198,7 +198,6 @@ class Gaussian(object):
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
     def sample(self, N):   # TODO
-
         return np.random.multivariate_normal(self.mean, self.Sigma, N).T
 
 
@@ -290,7 +289,10 @@ class GMRF(Gaussian):
     def sample(self, Ns):
         if (self.BCs == 'zero'):
             xi = np.random.randn(self.dim, Ns)   # standard Gaussian
-            s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
+            if Ns == 1:
+                s = self.mean.flatten() + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
+            else:
+                s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
             # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
         elif (self.BCs == 'periodic'):
