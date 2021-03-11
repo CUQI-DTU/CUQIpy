@@ -10,9 +10,8 @@ import cuqi
 
 mean = -2.0
 std = 4.0
-dims = (5, 1)
 
-pX = cuqi.distribution.Normal(mean, std, dims)
+pX = cuqi.distribution.Normal(mean, std)
 
 s = pX.sample()
 print(s)
@@ -23,10 +22,12 @@ yy = pX.pdf(xx)
 
 plt.figure()
 plt.plot(xx, pX.pdf(xx))
+plt.title('pdf')
 
 plt.figure()
 plt.plot(xx, pX.cdf(xx))
+plt.title('cdf')
 
 plt.figure()
 plt.plot(xx, pX.logpdf(xx))
-plt.show()
+plt.title('logpdf')

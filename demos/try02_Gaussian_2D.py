@@ -13,7 +13,7 @@ R = np.array([[1, -0.7], [-0.7, 1]])
 pX_1 = cuqi.distribution.Gaussian(mean, std, R)
 
 # draw samples
-N = 1000
+N = 10000
 s = pX_1.sample(N)
 
 # evaluation of PDF
@@ -27,6 +27,5 @@ Z = pX_1.pdf(pos).reshape((m, n))
 plt.figure()
 plt.contourf(X, Y, Z, 20)
 plt.contour(X, Y, Z, 20, colors='k')
-plt.plot(s[:,0], s[:,1], 'b.', alpha=0.3)
+plt.plot(s[0,:], s[1,:], 'b.', alpha=0.3)
 plt.gca().set_aspect('equal', adjustable='box')
-plt.pause(5)
