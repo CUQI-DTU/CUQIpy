@@ -10,24 +10,24 @@ import cuqi
 # Create X ~ Normal( -1.0,4.0) distirbution
 pX = cuqi.distribution.Normal(-1.0, 4.0)
 
-# Help is available for getting to know how to use distribution object
-# help(pX)
+#%% Help is available for getting to know how to use distribution object
+help(pX)
 
-# And help for specific methods, like sample
-# help(pX.sample)
+#%% And help for specific methods, like sample
+help(pX.sample)
 
-# Generate a few samples
-# print(pX.sample())
-# print(pX.sample())
+#%% Generate a few samples
+print(pX.sample())
+print(pX.sample())
 
-#  Many realizations: Samples and Statistics
+#%%  Many realizations: Samples and Statistics
 sX = pX.sample(100000)
 #sX.stats #TODO
 
-# Multivariate distributions
+#%% Multivariate distributions
 pY = cuqi.distribution.Normal(np.linspace(-5,5,100), np.linspace( 1,4,100))
 
-# Generate samples
+#%% Generate samples
 sY = pY.sample(10000)
 
 #----- REST IS TODO -----
@@ -39,8 +39,7 @@ sY = pY.sample(10000)
 #figure
 #sY.plot_selection([1 100])
 
-# =====================================================
-# Define geometry and parameter for GMRF distribution
+#%% Define geometry and parameter for GMRF distribution
 N = 150       # number of pixels
 dom = 1      # 1D or 2D domain
 if (dom == 1):

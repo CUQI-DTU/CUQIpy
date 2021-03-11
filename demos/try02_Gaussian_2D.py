@@ -13,7 +13,7 @@ R = np.array([[1, -0.7], [-0.7, 1]])
 pX_1 = cuqi.distribution.Gaussian(mean, std, R)
 
 # draw samples
-N = 10000
+N = 1000
 s = pX_1.sample(N)
 
 # evaluation of PDF
