@@ -227,7 +227,7 @@ class RWMH(object):
     def single_update(self, x_t, loglike_eval_t):
         # propose state
         xi = self.prior.sample(1)   # sample from the Gaussian prior
-        x_star = x_t + self.scale*xi   # pCN proposal
+        x_star = x_t + self.scale*xi.flatten()   # pCN proposal
 
         # evaluate target
         loglike_eval_star = self.loglike(x_star)
