@@ -16,7 +16,7 @@ def test_Normal_sample_regression():
     target = np.array([[8.17418321], [3.40055023]])
     assert np.allclose( samples, target)
 
-def test_Gaussian():
+def test_Gaussian_mean():
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
