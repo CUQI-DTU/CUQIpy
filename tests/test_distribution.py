@@ -22,3 +22,16 @@ def test_Gaussian():
     R = np.array([[1, -0.7], [-0.7, 1]])
     pX_1 = cuqi.distribution.Gaussian(mean, std, R)
     assert np.allclose(pX_1.mean, np.array([0, 0]) ) 
+
+
+def test_Gaussian_cov():
+    mean = np.array([0, 0])
+    std = np.array([1.3, 2])
+    R = np.array([[1, -0.7], [-0.7, 1]])
+    D = np.diag(std)
+    S = D @ R @ D
+    pX_1 = cuqi.distribution.Gaussian(mean, std, R)
+    assert np.allclose(pX_1.Sigma, S) 
+
+
+    
