@@ -36,12 +36,20 @@ def test_CWMH_modify_proposal():
     assert np.allclose(results1[0],results2[0])
 
 def test_CWMH_sample_regression():
+    # Set seed
     np.random.seed(0)
+    
+    # Define target
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
     def target(x): return cuqi.distribution.Gaussian(mean,std,R).pdf(x)
+
+    # Define proposal
     def proposal(x, sigma): return np.random.normal(x, sigma)
+
+    # Set up sampler
     MCMC = cuqi.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
+
+    # Compare with previously computed results
     np.allclose(MCMC.sample(5,1)[0],np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
-    
