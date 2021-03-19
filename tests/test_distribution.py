@@ -33,5 +33,14 @@ def test_Gaussian_cov():
     pX_1 = cuqi.distribution.Gaussian(mean, std, R)
     assert np.allclose(pX_1.Sigma, S) 
 
-
+def test_Gaussian_sample_regression():
+    rng = np.random.RandomState(0)
+    mean = np.array([0, 0])
+    std = np.array([1, 1])
+    R = np.array([[1, -0.7], [-0.7, 1]])
+    pX_1 = cuqi.distribution.Gaussian(mean, std, R)
+    samples = pX_1.sample(5,rng=rng)
+    target = np.array([[-1.47139568, -0.03445763, -2.10030149, -0.93455864,  0.2541872 ],
+       [ 1.78135612,  1.77024604,  1.3433053 ,  0.81731785,  0.06386104]])
+    assert np.allclose( samples, target)
     
