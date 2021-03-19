@@ -1,22 +1,30 @@
-build-job:
-  stage: build
-  script:
-    - echo "Hello, $GITLAB_USER_LOGIN!"
+# This file is a template, and might need editing before it works on your project.
+# Official language image. Look for the different tagged releases at:
+# https://hub.docker.com/r/library/python/tags/
+image: python:3.8
 
-test-job1:
-  stage: test
-  script:
-    - echo "This job tests something"
+# Change pip's cache directory to be inside the project directory since we can
+# only cache local items.
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
 
-test-job2:
-  stage: test
-  script:
-    - echo "This job tests something, but takes more time than test-job1."
-    - echo "After the echo commands complete, it runs the sleep command for 20 seconds"
-    - echo "which simulates a test that runs 20 seconds longer than test-job1"
-    - sleep 20
+# Pip's cache doesn't store the python packages
+# https://pip.pypa.io/en/stable/reference/pip_install/#caching
+#
+# If you want to also cache the installed packages, you have to install
+# them in a virtualenv and cache it as well.
+cache:
+  paths:
+    - .cache/pip
+    - venv/
 
-deploy-prod:
-  stage: deploy
+before_script:
+  - python -V  # Print out python version for debugging
+  - python -m pip install --upgrade virtualenv pip
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install -r requirements.txt
+
+test:
   script:
-    - echo "This job deploys something from the $CI_COMMIT_BRANCH branch."
+    - pytest -v tests/test_hello.py
