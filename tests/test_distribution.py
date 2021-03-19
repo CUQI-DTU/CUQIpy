@@ -34,7 +34,7 @@ def test_Gaussian_cov():
     assert np.allclose(pX_1.Sigma, S) 
 
 def test_Gaussian_sample_regression():
-    np.random.seed(0)
+    rng = np.random.RandomState(0)
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
