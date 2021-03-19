@@ -27,4 +27,4 @@ before_script:
 
 test:
   script:
-    - pytest -v tests
+    - python -m pytest -v tests
