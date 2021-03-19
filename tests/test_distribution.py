@@ -11,8 +11,8 @@ def test_Normal_pdf_mean():
     assert pX.pdf(0.1) == approx(1.0/np.sqrt(2.0*np.pi))
 
 def test_Normal_sample_regression():
-    np.random.seed(0)
-    samples = cuqi.distribution.Normal(2,3.5).sample(2)
+    rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
+    samples = cuqi.distribution.Normal(2,3.5).sample(2,rng=rng)
     target = np.array([[8.17418321], [3.40055023]])
     assert np.allclose( samples, target)
 
