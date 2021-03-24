@@ -25,7 +25,7 @@ class LinearModel(Model):
     def __init__(self,forward,adjoint,dim=[]):
         
         #Initialize Model class
-        Model.__init__(self,forward,dim)
+        super().__init__(forward,dim)
         
         #Check if input is callable
         if callable(adjoint) is not True:

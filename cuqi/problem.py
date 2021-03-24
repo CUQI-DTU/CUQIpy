@@ -39,8 +39,8 @@ class Type1(object):
         
         #If no implementation exists give error
         else:
-            raise NotImplementedError('MAP estimate is not implemented in Type1 problem for model: {}, likelihood: {} and prior: {}. Check documentation for available combinations.'.format(type(self.model),type(self.likelihood),type(self.prior)))
-        
+            raise NotImplementedError(f'MAP estimate is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+
 
         
     def sample(self,Ns=100):
@@ -70,7 +70,7 @@ class Type1(object):
         
         # Gaussian Likelihood, Gaussian prior
 
-        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
+        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
             
             # Dimension
             n = self.prior.dim
@@ -94,7 +94,7 @@ class Type1(object):
             
         #If no implementation exists give error
         else:
-            raise NotImplementedError('Sampler is not implemented in Type1 problem for model: {}, likelihood: {} and prior: {}. Check documentation for available combinations.'.format(type(self.model),type(self.likelihood),type(self.prior)))
+            raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
         
 
             
