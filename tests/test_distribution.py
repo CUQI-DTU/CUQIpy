@@ -69,10 +69,11 @@ def test_Gaussian_sample_regression(mean,std,R,expected):
     samples = pX_1.sample(5,rng=rng)
     assert np.allclose( samples, np.array(expected))
 
+@pytest.mark.parametrize("seed",[3,4,5],ids=["seed3","seed4","seed5"])
 @pytest.mark.parametrize("mean,var",[(2,3),(np.pi,0),(np.sqrt(5),1)]) 
-def test_Normal_rng(mean,var):
-    np.random.seed(3)
-    rng = np.random.RandomState(3)
+def test_Normal_rng(mean,var,seed):
+    np.random.seed(seed)
+    rng = np.random.RandomState(seed)
     assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10),cuqi.distribution.Normal(mean,var).sample(10,rng=rng))
 
 @pytest.mark.parametrize("mean,std,R",[
