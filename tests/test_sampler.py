@@ -57,6 +57,47 @@ def test_CWMH_sample_regression():
     # Compare with previously computed results
     np.allclose(MCMC.sample(5,1)[0],np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
 
+
+def test_RWMH_sample_regression():
+    # Set seed
+    np.random.seed(0) #nice seed!
+
+    d = 6
+    mu = np.zeros(d)
+    sigma = np.linspace(0.5, 1, d)
+    R = np.eye(d)
+
+    # target function to sample
+    dist = cuqi.distribution.Gaussian(mu, sigma, R)
+    def target(x): return dist.logpdf(x)
+
+    ref = cuqi.distribution.Gaussian(mu, np.ones(d), R)   # standard Gaussian
+
+    scale = 0.1
+    x0 = 0.5*np.ones(d)
+    MCMC2 = cuqi.sampler.RWMH(ref, target, scale, x0)
+
+    # run sampler
+    Ns = int(1e1)      # number of samples
+    Nb = int(0.2*Ns)   # burn-in
+
+    #
+    x_s2, target_eval2, acc2 = MCMC2.sample_adapt(Ns, Nb)
+    reference = np.array([[ 0.5       ,  0.77238519,  0.73381779,  0.7700134 ,  0.41274389,
+         0.18348216,  0.37057737,  0.34837564,  0.34837564,  0.34837564],
+       [ 0.5       ,  0.46259765,  0.70379628,  0.79213478,  1.00263215,
+         0.80556899,  0.33926608,  0.67670237,  0.67670237,  0.67670237],
+       [ 0.5       ,  0.5570753 ,  0.50402891,  0.29664278,  0.16967913,
+        -0.39387781, -0.57857024, -0.52616853, -0.52616853, -0.52616853],
+       [ 0.5       ,  0.34429001,  0.35183386, -0.1108788 , -0.366134  ,
+        -0.01638806, -0.23662861,  0.00165624,  0.00165624,  0.00165624],
+       [ 0.5       ,  0.03456505,  0.2675372 ,  0.18626517,  0.51389191,
+        -0.21210323,  0.46072045, -0.03899323, -0.03899323, -0.03899323],
+       [ 0.5       ,  0.61916105,  0.86364669,  0.9001697 ,  0.26407212,
+         0.16837312, -0.10678787, -0.39255235, -0.39255235, -0.39255235]])
+
+    assert np.allclose(x_s2,reference)
+
 def test_pCN_sample_regression():
     np.random.seed(0)
     d= 2
