@@ -93,7 +93,7 @@ class Normal(object):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self,N=1, rng=np.random.default_rng()):
+    def sample(self,N=1, rng=None):
         """
         Draw sample(s) from distrubtion
         
@@ -108,8 +108,11 @@ class Normal(object):
         Generated sample(s)
 
         """
-        
-        return rng.normal(self.mean, self.std, (N,self.dim))
+        if rng is not None:
+            return rng.normal(self.mean, self.std, (N,self.dim))
+        else:
+            return np.random.normal(self.mean, self.std, (N,self.dim))
+
 
 
 # ========================================================================
@@ -133,9 +136,11 @@ class Gamma(object):
         # sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale)
         return gammainc(self.shape, self.rate*x)
 
-    def sample(self, N, rng=np.random.default_rng()):
-        return rng.gamma(shape=self.shape, scale=self.scale, size=(N))
-
+    def sample(self, N, rng=None):
+        if rng is not None:
+            return rng.gamma(shape=self.shape, scale=self.scale, size=(N))
+        else:
+            return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
 class Gaussian(object):
@@ -197,8 +202,11 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N, rng=np.random.default_rng()):   # TODO
-        return rng.multivariate_normal(self.mean, self.Sigma, N).T
+    def sample(self, N, rng=None):   # TODO
+        if rng is not None:
+            return rng.multivariate_normal(self.mean, self.Sigma, N).T
+        else:
+            return np.random.multivariate_normal(self.mean, self.Sigma, N).T
 
 
 
@@ -286,9 +294,14 @@ class GMRF(Gaussian):
         # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return np.exp(self.logpdf(x))
 
-    def sample(self, Ns, rng=np.random.default_rng()):
+    def sample(self, Ns, rng=None):
         if (self.BCs == 'zero'):
-            xi = rng.standard_normal((self.dim, Ns))   # standard Gaussian
+
+            if rng is not None:
+                xi = rng.standard_normal((self.dim, Ns))   # standard Gaussian
+            else:
+                xi = np.random.randn(self.dim, Ns)   # standard Gaussian
+
             if Ns == 1:
                 s = self.mean.flatten() + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
             else:
@@ -296,7 +309,12 @@ class GMRF(Gaussian):
             # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
         elif (self.BCs == 'periodic'):
-            xi = rng.standard_normal((self.dim, Ns)) + 1j*rng.standard_normal((self.dim, Ns))
+
+            if rng is not None:
+                xi = rng.standard_normal((self.dim, Ns)) + 1j*rng.standard_normal((self.dim, Ns))
+            else:
+                xi = np.random.randn(self.dim, Ns) + 1j*np.random.randn(self.dim, Ns)
+            
             F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
             # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
             eigv = np.hstack([self.L_eigval, self.L_eigval[-1]])  # repeat last eigval to complete dim
@@ -306,7 +324,12 @@ class GMRF(Gaussian):
             # s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ (L_sqrt @ xi))
             
         elif (self.BCs == 'neumann'):
-            xi = rng.standard_normal((self.D.shape[0], Ns))   # standard Gaussian
+
+            if rng is not None:
+                xi = rng.standard_normal((self.D.shape[0], Ns))   # standard Gaussian
+            else:
+                xi = np.random.randn(self.D.shape[0], Ns)   # standard Gaussian
+            
             s = self.mean + (1/np.sqrt(self.prec))* \
                 splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self.D.T @ xi)))) 
         else:
