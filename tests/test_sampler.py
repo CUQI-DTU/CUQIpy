@@ -53,3 +53,51 @@ def test_CWMH_sample_regression():
 
     # Compare with previously computed results
     np.allclose(MCMC.sample(5,1)[0],np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
+
+def test_RWMH_sample_regression():
+    # Set seed
+    np.random.seed(0)
+
+    d = 6
+    mu = np.zeros(d)
+    sigma = np.linspace(0.5, 1, d)
+    R = np.eye(d)
+
+    # target function to sample
+    dist = cuqi.distribution.Gaussian(mu, sigma, R)
+    def target(x): return dist.logpdf(x)
+
+    ref = cuqi.distribution.Gaussian(mu, np.ones(d), R)   # standard Gaussian
+
+    # =============================================================================
+    # posterior sampling
+    # =============================================================================
+    scale = 0.1
+    x0 = 0.5*np.ones(d)
+    MCMC2 = cuqi.sampler.RWMH(ref, target, scale, x0)
+
+    # run sampler
+    Ns = int(1e1)      # number of samples
+    Nb = int(0.2*Ns)   # burn-in
+
+    #
+    x_s2, target_eval2, acc2 = MCMC2.sample_adapt(Ns, Nb)
+
+    print("x_s2 is now")
+    print(x_s2)
+
+    reference = np.array( [\
+        [ 0.10044611,  0.24423799,  0.25084676,  0.25084676,  0.25084676,
+          0.25084676,  0.25084676,  0.25084676,  0.25084676,  0.25084676],
+        [ 0.63590107,  0.62911335,  0.25353022,  0.25353022,  0.25353022,
+          0.25353022,  0.25353022,  0.25353022,  0.25353022,  0.25353022],
+        [ 0.58532774,  0.43435633,  0.27720855,  0.27720855,  0.27720855,
+          0.27720855,  0.27720855,  0.27720855,  0.27720855,  0.27720855],
+        [ 0.40428658, -0.289158  , -0.86061416, -0.86061416, -0.86061416,
+         -0.86061416, -0.86061416, -0.86061416, -0.86061416, -0.86061416],
+        [ 0.47603379,  0.58073859,  0.17465212,  0.17465212,  0.17465212,
+          0.17465212,  0.17465212,  0.17465212,  0.17465212,  0.17465212],
+        [ 0.36448556,  0.02163369, -0.14628289, -0.14628289, -0.14628289,
+         -0.14628289, -0.14628289, -0.14628289, -0.14628289, -0.14628289]])
+
+    assert np.allclose(x_s2,reference)
