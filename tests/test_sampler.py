@@ -56,7 +56,7 @@ def test_CWMH_sample_regression():
 
 def test_RWMH_sample_regression():
     # Set seed
-    np.random.seed(0)
+    np.random.seed(0) #nice seed!
 
     d = 6
     mu = np.zeros(d)
@@ -79,7 +79,6 @@ def test_RWMH_sample_regression():
 
     #
     x_s2, target_eval2, acc2 = MCMC2.sample_adapt(Ns, Nb)
-
     reference = np.array([[ 0.5       ,  0.77238519,  0.73381779,  0.7700134 ,  0.41274389,
          0.18348216,  0.37057737,  0.34837564,  0.34837564,  0.34837564],
        [ 0.5       ,  0.46259765,  0.70379628,  0.79213478,  1.00263215,
