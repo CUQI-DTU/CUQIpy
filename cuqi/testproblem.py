@@ -1,7 +1,9 @@
 import numpy as np
+from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
 
+import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import Type1
@@ -66,3 +68,146 @@ def data_conv(t,kernel,noise):
     b = g_true + np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
     return b, f_true, g_true
+
+#=============================================================================
+class Deconvolution(Type1):
+
+    def __init__(self,
+                dim = 128,
+                kernel = "gauss",
+                kernel_param = None,
+                phantom = "gauss",
+                phantom_param = None
+                ):
+        
+        A = _getCirculantMatrix(dim,kernel,kernel_param)
+
+        x = _getExactSolution(dim,phantom,phantom_param)
+
+        model = cuqi.model.LinearModel(lambda x: A@x,lambda y: A.T@y, dim=np.shape(A))
+
+        noise = cuqi.distribution.Normal(np.zeros(dim),0.05*np.ones(dim))
+
+        data = model.forward(x) + noise.sample().flatten()
+
+        # Initialize Deconvolution as Type1 problem
+        super().__init__(data,model,noise,None) #No default prior
+
+        self.exactSolution = x
+
+def _getCirculantMatrix(dim,kernel,kernel_param):
+    """
+    GetCircMatrix  Create a circulant matrix for deconvolution examples
+    
+    GetCircMatrix(dim,kernel,kernel_param)
+    
+    Input:  dim = size of the circulant matrix A
+            kernel = string that determined type of the underlying kernel
+                    'Gauss' - a Gaussian function
+                    'sinc' or 'prolate' - a sinc function
+                    'vonMises' - a periodic version of the Gauss function
+            kernel_param = a parameter that determines the shape of the kernel;
+                    the larger the parameter, to slower the initial decay
+                    of the singular values of A
+
+    Output: circulant matrix
+
+    Based on Matlab code by Per Christian Hansen, DTU Compute, April 7, 2021
+    """
+
+    if not (dim % 2) == 0:
+        raise NotImplementedError("Circulant matrix not implemented for odd numbers")
+
+    dim_half = dim/2
+    grid = np.arange(dim_half+1)/dim
+
+    if kernel.lower() == "gauss":
+            if kernel_param is None: kernel_param = 10
+            h = np.exp(-(kernel_param*grid)**2)
+            h = np.concatenate((h,np.flipud(h[1:-1])))
+            hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+            return toeplitz(hflip,h)
+            
+    # elif kernel.lower() == "sinc" || kernel.lower() == "prolate":
+    #         if nargin==2 || isempty(kernel_param), kernel_param = 15; end
+    #         h = sinc(kernel_param*(0:dim_half)/n);
+    #         h = [h,fliplr(h(2:end-1))];
+    #         A = toeplitz([h(1) fliplr(h(2:end))],h);
+
+    # elif kernel.lower() == "vonmises":
+    #         if nargin==2 || isempty(kernel_param), kernel_param = 5; end
+    #         h = exp(cos(2*pi*(0:dim_half)/n));
+    #         h = (h/h(1)).^kernel_param;
+    #         h = [h,fliplr(h(2:end-1))];
+    #         A = toeplitz([h(1) fliplr(h(2:end))],h);
+
+    else:
+            raise NotImplementedError("This kernel is not implemented")
+
+def _getExactSolution(dim,phantom,phantom_param):
+    """
+    GetExactSolution  Create a periodic solution
+    
+     Input: dim = length of the vector x
+            phantom = the phantom that is sampled to produce x
+                    'Gauss' - a Gaussian function
+                    'sinc' - a sinc function
+                    'vonMises' - a periodic version of the Gauss function
+                    'square' - a "top hat" function
+                    'hat' - a triangular hat function
+                    'bumps' - two bumps
+                    'derivGauss' - the first derivative of Gauss function
+                    'random' - random solution created according to the
+                            prior specified in ???
+            param = a parameter that determines the width of the central
+                    "bump" of the function; the larger the parameter, the
+                    narrower the "bump."  Does not apply to phantom = 'bumps'.
+    
+    Output: x = column vector, scaled such that max(x) = 1
+
+    Based on Matlab code by Per Christian Hansen, DTU Compute, April 7, 2021
+    """
+    if phantom.lower() == "gauss":
+        if phantom_param is None: phantom_param = 5
+        return np.exp(-(phantom_param*np.linspace(-1,1,dim))**2)
+
+
+#  switch lower(type)
+#     case 'gauss'
+#         if nargin==2 || isempty(param), param = 5; end
+#         x = exp(-(param*linspace(-1,1,n)).^2);
+#     case 'sinc'
+#         if nargin==2 || isempty(param), param = 5; end
+#         x = sinc(param*linspace(-1,1,n));
+#     case 'vonmises'
+#         if nargin==2 || isempty(param), param = 5; end
+#         x = exp(cos(pi*linspace(-1,1,n)));
+#         x = (x/max(x)).^param;
+#     case 'square'
+#         if nargin==2 || isempty(param), param = 15; end
+#         x = zeros(n,1);
+#         nh = round(n/2);
+#         w = round(n/param);
+#         x(nh-w+1:nh+w) = 1;
+#     case 'hat'
+#         if nargin==2 || isempty(param), param = 15; end
+#         x = zeros(n,1);
+#         nh = round(n/2);
+#         w = round(n/param);
+#         x(nh-w:nh) = (0:w)'/w;
+#         x(nh:nh+w) = (w:-1:0)'/w;
+#     case 'bumps'
+#         h = pi/n;
+#         a1 =   1; c1 = 12; t1 =  0.8;
+#         a2 = 0.5; c2 =  5; t2 = -0.5;
+#         x =   a1*exp(-c1*(-pi/2 + (.5:n-.5)'*h - t1).^2) ...
+#             + a2*exp(-c2*(-pi/2 + (.5:n-.5)'*h - t2).^2);
+#     case 'derivgauss'
+#         if nargin==2 || isempty(param), param = 5; end
+#         x = diff(GetExactSolution(n+1,'gauss',param));
+#         x = x/max(x);
+#     case 'random'
+#         error('Don''t know how to do that (yet)')
+#     otherwise
+#         error('This type is not implemented')
+# end   
