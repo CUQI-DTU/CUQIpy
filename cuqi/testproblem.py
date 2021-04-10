@@ -77,23 +77,38 @@ class Deconvolution(Type1):
                 kernel = "gauss",
                 kernel_param = None,
                 phantom = "gauss",
-                phantom_param = None
+                phantom_param = None,
+                noise_type = "gaussian",
+                noise_std = 0.05
                 ):
         
+        # Set up model
         A = _getCirculantMatrix(dim,kernel,kernel_param)
-
-        x = _getExactSolution(dim,phantom,phantom_param)
-
         model = cuqi.model.LinearModel(lambda x: A@x,lambda y: A.T@y, dim=np.shape(A))
 
-        noise = cuqi.distribution.Normal(np.zeros(dim),0.05*np.ones(dim))
+        # Set up exact solution
+        x_exact = _getExactSolution(dim,phantom,phantom_param)
 
-        data = model.forward(x) + noise.sample().flatten()
+        # Generate exact data
+        b_exact = model.forward(x_exact)
+
+        # Define and add noise
+        if noise_type.lower() == "gaussian":
+            noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
+        elif noise_type.lower() == "xxxgaussian":
+            noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
+        #TODO elif noise_type.lower() == "poisson":
+        #TODO elif noise_type.lower() == "logpoisson":
+        else:
+            raise NotImplementedError("This noise type is not implemented")
+
+        data = b_exact + noise.sample(1).flatten()
 
         # Initialize Deconvolution as Type1 problem
         super().__init__(data,model,noise,None) #No default prior
 
-        self.exactSolution = x
+        self.exactSolution = x_exact
+        self.exactData = b_exact
 
 def _getCirculantMatrix(dim,kernel,kernel_param):
     """

@@ -46,3 +46,14 @@ def test_Deconvolution_PhantomNorm_regression(dim,phantom,phantom_param,expected
 def test_Deconvolution_PhantomNorm2_regression(dim,phantom,phantom_param,expected):
     x = cuqi.testproblem._getExactSolution(dim=dim,phantom=phantom,phantom_param=phantom_param)
     assert np.linalg.norm(x) == approx(expected,rel=1e-4)
+
+@pytest.mark.parametrize("noise_type,noise_std,expected",[
+    ("xxxgaussian",0.2,74.32896068980779),   
+    ("xxxgaussian",3,249.12043011440917),   
+    ("gaussian",0.2,75.7589097857315),  
+    ("gaussian",3,79.76620602993175),  
+])
+def test_Deconvolution_noise_regression(noise_type,noise_std,expected):
+    np.random.seed(1337)
+    tp = cuqi.testproblem.Deconvolution(noise_type=noise_type,noise_std=noise_std)
+    assert np.linalg.norm(tp.data) == approx(expected)
