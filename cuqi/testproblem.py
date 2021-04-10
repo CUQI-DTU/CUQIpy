@@ -122,27 +122,29 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
     grid = np.arange(dim_half+1)/dim
 
     if kernel.lower() == "gauss":
-            if kernel_param is None: kernel_param = 10
-            h = np.exp(-(kernel_param*grid)**2)
-            h = np.concatenate((h,np.flipud(h[1:-1])))
-            hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
-            return toeplitz(hflip,h)
-            
-    # elif kernel.lower() == "sinc" || kernel.lower() == "prolate":
-    #         if nargin==2 || isempty(kernel_param), kernel_param = 15; end
-    #         h = sinc(kernel_param*(0:dim_half)/n);
-    #         h = [h,fliplr(h(2:end-1))];
-    #         A = toeplitz([h(1) fliplr(h(2:end))],h);
+        if kernel_param is None: kernel_param = 10
+        h = np.exp(-(kernel_param*grid)**2)
+        h = np.concatenate((h,np.flipud(h[1:-1])))
+        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        return toeplitz(hflip,h)    
 
-    # elif kernel.lower() == "vonmises":
-    #         if nargin==2 || isempty(kernel_param), kernel_param = 5; end
-    #         h = exp(cos(2*pi*(0:dim_half)/n));
-    #         h = (h/h(1)).^kernel_param;
-    #         h = [h,fliplr(h(2:end-1))];
-    #         A = toeplitz([h(1) fliplr(h(2:end))],h);
+    elif kernel.lower() == "sinc" or kernel.lower() == "prolate":
+        if kernel_param is None: kernel_param = 15
+        h = np.sinc(kernel_param*grid)
+        h = np.concatenate((h,np.flipud(h[1:-1])))
+        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        return toeplitz(hflip,h)
+
+    elif kernel.lower() == "vonmises":
+        if kernel_param is None: kernel_param = 5
+        h = np.exp(np.cos(2*np.pi*grid))
+        h = (h/h[0])**kernel_param
+        h = np.concatenate((h,np.flipud(h[1:-1])))
+        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        return toeplitz(hflip,h)
 
     else:
-            raise NotImplementedError("This kernel is not implemented")
+        raise NotImplementedError("This kernel is not implemented")
 
 def _getExactSolution(dim,phantom,phantom_param):
     """
@@ -167,47 +169,49 @@ def _getExactSolution(dim,phantom,phantom_param):
 
     Based on Matlab code by Per Christian Hansen, DTU Compute, April 7, 2021
     """
+
     if phantom.lower() == "gauss":
         if phantom_param is None: phantom_param = 5
         return np.exp(-(phantom_param*np.linspace(-1,1,dim))**2)
 
+    elif phantom.lower() == "sinc":
+        if phantom_param is None: phantom_param = 5
+        return np.sinc(phantom_param*np.linspace(-1,1,dim))        
 
-#  switch lower(type)
-#     case 'gauss'
-#         if nargin==2 || isempty(param), param = 5; end
-#         x = exp(-(param*linspace(-1,1,n)).^2);
-#     case 'sinc'
-#         if nargin==2 || isempty(param), param = 5; end
-#         x = sinc(param*linspace(-1,1,n));
-#     case 'vonmises'
-#         if nargin==2 || isempty(param), param = 5; end
-#         x = exp(cos(pi*linspace(-1,1,n)));
-#         x = (x/max(x)).^param;
-#     case 'square'
-#         if nargin==2 || isempty(param), param = 15; end
-#         x = zeros(n,1);
-#         nh = round(n/2);
-#         w = round(n/param);
-#         x(nh-w+1:nh+w) = 1;
-#     case 'hat'
-#         if nargin==2 || isempty(param), param = 15; end
-#         x = zeros(n,1);
-#         nh = round(n/2);
-#         w = round(n/param);
-#         x(nh-w:nh) = (0:w)'/w;
-#         x(nh:nh+w) = (w:-1:0)'/w;
-#     case 'bumps'
-#         h = pi/n;
-#         a1 =   1; c1 = 12; t1 =  0.8;
-#         a2 = 0.5; c2 =  5; t2 = -0.5;
-#         x =   a1*exp(-c1*(-pi/2 + (.5:n-.5)'*h - t1).^2) ...
-#             + a2*exp(-c2*(-pi/2 + (.5:n-.5)'*h - t2).^2);
-#     case 'derivgauss'
-#         if nargin==2 || isempty(param), param = 5; end
-#         x = diff(GetExactSolution(n+1,'gauss',param));
-#         x = x/max(x);
-#     case 'random'
-#         error('Don''t know how to do that (yet)')
-#     otherwise
-#         error('This type is not implemented')
-# end   
+    elif phantom.lower() == "vonmises":
+        if phantom_param is None: phantom_param = 5
+        x = np.exp(np.cos(np.pi*np.linspace(-1,1,dim)))
+        return (x/np.max(x))**phantom_param
+
+    elif phantom.lower() == "square":
+        if phantom_param is None: phantom_param = 15
+        x = np.zeros(dim)
+        dimh = int(np.round(dim/2))
+        w = int(np.round(dim/phantom_param))
+        x[(dimh-w):(dimh+w)] = 1
+        return x
+
+    elif phantom.lower() == "hat":
+        if phantom_param is None: phantom_param = 15
+        x = np.zeros(dim)
+        dimh = int(np.round(dim/2))
+        w = int(np.round(dim/phantom_param))
+        x[(dimh-w-1):(dimh)] = np.arange(w+1)/w
+        x[(dimh-1):(dimh+w)] = np.flipud(np.arange(w+1))/w
+        return x
+
+    elif phantom.lower() == "bumps":
+        h = np.pi/dim
+        a1 =   1; c1 = 12; t1 =  0.8
+        a2 = 0.5; c2 =  5; t2 = -0.5
+        grid = np.linspace(0.5,dim-0.5,dim)
+        x = a1*np.exp(-c1*(-np.pi/2 + grid*h - t1)**2)+a2*np.exp(-c2*(-np.pi/2 + grid*h - t2)**2)
+        return x
+
+    elif phantom.lower() == "derivgauss":
+        if phantom_param is None: phantom_param = 5
+        x = np.diff(_getExactSolution(dim+1,'gauss',phantom_param))
+        return x/np.max(x)
+
+    else:
+        raise NotImplementedError("This phantom is not implemented")
