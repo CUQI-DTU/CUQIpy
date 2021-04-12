@@ -68,8 +68,37 @@ class Type1(object):
             
             return x_s
         
-        # Gaussian Likelihood, Gaussian prior
+        # Gaussian Likelihood, Gaussian prior, linear model (closed-form expression)
+        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian) and isinstance(self.model, cuqi.model.LinearModel): 
+            
+            # Start timing
+            ti = time.time()
 
+            A  = self.model.get_matrix()
+            b  = self.data
+            Ce = self.likelihood.Sigma
+            x0 = self.prior.mean
+            Cx = self.prior.Sigma
+
+            # Preallocate samples
+            n = self.prior.dim 
+            x_s = np.zeros((n,Ns))
+
+            x_map = self.MAP() #Compute MAP estimate
+            C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
+            L = np.linalg.cholesky(C)
+            for s in range(Ns):
+                x_s[:,s] = x_map + L@np.random.randn(n)
+                # display iterations 
+                if (s % 5e2) == 0:
+                    print("\r",'Sample', s, '/', Ns, end="")
+
+            print("\r",'Sample', s+1, '/', Ns)
+            print('Elapsed time:', time.time() - ti)
+            
+            return x_s
+
+        # Gaussian Likelihood, Gaussian prior
         elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
             
             # Dimension
