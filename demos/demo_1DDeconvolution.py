@@ -6,7 +6,7 @@
 # - cuqipy
 #   - cuqi
 import sys
-sys.path.append("../../cuqipy/") 
+sys.path.append("..") 
 import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,3 +36,4 @@ x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
 plt.plot(x_mean)
 plt.plot(tp.exactSolution)
 plt.fill_between(np.arange(tp.model.dim[1]),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
+# %%
