@@ -71,7 +71,36 @@ def data_conv(t,kernel,noise):
 
 #=============================================================================
 class Deconvolution(Type1):
+    """
+    1D Deconvolution test problem.
 
+    Input:  
+            dim = size of the dim x dim deconvolution problem
+            kernel = string that determined type of the underlying kernel
+                    'Gauss' - a Gaussian function
+                    'sinc' or 'prolate' - a sinc function
+                    'vonMises' - a periodic version of the Gauss function
+            kernel_param = a parameter that determines the shape of the kernel;
+                    the larger the parameter, to slower the initial decay
+                    of the singular values of A
+            phantom = the phantom that is sampled to produce x
+                    'Gauss' - a Gaussian function
+                    'sinc' - a sinc function
+                    'vonMises' - a periodic version of the Gauss function
+                    'square' - a "top hat" function
+                    'hat' - a triangular hat function
+                    'bumps' - two bumps
+                    'derivGauss' - the first derivative of Gauss function
+                    'random' - random solution created according to the
+                            prior specified in ???
+            phantom_param = a parameter that determines the width of the central
+                    "bump" of the function; the larger the parameter, the
+                    narrower the "bump."  Does not apply to phantom = 'bumps'
+            noise_type = the type of noise
+                    "Gaussian" - Gaussian white noise¨
+                    "xxxGaussian" - Scaled (by data vector) Gaussian white noise
+            noise_std = standard deviation of the noise                   
+    """
     def __init__(self,
                 dim = 128,
                 kernel = "gauss",
