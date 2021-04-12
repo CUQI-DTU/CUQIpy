@@ -10,6 +10,7 @@ sys.path.append("..")
 import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 
 # Make sure cuqi is reloaded every time
 %load_ext autoreload
@@ -26,8 +27,24 @@ x_map = tp.MAP()
 plt.plot(x_map)
 plt.plot(tp.exactSolution)
 
-# %% Sample
-result = tp.sample(10000)
+# %% Sample result = tp.sample(Ns)
+# Number of samples
+Ns = 2000
+
+# Set up target and proposal
+def target(x): return tp.likelihood.logpdf(tp.data,x)
+
+# Parameters
+scale = 0.02
+x0 = np.zeros(n)
+
+# Define sampler
+MCMC = cuqi.sampler.pCN(tp.prior,target,scale,x0)
+
+# Run sampler
+ti = time.time()
+result, target_eval, acc = MCMC.sample(Ns,0)
+print('Elapsed time:', time.time() - ti)
 
 # %% plot mean + 95 ci of samples
 x_mean = np.mean(result,axis=1)
