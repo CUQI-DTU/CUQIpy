@@ -69,7 +69,7 @@ class Type1(object):
             return x_s
         
         # Gaussian Likelihood, Gaussian prior, linear model (closed-form expression)
-        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian) and isinstance(self.model, cuqi.model.LinearModel): 
+        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian) and not isinstance(self.prior, cuqi.distribution.GMRF) and isinstance(self.model, cuqi.model.LinearModel): 
             
             # Start timing
             ti = time.time()
