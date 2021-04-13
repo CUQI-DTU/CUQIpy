@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # myfuns
 from cuqi.sampler import pCN, RWMH
 from cuqi.distribution import Gaussian
-from tests.test_convergence import Geweke
+from cuqi.diagnostics import Geweke
 
 # ==========================================================================
 # sample a Gaussian
