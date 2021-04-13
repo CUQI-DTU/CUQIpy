@@ -72,34 +72,86 @@ def data_conv(t,kernel,noise):
 #=============================================================================
 class Deconvolution(Type1):
     """
-    1D Deconvolution test problem.
+    1D Deconvolution test problem
 
-    Input:  
-            dim = size of the dim x dim deconvolution problem
-            kernel = string that determined type of the underlying kernel
-                    'Gauss' - a Gaussian function
-                    'sinc' or 'prolate' - a sinc function
-                    'vonMises' - a periodic version of the Gauss function
-            kernel_param = a parameter that determines the shape of the kernel;
-                    the larger the parameter, to slower the initial decay
-                    of the singular values of A
-            phantom = the phantom that is sampled to produce x
-                    'Gauss' - a Gaussian function
-                    'sinc' - a sinc function
-                    'vonMises' - a periodic version of the Gauss function
-                    'square' - a "top hat" function
-                    'hat' - a triangular hat function
-                    'bumps' - two bumps
-                    'derivGauss' - the first derivative of Gauss function
-                    'random' - random solution created according to the
-                            prior specified in ???
-            phantom_param = a parameter that determines the width of the central
-                    "bump" of the function; the larger the parameter, the
-                    narrower the "bump."  Does not apply to phantom = 'bumps'
-            noise_type = the type of noise
-                    "Gaussian" - Gaussian white noise¨
-                    "xxxGaussian" - Scaled (by data vector) Gaussian white noise
-            noise_std = standard deviation of the noise                   
+    Parameters
+    ------------
+    dim : int
+        size of the (dim,dim) deconvolution problem
+
+    kernel : string 
+        Determines type of the underlying kernel
+        'Gauss' - a Gaussian function
+        'sinc' or 'prolate' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+
+    kernel_param : scalar
+        A parameter that determines the shape of the kernel;
+        the larger the parameter, the slower the initial
+        decay of the singular values of A
+
+    phantom : string
+        The phantom that is sampled to produce x
+        'Gauss' - a Gaussian function
+        'sinc' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+        'square' - a "top hat" function
+        'hat' - a triangular hat function
+        'bumps' - two bumps
+        'derivGauss' - the first derivative of Gauss function
+
+    phantom_param : scalar
+        A parameter that determines the width of the central 
+        "bump" of the function; the larger the parameter,
+        the narrower the "bump."  
+        Does not apply to phantom = 'bumps'
+
+    noise_type : string
+        The type of noise
+        "Gaussian" - Gaussian white noise¨
+        "xxxGaussian" - Scaled (by data) Gaussian noise
+
+    noise_std : scalar
+        Standard deviation of the noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.Model
+        Deconvolution forward model
+
+    noise : cuqi.distribution.Distribution
+        Distribution of the additive noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior (Default = None)
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+        (automatically computed from noise distribution)
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    Sample(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+
     """
     def __init__(self,
                 dim = 128,
@@ -108,7 +160,8 @@ class Deconvolution(Type1):
                 phantom = "gauss",
                 phantom_param = None,
                 noise_type = "gaussian",
-                noise_std = 0.05
+                noise_std = 0.05,
+                prior = None
                 ):
         
         # Set up model
@@ -134,7 +187,7 @@ class Deconvolution(Type1):
         data = b_exact + noise.sample(1).flatten()
 
         # Initialize Deconvolution as Type1 problem
-        super().__init__(data,model,noise,None) #No default prior
+        super().__init__(data,model,noise,prior)
 
         self.exactSolution = x_exact
         self.exactData = b_exact
