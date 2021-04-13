@@ -29,7 +29,7 @@ tp = cuqi.testproblem.Deconvolution(
     noise_std = noise_std
 )
 
-# Plot exact solution
+#%% Plot exact solution
 plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 
 # Plot data
@@ -52,7 +52,7 @@ plt.show()
 
 # %% Sample test problem
 # Number of samples
-Ns = 50000
+Ns = 5000
 
 # Sample
 result = tp.sample(Ns)
@@ -70,29 +70,36 @@ plt.show()
 
 # %% Try sampling using a specific sampler
 # Set up target and proposal
-def target(x): return tp.likelihood.logpdf(tp.data,x)
-proposal = tp.prior
+loc = np.zeros(dim)
+delta = 4
+scale = delta*1/dim
+prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+#prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
+def target(x): return tp.likelihood.logpdf(tp.data,x)+prior.logpdf(x)
+def proposal(x,scale): return np.random.normal(x,scale)
 
 # Parameters
-scale = 0.02
-x0 = np.zeros(dim)
+scale = 0.05*np.ones(dim)
+x0 = 0.5*np.ones(dim)
 
 # Define sampler
-MCMC = cuqi.sampler.pCN(proposal,target,scale,x0)
+MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
 
+Nb = int(0.4*Ns)   # burn-in
 # Run sampler
 ti = time.time()
-result2, target_eval, acc = MCMC.sample(Ns,0)
+result2, target_eval, acc = MCMC.sample_adapt(Ns,Nb)
 print('Elapsed time:', time.time() - ti)
 
 # %% plot mean + 95 ci of samples using specific sampler
 x_mean_2 = np.mean(result2,axis=1)
 x_lo95_2, x_up95_2 = np.percentile(result2, [2.5, 97.5], axis=1)
 
-plt.plot(x_mean_2)
 plt.plot(tp.exactSolution)
+plt.plot(x_mean_2)
 plt.fill_between(np.arange(tp.model.dim[1]),x_up95_2, x_lo95_2, color='dodgerblue', alpha=0.25)
 plt.title("Posterior samples using sampler")
 plt.legend(["Exact","Posterior mean","Confidense interval"])
+
 
 # %%
