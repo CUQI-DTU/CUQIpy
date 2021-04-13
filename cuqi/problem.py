@@ -61,7 +61,7 @@ class Type1(object):
             MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
             
             # Run sampler
-            Nb = int(0.25*Ns)   # burn-in
+            Nb = int(0.2*Ns)   # burn-in
             ti = time.time()
             x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
             print('Elapsed time:', time.time() - ti)
