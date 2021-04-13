@@ -52,7 +52,7 @@ plt.show()
 
 # %% Sample test problem
 # Number of samples
-Ns = 5000
+Ns = 50000
 
 # Sample
 result = tp.sample(Ns)
@@ -61,8 +61,8 @@ result = tp.sample(Ns)
 x_mean = np.mean(result,axis=1)
 x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
 
-plt.plot(x_mean,'.-')
 plt.plot(tp.exactSolution,'.-')
+plt.plot(x_mean,'.-')
 plt.fill_between(np.arange(tp.model.dim[1]),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
 plt.title("Posterior samples")
 plt.legend(["Exact","Posterior mean","Confidense interval"])
