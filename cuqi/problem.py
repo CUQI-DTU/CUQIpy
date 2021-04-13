@@ -45,8 +45,8 @@ class Type1(object):
         
     def sample(self,Ns=100):
 
-        # Gaussian Likelihood, Cauchy prior
-        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Cauchy_diff):
+        # Gaussian Likelihood, Cauchy prior or Laplace prior
+        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and (isinstance(self.prior, cuqi.distribution.Cauchy_diff) or isinstance(self.prior, cuqi.distribution.Laplace_diff)):
             
             # Dimension
             n = self.prior.dim
@@ -61,7 +61,7 @@ class Type1(object):
             MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
             
             # Run sampler
-            Nb = int(0.2*Ns)   # burn-in
+            Nb = int(0.25*Ns)   # burn-in
             ti = time.time()
             x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
             print('Elapsed time:', time.time() - ti)
@@ -115,8 +115,9 @@ class Type1(object):
             MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
             
             #Run sampler
+            Nb = int(0.25*Ns)   # burn-in
             ti = time.time()
-            x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
+            x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb) #ToDo: fix sampler input
             print('Elapsed time:', time.time() - ti)
             
             return x_s
