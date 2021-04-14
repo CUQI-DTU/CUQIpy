@@ -26,8 +26,8 @@ class LinearModel(Model):
         
         #Assume forward is matrix if not callable (TODO: add more checks)
         if not callable(forward): 
-            forward_func = lambda x: forward@x
-            adjoint_func = lambda y: forward.T@y
+            forward_func = lambda x: self._matrix@x
+            adjoint_func = lambda y: self._matrix.T@y
             matrix = forward
             dim = forward.shape
         else:
