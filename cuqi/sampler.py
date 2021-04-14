@@ -11,7 +11,7 @@ from cuqi.solver import CGLS
 #===================================================================
 #===================================================================
 #===================================================================
-class CGLS_sampler(object):
+class Linear_RTO(object):
     
     def __init__(self, data, model, noise, prior, x0, maxit=10, tol=1e-6, shift=0):
         
@@ -22,8 +22,8 @@ class CGLS_sampler(object):
         if not isinstance(noise, cuqi.distribution.Gaussian):
             raise TypeError("Noise needs to be Gaussian")
 
-        if not isinstance(prior, cuqi.distribution.Gaussian):
-            raise TypeError("Prior needs to be Gaussian")
+        if not isinstance(prior, cuqi.distribution.GMRF): #TODO add support for Gaussian
+            raise TypeError("Prior needs to be GMRF")
     
         # Extract lambda, delta, L
         self.lambd = 1/(noise.std**2)
