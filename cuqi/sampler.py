@@ -5,6 +5,77 @@ import numpy as np
 # import matplotlib.pyplot as plt
 eps = np.finfo(float).eps
 
+import cuqi
+from cuqi.solver import CGLS
+
+#===================================================================
+#===================================================================
+#===================================================================
+class Linear_RTO(object):
+    
+    def __init__(self, data, model, noise, prior, x0, maxit=10, tol=1e-6, shift=0):
+        
+        # independent Posterior samples. Linear model and Gaussian prior-likelihood
+        if not isinstance(model, cuqi.model.LinearModel):
+            raise TypeError("Model needs to be linear")
+
+        if not isinstance(noise, cuqi.distribution.Gaussian):
+            raise TypeError("Noise needs to be Gaussian")
+
+        if not isinstance(prior, cuqi.distribution.GMRF): #TODO add support for Gaussian
+            raise TypeError("Prior needs to be GMRF")
+    
+        # Extract lambda, delta, L
+        self.lambd = 1/(noise.std**2)
+        self.delta = prior.prec
+        self.L = prior.L
+        self.A = model.get_matrix()
+        self.b = data
+        self.x0 = x0
+        self.maxit = maxit
+        self.tol = tol        
+        self.shift = shift
+        
+        # pre-computations
+        self.m = len(self.b)
+        self.n = len(x0)
+        self.b_tild = np.hstack([np.sqrt(self.lambd)*self.b, np.zeros(self.n)]) 
+        if not callable(self.A):
+            self.M = sp.sparse.vstack([np.sqrt(self.lambd)*self.A, np.sqrt(self.delta)*self.L])
+        # else:
+            # in this case, A is a function doing forward and backward operations
+            # def M(x, flag):
+            #     if flag == 1:
+            #         out1 = np.sqrt(self.lambd) * self.A(x, 1) # A @ x
+            #         out2 = np.sqrt(self.delta) * (self.L @ x)
+            #         out  = np.hstack([out1, out2])
+            #     elif flag == 2:
+            #         idx = int(len(x) - self.n)
+            #         out1 = np.sqrt(self.lambd) * self.A(x[:idx], 2) # A.T @ b
+            #         out2 = np.sqrt(self.delta) * (self.L.T @ x[idx:])
+            #         out  = out1 + out2                
+            #     return out          
+
+    def sample(self, N, Nb):   
+        Ns = N+Nb   # number of simulations        
+        samples = np.empty((self.n, Ns))
+                     
+        # initial state   
+        samples[:, 0] = self.x0
+        for s in range(Ns-1):
+            y = self.b_tild + np.random.randn(self.m+self.n)
+            sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+            samples[:, s+1], _ = sim.solve()
+            if (s % 5e2) == 0:
+                print('Sample', s, '/', Ns)
+        
+        # remove burn-in
+        samples = samples[:, Nb:]
+        
+        return samples
+
+
+
 #===================================================================
 #===================================================================
 #===================================================================
