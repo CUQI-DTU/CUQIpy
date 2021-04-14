@@ -49,8 +49,8 @@ class LinearModel(Model):
         #Store matrix privately
         self._matrix = matrix
 
-    def adjoint(self):
-        return self._adjoint_func
+    def adjoint(self,y):
+        return self._adjoint_func(y)
 
     def get_matrix(self):
         if self._matrix is not None: #Matrix exists so return it
