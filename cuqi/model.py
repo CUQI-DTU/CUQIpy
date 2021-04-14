@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.sparse import csc_matrix
+from scipy.sparse import hstack
 
 class Model(object):
     # Generic Model class.
@@ -56,12 +57,15 @@ class LinearModel(Model):
         if self._matrix is not None: #Matrix exists so return it
             return self._matrix
         else:
-            mat = csc_matrix((self.dim[0],self.dim[1])) #Sparse matrix
+            #TODO: Can we compute this faster while still in sparse format?
+            mat = csc_matrix((self.dim[0],0)) #Sparse (m x 1 matrix)
             e = np.zeros(self.dim[1])
             
+            # Stacks sparse matricies on csc matrix
             for i in range(self.dim[1]):
                 e[i] = 1
-                mat[:,i] = self.forward(e)
+                col_vec = self.forward(e)
+                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
                 e[i] = 0
 
             #Store matrix for future use
