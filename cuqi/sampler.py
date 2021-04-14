@@ -5,95 +5,62 @@ import numpy as np
 # import matplotlib.pyplot as plt
 eps = np.finfo(float).eps
 
+from cuqi.solver import CGLS
 
 #===================================================================
 #===================================================================
 #===================================================================
-class CWMH(object):
+class CGLS_sampler(object):
+    # independent Posterior samples. Only linear and Gaussian prior-likelihood
     
-    def __init__(self, pi_target, proposal, scale, init_x):
-        self.target = pi_target
-        self.proposal = proposal
-        self.scale = scale
-        self.x0 = init_x
-        self.n = len(init_x)
-
-    def sample(self, N, Nb):        
-        # def CGLS_reg_samples(x_old, A, W1sq_D1, W2sq_D2, b_meas, lambd, delta, x_maxit, x_tol):  
-        # params for cgls
-        m = len(b_meas)
-        nbar = len(x_old)
-
-        # apply cgls
-        G_fun = lambda x, flag: proj_forward_reg_mat(x, flag, m, A, W1sq_D1, W2sq_D2, lambd, delta)
-        g = np.hstack([np.sqrt(lambd)*b_meas, np.zeros(nbar), np.zeros(nbar)]) + np.random.randn(m+2*nbar)
-        # g = np.hstack([np.sqrt(lambd)*b_meas + np.random.randn(m), np.random.randn(nbar), np.random.randn(nbar)])
-        #
-        x_next, it = cgls(G_fun, g, x_old, x_maxit, x_tol)
+    def __init__(self, lambd, delta, L, A, b, x0, maxit, tol=1e-6, shift=0):
+        self.lambd = lambd
+        self.delta = delta
+        self.L = L
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.maxit = maxit
+        self.tol = tol        
+        self.shift = shift
         
-        return x_next, it#, misfit
+        # pre-computations
+        self.m = len(b)
+        self.n = len(x0)
+        self.b_tild = np.hstack([np.sqrt(lambd)*b, np.zeros(self.n)]) 
+        if not callable(A):
+            self.M = sp.sparse.vstack([np.sqrt(lambd)*A, np.sqrt(delta)*L])
+        # else:
+            # in this case, A is a function doing forward and backward operations
+            # def M(x, flag):
+            #     if flag == 1:
+            #         out1 = np.sqrt(lambd) * A(x, 1) # A @ x
+            #         out2 = np.sqrt(delta) * (L @ x)
+            #         out  = np.hstack([out1, out2])
+            #     elif flag == 2:
+            #         idx = int(len(x) - self.n)
+            #         out1 = np.sqrt(lambd) * A(x[:idx], 2) # A.T @ b
+            #         out2 = np.sqrt(delta) * (L.T @ x[idx:])
+            #         out  = out1 + out2                
+            #     return out          
 
-#===================================================================
-def cgls(A, b, x0, maxit, tol):
-    # http://web.stanford.edu/group/SOL/software/cgls/
-    
-    # initial state
-    x = x0.copy()
-    r = b - A(x, 1)
-    s = A(r, 2) #- shift*x
-    
-    # initialization
-    p = s.copy()
-    norms0 = LA.norm(s)
-    normx = LA.norm(x)
-    gamma, xmax = norms0**2, normx
-    
-    # main loop
-    k, flag, indefinite = 0, 0, 0
-    while (k < maxit) and (flag == 0):
-        k += 1  
-        # xold = np.copy(x)
-        #
-        q = A(p, 1)
-        delta_cgls = LA.norm(q)**2 #+ shift*LA.norm(p)**2
-        #
-        if (delta_cgls < 0):
-            indefinite = 1
-        elif (delta_cgls == 0):
-            delta_cgls = eps
-        alpha_cgls = gamma / delta_cgls
-        #
-        x += alpha_cgls*p    
-        x  = np.maximum(x, 0)
-        r -= alpha_cgls*q
-        s  = A(r, 2) #- shift*x
-        #
-        gamma1 = gamma.copy()
-        norms = LA.norm(s)
-        gamma = norms**2
-        p = s + (gamma/gamma1)*p
+    def sample(self, N, Nb):   
+        Ns = N+Nb   # number of simulations        
+        samples = np.empty((self.n, Ns))
+                     
+        # initial state   
+        samples[:, 0] = self.x0
+        for s in range(Ns-1):
+            y = self.b_tild + np.random.randn(self.m+self.n)
+            sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+            samples[:, s+1], _ = sim.solve()
+            if (s % 5e2) == 0:
+                print('Sample', s, '/', Ns)
         
-        # convergence
-        normx = LA.norm(x)
-        # relerr = LA.norm(x - xold) / normx
-        # if relerr <= tol:
-        #     flag = 1
-        xmax = max(xmax, normx)
-        flag = (norms <= norms0*tol) or (normx*tol >= 1)
-        # flag = 1: CGLS converged to the desired tolerance TOL within MAXIT
-        # resNE = norms / norms0
-    #
-    shrink = normx/xmax
-    if k == maxit:          
-        flag = 2   # CGLS iterated MAXIT times but did not converge
-    if indefinite:          
-        flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
-        sys.exit('\n Negative curvature detected !')  
-    if shrink <= np.sqrt(tol):
-        flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
-        sys.exit('\n Instability likely !')  
-    
-    return x, k
+        # remove burn-in
+        samples = samples[:, Nb:]
+        
+        return samples
 
 
 
