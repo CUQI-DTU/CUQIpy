@@ -37,8 +37,6 @@ class Deblur(Type1):
         
         #Store other properties
         self.meshsize = h
-        self.A = A
-        self.sigma_obs = noise_std
         self.f_true = f_true
         self.g_true = g_true
         self.t = t

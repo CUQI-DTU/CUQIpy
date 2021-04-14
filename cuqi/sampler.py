@@ -5,42 +5,54 @@ import numpy as np
 # import matplotlib.pyplot as plt
 eps = np.finfo(float).eps
 
+import cuqi
 from cuqi.solver import CGLS
 
 #===================================================================
 #===================================================================
 #===================================================================
 class CGLS_sampler(object):
-    # independent Posterior samples. Only linear and Gaussian prior-likelihood
     
-    def __init__(self, lambd, delta, L, A, b, x0, maxit, tol=1e-6, shift=0):
-        self.lambd = lambd
-        self.delta = delta
-        self.L = L
-        self.A = A
-        self.b = b
+    def __init__(self, data, model, noise, prior, x0, maxit=10, tol=1e-6, shift=0):
+        
+        # independent Posterior samples. Linear model and Gaussian prior-likelihood
+        if not isinstance(model, cuqi.model.LinearModel):
+            raise TypeError("Model needs to be linear")
+
+        if not isinstance(noise, cuqi.distribution.Gaussian):
+            raise TypeError("Noise needs to be Gaussian")
+
+        if not isinstance(prior, cuqi.distribution.Gaussian):
+            raise TypeError("Prior needs to be Gaussian")
+    
+        # Extract lambda, delta, L
+        self.lambd = 1/(noise.std**2)
+        self.delta = prior.prec
+        self.L = prior.L
+        self.A = model.get_matrix()
+        self.b = data
         self.x0 = x0
         self.maxit = maxit
         self.tol = tol        
         self.shift = shift
         
         # pre-computations
-        self.m = len(b)
+        self.m = len(self.b)
         self.n = len(x0)
-        self.b_tild = np.hstack([np.sqrt(lambd)*b, np.zeros(self.n)]) 
-        if not callable(A):
-            self.M = sp.sparse.vstack([np.sqrt(lambd)*A, np.sqrt(delta)*L])
+        self.b_tild = np.hstack([np.sqrt(self.lambd)*self.b, np.zeros(self.n)]) 
+        if not callable(self.A):
+            self.M = sp.sparse.vstack([np.sqrt(self.lambd)*self.A, np.sqrt(self.delta)*self.L])
         # else:
             # in this case, A is a function doing forward and backward operations
             # def M(x, flag):
             #     if flag == 1:
-            #         out1 = np.sqrt(lambd) * A(x, 1) # A @ x
-            #         out2 = np.sqrt(delta) * (L @ x)
+            #         out1 = np.sqrt(self.lambd) * self.A(x, 1) # A @ x
+            #         out2 = np.sqrt(self.delta) * (self.L @ x)
             #         out  = np.hstack([out1, out2])
             #     elif flag == 2:
             #         idx = int(len(x) - self.n)
-            #         out1 = np.sqrt(lambd) * A(x[:idx], 2) # A.T @ b
-            #         out2 = np.sqrt(delta) * (L.T @ x[idx:])
+            #         out1 = np.sqrt(self.lambd) * self.A(x[:idx], 2) # A.T @ b
+            #         out2 = np.sqrt(self.delta) * (self.L.T @ x[idx:])
             #         out  = out1 + out2                
             #     return out          
 

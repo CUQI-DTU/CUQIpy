@@ -32,13 +32,16 @@ norm_f = np.linalg.norm(test.f_true)
 # Gaussian likelihood params
 b = test.data
 m = len(b)       # number of data points
-lambd = 1/(test.sigma_obs**2)
+lambd = 1/(test.noise.std**2)
+
+# model matrix
+A = test.model.get_matrix()
 
 # =============================================================================
 # prior
 # =============================================================================
 mu_pr = np.zeros(n)
-delta = 25   # prior precision parameter
+delta = 25             # prior precision parameter
 prior = cuqi.distribution.GMRF(mu_pr, delta, n, 1, 'zero')
 
 # =============================================================================
@@ -46,11 +49,11 @@ prior = cuqi.distribution.GMRF(mu_pr, delta, n, 1, 'zero')
 # =============================================================================
 # run sampler
 Ns = int(5e3)      # number of samples
-Nb = 0   # burn-in
+Nb = 0             # burn-in
 x0 = mu_pr
 maxit = 20
 #
-MCMC = CGLS_sampler(lambd, delta, prior.L, test.A, b, x0, maxit)
+MCMC = CGLS_sampler(b, test.model, test.noise, prior, x0, maxit)
 #
 ti = time.time()
 x_s = MCMC.sample(Ns, Nb)
@@ -64,11 +67,11 @@ lo95, up95 = mean_xpos+sigma_xpos, mean_xpos-sigma_xpos#np.percentile(x_s, [2.5,
 relerr = round(np.linalg.norm(mean_xpos - test.f_true)/norm_f*100, 2)
 print('\nRelerror median:', relerr, '\n')
 
-# analytical solution
-Lambd_ex = lambd*(test.A.T @ test.A) + delta*prior.L
-Sigma_ex = sp.sparse.linalg.inv(Lambd_ex)
-sigma_ex = np.sqrt(Sigma_ex.diagonal())
-mean_ex = sp.sparse.linalg.spsolve(Lambd_ex, lambd*(test.A.T @ b))
+# analytical solution (uncomment when A is sparse)
+# Lambd_ex = lambd*(A.T @ A) + delta*prior.L
+# Sigma_ex = sp.sparse.linalg.inv(Lambd_ex)
+# sigma_ex = np.sqrt(Sigma_ex.diagonal())
+# mean_ex = sp.sparse.linalg.spsolve(Lambd_ex, lambd*(A.T @ b))
 
 # =============================================================================
 # plots
@@ -78,9 +81,10 @@ plt.plot(tt, test.f_true, '-', color='forestgreen', linewidth=3, label='True')
 plt.plot(tt, mean_xpos, '--', color='blue', label='mean samp')
 plt.fill_between(tt, up95, lo95, color='dodgerblue', alpha=0.25)
 
-plt.plot(tt, mean_ex, '-', color='crimson', label='mean ex')
-plt.plot(tt, mean_ex+sigma_ex, '--', color='crimson')
-plt.plot(tt, mean_ex-sigma_ex, '--', color='crimson')
+# uncomment when A is sparse
+# plt.plot(tt, mean_ex, '-', color='crimson', label='mean ex')
+# plt.plot(tt, mean_ex+sigma_ex, '--', color='crimson')
+# plt.plot(tt, mean_ex-sigma_ex, '--', color='crimson')
 
 plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
 plt.xticks(np.linspace(tt[0], tt[-1], 5))
