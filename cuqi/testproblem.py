@@ -24,7 +24,7 @@ class Deblur(Type1):
         A = csc_matrix(A)   # make A sparse
 
         # Store forward model
-        model = LinearModel(lambda x: A @ x,lambda y: A.T @ y, dim=np.shape(A))
+        model = LinearModel(A)
         
         # Store Noise model
         noise = Gaussian(np.zeros(dim),noise_std,np.eye(dim))
