@@ -18,7 +18,7 @@ def test_deblur_bayesian_inversion(copy_reference, Ns, prior):
     # set the prior
     deblur.prior = prior
 
-    res = deblur.sample(Ns=Ns)
+    res = deblur.sample(Ns=Ns).samples
 
     med_xpos = np.median(res, axis=1)
     sigma_xpos = res.std(axis=1)
@@ -60,7 +60,7 @@ def test_type1_bayesian_inversion(copy_reference, Ns, prior):
 
     type1 = cuqi.problem.Type1(b, A, e, prior)
 
-    res = type1.sample(Ns=Ns)
+    res = type1.sample(Ns=Ns).samples
     med_xpos = np.median(res, axis=1)
     sigma_xpos = res.std(axis=1)
     lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)

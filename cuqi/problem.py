@@ -95,7 +95,7 @@ class Type1(object):
             x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
             print('Elapsed time:', time.time() - ti)
             
-            return x_s
+            return cuqi.samples.Samples(x_s)
         
         # Gaussian Likelihood, Gaussian prior, linear model (closed-form expression)
         elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian) and not isinstance(self.prior, cuqi.distribution.GMRF) and isinstance(self.model, cuqi.model.LinearModel): 
@@ -125,7 +125,7 @@ class Type1(object):
             print("\r",'Sample', s+1, '/', Ns)
             print('Elapsed time:', time.time() - ti)
             
-            return x_s
+            return cuqi.samples.Samples(x_s)
 
         # Gaussian Likelihood, Gaussian prior
         elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
@@ -149,7 +149,7 @@ class Type1(object):
             x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
             print('Elapsed time:', time.time() - ti)
             
-            return x_s
+            return cuqi.samples.Samples(x_s)
             
         #If no implementation exists give error
         else:

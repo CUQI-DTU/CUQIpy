@@ -2,6 +2,8 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 
+from cuqi.samples import Samples
+
 class Model(object):
     # Generic Model class.
     
@@ -18,7 +20,14 @@ class Model(object):
         self.dim = dim
                
     def forward(self, x):
-        return self._forward_func(x)
+        if isinstance(x,Samples):
+            Ns = x.samples.shape[-1]
+            data_samples = np.zeros((self.dim[0],Ns))
+            for s in range(Ns):
+                data_samples[:,s] = self.forward(x.samples[:,s])
+            return Samples(data_samples)
+        else:
+            return self._forward_func(x)
     
 class LinearModel(Model):
     # Linear forward model with forward and adjoint (transpose).
