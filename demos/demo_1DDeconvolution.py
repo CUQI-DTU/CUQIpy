@@ -1,6 +1,7 @@
 # %% Initialize and import CUQI
 sys.path.append("..") 
 import numpy as np
+from scipy.sparse import diags
 import matplotlib.pyplot as plt
 import cuqi
 
@@ -10,16 +11,20 @@ import cuqi
 
 # Set rng seed 
 np.random.seed(0)
-# %% Load file with forward matrix and data:
+# %% Import a deconvolution problem from file
+
+# Load file with forward matrix, data and phantom
 ref = np.load("data/Deconvolution.npz")
+
+# Extract parameters
 A = ref["A"]                # Matrix (forward model) - Convolution with Gaussian kernel
 data = ref["data"]          # Data (noisy)
-phantom = ref["phantom"]     # Phantom / ground truth
+phantom = ref["phantom"]    # Phantom / ground truth
 m,n = A.shape               # Dimensions of problem
 
 # This deconvolution inverse problem looks like:
 # b = A*x+e
-# where e ~ Gaussian white noise.
+# where e ~ Gaussian white noise. Suppose we know the standard deviation of noise is 0.05.
 
 # %% Illustrate matrix (forward model)
 plt.imshow(A); plt.title("Matrix (convolution w. Gaussian kernel)"); plt.colorbar(); plt.show()
@@ -33,15 +38,19 @@ plt.plot(data); plt.title("Measured (noisy) data"); plt.show()
 # Define as linear model
 model = cuqi.model.LinearModel(A)
 
-# %% Define distributions
+# %% To carry out UQ we need to assume distributions for our random variables
 
 #  Define noise
 noise_std = 0.05
 noise = cuqi.distribution.Gaussian(np.zeros(m),noise_std,np.eye(m))
 
-# Define prior
-prior_std = 0.1
+plt.plot(noise.sample(5)); plt.title('Realizations from noise'); plt.show()
+
+# %% Define prior
+prior_std = 0.2
 prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,np.eye(n))
+
+plt.plot(prior.sample(5)); plt.title('Realizations from prior'); plt.show()
 
 # %% Define cuqi (inverse) problem
 
@@ -62,57 +71,51 @@ plt.show()
 
 # %% Sample cuqi (inverse) problem
 # Number of samples
-Ns = 25000
+Ns = 5000
 
 # Sample (depending on defined model, noise and prior a sampler is selected)
 result = IP.sample(Ns)
 
 # plot mean + 95% of samples
-x_mean = np.mean(result,axis=1)
-x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
-
-plt.plot(phantom,'.-')
-plt.plot(x_mean,'.-')
-plt.fill_between(np.arange(n),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
-plt.title("Posterior samples")
-plt.legend(["Exact","Posterior mean","Confidence interval"])
-plt.show()
+result.plot_ci(95,exact=phantom)
 
 # %% What happends if we change prior?
 
+# Define correlation matrix where 30 closest neighbours are correlated
+l = 30
+corr = np.linspace(0,1,int(l/2)+1); corr = np.hstack((corr,np.flipud(corr[:-1])))
+indexes = np.linspace(-l/2,l/2,l+1,dtype=int)
+corrmat = diags(corr, indexes, shape=(n, n)).toarray()
+
 # Set new prior
-#IP.prior = cuqi.distribution.Cauchy_diff(np.zeros(n),10/n,'neumann')
-IP.prior = cuqi.distribution.GMRF(np.zeros(n), 10, n, 1, 'zero')
-# Sample
+IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
+
+plt.plot(IP.prior.sample(5)); plt.title('Realizations from prior'); plt.show()
+
+
+# %% Sample
 result = IP.sample(Ns)
 
 # plot mean + 95% of samples
-x_mean = np.mean(result,axis=1)
-x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
+result.plot_ci(95,exact=phantom)
 
-plt.plot(phantom,'.-')
-plt.plot(x_mean,'.-')
-plt.fill_between(np.arange(n),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
-plt.title("Posterior samples")
-plt.legend(["Exact","Posterior mean","Confidence interval"])
-plt.show()
+# %% We provide a "testproblem" module
 
-# %%
-# Look at chains etc.
+tp = cuqi.testproblem.Deconvolution() #Default values
 
 # %% Set up Deconvolution test problem
-# Parameters
+# Parameters for Deconvolution problem
 dim = 128
 kernel = ["Gauss","Sinc","vonMises"]
 phantom = ["Gauss","Sinc","vonMises","Square","Hat","Bumps","DerivGauss"]
 noise_type = ["Gaussian","xxxGaussian"]
-noise_std = 0.1
+noise_std = 0.05
 
 # Test problem
 tp = cuqi.testproblem.Deconvolution(
     dim = dim,
     kernel=kernel[0],
-    phantom=phantom[1],
+    phantom=phantom[3],
     noise_type=noise_type[0],
     noise_std = noise_std
 )
@@ -123,38 +126,65 @@ plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 # Plot data
 plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 
+
+# %% Lets try with the Gaussian prior
+
+tp.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
+
+# Sample
+result = tp.sample(Ns)
+
+# plot mean + 95% of samples
+result.plot_ci(95,exact=tp.exactSolution)
+
+# %% Lets try with Cauchy prior
+
+# Cauchy prior
+scale = 2/n
+tp.prior = cuqi.distribution.Cauchy_diff(np.zeros(n),scale,'neumann')
+
+# Sample
+result = tp.sample(Ns)
+
+# plot mean + 95% of samples
+result.plot_ci(95,exact=tp.exactSolution)
+
 # %% Try sampling using a specific sampler
-# Set up target and proposal
+
+# Set up Laplace prior
 loc = np.zeros(dim)
-delta = 4
+delta = 0.5
 scale = delta*1/dim
-prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
-#prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
+prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
+
+# Target and proposal
 def target(x): return tp.likelihood.logpdf(tp.data,x)+prior.logpdf(x)
 def proposal(x,scale): return np.random.normal(x,scale)
 
-# Parameters
+# Parameters for sampler
 scale = 0.05*np.ones(dim)
 x0 = 0.5*np.ones(dim)
 
-# Define sampler
+# Define sampler (Component-Wise Metroplis-Hastings)
 MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
 
-Nb = int(0.4*Ns)   # burn-in
-# Run sampler
-ti = time.time()
-result2, target_eval, acc = MCMC.sample_adapt(Ns,Nb)
-print('Elapsed time:', time.time() - ti)
+# Burn-in
+Nb = int(0.2*Ns)   
 
-# %% plot mean + 95 ci of samples using specific sampler
-x_mean_2 = np.mean(result2,axis=1)
-x_lo95_2, x_up95_2 = np.percentile(result2, [2.5, 97.5], axis=1)
+# Run sampler (with adaptive parameter selection)
+result = cuqi.samples.Samples(MCMC.sample_adapt(Ns,Nb)[0])
 
-plt.plot(tp.exactSolution)
-plt.plot(x_mean_2)
-plt.fill_between(np.arange(tp.model.dim[1]),x_up95_2, x_lo95_2, color='dodgerblue', alpha=0.25)
-plt.title("Posterior samples using sampler")
-plt.legend(["Exact","Posterior mean","Confidense interval"])
+# plot mean + 95 ci of samples using specific sampler
+result.plot_ci(95,exact=tp.exactSolution)
 
+# %% In the near future:
+# Hyperparameters!
+
+# One idea for defining hyperparameters
+std = cuqi.distribution.Gamma(1,1e-4)
+prior = cuqi.distribution.Gaussian(np.zeros(n),std,corrmat)
+
+IP = cuqi.problem.Type1(data,model,noise,prior)
+result = IP.sample(Ns)
 
 # %%
