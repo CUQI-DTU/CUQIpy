@@ -4,6 +4,7 @@ from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
+from cuqi.samples import Samples
 
 # import sksparse
 # from sksparse.cholmod import cholesky
@@ -208,9 +209,14 @@ class Gaussian(object):
 
     def sample(self, N=1, rng=None):   # TODO
         if rng is not None:
-            return rng.multivariate_normal(self.mean, self.Sigma, N).T
+            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
         else:
-            return np.random.multivariate_normal(self.mean, self.Sigma, N).T
+            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
+            
+        if N==1:
+            return s
+        else:
+            return Samples(s)
 
 
 
