@@ -10,6 +10,17 @@ class Samples(object):
     def burnthin(self, Nb, Nt):
         self.samples = self.samples[Nb::Nt,:]
 
+    def plot(self):
+        Ns = self.samples.shape[-1]
+        if Ns < 10:
+            plt.plot(self.samples)
+        else:
+            print("Plotting 10 randomly selected samples")
+            plt.plot(self.samples[:,np.random.choice(Ns,5,replace=False)])
+
+    def plot_chain(self,index):
+        plt.plot(self.samples[index,:])
+
     def plot_ci(self,percent,exact=None):
         if exact is not None:
             plt.plot(exact,'.-')
