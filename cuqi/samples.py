@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from cuqi.diagnostics import Geweke
 
 class Samples(object):
 
@@ -24,3 +25,7 @@ class Samples(object):
             plt.legend(["Exact","Mean","Confidence Interval"])
         else:
             plt.legend(["Mean","Confidence Interval"])
+
+    def diagnostics(self):
+        # Geweke test
+        Geweke(self.samples.T)

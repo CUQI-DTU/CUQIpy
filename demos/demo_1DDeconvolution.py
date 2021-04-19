@@ -27,7 +27,7 @@ m,n = A.shape               # Dimensions of problem
 # where e ~ Gaussian white noise. Suppose we know the standard deviation of noise is 0.05.
 
 # %% Illustrate matrix (forward model)
-plt.imshow(A); plt.title("Matrix (convolution w. Gaussian kernel)"); plt.colorbar(); plt.show()
+plt.imshow(A); plt.title("Matrix"); plt.colorbar(); plt.show()
 
 # %% Illustrate phantom + data
 plt.plot(phantom); plt.title("Phantom (sinc function)"); plt.show()
@@ -78,6 +78,10 @@ result = IP.sample(Ns)
 
 # plot mean + 95% of samples
 result.plot_ci(95,exact=phantom)
+
+# %% Diagnostics
+
+result.diagnostics()
 
 # %% What happends if we change prior?
 
@@ -172,7 +176,10 @@ MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
 Nb = int(0.2*Ns)   
 
 # Run sampler (with adaptive parameter selection)
-result = cuqi.samples.Samples(MCMC.sample_adapt(Ns,Nb)[0])
+x_s = MCMC.sample_adapt(Ns,Nb)[0]
+
+# Store as cuqi samples
+result = cuqi.samples.Samples(x_s)
 
 # plot mean + 95 ci of samples using specific sampler
 result.plot_ci(95,exact=tp.exactSolution)
@@ -187,4 +194,3 @@ prior = cuqi.distribution.Gaussian(np.zeros(n),std,corrmat)
 IP = cuqi.problem.Type1(data,model,noise,prior)
 result = IP.sample(Ns)
 
-# %%
