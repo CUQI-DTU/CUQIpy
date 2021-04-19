@@ -5,10 +5,19 @@ from scipy.sparse import hstack
 from cuqi.samples import Samples
 
 class Model(object):
-    # Generic Model class.
-    
+    """
+    Parameters
+    ----------
+    forward : 2D ndarray or callable function
+        Forward operator
+    """
     def __init__(self,forward,dim=[]):
-        
+        """
+        Parameters
+        ----------
+        forward : 2D ndarray or callable function
+            Forward operator
+        """
         #Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function of some kind")
@@ -30,6 +39,13 @@ class Model(object):
             return self._forward_func(x)
     
 class LinearModel(Model):
+    """
+    Class-based representation of Linear forward operator.
+
+    :param forward: A matrix or callable function representing forward operator.
+    :param adjoint: A callable function representing adjoint operator.
+    :param dim: Dimensions of linear model.
+    """
     # Linear forward model with forward and adjoint (transpose).
     
     def __init__(self,forward,adjoint=None,dim=None):
