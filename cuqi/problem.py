@@ -7,7 +7,36 @@ class Generic(object):
         raise NotImplementedError
 
 class Type1(object):
+    """
+    Inverse problem represented by equation:
+
+    data = model(prior)+noise
+
+    Attributes
+    ----------
+        `data: ndarray`:
+            summary: 'The measurement data'
+        `model: cuqi.model.Model`:
+            summary: 'A cuqi forward model'
+            example: cuqi.model.LinearModel(A) #A is a matrix
+        `noise: cuqi.model.Distribution`:
+            summary: 'A cuqi distribution for the additive noise'
+            example: cuqi.distribution.Gaussian(mean, std, corrmat)
+        `prior: cuqi.model.Distribution`:
+            summary: 'A cuqi distribution for the prior'
+            example: cuqi.distribution.Gaussian(mean, std, corrmat)
+        `likelihood: cuqi.model.Distribution`:
+            summary: 'The likelihood distribution (auto generated)'
     
+    Methods
+    ----------
+        `MAP()`:
+            summary: 'Compute MAP estimate of the inverse problem.'
+            NB: 'Requires the prior to be defined.'
+        `Sample(Ns)`:
+            summary: 'Sample Ns samples of the inverse problem.'
+            NB: 'Requires the prior to be defined.'
+    """
     def __init__(self,data,model,noise,prior):
         self.data = data
         self.model = model
@@ -44,7 +73,7 @@ class Type1(object):
 
         
     def sample(self,Ns=100):
-
+        """Performs sampling of cuqi problem."""
         # Gaussian Likelihood, Cauchy prior or Laplace prior
         if isinstance(self.likelihood, cuqi.distribution.Gaussian) and (isinstance(self.prior, cuqi.distribution.Cauchy_diff) or isinstance(self.prior, cuqi.distribution.Laplace_diff)):
             
