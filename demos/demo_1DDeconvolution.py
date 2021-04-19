@@ -38,24 +38,34 @@ plt.plot(data); plt.title("Measured (noisy) data"); plt.show()
 # Define as linear model
 model = cuqi.model.LinearModel(A)
 
+
+
 # %% To carry out UQ we need to assume distributions for our random variables
 
-#  Define noise
+# Define Gaussian, zero mean i.i.d. noise with 0.05 std.
 noise_std = 0.05
 noise = cuqi.distribution.Gaussian(np.zeros(m),noise_std,np.eye(m))
 
-plt.plot(noise.sample(5)); plt.title('Realizations from noise'); plt.show()
+# Plot samples of noise
+noise.sample(5).plot()
+
+plt.title('Realizations from noise'); plt.show()
 
 # %% Define prior
 prior_std = 0.2
 prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,np.eye(n))
 
-plt.plot(prior.sample(5)); plt.title('Realizations from prior'); plt.show()
+# Plot samples of prior
+prior.sample(5).plot()
+plt.title('Realizations from prior'); plt.show()
+
 
 # %% Define cuqi (inverse) problem
 
 # Type1: data = model(x)+noise
 IP = cuqi.problem.Type1(data,model,noise,prior)
+
+
 
 # %% Compute MAP estimate.
 # Depending on defined model, noise and prior a method for estimating map is selected.
@@ -76,12 +86,16 @@ Ns = 5000
 # Sample (depending on defined model, noise and prior a sampler is selected)
 result = IP.sample(Ns)
 
-# plot mean + 95% of samples
+
+# %% plot mean + 95% of samples
+
 result.plot_ci(95,exact=phantom)
+
 
 # %% Diagnostics
 
 result.diagnostics()
+
 
 # %% What happends if we change prior?
 
@@ -94,18 +108,21 @@ corrmat = diags(corr, indexes, shape=(n, n)).toarray()
 # Set new prior
 IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
 
-plt.plot(IP.prior.sample(5)); plt.title('Realizations from prior'); plt.show()
 
+# Plot samples from prior
+plt.plot(IP.prior.sample(5)); 
+plt.title('Realizations from prior'); plt.show()
 
-# %% Sample
+# %% Sample new IP
 result = IP.sample(Ns)
 
 # plot mean + 95% of samples
 result.plot_ci(95,exact=phantom)
 
-# %% We provide a "testproblem" module
+# %% We provide test problems / prototype problems
 
 tp = cuqi.testproblem.Deconvolution() #Default values
+
 
 # %% Set up Deconvolution test problem
 # Parameters for Deconvolution problem
@@ -123,6 +140,7 @@ tp = cuqi.testproblem.Deconvolution(
     noise_type=noise_type[0],
     noise_std = noise_std
 )
+
 
 #%% Plot exact solution
 plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
@@ -153,7 +171,8 @@ result = tp.sample(Ns)
 # plot mean + 95% of samples
 result.plot_ci(95,exact=tp.exactSolution)
 
-# %% Try sampling using a specific sampler
+
+# %% Lets use some of the samplers directly from the sampler module
 
 # Set up Laplace prior
 loc = np.zeros(dim)

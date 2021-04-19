@@ -49,7 +49,7 @@ noise = ...
 # Plot samples of noise
 ...
 
-
+plt.title('Realizations from noise'); plt.show()
 
 # %% Define prior (Gaussian, zero mean i.i.d. with 0.2 std)
 prior_std = 0.2
@@ -57,7 +57,7 @@ prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,np.eye(n))
 
 # Plot samples of prior
 prior.sample(5).plot()
-
+plt.title('Realizations from prior'); plt.show()
 
 
 # %% Define cuqi (inverse) problem
@@ -86,6 +86,7 @@ Ns = 5000
 # Sample (depending on defined model, noise and prior a sampler is selected)
 samples = ...
 
+
 # %% plot mean + 95% of samples
 
 ...
@@ -94,6 +95,7 @@ samples = ...
 # %% Diagnostics (Geweke test etc.)
 
 ...
+
 
 # %% What happends if we change prior?
 
@@ -104,10 +106,12 @@ indexes = np.linspace(-l/2,l/2,l+1,dtype=int)
 corrmat = diags(corr, indexes, shape=(n, n)).toarray()
 
 # Set new prior
-IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
+...
+
 
 # Plot samples from prior
-IP.prior.sample(5).plot()
+...
+plt.title('Realizations from prior'); plt.show()
 
 # %% Sample new IP
 result = IP.sample(Ns)
@@ -118,6 +122,7 @@ result.plot_ci(95,exact=phantom)
 # %% We provide test problems / prototype problems
 
 tp = .... #Deconvolution problem testproblem
+
 
 # %% Set up Deconvolution test problem
 # Parameters for Deconvolution problem
@@ -135,6 +140,7 @@ tp = cuqi.testproblem.Deconvolution(
     noise_type=noise_type[0],
     noise_std = noise_std
 )
+
 
 #%% Plot exact solution
 plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
@@ -165,6 +171,7 @@ result = tp.sample(Ns)
 # plot mean + 95% of samples
 result.plot_ci(95,exact=tp.exactSolution)
 
+
 # %% Lets use some of the samplers directly from the sampler module
 
 # Set up Laplace prior
@@ -174,7 +181,7 @@ scale = delta*1/dim
 prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
 
 # Target and proposal
-def target(x): return tp.likelihood.logpdf(tp.data,x)+prior.logpdf(x)
+def target(x): return ... #<--- Add likelihood+prior logpdf
 def proposal(x,scale): return np.random.normal(x,scale)
 
 # Parameters for sampler
