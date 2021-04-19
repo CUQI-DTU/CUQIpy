@@ -109,9 +109,13 @@ class Normal(object):
 
         """
         if rng is not None:
-            return rng.normal(self.mean, self.std, (N,self.dim))
+            s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
-            return np.random.normal(self.mean, self.std, (N,self.dim))
+            s = np.random.normal(self.mean, self.std, (N,self.dim))
+        if N==1:
+            return s[0][0]
+        else:
+            return s
 
 
 
