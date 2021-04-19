@@ -1,17 +1,73 @@
-# %%
-import sys
+# %% Initialize
 sys.path.append("..") 
-import cuqi
-import matplotlib.pyplot as plt
 import numpy as np
-import time
+import matplotlib.pyplot as plt
+import cuqi
 
 # Make sure cuqi is reloaded every time
 %load_ext autoreload
 %autoreload 2
 
-# Set rng
+# Set rng seed
 np.random.seed(0)
+# %% Load file with forward matrix and data:
+ref = np.load("data/Deconvolution.npz")
+A = ref["A"]
+data = ref["data"]
+phantom = ref["phantom"]
+m,n = A.shape
+
+#Plot loaded matrix + data
+plt.imshow(A); plt.title("Deconvolution matrix"); plt.colorbar(); plt.show()
+plt.plot(phantom); plt.title("Phantom"); plt.show()
+plt.plot(data); plt.title("Measured data"); plt.show()
+
+# %% Set up CUQI problem
+
+# Define model
+model = cuqi.model.LinearModel(A)
+
+# Define noise
+noise_std = 0.1
+noise = cuqi.distribution.Gaussian(np.zeros(m),noise_std,np.eye(m))
+
+# Define prior
+prior_std = 0.1
+prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,np.eye(n))
+
+# Define cuqi (inverse) problem: data = model(x)+noise
+IP = cuqi.problem.Type1(data,model,noise,prior)
+
+# %% Compute map estimate
+x_map = IP.MAP()
+
+# Plot
+plt.plot(phantom,'.-')
+plt.plot(x_map,'.-')
+plt.title("Map estimate")
+plt.legend(["Exact","MAP"])
+plt.show()
+
+
+# %% Sample test problem
+# Number of samples
+Ns = 5000
+
+# Sample
+result = IP.sample(Ns)
+
+# plot mean + 95 ci of samples
+x_mean = np.mean(result,axis=1)
+x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
+
+plt.plot(phantom,'.-')
+plt.plot(x_mean,'.-')
+plt.fill_between(np.arange(n),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
+plt.title("Posterior samples")
+plt.legend(["Exact","Posterior mean","Confidense interval"])
+plt.show()
+
+
 # %% Set up Deconvolution test problem
 # Parameters
 dim = 128
@@ -34,39 +90,6 @@ plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 
 # Plot data
 plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
-
-# %% Set a prior and use MAP estimate.
-# Prior
-prior_std = 0.1
-tp.prior = cuqi.distribution.Gaussian(np.zeros(dim),prior_std,np.eye(dim))
-
-# Map estimate
-x_map = tp.MAP()
-
-# Plot
-plt.plot(tp.exactSolution,'.-')
-plt.plot(x_map,'.-')
-plt.title("Map estimate")
-plt.legend(["Exact","MAP"])
-plt.show()
-
-# %% Sample test problem
-# Number of samples
-Ns = 5000
-
-# Sample
-result = tp.sample(Ns)
-
-# plot mean + 95 ci of samples
-x_mean = np.mean(result,axis=1)
-x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
-
-plt.plot(tp.exactSolution,'.-')
-plt.plot(x_mean,'.-')
-plt.fill_between(np.arange(tp.model.dim[1]),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
-plt.title("Posterior samples")
-plt.legend(["Exact","Posterior mean","Confidense interval"])
-plt.show()
 
 # %% Try sampling using a specific sampler
 # Set up target and proposal
