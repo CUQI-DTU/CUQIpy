@@ -37,6 +37,8 @@ def Geweke(X, A = 0.1, B = 0.5):
     # show
     idx1 = np.where(p >= 0.95)   
     idx2 = np.where(p < 0.95)    
+    print("-------------------------- WORK-IN-PROGRESS ---------------------")
+    print("------------ DO NOT EXPECT ACCURATE DIAGNOSTIC FOR NOW ----------")
     print('Geweke test passed at indices ', idx1, '\n') 
     print('Geweke test NOT passed at indices ', idx2, '\n')
         
