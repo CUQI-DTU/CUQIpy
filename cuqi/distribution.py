@@ -206,7 +206,7 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N, rng=None):   # TODO
+    def sample(self, N=1, rng=None):   # TODO
         if rng is not None:
             return rng.multivariate_normal(self.mean, self.Sigma, N).T
         else:
@@ -298,7 +298,7 @@ class GMRF(Gaussian):
         # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return np.exp(self.logpdf(x))
 
-    def sample(self, Ns, rng=None):
+    def sample(self, Ns=1, rng=None):
         if (self.BCs == 'zero'):
 
             if rng is not None:
