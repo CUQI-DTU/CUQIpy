@@ -1,62 +1,73 @@
-# %% Initialize
+# %% Initialize and import CUQI
 sys.path.append("..") 
 import numpy as np
 import matplotlib.pyplot as plt
 import cuqi
 
-# Make sure cuqi is reloaded every time
+# This makes sure modules are reloaded each time a function is called (optional)
 %load_ext autoreload
 %autoreload 2
 
-# Set rng seed
+# Set rng seed 
 np.random.seed(0)
 # %% Load file with forward matrix and data:
 ref = np.load("data/Deconvolution.npz")
-A = ref["A"]
-data = ref["data"]
-phantom = ref["phantom"]
-m,n = A.shape
+A = ref["A"]                # Matrix (forward model) - Convolution with Gaussian kernel
+data = ref["data"]          # Data (noisy)
+phantom = ref["phantom"]     # Phantom / ground truth
+m,n = A.shape               # Dimensions of problem
 
-#Plot loaded matrix + data
-plt.imshow(A); plt.title("Deconvolution matrix"); plt.colorbar(); plt.show()
-plt.plot(phantom); plt.title("Phantom"); plt.show()
-plt.plot(data); plt.title("Measured data"); plt.show()
+# This deconvolution inverse problem looks like:
+# b = A*x+e
+# where e ~ Gaussian white noise.
 
-# %% Set up CUQI problem
+# %% Illustrate matrix (forward model)
+plt.imshow(A); plt.title("Matrix (convolution w. Gaussian kernel)"); plt.colorbar(); plt.show()
 
-# Define model
+# %% Illustrate phantom + data
+plt.plot(phantom); plt.title("Phantom (sinc function)"); plt.show()
+plt.plot(data); plt.title("Measured (noisy) data"); plt.show()
+
+# %% Set up CUQI problem forward model
+
+# Define as linear model
 model = cuqi.model.LinearModel(A)
 
-# Define noise
-noise_std = 0.1
+# %% Define distributions
+
+#  Define noise
+noise_std = 0.05
 noise = cuqi.distribution.Gaussian(np.zeros(m),noise_std,np.eye(m))
 
 # Define prior
 prior_std = 0.1
 prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,np.eye(n))
 
-# Define cuqi (inverse) problem: data = model(x)+noise
+# %% Define cuqi (inverse) problem
+
+# Type1: data = model(x)+noise
 IP = cuqi.problem.Type1(data,model,noise,prior)
 
-# %% Compute map estimate
-x_map = IP.MAP()
+# %% Compute MAP estimate.
+# Depending on defined model, noise and prior a method for estimating map is selected.
+x_MAP = IP.MAP() 
 
 # Plot
 plt.plot(phantom,'.-')
-plt.plot(x_map,'.-')
+plt.plot(x_MAP,'.-')
 plt.title("Map estimate")
 plt.legend(["Exact","MAP"])
 plt.show()
 
 
-# %% Sample test problem
+# %% Sample cuqi (inverse) problem
 # Number of samples
-Ns = 5000
+Ns = 25000
 
-# Sample
+# Sample (depending on defined model, noise and prior a sampler is selected)
 result = IP.sample(Ns)
 
-# plot mean + 95 ci of samples
+# plot mean + 95% of samples
 x_mean = np.mean(result,axis=1)
 x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
 
@@ -64,9 +75,30 @@ plt.plot(phantom,'.-')
 plt.plot(x_mean,'.-')
 plt.fill_between(np.arange(n),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
 plt.title("Posterior samples")
-plt.legend(["Exact","Posterior mean","Confidense interval"])
+plt.legend(["Exact","Posterior mean","Confidence interval"])
 plt.show()
 
+# %% What happends if we change prior?
+
+# Set new prior
+#IP.prior = cuqi.distribution.Cauchy_diff(np.zeros(n),10/n,'neumann')
+IP.prior = cuqi.distribution.GMRF(np.zeros(n), 10, n, 1, 'zero')
+# Sample
+result = IP.sample(Ns)
+
+# plot mean + 95% of samples
+x_mean = np.mean(result,axis=1)
+x_lo95, x_up95 = np.percentile(result, [2.5, 97.5], axis=1)
+
+plt.plot(phantom,'.-')
+plt.plot(x_mean,'.-')
+plt.fill_between(np.arange(n),x_up95, x_lo95, color='dodgerblue', alpha=0.25)
+plt.title("Posterior samples")
+plt.legend(["Exact","Posterior mean","Confidence interval"])
+plt.show()
+
+# %%
+# Look at chains etc.
 
 # %% Set up Deconvolution test problem
 # Parameters
