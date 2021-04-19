@@ -5,7 +5,8 @@ from scipy.sparse import diags
 import matplotlib.pyplot as plt
 import cuqi
 
-# This makes sure modules are reloaded each time a function is called (optional)
+# This makes sure modules are reloaded 
+# each time a function is called (optional)
 %load_ext autoreload
 %autoreload 2
 
@@ -17,14 +18,15 @@ np.random.seed(0)
 ref = np.load("data/Deconvolution.npz")
 
 # Extract parameters
-A = ref["A"]                # Matrix (forward model) - Convolution with Gaussian kernel
+A = ref["A"]                # Matrix (forward model)
 data = ref["data"]          # Data (noisy)
 phantom = ref["phantom"]    # Phantom / ground truth
 m,n = A.shape               # Dimensions of problem
 
 # This deconvolution inverse problem looks like:
 # b = A*x+e
-# where e ~ Gaussian white noise. Suppose we know the standard deviation of noise is 0.05.
+# where e ~ Gaussian white noise.
+# Suppose we know the standard deviation of noise is 0.05.
 
 # %% Illustrate matrix (forward model)
 plt.imshow(A); plt.title("Matrix"); plt.colorbar(); plt.show()
@@ -40,7 +42,8 @@ model = ...
 
 
 
-# %% To carry out UQ we need to assume distributions for our random variables
+# %% To carry out UQ we need to assume distributions
+# for our random variables
 
 # Define Gaussian, zero mean i.i.d. noise with 0.05 std.
 noise_std = 0.05
@@ -83,7 +86,8 @@ plt.show()
 # Number of samples
 Ns = 5000
 
-# Sample (depending on defined model, noise and prior a sampler is selected)
+# Sample posterior related to inverse problem
+
 samples = ...
 
 
@@ -101,7 +105,8 @@ samples = ...
 
 # Define correlation matrix where 30 closest neighbours are correlated
 l = 30
-corr = np.linspace(0,1,int(l/2)+1); corr = np.hstack((corr,np.flipud(corr[:-1])))
+corr = np.linspace(0,1,int(l/2)+1)
+corr = np.hstack((corr,np.flipud(corr[:-1])))
 indexes = np.linspace(-l/2,l/2,l+1,dtype=int)
 corrmat = diags(corr, indexes, shape=(n, n)).toarray()
 
