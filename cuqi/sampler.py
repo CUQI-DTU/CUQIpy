@@ -161,8 +161,10 @@ class CWMH(object):
                 idx += Na
 
             # display iterations 
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+            if ((s % 5e2) == 0 and s < Nb) or s ==  Nb:
+                print('Burn-in', s, '/', Nb)
+            elif (s % 5e2) == 0:
+                print('Sample', s-Nb, '/', N)
 
         # remove burn-in
         samples = samples[:, Nb:]
