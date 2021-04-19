@@ -72,4 +72,11 @@ class LinearModel(Model):
             self._matrix = mat
 
             return self._matrix
+
+    def __mul__(self, x):
+        return self.forward(x)
+    
+    def __matmul__(self, x):
+        return self*x
+
         
