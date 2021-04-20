@@ -161,7 +161,9 @@ class Deconvolution(Type1):
                 phantom_param = None,
                 noise_type = "gaussian",
                 noise_std = 0.05,
-                prior = None
+                prior = None,
+                data = None,
+                noise = None
                 ):
         
         # Set up model
@@ -174,17 +176,19 @@ class Deconvolution(Type1):
         # Generate exact data
         b_exact = model.forward(x_exact)
 
-        # Define and add noise
-        if noise_type.lower() == "gaussian":
-            noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
-        elif noise_type.lower() == "xxxgaussian":
-            noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
-        #TODO elif noise_type.lower() == "poisson":
-        #TODO elif noise_type.lower() == "logpoisson":
-        else:
-            raise NotImplementedError("This noise type is not implemented")
-
-        data = b_exact + noise.sample(1).flatten()
+        if noise is None:
+            # Define and add noise
+            if noise_type.lower() == "gaussian":
+                noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
+            elif noise_type.lower() == "xxxgaussian":
+                noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
+            #TODO elif noise_type.lower() == "poisson":
+            #TODO elif noise_type.lower() == "logpoisson":
+            else:
+                raise NotImplementedError("This noise type is not implemented")
+        
+        if data is None:
+            data = b_exact + noise.sample(1).flatten()
 
         # Initialize Deconvolution as Type1 problem
         super().__init__(data,model,noise,prior)
