@@ -150,9 +150,11 @@ class Gamma(object):
 # ========================================================================
 class Gaussian(object):
 
-    def __init__(self, mean, std, corrmat):
+    def __init__(self, mean, std, corrmat=None):
         self.mean = mean
         self.std = std
+        if corrmat is None:
+            corrmat = np.eye(len(mean))
         self.R = corrmat
         self.dim = len(np.diag(corrmat))
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
