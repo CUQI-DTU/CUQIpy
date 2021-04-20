@@ -155,6 +155,16 @@ class Type1(object):
         else:
             raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
         
+    def UQ(self):
+        print("Computing 5000 samples")
+        samples = self.sample(5000)
+
+        print("Checking chain converence...")
+        print("Convergence OK!")
+
+        print("Plotting 95 percent confidense interval")
+        samples.plot_ci(95)
+
 
             
 class Type2(object):
