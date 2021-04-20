@@ -9,7 +9,7 @@ data  = np.load("data/Deconvolution.npz")["data"]  #Vector
 A     = np.load("data/Deconvolution.npz")["A"]     #Matrix
 m,n   = A.shape                                    #Dimension
 
-# CUQI UQ in 5 lines of code.. 
+# CUQI UQ in a few lines of code.. 
 model = cuqi.model.LinearModel(A)
 noise = cuqi.distribution.Gaussian(np.zeros(m),0.05)
 prior = cuqi.distribution.Gaussian(np.zeros(n),0.1)
@@ -17,7 +17,7 @@ IP = cuqi.problem.Type1(data,model,noise,prior) #data=model(prior)+noise
 IP.UQ()
 
 # %%
-# CUQI testproblems (includes exact solution etc.)
+# Wrap into CUQI "testproblem".
 TP = cuqi.testproblem.Deconvolution(phantom="sinc",prior=prior)
 TP.UQ()
 
