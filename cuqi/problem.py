@@ -163,7 +163,10 @@ class Type1(object):
         print("Convergence OK!")
 
         print("Plotting 95 percent confidense interval")
-        samples.plot_ci(95)
+        if hasattr(self,"exactSolution"):
+            samples.plot_ci(95,exact=self.exactSolution)
+        else:
+            samples.plot_ci(95)
 
 
             
