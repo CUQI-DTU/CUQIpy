@@ -159,9 +159,6 @@ class Type1(object):
         print("Computing 5000 samples")
         samples = self.sample(5000)
 
-        print("Checking chain converence...")
-        print("Convergence OK!")
-
         print("Plotting 95 percent confidense interval")
         if hasattr(self,"exactSolution"):
             samples.plot_ci(95,exact=self.exactSolution)
