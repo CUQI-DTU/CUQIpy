@@ -143,8 +143,11 @@ class Type1(object):
             #ToDO: Switch to pCN
             MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
             
-            #Run sampler
+            
+            #TODO: Select burn-in 
             #Nb = int(0.25*Ns)   # burn-in
+
+            #Run sampler
             ti = time.time()
             x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
             print('Elapsed time:', time.time() - ti)
@@ -159,7 +162,7 @@ class Type1(object):
         print("Computing 5000 samples")
         samples = self.sample(5000)
 
-        print("Plotting 95 percent confidense interval")
+        print("Plotting 95 percent confidence interval")
         if hasattr(self,"exactSolution"):
             samples.plot_ci(95,exact=self.exactSolution)
         else:

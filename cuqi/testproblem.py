@@ -154,17 +154,17 @@ class Deconvolution(Type1):
 
     """
     def __init__(self,
-                dim = 128,
-                kernel = "gauss",
-                kernel_param = None,
-                phantom = "gauss",
-                phantom_param = None,
-                noise_type = "gaussian",
-                noise_std = 0.05,
-                prior = None,
-                data = None,
-                noise = None
-                ):
+        dim=128,
+        kernel="gauss",
+        kernel_param=None,
+        phantom="gauss",
+        phantom_param=None,
+        noise_type="gaussian",
+        noise_std=0.05,
+        prior=None,
+        data=None,
+        noise=None
+        ):
         
         # Set up model
         A = _getCirculantMatrix(dim,kernel,kernel_param)

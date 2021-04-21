@@ -29,11 +29,13 @@ class Model(object):
         self.dim = dim
                
     def forward(self, x):
+        # If input is samples then compute forward for each sample 
+        # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
             data_samples = np.zeros((self.dim[0],Ns))
             for s in range(Ns):
-                data_samples[:,s] = self.forward(x.samples[:,s])
+                data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
         else:
             return self._forward_func(x)
