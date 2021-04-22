@@ -72,7 +72,7 @@ class Type1(object):
 
 
         
-    def sample(self,Ns=100):
+    def sample(self, Ns=100):
         """Performs sampling of cuqi problem."""
         # Gaussian Likelihood, Cauchy prior or Laplace prior
         if isinstance(self.likelihood, cuqi.distribution.Gaussian) and (isinstance(self.prior, cuqi.distribution.Cauchy_diff) or isinstance(self.prior, cuqi.distribution.Laplace_diff)):
