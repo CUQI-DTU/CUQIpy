@@ -109,7 +109,7 @@ class Deconvolution(Type1):
     noise_type : string
         The type of noise
         "Gaussian" - Gaussian white noise¨
-        "xxxGaussian" - Scaled (by data) Gaussian noise
+        "scaledGaussian" - Scaled (by data) Gaussian noise
 
     noise_std : scalar
         Standard deviation of the noise
@@ -180,7 +180,7 @@ class Deconvolution(Type1):
             # Define and add noise
             if noise_type.lower() == "gaussian":
                 noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
-            elif noise_type.lower() == "xxxgaussian":
+            elif noise_type.lower() == "scaledgaussian":
                 noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
             #TODO elif noise_type.lower() == "poisson":
             #TODO elif noise_type.lower() == "logpoisson":

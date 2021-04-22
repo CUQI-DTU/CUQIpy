@@ -134,7 +134,7 @@ tp = cuqi.testproblem.Deconvolution() #Default values
 dim = 128
 kernel = ["Gauss","Sinc","vonMises"]
 phantom = ["Gauss","Sinc","vonMises","Square","Hat","Bumps","DerivGauss"]
-noise_type = ["Gaussian","xxxGaussian"]
+noise_type = ["Gaussian","ScaledGaussian"]
 noise_std = 0.05
 
 # Test problem
