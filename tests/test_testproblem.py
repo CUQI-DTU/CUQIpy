@@ -48,8 +48,8 @@ def test_Deconvolution_PhantomNorm2_regression(dim,phantom,phantom_param,expecte
     assert np.linalg.norm(x) == approx(expected,rel=1e-4)
 
 @pytest.mark.parametrize("noise_type,noise_std,expected",[
-    ("xxxgaussian",0.2,74.32896068980779),   
-    ("xxxgaussian",3,249.12043011440917),   
+    ("scaledgaussian",0.2,74.32896068980779),   
+    ("scaledgaussian",3,249.12043011440917),   
     ("gaussian",0.2,75.7589097857315),  
     ("gaussian",3,79.76620602993175),  
 ])
