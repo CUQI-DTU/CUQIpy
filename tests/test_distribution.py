@@ -66,7 +66,7 @@ def test_Gaussian_cov():
 def test_Gaussian_sample_regression(mean,std,R,expected):
     rng = np.random.RandomState(0)
     pX_1 = cuqi.distribution.Gaussian(np.array(mean), np.array(std), np.array(R))
-    samples = pX_1.sample(5,rng=rng)
+    samples = pX_1.sample(5,rng=rng).samples
     assert np.allclose( samples, np.array(expected))
 
 @pytest.mark.parametrize("seed",[3,4,5],ids=["seed3","seed4","seed5"])
@@ -90,7 +90,7 @@ def test_Normal_rng(mean,var,seed):
 def test_Gaussian_rng(mean,std,R):
     np.random.seed(3)
     rng = np.random.RandomState(3)
-    assert np.allclose(cuqi.distribution.Gaussian(mean,std,R).sample(10),cuqi.distribution.Gaussian(mean,std,R).sample(10,rng=rng))
+    assert np.allclose(cuqi.distribution.Gaussian(mean,std,R).sample(10).samples,cuqi.distribution.Gaussian(mean,std,R).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,128,1,'zero'),cuqi.distribution.GMRF(np.ones(128),35,128,1,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,128,1,'neumann')])
 def test_GMRF_rng(dist):

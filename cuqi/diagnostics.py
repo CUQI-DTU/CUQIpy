@@ -7,6 +7,7 @@
 import numpy as np
 import scipy as sp
 import scipy.stats as sps
+import warnings
 
 
 
@@ -37,6 +38,7 @@ def Geweke(X, A = 0.1, B = 0.5):
     # show
     idx1 = np.where(p >= 0.95)   
     idx2 = np.where(p < 0.95)    
+    warnings.warn("Geweke's diagnostics is a work-in-progress")
     print('Geweke test passed at indices ', idx1, '\n') 
     print('Geweke test NOT passed at indices ', idx2, '\n')
         

@@ -2,11 +2,22 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 
+from cuqi.samples import Samples
+
 class Model(object):
-    # Generic Model class.
-    
+    """
+    Parameters
+    ----------
+    forward : 2D ndarray or callable function
+        Forward operator
+    """
     def __init__(self,forward,dim=[]):
-        
+        """
+        Parameters
+        ----------
+        forward : 2D ndarray or callable function
+            Forward operator
+        """
         #Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function of some kind")
@@ -18,9 +29,25 @@ class Model(object):
         self.dim = dim
                
     def forward(self, x):
-        return self._forward_func(x)
+        # If input is samples then compute forward for each sample 
+        # TODO: Check if this can be done all-at-once for computational speed-up
+        if isinstance(x,Samples):
+            Ns = x.samples.shape[-1]
+            data_samples = np.zeros((self.dim[0],Ns))
+            for s in range(Ns):
+                data_samples[:,s] = self._forward_func(x.samples[:,s])
+            return Samples(data_samples)
+        else:
+            return self._forward_func(x)
     
 class LinearModel(Model):
+    """
+    Class-based representation of Linear forward operator.
+
+    :param forward: A matrix or callable function representing forward operator.
+    :param adjoint: A callable function representing adjoint operator.
+    :param dim: Dimensions of linear model.
+    """
     # Linear forward model with forward and adjoint (transpose).
     
     def __init__(self,forward,adjoint=None,dim=None):
@@ -72,4 +99,11 @@ class LinearModel(Model):
             self._matrix = mat
 
             return self._matrix
+
+    def __mul__(self, x):
+        return self.forward(x)
+    
+    def __matmul__(self, x):
+        return self*x
+
         

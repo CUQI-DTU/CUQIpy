@@ -7,7 +7,36 @@ class Generic(object):
         raise NotImplementedError
 
 class Type1(object):
+    """
+    Inverse problem represented by equation:
+
+    data = model(prior)+noise
+
+    Attributes
+    ----------
+        `data: ndarray`:
+            summary: 'The measurement data'
+        `model: cuqi.model.Model`:
+            summary: 'A cuqi forward model'
+            example: cuqi.model.LinearModel(A) #A is a matrix
+        `noise: cuqi.model.Distribution`:
+            summary: 'A cuqi distribution for the additive noise'
+            example: cuqi.distribution.Gaussian(mean, std, corrmat)
+        `prior: cuqi.model.Distribution`:
+            summary: 'A cuqi distribution for the prior'
+            example: cuqi.distribution.Gaussian(mean, std, corrmat)
+        `likelihood: cuqi.model.Distribution`:
+            summary: 'The likelihood distribution (auto generated)'
     
+    Methods
+    ----------
+        `MAP()`:
+            summary: 'Compute MAP estimate of the inverse problem.'
+            NB: 'Requires the prior to be defined.'
+        `Sample(Ns)`:
+            summary: 'Sample Ns samples of the inverse problem.'
+            NB: 'Requires the prior to be defined.'
+    """
     def __init__(self,data,model,noise,prior):
         self.data = data
         self.model = model
@@ -43,10 +72,10 @@ class Type1(object):
 
 
         
-    def sample(self,Ns=100):
-
-        # Gaussian Likelihood, Cauchy prior
-        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Cauchy_diff):
+    def sample(self, Ns=100):
+        """Performs sampling of cuqi problem."""
+        # Gaussian Likelihood, Cauchy prior or Laplace prior
+        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and (isinstance(self.prior, cuqi.distribution.Cauchy_diff) or isinstance(self.prior, cuqi.distribution.Laplace_diff)):
             
             # Dimension
             n = self.prior.dim
@@ -66,10 +95,39 @@ class Type1(object):
             x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
             print('Elapsed time:', time.time() - ti)
             
-            return x_s
+            return cuqi.samples.Samples(x_s)
         
-        # Gaussian Likelihood, Gaussian prior
+        # Gaussian Likelihood, Gaussian prior, linear model (closed-form expression)
+        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian) and not isinstance(self.prior, cuqi.distribution.GMRF) and isinstance(self.model, cuqi.model.LinearModel): 
+            
+            # Start timing
+            ti = time.time()
 
+            A  = self.model.get_matrix()
+            b  = self.data
+            Ce = self.likelihood.Sigma
+            x0 = self.prior.mean
+            Cx = self.prior.Sigma
+
+            # Preallocate samples
+            n = self.prior.dim 
+            x_s = np.zeros((n,Ns))
+
+            x_map = self.MAP() #Compute MAP estimate
+            C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
+            L = np.linalg.cholesky(C)
+            for s in range(Ns):
+                x_s[:,s] = x_map + L@np.random.randn(n)
+                # display iterations 
+                if (s % 5e2) == 0:
+                    print("\r",'Sample', s, '/', Ns, end="")
+
+            print("\r",'Sample', s+1, '/', Ns)
+            print('Elapsed time:', time.time() - ti)
+            
+            return cuqi.samples.Samples(x_s)
+
+        # Gaussian Likelihood, Gaussian prior
         elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
             
             # Dimension
@@ -85,17 +143,31 @@ class Type1(object):
             #ToDO: Switch to pCN
             MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
             
+            
+            #TODO: Select burn-in 
+            #Nb = int(0.25*Ns)   # burn-in
+
             #Run sampler
             ti = time.time()
             x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
             print('Elapsed time:', time.time() - ti)
             
-            return x_s
+            return cuqi.samples.Samples(x_s)
             
         #If no implementation exists give error
         else:
             raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
         
+    def UQ(self):
+        print("Computing 5000 samples")
+        samples = self.sample(5000)
+
+        print("Plotting 95 percent confidence interval")
+        if hasattr(self,"exactSolution"):
+            samples.plot_ci(95,exact=self.exactSolution)
+        else:
+            samples.plot_ci(95)
+
 
             
 class Type2(object):

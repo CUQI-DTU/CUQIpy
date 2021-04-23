@@ -4,6 +4,7 @@ from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
+from cuqi.samples import Samples
 
 # import sksparse
 # from sksparse.cholmod import cholesky
@@ -109,9 +110,13 @@ class Normal(object):
 
         """
         if rng is not None:
-            return rng.normal(self.mean, self.std, (N,self.dim))
+            s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
-            return np.random.normal(self.mean, self.std, (N,self.dim))
+            s = np.random.normal(self.mean, self.std, (N,self.dim))
+        if N==1:
+            return s[0][0]
+        else:
+            return s
 
 
 
@@ -145,9 +150,11 @@ class Gamma(object):
 # ========================================================================
 class Gaussian(object):
 
-    def __init__(self, mean, std, corrmat):
+    def __init__(self, mean, std, corrmat=None):
         self.mean = mean
         self.std = std
+        if corrmat is None:
+            corrmat = np.eye(len(mean))
         self.R = corrmat
         self.dim = len(np.diag(corrmat))
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
@@ -202,11 +209,16 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N, rng=None):   # TODO
+    def sample(self, N=1, rng=None):   # TODO
         if rng is not None:
-            return rng.multivariate_normal(self.mean, self.Sigma, N).T
+            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
         else:
-            return np.random.multivariate_normal(self.mean, self.Sigma, N).T
+            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
+            
+        if N==1:
+            return s
+        else:
+            return Samples(s)
 
 
 
@@ -294,7 +306,7 @@ class GMRF(Gaussian):
         # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return np.exp(self.logpdf(x))
 
-    def sample(self, Ns, rng=None):
+    def sample(self, Ns=1, rng=None):
         if (self.BCs == 'zero'):
 
             if rng is not None:
