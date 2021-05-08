@@ -42,7 +42,7 @@ sY = pY.sample(10000)
 
 #%% Define geometry and parameter for GMRF distribution
 N = 150       # number of pixels
-dom = 1      # 1D or 2D domain
+dom = 2      # 1D or 2D domain
 if (dom == 1):
    n = N 
 elif (dom == 2):
@@ -64,6 +64,8 @@ sampleX = pX.sample(Ns)
 # Display samples - Samples.plot makes different plot depending on dimension
 #figure
 #sampleX.plot(6)
+
+
 if (dom == 1):
     tt = np.linspace(0, 1, N)
     plt.figure()
@@ -89,3 +91,5 @@ elif (dom == 2):
         plt.gca().set_aspect('equal', adjustable='box')
         plt.pause(1.5)
         plt.clf()
+
+# %%
