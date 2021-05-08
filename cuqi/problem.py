@@ -233,12 +233,14 @@ class Type1(object):
         else:
             raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
         
-    def UQ(self):
+    def UQ(self,exact=None):
         print("Computing 5000 samples")
         samples = self.sample(5000)
 
         print("Plotting 95 percent confidence interval")
-        if hasattr(self,"exactSolution"):
+        if exact is not None:
+            samples.plot_ci(95,exact=exact)
+        elif hasattr(self,"exactSolution"):
             samples.plot_ci(95,exact=self.exactSolution)
         else:
             samples.plot_ci(95)
