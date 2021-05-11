@@ -290,3 +290,76 @@ class PDEModel(Model):
             dx[i] = 0.0
         return jac.transpose()
         
+class FEniCSPDEModel(Model):
+    """
+    Parameters
+    ----------
+    forward : Problem variational form (includes boundary conditions and source terms)
+    mesh : FEniCS Mesh
+    Vh : A python list of Function spaces of the state variables, parameters, and adjoint variables
+    bc : forward problem boundary conditions (Dirichlet)
+    bc0: adjoint problem boundary conditions (Dirichlet)
+    """
+    def __init__(self, form, mesh, Vh, bc=None, bc0=None):
+        self.form = form
+        self.mesh = mesh
+        self.Vh  = Vh
+        self.bc  = bc
+        self.bc0 = bc0
+        self.dim = Vh[0].dim() 
+        
+
+    @classmethod
+    def Diffusion1D(cls, mesh=None, Vh=None, bc=None, bc0=None, f=None):
+        if mesh == None:
+            mesh = dl.UnitIntervalMesh(50)
+
+        if Vh == None:
+            Vh_STATE = dl.FunctionSpace(mesh, 'Lagrange', 1)
+            Vh_PARAMETER = dl.FunctionSpace(mesh, 'Lagrange', 1)
+            Vh_ADJOINT = dl.FunctionSpace(mesh, 'Lagrange', 1)
+            Vh = [Vh_STATE, Vh_PARAMETER, Vh_ADJOINT]
+
+        if bc == None:
+            assert(bc0 == None), "If bc0 is specified, bc must be specified as well."
+            def u_boundary(x, on_boundary):
+                return on_boundary
+
+            u_bdr = dl.Expression("x[0]", degree=1)
+            bc = dl.DirichletBC(Vh_STATE, u_bdr, u_boundary)
+
+            u_bdr0 = dl.Constant(0.0)
+            bc0 = dl.DirichletBC(Vh_ADJOINT, u_bdr0, u_boundary)
+
+        if f == None:
+            f = dl.Constant(0.0)
+
+        def form(u,m,p):
+            return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx            
+
+        return cls(form, mesh, Vh, bc=bc, bc0=bc0)
+
+
+    def _forward_func(self, m):
+        """
+        Input:
+        ----------
+        m: Bayesian problem parameter
+
+        Output:
+        ----------
+        u: solution
+
+        """
+        warnings.warn("_forward_func is implemented for steady_state linear PDE. "+\
+                       "The linearity is with respect to the state variables.")
+
+        m_fun = dl.Function(self.Vh[0])
+        m_fun.vector().set_local(m) 
+        Vh = self.Vh
+        u = dl.TrialFunction(Vh[0])
+        p = dl.TestFunction(Vh[0])
+        a, L  = dl.lhs(self.form(u,m_fun,p)), dl.rhs(self.form(u,m_fun,p))
+        u_sol = dl.Function(self.Vh[0])
+        dl.solve(a == L, u_sol, self.bc)
+        return u_sol.vector().get_local()
