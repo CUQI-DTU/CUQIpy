@@ -422,7 +422,5 @@ class FEniCSPDEModel(Model):
         Mobs = dl.assemble(u_test*self.obs_op(m_fun, u_fun)*dl.dx) 
         obs = dl.Function(self.Vh[0])
         dl.solve(M,obs.vector(),Mobs)
-        dl.plot(u_fun)
-        dl.plot(obs)
         return obs
 
