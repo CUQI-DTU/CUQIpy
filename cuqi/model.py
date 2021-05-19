@@ -106,4 +106,7 @@ class LinearModel(Model):
     def __matmul__(self, x):
         return self*x
 
+    def __call__(self,x):
+        return self.forward(x)
+
         
