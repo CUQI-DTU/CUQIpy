@@ -13,20 +13,20 @@ from cuqi.solver import CGLS
 #===================================================================
 class Linear_RTO(object):
     
-    def __init__(self, data, model, noise, prior, x0, maxit=10, tol=1e-6, shift=0):
+    def __init__(self, likelihood, prior, model, data, x0, maxit=10, tol=1e-6, shift=0):
         
         # independent Posterior samples. Linear model and Gaussian prior-likelihood
         if not isinstance(model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
-        if not isinstance(noise, cuqi.distribution.Gaussian):
-            raise TypeError("Noise needs to be Gaussian")
+        if not isinstance(likelihood, cuqi.distribution.Gaussian):
+            raise TypeError("Likelihood needs to be Gaussian")
 
         if not isinstance(prior, cuqi.distribution.GMRF): #TODO add support for Gaussian
             raise TypeError("Prior needs to be GMRF")
     
         # Extract lambda, delta, L
-        self.lambd = 1/(noise.std**2)
+        self.lambd = 1/(likelihood.std**2)
         self.delta = prior.prec
         self.L = prior.L
         self.A = model.get_matrix()
