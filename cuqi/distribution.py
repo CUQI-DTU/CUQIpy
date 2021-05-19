@@ -96,7 +96,7 @@ class Normal(object):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self,N=1, rng=None,x=None):
+    def sample(self,N=1, rng=None,input=None):
         """
         Draw sample(s) from distrubtion
         
@@ -111,8 +111,8 @@ class Normal(object):
         Generated sample(s)
 
         """
-        if x is not None:
-            mean = self.mean(x)
+        if input is not None:
+            mean = self.mean(input)
         else:
             mean = self.mean
 
