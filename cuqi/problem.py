@@ -3,7 +3,7 @@ import numpy as np
 import time
 
 
-from cuqi.distribution import Gaussian
+from cuqi.distribution import Cauchy_diff, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel
 
 class Generic(object):
@@ -11,16 +11,41 @@ class Generic(object):
         raise NotImplementedError
 
 class BayesianModel(object):
-    def __init__(self,data,model,prior):
-        self.data = data
-        self.model = model
+    """
+    Bayesian representation of inverse problem represented by likelihood and prior
+
+    Attributes
+    ----------
+        `likelihood: cuqi.model.Distribution`:
+            summary: 'The likelihood distribution'
+            example: model = cuqi.model.LinearModel(A)
+                     likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
+        `prior: cuqi.model.Distribution`:
+            summary: 'A cuqi distribution for the prior'
+            example: cuqi.distribution.Gaussian(mean, std, corrmat)
+        `model: cuqi.model.Model`:
+            summary: 'A cuqi forward model (optional)'
+            example: cuqi.model.LinearModel(A) #A is a matrix
+
+    Methods
+    ----------
+        `MAP()`:
+            summary: 'Compute MAP estimate of the inverse problem.'
+            NB: 'Requires the prior to be defined.'
+        `Sample(Ns)`:
+            summary: 'Sample Ns samples of the inverse problem.'
+            NB: 'Requires the prior to be defined.'
+    """
+    def __init__(self,likelihood,prior,model=None,data=None):
+        self.likelihood = likelihood
         self.prior = prior
+        self.model = model
+        self.data = data
 
-        self.likelihood = data
-
-    def MAP(self,data):
-        if self._checkBayesianModel(Gaussian,Gaussian,LinearModel):
-            b  = data
+    def MAP(self):
+        """MAP computed the MAP estimate of the posterior"""
+        if self._check(Gaussian,Gaussian,LinearModel):
+            b  = self.data
             A  = self.model.get_matrix()
             Ce = self.likelihood.Sigma
             x0 = self.prior.mean
@@ -32,22 +57,51 @@ class BayesianModel(object):
             
             return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
 
-    def sample_posterior(self,Ns,data):
+        #If no implementation exists give error
+        else:
+            raise NotImplementedError(f'MAP estimate is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
-        if self._checkBayesianModel(Gaussian,Gaussian,LinearModel):
-            return self._sampleMapCholesky(Ns,data)
+    def sample_posterior(self,Ns):
+        """Sample Ns samples of the posterior given data"""
 
-    def _checkBayesianModel(self,distL,distP,typeModel):
+        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
+            return self._sampleMapCholesky(Ns)
+
+        elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
+            return self._sampleCWMH(Ns)
+
+        elif self._check(Gaussian,Gaussian):
+            return self._samplepCN(Ns)
+
+        else:
+            raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+
+    def UQ(self,exact=None):
+        print("Computing 5000 samples")
+        samples = self.sample_posterior(5000)
+
+        print("Plotting 95 percent confidence interval")
+        if exact is not None:
+            samples.plot_ci(95,exact=exact)
+        elif hasattr(self,"exactSolution"):
+            samples.plot_ci(95,exact=self.exactSolution)
+        else:
+            samples.plot_ci(95)
+
+    def _check(self,distL,distP,typeModel=None):
         L = isinstance(self.likelihood,distL)
         P = isinstance(self.prior,distP)
-        M = isinstance(self.model,typeModel)
+        if typeModel is None:
+            M = True
+        else:
+            M = isinstance(self.model,typeModel)
         return L and P and M
 
-    def _sampleMapCholesky(self,Ns,data):
+    def _sampleMapCholesky(self,Ns):
         # Start timing
         ti = time.time()
 
-        b  = data
+        b  = self.data
         A  = self.model.get_matrix()
         Ce = self.likelihood.Sigma
         x0 = self.prior.mean
@@ -57,7 +111,7 @@ class BayesianModel(object):
         n = self.prior.dim 
         x_s = np.zeros((n,Ns))
 
-        x_map = self.MAP(data=b) #Compute MAP estimate
+        x_map = self.MAP() #Compute MAP estimate
         C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
         L = np.linalg.cholesky(C)
         for s in range(Ns):
@@ -70,183 +124,49 @@ class BayesianModel(object):
         print('Elapsed time:', time.time() - ti)
         
         return cuqi.samples.Samples(x_s)
-
-
-
-
-
-
-
-
-
-
-
-class Type1(object):
-    """
-    Inverse problem represented by equation:
-
-    data = model(prior)+noise
-
-    Attributes
-    ----------
-        `data: ndarray`:
-            summary: 'The measurement data'
-        `model: cuqi.model.Model`:
-            summary: 'A cuqi forward model'
-            example: cuqi.model.LinearModel(A) #A is a matrix
-        `noise: cuqi.model.Distribution`:
-            summary: 'A cuqi distribution for the additive noise'
-            example: cuqi.distribution.Gaussian(mean, std, corrmat)
-        `prior: cuqi.model.Distribution`:
-            summary: 'A cuqi distribution for the prior'
-            example: cuqi.distribution.Gaussian(mean, std, corrmat)
-        `likelihood: cuqi.model.Distribution`:
-            summary: 'The likelihood distribution (auto generated)'
     
-    Methods
-    ----------
-        `MAP()`:
-            summary: 'Compute MAP estimate of the inverse problem.'
-            NB: 'Requires the prior to be defined.'
-        `Sample(Ns)`:
-            summary: 'Sample Ns samples of the inverse problem.'
-            NB: 'Requires the prior to be defined.'
-    """
-    def __init__(self,data,model,noise,prior):
-        self.data = data
-        self.model = model
-        self.noise = noise
-        self.prior = prior
+    def _sampleCWMH(self,Ns):
+        # Dimension
+        n = self.prior.dim
         
-        #Likelihood is just noise dist w. different mean
-        self.likelihood = noise
-        self.likelihood.mean = lambda *args: self.model.forward(*args)
+        # Set up target and proposal
+        def target(x): return self.likelihood.logpdf(self.data,x) + self.prior.logpdf(x) #ToDo: Likelihood should only depend on x (not data)
+        def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
+
+        # Set up sampler
+        scale = 0.05*np.ones(n)
+        x0 = 0.5*np.ones(n)
+        MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
         
-    def MAP(self):
-        #MAP computed the MAP estimate of the posterior
+        # Run sampler
+        Nb = int(0.2*Ns)   # burn-in
+        ti = time.time()
+        x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
+        print('Elapsed time:', time.time() - ti)
         
-        #Linear model with Gaussian likelihood and prior
-        if isinstance(self.model, cuqi.model.LinearModel) and isinstance(self.likelihood,cuqi.distribution.Gaussian) and isinstance(self.prior,cuqi.distribution.Gaussian):
-            
-            A  = self.model.get_matrix()
-            b  = self.data
-            Ce = self.likelihood.Sigma
-            x0 = self.prior.mean
-            Cx = self.prior.Sigma
+        return cuqi.samples.Samples(x_s)
 
-            #Basic map estimate using closed-form expression
-            #Tarantola 2005 (3.37-3.38)
-            rhs = b-A@x0
-            sysm = A@Cx@A.T+Ce
-            
-            return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+    def _samplepCN(self,Ns):
+        # Dimension
+        n = self.prior.dim
         
-        #If no implementation exists give error
-        else:
-            raise NotImplementedError(f'MAP estimate is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
-
-
+        # Set up target and proposal
+        def target(x): return self.likelihood.logpdf(self.data,x) #ToDo: Likelihood should only depend on x (not data)
+        #def proposal(ns): return self.prior.sample(ns)
         
-    def sample(self, Ns=100):
-        """Performs sampling of cuqi problem."""
-        # Gaussian Likelihood, Cauchy prior or Laplace prior
-        if isinstance(self.likelihood, cuqi.distribution.Gaussian) and (isinstance(self.prior, cuqi.distribution.Cauchy_diff) or isinstance(self.prior, cuqi.distribution.Laplace_diff)):
-            
-            # Dimension
-            n = self.prior.dim
-            
-            # Set up target and proposal
-            def target(x): return self.likelihood.logpdf(self.data,x) + self.prior.logpdf(x) #ToDo: Likelihood should only depend on x (not data)
-            def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
-
-            # Set up sampler
-            scale = 0.05*np.ones(n)
-            x0 = 0.5*np.ones(n)
-            MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
-            
-            # Run sampler
-            Nb = int(0.2*Ns)   # burn-in
-            ti = time.time()
-            x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
-            print('Elapsed time:', time.time() - ti)
-            
-            return cuqi.samples.Samples(x_s)
+        scale = 0.02
+        x0 = np.zeros(n)
         
-        # Gaussian Likelihood, Gaussian prior, linear model (closed-form expression)
-        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian) and not isinstance(self.prior, cuqi.distribution.GMRF) and isinstance(self.model, cuqi.model.LinearModel): 
-            
-            # Start timing
-            ti = time.time()
-
-            A  = self.model.get_matrix()
-            b  = self.data
-            Ce = self.likelihood.Sigma
-            x0 = self.prior.mean
-            Cx = self.prior.Sigma
-
-            # Preallocate samples
-            n = self.prior.dim 
-            x_s = np.zeros((n,Ns))
-
-            x_map = self.MAP() #Compute MAP estimate
-            C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
-            L = np.linalg.cholesky(C)
-            for s in range(Ns):
-                x_s[:,s] = x_map + L@np.random.randn(n)
-                # display iterations 
-                if (s % 5e2) == 0:
-                    print("\r",'Sample', s, '/', Ns, end="")
-
-            print("\r",'Sample', s+1, '/', Ns)
-            print('Elapsed time:', time.time() - ti)
-            
-            return cuqi.samples.Samples(x_s)
-
-        # Gaussian Likelihood, Gaussian prior
-        elif isinstance(self.likelihood, cuqi.distribution.Gaussian) and isinstance(self.prior, cuqi.distribution.Gaussian):
-            
-            # Dimension
-            n = self.prior.dim
-            
-            # Set up target and proposal
-            def target(x): return self.likelihood.logpdf(self.data,x) #ToDo: Likelihood should only depend on x (not data)
-            #def proposal(ns): return self.prior.sample(ns)
-            
-            scale = 0.02
-            x0 = np.zeros(n)
-            
-            #ToDO: Switch to pCN
-            MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
-            
-            
-            #TODO: Select burn-in 
-            #Nb = int(0.25*Ns)   # burn-in
-
-            #Run sampler
-            ti = time.time()
-            x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
-            print('Elapsed time:', time.time() - ti)
-            
-            return cuqi.samples.Samples(x_s)
-            
-        #If no implementation exists give error
-        else:
-            raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+        #ToDO: Switch to pCN
+        MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
         
-    def UQ(self,exact=None):
-        print("Computing 5000 samples")
-        samples = self.sample(5000)
+        
+        #TODO: Select burn-in 
+        #Nb = int(0.25*Ns)   # burn-in
 
-        print("Plotting 95 percent confidence interval")
-        if exact is not None:
-            samples.plot_ci(95,exact=exact)
-        elif hasattr(self,"exactSolution"):
-            samples.plot_ci(95,exact=self.exactSolution)
-        else:
-            samples.plot_ci(95)
-
-
-            
-class Type2(object):
-    def __init__(self):
-        raise NotImplementedError
+        #Run sampler
+        ti = time.time()
+        x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
+        print('Elapsed time:', time.time() - ti)
+        
+        return cuqi.samples.Samples(x_s)
