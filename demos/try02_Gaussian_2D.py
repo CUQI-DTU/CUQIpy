@@ -14,7 +14,7 @@ pX_1 = cuqi.distribution.Gaussian(mean, std, R)
 
 # draw samples
 N = 1000
-s = pX_1.sample(N)
+s = pX_1.sample(N).samples #TODO: Make 2D plot functionality so we can use samples
 
 # evaluation of PDF
 m, n = 200, 200

@@ -1,6 +1,7 @@
+# %%
 import sys
 import time
-sys.path.append("../")
+sys.path.append("..")
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -12,16 +13,16 @@ tp = cuqi.testproblem.Deblur() #Default values
 
 #%% Plot true, blurred and noisy data
 plt.figure
-plt.plot(tp.t,tp.f_true)
-plt.plot(tp.t,tp.g_true)
+plt.plot(tp.t,tp.exactSolution)
+plt.plot(tp.t,tp.exactData)
 plt.plot(tp.t,tp.data)
 plt.ylim([-0.5,3.5])
 plt.legend(['True','Blurred','Blurred and noisy'])
 
-#%% Unpack problem in b = A*x + e
-b = tp.data;    #%Measured data
-A = tp.model    # Class with model
-e = tp.noise    # Class with noise
+#%% Unpack problem
+b = tp.data;        # Measured data
+A = tp.model        # Class with model
+L = tp.likelihood   # Class with likelihood
 
 #%% A few additional parameters from test problem needed
 h = tp.meshsize;        # Size of mesh elements
@@ -29,15 +30,15 @@ n = tp.model.dim[1];    # Number of unknowns
 
 #%% Two choices of prior
 
-prior1 = cuqi.distribution.GMRF(np.zeros(n),25,n,1,'zero')
+P1 = cuqi.distribution.GMRF(np.zeros(n),25,n,1,'zero')
 
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-prior2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+P2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 
 #%% Generate and display some prior samples
-sp1 = prior1.sample(5)
+sp1 = P1.sample(5)
 #sp2 = prior2.sample(5)
 
 plt.figure
@@ -54,63 +55,19 @@ Ns = 2000
 
 #%% 1.  "High level"  - set up cuqi Problem
 
-#Problem structure b = A(x)+e represented as Problem.type1 so far
-IP = cuqi.problem.Type1(b,A,e,prior1)
+# Define Bayesian model
+IP = cuqi.problem.BayesianModel(likelihood=L,prior=P1,model=A,data=b)
 
-#cuqi.Problem simply sets up likelihood and posterior for us
-results = IP.sample(Ns) 
+# Then we can simply sample the posterior
+results = IP.sample_posterior(Ns) 
 
+# Plot 95% confidence interval
+results.plot_ci(95,exact=tp.exactSolution)
 
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
 
 #The blur TestProblem is a subclass of cuqi.Problem, just need to add prior
-tp.prior = prior2
+tp.prior = P2
 
 #Use UQ convenience method:
-UQresults = tp.sample(Ns)
-
-#%%
-norm_f = np.linalg.norm(tp.f_true)
-med_xpos1 = np.median(results, axis=1) # sp.stats.mode
-sigma_xpos1 = results.std(axis=1)
-lo95_1, up95_1 = np.percentile(results, [2.5, 97.5], axis=1)
-relerr = round(np.linalg.norm(med_xpos1 - tp.f_true)/norm_f*100, 2)
-print('\nGMRF Relerror median:', relerr, '\n')
-
-med_xpos2 = np.median(UQresults, axis=1) # sp.stats.mode
-sigma_xpos2 = results.std(axis=1)
-lo95_2, up95_2 = np.percentile(UQresults, [2.5, 97.5], axis=1)
-relerr = round(np.linalg.norm(med_xpos2 - tp.f_true)/norm_f*100, 2)
-print('\nCauchy Relerror median:', relerr, '\n')
-
-#%%
-plt.figure()
-plt.plot(tp.t, tp.f_true, 'k-')
-plt.plot(tp.t, tp.g_true, 'b-')
-plt.plot(tp.t, b, 'r.')
-plt.tight_layout()
-#%%
-plt.figure()
-plt.plot(tp.t, tp.f_true, '-', color='forestgreen', linewidth=3, label='True')
-plt.plot(tp.t, med_xpos1, '--', color='crimson', label='median')
-plt.fill_between(tp.t, up95_1, lo95_1, color='dodgerblue', alpha=0.25)
-plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
-plt.xticks(np.linspace(tp.t[0], tp.t[-1], 5))
-plt.xlim([tp.t[0], tp.t[-1]])
-plt.ylim(-0.5, 3.5)
-plt.tight_layout()
-plt.title('GMRF prior')
-plt.show()
-
-#%%
-plt.figure()
-plt.plot(tp.t, tp.f_true, '-', color='forestgreen', linewidth=3, label='True')
-plt.plot(tp.t, med_xpos2, '--', color='crimson', label='median')
-plt.fill_between(tp.t, up95_2, lo95_2, color='dodgerblue', alpha=0.25)
-plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
-plt.xticks(np.linspace(tp.t[0], tp.t[-1], 5))
-plt.xlim([tp.t[0], tp.t[-1]])
-plt.ylim(-0.5, 3.5)
-plt.tight_layout()
-plt.title('Cauchy prior')
-plt.show()
+tp.UQ()

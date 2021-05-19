@@ -25,7 +25,7 @@ h = test.meshsize
 # data and noise
 # =============================================================================
 # compute truth and noisy convolved data
-norm_f = np.linalg.norm(test.f_true)
+norm_f = np.linalg.norm(test.exactSolution)
 
 # Gaussian likelihood params
 b = test.data
@@ -69,8 +69,8 @@ print('\nRelerror median:', relerr, '\n')
 # plots
 # =============================================================================
 plt.figure()
-plt.plot(tt, test.f_true, 'k-')
-plt.plot(tt, test.g_true, 'b-')
+plt.plot(tt, test.exactSolution, 'k-')
+plt.plot(tt, test.exactData, 'b-')
 plt.plot(tt, b, 'r.')
 plt.tight_layout()
 
@@ -81,7 +81,7 @@ plt.ylabel('Target function values')
 plt.tight_layout()
 
 plt.figure()
-plt.plot(tt, test.f_true, '-', color='forestgreen', linewidth=3, label='True')
+plt.plot(tt, test.exactSolution, '-', color='forestgreen', linewidth=3, label='True')
 plt.plot(tt, med_xpos, '--', color='crimson', label='median')
 plt.fill_between(tt, up95, lo95, color='dodgerblue', alpha=0.25)
 plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
