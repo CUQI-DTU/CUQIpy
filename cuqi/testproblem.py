@@ -6,10 +6,10 @@ from scipy.integrate import quad_vec
 import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
-from cuqi.problem import Type1
+from cuqi.problem import BayesianModel
 
 #=============================================================================
-class Deblur(Type1):
+class Deblur(BayesianModel):
     
     def __init__(self, a = 48, noise_std = 0.1, dim = 128, bnds = [0, 1]):
         t = np.linspace(bnds[0], bnds[1], dim)
@@ -28,24 +28,23 @@ class Deblur(Type1):
         # Store forward model
         model = LinearModel(A)
         
-        # Store Noise model
-        noise = Gaussian(np.zeros(dim),noise_std,np.eye(dim))
+        # Store likelihood
+        likelihood = Gaussian(model,noise_std,np.eye(dim))
         
         # Generate inverse-crime free data
-        data, f_true, g_true = data_conv(t,kernel,noise)
+        data, f_true, g_true = _data_conv(t,kernel,likelihood)
         
-        #Initialize deblur as Type1 cuqi probler
-        super().__init__(data,model,noise,[]) #No default prior
+        #Initialize deblur as BayesianModel cuqi problem
+        super().__init__(likelihood,None,model,data) #No default prior
         
         #Store other properties
         self.meshsize = h
-        self.f_true = f_true
-        self.g_true = g_true
+        self.exactSolution = f_true
+        self.exactData = g_true
         self.t = t
         
 
-def data_conv(t,kernel,noise):
-    np.random.seed(1)
+def _data_conv(t,kernel,likelihood):
 
     # f is piecewise constant
     x_min, x_max = t[0], t[-1]
@@ -65,12 +64,12 @@ def data_conv(t,kernel,noise):
     g_true = g_conv(t)[0]
 
     # noisy data
-    b = g_true + np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
+    b = g_true + likelihood.sample(1,input=np.zeros(len(t))) #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
     return b, f_true, g_true
 
 #=============================================================================
-class Deconvolution(Type1):
+class Deconvolution(BayesianModel):
     """
     1D Deconvolution test problem
 
@@ -163,7 +162,6 @@ class Deconvolution(Type1):
         noise_std=0.05,
         prior=None,
         data=None,
-        noise=None
         ):
         
         # Set up model
@@ -176,23 +174,22 @@ class Deconvolution(Type1):
         # Generate exact data
         b_exact = model.forward(x_exact)
 
-        if noise is None:
-            # Define and add noise
-            if noise_type.lower() == "gaussian":
-                noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
-            elif noise_type.lower() == "scaledgaussian":
-                noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
-            #TODO elif noise_type.lower() == "poisson":
-            #TODO elif noise_type.lower() == "logpoisson":
-            else:
-                raise NotImplementedError("This noise type is not implemented")
+        # Define and add noise #TODO: Add Poisson and logpoisson
+        if noise_type.lower() == "gaussian":
+            likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
+        elif noise_type.lower() == "scaledgaussian":
+            likelihood = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
+        else:
+            raise NotImplementedError("This noise type is not implemented")
         
+        # Generate data
         if data is None:
-            data = b_exact + noise.sample(1).flatten()
+            data = likelihood.sample(1,input=x_exact).flatten() #ToDo: (remove flatten)
 
-        # Initialize Deconvolution as Type1 problem
-        super().__init__(data,model,noise,prior)
+        # Initialize Deconvolution as BayesianModel problem
+        super().__init__(likelihood,prior,model,data)
 
+        # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
 
