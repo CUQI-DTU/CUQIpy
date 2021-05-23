@@ -6,9 +6,66 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
 
+import numbers
+
 # import sksparse
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
+
+def sampling_logic(func):
+    """ Handles the logic for input and output of the given sample method """
+    def wrapper(self,N,cond=None):
+
+        #Sample from given function
+        s = func(self,N,cond)
+
+        #Store samples in cuqi samples object if more than 1 sample
+        if N==1:
+            return s
+        else:
+            return Samples(s)
+
+    return wrapper
+
+# ========== Distribtion ===========
+class Distribution(object):
+    pass
+
+def _get_val(val,cond):
+    """ Extracts specific value given conditional parameter """
+    #If ndarray just return value directly
+    if isinstance(val,(numbers.Number, np.ndarray)):
+        return val
+
+    # If distribtuion either use conditional parameter or give error
+    elif isinstance(val,Distribution):
+        if cond is not None and val.name in cond:
+            return cond[val.name]
+        else:
+            raise TypeError("Must specify {} in cond dict".format(val.name))
+
+def get_vals(vals,cond):
+    """ Extracts values for each parameter in list using cond as conditional parameter if needed"""
+    vals = dict(enumerate(vals))
+    out = {}
+    for i, v in vals.items():
+        out[i] = _get_val(v,cond)
+    return [out[i] for i in vals]
+
+class Normal2(Distribution):
+    """ Normal distribution illustrating new way of handling conditional parameters"""
+    def __init__(self,name,mean,std):
+        self.name = name #Name is the name of the variable given by the user
+        self.mean = mean
+        self.std = std
+
+    @sampling_logic
+    def sample(self,N=1,cond=None):
+        """ Sample N samples. Cond is the conditional parameters (if required) given as a dict """
+        #Extract fixed values for each parameter
+        mean, std = get_vals([self.mean,self.std],cond)
+
+        return np.random.normal(mean, std, N)
 
 # ========================================================================
 class Cauchy_diff(object):
