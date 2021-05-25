@@ -36,10 +36,10 @@ class BayesianModel(object):
             summary: 'Sample Ns samples of the inverse problem.'
             NB: 'Requires the prior to be defined.'
     """
-    def __init__(self,likelihood,prior,model=None,data=None):
+    def __init__(self,likelihood,prior,data=None):
         self.likelihood = likelihood
         self.prior = prior
-        self.model = model
+        self.model = self.likelihood.mean #TODO 
         self.data = data
 
     def MAP(self):
