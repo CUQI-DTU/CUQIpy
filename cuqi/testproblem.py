@@ -35,7 +35,7 @@ class Deblur(BayesianModel):
         data, f_true, g_true = _data_conv(t,kernel,likelihood)
         
         #Initialize deblur as BayesianModel cuqi problem
-        super().__init__(likelihood,None,model,data) #No default prior
+        super().__init__(likelihood,None,data) #No default prior
         
         #Store other properties
         self.meshsize = h
@@ -187,7 +187,7 @@ class Deconvolution(BayesianModel):
             data = likelihood.sample(1,input=x_exact).flatten() #ToDo: (remove flatten)
 
         # Initialize Deconvolution as BayesianModel problem
-        super().__init__(likelihood,prior,model,data)
+        super().__init__(likelihood,prior,data)
 
         # Store exact values
         self.exactSolution = x_exact
