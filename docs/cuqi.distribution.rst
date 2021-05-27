@@ -1,5 +1,5 @@
 cuqi.distribution
-==============
+==================
 
 .. automodule:: cuqi.distribution
    :members:
