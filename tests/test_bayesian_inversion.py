@@ -58,7 +58,7 @@ def test_type1_bayesian_inversion(copy_reference, Ns, prior):
     # likelihood
     L = deblur.likelihood
 
-    type1 = cuqi.problem.BayesianModel(L,prior,A,b)
+    type1 = cuqi.problem.BayesianModel(L,prior,b)
 
     res = type1.sample_posterior(Ns=Ns).samples
     med_xpos = np.median(res, axis=1)
