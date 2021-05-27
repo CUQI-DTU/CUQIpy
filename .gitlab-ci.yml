@@ -33,7 +33,7 @@ pages:
   stage: deploy
   script:
   - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
-  - sphinx-build -b html ./doc public
+  - sphinx-build -b html ./docs public
   artifacts:
     paths:
     - public
