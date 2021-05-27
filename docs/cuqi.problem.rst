@@ -1,4 +1,4 @@
-cuqi.model
+cuqi.problem
 ==============
 
 .. automodule:: cuqi.problem
