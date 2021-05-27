@@ -180,12 +180,15 @@ class Normal(object):
 
 
 # ========================================================================
-class Gamma(object):
+class Gamma(Distribution):
 
     def __init__(self, shape, rate):
         self.shape = shape
         self.rate = rate
-        self.scale = 1/rate
+
+    @property
+    def scale(self):
+        return 1/self.rate
 
     def pdf(self, x):
         # sps.gamma.pdf(x, a=self.shape, loc=0, scale=self.scale)
