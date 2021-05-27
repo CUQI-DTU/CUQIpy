@@ -52,23 +52,6 @@ class Distribution(ABC):
                 raise TypeError("Attribute {} does not exist in this distribution".format(key))
         return new_dist
 
-class Normal2(Distribution):
-    """ Normal distribution illustrating new way of handling conditional parameters"""
-    def __init__(self,mean,std):
-        self.mean = mean
-        self.std = std
-
-    @sampling_logic
-    def sample(self,N=1):
-        """ Sample N samples. Cond is the conditional parameters (if required) given as a dict """
-        #Extract fixed values for each parameter
-
-        return np.random.normal(self.mean, self.std, N)
-
-    def logpdf(self,x):
-        """ Returns the log of the pdf at x """
-        return -np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2
-
 # ========================================================================
 class Cauchy_diff(object):
 
@@ -117,7 +100,7 @@ class Cauchy_diff(object):
 
 
 # ========================================================================
-class Normal(object):
+class Normal(Distribution):
     """
     Normal probability distribution. Generates instance of cuqi.distribution.Normal
 

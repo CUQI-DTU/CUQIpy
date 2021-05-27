@@ -6,11 +6,11 @@ import cuqi
 import matplotlib.pyplot as plt
 
 # %%
-x = cuqi.distribution.Normal2(0,1)
+x = cuqi.distribution.Normal(0,1)
 x.sample(1)
 
 #%%
-y = cuqi.distribution.Normal2(0,x)
+y = cuqi.distribution.Normal(0,x)
 y(std=10).sample(1)
 
 # %%
