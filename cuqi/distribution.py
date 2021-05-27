@@ -7,6 +7,8 @@ from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
 
 import numbers
+from abc import ABC, abstractmethod, abstractproperty
+from copy import copy
 
 # import sksparse
 # from sksparse.cholmod import cholesky
@@ -14,10 +16,10 @@ eps = np.finfo(float).eps
 
 def sampling_logic(func):
     """ Handles the logic for input and output of the given sample method """
-    def wrapper(self,N,cond=None):
+    def wrapper(self,N):
 
         #Sample from given function
-        s = func(self,N,cond)
+        s = func(self,N)
 
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
@@ -27,45 +29,46 @@ def sampling_logic(func):
 
     return wrapper
 
-# ========== Distribtion ===========
-class Distribution(object):
-    pass
+# ========== Abstract distribtion class ===========
+class Distribution(ABC):
 
-def _get_val(val,cond):
-    """ Extracts specific value given conditional parameter """
-    #If ndarray just return value directly
-    if isinstance(val,(numbers.Number, np.ndarray)):
-        return val
+    @abstractmethod
+    def logpdf(self,x):
+        pass
 
-    # If distribtuion either use conditional parameter or give error
-    elif isinstance(val,Distribution):
-        if cond is not None and val.name in cond:
-            return cond[val.name]
-        else:
-            raise TypeError("Must specify {} in cond dict".format(val.name))
+    @abstractmethod
+    def sample(self,N):
+        pass
 
-def get_vals(vals,cond):
-    """ Extracts values for each parameter in list using cond as conditional parameter if needed"""
-    vals = dict(enumerate(vals))
-    out = {}
-    for i, v in vals.items():
-        out[i] = _get_val(v,cond)
-    return [out[i] for i in vals]
+    def pdf(self,x):
+        return np.exp(self.logpdf(x))
+
+    def __call__(self,**kwargs):
+        """ Generate new distribtuion with new attrributes given in by keyword arguments """
+        new_dist = copy(self)
+        for key, value in kwargs.items():
+            if hasattr(self,key):
+                setattr(new_dist,key,value)
+            else:
+                raise TypeError("Attribute {} does not exist in this distribution".format(key))
+        return new_dist
 
 class Normal2(Distribution):
     """ Normal distribution illustrating new way of handling conditional parameters"""
-    def __init__(self,name,mean,std):
-        self.name = name #Name is the name of the variable given by the user
+    def __init__(self,mean,std):
         self.mean = mean
         self.std = std
 
     @sampling_logic
-    def sample(self,N=1,cond=None):
+    def sample(self,N=1):
         """ Sample N samples. Cond is the conditional parameters (if required) given as a dict """
         #Extract fixed values for each parameter
-        mean, std = get_vals([self.mean,self.std],cond)
 
-        return np.random.normal(mean, std, N)
+        return np.random.normal(self.mean, self.std, N)
+
+    def logpdf(self,x):
+        """ Returns the log of the pdf at x """
+        return -np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2
 
 # ========================================================================
 class Cauchy_diff(object):
