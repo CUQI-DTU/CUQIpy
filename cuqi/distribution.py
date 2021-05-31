@@ -41,7 +41,10 @@ class Distribution(ABC):
         for key, value in vars(self).items():
             if isinstance(value,Distribution):
                 dict[key] = value.sample(1)
-        return self(**dict)._sample(N)
+        if bool(dict): #If sampled any dist return those samples
+            return [self(**dict)._sample(N), dict]
+        else:
+            return self._sample(N)
 
     @abstractmethod
     def _sample(self,N):
