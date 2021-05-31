@@ -35,16 +35,16 @@ class Distribution(ABC):
     def logpdf(self,x):
         pass
 
-    def sample(self,N):
+    def sample(self,*args,**kwargs):
         #Make sure all values are specified to sample else sample them
         dict = {}
         for key, value in vars(self).items():
             if isinstance(value,Distribution):
                 dict[key] = value.sample(1)
         if bool(dict): #If sampled any dist return those samples
-            return [self(**dict)._sample(N), dict]
+            return [self(**dict)._sample(*args,**kwargs), dict]
         else:
-            return self._sample(N)
+            return self._sample(*args,**kwargs)
 
     @abstractmethod
     def _sample(self,N):
