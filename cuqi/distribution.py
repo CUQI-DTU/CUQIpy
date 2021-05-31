@@ -13,20 +13,6 @@ from copy import copy
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
 
-def sampling_logic(func):
-    """ Handles the logic for input and output of the given sample method """
-    def wrapper(self,N):
-
-        #Sample from given function
-        s = func(self,N)
-
-        #Store samples in cuqi samples object if more than 1 sample
-        if N==1:
-            return s
-        else:
-            return Samples(s)
-
-    return wrapper
 
 # ========== Abstract distribtion class ===========
 class Distribution(ABC):
@@ -36,15 +22,27 @@ class Distribution(ABC):
         pass
 
     def sample(self,*args,**kwargs):
-        #Make sure all values are specified to sample else sample them
+        #Make sure all values are specified, if not sample them
         dict = {}
         for key, value in vars(self).items():
             if isinstance(value,Distribution):
                 dict[key] = value.sample(1)
-        if bool(dict): #If sampled any dist return those samples
-            return [self(**dict)._sample(*args,**kwargs), dict]
+
+        # Get samples from the distributioon sample method
+        s = self(**dict)._sample(*args,**kwargs)
+
+        #Store samples in cuqi samples object if more than 1 sample
+        if "N" in kwargs and kwargs.get("N")==1 or args[0]==1:
+            if len(s) == 1:
+                s = s.ravel()[0]
         else:
-            return self._sample(*args,**kwargs)
+            s = Samples(s)
+
+        #if we sampled internal parameters also return those a dict of those
+        if bool(dict): 
+            return [s, dict]
+        else:
+            return s
 
     @abstractmethod
     def _sample(self,N):
@@ -166,10 +164,8 @@ class Normal(Distribution):
             s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
             s = np.random.normal(self.mean, self.std, (N,self.dim))
-        if N==1:
-            return s[0][0]
-        else:
-            return s
+
+        return s
 
 
 
