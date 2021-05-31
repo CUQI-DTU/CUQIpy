@@ -35,7 +35,7 @@ class Distribution(ABC):
         if ("N" in kwargs and kwargs.get("N")>1) or (len(args)>0 and args[0]>1):
             s = Samples(s)
         else:
-            if len(s) == 1:
+            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
 
         #if we sampled internal parameters also return those a dict of those
