@@ -32,11 +32,11 @@ class Distribution(ABC):
         s = self(**dict)._sample(*args,**kwargs)
 
         #Store samples in cuqi samples object if more than 1 sample
-        if ("N" in kwargs and kwargs.get("N")==1) or (len(args)>0 and args[0]==1):
+        if ("N" in kwargs and kwargs.get("N")>1) or (len(args)>0 and args[0]>1):
+            s = Samples(s)
+        else:
             if len(s) == 1:
                 s = s.ravel()[0]
-        else:
-            s = Samples(s)
 
         #if we sampled internal parameters also return those a dict of those
         if bool(dict): 
