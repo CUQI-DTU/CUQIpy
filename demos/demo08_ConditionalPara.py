@@ -6,7 +6,7 @@ import cuqi
 import matplotlib.pyplot as plt
 
 # %%
-x = cuqi.distribution.Normal(0,1)
+x = cuqi.distribution.Normal(5,1)
 x.sample(1)
 
 #%%
@@ -14,7 +14,7 @@ y = cuqi.distribution.Normal(0,x)
 y(std=10).sample(1)
 
 # %%
-y.sample(1)
+y.sample(1) #Samples any variable that is a cuqi dist
 
 # %%
 # Example from Johns book. Algorithm 5.1
@@ -65,3 +65,5 @@ plt.subplot(122); plt.plot(ds); plt.title("delta chain")
 burn_in = 200
 plt.plot(tp.exactSolution)
 plt.plot(np.mean(xs[:,burn_in:],axis=1))
+
+# %%

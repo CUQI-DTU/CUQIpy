@@ -35,8 +35,16 @@ class Distribution(ABC):
     def logpdf(self,x):
         pass
 
-    @abstractmethod
     def sample(self,N):
+        #Make sure all values are specified to sample else sample them
+        dict = {}
+        for key, value in vars(self).items():
+            if isinstance(value,Distribution):
+                dict[key] = value.sample(1)
+        return self(**dict)._sample(N)
+
+    @abstractmethod
+    def _sample(self,N):
         pass
 
     def pdf(self,x):
@@ -136,7 +144,7 @@ class Normal(Distribution):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self,N=1, rng=None):
+    def _sample(self,N=1, rng=None):
         """
         Draw sample(s) from distrubtion
         
@@ -186,7 +194,7 @@ class Gamma(Distribution):
         # sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale)
         return gammainc(self.shape, self.rate*x)
 
-    def sample(self, N, rng=None):
+    def _sample(self, N, rng=None):
         if rng is not None:
             return rng.gamma(shape=self.shape, scale=self.scale, size=(N))
         else:
