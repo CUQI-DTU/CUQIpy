@@ -423,4 +423,3 @@ class FEniCSPDEModel(Model):
         obs = dl.Function(self.Vh[0])
         dl.solve(M,obs.vector(),Mobs)
         return obs
-

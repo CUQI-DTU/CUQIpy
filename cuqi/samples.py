@@ -319,3 +319,26 @@ class Samples(object):
     def diagnostics(self):
         # Geweke test
         Geweke(self.samples.T)
+
+    def plot_sd(self, model): #TODO: model can be stored in samples object (in case the samples are from the posterior)
+        x_sd = np.std(self.samples,axis=1)
+        spatial_dim = model.spatial_dim
+        if spatial_dim != 2:
+            raise NotImplementedError
+        if spatial_dim == 2:
+            im = self._plot_2D(x_sd, model)
+            return im
+
+    def plot_mean(self, model): 
+        x_mean = np.mean(self.samples,axis=1)
+        spatial_dim = model.spatial_dim
+        if spatial_dim != 2:
+            raise NotImplementedError
+        if spatial_dim == 2:
+            im = self._plot_2D(x_mean, model)
+            return im
+
+    def _plot_2D(self, DOF, model): 
+        X,Y,Z = model.grid4param_plot(DOF)
+        im =plt.pcolor(X,Y,Z)
+        return im  
