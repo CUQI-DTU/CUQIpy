@@ -10,7 +10,7 @@ import cuqi
 
 #%% Problem of form b = A(x) + e
 # Create operator A
-A = cuqi.model.FEniCSPDEModel.Diffusion1D()
+A = cuqi.PDEmodel.FEniCSDiffusion1D(measurement_type = 'potential')
 
 #%% Create & plot prior 
 n = A.dim
