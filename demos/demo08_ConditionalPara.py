@@ -32,8 +32,8 @@ b = tp.data
 L = np.eye(n)
 
 #x = cuqi.distribution.Gaussian(mean=None,std=None)
-l = cuqi.distribution.Gamma(shape=m/2+alpha,rate=1)
-d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=1)
+l = cuqi.distribution.Gamma(shape=m/2+alpha,rate=None)
+d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=None)
 
 # Preallocate sample vectors
 ls = np.zeros(n_samp+1)
