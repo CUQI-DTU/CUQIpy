@@ -115,7 +115,7 @@ IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
 
 
 # Plot samples from prior
-plt.plot(IP.prior.sample(5)); 
+IP.prior.sample(5).plot()
 plt.title('Realizations from prior'); plt.show()
 
 # %% Sample new IP
