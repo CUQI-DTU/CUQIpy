@@ -8,11 +8,14 @@ class Geometry(ABC):
     def plot(self,input):
         pass
 
-class Continous1D(Geometry):
+class Continuous1D(Geometry):
 
-    def __init__(self,dim):
+    def __init__(self,dim,grid=None):
         if len(dim)==1:
-            self.grid = np.arange(dim[0])
+            if grid is None:
+                self.grid = np.arange(dim[0])
+            else:
+                self.grid = grid
         else:
             raise NotImplemented("Cannot init 1D geometry with spatial dimension > 1")
 
