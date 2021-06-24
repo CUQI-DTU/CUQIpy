@@ -22,30 +22,28 @@ class Samples(object):
     def burnthin(self, Nb, Nt):
         self.samples = self.samples[Nb::Nt,:]
 
-    def plot_mean(self):
+    def plot_mean(self,*args,**kwargs):
         # Compute mean assuming samples are index in last dimension of nparray
         mean = np.mean(self.samples,axis=-1)
 
         # Plot mean according to geometry
-        return self.geometry.plot(mean)
+        return self.geometry.plot(mean,*args,**kwargs)
 
-        # Potentially return figure handle?
-
-    def plot(self,sample_indicies=None):
+    def plot(self,sample_indicies=None,*args,**kwargs):
         Ns = self.samples.shape[-1]
         if sample_indicies is None:
             if Ns < 10:
-                return self.geometry.plot(self.samples)
+                return self.geometry.plot(self.samples,*args,**kwargs)
             else:
                 print("Plotting 5 randomly selected samples")
-                return self.geometry.plot(self.samples[:,np.random.choice(Ns,5,replace=False)])
+                return self.geometry.plot(self.samples[:,np.random.choice(Ns,5,replace=False)],*args,**kwargs)
         else:
-            return self.geometry.plot(self.samples[:,sample_indicies])
+            return self.geometry.plot(self.samples[:,sample_indicies],*args,**kwargs)
 
-    def plot_chain(self,parameter_indicies):
-        return plt.plot(self.samples[parameter_indicies,:])
+    def plot_chain(self,parameter_indicies,*args,**kwargs):
+        return plt.plot(self.samples[parameter_indicies,:],*args,**kwargs)
 
-    def plot_ci(self,percent,exact=None):
+    def plot_ci(self,percent,exact=None,*args,**kwargs):
 
         if not isinstance(self.geometry,Continous1D):
             raise NotImplementedError("Confidence interval not implemented for {}".format(self.geometry))
@@ -57,14 +55,16 @@ class Samples(object):
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
 
         #Plot
+        self.geometry.plot(mean,*args,**kwargs)
         if exact is not None:
-            self.geometry.plot(exact,'.-')
-        self.geometry.plot(mean,'.-')
+            self.geometry.plot(exact,*args,**kwargs)
         plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
+
         if exact is not None:
-            plt.legend(["Exact","Mean","Confidence Interval"])
+            plt.legend(["Mean","Exact","Confidence Interval"])
         else:
             plt.legend(["Mean","Confidence Interval"])
+        
 
     def diagnostics(self):
         # Geweke test
