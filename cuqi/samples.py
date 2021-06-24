@@ -29,19 +29,19 @@ class Samples(object):
         # Plot mean according to geometry
         return self.geometry.plot(mean,*args,**kwargs)
 
-    def plot(self,sample_indicies=None,*args,**kwargs):
+    def plot(self,sample_indices=None,*args,**kwargs):
         Ns = self.samples.shape[-1]
-        if sample_indicies is None:
+        if sample_indices is None:
             if Ns < 10:
                 return self.geometry.plot(self.samples,*args,**kwargs)
             else:
                 print("Plotting 5 randomly selected samples")
                 return self.geometry.plot(self.samples[:,np.random.choice(Ns,5,replace=False)],*args,**kwargs)
         else:
-            return self.geometry.plot(self.samples[:,sample_indicies],*args,**kwargs)
+            return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
 
-    def plot_chain(self,parameter_indicies,*args,**kwargs):
-        return plt.plot(self.samples[parameter_indicies,:],*args,**kwargs)
+    def plot_chain(self,parameter_indices,*args,**kwargs):
+        return plt.plot(self.samples[parameter_indices,:],*args,**kwargs)
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
 
