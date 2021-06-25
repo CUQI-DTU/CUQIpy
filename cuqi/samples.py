@@ -41,7 +41,7 @@ class Samples(object):
             return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
 
     def plot_chain(self,parameter_indices,*args,**kwargs):
-        return plt.plot(self.samples[parameter_indices,:],*args,**kwargs)
+        return plt.plot(self.samples[parameter_indices,:].T,*args,**kwargs)
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
 
