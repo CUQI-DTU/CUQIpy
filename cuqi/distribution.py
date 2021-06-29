@@ -6,9 +6,55 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
 
+from abc import ABC, abstractmethod
+from copy import copy
+
 # import sksparse
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
+
+
+# ========== Abstract distribtion class ===========
+class Distribution(ABC):
+
+    @abstractmethod
+    def logpdf(self,x):
+        pass
+
+    def sample(self,N=1,*args,**kwargs):
+        #Make sure all values are specified, if not give error
+        for key, value in vars(self).items():
+            if isinstance(value,Distribution) or value is None:
+                raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
+
+        # Get samples from the distributioon sample method
+        s = self._sample(N,*args,**kwargs)
+
+        #Store samples in cuqi samples object if more than 1 sample
+        if N==1:
+            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+                s = s.ravel()[0]
+        else:
+            s = Samples(s)
+
+        return s
+
+    @abstractmethod
+    def _sample(self,N):
+        pass
+
+    def pdf(self,x):
+        return np.exp(self.logpdf(x))
+
+    def __call__(self,**kwargs):
+        """ Generate new distribtuion with new attrributes given in by keyword arguments """
+        new_dist = copy(self)
+        for key, value in kwargs.items():
+            if hasattr(self,key):
+                setattr(new_dist,key,value)
+            else:
+                raise TypeError("Attribute {} does not exist in this distribution".format(key))
+        return new_dist
 
 # ========================================================================
 class Cauchy_diff(object):
@@ -58,7 +104,7 @@ class Cauchy_diff(object):
 
 
 # ========================================================================
-class Normal(object):
+class Normal(Distribution):
     """
     Normal probability distribution. Generates instance of cuqi.distribution.Normal
 
@@ -94,7 +140,7 @@ class Normal(object):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self,N=1, rng=None):
+    def _sample(self,N=1, rng=None):
         """
         Draw sample(s) from distrubtion
         
@@ -113,20 +159,21 @@ class Normal(object):
             s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
             s = np.random.normal(self.mean, self.std, (N,self.dim))
-        if N==1:
-            return s[0][0]
-        else:
-            return s
+
+        return s
 
 
 
 # ========================================================================
-class Gamma(object):
+class Gamma(Distribution):
 
     def __init__(self, shape, rate):
         self.shape = shape
         self.rate = rate
-        self.scale = 1/rate
+
+    @property
+    def scale(self):
+        return 1/self.rate
 
     def pdf(self, x):
         # sps.gamma.pdf(x, a=self.shape, loc=0, scale=self.scale)
@@ -141,7 +188,7 @@ class Gamma(object):
         # sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale)
         return gammainc(self.shape, self.rate*x)
 
-    def sample(self, N, rng=None):
+    def _sample(self, N, rng=None):
         if rng is not None:
             return rng.gamma(shape=self.shape, scale=self.scale, size=(N))
         else:

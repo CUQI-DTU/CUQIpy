@@ -21,7 +21,7 @@ def test_Normal_sample_regression(mean,var,expected):
     rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
     samples = cuqi.distribution.Normal(mean,var).sample(2,rng=rng)
     target = np.array(expected)
-    assert np.allclose( samples, target)
+    assert np.allclose( samples.samples, target)
 
 def test_Gaussian_mean():
     mean = np.array([0, 0])
@@ -74,7 +74,7 @@ def test_Gaussian_sample_regression(mean,std,R,expected):
 def test_Normal_rng(mean,var,seed):
     np.random.seed(seed)
     rng = np.random.RandomState(seed)
-    assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10),cuqi.distribution.Normal(mean,var).sample(10,rng=rng))
+    assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10).samples,cuqi.distribution.Normal(mean,var).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("mean,std,R",[
                         (([0, 0]),
