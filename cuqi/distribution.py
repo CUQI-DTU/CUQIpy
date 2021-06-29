@@ -22,14 +22,13 @@ class Distribution(ABC):
         pass
 
     def sample(self,*args,**kwargs):
-        #Make sure all values are specified, if not sample them
-        dict = {}
+        #Make sure all values are specified, if not give error
         for key, value in vars(self).items():
-            if isinstance(value,Distribution):
-                dict[key] = value.sample(1)
+            if isinstance(value,Distribution) or value is None:
+                raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
         # Get samples from the distributioon sample method
-        s = self(**dict)._sample(*args,**kwargs)
+        s = self._sample(*args,**kwargs)
 
         #Store samples in cuqi samples object if more than 1 sample
         if ("N" in kwargs and kwargs.get("N")>1) or (len(args)>0 and args[0]>1):
@@ -38,11 +37,7 @@ class Distribution(ABC):
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
 
-        #if we sampled internal parameters also return those a dict of those
-        if bool(dict): 
-            return [s, dict]
-        else:
-            return s
+        return s
 
     @abstractmethod
     def _sample(self,N):
