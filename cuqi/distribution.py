@@ -31,11 +31,11 @@ class Distribution(ABC):
         s = self._sample(N,*args,**kwargs)
 
         #Store samples in cuqi samples object if more than 1 sample
-        if ("N" in kwargs and kwargs.get("N")>1) or (len(args)>0 and args[0]>1):
-            s = Samples(s)
-        else:
+        if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
+        else:
+            s = Samples(s)
 
         return s
 
