@@ -21,14 +21,14 @@ class Distribution(ABC):
     def logpdf(self,x):
         pass
 
-    def sample(self,*args,**kwargs):
+    def sample(self,N=1,*args,**kwargs):
         #Make sure all values are specified, if not give error
         for key, value in vars(self).items():
             if isinstance(value,Distribution) or value is None:
                 raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
         # Get samples from the distributioon sample method
-        s = self._sample(*args,**kwargs)
+        s = self._sample(N,*args,**kwargs)
 
         #Store samples in cuqi samples object if more than 1 sample
         if ("N" in kwargs and kwargs.get("N")>1) or (len(args)>0 and args[0]>1):

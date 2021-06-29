@@ -7,14 +7,14 @@ import matplotlib.pyplot as plt
 
 # %%
 x = cuqi.distribution.Normal(5,1)
-x.sample(1)
+x.sample()
 
 #%%
-y = cuqi.distribution.Normal(0,x)
-y(std=10).sample(1)
+y = cuqi.distribution.Normal(0,None)
+y.sample() #Gives error if value is unspecified
 
 # %%
-y.sample(1) #Samples any variable that is a cuqi dist
+y(std=10).sample()
 
 # %%
 # Example from Johns book. Algorithm 5.1
@@ -51,8 +51,8 @@ xs[:,0] = mean_x(ls[0],ds[0])
 for k in range(n_samp):
 
     #Sample hyperparameters
-    ls[k+1] = l(rate=.5*np.linalg.norm(A@xs[:,k]-b)**2+beta).sample(1)
-    ds[k+1] = d(rate=.5*xs[:,k].T@(L@xs[:,k])+beta).sample(1)
+    ls[k+1] = l(rate=.5*np.linalg.norm(A@xs[:,k]-b)**2+beta).sample()
+    ds[k+1] = d(rate=.5*xs[:,k].T@(L@xs[:,k])+beta).sample()
 
     # Sample x
     S = np.linalg.cholesky(cov_x(ls[k+1],ds[k+1]))
