@@ -21,6 +21,7 @@ prior = cuqi.distribution.GMRF(pr_mean,25,n,1,'zero')
 ps = cuqi.samples.Samples(prior.sample(100))
 plt.figure()
 ps.plot_ci(95,exact=np.zeros(n))
+plt.savefig('fig_prior.png')
 
 #%% Create noise (e) and data (b) 
 true_m = prior.sample(1)
@@ -41,7 +42,7 @@ plt.savefig('fig1.png')
 
 #%% Plot posterior variance
 plt.figure()
-im = results.plot_sd(A)
+im = results.plot_sd(A) # when A = None
 plt.title('standard deviation')
 plt.xlabel('x')
 plt.ylabel('y')
