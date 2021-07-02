@@ -19,5 +19,5 @@ class Continuous1D(Geometry):
         else:
             raise NotImplemented("Cannot init 1D geometry with spatial dimension > 1")
 
-    def plot(self,input,*args,**kwargs):
-        return plt.plot(self.grid,input,*args,**kwargs)
+    def plot(self,values,*args,**kwargs):
+        return plt.plot(self.grid,values,*args,**kwargs)
