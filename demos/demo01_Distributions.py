@@ -1,10 +1,11 @@
+# %%
 import sys
 import time
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-sys.path.append(".")
+sys.path.append("..")
 import cuqi
 
 # Create X ~ Normal( -1.0,4.0) distirbution
