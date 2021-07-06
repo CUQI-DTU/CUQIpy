@@ -452,9 +452,9 @@ class Uniform(Distribution):
         """
         Parameters
         ----------
-        low : float or array-like of floats
+        low : float or array_like of floats
             Lower bound(s) of the uniform distribution.
-        high : float or array-like of floats 
+        high : float or array_like of floats 
             Upper bound(s) of the uniform distribution.
         """
         self.low = low
