@@ -104,13 +104,17 @@ def test_Uniform_logpdf():
     UD = cuqi.distribution.Uniform(low, high)
     assert np.allclose(UD.logpdf(np.array([1,.5])), np.log(.5) ) 
 
-def test_Uniform_sample():
-    low = np.array([1, .5])
-    high = np.array([2, 2.5])
+
+@pytest.mark.parametrize("low,high,expected",[(np.array([1, .5]), 
+                                               np.array([2, 2.5]),
+                                               np.array([[1.5507979 , 1.29090474, 1.89294695],
+                                               [1.91629565, 1.52165521, 2.29258618]])),
+                                              (1,2,
+                                               np.array([[1.5507979 , 1.70814782, 1.29090474]]))])
+def test_Uniform_sample(low, high, expected):
     rng = np.random.RandomState(3)
     UD = cuqi.distribution.Uniform(low, high)
     cuqi_samples = UD.sample(3,rng=rng)
-    assert np.allclose(cuqi_samples.samples,\
-                       np.array([[1.5507979 , 1.29090474, 1.89294695],
-                       [1.91629565, 1.52165521, 2.29258618]]) ) 
+    print(cuqi_samples)
+    assert np.allclose(cuqi_samples.samples, expected) 
      
