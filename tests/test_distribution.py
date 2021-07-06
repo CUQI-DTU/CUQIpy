@@ -97,4 +97,20 @@ def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
     assert np.allclose(dist.sample(10),dist.sample(10,rng=rng))
-    
+
+def test_Uniform_logpdf():
+    low = np.array([1, .5])
+    high = np.array([2, 2.5])
+    UD = cuqi.distribution.Uniform(low, high)
+    assert np.allclose(UD.logpdf(np.array([1,.5])), np.log(.5) ) 
+
+def test_Uniform_sample():
+    low = np.array([1, .5])
+    high = np.array([2, 2.5])
+    rng = np.random.RandomState(3)
+    UD = cuqi.distribution.Uniform(low, high)
+    cuqi_samples = UD.sample(3,rng=rng)
+    assert np.allclose(cuqi_samples.samples,\
+                       np.array([[1.5507979 , 1.29090474, 1.89294695],
+                       [1.91629565, 1.52165521, 2.29258618]]) ) 
+     
