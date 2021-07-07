@@ -445,6 +445,35 @@ class Laplace_diff(object):
     #     return self.loc - self.scale*np.sign(p-1/2)*np.log(1-2*abs(p-1/2))
 
 
-class Uniform(object):
-    def __init__(self):
-        raise NotImplementedError
+class Uniform(Distribution):
+
+
+    def __init__(self, low=0.0, high=1.0):
+        """
+        Parameters
+        ----------
+        low : float or array_like of floats
+            Lower bound(s) of the uniform distribution.
+        high : float or array_like of floats 
+            Upper bound(s) of the uniform distribution.
+        """
+        self.low = low
+        self.high = high        
+        self.dim = np.size(low)
+
+    def logpdf(self, x):
+        diff = self.high -self.low
+        if isinstance(diff, (list, tuple, np.ndarray)): 
+            v= np.prod(diff)
+        else:
+            v = diff
+        return np.log(1.0/v) 
+
+    def _sample(self,N=1, rng=None):
+
+        if rng is not None:
+            s = rng.uniform(self.low, self.high, (N,self.dim)).T
+        else:
+            s = np.random.uniform(self.low, self.high, (N,self.dim)).T
+
+        return s
