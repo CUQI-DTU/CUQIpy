@@ -20,7 +20,7 @@ n = 2
 low = np.array([0,0])
 high = np.array([1,1])
 prior = cuqi.distribution.Uniform(low,high) 
-ps = cuqi.samples.Samples(prior.sample(100))
+ps = prior.sample(100)
 plt.figure()
 ps.plot_ci(95,exact=np.array([.5,.5]))
 plt.savefig('fig_prior.png')
