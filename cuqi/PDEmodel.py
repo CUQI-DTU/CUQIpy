@@ -81,14 +81,15 @@ class FEniCSPDEModel(cuqi.model.Model):
         u_fun = dl.Function(self.Vh[0])
         u_fun.vector().set_local(x[0]) 
 
-        u_test = dl.TestFunction(self.Vh[0])
-        u_trial = dl.TrialFunction(self.Vh[0])
-
-        M = dl.assemble(u_test*u_trial*dl.dx)
-        Mobs = dl.assemble(u_test*self.obs_op(m_fun, u_fun)*dl.dx) 
-        obs = dl.Function(self.Vh[0])
-        dl.solve(M,obs.vector(),Mobs)
-        return obs
+        obs = self.obs_op(m_fun, u_fun)
+        if isinstance(obs, ufl.algebra.Operator):
+            return dl.project(obs, self.Vh[0]).vector().get_local()
+        elif isinstance(obs, dl.function.function.Function):
+            return obs.vector().get_local()
+        elif isinstance(obs, (np.ndarray, int, float)):
+            return obs
+        else:
+            raise NotImplementedError("obs_op output must be a number, a numpy array or a ufl.algebra.Operator type")
 
     def eval_param(self, DOF, X, Y):
         m_fun = dl.Function(self.Vh[1])
