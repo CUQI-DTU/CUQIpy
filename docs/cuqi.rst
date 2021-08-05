@@ -12,6 +12,7 @@ cuqi
 
    cuqi.data.rst
    cuqi.distribution.rst
+   cuqi.geometry.rst
    cuqi.model.rst
    cuqi.problem.rst
    cuqi.sampler.rst
