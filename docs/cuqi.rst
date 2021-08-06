@@ -14,6 +14,7 @@ cuqi
    cuqi.data.rst
    cuqi.diagnostics.rst
    cuqi.distribution.rst
+   cuqi.fenicsGeometry.rst
    cuqi.geometry.rst
    cuqi.model.rst
    cuqi.operator.rst
