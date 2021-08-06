@@ -73,7 +73,7 @@ class FEniCSPDEModel(cuqi.model.Model):
         if self.obs_op == None: 
             return u_sol.vector().get_local()
         else:
-            return self.apply_obs_op([u_sol.vector(),m]).vector().get_local()
+            return self.apply_obs_op([u_sol.vector(),m])
 
     def apply_obs_op(self, x):
         m_fun = dl.Function(self.Vh[1])
