@@ -14,7 +14,7 @@ from copy import copy
 eps = np.finfo(float).eps
 
 
-# ========== Abstract distribtion class ===========
+# ========== Abstract distribution class ===========
 class Distribution(ABC):
 
     @abstractmethod
@@ -27,7 +27,7 @@ class Distribution(ABC):
             if isinstance(value,Distribution) or value is None:
                 raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
-        # Get samples from the distributioon sample method
+        # Get samples from the distribution sample method
         s = self._sample(N,*args,**kwargs)
 
         #Store samples in cuqi samples object if more than 1 sample
@@ -47,7 +47,7 @@ class Distribution(ABC):
         return np.exp(self.logpdf(x))
 
     def __call__(self,**kwargs):
-        """ Generate new distribtuion with new attrributes given in by keyword arguments """
+        """ Generate new distribution with new attributes given in by keyword arguments """
         new_dist = copy(self)
         for key, value in kwargs.items():
             if hasattr(self,key):
