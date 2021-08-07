@@ -6,16 +6,19 @@ import cuqi
 import matplotlib.pyplot as plt
 
 # %%
-x = cuqi.distribution.Normal(5,1)
+x = cuqi.distribution.Normal("x",5,1)
 x.sample()
 
 #%%
-y = cuqi.distribution.Normal(0,None)
+y = cuqi.distribution.Normal("y",0,None)
 y.sample() #Gives error if value is unspecified
 
 # %%
 y(std=10).sample()
 
+# %%
+z = cuqi.distribution.Normal("z",0,lambda sigma: np.sqrt(sigma))
+z(sigma=2).sample()
 # %%
 # Example from Johns book. Algorithm 5.1
 n_samp = 1000

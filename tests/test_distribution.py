@@ -5,10 +5,10 @@ from pytest import approx
 import pytest
 
 def test_Normal_mean_standard():
-    assert cuqi.distribution.Normal(0,1).mean == approx(0.0)
+    assert cuqi.distribution.Normal("x",0,1).mean == approx(0.0)
 
 def test_Normal_pdf_mean():
-    pX = cuqi.distribution.Normal(0.1,1)
+    pX = cuqi.distribution.Normal("x",0.1,1)
     assert pX.pdf(0.1) == approx(1.0/np.sqrt(2.0*np.pi))
 
 @pytest.mark.parametrize("mean,var,expected",[
@@ -19,7 +19,7 @@ def test_Normal_pdf_mean():
                         ])
 def test_Normal_sample_regression(mean,var,expected):
     rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
-    samples = cuqi.distribution.Normal(mean,var).sample(2,rng=rng)
+    samples = cuqi.distribution.Normal("x",mean,var).sample(2,rng=rng)
     target = np.array(expected)
     assert np.allclose( samples.samples, target)
 
@@ -74,7 +74,7 @@ def test_Gaussian_sample_regression(mean,std,R,expected):
 def test_Normal_rng(mean,var,seed):
     np.random.seed(seed)
     rng = np.random.RandomState(seed)
-    assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10).samples,cuqi.distribution.Normal(mean,var).sample(10,rng=rng).samples)
+    assert np.allclose(cuqi.distribution.Normal("x",mean,var).sample(10).samples,cuqi.distribution.Normal("x",mean,var).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("mean,std,R",[
                         (([0, 0]),
@@ -101,7 +101,7 @@ def test_GMRF_rng(dist):
 def test_Uniform_logpdf():
     low = np.array([1, .5])
     high = np.array([2, 2.5])
-    UD = cuqi.distribution.Uniform(low, high)
+    UD = cuqi.distribution.Uniform("x",low, high)
     assert np.allclose(UD.logpdf(np.array([1,.5])), np.log(.5) ) 
 
 
@@ -113,7 +113,7 @@ def test_Uniform_logpdf():
                                                np.array([[1.5507979 , 1.70814782, 1.29090474]]))])
 def test_Uniform_sample(low, high, expected):
     rng = np.random.RandomState(3)
-    UD = cuqi.distribution.Uniform(low, high)
+    UD = cuqi.distribution.Uniform("x",low, high)
     cuqi_samples = UD.sample(3,rng=rng)
     print(cuqi_samples)
     assert np.allclose(cuqi_samples.samples, expected) 

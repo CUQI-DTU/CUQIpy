@@ -9,6 +9,8 @@ from cuqi.samples import Samples
 from abc import ABC, abstractmethod
 from copy import copy
 
+import inspect
+
 # import sksparse
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
@@ -16,6 +18,11 @@ eps = np.finfo(float).eps
 
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
+
+    def __init__(self,name):
+        if not isinstance(name,str):
+            raise ValueError("Name must be a string")
+        self.name = name
 
     @abstractmethod
     def logpdf(self,x):
@@ -49,11 +56,23 @@ class Distribution(ABC):
     def __call__(self,**kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
         new_dist = copy(self)
-        for key, value in kwargs.items():
-            if hasattr(self,key):
-                setattr(new_dist,key,value)
-            else:
-                raise TypeError("Attribute {} does not exist in this distribution".format(key))
+
+        for kwarg_key, kwarg_value in kwargs.items():
+
+            val_found = 0
+            # Check direct 1-st degree attribute
+            if hasattr(self,kwarg_key):
+                setattr(new_dist,kwarg_key,kwarg_value)
+                val_found = 1
+
+            # Check for lambda function function(s) with keywords as arguments
+            for self_key, self_value in vars(self).items():
+                if callable(self_value) and kwarg_key in inspect.getfullargspec(self_value)[0]:
+                    setattr(new_dist,self_key,self_value(**{kwarg_key: kwarg_value}))
+                    val_found = 1
+
+            if val_found == 0:
+                raise TypeError("Attribute {} does not exist in this distribution".format(kwarg_key))
         return new_dist
 
 # ========================================================================
@@ -126,7 +145,11 @@ class Normal(Distribution):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean, std):
+    def __init__(self, name, mean, std):
+        # Init from abstract distribution class
+        super().__init__(name)
+
+        # Init specific to this distribution
         self.mean = mean
         self.std = std        
         self.dim = np.size(mean)
@@ -167,7 +190,11 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, shape, rate):
+    def __init__(self, name, shape, rate):
+        # Init from abstract distribution class
+        super().__init__(name)
+
+        # Init specific to this distribution
         self.shape = shape
         self.rate = rate
 
@@ -448,7 +475,7 @@ class Laplace_diff(object):
 class Uniform(Distribution):
 
 
-    def __init__(self, low=0.0, high=1.0):
+    def __init__(self, name, low=0.0, high=1.0):
         """
         Parameters
         ----------
@@ -457,6 +484,11 @@ class Uniform(Distribution):
         high : float or array_like of floats 
             Upper bound(s) of the uniform distribution.
         """
+        # Init from abstract distribution class
+        super().__init__(name)
+
+        # Init specific to this distribution
+
         self.low = low
         self.high = high        
         self.dim = np.size(low)
