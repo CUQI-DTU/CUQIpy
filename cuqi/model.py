@@ -3,6 +3,7 @@ from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 
 from cuqi.samples import Samples
+from cuqi.geometry import Continuous1D
 
 class Model(object):
     """
@@ -11,7 +12,7 @@ class Model(object):
     forward : 2D ndarray or callable function
         Forward operator
     """
-    def __init__(self,forward,dim=[]):
+    def __init__(self,forward,dim=None,rangeGeom=None,domainGeom=None):
         """
         Parameters
         ----------
@@ -25,8 +26,47 @@ class Model(object):
         #Store forward func
         self._forward_func = forward
         
-        #Store dimension
+        #Store range and domain geometry objects
         self.dim = dim
+        self.rangeGeom = rangeGeom
+        self.domainGeom = domainGeom
+
+    @property
+    def dim(self):
+        if self._dim is None:
+            if self.rangeGeom is not None and self.domainGeom is not None: 
+                self._dim = (self.rangeGeom.dim, self.domainGeom.dim) #TODO: change Geometry.dim to Geometry.ndofs
+        return self._dim
+
+    @dim.setter
+    def dim(self,inDim):
+        self._dim = inDim
+
+    @property
+    def rangeGeom(self):
+        if self._rangeGeom is None:
+            if self.dim is not None:
+                self._rangeGeom = Continuous1D(dim=[self.dim[0]])
+            elif hasattr(self._matrix, 'shape'):
+                self._rangeGeom = Continuous1D(dim=[self._matrix.shape[0]]) #TODO: change Geometry.dim to Geometry.ndofs
+        return self._rangeGeom
+    
+    @rangeGeom.setter
+    def rangeGeom(self,inRangeGeom):
+        self._rangeGeom = inRangeGeom
+
+    @property
+    def domainGeom(self):
+        if self._domainGeom is None:
+            if self.dim is not None:
+                self._domainGeom = Continuous1D(dim=[self.dim[1]])
+            elif hasattr(self._matrix, 'shape'):
+                self._domainGeom = Continuous1D(dim=[self._matrix.shape[1]]) #TODO: change Geometry.dim to Geometry.ndofs
+        return self._domainGeom
+    
+    @domainGeom.setter
+    def domainGeom(self,inDomainGeom):
+        self._domainGeom = inDomainGeom
                
     def forward(self, x):
         # If input is samples then compute forward for each sample 
@@ -50,32 +90,31 @@ class LinearModel(Model):
     """
     # Linear forward model with forward and adjoint (transpose).
     
-    def __init__(self,forward,adjoint=None,dim=None):
-        
+    def __init__(self,forward,adjoint=None,dim=None,rangeGeom=None,domainGeom=None):
         #Assume forward is matrix if not callable (TODO: add more checks)
         if not callable(forward): 
             forward_func = lambda x: self._matrix@x
             adjoint_func = lambda y: self._matrix.T@y
             matrix = forward
-            dim = forward.shape
         else:
             forward_func = forward
             adjoint_func = adjoint
             matrix = None
-            dim = dim
 
-        #Initialize Model class
-        super().__init__(forward_func,dim)
-        
-        #Check if input is callable
-        if callable(adjoint_func) is not True:
-            raise TypeError("Adjoint needs to be callable function of some kind")
-            
         #Add adjoint
         self._adjoint_func = adjoint_func
 
         #Store matrix privately
         self._matrix = matrix
+
+        #Initialize Model class
+        super().__init__(forward_func,dim=dim,rangeGeom=rangeGeom,domainGeom=domainGeom)
+        
+        #Check if input is callable
+        if callable(adjoint_func) is not True:
+            raise TypeError("Adjoint needs to be callable function of some kind")
+            
+
 
     def adjoint(self,y):
         return self._adjoint_func(y)
