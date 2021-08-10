@@ -47,8 +47,6 @@ class Model(object):
         if self._rangeGeom is None:
             if self.dim is not None:
                 self._rangeGeom = Continuous1D(dim=[self.dim[0]])
-            elif hasattr(self._matrix, 'shape'):
-                self._rangeGeom = Continuous1D(dim=[self._matrix.shape[0]]) #TODO: change Geometry.dim to Geometry.ndofs
         return self._rangeGeom
     
     @rangeGeom.setter
@@ -60,8 +58,6 @@ class Model(object):
         if self._domainGeom is None:
             if self.dim is not None:
                 self._domainGeom = Continuous1D(dim=[self.dim[1]])
-            elif hasattr(self._matrix, 'shape'):
-                self._domainGeom = Continuous1D(dim=[self._matrix.shape[1]]) #TODO: change Geometry.dim to Geometry.ndofs
         return self._domainGeom
     
     @domainGeom.setter
@@ -115,6 +111,29 @@ class LinearModel(Model):
             raise TypeError("Adjoint needs to be callable function of some kind")
             
 
+    @property
+    def rangeGeom(self):
+        if super().rangeGeom is None:    
+            if  hasattr(self._matrix, 'shape'):
+                self._rangeGeom = Continuous1D(dim=[self._matrix.shape[0]]) #TODO: change Geometry.dim to Geometry.ndofs
+        return self._rangeGeom
+
+    @rangeGeom.setter
+    def rangeGeom(self,inRangeGeom):
+        super(LinearModel, type(self)).rangeGeom.fset(self, inRangeGeom)
+        #self._rangeGeom = inRangeGeom
+
+    @property
+    def domainGeom(self):
+        if super().domainGeom is None:  
+            if hasattr(self._matrix, 'shape'):
+                self._domainGeom = Continuous1D(dim=[self._matrix.shape[1]]) #TODO: change Geometry.dim to Geometry.ndofs
+        return self._domainGeom
+
+    @domainGeom.setter
+    def domainGeom(self,inDomainGeom):
+        super(LinearModel, type(self)).domainGeom.fset(self, inDomainGeom)
+        #self._domainGeom = inDomainGeom
 
     def adjoint(self,y):
         return self._adjoint_func(y)
