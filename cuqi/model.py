@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
-
 from cuqi.samples import Samples
 from cuqi.geometry import Continuous1D
+import warnings
 
 class Model(object):
     """
@@ -27,26 +27,24 @@ class Model(object):
         self._forward_func = forward
         
         #Store range and domain geometry objects
-        self.dim = dim
+        self._dim = dim
         self.rangeGeom = rangeGeom
         self.domainGeom = domainGeom
 
     @property
-    def dim(self):
-        if self._dim is None:
-            if self.rangeGeom is not None and self.domainGeom is not None: 
-                self._dim = (self.rangeGeom.dim, self.domainGeom.dim) #TODO: change Geometry.dim to Geometry.ndofs
+    def dim(self): #dim is derived from rangeGeom and domainGeom objects
+        dim_old = self._dim 
+        if self.rangeGeom is not None and self.domainGeom is not None: 
+            self._dim = (len(self.rangeGeom.grid), len(self.domainGeom.grid)) #TODO: change len(self.domainGeom.grid) to self.domainGeom.ndofs
+        if dim_old is not None and self._dim != dim_old:
+            warnings.warn("'Model.dim' value was changed to be compatible with 'rangeGeom' and 'domainGeom' ")
         return self._dim
-
-    @dim.setter
-    def dim(self,inDim):
-        self._dim = inDim
 
     @property
     def rangeGeom(self):
         if self._rangeGeom is None:
-            if self.dim is not None:
-                self._rangeGeom = Continuous1D(dim=[self.dim[0]])
+            if self._dim is not None:
+                self._rangeGeom = Continuous1D(dim=[self._dim[0]])
         return self._rangeGeom
     
     @rangeGeom.setter
@@ -56,8 +54,8 @@ class Model(object):
     @property
     def domainGeom(self):
         if self._domainGeom is None:
-            if self.dim is not None:
-                self._domainGeom = Continuous1D(dim=[self.dim[1]])
+            if self._dim is not None:
+                self._domainGeom = Continuous1D(dim=[self._dim[1]])
         return self._domainGeom
     
     @domainGeom.setter
@@ -97,6 +95,10 @@ class LinearModel(Model):
             adjoint_func = adjoint
             matrix = None
 
+        #Check if input is callable
+        if callable(adjoint_func) is not True:
+            raise TypeError("Adjoint needs to be callable function of some kind")
+
         #Add adjoint
         self._adjoint_func = adjoint_func
 
@@ -104,12 +106,7 @@ class LinearModel(Model):
         self._matrix = matrix
 
         #Initialize Model class
-        super().__init__(forward_func,dim=dim,rangeGeom=rangeGeom,domainGeom=domainGeom)
-        
-        #Check if input is callable
-        if callable(adjoint_func) is not True:
-            raise TypeError("Adjoint needs to be callable function of some kind")
-            
+        super().__init__(forward_func,dim=dim,rangeGeom=rangeGeom,domainGeom=domainGeom) 
 
     @property
     def rangeGeom(self):
@@ -121,7 +118,6 @@ class LinearModel(Model):
     @rangeGeom.setter
     def rangeGeom(self,inRangeGeom):
         super(LinearModel, type(self)).rangeGeom.fset(self, inRangeGeom)
-        #self._rangeGeom = inRangeGeom
 
     @property
     def domainGeom(self):
@@ -133,7 +129,6 @@ class LinearModel(Model):
     @domainGeom.setter
     def domainGeom(self,inDomainGeom):
         super(LinearModel, type(self)).domainGeom.fset(self, inDomainGeom)
-        #self._domainGeom = inDomainGeom
 
     def adjoint(self,y):
         return self._adjoint_func(y)
