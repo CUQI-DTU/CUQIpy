@@ -57,22 +57,31 @@ class Distribution(ABC):
         """ Generate new distribution with new attributes given in by keyword arguments """
         new_dist = copy(self)
 
-        for kwarg_key, kwarg_value in kwargs.items():
+        # Go through every attribute and assign values from kwargs accordingly
+        for attr_key, attr_val in vars(self).items():
+            
+            #If keyword directly specifies new value of attribute we simply reassign
+            if attr_key in kwargs: 
+                setattr(new_dist,attr_key,kwargs.get(attr_key))
 
-            val_found = 0
-            # Check direct 1-st degree attribute
-            if hasattr(self,kwarg_key):
-                setattr(new_dist,kwarg_key,kwarg_value)
-                val_found = 1
+            #If attribute is callable we check if any keyword arguments can be used as arguments
+            if callable(attr_val):
 
-            # Check for lambda function function(s) with keywords as arguments
-            for self_key, self_value in vars(self).items():
-                if callable(self_value) and kwarg_key in inspect.getfullargspec(self_value)[0]:
-                    setattr(new_dist,self_key,self_value(**{kwarg_key: kwarg_value}))
-                    val_found = 1
+                accepted_keywords = inspect.getfullargspec(attr_val)[0]
 
-            if val_found == 0:
-                raise TypeError("Attribute {} does not exist in this distribution".format(kwarg_key))
+                # Builds dict with arguments to call attribute with
+                attr_args = {}
+                for kw_key, kw_val in kwargs.items():
+                    if kw_key in accepted_keywords:
+                        attr_args[kw_key] = kw_val
+
+
+                # Now call with the keywords
+                output = attr_val(**attr_args)
+
+                # Store output in the new dist
+                setattr(new_dist,attr_key,output)
+
         return new_dist
 
 # ========================================================================

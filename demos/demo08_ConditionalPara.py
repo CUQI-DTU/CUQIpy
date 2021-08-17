@@ -19,6 +19,14 @@ y(std=10).sample()
 # %%
 z = cuqi.distribution.Normal("z",0,lambda sigma: np.sqrt(sigma))
 z(sigma=2).sample()
+
+# %%
+#Functions for mean and std with various (shared) inputs
+mean = lambda sigma,gamma: sigma+gamma
+std  = lambda sigma,delta: np.sqrt(sigma+delta)
+
+z = cuqi.distribution.Normal("z",mean,std)
+z(sigma=2,delta=5,gamma=-5).sample()
 # %%
 # Example from Johns book. Algorithm 5.1
 n_samp = 1000
@@ -35,8 +43,8 @@ b = tp.data
 L = np.eye(n)
 
 #x = cuqi.distribution.Gaussian(mean=None,std=None)
-l = cuqi.distribution.Gamma(shape=m/2+alpha,rate=None)
-d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=None)
+l = cuqi.distribution.Gamma("l",shape=m/2+alpha,rate=None)
+d = cuqi.distribution.Gamma("d",shape=n/2+alpha,rate=None)
 
 # Preallocate sample vectors
 ls = np.zeros(n_samp+1)
