@@ -174,11 +174,8 @@ class Normal(Distribution):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-<<<<<<< HEAD
     def _sample(self,N=1, rng=None):
-=======
-    def sample(self,N=1, rng=None,x=None):
->>>>>>> b1ff3b1 (Initial idea for data distribution)
+
         """
         Draw sample(s) from distrubtion
         
@@ -193,8 +190,8 @@ class Normal(Distribution):
         Generated sample(s)
 
         """
-        if x is not None:
-            mean = self.mean(x)
+        if input is not None:
+            mean = self.mean(input)
         else:
             mean = self.mean
 
