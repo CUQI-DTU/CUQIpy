@@ -20,19 +20,11 @@ class Geometry(ABC):
         pass
 
     @abstractmethod
-    def _pre_plot(self,values):
+    def _default_configuration(self):
         """
-        A method that implements any default configuration or set up that needs to occur before ploting. This method is to be called inside any 'plot_' method.
+        Default configuration of plots to be called inside any 'plot_' method
         """
         pass
-
-    def _create_subplots(self,N):
-        Nx = math.ceil(np.sqrt(N))
-        Ny = Nx
-        fig = plt.gcf()
-        fig.set_size_inches(fig.bbox_inches.corners()[3][0]*Nx, fig.bbox_inches.corners()[3][1]*Ny)
-        for i in range(N):
-            fig.add_subplot(Ny,Nx,i+1)
 
 class Continuous1D(Geometry):
 
@@ -47,11 +39,18 @@ class Continuous1D(Geometry):
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
 
     def plot(self,values,*args,**kwargs):
+        self._default_configuration()
         return plt.plot(self.grid,values,*args,**kwargs)
+
+    def _default_configuration(self):
+        if self.labels is not None:
+            plt.xlabel(self.labels[0])
+
 
 class Continuous2D(Geometry):
 
-    def __init__(self,dim,grid=None):
+    def __init__(self,dim,grid=None,labels=['x','y']):
+        self.labels = labels
         if len(dim)!=2:
             raise NotImplemented("Cannot init 2D geometry with spatial dimension != 2")
 
@@ -69,20 +68,22 @@ class Continuous2D(Geometry):
         kwargs : keyword arguments
             keyword arguments which the function :meth:`matplotlib.pyplot.pcolor` normally takes.
         """
-        self._label_coordinates()
+        self._default_configuration()
         return plt.pcolor(self.grid[0],self.grid[1],values.reshape(self.grid[0].shape),
                           **kwargs)
     
     def plot_contour(self,values,**kwargs):
-        self._label_coordinates()
+        self._default_configuration()
         return plt.contour(self.grid[0],self.grid[1],values.reshape(self.grid[0].shape),
                            **kwargs)
 
     def plot_contourf(self,values,**kwargs):
-        self._label_coordinates()
+        self._default_configuration()
         return plt.contourf(self.grid[0],self.grid[1],values.reshape(self.grid[0].shape),
                             **kwargs)
     
-    def _label_coordinates(self):
-        plt.xlabel('x')
-        plt.ylabel('y')
+    def _default_configuration(self):
+        if self.labels is not None:
+            plt.xlabel(self.labels[0])
+            plt.ylabel(self.labels[1])
+        plt.gca().axis('equal')
