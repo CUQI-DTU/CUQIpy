@@ -5,11 +5,6 @@ from scipy.sparse import diags
 import matplotlib.pyplot as plt
 import cuqi
 
-# This makes sure modules are reloaded
-# each time a function is called (optional)
-%load_ext autoreload
-%autoreload 2
-
 # Set rng seed 
 np.random.seed(0)
 # %% Import a deconvolution problem from file
@@ -45,14 +40,19 @@ model = cuqi.model.LinearModel(A)
 # %% To carry out UQ we need to assume distributions
 # for our random variables
 
-# Define Gaussian, zero mean i.i.d. noise with 0.05 std.
+# Define likelihood as Gaussian with model as mean and i.i.d. noise with 0.05 std.
 noise_std = 0.05
-noise = cuqi.distribution.Gaussian(np.zeros(m),noise_std,np.eye(m))
+likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(m))
 
 # Plot samples of noise
-noise.sample(5).plot()
+likelihood.sample(5,input=np.zeros(n)).plot()
 
-plt.title('Realizations from noise'); plt.show()
+plt.title('Noise samples'); plt.show()
+
+# Plot samples of simulated data
+likelihood.sample(5,input=phantom).plot()
+
+plt.title('Simulated data'); plt.show()
 
 # %% Define prior
 prior_std = 0.2
@@ -65,10 +65,8 @@ plt.title('Realizations from prior'); plt.show()
 
 # %% Define cuqi (inverse) problem
 
-# Type1: data = model(x)+noise
-IP = cuqi.problem.Type1(data,model,noise,prior)
-
-
+# Bayesian model
+IP = cuqi.problem.BayesianModel(likelihood,prior,model,data)
 
 # %% Compute MAP estimate.
 
@@ -88,7 +86,7 @@ Ns = 5000
 
 # Sample posterior related to inverse problem
 
-result = IP.sample(Ns)
+result = IP.sample_posterior(Ns)
 
 
 # %% plot mean + 95% of samples
@@ -113,13 +111,16 @@ corrmat = diags(corr, indexes, shape=(n, n)).toarray()
 # Set new prior
 IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
 
-
 # Plot samples from prior
+<<<<<<< HEAD
 IP.prior.sample(5).plot()
+=======
+IP.prior.sample(5).plot() 
+>>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
 plt.title('Realizations from prior'); plt.show()
 
 # %% Sample new IP
-result = IP.sample(Ns)
+result = IP.sample_posterior(Ns)
 
 # plot mean + 95% of samples
 result.plot_ci(95,exact=phantom)
@@ -159,7 +160,7 @@ plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 tp.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
 
 # Sample
-result = tp.sample(Ns)
+result = tp.sample_posterior(Ns)
 
 # plot mean + 95% of samples
 result.plot_ci(95,exact=tp.exactSolution)
@@ -171,7 +172,7 @@ scale = 2/n
 tp.prior = cuqi.distribution.Cauchy_diff(np.zeros(n),scale,'neumann')
 
 # Sample
-result = tp.sample(Ns)
+result = tp.sample_posterior(Ns)
 
 # plot mean + 95% of samples
 result.plot_ci(95,exact=tp.exactSolution)
@@ -207,14 +208,3 @@ result = cuqi.samples.Samples(x_s)
 
 # plot mean + 95 ci of samples using specific sampler
 result.plot_ci(95,exact=tp.exactSolution)
-
-# %% In the near future:
-# Hyperparameters!
-
-# One idea for defining hyperparameters
-std = cuqi.distribution.Gamma(1,1e-4)
-prior = cuqi.distribution.Gaussian(np.zeros(n),std,corrmat)
-
-IP = cuqi.problem.Type1(data,model,noise,prior)
-result = IP.sample(Ns)
-

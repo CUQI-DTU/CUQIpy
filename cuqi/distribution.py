@@ -315,10 +315,10 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N=1, rng=None,A=None,x=None):   # TODO
+    def sample(self, N=1, rng=None,input=None):   # TODO
 
-        if x is not None and A is not None:
-            mean = self.mean(A,x)
+        if input is not None:
+            mean = self.mean(input)
         else:
             mean = self.mean
 

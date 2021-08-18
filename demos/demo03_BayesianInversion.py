@@ -1,7 +1,7 @@
 # %%
 import sys
 import time
-sys.path.append("../")
+sys.path.append("..")
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,16 +13,16 @@ tp = cuqi.testproblem.Deblur() #Default values
 
 #%% Plot true, blurred and noisy data
 plt.figure
-plt.plot(tp.t,tp.f_true)
-plt.plot(tp.t,tp.g_true)
+plt.plot(tp.t,tp.exactSolution)
+plt.plot(tp.t,tp.exactData)
 plt.plot(tp.t,tp.data)
 plt.ylim([-0.5,3.5])
 plt.legend(['True','Blurred','Blurred and noisy'])
 
-#%% Unpack problem in b = A*x + e
-b = tp.data;    #%Measured data
-A = tp.model    # Class with model
-e = tp.noise    # Class with noise
+#%% Unpack problem
+b = tp.data;        # Measured data
+A = tp.model        # Class with model
+L = tp.likelihood   # Class with likelihood
 
 #%% A few additional parameters from test problem needed
 h = tp.meshsize;        # Size of mesh elements
@@ -30,15 +30,15 @@ n = tp.model.dim[1];    # Number of unknowns
 
 #%% Two choices of prior
 
-prior1 = cuqi.distribution.GMRF(np.zeros(n),25,n,1,'zero')
+P1 = cuqi.distribution.GMRF(np.zeros(n),25,n,1,'zero')
 
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-prior2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+P2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 
 #%% Generate and display some prior samples
-sp1 = prior1.sample(5)
+sp1 = P1.sample(5)
 #sp2 = prior2.sample(5)
 
 plt.figure
@@ -55,19 +55,27 @@ Ns = 2000
 
 #%% 1.  "High level"  - set up cuqi Problem
 
-#Problem structure b = A(x)+e represented as Problem.type1 so far
-IP = cuqi.problem.Type1(b,A,e,prior1)
+# Define Bayesian model
+IP = cuqi.problem.BayesianModel(likelihood=L,prior=P1,model=A,data=b)
 
+<<<<<<< HEAD
 #cuqi.Problem simply sets up likelihood and posterior for us
 results_prior1 = IP.sample(Ns) 
+=======
+# Then we can simply sample the posterior
+results = IP.sample_posterior(Ns) 
+>>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
 
+# Plot 95% confidence interval
+results.plot_ci(95,exact=tp.exactSolution)
 
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
 
 #The blur TestProblem is a subclass of cuqi.Problem, just need to add prior
-tp.prior = prior2
+tp.prior = P2
 
 #Use UQ convenience method:
+<<<<<<< HEAD
 results_prior2 = tp.sample(Ns)
 
 #%%
@@ -99,3 +107,6 @@ plt.figure()
 results_prior2.plot_ci(95,exact=tp.f_true)
 plt.title('Cauchy prior')
 plt.show()
+=======
+tp.UQ()
+>>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)

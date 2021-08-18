@@ -14,7 +14,11 @@ pX_1 = cuqi.distribution.Gaussian(mean, std, R)
 
 # draw samples
 N = 1000
+<<<<<<< HEAD
 s = pX_1.sample(N).samples
+=======
+s = pX_1.sample(N).samples #TODO: Make 2D plot functionality so we can use samples
+>>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
 
 # evaluation of PDF
 m, n = 200, 200
