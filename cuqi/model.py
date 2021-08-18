@@ -12,7 +12,7 @@ class Model(object):
     forward : 2D ndarray or callable function
         Forward operator
     """
-    def __init__(self,forward,range=None,domain=None):
+    def __init__(self,forward,range_geometry=None,domain_geometry=None):
         """
         Parameters
         ----------
@@ -29,33 +29,33 @@ class Model(object):
         # dim
         self._dim = None 
 
-        #Store range
-        if isinstance(range, int):
-            self.rangeGeom = Continuous1D(dim=[range])
-        elif isinstance(range, Geometry):
-            self.rangeGeom = range
-        elif range is None:
-            raise AttributeError("The parameter 'range' is not specified by the user and it connot be inferred from the attribute 'forward'.")
+        #Store range_geometry
+        if isinstance(range_geometry, int):
+            self.range_geometry = Continuous1D(dim=[range_geometry])
+        elif isinstance(range_geometry, Geometry):
+            self.range_geometry = range_geometry
+        elif range_geometry is None:
+            raise AttributeError("The parameter 'range_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
         else:
-            raise TypeError("The parameter 'range' should be of type 'int' or 'cuqi.geometry.Geometry'.")
+            raise TypeError("The parameter 'range_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
-        #Store domain
-        if isinstance(domain, int):
-            self.domainGeom = Continuous1D(dim=[domain])
-        elif isinstance(domain, Geometry):
-            self.domainGeom = domain
-        elif domain is None:
-            raise AttributeError("The parameter 'domain' is not specified by the user and it connot be inferred from the attribute 'forward'.")
+        #Store domain_geometry
+        if isinstance(domain_geometry, int):
+            self.domain_geometry = Continuous1D(dim=[domain_geometry])
+        elif isinstance(domain_geometry, Geometry):
+            self.domain_geometry = domain_geometry
+        elif domain_geometry is None:
+            raise AttributeError("The parameter 'domain_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
         else:
-            raise TypeError("The parameter 'domain' should be of type 'int' or 'cuqi.geometry.Geometry'.")
+            raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
     @property
-    def dim(self): #dim is derived from rangeGeom and domainGeom objects
+    def dim(self): #dim is derived from range_geometry and domain_geometry objects
         dim_old = self._dim 
-        if self.rangeGeom is not None and self.domainGeom is not None: 
-            self._dim = (len(self.rangeGeom.grid.flat), len(self.domainGeom.grid.flat)) #TODO: change len(self.domainGeom.grid) to self.domainGeom.ndofs
+        if self.range_geometry is not None and self.domain_geometry is not None: 
+            self._dim = (len(self.range_geometry.grid.flat), len(self.domain_geometry.grid.flat)) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
         if dim_old is not None and self._dim != dim_old:
-            warnings.warn("'Model.dim' value was changed to be compatible with 'rangeGeom' and 'domainGeom' ")
+            warnings.warn("'Model.dim' value was changed to be compatible with 'range_geometry' and 'domain_geometry' ")
         return self._dim
                
     def forward(self, x):
@@ -80,7 +80,7 @@ class LinearModel(Model):
     """
     # Linear forward model with forward and adjoint (transpose).
     
-    def __init__(self,forward,adjoint=None,range=None,domain=None):
+    def __init__(self,forward,adjoint=None,range_geometry=None,domain_geometry=None):
         #Assume forward is matrix if not callable (TODO: add more checks)
         if not callable(forward): 
             forward_func = lambda x: self._matrix@x
@@ -101,19 +101,19 @@ class LinearModel(Model):
         #Store matrix privately
         self._matrix = matrix
 
-        # Use matrix to derive range and domain
+        # Use matrix to derive range_geometry and domain_geometry
         if matrix is not None:
-            if range is None:
-                range = Continuous1D(dim=[matrix.shape[0]])
-            if domain is None:
-                domain = Continuous1D(dim=[matrix.shape[1]])  
+            if range_geometry is None:
+                range_geometry = Continuous1D(dim=[matrix.shape[0]])
+            if domain_geometry is None:
+                domain_geometry = Continuous1D(dim=[matrix.shape[1]])  
 
         #Initialize Model class
-        super().__init__(forward_func,range,domain)
+        super().__init__(forward_func,range_geometry,domain_geometry)
 
         if matrix is not None: 
-            assert(len(self.rangeGeom.grid.flat)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range'"
-            assert(len(self.domainGeom.grid.flat)  == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'range'"
+            assert(len(self.range_geometry.grid.flat)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
+            assert(len(self.domain_geometry.grid.flat)  == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'range_geometry'"
 
     def adjoint(self,y):
         return self._adjoint_func(y)
