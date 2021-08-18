@@ -113,7 +113,7 @@ class LinearModel(Model):
 
         if matrix is not None: 
             assert(len(self.range_geometry.grid.flat)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-            assert(len(self.domain_geometry.grid.flat)  == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'range_geometry'"
+            assert(len(self.domain_geometry.grid.flat)  == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
         return self._adjoint_func(y)
