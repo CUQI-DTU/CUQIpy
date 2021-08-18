@@ -2,9 +2,84 @@ import cuqi
 import numpy as np
 import time
 
+
+from cuqi.distribution import Gaussian
+from cuqi.model import LinearModel
+
 class Generic(object):
     def __init__(self):
         raise NotImplementedError
+
+class BayesianModel(object):
+    def __init__(self,data,model,prior):
+        self.data = data
+        self.model = model
+        self.prior = prior
+
+        self.likelihood = data
+
+    def MAP(self,data):
+        if self._checkBayesianModel(Gaussian,Gaussian,LinearModel):
+            b  = data
+            A  = self.model.get_matrix()
+            Ce = self.likelihood.Sigma
+            x0 = self.prior.mean
+            Cx = self.prior.Sigma
+
+            #Basic map estimate using closed-form expression Tarantola 2005 (3.37-3.38)
+            rhs = b-A@x0
+            sysm = A@Cx@A.T+Ce
+            
+            return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+
+    def sample_posterior(self,Ns,data):
+
+        if self._checkBayesianModel(Gaussian,Gaussian,LinearModel):
+            return self._sampleMapCholesky(Ns,data)
+
+    def _checkBayesianModel(self,distL,distP,typeModel):
+        L = isinstance(self.likelihood,distL)
+        P = isinstance(self.prior,distP)
+        M = isinstance(self.model,typeModel)
+        return L and P and M
+
+    def _sampleMapCholesky(self,Ns,data):
+        # Start timing
+        ti = time.time()
+
+        b  = data
+        A  = self.model.get_matrix()
+        Ce = self.likelihood.Sigma
+        x0 = self.prior.mean
+        Cx = self.prior.Sigma
+
+        # Preallocate samples
+        n = self.prior.dim 
+        x_s = np.zeros((n,Ns))
+
+        x_map = self.MAP(data=b) #Compute MAP estimate
+        C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
+        L = np.linalg.cholesky(C)
+        for s in range(Ns):
+            x_s[:,s] = x_map + L@np.random.randn(n)
+            # display iterations 
+            if (s % 5e2) == 0:
+                print("\r",'Sample', s, '/', Ns, end="")
+
+        print("\r",'Sample', s+1, '/', Ns)
+        print('Elapsed time:', time.time() - ti)
+        
+        return cuqi.samples.Samples(x_s)
+
+
+
+
+
+
+
+
+
+
 
 class Type1(object):
     """
