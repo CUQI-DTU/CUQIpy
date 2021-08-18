@@ -198,19 +198,8 @@ class Normal(Distribution):
         if rng is not None:
             s =  rng.normal(mean, self.std, (N,self.dim))
         else:
-<<<<<<< HEAD
             s = np.random.normal(self.mean, self.std, (N,self.dim))
-
         return s
-=======
-            s = np.random.normal(mean, self.std, (N,self.dim))
-        if N==1 and self.dim == 1:
-            return s[0][0]
-        elif N==1:
-            return s.flatten()
-        else:
-            return s
->>>>>>> b1ff3b1 (Initial idea for data distribution)
 
 
 

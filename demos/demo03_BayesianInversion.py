@@ -58,13 +58,8 @@ Ns = 2000
 # Define Bayesian model
 IP = cuqi.problem.BayesianModel(likelihood=L,prior=P1,model=A,data=b)
 
-<<<<<<< HEAD
-#cuqi.Problem simply sets up likelihood and posterior for us
-results_prior1 = IP.sample(Ns) 
-=======
 # Then we can simply sample the posterior
 results = IP.sample_posterior(Ns) 
->>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
 
 # Plot 95% confidence interval
 results.plot_ci(95,exact=tp.exactSolution)
@@ -75,6 +70,7 @@ results.plot_ci(95,exact=tp.exactSolution)
 tp.prior = P2
 
 #Use UQ convenience method:
+<<<<<<< HEAD
 <<<<<<< HEAD
 results_prior2 = tp.sample(Ns)
 
@@ -110,3 +106,6 @@ plt.show()
 =======
 tp.UQ()
 >>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
+=======
+tp.UQ()
+>>>>>>> fdf30b45f4a829e319c4498182477d0268a015f4

@@ -112,11 +112,7 @@ corrmat = diags(corr, indexes, shape=(n, n)).toarray()
 IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
 
 # Plot samples from prior
-<<<<<<< HEAD
-IP.prior.sample(5).plot()
-=======
 IP.prior.sample(5).plot() 
->>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
 plt.title('Realizations from prior'); plt.show()
 
 # %% Sample new IP
