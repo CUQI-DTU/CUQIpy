@@ -12,7 +12,7 @@ class Model(object):
     forward : 2D ndarray or callable function
         Forward operator
     """
-    def __init__(self,forward,range_geometry=None,domain_geometry=None):
+    def __init__(self,forward,range_geometry,domain_geometry):
         """
         Parameters
         ----------
