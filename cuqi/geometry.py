@@ -39,7 +39,7 @@ class Continuous1D(Geometry):
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
 
     def plot(self,values,*args,**kwargs):
-        self._pre_plot(values)
+        values = self._pre_plot(values)
         return plt.plot(self.grid,values,*args,**kwargs)
 
     def _pre_plot(self, values):
