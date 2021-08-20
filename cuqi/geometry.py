@@ -26,6 +26,14 @@ class Geometry(ABC):
         """
         pass
 
+    def _create_subplots(self,N):
+        Nx = math.ceil(np.sqrt(N))
+        Ny = Nx
+        fig = plt.gcf()
+        fig.set_size_inches(fig.bbox_inches.corners()[3][0]*Nx, fig.bbox_inches.corners()[3][1]*Ny)
+        for i in range(N):
+            fig.add_subplot(Ny,Nx,i+1)
+
 class Continuous1D(Geometry):
 
     def __init__(self,dim,grid=None,labels=['x']):
@@ -60,37 +68,42 @@ class Continuous2D(Geometry):
         else:
             self.grid = grid
 
-    def plot(self,values,**kwargs):
+    def plot(self,values,type='pcolor',**kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
         
         Parameters
         -----------
+        type : str
+            type of the plot. If type = 'pcolor', :meth:`matplotlib.pyplot.pcolor` is called, if type = 'contour', :meth:`matplotlib.pyplot.contour` is called, and if `type` = 'contourf', :meth:`matplotlib.pyplot.contourf` is called, 
+
         kwargs : keyword arguments
-            keyword arguments which the function :meth:`matplotlib.pyplot.pcolor` normally takes.
+            keyword arguments which the methods :meth:`matplotlib.pyplot.pcolor`, :meth:`matplotlib.pyplot.contour`, or :meth:`matplotlib.pyplot.contourf`  normally take, depending on the value of the parameter `type`.
         """
         values = self._pre_plot(values)
         ims = []
         for i, axis in enumerate(plt.gcf().axes):
-            ims.append(axis.pcolor(self.grid[0],self.grid[1],values[...,i].reshape(self.grid[0].shape),
-                          **kwargs))
-        return ims
-    
-    def plot_contour(self,values,**kwargs):
-        values = self._pre_plot(values)
-        ims = []
-        for i, axis in enumerate(plt.gcf().axes):
-            ims.append(axis.contour(self.grid[0],self.grid[1],values[...,i].reshape(self.grid[0].shape),
+            if type == 'pcolor': 
+                plot_method = axis.pcolor
+            elif type == 'contour':
+                plot_method = axis.contour
+            elif type == 'contourf':
+                plot_method = axis.contourf
+            else:
+                raise ValueError(f"unknown value: {type} of the parameter 'type'")
+
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,i].reshape(self.grid[0].shape),
                           **kwargs))
         return ims
 
+    def plot_pcolor(self,values,**kwargs):
+        return self.plot(values,type='pcolor',**kwargs)
+
+    def plot_contour(self,values,**kwargs):
+        return self.plot(values,type='contour',**kwargs)
+
     def plot_contourf(self,values,**kwargs):
-        values = self._pre_plot(values)
-        ims = []
-        for i, axis in enumerate(plt.gcf().axes):
-            ims.append(axis.contourf(self.grid[0],self.grid[1],values[...,i].reshape(self.grid[0].shape),
-                          **kwargs))
-        return ims
+       return self.plot(values,type='contourf',**kwargs)
     
     def _pre_plot(self,values):
         if len(values.shape) == 3 or\
@@ -107,12 +120,3 @@ class Continuous2D(Geometry):
             axis.set_aspect('equal')
       
         return values
-
-    def _create_subplots(self,N):
-        Nx = math.ceil(np.sqrt(N))
-        Ny = Nx
-        fig = plt.gcf()
-        fig.set_size_inches(fig.bbox_inches.corners()[3][0]*Nx, fig.bbox_inches.corners()[3][1]*Ny)
-        for i in range(N):
-            subplot_id = Ny*100+ Nx*10 + (i+1)
-            fig.add_subplot(subplot_id)
