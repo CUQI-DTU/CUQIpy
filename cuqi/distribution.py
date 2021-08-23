@@ -55,13 +55,27 @@ class Distribution(ABC):
 
     def __call__(self,**kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
-        new_dist = copy(self)
+
+        # KEYWORD ERROR CHECK
+        for kw_key, kw_val in kwargs.items():
+            val_found = 0
+            for attr_key, attr_val in vars(self).items():
+                if kw_key is attr_key:
+                    val_found = 1
+                elif callable(attr_val) and kw_key in inspect.getfullargspec(attr_val)[0]:
+                    val_found = 1
+            if val_found == 0:
+                raise ValueError("The keyword {} is not part any attribute or argument to any function of this distribution".format(kw_key))
+
+
+        # EVALUATE CONDITIONAL DISTRIBUTION
+        new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
 
         # Go through every attribute and assign values from kwargs accordingly
         for attr_key, attr_val in vars(self).items():
             
             #If keyword directly specifies new value of attribute we simply reassign
-            if attr_key in kwargs: 
+            if attr_key in kwargs:
                 setattr(new_dist,attr_key,kwargs.get(attr_key))
 
             #If attribute is callable we check if any keyword arguments can be used as arguments
