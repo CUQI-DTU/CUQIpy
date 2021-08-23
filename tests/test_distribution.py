@@ -5,10 +5,10 @@ from pytest import approx
 import pytest
 
 def test_Normal_mean_standard():
-    assert cuqi.distribution.Normal("x",0,1).mean == approx(0.0)
+    assert cuqi.distribution.Normal(0,1).mean == approx(0.0)
 
 def test_Normal_pdf_mean():
-    pX = cuqi.distribution.Normal("x",0.1,1)
+    pX = cuqi.distribution.Normal(0.1,1)
     assert pX.pdf(0.1) == approx(1.0/np.sqrt(2.0*np.pi))
 
 @pytest.mark.parametrize("mean,var,expected",[
@@ -19,7 +19,7 @@ def test_Normal_pdf_mean():
                         ])
 def test_Normal_sample_regression(mean,var,expected):
     rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
-    samples = cuqi.distribution.Normal("x",mean,var).sample(2,rng=rng)
+    samples = cuqi.distribution.Normal(mean,var).sample(2,rng=rng)
     target = np.array(expected)
     assert np.allclose( samples.samples, target)
 
@@ -74,7 +74,7 @@ def test_Gaussian_sample_regression(mean,std,R,expected):
 def test_Normal_rng(mean,var,seed):
     np.random.seed(seed)
     rng = np.random.RandomState(seed)
-    assert np.allclose(cuqi.distribution.Normal("x",mean,var).sample(10).samples,cuqi.distribution.Normal("x",mean,var).sample(10,rng=rng).samples)
+    assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10).samples,cuqi.distribution.Normal(mean,var).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("mean,std,R",[
                         (([0, 0]),

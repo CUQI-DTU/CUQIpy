@@ -6,26 +6,30 @@ import cuqi
 import matplotlib.pyplot as plt
 
 # %%
-x = cuqi.distribution.Normal("x",5,1)
+# A simple normal distribution with mean 5 and std 1
+x = cuqi.distribution.Normal(5,1)
 x.sample()
 
 #%%
-y = cuqi.distribution.Normal("y",0,None)
-y.sample() #Gives error if value is unspecified
+# We can specify an optional name of distribution (to be used by certain sampling algorithms which require distributions to interconnect)
+y = cuqi.distribution.Normal(5,1,name="y")
+y.name
 
 # %%
+# We can change the value if internal parameters of the distribution as follows
 y(std=10).sample()
 
 # %%
-z = cuqi.distribution.Normal("z",0,lambda sigma: np.sqrt(sigma))
+# We can specify parameters as callable functions/methods and condition directly on the parameters of those methods
+z = cuqi.distribution.Normal(0,lambda sigma: np.sqrt(sigma))
 z(sigma=2).sample()
 
 # %%
 #Functions for mean and std with various (shared) inputs
 mean = lambda sigma,gamma: sigma+gamma
-std  = lambda sigma,delta: np.sqrt(sigma+delta)
+std  = lambda delta,sigma: np.sqrt(delta+sigma)
 
-z = cuqi.distribution.Normal("z",mean,std)
+z = cuqi.distribution.Normal(mean,std)
 z(sigma=2,delta=5,gamma=-5).sample()
 # %%
 # Example from Johns book. Algorithm 5.1
