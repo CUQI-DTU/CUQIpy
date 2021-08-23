@@ -19,9 +19,9 @@ eps = np.finfo(float).eps
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
 
-    def __init__(self,name):
-        if not isinstance(name,str):
-            raise ValueError("Name must be a string")
+    def __init__(self,name=None):
+        if not isinstance(name,str) and name is not None:
+            raise ValueError("Name must be a string or None")
         self.name = name
 
     @abstractmethod
@@ -31,7 +31,7 @@ class Distribution(ABC):
     def sample(self,N=1,*args,**kwargs):
         #Make sure all values are specified, if not give error
         for key, value in vars(self).items():
-            if isinstance(value,Distribution) or value is None:
+            if isinstance(value,Distribution):
                 raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
         # Get samples from the distribution sample method
@@ -77,12 +77,9 @@ class Distribution(ABC):
                     if kw_key in accepted_keywords:
                         attr_args[kw_key] = kw_val
 
-
-                # Now call with the keywords
-                output = attr_val(**attr_args)
-
-                # Store output in the new dist
-                setattr(new_dist,attr_key,output)
+                # If any keywords matched call with those and store output in the new dist
+                if len(attr_args)>0:
+                    setattr(new_dist,attr_key,attr_val(**attr_args))
 
         return new_dist
 
@@ -156,9 +153,9 @@ class Normal(Distribution):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, name, mean, std):
+    def __init__(self, mean, std, **kwargs):
         # Init from abstract distribution class
-        super().__init__(name)
+        super().__init__(**kwargs)
 
         # Init specific to this distribution
         self.mean = mean
