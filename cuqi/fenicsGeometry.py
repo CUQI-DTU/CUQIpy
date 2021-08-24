@@ -32,7 +32,7 @@ class FenicsContinuous(Geometry):
             keyword arguments which the function :meth:`dolfin.plot` normally takes.
         """
         values = self._process_values(values)
-        subplot_ids = self._create_subplot_list(values)
+        subplot_ids = self._create_subplot_list(values,subplots=subplots)
 
         ims = []
         func = dl.Function(self.Vh)
