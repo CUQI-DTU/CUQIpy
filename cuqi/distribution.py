@@ -496,7 +496,7 @@ class Laplace_diff(object):
 class Uniform(Distribution):
 
 
-    def __init__(self, name, low=0.0, high=1.0):
+    def __init__(self, low=0.0, high=1.0, **kwargs):
         """
         Parameters
         ----------
@@ -506,7 +506,7 @@ class Uniform(Distribution):
             Upper bound(s) of the uniform distribution.
         """
         # Init from abstract distribution class
-        super().__init__(name)
+        super().__init__(**kwargs)
 
         # Init specific to this distribution
 
