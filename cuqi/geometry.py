@@ -20,19 +20,27 @@ class Geometry(ABC):
         pass
 
     @abstractmethod
-    def _pre_plot(self,values):
+    def _plot_config(self,values):
         """
         A method that implements any default configuration or set up that needs to occur before ploting. This method is to be called inside any 'plot_' method.
         """
         pass
 
-    def _create_subplots(self,N):
-        Nx = math.ceil(np.sqrt(N))
+    def _create_subplot_list(self,values):
+        Ns = values.shape[-1]
+        Nx = math.ceil(np.sqrt(Ns))
         Ny = Nx
+        subplot_ids = []
         fig = plt.gcf()
         fig.set_size_inches(fig.bbox_inches.corners()[3][0]*Nx, fig.bbox_inches.corners()[3][1]*Ny)
-        for i in range(N):
-            fig.add_subplot(Ny,Nx,i+1)
+
+        for i in range(Ny):
+            for j in range(Nx):
+                id = i*Nx+j+1
+                if id > Ns: 
+                    continue 
+                subplot_ids.append((Ny,Nx,id))
+        return subplot_ids
 
 class Continuous1D(Geometry):
 
@@ -47,13 +55,13 @@ class Continuous1D(Geometry):
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
 
     def plot(self,values,*args,**kwargs):
-        values = self._pre_plot(values)
-        return plt.plot(self.grid,values,*args,**kwargs)
+        p = plt.plot(self.grid,values,*args,**kwargs)
+        self._plot_config()
+        return p
 
-    def _pre_plot(self, values):
+    def _plot_config(self):
         if self.labels is not None:
             plt.xlabel(self.labels[0])
-        return values
 
 
 class Continuous2D(Geometry):
@@ -80,20 +88,23 @@ class Continuous2D(Geometry):
         kwargs : keyword arguments
             keyword arguments which the methods :meth:`matplotlib.pyplot.pcolor`, :meth:`matplotlib.pyplot.contour`, or :meth:`matplotlib.pyplot.contourf`  normally take, depending on the value of the parameter `type`.
         """
-        values = self._pre_plot(values)
+        if type == 'pcolor': 
+            plot_method = plt.pcolor
+        elif type == 'contour':
+            plot_method = plt.contour
+        elif type == 'contourf':
+            plot_method = plt.contourf
+        else:
+            raise ValueError(f"unknown value: {type} of the parameter 'type'")
+        
+        values = self._process_values(values)
+        subplot_ids = self._create_subplot_list(values)
         ims = []
-        for i, axis in enumerate(plt.gcf().axes):
-            if type == 'pcolor': 
-                plot_method = axis.pcolor
-            elif type == 'contour':
-                plot_method = axis.contour
-            elif type == 'contourf':
-                plot_method = axis.contourf
-            else:
-                raise ValueError(f"unknown value: {type} of the parameter 'type'")
-
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,i].reshape(self.grid[0].shape),
+        for rows,cols,id in subplot_ids:
+            plt.subplot(rows,cols,id); 
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,id-1].reshape(self.grid[0].shape),
                           **kwargs))
+        self._plot_config()
         return ims
 
     def plot_pcolor(self,values,**kwargs):
@@ -105,18 +116,17 @@ class Continuous2D(Geometry):
     def plot_contourf(self,values,**kwargs):
        return self.plot(values,type='contourf',**kwargs)
     
-    def _pre_plot(self,values):
+    def _process_values(self,values):
         if len(values.shape) == 3 or\
              (len(values.shape) == 2 and values.shape[0]== len(self.grid[0].flat)): #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs 
-            self._create_subplots(values.shape[-1])
+            pass
         else:
-            self._create_subplots(1)
             values = values[..., np.newaxis]
+        return values
 
+    def _plot_config(self):
         for i, axis in enumerate(plt.gcf().axes):
             if self.labels is not None:
                 axis.set_xlabel(self.labels[0])
                 axis.set_ylabel(self.labels[1])
             axis.set_aspect('equal')
-      
-        return values
