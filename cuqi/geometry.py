@@ -26,13 +26,13 @@ class Geometry(ABC):
         """
         pass
 
-    def _create_subplot_list(self,values):
+    def _create_subplot_list(self,values,subplots=True):
         Ns = values.shape[-1]
         Nx = math.ceil(np.sqrt(Ns))
         Ny = Nx
         subplot_ids = []
         fig = plt.gcf()
-        fig.set_size_inches(fig.bbox_inches.corners()[3][0]*Nx, fig.bbox_inches.corners()[3][1]*Ny)
+        if subplots: fig.set_size_inches(fig.bbox_inches.corners()[3][0]*Nx, fig.bbox_inches.corners()[3][1]*Ny)
 
         for i in range(Ny):
             for j in range(Nx):
