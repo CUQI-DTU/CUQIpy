@@ -47,8 +47,8 @@ b = tp.data
 L = np.eye(n)
 
 #x = cuqi.distribution.Gaussian(mean=None,std=None)
-l = cuqi.distribution.Gamma("l",shape=m/2+alpha,rate=None)
-d = cuqi.distribution.Gamma("d",shape=n/2+alpha,rate=None)
+l = cuqi.distribution.Gamma(shape=m/2+alpha,rate=lambda x: .5*np.linalg.norm(A@x-b)**2+beta)
+d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=lambda x: .5*x.T@(L@x)+beta)
 
 # Preallocate sample vectors
 ls = np.zeros(n_samp+1)
@@ -66,8 +66,8 @@ xs[:,0] = mean_x(ls[0],ds[0])
 for k in range(n_samp):
 
     #Sample hyperparameters
-    ls[k+1] = l(rate=.5*np.linalg.norm(A@xs[:,k]-b)**2+beta).sample()
-    ds[k+1] = d(rate=.5*xs[:,k].T@(L@xs[:,k])+beta).sample()
+    ls[k+1] = l(x=xs[:,k]).sample()
+    ds[k+1] = d(x=xs[:,k]).sample()
 
     # Sample x
     S = np.linalg.cholesky(cov_x(ls[k+1],ds[k+1]))

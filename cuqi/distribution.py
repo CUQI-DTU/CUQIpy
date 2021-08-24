@@ -210,9 +210,9 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, name, shape, rate):
+    def __init__(self, shape, rate, **kwargs):
         # Init from abstract distribution class
-        super().__init__(name)
+        super().__init__(**kwargs)
 
         # Init specific to this distribution
         self.shape = shape
