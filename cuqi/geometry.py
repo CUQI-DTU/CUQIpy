@@ -22,7 +22,7 @@ class Geometry(ABC):
     @abstractmethod
     def _plot_config(self,values):
         """
-        A method that implements any default configuration or set up that needs to occur before ploting. This method is to be called inside any 'plot_' method.
+        A method that implements any default configuration for the plots. This method is to be called inside any 'plot_' method.
         """
         pass
 
