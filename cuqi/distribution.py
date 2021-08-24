@@ -65,7 +65,7 @@ class Distribution(ABC):
                 elif callable(attr_val) and kw_key in inspect.getfullargspec(attr_val)[0]:
                     val_found = 1
             if val_found == 0:
-                raise ValueError("The keyword {} is not part any attribute or argument to any function of this distribution".format(kw_key))
+                raise ValueError("The keyword {} is not part of any attribute or argument to any function of this distribution.".format(kw_key))
 
 
         # EVALUATE CONDITIONAL DISTRIBUTION
