@@ -2,9 +2,14 @@
 import sys
 sys.path.append("..")
 import cuqi
-import dolfin as dl
 import matplotlib.pyplot as plt
 import numpy as np
+import warnings
+
+try: 
+    import dolfin as dl
+except Exception as error:
+    warnings.warn(error.msg)
 
 #%% 1D case test
 # Define FenicsContinuous2D object 

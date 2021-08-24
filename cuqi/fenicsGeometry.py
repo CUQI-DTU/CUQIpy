@@ -1,8 +1,12 @@
 from cuqi.geometry import Geometry
 import numpy as np
-import dolfin as dl
 import matplotlib.pyplot as plt
-import math
+import warnings
+
+try: 
+    import dolfin as dl
+except Exception as error:
+    warnings.warn(error.msg)
 
 
 class FenicsContinuous(Geometry):
