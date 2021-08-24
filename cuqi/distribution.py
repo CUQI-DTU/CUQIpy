@@ -9,13 +9,20 @@ from cuqi.samples import Samples
 from abc import ABC, abstractmethod
 from copy import copy
 
+import inspect
+
 # import sksparse
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
 
 
-# ========== Abstract distribtion class ===========
+# ========== Abstract distribution class ===========
 class Distribution(ABC):
+
+    def __init__(self,name=None):
+        if not isinstance(name,str) and name is not None:
+            raise ValueError("Name must be a string or None")
+        self.name = name
 
     @abstractmethod
     def logpdf(self,x):
@@ -24,10 +31,10 @@ class Distribution(ABC):
     def sample(self,N=1,*args,**kwargs):
         #Make sure all values are specified, if not give error
         for key, value in vars(self).items():
-            if isinstance(value,Distribution) or value is None:
+            if isinstance(value,Distribution):
                 raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
-        # Get samples from the distributioon sample method
+        # Get samples from the distribution sample method
         s = self._sample(N,*args,**kwargs)
 
         #Store samples in cuqi samples object if more than 1 sample
@@ -47,13 +54,46 @@ class Distribution(ABC):
         return np.exp(self.logpdf(x))
 
     def __call__(self,**kwargs):
-        """ Generate new distribtuion with new attrributes given in by keyword arguments """
-        new_dist = copy(self)
-        for key, value in kwargs.items():
-            if hasattr(self,key):
-                setattr(new_dist,key,value)
-            else:
-                raise TypeError("Attribute {} does not exist in this distribution".format(key))
+        """ Generate new distribution with new attributes given in by keyword arguments """
+
+        # KEYWORD ERROR CHECK
+        for kw_key, kw_val in kwargs.items():
+            val_found = 0
+            for attr_key, attr_val in vars(self).items():
+                if kw_key is attr_key:
+                    val_found = 1
+                elif callable(attr_val) and kw_key in inspect.getfullargspec(attr_val)[0]:
+                    val_found = 1
+            if val_found == 0:
+                raise ValueError("The keyword {} is not part of any attribute or argument to any function of this distribution.".format(kw_key))
+
+
+        # EVALUATE CONDITIONAL DISTRIBUTION
+        new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
+        new_dist.name = None  #Reset name to None
+
+        # Go through every attribute and assign values from kwargs accordingly
+        for attr_key, attr_val in vars(self).items():
+            
+            #If keyword directly specifies new value of attribute we simply reassign
+            if attr_key in kwargs:
+                setattr(new_dist,attr_key,kwargs.get(attr_key))
+
+            #If attribute is callable we check if any keyword arguments can be used as arguments
+            if callable(attr_val):
+
+                accepted_keywords = inspect.getfullargspec(attr_val)[0]
+
+                # Builds dict with arguments to call attribute with
+                attr_args = {}
+                for kw_key, kw_val in kwargs.items():
+                    if kw_key in accepted_keywords:
+                        attr_args[kw_key] = kw_val
+
+                # If any keywords matched call with those and store output in the new dist
+                if len(attr_args)>0:
+                    setattr(new_dist,attr_key,attr_val(**attr_args))
+
         return new_dist
 
 # ========================================================================
@@ -126,7 +166,11 @@ class Normal(Distribution):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean, std):
+    def __init__(self, mean, std, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Init specific to this distribution
         self.mean = mean
         self.std = std        
         self.dim = np.size(mean)
@@ -167,7 +211,11 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, shape, rate):
+    def __init__(self, shape, rate, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Init specific to this distribution
         self.shape = shape
         self.rate = rate
 
@@ -448,7 +496,7 @@ class Laplace_diff(object):
 class Uniform(Distribution):
 
 
-    def __init__(self, low=0.0, high=1.0):
+    def __init__(self, low=0.0, high=1.0, **kwargs):
         """
         Parameters
         ----------
@@ -457,6 +505,11 @@ class Uniform(Distribution):
         high : float or array_like of floats 
             Upper bound(s) of the uniform distribution.
         """
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Init specific to this distribution
+
         self.low = low
         self.high = high        
         self.dim = np.size(low)
