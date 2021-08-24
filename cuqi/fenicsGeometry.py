@@ -1,16 +1,27 @@
 from cuqi.geometry import Geometry
 import numpy as np
+<<<<<<< HEAD
 import matplotlib.pyplot as plt
 import warnings
+=======
+import dolfin as dl
+import matplotlib.pyplot as plt
+import math
+>>>>>>> update fenicsGeometry module and its demo
 
 try: 
     import dolfin as dl
 except Exception as error:
     warnings.warn(error.msg)
 
+<<<<<<< HEAD
 
 class FenicsContinuous(Geometry):
 
+=======
+class FenicsContinuous(Geometry):
+
+>>>>>>> update fenicsGeometry module and its demo
     def __init__(self, Vh, labels = ['x', 'y']):
         self._physical_dim = Vh.mesh().geometry().dim()
         if self.physical_dim >2:
