@@ -70,6 +70,7 @@ class Distribution(ABC):
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
+        new_dist.name = None  #Reset name to None
 
         # Go through every attribute and assign values from kwargs accordingly
         for attr_key, attr_val in vars(self).items():

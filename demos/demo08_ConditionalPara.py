@@ -17,7 +17,8 @@ y.name
 
 # %%
 # We can change the value if internal parameters of the distribution as follows
-y(std=10).sample()
+y2 = y(std=10)
+y2.sample()
 
 # %%
 # We can specify parameters as callable functions/methods and condition directly on the parameters of those methods
@@ -27,7 +28,7 @@ z(sigma=2).sample()
 # %%
 #Functions for mean and std with various (shared) inputs
 mean = lambda sigma,gamma: sigma+gamma
-std  = lambda delta,sigma: np.sqrt(delta+sigma)
+std  = lambda delta: np.sqrt(delta)
 
 z = cuqi.distribution.Normal(mean,std)
 z(sigma=2,delta=5,gamma=-5).sample()
