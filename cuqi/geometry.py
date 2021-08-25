@@ -76,26 +76,26 @@ class Continuous2D(Geometry):
         else:
             self.grid = grid
 
-    def plot(self,values,type='pcolor',**kwargs):
+    def plot(self,values,plot_type='pcolor',**kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
         
         Parameters
         -----------
-        type : str
-            type of the plot. If type = 'pcolor', :meth:`matplotlib.pyplot.pcolor` is called, if type = 'contour', :meth:`matplotlib.pyplot.contour` is called, and if `type` = 'contourf', :meth:`matplotlib.pyplot.contourf` is called, 
+        plot_type : str
+            type of the plot. If plot_type = 'pcolor', :meth:`matplotlib.pyplot.pcolor` is called, if plot_type = 'contour', :meth:`matplotlib.pyplot.contour` is called, and if `plot_type` = 'contourf', :meth:`matplotlib.pyplot.contourf` is called, 
 
         kwargs : keyword arguments
-            keyword arguments which the methods :meth:`matplotlib.pyplot.pcolor`, :meth:`matplotlib.pyplot.contour`, or :meth:`matplotlib.pyplot.contourf`  normally take, depending on the value of the parameter `type`.
+            keyword arguments which the methods :meth:`matplotlib.pyplot.pcolor`, :meth:`matplotlib.pyplot.contour`, or :meth:`matplotlib.pyplot.contourf`  normally take, depending on the value of the parameter `plot_type`.
         """
-        if type == 'pcolor': 
+        if plot_type == 'pcolor': 
             plot_method = plt.pcolor
-        elif type == 'contour':
+        elif plot_type == 'contour':
             plot_method = plt.contour
-        elif type == 'contourf':
+        elif plot_type == 'contourf':
             plot_method = plt.contourf
         else:
-            raise ValueError(f"unknown value: {type} of the parameter 'type'")
+            raise ValueError(f"unknown value: {plot_type} of the parameter 'plot_type'")
         
         values = self._process_values(values)
         subplot_ids = self._create_subplot_list(values)
@@ -108,13 +108,13 @@ class Continuous2D(Geometry):
         return ims
 
     def plot_pcolor(self,values,**kwargs):
-        return self.plot(values,type='pcolor',**kwargs)
+        return self.plot(values,plot_type='pcolor',**kwargs)
 
     def plot_contour(self,values,**kwargs):
-        return self.plot(values,type='contour',**kwargs)
+        return self.plot(values,plot_type='contour',**kwargs)
 
     def plot_contourf(self,values,**kwargs):
-       return self.plot(values,type='contourf',**kwargs)
+       return self.plot(values,plot_type='contourf',**kwargs)
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
