@@ -36,10 +36,10 @@ class Geometry(ABC):
 
         for i in range(Ny):
             for j in range(Nx):
-                id = i*Nx+j+1
-                if id > Ns: 
+                subplot_id = i*Nx+j+1
+                if subplot_id > Ns: 
                     continue 
-                subplot_ids.append((Ny,Nx,id))
+                subplot_ids.append((Ny,Nx,subplot_id))
         return subplot_ids
 
 class Continuous1D(Geometry):
@@ -100,9 +100,9 @@ class Continuous2D(Geometry):
         values = self._process_values(values)
         subplot_ids = self._create_subplot_list(values)
         ims = []
-        for rows,cols,id in subplot_ids:
-            plt.subplot(rows,cols,id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,id-1].reshape(self.grid[0].shape),
+        for rows,cols,subplot_id in subplot_ids:
+            plt.subplot(rows,cols,subplot_id); 
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.grid[0].shape),
                           **kwargs))
         self._plot_config()
         return ims
