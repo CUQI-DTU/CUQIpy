@@ -161,9 +161,10 @@ class Normal(Distribution):
         # Init specific to this distribution
         self.mean = mean
         self.std = std        
-        self.dim = max(np.size(mean),np.size(std))
 
-        self.Sigma = std**2*np.eye(self.dim)
+    @property
+    def dim(self):
+        return max(np.size(self.mean),np.size(self.std))
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
