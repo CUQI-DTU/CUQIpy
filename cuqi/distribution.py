@@ -191,13 +191,9 @@ class Normal(Distribution):
         Generated sample(s)
 
         """
-        if input is not None:
-            mean = self.mean(input)
-        else:
-            mean = self.mean
 
         if rng is not None:
-            s =  rng.normal(mean, self.std, (N,self.dim))
+            s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
             s = np.random.normal(self.mean, self.std, (N,self.dim))
         return s
