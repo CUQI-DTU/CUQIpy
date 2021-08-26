@@ -40,11 +40,11 @@ class FenicsContinuous(Geometry):
 
         ims = []
         func = dl.Function(self.Vh)
-        for rows,cols,id in subplot_ids:
+        for rows,cols,subplot_id in subplot_ids:
             func.vector().zero()
-            func.vector().set_local(values[...,id-1])
+            func.vector().set_local(values[...,subplot_id-1])
             if subplots:
-                plt.subplot(rows,cols,id); 
+                plt.subplot(rows,cols,subplot_id); 
             ims.append(dl.plot(func, **kwargs))
 
         self._plot_config(subplots) 
