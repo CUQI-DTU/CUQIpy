@@ -56,13 +56,13 @@ Ns = 2000
 #%% 1.  "High level"  - set up cuqi Problem
 
 # Define Bayesian model
-IP = cuqi.problem.BayesianModel(likelihood=L,prior=P1,model=A,data=b)
+IP = cuqi.problem.BayesianModel(likelihood=L,prior=P1,data=b)
 
 # Then we can simply sample the posterior
-results = IP.sample_posterior(Ns) 
+results_prior1 = IP.sample_posterior(Ns) 
 
 # Plot 95% confidence interval
-results.plot_ci(95,exact=tp.exactSolution)
+results_prior1.plot_ci(95,exact=tp.exactSolution)
 
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
 
@@ -70,35 +70,34 @@ results.plot_ci(95,exact=tp.exactSolution)
 tp.prior = P2
 
 #Use UQ convenience method:
-results_prior2 = tp.sample(Ns)
+results_prior2 = tp.sample_posterior(Ns)
 
 #%%
-norm_f = np.linalg.norm(tp.f_true)
+norm_f = np.linalg.norm(tp.exactSolution)
 med_xpos1 = np.median(results_prior1.samples, axis=1) # sp.stats.mode
 sigma_xpos1 = results_prior1.samples.std(axis=1)
-relerr = round(np.linalg.norm(med_xpos1 - tp.f_true)/norm_f*100, 2)
+relerr = round(np.linalg.norm(med_xpos1 - tp.exactSolution)/norm_f*100, 2)
 print('\nGMRF Relerror median:', relerr, '\n')
 
 med_xpos2 = np.median(results_prior2.samples, axis=1) # sp.stats.mode
 sigma_xpos2 = results_prior2.samples.std(axis=1)
-relerr = round(np.linalg.norm(med_xpos2 - tp.f_true)/norm_f*100, 2)
+relerr = round(np.linalg.norm(med_xpos2 - tp.exactSolution)/norm_f*100, 2)
 print('\nCauchy Relerror median:', relerr, '\n')
 
 #%%
 plt.figure()
-plt.plot(tp.t, tp.f_true, 'k-')
-plt.plot(tp.t, tp.g_true, 'b-')
+plt.plot(tp.t, tp.exactSolution, 'k-')
+plt.plot(tp.t, tp.exactData, 'b-')
 plt.plot(tp.t, b, 'r.')
 plt.tight_layout()
 #%%
 plt.figure()
-results_prior1.plot_ci(95,exact=tp.f_true)
+results_prior1.plot_ci(95,exact=tp.exactSolution)
 plt.title('GMRF prior')
 plt.show()
 
 #%%
 plt.figure()
-results_prior2.plot_ci(95,exact=tp.f_true)
+results_prior2.plot_ci(95,exact=tp.exactSolution)
 plt.title('Cauchy prior')
 plt.show()
-tp.UQ()

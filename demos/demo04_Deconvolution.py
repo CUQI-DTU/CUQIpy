@@ -45,12 +45,12 @@ noise_std = 0.05
 likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(m))
 
 # Plot samples of noise
-likelihood.sample(5,input=np.zeros(n)).plot()
+likelihood(x=np.zeros(n)).sample(5).plot()
 
 plt.title('Noise samples'); plt.show()
 
 # Plot samples of simulated data
-likelihood.sample(5,input=phantom).plot()
+likelihood(x=phantom).sample(5).plot()
 
 plt.title('Simulated data'); plt.show()
 
@@ -66,7 +66,7 @@ plt.title('Realizations from prior'); plt.show()
 # %% Define cuqi (inverse) problem
 
 # Bayesian model
-IP = cuqi.problem.BayesianModel(likelihood,prior,model,data)
+IP = cuqi.problem.BayesianModel(likelihood,prior,data)
 
 # %% Compute MAP estimate.
 

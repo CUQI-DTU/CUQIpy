@@ -301,7 +301,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
 
-    def logpdf(self, x1, *x2):
+    def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
         if callable(self.mean):
             mu = self.mean(x2[0])   # mean is variable
         else:
