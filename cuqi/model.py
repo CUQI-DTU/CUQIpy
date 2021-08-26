@@ -39,6 +39,9 @@ class Model(object):
             return Samples(data_samples)
         else:
             return self._forward_func(x)
+
+    def __call__(self,x):
+        return self.forward(x)
     
 class LinearModel(Model):
     """
@@ -105,8 +108,4 @@ class LinearModel(Model):
     
     def __matmul__(self, x):
         return self*x
-
-    def __call__(self,x):
-        return self.forward(x)
-
         
