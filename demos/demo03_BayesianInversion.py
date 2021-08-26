@@ -70,8 +70,6 @@ results.plot_ci(95,exact=tp.exactSolution)
 tp.prior = P2
 
 #Use UQ convenience method:
-<<<<<<< HEAD
-<<<<<<< HEAD
 results_prior2 = tp.sample(Ns)
 
 #%%
@@ -103,9 +101,4 @@ plt.figure()
 results_prior2.plot_ci(95,exact=tp.f_true)
 plt.title('Cauchy prior')
 plt.show()
-=======
 tp.UQ()
->>>>>>> 446ab2c (Update demos to match new BayesianModel cuqi problem)
-=======
-tp.UQ()
->>>>>>> fdf30b45f4a829e319c4498182477d0268a015f4
