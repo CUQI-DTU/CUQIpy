@@ -240,9 +240,7 @@ class Gaussian(object):
     def __init__(self, mean, std, corrmat=None):
         self.mean = mean
         self.std = std
-        if corrmat is None and callable(mean):
-            raise TypeError("Corrmat must be defined if mean is callable function")
-        elif corrmat is None:
+        if corrmat is None:
             corrmat = np.eye(len(mean))
         self.R = corrmat
         self.dim = len(np.diag(corrmat))
@@ -298,17 +296,12 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N=1, rng=None,input=None):   # TODO
-
-        if input is not None:
-            mean = self.mean(input)
-        else:
-            mean = self.mean
+    def sample(self, N=1, rng=None):
 
         if rng is not None:
-            s = rng.multivariate_normal(mean, self.Sigma, N).T
+            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
         else:
-            s = np.random.multivariate_normal(mean, self.Sigma, N).T
+            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
             
         if N==1:
             return s.flatten()
