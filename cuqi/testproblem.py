@@ -64,7 +64,7 @@ def _data_conv(t,kernel,likelihood):
     g_true = g_conv(t)[0]
 
     # noisy data
-    b = g_true + likelihood.sample(1,input=np.zeros(len(t))) #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
+    b = g_true + likelihood(x=np.zeros(len(t))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
     return b, f_true, g_true
 
@@ -184,7 +184,7 @@ class Deconvolution(BayesianModel):
         
         # Generate data
         if data is None:
-            data = likelihood.sample(1,input=x_exact).flatten() #ToDo: (remove flatten)
+            data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
 
         # Initialize Deconvolution as BayesianModel problem
         super().__init__(likelihood,prior,data)

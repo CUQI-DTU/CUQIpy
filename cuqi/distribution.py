@@ -42,6 +42,8 @@ class Distribution(ABC):
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
+            else:
+                s = s.flatten()
         else:
             s = Samples(s)
 
