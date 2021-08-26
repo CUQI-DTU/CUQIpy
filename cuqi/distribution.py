@@ -5,6 +5,7 @@ from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
+from cuqi.model import Model
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -52,6 +53,25 @@ class Distribution(ABC):
 
     def pdf(self,x):
         return np.exp(self.logpdf(x))
+
+    @property
+    def model(self):
+        #Extract the cuqi model from attributes if it exists somewhere
+        #by going through every attribute and look for cuqi model
+        model_value = None
+
+        for key, value in vars(self).items():
+            if isinstance(value,Model):
+                if model_value is None:
+                    model_value = value
+                else:
+                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
+        
+        if model_value is None:
+            #If no model was found we also give error
+            raise TypeError("Cuqi model could not be extracted from distribution {}".format(self))
+        else:
+            return model_value
 
     def __call__(self,**kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
@@ -235,7 +255,7 @@ class Gamma(Distribution):
             return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
-class Gaussian(object):
+class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None):
         self.mean = mean
@@ -296,17 +316,14 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N=1, rng=None):
+    def _sample(self, N=1, rng=None):
 
         if rng is not None:
             s = rng.multivariate_normal(self.mean, self.Sigma, N).T
         else:
             s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
             
-        if N==1:
-            return s.flatten()
-        else:
-            return Samples(s)
+        return s
 
 
 

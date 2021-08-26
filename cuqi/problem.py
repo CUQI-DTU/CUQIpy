@@ -1,3 +1,4 @@
+from warnings import WarningMessage
 import cuqi
 import numpy as np
 import time
@@ -39,8 +40,11 @@ class BayesianModel(object):
     def __init__(self,likelihood,prior,data=None):
         self.likelihood = likelihood
         self.prior = prior
-        self.model = self.likelihood.mean #TODO 
         self.data = data
+
+    @property
+    def model(self):
+        return self.likelihood.model
 
     def MAP(self):
         """MAP computed the MAP estimate of the posterior"""
