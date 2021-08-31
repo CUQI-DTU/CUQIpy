@@ -66,7 +66,7 @@ plt.title('Realizations from prior'); plt.show()
 # %% Define cuqi (inverse) problem
 
 # Bayesian model
-IP = cuqi.problem.BayesianModel(likelihood,prior,data)
+IP = cuqi.problem.BayesianProblem(likelihood,prior,data)
 
 # %% Compute MAP estimate.
 

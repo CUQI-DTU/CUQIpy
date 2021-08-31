@@ -56,7 +56,7 @@ Ns = 2000
 #%% 1.  "High level"  - set up cuqi Problem
 
 # Define Bayesian model
-IP = cuqi.problem.BayesianModel(likelihood=L,prior=P1,data=b)
+IP = cuqi.problem.BayesianProblem(likelihood=L,prior=P1,data=b)
 
 # Then we can simply sample the posterior
 results_prior1 = IP.sample_posterior(Ns) 
