@@ -11,7 +11,7 @@ class Generic(object):
     def __init__(self):
         raise NotImplementedError
 
-class BayesianModel(object):
+class BayesianProblem(object):
     """
     Bayesian representation of inverse problem represented by likelihood and prior
 

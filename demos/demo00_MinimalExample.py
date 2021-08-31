@@ -15,7 +15,7 @@ m,n    = A.shape
 model      = cuqi.model.LinearModel(A)                                  #Model for inverse problem
 prior      = cuqi.distribution.Gaussian(np.zeros(n),0.1)                #Prior distribution
 likelihood = cuqi.distribution.Gaussian(model,0.05,np.eye(m))           #Likelihood distribution
-IP         = cuqi.problem.BayesianModel(likelihood,prior,data=b)  #Bayesian model for inverse problem
+IP         = cuqi.problem.BayesianProblem(likelihood,prior,data=b)  #Bayesian model for inverse problem
 IP.UQ()                                                                 #Perform UQ on inverse problem
 
 # %%

@@ -6,10 +6,10 @@ from scipy.integrate import quad_vec
 import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
-from cuqi.problem import BayesianModel
+from cuqi.problem import BayesianProblem
 
 #=============================================================================
-class Deblur(BayesianModel):
+class Deblur(BayesianProblem):
     
     def __init__(self, a = 48, noise_std = 0.1, dim = 128, bnds = [0, 1]):
         t = np.linspace(bnds[0], bnds[1], dim)
@@ -34,7 +34,7 @@ class Deblur(BayesianModel):
         # Generate inverse-crime free data
         data, f_true, g_true = _data_conv(t,kernel,likelihood)
         
-        #Initialize deblur as BayesianModel cuqi problem
+        #Initialize deblur as BayesianProblem cuqi problem
         super().__init__(likelihood,None,data) #No default prior
         
         #Store other properties
@@ -69,7 +69,7 @@ def _data_conv(t,kernel,likelihood):
     return b, f_true, g_true
 
 #=============================================================================
-class Deconvolution(BayesianModel):
+class Deconvolution(BayesianProblem):
     """
     1D Deconvolution test problem
 
@@ -186,7 +186,7 @@ class Deconvolution(BayesianModel):
         if data is None:
             data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
 
-        # Initialize Deconvolution as BayesianModel problem
+        # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood,prior,data)
 
         # Store exact values
