@@ -5,7 +5,7 @@ import time
 
 
 from cuqi.distribution import Cauchy_diff, Laplace_diff, Gaussian, GMRF
-from cuqi.model import LinearModel
+from cuqi.model import LinearModel, Model
 
 class Generic(object):
     def __init__(self):
@@ -44,7 +44,25 @@ class BayesianProblem(object):
 
     @property
     def model(self):
-        return self.likelihood.model
+        """Extract the cuqi model from likelihood."""
+
+        model_value = None
+
+        for key, value in vars(self.likelihood).items():
+            if isinstance(value,Model):
+                if model_value is None:
+                    model_value = value
+                else:
+                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
+        
+        if model_value is None:
+            #If no model was found we also give error
+            raise TypeError("Cuqi model could not be extracted from likelihood distribution {}".format(self.likelihood))
+        else:
+            return model_value
+
+    def loglikelihood_function(self,x):
+        return self.likelihood(x=x).logpdf(self.data)
 
     def MAP(self):
         """MAP computed the MAP estimate of the posterior"""
@@ -63,7 +81,7 @@ class BayesianProblem(object):
 
         #If no implementation exists give error
         else:
-            raise NotImplementedError(f'MAP estimate is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            raise NotImplementedError(f'MAP estimate is not implemented in for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
@@ -78,7 +96,7 @@ class BayesianProblem(object):
             return self._samplepCN(Ns)
 
         else:
-            raise NotImplementedError(f'Sampler is not implemented in Type1 problem for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
     def UQ(self,exact=None):
         print("Computing 5000 samples")

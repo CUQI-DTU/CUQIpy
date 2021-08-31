@@ -5,7 +5,6 @@ from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
-from cuqi.model import Model
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -55,25 +54,6 @@ class Distribution(ABC):
 
     def pdf(self,x):
         return np.exp(self.logpdf(x))
-
-    @property
-    def model(self):
-        #Extract the cuqi model from attributes if it exists somewhere
-        #by going through every attribute and look for cuqi model
-        model_value = None
-
-        for key, value in vars(self).items():
-            if isinstance(value,Model):
-                if model_value is None:
-                    model_value = value
-                else:
-                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
-        
-        if model_value is None:
-            #If no model was found we also give error
-            raise TypeError("Cuqi model could not be extracted from distribution {}".format(self))
-        else:
-            return model_value
 
     def __call__(self,**kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
