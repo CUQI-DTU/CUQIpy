@@ -879,3 +879,61 @@ class DistributionGallery(UserDefinedDistribution):
         return -1/(2*self.sig**2)*(np.sqrt(x[:,0]**2+ x[:,1]**2) -1 )**2 -1/(2*self.delta**2)*(x[:,1]-1)**2
 
 
+
+# ========================================================================
+class LMRF(Distribution):
+        
+    def __init__(self, mean, prec, N, dom, BCs):
+        self.mean = mean.reshape(len(mean), 1)
+        self.prec = prec
+        self.N = N          # partition size
+        self.BCs = BCs      # boundary conditions
+        
+        # BCs: 1D difference matrix 
+        one_vec = np.ones(N)
+        dgn = np.vstack([-one_vec, one_vec])
+        if (BCs == 'zero'):
+            locs = [-1, 0]
+            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
+        elif (BCs == 'periodic'):
+            locs = [-1, 0]
+            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
+            Dmat[-1, 0] = 1
+            Dmat[0, -1] = -1
+        elif (BCs == 'neumann'):
+            locs = [0, 1]
+            Dmat = spdiags(dgn, locs, N, N).tocsc()
+            Dmat[-1, -1] = 0
+        elif (BCs == 'none'):
+            Dmat = eye(N, dtype=int)
+        else:
+            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
+        
+
+            
+
+
+    def logpdf(self, x):
+        const = d*(np.log(delta)-np.log(2)) 
+        y = const -  delta*(np.linalg.norm(D1@x, ord=1)+np.linalg.norm(D2@x, ord=1)
+
+        #const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
+        #y = const - 0.5*( self.prec*((x-self.mean).T @ (self.L @ (x-self.mean))) )
+        #y = np.diag(y)
+        # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
+        #return y
+
+    ######################################
+    ## LMRF with smooth approximation of gradient
+    ######################################
+    #def LMRF(x, d, delta, D1, D2): 
+)
+    #    L, _, _ = L_LaplaceApprox(x, D1, D2)
+    #    Lx = L @ x
+    #    logpi_grad = -delta*Lx
+    #    return logpi, logpi_grad
+
+
+
+
+                        
