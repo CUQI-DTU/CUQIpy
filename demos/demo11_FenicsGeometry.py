@@ -13,20 +13,20 @@ except Exception as error:
 
 #%% 1D case test
 # Define FenicsContinuous2D object 
-mesh = dl.UnitIntervalMesh(30)
-Vh = dl.FunctionSpace(mesh, 'CG', 1)
-geom = cuqi.fenicsGeometry.FenicsContinuous(Vh)
+mesh1 = dl.UnitIntervalMesh(30)
+Vh1 = dl.FunctionSpace(mesh1, 'CG', 1)
+geom1 = cuqi.fenicsGeometry.FenicsContinuous(Vh1)
 
 # Define function
-f1= dl.Function(Vh)
+f1= dl.Function(Vh1)
 f1.interpolate(dl.Expression("pow(sin(x[0]),3)", degree =2))
 
 # plot
 plt.figure(1)
-geom.plot(f1.vector().get_local())
+geom1.plot(f1.vector().get_local())
 
 plt.figure(2)
-geom.plot(np.stack((f1.vector().get_local(), f1.vector().get_local()), axis = -1), subplots = False)
+geom1.plot(np.stack((f1.vector().get_local(), f1.vector().get_local()), axis = -1), subplots = True)
 
 #%% 2D case test
 # Define FenicsContinuous2D object 
@@ -45,3 +45,5 @@ geom.plot(f1.vector().get_local())
 plt.figure(4)
 geom.plot(np.stack((f1.vector().get_local(), f1.vector().get_local()), axis = -1))
 
+
+# %%
