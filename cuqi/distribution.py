@@ -915,7 +915,7 @@ class LMRF(Distribution):
 
     def logpdf(self, x):
         const = d*(np.log(delta)-np.log(2)) 
-        y = const -  delta*(np.linalg.norm(D1@x, ord=1)+np.linalg.norm(D2@x, ord=1)
+        y = const -  delta*(np.linalg.norm(D1@x, ord=1)+np.linalg.norm(D2@x, ord=1))
 
         #const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
         #y = const - 0.5*( self.prec*((x-self.mean).T @ (self.L @ (x-self.mean))) )
@@ -927,7 +927,7 @@ class LMRF(Distribution):
     ## LMRF with smooth approximation of gradient
     ######################################
     #def LMRF(x, d, delta, D1, D2): 
-)
+
     #    L, _, _ = L_LaplaceApprox(x, D1, D2)
     #    Lx = L @ x
     #    logpi_grad = -delta*Lx
