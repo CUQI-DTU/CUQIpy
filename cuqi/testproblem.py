@@ -2,6 +2,8 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
+from scipy.ndimage import convolve
+import scipy.io as spio
 
 import cuqi
 from cuqi.model import LinearModel
@@ -316,3 +318,182 @@ def _getExactSolution(dim,phantom,phantom_param):
 
     else:
         raise NotImplementedError("This phantom is not implemented")
+
+
+#=============================================================================
+class Deconvolution2D(Type1):
+    """
+    2D Deconvolution test problem
+
+    Parameters
+    ------------
+    dim : int
+        size of the (dim,dim) deconvolution problem
+
+    kernel : string 
+        Determines type of the underlying kernel
+        'Gauss' - a Gaussian function
+        'sinc' or 'prolate' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+
+    kernel_param : scalar
+        A parameter that determines the shape of the kernel;
+        the larger the parameter, the slower the initial
+        decay of the singular values of A
+
+    phantom : string
+        The phantom that is sampled to produce x
+        'Gauss' - a Gaussian function
+        'sinc' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+        'square' - a "top hat" function
+        'hat' - a triangular hat function
+        'bumps' - two bumps
+        'derivGauss' - the first derivative of Gauss function
+
+    phantom_param : scalar
+        A parameter that determines the width of the central 
+        "bump" of the function; the larger the parameter,
+        the narrower the "bump."  
+        Does not apply to phantom = 'bumps'
+
+    noise_type : string
+        The type of noise
+        "Gaussian" - Gaussian white noise¨
+        "scaledGaussian" - Scaled (by data) Gaussian noise
+
+    noise_std : scalar
+        Standard deviation of the noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.Model
+        Deconvolution forward model
+
+    noise : cuqi.distribution.Distribution
+        Distribution of the additive noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior (Default = None)
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+        (automatically computed from noise distribution)
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    Sample(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+
+    """
+    def __init__(self,
+        dim=128,
+        phantom="satellite",
+        phantom_param=None,
+        noise_type="gaussian",
+        noise_std=0.02,
+        prior=None,
+        data=None,
+        noise=None
+        ):
+        
+        # Set up model
+        s_PSF = 2.56
+        mm, nn = 21, 21
+        P, _ = Gauss(np.array([mm, nn]), s_PSF) 
+        BC = 'constant'
+        # 
+        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x, P, BC), \
+                                       lambda x: proj_backward_2D(x, P, BC))
+
+        # Set up exact solution
+        data = spio.loadmat('../demos/data/data_true_satellite_noi0p02.mat')
+        x_exact2D = data['X_true']
+        x_exact = x_exact2D.flatten()
+        
+        # Generate exact data
+        b_exact = model.forward(x_exact)
+
+        if noise is None:
+            # Define and add noise
+            if noise_type.lower() == "gaussian":
+                noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
+            elif noise_type.lower() == "scaledgaussian":
+                noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
+            #TODO elif noise_type.lower() == "poisson":
+            #TODO elif noise_type.lower() == "logpoisson":
+            else:
+                raise NotImplementedError("This noise type is not implemented")
+        
+        if data is None:
+            data = b_exact + noise.sample(1).flatten()
+
+        # Initialize Deconvolution as Type1 problem
+        super().__init__(data,model,noise,prior)
+
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+
+#=========================================================================
+# def _getA(X, flag, P, BC, m, n):
+#     X = X.reshape((m, n))
+#     if flag == 1:
+#         # forward projection
+#         return proj_forward(X, P, BC)
+#     elif flag == 2:
+#         # backward projection  
+#          return proj_backward(X, P, BC)
+
+#=========================================================================
+def proj_forward_2D(X, P, BC):
+    Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
+    return Ax.flatten()
+
+#=========================================================================
+def proj_backward_2D(B, P, BC):
+    P = np.flipud(np.fliplr(P))
+    ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
+    return ATy.flatten()
+
+# ===================================================================
+# Array with PSF for Gaussian blur (astronomic turbulence)
+# ===================================================================
+def Gauss(dim, s):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    s1, s2 = s, s
+    
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(n/2), np.ceil(n/2))
+    y = np.arange(-np.fix(m/2), np.ceil(m/2))
+    X, Y = np.meshgrid(x, y)
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = np.exp( -0.5* ((X**2)/(s1**2) + (Y**2)/(s2**2)) )
+    PSF /= PSF.sum()
+
+    # find the center
+    mm, nn = np.where(PSF == PSF.max())
+    center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
