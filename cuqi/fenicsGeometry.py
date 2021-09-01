@@ -12,15 +12,14 @@ except Exception as error:
 class FenicsContinuous(Geometry):
 
     def __init__(self, Vh, labels = ['x', 'y']):
-        self._physical_dim = Vh.mesh().geometry().dim()
+        self.Vh = Vh
         if self.physical_dim >2:
             raise NotImplementedError("'FenicsContinuous' object does not support 3D meshes yet. 'mesh' needs to be a 1D or 2D mesh.")
         self.labels = labels
-        self.Vh = Vh
 
     @property
     def physical_dim(self):
-        return self._physical_dim   
+        return self.Vh.mesh().geometry().dim()  
 
     @property
     def mesh(self):
