@@ -6,6 +6,10 @@ import math
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
     """
+    @property
+    @abstractmethod
+    def ndofs(self):
+        pass
 
     @abstractmethod
     def plot(self,values):
@@ -45,6 +49,8 @@ class Continuous1D(Geometry):
 
     def __init__(self,dim,grid=None,labels=['x']):
         self.labels = labels
+        if isinstance(dim,int):
+            dim =[dim]
         if len(dim)==1:
             if grid is None:
                 self.grid = np.arange(dim[0])
@@ -52,6 +58,10 @@ class Continuous1D(Geometry):
                 self.grid = grid
         else:
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
+
+    @property
+    def ndofs(self):
+        return len(self.grid)
 
     def plot(self,values,*args,**kwargs):
         p = plt.plot(self.grid,values,*args,**kwargs)
@@ -74,6 +84,11 @@ class Continuous2D(Geometry):
             self.grid = np.meshgrid( np.arange(dim[0]), np.arange(dim[1]) )
         else:
             self.grid = grid
+            
+    @property
+    def ndofs(self):
+        dim = np.shape(self.grid[0])[::-1]
+        return dim[0]*dim[1]
 
     def plot(self,values,plot_type='pcolor',**kwargs):
         """
