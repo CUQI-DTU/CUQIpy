@@ -53,7 +53,7 @@ class Model(object):
     def dim(self): #dim is derived from range_geometry and domain_geometry objects
         dim_old = self._dim 
         if self.range_geometry is not None and self.domain_geometry is not None: 
-            self._dim = (len(self.range_geometry.grid.flat), len(self.domain_geometry.grid.flat)) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
+            self._dim = (len(self.range_geometry.grid[0].flat), len(self.domain_geometry.grid[0].flat)) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
         if dim_old is not None and self._dim != dim_old:
             warnings.warn("'Model.dim' value was changed to be compatible with 'range_geometry' and 'domain_geometry' ")
         return self._dim
