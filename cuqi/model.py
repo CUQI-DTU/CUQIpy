@@ -53,7 +53,7 @@ class Model(object):
     def dim(self): #dim is derived from range_geometry and domain_geometry objects
         dim_old = self._dim 
         if self.range_geometry is not None and self.domain_geometry is not None: 
-            self._dim = (len(self.range_geometry.grid.flat), len(self.domain_geometry.grid.flat)) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
+            self._dim = (self.range_geometry.ndofs, self.domain_geometry.ndofs) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
         if dim_old is not None and self._dim != dim_old:
             warnings.warn("'Model.dim' value was changed to be compatible with 'range_geometry' and 'domain_geometry' ")
         return self._dim
@@ -115,8 +115,8 @@ class LinearModel(Model):
         super().__init__(forward_func,range_geometry,domain_geometry)
 
         if matrix is not None: 
-            assert(len(self.range_geometry.grid.flat)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-            assert(len(self.domain_geometry.grid.flat)  == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+            assert(self.range_geometry.ndofs  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
+            assert(self.domain_geometry.ndofs == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
         return self._adjoint_func(y)
