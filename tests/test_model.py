@@ -31,5 +31,5 @@ def test_initialize_model_geom():
 
 def test_initialize_model_matr():
     model1 = cuqi.model.LinearModel(np.eye(5))
-    assert( model1.dim == (5,5) and model1.domain_geometry.ndofs == 5 and
+    assert( model1.dim == (5,5) and model1.domain_geometry.dim == 5 and
             len(model1.range_geometry.grid) == 5)

@@ -8,7 +8,7 @@ class Geometry(ABC):
     """
     @property
     @abstractmethod
-    def ndofs(self):
+    def dim(self):
         pass
 
     @abstractmethod
@@ -60,7 +60,7 @@ class Continuous1D(Geometry):
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
 
     @property
-    def ndofs(self):
+    def dim(self):
         return len(self.grid)
 
     def plot(self,values,*args,**kwargs):
@@ -86,9 +86,8 @@ class Continuous2D(Geometry):
             self.grid = grid
             
     @property
-    def ndofs(self):
-        dim = np.shape(self.grid[0])[::-1]
-        return dim[0]*dim[1]
+    def dim (self):
+        return np.shape(self.grid[0])[::-1]
 
     def plot(self,values,plot_type='pcolor',**kwargs):
         """
