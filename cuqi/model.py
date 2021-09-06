@@ -26,8 +26,8 @@ class Model(object):
         #Store forward func
         self._forward_func = forward
         
-        # dim
-        self._dim = None 
+        # dims
+        self._dims = None 
 
         #Store range_geometry
         if isinstance(range_geometry, int):
@@ -50,20 +50,20 @@ class Model(object):
             raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
     @property
-    def dim(self): #dim is derived from range_geometry and domain_geometry objects
-        dim_old = self._dim 
+    def dims(self): #dims is derived from range_geometry and domain_geometry objects
+        dims_old = self._dims 
         if self.range_geometry is not None and self.domain_geometry is not None: 
-            self._dim = (self.range_geometry.dim, self.domain_geometry.dim) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
-        if dim_old is not None and self._dim != dim_old:
+            self._dims = (self.range_geometry.dim, self.domain_geometry.dim) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
+        if dims_old is not None and self._dims != dims_old:
             warnings.warn("'Model.dim' value was changed to be compatible with 'range_geometry' and 'domain_geometry' ")
-        return self._dim
+        return self._dims
                
     def forward(self, x):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
-            data_samples = np.zeros((self.dim[0],Ns))
+            data_samples = np.zeros((self.dims[0],Ns))
             for s in range(Ns):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
@@ -79,7 +79,7 @@ class LinearModel(Model):
 
     :param forward: A matrix or callable function representing forward operator.
     :param adjoint: A callable function representing adjoint operator.
-    :param dim: Dimensions of linear model.
+    :param dims: Dimensions of linear model.
     """
     # Linear forward model with forward and adjoint (transpose).
     
@@ -126,11 +126,11 @@ class LinearModel(Model):
             return self._matrix
         else:
             #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((self.dim[0],0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.dim[1])
+            mat = csc_matrix((self.dims[0],0)) #Sparse (m x 1 matrix)
+            e = np.zeros(self.dims[1])
             
             # Stacks sparse matricies on csc matrix
-            for i in range(self.dim[1]):
+            for i in range(self.dims[1]):
                 e[i] = 1
                 col_vec = self.forward(e)
                 mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
