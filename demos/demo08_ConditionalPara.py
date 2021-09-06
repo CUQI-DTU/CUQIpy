@@ -40,7 +40,7 @@ beta = 1e-4
 
 # Load deconvolution test problem
 tp = cuqi.testproblem.Deconvolution()
-m,n = tp.model.dim
+m,n = tp.model.dims
 
 # Matricies
 A = tp.model.get_matrix()
