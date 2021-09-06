@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 # %%
 TP = cuqi.testproblem.Deconvolution()
-TP.prior=cuqi.distribution.Gaussian(np.zeros(TP.model.dim[0]),0.1)
+TP.prior=cuqi.distribution.Gaussian(np.zeros(TP.model.dims[0]),0.1)
 #%%
 samples = TP.sample(500)
 # %%
