@@ -178,3 +178,43 @@ class Continuous2D(Continuous):
                 axis.set_xlabel(self.axis_labels[0])
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
+
+class Discontinuous(Geometry):
+
+    def __init__(self,dim,labels=None):
+        if isinstance(dim,int):
+            self._ids = range(1,dim+1)
+        else:
+            raise NotImplementedError("parameter 'dim' for 'cuqi.geometry.Discontinuous' must be of type 'int'")  
+        
+        self.labels = labels
+
+    @property
+    def dim(self):
+        return len(self._ids)
+
+    @property
+    def labels(self):
+        return self._labels
+
+    @labels.setter
+    def labels(self, value):
+        if value is None:
+            self._labels = [str(id) for id in self._ids]
+        else:
+            assert len(value) == self.dim , f"The number of labels provided must be equal to dim={dim}"
+            self._labels = value
+
+    def plot(self,values, **kwargs):
+
+        if ('linestyle' not in kwargs.keys()) and ('ls' not in kwargs.keys()):
+            kwargs["linestyle"]  = ''
+        
+        if ('marker' not in kwargs.keys()):
+            kwargs["marker"]  = 'o'
+
+        self._plot_config() 
+        return plt.plot(self._ids,values,**kwargs)
+
+    def _plot_config(self):
+        plt.xticks(self._ids, self.labels)

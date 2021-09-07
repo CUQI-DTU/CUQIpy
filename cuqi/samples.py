@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import Continuous1D
+from cuqi.geometry import Continuous1D, Discontinuous
 
 class Samples(object):
 
@@ -45,7 +45,7 @@ class Samples(object):
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
 
-        if not isinstance(self.geometry,Continuous1D):
+        if not isinstance(self.geometry,(Continuous1D,Discontinuous)):
             raise NotImplementedError("Confidence interval not implemented for {}".format(self.geometry))
         
         # Compute statistics
@@ -53,18 +53,29 @@ class Samples(object):
         lb = (100-percent)/2
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
-
-        #Plot
-        self.geometry.plot(mean,*args,**kwargs)
-        if exact is not None:
-            self.geometry.plot(exact,*args,**kwargs)
-        plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
-
-        if exact is not None:
-            plt.legend(["Mean","Exact","Confidence Interval"])
-        else:
-            plt.legend(["Mean","Confidence Interval"])
         
+        if isinstance(self.geometry,Continuous1D): 
+            #Plot
+            self.geometry.plot(mean,*args,**kwargs)
+            if exact is not None:
+                self.geometry.plot(exact,*args,**kwargs)
+            plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
+            if exact is not None:
+                plt.legend(["Mean","Exact","Confidence Interval"])
+            else:
+                plt.legend(["Mean","Confidence Interval"])
+        elif isinstance(self.geometry,Discontinuous):
+            self.geometry._plot_config()
+            ler = plt.errorbar(self.geometry._ids, mean, 
+                         yerr=np.vstack((mean-lo_conf,up_conf-mean)),
+                         color='dodgerblue', fmt='o',
+                         capsize=3, capthick=1)
+            if exact is not None:
+                lex = self.geometry.plot(exact,*args,**kwargs)
+                plt.legend([ler, lex[0]],["Confidence Interval","Exact"],)
+            else:
+                plt.legend(["Confidence Interval"])
+
 
     def diagnostics(self):
         # Geweke test
