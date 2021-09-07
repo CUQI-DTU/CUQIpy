@@ -40,6 +40,3 @@ xs.plot_chain(1)
 xs.plot_ci(95)
 plt.figure()
 xs.plot_ci(95, exact = [4,2,6,6])
-
-
-# %%
