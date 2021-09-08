@@ -53,29 +53,24 @@ class Samples(object):
         lb = (100-percent)/2
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
-        
+
+        #lci = self.geometry.plot_lo_up(lo_conf, up_conf, color='dodgerblue')
         if isinstance(self.geometry,Continuous1D): 
-            #Plot
-            self.geometry.plot(mean,*args,**kwargs)
-            if exact is not None:
-                self.geometry.plot(exact,*args,**kwargs)
-            plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
-            if exact is not None:
-                plt.legend(["Mean","Exact","Confidence Interval"])
-            else:
-                plt.legend(["Mean","Confidence Interval"])
+            lci = plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
+
         elif isinstance(self.geometry,Discontinuous):
             self.geometry._plot_config()
-            ler = plt.errorbar(self.geometry._ids, mean, 
+            lci = plt.errorbar(self.geometry._ids, mean, 
                          yerr=np.vstack((mean-lo_conf,up_conf-mean)),
-                         color='dodgerblue', fmt='o',
+                         color='dodgerblue', fmt='none',
                          capsize=3, capthick=1)
-            if exact is not None:
-                lex = self.geometry.plot(exact,*args,**kwargs)
-                plt.legend([ler, lex[0]],["Confidence Interval","Exact"],)
-            else:
-                plt.legend(["Confidence Interval"])
 
+        lmn = self.geometry.plot(mean,*args,**kwargs)
+        if exact is not None:
+            lex = self.geometry.plot(exact,*args,**kwargs)
+            plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
+        else:
+            plt.legend([lmn[0], lci],["Mean","Confidence Interval"])
 
     def diagnostics(self):
         # Geweke test
