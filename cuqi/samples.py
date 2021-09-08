@@ -54,16 +54,7 @@ class Samples(object):
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
 
-        #lci = self.geometry.plot_lo_up(lo_conf, up_conf, color='dodgerblue')
-        if isinstance(self.geometry,Continuous1D): 
-            lci = plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
-
-        elif isinstance(self.geometry,Discontinuous):
-            self.geometry._plot_config()
-            lci = plt.errorbar(self.geometry._ids, mean, 
-                         yerr=np.vstack((mean-lo_conf,up_conf-mean)),
-                         color='dodgerblue', fmt='none',
-                         capsize=3, capthick=1)
+        lci = self.geometry.plot_lo_up(lo_conf, up_conf, color='dodgerblue')
 
         lmn = self.geometry.plot(mean,*args,**kwargs)
         if exact is not None:
