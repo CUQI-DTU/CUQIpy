@@ -13,6 +13,9 @@ import warnings
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
+import warnings
+
+import inspect
 
 # import sksparse
 # from sksparse.cholmod import cholesky
@@ -219,6 +222,7 @@ class Normal(Distribution):
         self.is_symmetric = True 
 
         # Init specific to this distribution
+        warnings.warn("This Normal distribution generates iid samples.")
         self.mean = mean
         self.std = std
 
@@ -883,7 +887,12 @@ class DistributionGallery(UserDefinedDistribution):
 # ========================================================================
 class Laplace(Distribution):
 
-    def __init__(self, location, prec):
+    def __init__(self, location, prec, **kwargs):
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        warnings.warn("This Laplace distribution generates iid samples")
         self.location = location
         self.prec = prec
         self.dim = np.size(location)
