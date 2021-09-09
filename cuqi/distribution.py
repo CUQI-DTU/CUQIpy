@@ -6,9 +6,95 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
 
+from abc import ABC, abstractmethod
+from copy import copy
+
+import inspect
+
 # import sksparse
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
+
+
+# ========== Abstract distribution class ===========
+class Distribution(ABC):
+
+    def __init__(self,name=None):
+        if not isinstance(name,str) and name is not None:
+            raise ValueError("Name must be a string or None")
+        self.name = name
+
+    @abstractmethod
+    def logpdf(self,x):
+        pass
+
+    def sample(self,N=1,*args,**kwargs):
+        #Make sure all values are specified, if not give error
+        for key, value in vars(self).items():
+            if isinstance(value,Distribution):
+                raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
+
+        # Get samples from the distribution sample method
+        s = self._sample(N,*args,**kwargs)
+
+        #Store samples in cuqi samples object if more than 1 sample
+        if N==1:
+            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+                s = s.ravel()[0]
+        else:
+            s = Samples(s)
+
+        return s
+
+    @abstractmethod
+    def _sample(self,N):
+        pass
+
+    def pdf(self,x):
+        return np.exp(self.logpdf(x))
+
+    def __call__(self,**kwargs):
+        """ Generate new distribution with new attributes given in by keyword arguments """
+
+        # KEYWORD ERROR CHECK
+        for kw_key, kw_val in kwargs.items():
+            val_found = 0
+            for attr_key, attr_val in vars(self).items():
+                if kw_key is attr_key:
+                    val_found = 1
+                elif callable(attr_val) and kw_key in inspect.getfullargspec(attr_val)[0]:
+                    val_found = 1
+            if val_found == 0:
+                raise ValueError("The keyword {} is not part of any attribute or argument to any function of this distribution.".format(kw_key))
+
+
+        # EVALUATE CONDITIONAL DISTRIBUTION
+        new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
+        new_dist.name = None  #Reset name to None
+
+        # Go through every attribute and assign values from kwargs accordingly
+        for attr_key, attr_val in vars(self).items():
+            
+            #If keyword directly specifies new value of attribute we simply reassign
+            if attr_key in kwargs:
+                setattr(new_dist,attr_key,kwargs.get(attr_key))
+
+            #If attribute is callable we check if any keyword arguments can be used as arguments
+            if callable(attr_val):
+
+                accepted_keywords = inspect.getfullargspec(attr_val)[0]
+
+                # Builds dict with arguments to call attribute with
+                attr_args = {}
+                for kw_key, kw_val in kwargs.items():
+                    if kw_key in accepted_keywords:
+                        attr_args[kw_key] = kw_val
+
+                # If any keywords matched call with those and store output in the new dist
+                if len(attr_args)>0:
+                    setattr(new_dist,attr_key,attr_val(**attr_args))
+
+        return new_dist
 
 # ========================================================================
 class Cauchy_diff(object):
@@ -58,7 +144,7 @@ class Cauchy_diff(object):
 
 
 # ========================================================================
-class Normal(object):
+class Normal(Distribution):
     """
     Normal probability distribution. Generates instance of cuqi.distribution.Normal
 
@@ -80,7 +166,11 @@ class Normal(object):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean, std):
+    def __init__(self, mean, std, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Init specific to this distribution
         self.mean = mean
         self.std = std        
         self.dim = np.size(mean)
@@ -94,7 +184,7 @@ class Normal(object):
     def cdf(self, x):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
-    def sample(self,N=1, rng=None):
+    def _sample(self,N=1, rng=None):
         """
         Draw sample(s) from distrubtion
         
@@ -113,20 +203,25 @@ class Normal(object):
             s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
             s = np.random.normal(self.mean, self.std, (N,self.dim))
-        if N==1:
-            return s[0][0]
-        else:
-            return s
+
+        return s
 
 
 
 # ========================================================================
-class Gamma(object):
+class Gamma(Distribution):
 
-    def __init__(self, shape, rate):
+    def __init__(self, shape, rate, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Init specific to this distribution
         self.shape = shape
         self.rate = rate
-        self.scale = 1/rate
+
+    @property
+    def scale(self):
+        return 1/self.rate
 
     def pdf(self, x):
         # sps.gamma.pdf(x, a=self.shape, loc=0, scale=self.scale)
@@ -141,7 +236,7 @@ class Gamma(object):
         # sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale)
         return gammainc(self.shape, self.rate*x)
 
-    def sample(self, N, rng=None):
+    def _sample(self, N, rng=None):
         if rng is not None:
             return rng.gamma(shape=self.shape, scale=self.scale, size=(N))
         else:
@@ -398,6 +493,40 @@ class Laplace_diff(object):
     #     return self.loc - self.scale*np.sign(p-1/2)*np.log(1-2*abs(p-1/2))
 
 
-class Uniform(object):
-    def __init__(self):
-        raise NotImplementedError
+class Uniform(Distribution):
+
+
+    def __init__(self, low=0.0, high=1.0, **kwargs):
+        """
+        Parameters
+        ----------
+        low : float or array_like of floats
+            Lower bound(s) of the uniform distribution.
+        high : float or array_like of floats 
+            Upper bound(s) of the uniform distribution.
+        """
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Init specific to this distribution
+
+        self.low = low
+        self.high = high        
+        self.dim = np.size(low)
+
+    def logpdf(self, x):
+        diff = self.high -self.low
+        if isinstance(diff, (list, tuple, np.ndarray)): 
+            v= np.prod(diff)
+        else:
+            v = diff
+        return np.log(1.0/v) 
+
+    def _sample(self,N=1, rng=None):
+
+        if rng is not None:
+            s = rng.uniform(self.low, self.high, (N,self.dim)).T
+        else:
+            s = np.random.uniform(self.low, self.high, (N,self.dim)).T
+
+        return s

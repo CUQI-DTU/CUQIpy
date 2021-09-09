@@ -21,7 +21,7 @@ def test_Normal_sample_regression(mean,var,expected):
     rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
     samples = cuqi.distribution.Normal(mean,var).sample(2,rng=rng)
     target = np.array(expected)
-    assert np.allclose( samples, target)
+    assert np.allclose( samples.samples, target)
 
 def test_Gaussian_mean():
     mean = np.array([0, 0])
@@ -74,7 +74,7 @@ def test_Gaussian_sample_regression(mean,std,R,expected):
 def test_Normal_rng(mean,var,seed):
     np.random.seed(seed)
     rng = np.random.RandomState(seed)
-    assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10),cuqi.distribution.Normal(mean,var).sample(10,rng=rng))
+    assert np.allclose(cuqi.distribution.Normal(mean,var).sample(10).samples,cuqi.distribution.Normal(mean,var).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("mean,std,R",[
                         (([0, 0]),
@@ -97,4 +97,24 @@ def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
     assert np.allclose(dist.sample(10),dist.sample(10,rng=rng))
-    
+
+def test_Uniform_logpdf():
+    low = np.array([1, .5])
+    high = np.array([2, 2.5])
+    UD = cuqi.distribution.Uniform(low, high)
+    assert np.allclose(UD.logpdf(np.array([1,.5])), np.log(.5) ) 
+
+
+@pytest.mark.parametrize("low,high,expected",[(np.array([1, .5]), 
+                                               np.array([2, 2.5]),
+                                               np.array([[1.5507979 , 1.29090474, 1.89294695],
+                                               [1.91629565, 1.52165521, 2.29258618]])),
+                                              (1,2,
+                                               np.array([[1.5507979 , 1.70814782, 1.29090474]]))])
+def test_Uniform_sample(low, high, expected):
+    rng = np.random.RandomState(3)
+    UD = cuqi.distribution.Uniform(low, high)
+    cuqi_samples = UD.sample(3,rng=rng)
+    print(cuqi_samples)
+    assert np.allclose(cuqi_samples.samples, expected) 
+     
