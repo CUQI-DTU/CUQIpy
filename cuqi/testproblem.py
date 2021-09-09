@@ -6,6 +6,7 @@ from scipy.ndimage import convolve
 import scipy.io as spio
 
 import cuqi
+from cuqi.geometry import Continuous2D
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import Type1
@@ -407,8 +408,8 @@ class Deconvolution2D(Type1):
         ):
         
         # setting up the geometry
-        domain_geometry = cuqi.geometry.Continuous2D((dim, dim))
-        range_geometry = cuqi.geometry.Continuous2D((dim, dim))
+        domain_geometry = Continuous2D((dim, dim))
+        range_geometry = Continuous2D((dim, dim))
         
         # Set up model
         if kernel.lower() == "gauss":
@@ -419,9 +420,9 @@ class Deconvolution2D(Type1):
             P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param) 
         
         # build forward model
-        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
-                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
-                                        range_geometry, 
+        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), \
+                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), \
+                                        range_geometry, \
                                         domain_geometry)
 
         # choose truth
