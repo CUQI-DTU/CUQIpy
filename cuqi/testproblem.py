@@ -343,19 +343,7 @@ class Deconvolution2D(Type1):
 
     phantom : string
         The phantom that is sampled to produce x
-        'Gauss' - a Gaussian function
-        'sinc' - a sinc function
-        'vonMises' - a periodic version of the Gauss function
-        'square' - a "top hat" function
-        'hat' - a triangular hat function
-        'bumps' - two bumps
-        'derivGauss' - the first derivative of Gauss function
-
-    phantom_param : scalar
-        A parameter that determines the width of the central 
-        "bump" of the function; the larger the parameter,
-        the narrower the "bump."  
-        Does not apply to phantom = 'bumps'
+        'satellite' - a satellite photo
 
     noise_type : string
         The type of noise
@@ -406,8 +394,11 @@ class Deconvolution2D(Type1):
     """
     def __init__(self,
         dim=128,
+        kernel="gauss",
+        kernel_param=2.56,
+        BC="constant",
+        PSF_size=21,
         phantom="satellite",
-        phantom_param=None,
         noise_type="gaussian",
         noise_std=0.02,
         prior=None,
@@ -415,52 +406,55 @@ class Deconvolution2D(Type1):
         noise=None
         ):
         
-        # Set up model
-        s_PSF = 2.56
-        mm, nn = 21, 21
-        P, _ = Gauss(np.array([mm, nn]), s_PSF) 
-        BC = 'constant'
-        # 
-        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x, P, BC), \
-                                       lambda x: proj_backward_2D(x, P, BC))
-
-        # Set up exact solution
-        data = spio.loadmat('../demos/data/data_true_satellite_noi0p02.mat')
-        x_exact2D = data['X_true']
-        x_exact = x_exact2D.flatten()
+        # setting up the geometry
+        domain_geometry = cuqi.geometry.Continuous2D((dim, dim))
+        range_geometry = cuqi.geometry.Continuous2D((dim, dim))
         
-        # Generate exact data
-        b_exact = model.forward(x_exact)
+        # Set up model
+        if kernel.lower() == "gauss":
+            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param) 
+        elif kernel.lower() == "moffat":
+            P, _ = Moffat(np.array([PSF_size, PSF_size]), kernel_param, 1)
+        elif kernel.lower() == "defocus":
+            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param) 
+        
+        # build forward model
+        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
+                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
+                                        range_geometry, 
+                                        domain_geometry)
 
+        # choose truth
+        if phantom.lower() == "satellite":
+            data = spio.loadmat('../demos/data/data_true_satellite_noi0p02.mat')
+            x_exact2D = data['X_true']
+            x_exact = x_exact2D.flatten()
+
+        # Generate exact data (blurred)
+        b_exact = model @ x_exact
+
+        # add the noise
+        dim2 = int(dim**2)
         if noise is None:
-            # Define and add noise
             if noise_type.lower() == "gaussian":
-                noise = cuqi.distribution.Gaussian(np.zeros(dim),noise_std,np.eye(dim))
+                noise = cuqi.distribution.Gaussian(np.zeros(dim2), noise_std, np.eye(dim2))
             elif noise_type.lower() == "scaledgaussian":
-                noise = cuqi.distribution.Gaussian(np.zeros(dim),b_exact*noise_std,np.eye(dim))
+                # bnorm = np.linalg.norm(b_exact)
+                # sigma_obs = err_lev * (bnorm/np.sqrt(dim2))
+                noise = cuqi.distribution.Gaussian(np.zeros(dim2), b_exact*noise_std, np.eye(dim2))
             #TODO elif noise_type.lower() == "poisson":
             #TODO elif noise_type.lower() == "logpoisson":
             else:
                 raise NotImplementedError("This noise type is not implemented")
         
         if data is None:
-            data = b_exact + noise.sample(1).flatten()
+            data = b_exact + noise.sample().flatten()
 
         # Initialize Deconvolution as Type1 problem
-        super().__init__(data,model,noise,prior)
+        super().__init__(data, model, noise, prior)
 
         self.exactSolution = x_exact
         self.exactData = b_exact
-
-#=========================================================================
-# def _getA(X, flag, P, BC, m, n):
-#     X = X.reshape((m, n))
-#     if flag == 1:
-#         # forward projection
-#         return proj_forward(X, P, BC)
-#     elif flag == 2:
-#         # backward projection  
-#          return proj_backward(X, P, BC)
 
 #=========================================================================
 def proj_forward_2D(X, P, BC):
@@ -495,5 +489,53 @@ def Gauss(dim, s):
     # find the center
     mm, nn = np.where(PSF == PSF.max())
     center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
+# ===================================================================
+# Array with PSF for Moffat blur (astronomical telescope)
+# ===================================================================
+def Moffat(dim, s, beta):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    s1, s2 = s, s
+    
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(n/2), np.ceil(n/2))
+    y = np.arange(-np.fix(m/2), np.ceil(m/2))
+    X, Y = np.meshgrid(x, y)
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = ( 1 + (X**2)/(s1**2) + (Y**2)/(s2**2) )**(-beta)
+    PSF = PSF / PSF.sum()
+
+    # find the center
+    mm, nn = np.where(PSF == PSF.max())
+    center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
+# ===================================================================
+# Array with PSF for out-of-focus blur
+# ===================================================================
+def Defocus(dim, R):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    
+    center = np.fix((np.array([m, n]))/2)
+    if (R == 0):    
+        # the PSF is a delta function and so the blurring matrix is I
+        PSF = np.zeros((m, n))
+        PSF[center[0], center[1]] = 1
+    else:
+        PSF = np.ones((m, n)) / (np.pi * R**2)
+        k = np.arange(1, max(m, n)+1)
+        aa, bb = (k-center[0])**2, (k-center[1])**2
+        A, B = np.meshgrid(aa, aa), np.meshgrid(bb, bb)
+        idx = np.array(((A[0].T + B[0]) > (R**2)))
+        PSF[idx] = 0
+    PSF = PSF / PSF.sum()
 
     return PSF, center.astype(int)
