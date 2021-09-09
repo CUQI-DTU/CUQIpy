@@ -6,6 +6,10 @@ import math
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
     """
+    @property
+    @abstractmethod
+    def dim(self):
+        pass
 
     @abstractmethod
     def plot(self,values):
@@ -45,6 +49,8 @@ class Continuous1D(Geometry):
 
     def __init__(self,dim,grid=None,labels=['x']):
         self.labels = labels
+        if isinstance(dim,int):
+            dim =[dim]
         if len(dim)==1:
             if grid is None:
                 self.grid = np.arange(dim[0])
@@ -52,6 +58,10 @@ class Continuous1D(Geometry):
                 self.grid = grid
         else:
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
+
+    @property
+    def dim(self):
+        return len(self.grid)
 
     def plot(self,values,*args,**kwargs):
         p = plt.plot(self.grid,values,*args,**kwargs)
@@ -71,9 +81,13 @@ class Continuous2D(Geometry):
             raise NotImplemented("Cannot init 2D geometry with spatial dimension != 2")
 
         if grid is None:
-            self.grid = np.meshgrid( np.arange(dim[0]), np.arange(dim[1]) )
+            self.grid = (np.arange(dim[0]), np.arange(dim[1]))
         else:
             self.grid = grid
+            
+    @property
+    def dim (self):
+        return (len(self.grid[0]), len(self.grid[1])) 
 
     def plot(self,values,plot_type='pcolor',**kwargs):
         """
@@ -101,7 +115,7 @@ class Continuous2D(Geometry):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.grid[0].shape),
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.dim[::-1]),
                           **kwargs))
         self._plot_config()
         return ims
@@ -117,7 +131,7 @@ class Continuous2D(Geometry):
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== len(self.grid[0].flat)): #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs 
+             (len(values.shape) == 2 and values.shape[0]== np.prod(self.dim)):  
             pass
         else:
             values = values[..., np.newaxis]

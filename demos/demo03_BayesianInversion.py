@@ -26,7 +26,7 @@ e = tp.noise    # Class with noise
 
 #%% A few additional parameters from test problem needed
 h = tp.meshsize;        # Size of mesh elements
-n = tp.model.dim[1];    # Number of unknowns
+n = tp.model.dims[1];    # Number of unknowns
 
 #%% Two choices of prior
 
