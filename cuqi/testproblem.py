@@ -420,15 +420,15 @@ class Deconvolution2D(Type1):
             P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param) 
         
         # build forward model
-        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), \
-                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), \
-                                        range_geometry, \
+        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
+                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
+                                        range_geometry, 
                                         domain_geometry)
 
         # choose truth
         if phantom.lower() == "satellite":
-            data = spio.loadmat('../demos/data/data_true_satellite_noi0p02.mat')
-            x_exact2D = data['X_true']
+            phantom_data = spio.loadmat('../demos/data/satellite.mat')
+            x_exact2D = phantom_data['x_true']
             x_exact = x_exact2D.flatten()
 
         # Generate exact data (blurred)
@@ -438,7 +438,8 @@ class Deconvolution2D(Type1):
         dim2 = int(dim**2)
         if noise is None:
             if noise_type.lower() == "gaussian":
-                noise = cuqi.distribution.Gaussian(np.zeros(dim2), noise_std, np.eye(dim2))
+                noise = cuqi.distribution.Normal(0, noise_std)
+                # noise = cuqi.distribution.Gaussian(np.zeros(dim2), noise_std, np.eye(dim2))
             elif noise_type.lower() == "scaledgaussian":
                 # bnorm = np.linalg.norm(b_exact)
                 # sigma_obs = err_lev * (bnorm/np.sqrt(dim2))
@@ -449,7 +450,7 @@ class Deconvolution2D(Type1):
                 raise NotImplementedError("This noise type is not implemented")
         
         if data is None:
-            data = b_exact + noise.sample().flatten()
+            data = b_exact + noise.sample(dim2).samples.flatten()
 
         # Initialize Deconvolution as Type1 problem
         super().__init__(data, model, noise, prior)

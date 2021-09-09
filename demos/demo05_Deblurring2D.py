@@ -16,8 +16,16 @@ A = tp.model    # Class with model
 e = tp.noise    # Class with noise
 
 #%% A few additional parameters from test problem needed
-h = tp.meshsize;        # Size of mesh elements
-n = tp.model.dim[1];    # Number of unknowns
+# h = tp.meshsize;        # Size of mesh elements
+# n = tp.model.dim[1];    # Number of unknowns
+
+#%% plot
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+plt.figure()
+A.domain_geometry.plot(tp.exactSolution, cmap='Greys_r')
+plt.figure()
+A.range_geometry.plot(b, cmap='Greys_r')
+plt.show()
 
 #%% Two choices of prior
 
