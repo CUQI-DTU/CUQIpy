@@ -119,13 +119,13 @@ class LinearModel(Model):
             return self._matrix
         else:
             #Get data size
-            if len(self.dims[0]) > 1: #2D or higher dim
+            if not isinstance(self.dims[0],int) and len(self.dims[0]) > 1: #2D or higher dim
                 m = prod(self.dims[0])
             else:
                 m = self.dims[0]
 
             #Get solution size
-            if len(self.dims[1]) > 1:
+            if not isinstance(self.dims[1],int) and len(self.dims[1]) > 1:
                 n = prod(self.dims[1])
             else:
                 n = self.dims[1]
