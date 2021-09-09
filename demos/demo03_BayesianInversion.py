@@ -1,3 +1,4 @@
+# %%
 import sys
 import time
 sys.path.append("../")
@@ -58,7 +59,7 @@ Ns = 2000
 IP = cuqi.problem.Type1(b,A,e,prior1)
 
 #cuqi.Problem simply sets up likelihood and posterior for us
-results = IP.sample(Ns) 
+results_prior1 = IP.sample(Ns) 
 
 
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
@@ -67,19 +68,17 @@ results = IP.sample(Ns)
 tp.prior = prior2
 
 #Use UQ convenience method:
-UQresults = tp.sample(Ns)
+results_prior2 = tp.sample(Ns)
 
 #%%
 norm_f = np.linalg.norm(tp.f_true)
-med_xpos1 = np.median(results, axis=1) # sp.stats.mode
-sigma_xpos1 = results.std(axis=1)
-lo95_1, up95_1 = np.percentile(results, [2.5, 97.5], axis=1)
+med_xpos1 = np.median(results_prior1.samples, axis=1) # sp.stats.mode
+sigma_xpos1 = results_prior1.samples.std(axis=1)
 relerr = round(np.linalg.norm(med_xpos1 - tp.f_true)/norm_f*100, 2)
 print('\nGMRF Relerror median:', relerr, '\n')
 
-med_xpos2 = np.median(UQresults, axis=1) # sp.stats.mode
-sigma_xpos2 = results.std(axis=1)
-lo95_2, up95_2 = np.percentile(UQresults, [2.5, 97.5], axis=1)
+med_xpos2 = np.median(results_prior2.samples, axis=1) # sp.stats.mode
+sigma_xpos2 = results_prior2.samples.std(axis=1)
 relerr = round(np.linalg.norm(med_xpos2 - tp.f_true)/norm_f*100, 2)
 print('\nCauchy Relerror median:', relerr, '\n')
 
@@ -91,26 +90,12 @@ plt.plot(tp.t, b, 'r.')
 plt.tight_layout()
 #%%
 plt.figure()
-plt.plot(tp.t, tp.f_true, '-', color='forestgreen', linewidth=3, label='True')
-plt.plot(tp.t, med_xpos1, '--', color='crimson', label='median')
-plt.fill_between(tp.t, up95_1, lo95_1, color='dodgerblue', alpha=0.25)
-plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
-plt.xticks(np.linspace(tp.t[0], tp.t[-1], 5))
-plt.xlim([tp.t[0], tp.t[-1]])
-plt.ylim(-0.5, 3.5)
-plt.tight_layout()
+results_prior1.plot_ci(95,exact=tp.f_true)
 plt.title('GMRF prior')
 plt.show()
 
 #%%
 plt.figure()
-plt.plot(tp.t, tp.f_true, '-', color='forestgreen', linewidth=3, label='True')
-plt.plot(tp.t, med_xpos2, '--', color='crimson', label='median')
-plt.fill_between(tp.t, up95_2, lo95_2, color='dodgerblue', alpha=0.25)
-plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})
-plt.xticks(np.linspace(tp.t[0], tp.t[-1], 5))
-plt.xlim([tp.t[0], tp.t[-1]])
-plt.ylim(-0.5, 3.5)
-plt.tight_layout()
+results_prior2.plot_ci(95,exact=tp.f_true)
 plt.title('Cauchy prior')
 plt.show()
