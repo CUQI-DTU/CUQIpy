@@ -881,6 +881,27 @@ class DistributionGallery(UserDefinedDistribution):
 
 
 # ========================================================================
+class Laplace(Distribution):
+
+    def __init__(self, location, prec):
+        self.location = location
+        self.prec = prec
+        self.dim = np.size(location)
+  
+
+    def logpdf(self, x):
+        if isinstance(x, (float,int)):
+            x = np.array([x])
+        return self.dim*(np.log(self.prec/2)) - self.prec*np.linalg.norm(x-self.location,1)
+
+    def _sample(self,N=1,rng=None):
+        if rng is not None:
+            s =  rng.laplace(self.location, 1.0/self.prec, (N,self.dim))
+        else:
+            s = np.random.laplace(self.location, 1.0/self.prec, (N,self.dim))
+        return s
+
+# ========================================================================
 class LMRF(Distribution):
         
     def __init__(self, mean, prec, N, dom, BCs):
@@ -888,6 +909,7 @@ class LMRF(Distribution):
         self.prec = prec
         self.N = N          # partition size
         self.BCs = BCs      # boundary conditions
+        self.dom = dom
         
         # BCs: 1D difference matrix 
         one_vec = np.ones(N)
@@ -908,30 +930,33 @@ class LMRF(Distribution):
             Dmat = eye(N, dtype=int)
         else:
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
-        
 
-            
+        # structure matrix
+        if (dom == 1):
+            self.dim = N
+            self.D = Dmat
+            self.L = (Dmat.T @ Dmat).tocsc()
+        elif (dom == 2):            
+            self.dim = N**2
+            I = eye(N, dtype=int)
+            Ds = kron(I, Dmat)
+            Dt = kron(Dmat, I)
+            self.D = vstack([Ds, Dt])
+            self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
 
 
     def logpdf(self, x):
-        const = d*(np.log(delta)-np.log(2)) 
-        y = const -  delta*(np.linalg.norm(D1@x, ord=1)+np.linalg.norm(D2@x, ord=1))
+        if self.dom == 1:
+            const = self.dim *(np.log(self.prec)-np.log(2)) 
+            y = const -  self.prec*(np.linalg.norm(self.D@x, ord=1))
+        elif self.dom == 2:
+            const = self.dim *(np.log(self.prec)-np.log(2)) 
+            y = const -  self.prec*(np.linalg.norm(self.Ds@x, ord=1)+np.linalg.norm(self.Dt@x, ord=1))
 
-        #const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
-        #y = const - 0.5*( self.prec*((x-self.mean).T @ (self.L @ (x-self.mean))) )
-        #y = np.diag(y)
-        # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
-        #return y
+        return y
 
-    ######################################
-    ## LMRF with smooth approximation of gradient
-    ######################################
-    #def LMRF(x, d, delta, D1, D2): 
-
-    #    L, _, _ = L_LaplaceApprox(x, D1, D2)
-    #    Lx = L @ x
-    #    logpi_grad = -delta*Lx
-    #    return logpi, logpi_grad
+    def _sample(self, N):
+        return super()._sample(N)
 
 
 
