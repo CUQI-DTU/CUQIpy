@@ -51,12 +51,7 @@ class Model(object):
 
     @property
     def dims(self): #dims is derived from range_geometry and domain_geometry objects
-        dims_old = self._dims 
-        if self.range_geometry is not None and self.domain_geometry is not None: 
-            self._dims = (self.range_geometry.dim, self.domain_geometry.dim) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
-        if dims_old is not None and self._dims != dims_old:
-            warnings.warn("'Model.dim' value was changed to be compatible with 'range_geometry' and 'domain_geometry' ")
-        return self._dims
+        return (self.range_geometry.dim, self.domain_geometry.dim)
                
     def forward(self, x):
         # If input is samples then compute forward for each sample 
