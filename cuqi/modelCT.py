@@ -13,7 +13,7 @@ class CT(cuqi.model.LinearModel):
     def __init__(self, proj_type="parallel", im_size=(128,128), det_count=128, angles=np.linspace(0,np.pi,128)):
         """TODO documentation of calls"""
 
-        proj_geom = astra.create_proj_geom("parallel",1.0,det_count,angles)
+        proj_geom = astra.create_proj_geom(proj_type,1.0,det_count,angles)
         vol_geom = astra.create_vol_geom(im_size[0],im_size[1])
         proj_id = astra.create_projector("linear",proj_geom,vol_geom)
 
