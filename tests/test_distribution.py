@@ -20,7 +20,7 @@ def test_Normal_pdf_mean():
 def test_Normal_sample_regression(mean,var,expected):
     rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
     samples = cuqi.distribution.Normal(mean,var).sample(2,rng=rng)
-    target = np.array(expected)
+    target = np.array(expected).T
     assert np.allclose( samples.samples, target)
 
 def test_Gaussian_mean():
