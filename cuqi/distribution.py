@@ -207,9 +207,9 @@ class Normal(Distribution):
         """
 
         if rng is not None:
-            s =  rng.normal(self.mean, self.std, (N,self.dim))
+            s =  rng.normal(self.mean, self.std, (N,self.dim)).T
         else:
-            s = np.random.normal(self.mean, self.std, (N,self.dim))
+            s = np.random.normal(self.mean, self.std, (N,self.dim)).T
         return s
 
 
