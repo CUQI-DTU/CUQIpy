@@ -27,7 +27,7 @@ h = test.meshsize
 # data and noise
 # =============================================================================
 # compute truth and noisy convolved data
-norm_f = np.linalg.norm(test.f_true)
+norm_f = np.linalg.norm(test.exactSolution)
 
 # =============================================================================
 # prior
@@ -45,7 +45,7 @@ Nb = 0             # burn-in
 x0 = mu_pr
 maxit = 20
 #
-MCMC = Linear_RTO(test.data, test.model, test.noise, prior, x0, maxit)
+MCMC = Linear_RTO(test.likelihood, prior, test.model, test.data, x0, maxit)
 #
 ti = time.time()
 x_s = MCMC.sample(Ns, Nb)
@@ -56,14 +56,14 @@ print('Elapsed time:', time.time() - ti)
 mean_xpos = x_s.mean(axis=1) # sp.stats.mode
 sigma_xpos = x_s.std(axis=1)
 lo95, up95 = mean_xpos+sigma_xpos, mean_xpos-sigma_xpos#np.percentile(x_s, [2.5, 97.5], axis=1)
-relerr = round(np.linalg.norm(mean_xpos - test.f_true)/norm_f*100, 2)
+relerr = round(np.linalg.norm(mean_xpos - test.exactSolution)/norm_f*100, 2)
 print('\nRelerror median:', relerr, '\n')
 
 # =============================================================================
 # plots
 # =============================================================================
 plt.figure()
-plt.plot(tt, test.f_true, '-', color='forestgreen', linewidth=3, label='True')
+plt.plot(tt, test.exactSolution, '-', color='forestgreen', linewidth=3, label='True')
 plt.plot(tt, mean_xpos, '--', color='blue', label='mean samp')
 plt.fill_between(tt, up95, lo95, color='dodgerblue', alpha=0.25)
 plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})

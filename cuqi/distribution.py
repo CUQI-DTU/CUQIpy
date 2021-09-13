@@ -41,6 +41,8 @@ class Distribution(ABC):
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
+            else:
+                s = s.flatten()
         else:
             s = Samples(s)
 
@@ -173,7 +175,10 @@ class Normal(Distribution):
         # Init specific to this distribution
         self.mean = mean
         self.std = std        
-        self.dim = np.size(mean)
+
+    @property
+    def dim(self):
+        return max(np.size(self.mean),np.size(self.std))
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
@@ -185,6 +190,7 @@ class Normal(Distribution):
         return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
 
     def _sample(self,N=1, rng=None):
+
         """
         Draw sample(s) from distrubtion
         
@@ -199,11 +205,11 @@ class Normal(Distribution):
         Generated sample(s)
 
         """
+
         if rng is not None:
             s =  rng.normal(self.mean, self.std, (N,self.dim))
         else:
             s = np.random.normal(self.mean, self.std, (N,self.dim))
-
         return s
 
 
@@ -243,7 +249,7 @@ class Gamma(Distribution):
             return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
-class Gaussian(object):
+class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None):
         self.mean = mean
@@ -287,7 +293,7 @@ class Gaussian(object):
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
 
-    def logpdf(self, x1, *x2):
+    def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
         if callable(self.mean):
             mu = self.mean(x2[0])   # mean is variable
         else:
@@ -304,16 +310,14 @@ class Gaussian(object):
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
 
-    def sample(self, N=1, rng=None):   # TODO
+    def _sample(self, N=1, rng=None):
+
         if rng is not None:
             s = rng.multivariate_normal(self.mean, self.Sigma, N).T
         else:
             s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
             
-        if N==1:
-            return s
-        else:
-            return Samples(s)
+        return s
 
 
 

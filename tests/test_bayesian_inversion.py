@@ -13,12 +13,12 @@ def test_deblur_bayesian_inversion(copy_reference, Ns, prior):
 
     deblur = cuqi.testproblem.Deblur()
 
-    norm_f = np.linalg.norm(deblur.f_true)
+    norm_f = np.linalg.norm(deblur.exactSolution)
 
     # set the prior
     deblur.prior = prior
 
-    res = deblur.sample(Ns=Ns).samples
+    res = deblur.sample_posterior(Ns=Ns).samples
 
     med_xpos = np.median(res, axis=1)
     sigma_xpos = res.std(axis=1)
@@ -37,7 +37,7 @@ def test_deblur_bayesian_inversion(copy_reference, Ns, prior):
     assert lo95 == pytest.approx(ref["lo95"])
     assert up95 == pytest.approx(ref["up95"])
 
-    relerr = round(np.linalg.norm(med_xpos - deblur.f_true)/norm_f*100, 2)
+    relerr = round(np.linalg.norm(med_xpos - deblur.exactSolution)/norm_f*100, 2)
 
 
 @pytest.mark.parametrize("Ns,prior",
@@ -49,18 +49,18 @@ def test_type1_bayesian_inversion(copy_reference, Ns, prior):
 
     deblur = cuqi.testproblem.Deblur()
 
-    norm_f = np.linalg.norm(deblur.f_true)
+    norm_f = np.linalg.norm(deblur.exactSolution)
 
     # RHS: measured data
     b = deblur.data
     # model
     A = deblur.model
-    # noise
-    e = deblur.noise
+    # likelihood
+    L = deblur.likelihood
 
-    type1 = cuqi.problem.Type1(b, A, e, prior)
+    type1 = cuqi.problem.BayesianProblem(L,prior,b)
 
-    res = type1.sample(Ns=Ns).samples
+    res = type1.sample_posterior(Ns=Ns).samples
     med_xpos = np.median(res, axis=1)
     sigma_xpos = res.std(axis=1)
     lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
@@ -78,4 +78,4 @@ def test_type1_bayesian_inversion(copy_reference, Ns, prior):
     assert lo95 == pytest.approx(ref["lo95"])
     assert up95 == pytest.approx(ref["up95"])
 
-    relerr = round(np.linalg.norm(med_xpos - deblur.f_true)/norm_f*100, 2)
+    relerr = round(np.linalg.norm(med_xpos - deblur.exactSolution)/norm_f*100, 2)
