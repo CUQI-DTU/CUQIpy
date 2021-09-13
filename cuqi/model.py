@@ -121,11 +121,11 @@ class LinearModel(Model):
             return self._matrix
         else:
             #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((self.dims[0],0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.dims[1])
+            mat = csc_matrix((np.prod(self.dims[0]),0)) #Sparse (m x 1 matrix)
+            e = np.zeros(np.prod(self.dims[1]))
             
             # Stacks sparse matricies on csc matrix
-            for i in range(self.dims[1]):
+            for i in range(np.prod(self.dims[1])):
                 e[i] = 1
                 col_vec = self.forward(e)
                 mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
