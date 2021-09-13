@@ -58,7 +58,7 @@ class Model(object):
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
-            data_samples = np.zeros((self.dims[0],Ns))
+            data_samples = np.zeros((np.prod(self.dims[0]),Ns))
             for s in range(Ns):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
