@@ -1,42 +1,64 @@
 # %%
 import sys
+
+from numpy import random
 sys.path.append("..")
 import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
 
-# %%
+# %% demo cuqi.geometry.Discontinuous 
 geom = cuqi.geometry.Discontinuous(4, labels=['a','b','c','e'])
+
+plt.figure()
+geom.plot([1,2,2,5])
+
 plt.figure()
 geom.plot([1,2,2,5],linestyle = '-')
 
 plt.figure()
 geom.plot([1,2,2,5], marker = '*')
 
-plt.figure()
-geom.plot([1,2,2,5])
-
-plt.figure()
-geom.plot([1,2,2,5])
-
-# %%
+# %% create uniform distribution 
 x = cuqi.distribution.Uniform([2,1,2,0],[6,3,10,12])
 xs = x.sample(20)
-xs.geometry = geom
-#%%
 
-xs.plot_mean() # Should compute mean and plot according to the geometry of the object
-#xs.geometry.labels = None
-plt.figure()
+
+# %% plotting uniform distribution samples, chains and confidence interval using default geometry
+#%% plot mean
 xs.plot_mean()
 
-# %%
+# %% plot samples
 xs.plot()
 
-# %%
+# %% plot samples
+xs.plot(range(20))
+
+# %% plot chain
 xs.plot_chain(1)
 
-# %%
+# %% plot confidence interval
+xs.plot_ci(95)
+plt.figure()
+xs.plot_ci(95, exact = [4,2,6,8])
+
+# %% plotting uniform distribution samples, chains and confidence interval using the cuqi.geometry.Discontinuous geometry
+xs.geometry = geom
+
+
+#%% plot mean
+xs.plot_mean()
+
+# %% plot samples
+xs.plot()
+
+# %% plot samples
+xs.plot(range(20))
+
+# %% plot chain
+xs.plot_chain(1)
+
+# %% plot confidence interval
 xs.plot_ci(95)
 plt.figure()
 xs.plot_ci(95, exact = [4,2,6,8])
