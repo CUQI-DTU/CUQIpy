@@ -104,12 +104,12 @@ class Continuous1D(Continuous):
         self._plot_config()
         return p
 
-    def plot_lo_up(self, lo_conf, up_conf, **kwargs):
+    def plot_lo_up(self, lo_values, up_values, **kwargs):
         default = {'color':'dodgerblue', 'alpha':0.25}
         for key in default:
             if (key not in kwargs.keys()):
                 kwargs[key]  = default[key]
-        return plt.fill_between(self.grid,up_conf, lo_conf, **kwargs)
+        return plt.fill_between(self.grid,up_values, lo_values, **kwargs)
 
     def _plot_config(self):
         if self.axis_labels is not None:
@@ -223,7 +223,7 @@ class Discontinuous(Geometry):
         self._plot_config() 
         return plt.plot(self._ids,values,**kwargs)
 
-    def plot_lo_up(self, lo_conf, up_conf, **kwargs):
+    def plot_lo_up(self, lo_values, up_values, **kwargs):
         self._plot_config()
         if 'fmt' in kwargs.keys():
             raise Exception("Argument 'fmt' cannot be passed by the user")
@@ -233,8 +233,8 @@ class Discontinuous(Geometry):
             if (key not in kwargs.keys()):
                 kwargs[key]  = default[key]
         
-        return plt.errorbar(self._ids, lo_conf, 
-                            yerr=np.vstack((np.zeros(len(lo_conf)),up_conf-lo_conf)),
+        return plt.errorbar(self._ids, lo_values, 
+                            yerr=np.vstack((np.zeros(len(lo_values)),up_values-lo_values)),
                             **kwargs)
 
     def _plot_config(self):
