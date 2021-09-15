@@ -12,13 +12,31 @@ x.sample()
 
 #%%
 # We can specify an optional name of distribution (to be used by certain sampling algorithms which require distributions to interconnect)
-y = cuqi.distribution.Normal(5,1,name="y")
+y = cuqi.distribution.Normal(mean=5, std=1,name="y")
 y.name
 
 # %%
 # We can change the value if internal parameters of the distribution as follows
 y2 = y(std=10)
 y2.sample()
+
+# %%
+# We can omit one of the inputs to create an "incomplete" distribution, that
+# is how we represent a conditional distribution
+y3 = cuqi.distribution.Normal(mean=5)
+
+# %%
+# A conditional distribution can NOT be sampled. We must first specify
+# a value for the conditional parameter
+
+#  y3.sample()   # This gives an error
+y3(std=10).sample()
+
+# %% 
+# Specifying the missing parameter creates a new "complete" distribution
+# which could also be saved in a separate variable
+z3 = y3(std=10)
+z3.sample()
 
 # %%
 # We can specify parameters as callable functions/methods and condition directly on the parameters of those methods
@@ -32,6 +50,7 @@ std  = lambda delta: np.sqrt(delta)
 
 z = cuqi.distribution.Normal(mean,std)
 z(sigma=2,delta=5,gamma=-5).sample()
+
 # %%
 # Example from Johns book. Algorithm 5.1
 n_samp = 1000

@@ -168,7 +168,7 @@ class Normal(Distribution):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean, std, **kwargs):
+    def __init__(self, mean=None, std=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
@@ -217,7 +217,7 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, shape, rate, **kwargs):
+    def __init__(self, shape=None, rate=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
