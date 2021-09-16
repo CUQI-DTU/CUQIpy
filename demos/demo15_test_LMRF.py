@@ -5,13 +5,15 @@ import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
-
+import cuqi.operator
+#%%
 N = 2
 mean = np.zeros(N)
 prec = 1.0
 dom = 1
 BCs = 'neumann'
 x = cuqi.distribution.LMRF(mean, prec, N, dom, BCs)
+print(x.logpdf(np.array([3,4])))
 #%%
 location = 0
 prec = 1
@@ -34,3 +36,4 @@ plt.figure()
 
 plt.hist(samples.samples,bins = 30)
 # %%
+

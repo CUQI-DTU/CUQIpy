@@ -9,6 +9,7 @@ from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.model import LinearModel
 from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
+from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -566,40 +567,14 @@ class GMRF(Gaussian):
         self.N = N          # partition size
         self.BCs = BCs      # boundary conditions
         self.dom = dom
-        
-        # BCs: 1D difference matrix 
-        one_vec = np.ones(N)
-        dgn = np.vstack([-one_vec, one_vec])
-        if (BCs == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-        elif (BCs == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (BCs == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(dgn, locs, N, N).tocsc()
-            Dmat[-1, -1] = 0
-        elif (BCs == 'none'):
-            Dmat = eye(N, dtype=int)
-        else:
-            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
-        
-        # structure matrix
-        if (dom == 1):
-            self.D = Dmat
-            self.L = (Dmat.T @ Dmat).tocsc()
-        elif (dom == 2):            
-            I = eye(N, dtype=int)
-            Ds = kron(I, Dmat)
-            Dt = kron(Dmat, I)
-            self.D = vstack([Ds, Dt])
-            self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-
         self.is_symmetric = True #TODO: change once we call the super   
 
+
+        self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
+        self.L = self.P.L
+        self.D = self.P.D
+        self.dim = self.P.dim        
+            
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
             # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
@@ -919,53 +894,26 @@ class LMRF(Distribution):
         self.N = N          # partition size
         self.BCs = BCs      # boundary conditions
         self.dom = dom
-        
+
+        self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
         # BCs: 1D difference matrix 
-        one_vec = np.ones(N)
-        dgn = np.vstack([-one_vec, one_vec])
-        if (BCs == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-        elif (BCs == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (BCs == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(dgn, locs, N, N).tocsc()
-            Dmat[-1, -1] = 0
-        elif (BCs == 'none'):
-            Dmat = eye(N, dtype=int)
-        else:
-            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
 
-        # structure matrix
-        if (dom == 1):
-            self.dim = N
-            self.D = Dmat
-            self.L = (Dmat.T @ Dmat).tocsc()
-        elif (dom == 2):            
-            self.dim = N**2
-            I = eye(N, dtype=int)
-            Ds = kron(I, Dmat)
-            Dt = kron(Dmat, I)
-            self.D = vstack([Ds, Dt])
-            self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-
+    @property
+    def dim(self):
+        return self.P.dim
 
     def logpdf(self, x):
         if self.dom == 1:
             const = self.dim *(np.log(self.prec)-np.log(2)) 
-            y = const -  self.prec*(np.linalg.norm(self.D@x, ord=1))
+            y = const -  self.prec*(np.linalg.norm(self.P.D@x, ord=1))
         elif self.dom == 2:
             const = self.dim *(np.log(self.prec)-np.log(2)) 
-            y = const -  self.prec*(np.linalg.norm(self.Ds@x, ord=1)+np.linalg.norm(self.Dt@x, ord=1))
+            y = const -  self.prec*(np.linalg.norm(self.P.Ds@x, ord=1)+np.linalg.norm(self.P.Dt@x, ord=1))
 
         return y
 
     def _sample(self, N):
-        return super()._sample(N)
+        raise NotImplementedError
 
 
 

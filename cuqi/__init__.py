@@ -7,3 +7,4 @@ from . import sampler
 from . import samples
 from . import solver
 from . import testproblem
+from . import operator
