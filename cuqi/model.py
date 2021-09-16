@@ -4,6 +4,7 @@ from scipy.sparse import hstack
 from cuqi.samples import Samples
 from cuqi.geometry import Geometry, Continuous1D
 import warnings
+from math import prod
 
 class Model(object):
     """
@@ -121,6 +122,18 @@ class LinearModel(Model):
         if self._matrix is not None: #Matrix exists so return it
             return self._matrix
         else:
+            #Get data size
+            if not isinstance(self.dims[0],int) and len(self.dims[0]) > 1: #2D or higher dim
+                m = prod(self.dims[0])
+            else:
+                m = self.dims[0]
+
+            #Get solution size
+            if not isinstance(self.dims[1],int) and len(self.dims[1]) > 1:
+                n = prod(self.dims[1])
+            else:
+                n = self.dims[1]
+
             #TODO: Can we compute this faster while still in sparse format?
             mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
             e = np.zeros(self.domain_dim)
