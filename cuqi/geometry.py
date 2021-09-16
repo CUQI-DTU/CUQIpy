@@ -11,6 +11,10 @@ class Geometry(ABC):
     def shape(self):
         pass
 
+    @property
+    def dim(self):
+        return np.prod(self.shape)
+
     @abstractmethod
     def plot(self,values):
         """
@@ -131,7 +135,7 @@ class Continuous2D(Geometry):
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== np.prod(self.shape)):  
+             (len(values.shape) == 2 and values.shape[0]== self.dim):  
             pass
         else:
             values = values[..., np.newaxis]

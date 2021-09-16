@@ -25,10 +25,7 @@ class Model(object):
             
         #Store forward func
         self._forward_func = forward
-        
-        # dims
-        self._dims = None 
-
+         
         #Store range_geometry
         if isinstance(range_geometry, int):
             self.range_geometry = Continuous1D(shape=[range_geometry])
@@ -50,15 +47,20 @@ class Model(object):
             raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
     @property
-    def dims(self): #dims is derived from range_geometry and domain_geometry objects
-        return (self.range_geometry.shape, self.domain_geometry.shape)
+    def domain_dim(self): 
+        return self.domain_geometry.dim
+
+    @property
+    def range_dim(self): 
+        return self.range_geometry.dim
+    
                
     def forward(self, x):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
-            data_samples = np.zeros((np.prod(self.dims[0]),Ns))
+            data_samples = np.zeros((self.range_dim,Ns))
             for s in range(Ns):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
@@ -74,7 +76,6 @@ class LinearModel(Model):
 
     :param forward: A matrix or callable function representing forward operator.
     :param adjoint: A callable function representing adjoint operator.
-    :param dims: Dimensions of linear model.
     """
     # Linear forward model with forward and adjoint (transpose).
     
@@ -110,8 +111,8 @@ class LinearModel(Model):
         super().__init__(forward_func,range_geometry,domain_geometry)
 
         if matrix is not None: 
-            assert(np.prod(self.range_geometry.shape)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-            assert(np.prod(self.domain_geometry.shape) == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+            assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
+            assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
         return self._adjoint_func(y)
@@ -121,11 +122,11 @@ class LinearModel(Model):
             return self._matrix
         else:
             #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((np.prod(self.dims[0]),0)) #Sparse (m x 1 matrix)
-            e = np.zeros(np.prod(self.dims[1]))
+            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
+            e = np.zeros(self.domain_dim)
             
             # Stacks sparse matricies on csc matrix
-            for i in range(np.prod(self.dims[1])):
+            for i in range(self.domain_dim):
                 e[i] = 1
                 col_vec = self.forward(e)
                 mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)

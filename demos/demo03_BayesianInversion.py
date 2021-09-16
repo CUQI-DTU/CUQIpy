@@ -26,7 +26,7 @@ L = tp.likelihood   # Class with likelihood
 
 #%% A few additional parameters from test problem needed
 h = tp.meshsize;        # Size of mesh elements
-n = tp.model.dims[1];    # Number of unknowns
+n = tp.model.domain_dim;    # Number of unknowns
 
 #%% Two choices of prior
 
