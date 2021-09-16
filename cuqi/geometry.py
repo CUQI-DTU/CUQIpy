@@ -8,7 +8,7 @@ class Geometry(ABC):
     """
     @property
     @abstractmethod
-    def dim(self):
+    def shape(self):
         pass
 
     @abstractmethod
@@ -47,20 +47,20 @@ class Geometry(ABC):
 
 class Continuous1D(Geometry):
 
-    def __init__(self,dim,grid=None,labels=['x']):
+    def __init__(self,shape,grid=None,labels=['x']):
         self.labels = labels
-        if isinstance(dim,int):
-            dim =[dim]
-        if len(dim)==1:
+        if isinstance(shape,int):
+            shape =[shape]
+        if len(shape)==1:
             if grid is None:
-                self.grid = np.arange(dim[0])
+                self.grid = np.arange(shape[0])
             else:
                 self.grid = grid
         else:
             raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
 
     @property
-    def dim(self):
+    def shape(self):
         return len(self.grid)
 
     def plot(self,values,*args,**kwargs):
@@ -75,18 +75,18 @@ class Continuous1D(Geometry):
 
 class Continuous2D(Geometry):
 
-    def __init__(self,dim,grid=None,labels=['x','y']):
+    def __init__(self,shape,grid=None,labels=['x','y']):
         self.labels = labels
-        if len(dim)!=2:
+        if len(shape)!=2:
             raise NotImplemented("Cannot init 2D geometry with spatial dimension != 2")
 
         if grid is None:
-            self.grid = (np.arange(dim[0]), np.arange(dim[1]))
+            self.grid = (np.arange(shape[0]), np.arange(shape[1]))
         else:
             self.grid = grid
             
     @property
-    def dim (self):
+    def shape (self):
         return (len(self.grid[0]), len(self.grid[1])) 
 
     def plot(self,values,plot_type='pcolor',**kwargs):
@@ -115,7 +115,7 @@ class Continuous2D(Geometry):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.dim[::-1]),
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.shape[::-1]),
                           **kwargs))
         self._plot_config()
         return ims
@@ -131,7 +131,7 @@ class Continuous2D(Geometry):
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== np.prod(self.dim)):  
+             (len(values.shape) == 2 and values.shape[0]== np.prod(self.shape)):  
             pass
         else:
             values = values[..., np.newaxis]

@@ -22,14 +22,14 @@ def test_initialize_model_dim():
     assert(len(model1.domain_geometry.grid) == 4 and len(model1.range_geometry.grid) == 4 )
 
 def test_initialize_model_geom():
-    range_geometry = cuqi.geometry.Continuous1D(dim=[5])
-    domain_geometry = cuqi.geometry.Continuous1D(dim=3)
+    range_geometry = cuqi.geometry.Continuous1D(shape=[5])
+    domain_geometry = cuqi.geometry.Continuous1D(shape=3)
     model1 = cuqi.model.Model(lambda x:x,range_geometry, domain_geometry)
     dims_old = model1.dims 
-    model1.range_geometry = cuqi.geometry.Continuous1D(dim=[4])
+    model1.range_geometry = cuqi.geometry.Continuous1D(shape=[4])
     assert(dims_old == (5,3) and model1.dims == (4,3)) 
 
 def test_initialize_model_matr():
     model1 = cuqi.model.LinearModel(np.eye(5))
-    assert( model1.dims == (5,5) and model1.domain_geometry.dim == 5 and
+    assert( model1.dims == (5,5) and model1.domain_geometry.shape == 5 and
             len(model1.range_geometry.grid) == 5)

@@ -31,7 +31,7 @@ class Model(object):
 
         #Store range_geometry
         if isinstance(range_geometry, int):
-            self.range_geometry = Continuous1D(dim=[range_geometry])
+            self.range_geometry = Continuous1D(shape=[range_geometry])
         elif isinstance(range_geometry, Geometry):
             self.range_geometry = range_geometry
         elif range_geometry is None:
@@ -41,7 +41,7 @@ class Model(object):
 
         #Store domain_geometry
         if isinstance(domain_geometry, int):
-            self.domain_geometry = Continuous1D(dim=[domain_geometry])
+            self.domain_geometry = Continuous1D(shape=[domain_geometry])
         elif isinstance(domain_geometry, Geometry):
             self.domain_geometry = domain_geometry
         elif domain_geometry is None:
@@ -51,7 +51,7 @@ class Model(object):
 
     @property
     def dims(self): #dims is derived from range_geometry and domain_geometry objects
-        return (self.range_geometry.dim, self.domain_geometry.dim)
+        return (self.range_geometry.shape, self.domain_geometry.shape)
                
     def forward(self, x):
         # If input is samples then compute forward for each sample 
@@ -102,16 +102,16 @@ class LinearModel(Model):
         # Use matrix to derive range_geometry and domain_geometry
         if matrix is not None:
             if range_geometry is None:
-                range_geometry = Continuous1D(dim=[matrix.shape[0]])
+                range_geometry = Continuous1D(shape=[matrix.shape[0]])
             if domain_geometry is None:
-                domain_geometry = Continuous1D(dim=[matrix.shape[1]])  
+                domain_geometry = Continuous1D(shape=[matrix.shape[1]])  
 
         #Initialize Model class
         super().__init__(forward_func,range_geometry,domain_geometry)
 
         if matrix is not None: 
-            assert(np.prod(self.range_geometry.dim)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-            assert(np.prod(self.domain_geometry.dim) == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+            assert(np.prod(self.range_geometry.shape)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
+            assert(np.prod(self.domain_geometry.shape) == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
         return self._adjoint_func(y)
