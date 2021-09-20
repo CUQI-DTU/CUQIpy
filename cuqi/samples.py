@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import Continuous1D, Discontinuous
+from cuqi.geometry import Continuous1D, Discrete
 
 class Samples(object):
 
@@ -45,7 +45,7 @@ class Samples(object):
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
 
-        if not isinstance(self.geometry,(Continuous1D,Discontinuous)):
+        if not isinstance(self.geometry,(Continuous1D,Discrete)):
             raise NotImplementedError("Confidence interval not implemented for {}".format(self.geometry))
         
         # Compute statistics
