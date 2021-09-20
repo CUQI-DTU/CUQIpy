@@ -186,13 +186,14 @@ class Continuous2D(Continuous):
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
 
-class Discontinuous(Geometry):
+
+class Discrete(Geometry):
 
     def __init__(self,dim,labels=None):
         if isinstance(dim,int):
             self._ids = range(1,dim+1)
         else:
-            raise NotImplementedError("parameter 'dim' for 'cuqi.geometry.Discontinuous' must be of type 'int'")  
+            raise NotImplementedError("parameter 'dim' for 'cuqi.geometry.Discrete' must be of type 'int'")  
         
         self.labels = labels
 

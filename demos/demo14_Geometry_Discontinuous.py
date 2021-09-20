@@ -7,8 +7,8 @@ import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
 
-# %% demo cuqi.geometry.Discontinuous 
-geom = cuqi.geometry.Discontinuous(4, labels=['a','b','c','e'])
+# %% demo cuqi.geometry.Discrete 
+geom = cuqi.geometry.Discrete(4, labels=['a','b','c','e'])
 
 plt.figure()
 geom.plot([1,2,2,5])
@@ -40,9 +40,9 @@ xs.plot_chain(1)
 # %% plot confidence interval
 xs.plot_ci(95)
 plt.figure()
-xs.plot_ci(95, exact = [4,2,6,8])
+xs.plot_ci(95, exact = [4,2,6,6])
 
-# %% plotting uniform distribution samples, chains and confidence interval using the cuqi.geometry.Discontinuous geometry
+# %% plotting uniform distribution samples, chains and confidence interval using the cuqi.geometry.Discrete geometry
 xs.geometry = geom
 
 
@@ -61,4 +61,4 @@ xs.plot_chain(1)
 # %% plot confidence interval
 xs.plot_ci(95)
 plt.figure()
-xs.plot_ci(95, exact = [4,2,6,8])
+xs.plot_ci(95, exact = [4,2,6,6])
