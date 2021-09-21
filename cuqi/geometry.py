@@ -49,23 +49,53 @@ class Geometry(ABC):
                 subplot_ids.append((Ny,Nx,subplot_id))
         return subplot_ids
 
-class Continuous1D(Geometry):
+class Continuous(Geometry, ABC):
 
-    def __init__(self,shape,grid=None,labels=['x']):
-        self.labels = labels
-        if isinstance(shape,int):
-            shape =[shape]
-        if len(shape)==1:
-            if grid is None:
-                self.grid = np.arange(shape[0])
-            else:
-                self.grid = grid
+    def __init__(self,grid,axis_labels):
+        self.axis_labels = axis_labels
+        self.grid = grid
+
+    def _create_dimension(self, dim_grid):
+        if isinstance(dim_grid,(int,np.integer)):
+            dim_grid = np.arange(dim_grid)
+        elif hasattr(dim_grid,'__len__'):
+            dim_grid = np.array(dim_grid)
+            if len(dim_grid.shape)!=1:
+                raise ValueError("dim_grid must be a 1D row array")
         else:
-            raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
+            raise ValueError("dim_grid should be int, list, numpy.ndarray or tuple")
+        return dim_grid
+
+    @property
+    def grid(self):
+        return self._grid
+
+class Continuous1D(Continuous):
+    """A class that represents a continuous 1D geometry.
+
+    Parameters
+    -----------
+    grid : int, list, tuple or numpy.ndarray
+        1D array of node coordinates in a 1D grid (list, tuple or numpy.ndarray) or number
+        of nodes (int) in the grid. If grid is of type int, a default grid
+        with unit spacing and coordinates 0,1,2,...(grid-1) will be created.
+
+    Attributes
+    -----------
+    grid : numpy.ndarray
+        1D array of node coordinates in a 1D grid
+    """
+
+    def __init__(self,grid,axis_labels=['x']):
+        super().__init__(grid, axis_labels)
 
     @property
     def shape(self):
-        return len(self.grid)
+        return self.grid.shape
+
+    @Continuous.grid.setter
+    def grid(self, value):
+        self._grid = self._create_dimension(value)
 
     def plot(self,values,*args,**kwargs):
         p = plt.plot(self.grid,values,*args,**kwargs)
@@ -73,25 +103,24 @@ class Continuous1D(Geometry):
         return p
 
     def _plot_config(self):
-        if self.labels is not None:
-            plt.xlabel(self.labels[0])
+        if self.axis_labels is not None:
+            plt.xlabel(self.axis_labels[0])
 
 
-class Continuous2D(Geometry):
+class Continuous2D(Continuous):
 
-    def __init__(self,shape,grid=None,labels=['x','y']):
-        self.labels = labels
-        if len(shape)!=2:
-            raise NotImplemented("Cannot init 2D geometry with spatial dimension != 2")
-
-        if grid is None:
-            self.grid = (np.arange(shape[0]), np.arange(shape[1]))
-        else:
-            self.grid = grid
+    def __init__(self,grid,axis_labels=['x','y']):
+        super().__init__(grid, axis_labels)
             
     @property
     def shape (self):
         return (len(self.grid[0]), len(self.grid[1])) 
+
+    @Continuous.grid.setter
+    def grid(self, value):
+        if len(value)!=2:
+            raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
+        self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
     def plot(self,values,plot_type='pcolor',**kwargs):
         """
@@ -143,7 +172,7 @@ class Continuous2D(Geometry):
 
     def _plot_config(self):
         for i, axis in enumerate(plt.gcf().axes):
-            if self.labels is not None:
-                axis.set_xlabel(self.labels[0])
-                axis.set_ylabel(self.labels[1])
+            if self.axis_labels is not None:
+                axis.set_xlabel(self.axis_labels[0])
+                axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
