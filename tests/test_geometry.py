@@ -3,13 +3,18 @@ import scipy as sp
 import cuqi
 import pytest
 
-@pytest.mark.parametrize("grid,expected_grid,expected_shape,expected_dim",
-                         [((1,1),(np.array([0]),np.array([0])),(1,1),1),
-			  (([1,2,3],1), (np.array([1,2,3]), np.array([0])), (3,1), 3)
+@pytest.mark.parametrize("geomClass,grid,expected_grid,expected_shape,expected_dim",
+                         [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),1),
+			  (cuqi.geometry.Continuous1D,(1,),np.array([1]),(1,),1),
+			  (cuqi.geometry.Continuous1D, 1, np.array([0]),(1,),1),
+			  (cuqi.geometry.Continuous1D, [1,2,3,4],np.array([1,2,3,4]),(4,),4),
+			  (cuqi.geometry.Continuous1D, 5,np.array([0,1,2,3,4]),(5,),5),
+			  (cuqi.geometry.Continuous2D,(1,1),(np.array([0]),np.array([0])),(1,1),1),
+			  (cuqi.geometry.Continuous2D,([1,2,3],1), (np.array([1,2,3]), np.array([0])), (3,1), 3)
 			  ])
-def test_continuous2D_geometry(grid,expected_grid,expected_shape,expected_dim):
-    geom = cuqi.geometry.Continuous2D(grid=grid)
-    assert(np.all(geom.grid[0] == expected_grid[0])
-           and np.all(geom.grid[1] == expected_grid[1])
+def test_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,expected_dim):
+    geom = geomClass(grid=grid)
+    assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
            and (geom.shape == expected_shape)
 	   and (geom.dim == expected_dim))
+
