@@ -21,13 +21,21 @@ def test_initialize_model_dim():
     model1 = cuqi.model.Model(lambda x:x, range_geometry=4, domain_geometry=4)
     assert(len(model1.domain_geometry.grid) == 4 and len(model1.range_geometry.grid) == 4 )
 
-def test_initialize_model_geom():
+def test_initialize_model_continuous1D_geom():
     range_geometry = cuqi.geometry.Continuous1D(grid=5)
     domain_geometry = cuqi.geometry.Continuous1D(grid=3)
     model1 = cuqi.model.Model(lambda x:x,range_geometry, domain_geometry)
     dims_old = (model1.range_dim, model1.domain_dim) 
     model1.range_geometry = cuqi.geometry.Continuous1D(grid=4)
-    assert(dims_old == (5,3) and (model1.range_dim, model1.domain_dim) == (4,3)) 
+    assert(dims_old == (5,3) and (model1.range_dim, model1.domain_dim) == (4,3))
+
+def test_initialize_model_continuous2D_geom():
+    range_geometry = cuqi.geometry.Continuous2D(grid=((1,2,3,4,5,6),4))
+    domain_geometry = cuqi.geometry.Continuous2D(grid=(np.array([0,.5,1,2]),[1,2,3,4]))
+    model1 = cuqi.model.Model(lambda x:x,range_geometry, domain_geometry)
+    dims_old = (model1.range_dim, model1.domain_dim) 
+    model1.range_geometry = cuqi.geometry.Continuous2D(grid=(10,4))
+    assert(dims_old == (24,16) and (model1.range_dim, model1.domain_dim) == (40,16)) 
 
 def test_initialize_model_matr():
     model1 = cuqi.model.LinearModel(np.eye(5))
