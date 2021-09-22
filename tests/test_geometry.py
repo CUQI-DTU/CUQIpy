@@ -5,7 +5,7 @@ import pytest
 
 @pytest.mark.parametrize("geomClass,grid,expected_grid,expected_shape,expected_dim",
                          [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),1),
-			  (cuqi.geometry.Continuous1D,(1,),np.array([1]),(1,),1),
+			  (cuqi.geometry.Continuous1D,(1,),np.array([0]),(1,),1),
 			  (cuqi.geometry.Continuous1D, 1, np.array([0]),(1,),1),
 			  (cuqi.geometry.Continuous1D, [1,2,3,4],np.array([1,2,3,4]),(4,),4),
 			  (cuqi.geometry.Continuous1D, 5,np.array([0,1,2,3,4]),(5,),5),

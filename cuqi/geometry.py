@@ -56,14 +56,18 @@ class Continuous(Geometry, ABC):
         self.grid = grid
 
     def _create_dimension(self, dim_grid):
+        dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, or 1D numpy.ndarray"
+        if isinstance(dim_grid,tuple) and len(dim_grid)==1:
+            dim_grid = dim_grid[0]
+
         if isinstance(dim_grid,(int,np.integer)):
             dim_grid = np.arange(dim_grid)
-        elif hasattr(dim_grid,'__len__'):
+        elif isinstance(dim_grid,(list,np.ndarray)):
             dim_grid = np.array(dim_grid)
             if len(dim_grid.shape)!=1:
-                raise ValueError("dim_grid must be a 1D row array")
+                raise ValueError(dim_grid_value_err_msg)
         else:
-            raise ValueError("dim_grid should be int, list, numpy.ndarray or tuple")
+            raise ValueError(dim_grid_value_err_msg)
         return dim_grid
 
     @property
@@ -75,10 +79,8 @@ class Continuous1D(Continuous):
 
     Parameters
     -----------
-    grid : int, list, tuple or numpy.ndarray
-        1D array of node coordinates in a 1D grid (list, tuple or numpy.ndarray) or number
-        of nodes (int) in the grid. If grid is of type int, a default grid
-        with unit spacing and coordinates 0,1,2,...(grid-1) will be created.
+    grid : int, tuple, list or numpy.ndarray
+        1D array of node coordinates in a 1D grid (list or numpy.ndarray), or number of nodes (int or tuple with one int element) in the grid. In the latter case, a default grid with unit spacing and coordinates 0,1,2,... will be created.
 
     Attributes
     -----------

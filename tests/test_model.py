@@ -30,7 +30,7 @@ def test_initialize_model_continuous1D_geom():
     assert(dims_old == (5,3) and (model1.range_dim, model1.domain_dim) == (4,3))
 
 def test_initialize_model_continuous2D_geom():
-    range_geometry = cuqi.geometry.Continuous2D(grid=((1,2,3,4,5,6),4))
+    range_geometry = cuqi.geometry.Continuous2D(grid=([1,2,3,4,5,6],4))
     domain_geometry = cuqi.geometry.Continuous2D(grid=(np.array([0,.5,1,2]),[1,2,3,4]))
     model1 = cuqi.model.Model(lambda x:x,range_geometry, domain_geometry)
     dims_old = (model1.range_dim, model1.domain_dim) 
