@@ -137,49 +137,29 @@ class Distribution(ABC):
         return new_dist
 
 # ========================================================================
-class Cauchy_diff(object):
+class Cauchy_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond, geometry=None):
+    def __init__(self, location, scale, bc_type, geometry=None):
         self.loc = location
         self.scale = scale
-        self.bnd = bndcond
+        self.dim = len(location)
+        self.bnd = bc_type
         self.geometry = geometry
 
-        # finite difference matrix
-        one_vec = np.ones(self.dim)
-        diags = np.vstack([-one_vec, one_vec])
-        if (bndcond == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim)
-        elif (bndcond == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim).tocsr()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (bndcond == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(diags, locs, self.dim-1, self.dim)
-        elif (bndcond == 'backward'):
-            locs = [0, -1]
-            Dmat = spdiags(diags, locs, self.dim, self.dim).tocsr()
-            Dmat[0, 0] = 1
-        elif (bndcond == 'none'):
-            Dmat = eye(self.dim)
-        self.D = Dmat
+        self.FOFD = FirstOrderFiniteDifference(self.dim, bc_type=bc_type, dom = 1)
 
     @property
     def dim(self): 
         #TODO: handle the case when self.loc = None because len(None) = 1
         return len(self.loc)
 
-    def pdf(self, x):
-        Dx = self.D @ (x-self.loc)
-        return (1/(np.pi**len(Dx))) * np.prod(self.scale/(Dx**2 + self.scale**2))
-
     def logpdf(self, x):
-        Dx = self.D @ (x-self.loc)
+        Dx = self.FOFD.D @ (x-self.loc)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
         return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
+
+    def _sample(self, N):
+        raise NotImplementedError
     
     def gradient(self, val, **kwargs):
         if not callable(self.loc): # for prior
