@@ -500,7 +500,7 @@ class Laplace_diff(object):
 class Uniform(Distribution):
 
 
-    def __init__(self, low=0.0, high=1.0, **kwargs):
+    def __init__(self, low=None, high=None, **kwargs):
         """
         Parameters
         ----------
@@ -513,10 +513,13 @@ class Uniform(Distribution):
         super().__init__(**kwargs)
 
         # Init specific to this distribution
-
         self.low = low
         self.high = high        
-        self.dim = np.size(low)
+
+    @property
+    def dim(self):
+        return max(np.size(self.low),np.size(self.high))
+
 
     def logpdf(self, x):
         diff = self.high -self.low
