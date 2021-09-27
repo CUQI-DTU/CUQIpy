@@ -19,10 +19,11 @@ eps = np.finfo(float).eps
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
 
-    def __init__(self,name=None):
+    def __init__(self,name=None, geometry=None):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
+        self.geometry = geometry
 
     @abstractmethod
     def logpdf(self,x):
@@ -44,7 +45,7 @@ class Distribution(ABC):
             else:
                 s = s.flatten()
         else:
-            s = Samples(s)
+            s = Samples(s, self.geometry)
 
         return s
 
@@ -251,7 +252,8 @@ class Gamma(Distribution):
 # ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
-    def __init__(self, mean, std, corrmat=None):
+    def __init__(self, mean, std, corrmat=None,**kwargs):
+        super().__init__(**kwargs)
         self.mean = mean
         self.std = std
         if corrmat is None:

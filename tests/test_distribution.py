@@ -115,6 +115,18 @@ def test_Uniform_sample(low, high, expected):
     rng = np.random.RandomState(3)
     UD = cuqi.distribution.Uniform(low, high)
     cuqi_samples = UD.sample(3,rng=rng)
-    print(cuqi_samples)
-    assert np.allclose(cuqi_samples.samples, expected) 
+    assert np.allclose(cuqi_samples.samples, expected)
+
+@pytest.mark.parametrize("distribution, kwargs",
+                         [(cuqi.distribution.Uniform, 
+                          {'low':np.array([2, 2.5, 3,5]),
+                          'high':np.array([5,7, 7,6])})])
+def test_distribution_contains_geometry(distribution, kwargs):
+    rng = np.random.RandomState(3)
+    geom = cuqi.geometry.Continuous2D((2,2))
+    dist = distribution(**kwargs,geometry = geom)
+    dist = cuqi.distribution.Uniform(np.array([1,1,1,1]), np.array([2,2,2,2]), geometry=geom)
+    cuqi_samples = dist.sample(3,rng=rng)
+    assert(cuqi_samples.geometry == geom and dist.geometry == geom and \
+           np.all(geom.grid[0]==np.array([0, 1])) and np.all(geom.grid[1]== np.array([0, 1])))
      
