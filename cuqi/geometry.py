@@ -104,7 +104,7 @@ class Continuous1D(Continuous):
         self._plot_config()
         return p
 
-    def plot_lo_up(self, lo_values, up_values, **kwargs):
+    def plot_envelope(self, lo_values, up_values, **kwargs):
         default = {'color':'dodgerblue', 'alpha':0.25}
         for key in default:
             if (key not in kwargs.keys()):
@@ -189,29 +189,29 @@ class Continuous2D(Continuous):
 
 class Discrete(Geometry):
 
-    def __init__(self,variable_names):       
-        self.variable_names = variable_names
+    def __init__(self,variables):       
+        self.variables = variables
 
     @property
     def shape(self):
-        return (len(self.variable_names),)
+        return (len(self.variables),)
 
     @property
-    def variable_names(self):
-        return self._variable_names
+    def variables(self):
+        return self._variables
 
-    @variable_names.setter
-    def variable_names(self, value):
-        variable_names_value_err_msg = "variable_names should be int, or list of strings"
+    @variables.setter
+    def variables(self, value):
+        variables_value_err_msg = "variables should be int, or list of strings"
         if isinstance(value,(int,np.integer)):
             value = ['v'+str(var) for var in range(value)]
         elif isinstance(value,list): 
             for var in value: 
                 if not isinstance(var,str):
-                    raise ValueError(variable_names_value_err_msg)
+                    raise ValueError(variables_value_err_msg)
         else:
-            raise ValueError(variable_names_value_err_msg) 
-        self._variable_names = value
+            raise ValueError(variables_value_err_msg) 
+        self._variables = value
         self._ids = range(self.dim)
 
     def plot(self,values, **kwargs):
@@ -225,7 +225,7 @@ class Discrete(Geometry):
         self._plot_config() 
         return plt.plot(self._ids,values,**kwargs)
 
-    def plot_lo_up(self, lo_values, up_values, **kwargs):
+    def plot_envelope(self, lo_values, up_values, **kwargs):
         self._plot_config()
         if 'fmt' in kwargs.keys():
             raise Exception("Argument 'fmt' cannot be passed by the user")
@@ -240,4 +240,4 @@ class Discrete(Geometry):
                             **kwargs)
 
     def _plot_config(self):
-        plt.xticks(self._ids, self.variable_names)
+        plt.xticks(self._ids, self.variables)

@@ -54,7 +54,7 @@ class Samples(object):
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
 
-        lci = self.geometry.plot_lo_up(lo_conf, up_conf, color='dodgerblue')
+        lci = self.geometry.plot_envelope(lo_conf, up_conf, color='dodgerblue')
 
         lmn = self.geometry.plot(mean,*args,**kwargs)
         if exact is not None:
