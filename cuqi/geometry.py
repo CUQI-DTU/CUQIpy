@@ -194,7 +194,7 @@ class Discrete(Geometry):
 
     @property
     def shape(self):
-        return len(self.variable_names)
+        return (len(self.variable_names),)
 
     @property
     def variable_names(self):
@@ -204,7 +204,7 @@ class Discrete(Geometry):
     def variable_names(self, value):
         variable_names_value_err_msg = "variable_names should be int, or list of strings"
         if isinstance(value,(int,np.integer)):
-            variable_names = ['v'+str(var) for var in range(value)]
+            value = ['v'+str(var) for var in range(value)]
         elif isinstance(value,list): 
             for var in value: 
                 if not isinstance(var,str):
