@@ -189,29 +189,30 @@ class Continuous2D(Continuous):
 
 class Discrete(Geometry):
 
-    def __init__(self,dim,labels=None):
-        if isinstance(dim,int):
-            self._ids = range(1,dim+1)
-        else:
-            raise NotImplementedError("parameter 'dim' for 'cuqi.geometry.Discrete' must be of type 'int'")  
-        
-        self.labels = labels
+    def __init__(self,variable_names):       
+        self.variable_names = variable_names
 
     @property
-    def dim(self):
-        return len(self._ids)
+    def shape(self):
+        return len(self.variable_names)
 
     @property
-    def labels(self):
-        return self._labels
+    def variable_names(self):
+        return self._variable_names
 
-    @labels.setter
-    def labels(self, value):
-        if value is None:
-            self._labels = [str(id) for id in self._ids]
+    @variable_names.setter
+    def variable_names(self, value):
+        variable_names_value_err_msg = "variable_names should be int, or list of strings"
+        if isinstance(value,(int,np.integer)):
+            variable_names = ['v'+str(var) for var in range(value)]
+        elif isinstance(value,list): 
+            for var in value: 
+                if not isinstance(var,str):
+                    raise ValueError(variable_names_value_err_msg)
         else:
-            assert len(value) == self.dim , f"The number of labels provided must be equal to dim={dim}"
-            self._labels = value
+            raise ValueError(variable_names_value_err_msg) 
+        self._variable_names = value
+        self._ids = range(self.dim)
 
     def plot(self,values, **kwargs):
 
@@ -239,4 +240,4 @@ class Discrete(Geometry):
                             **kwargs)
 
     def _plot_config(self):
-        plt.xticks(self._ids, self.labels)
+        plt.xticks(self._ids, self.variable_names)

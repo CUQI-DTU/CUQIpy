@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # %% demo cuqi.geometry.Discrete 
-geom = cuqi.geometry.Discrete(4, labels=['a','b','c','e'])
+geom = cuqi.geometry.Discrete(['a','b','c','e'])
 
 plt.figure()
 geom.plot([1,2,2,5])
