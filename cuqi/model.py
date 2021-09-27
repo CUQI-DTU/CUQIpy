@@ -25,13 +25,10 @@ class Model(object):
             
         #Store forward func
         self._forward_func = forward
-        
-        # dim
-        self._dim = None 
-
+         
         #Store range_geometry
         if isinstance(range_geometry, int):
-            self.range_geometry = Continuous1D(dim=[range_geometry])
+            self.range_geometry = Continuous1D(grid=range_geometry)
         elif isinstance(range_geometry, Geometry):
             self.range_geometry = range_geometry
         elif range_geometry is None:
@@ -41,7 +38,7 @@ class Model(object):
 
         #Store domain_geometry
         if isinstance(domain_geometry, int):
-            self.domain_geometry = Continuous1D(dim=[domain_geometry])
+            self.domain_geometry = Continuous1D(grid=domain_geometry)
         elif isinstance(domain_geometry, Geometry):
             self.domain_geometry = domain_geometry
         elif domain_geometry is None:
@@ -50,20 +47,20 @@ class Model(object):
             raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
     @property
-    def dim(self): #dim is derived from range_geometry and domain_geometry objects
-        dim_old = self._dim 
-        if self.range_geometry is not None and self.domain_geometry is not None: 
-            self._dim = (len(self.range_geometry.grid.flat), len(self.domain_geometry.grid.flat)) #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs
-        if dim_old is not None and self._dim != dim_old:
-            warnings.warn("'Model.dim' value was changed to be compatible with 'range_geometry' and 'domain_geometry' ")
-        return self._dim
+    def domain_dim(self): 
+        return self.domain_geometry.dim
+
+    @property
+    def range_dim(self): 
+        return self.range_geometry.dim
+    
                
     def forward(self, x):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
-            data_samples = np.zeros((self.dim[0],Ns))
+            data_samples = np.zeros((self.range_dim,Ns))
             for s in range(Ns):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
@@ -79,7 +76,6 @@ class LinearModel(Model):
 
     :param forward: A matrix or callable function representing forward operator.
     :param adjoint: A callable function representing adjoint operator.
-    :param dim: Dimensions of linear model.
     """
     # Linear forward model with forward and adjoint (transpose).
     
@@ -107,16 +103,16 @@ class LinearModel(Model):
         # Use matrix to derive range_geometry and domain_geometry
         if matrix is not None:
             if range_geometry is None:
-                range_geometry = Continuous1D(dim=[matrix.shape[0]])
+                range_geometry = Continuous1D(grid=matrix.shape[0])
             if domain_geometry is None:
-                domain_geometry = Continuous1D(dim=[matrix.shape[1]])  
+                domain_geometry = Continuous1D(grid=matrix.shape[1])  
 
         #Initialize Model class
         super().__init__(forward_func,range_geometry,domain_geometry)
 
         if matrix is not None: 
-            assert(len(self.range_geometry.grid.flat)  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-            assert(len(self.domain_geometry.grid.flat)  == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+            assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
+            assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
         return self._adjoint_func(y)
@@ -126,11 +122,11 @@ class LinearModel(Model):
             return self._matrix
         else:
             #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((self.dim[0],0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.dim[1])
+            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
+            e = np.zeros(self.domain_dim)
             
             # Stacks sparse matricies on csc matrix
-            for i in range(self.dim[1]):
+            for i in range(self.domain_dim):
                 e[i] = 1
                 col_vec = self.forward(e)
                 mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)

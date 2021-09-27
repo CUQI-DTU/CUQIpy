@@ -6,6 +6,14 @@ import math
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
     """
+    @property
+    @abstractmethod
+    def shape(self):
+        pass
+
+    @property
+    def dim(self):
+        return np.prod(self.shape)
 
     @abstractmethod
     def plot(self,values):
@@ -41,17 +49,55 @@ class Geometry(ABC):
                 subplot_ids.append((Ny,Nx,subplot_id))
         return subplot_ids
 
-class Continuous1D(Geometry):
+class Continuous(Geometry, ABC):
 
-    def __init__(self,dim,grid=None,labels=['x']):
-        self.labels = labels
-        if len(dim)==1:
-            if grid is None:
-                self.grid = np.arange(dim[0])
-            else:
-                self.grid = grid
+    def __init__(self,grid,axis_labels):
+        self.axis_labels = axis_labels
+        self.grid = grid
+
+    def _create_dimension(self, dim_grid):
+        dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, or 1D numpy.ndarray"
+        if isinstance(dim_grid,tuple) and len(dim_grid)==1:
+            dim_grid = dim_grid[0]
+
+        if isinstance(dim_grid,(int,np.integer)):
+            dim_grid = np.arange(dim_grid)
+        elif isinstance(dim_grid,(list,np.ndarray)):
+            dim_grid = np.array(dim_grid)
+            if len(dim_grid.shape)!=1:
+                raise ValueError(dim_grid_value_err_msg)
         else:
-            raise NotImplementedError("Cannot init 1D geometry with spatial dimension > 1")
+            raise ValueError(dim_grid_value_err_msg)
+        return dim_grid
+
+    @property
+    def grid(self):
+        return self._grid
+
+class Continuous1D(Continuous):
+    """A class that represents a continuous 1D geometry.
+
+    Parameters
+    -----------
+    grid : int, tuple, list or numpy.ndarray
+        1D array of node coordinates in a 1D grid (list or numpy.ndarray), or number of nodes (int or tuple with one int element) in the grid. In the latter case, a default grid with unit spacing and coordinates 0,1,2,... will be created.
+
+    Attributes
+    -----------
+    grid : numpy.ndarray
+        1D array of node coordinates in a 1D grid
+    """
+
+    def __init__(self,grid,axis_labels=['x']):
+        super().__init__(grid, axis_labels)
+
+    @property
+    def shape(self):
+        return self.grid.shape
+
+    @Continuous.grid.setter
+    def grid(self, value):
+        self._grid = self._create_dimension(value)
 
     def plot(self,values,*args,**kwargs):
         p = plt.plot(self.grid,values,*args,**kwargs)
@@ -59,21 +105,24 @@ class Continuous1D(Geometry):
         return p
 
     def _plot_config(self):
-        if self.labels is not None:
-            plt.xlabel(self.labels[0])
+        if self.axis_labels is not None:
+            plt.xlabel(self.axis_labels[0])
 
 
-class Continuous2D(Geometry):
+class Continuous2D(Continuous):
 
-    def __init__(self,dim,grid=None,labels=['x','y']):
-        self.labels = labels
-        if len(dim)!=2:
-            raise NotImplemented("Cannot init 2D geometry with spatial dimension != 2")
+    def __init__(self,grid,axis_labels=['x','y']):
+        super().__init__(grid, axis_labels)
+            
+    @property
+    def shape (self):
+        return (len(self.grid[0]), len(self.grid[1])) 
 
-        if grid is None:
-            self.grid = np.meshgrid( np.arange(dim[0]), np.arange(dim[1]) )
-        else:
-            self.grid = grid
+    @Continuous.grid.setter
+    def grid(self, value):
+        if len(value)!=2:
+            raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
+        self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
     def plot(self,values,plot_type='pcolor',**kwargs):
         """
@@ -101,7 +150,7 @@ class Continuous2D(Geometry):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.grid[0].shape),
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.shape[::-1]),
                           **kwargs))
         self._plot_config()
         return ims
@@ -117,7 +166,7 @@ class Continuous2D(Geometry):
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== len(self.grid[0].flat)): #TODO: change len(self.domain_geometry.grid) to self.domain_geometry.ndofs 
+             (len(values.shape) == 2 and values.shape[0]== self.dim):  
             pass
         else:
             values = values[..., np.newaxis]
@@ -125,7 +174,7 @@ class Continuous2D(Geometry):
 
     def _plot_config(self):
         for i, axis in enumerate(plt.gcf().axes):
-            if self.labels is not None:
-                axis.set_xlabel(self.labels[0])
-                axis.set_ylabel(self.labels[1])
+            if self.axis_labels is not None:
+                axis.set_xlabel(self.axis_labels[0])
+                axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')

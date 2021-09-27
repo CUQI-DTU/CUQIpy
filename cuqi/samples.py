@@ -12,7 +12,7 @@ class Samples(object):
     @property
     def geometry(self):
         if self._geometry is None:
-            self._geometry = Continuous1D(dim=self.samples.shape[:-1])
+            self._geometry = Continuous1D(grid=np.prod(self.samples.shape[:-1]))
         return self._geometry
 
     @geometry.setter

@@ -17,7 +17,7 @@ import cuqi
 # set-up the discrete convolution model
 # =============================================================================
 test = cuqi.testproblem.Deblur()
-n = test.model.dim[1]
+n = test.model.domain_dim
 tt = test.t
 h = test.meshsize
 
@@ -62,7 +62,7 @@ print('Elapsed time:', time.time() - ti)
 med_xpos = np.median(x_s, axis=1) # sp.stats.mode
 sigma_xpos = x_s.std(axis=1)
 lo95, up95 = np.percentile(x_s, [2.5, 97.5], axis=1)
-relerr = round(np.linalg.norm(med_xpos - test.f_true)/norm_f*100, 2)
+relerr = round(np.linalg.norm(med_xpos - test.exactSolution)/norm_f*100, 2)
 print('\nRelerror median:', relerr, '\n')
 
 # =============================================================================
