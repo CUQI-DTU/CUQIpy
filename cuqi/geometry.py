@@ -104,6 +104,13 @@ class Continuous1D(Continuous):
         self._plot_config()
         return p
 
+    def plot_envelope(self, lo_values, up_values, **kwargs):
+        default = {'color':'dodgerblue', 'alpha':0.25}
+        for key in default:
+            if (key not in kwargs.keys()):
+                kwargs[key]  = default[key]
+        return plt.fill_between(self.grid,up_values, lo_values, **kwargs)
+
     def _plot_config(self):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
@@ -178,3 +185,59 @@ class Continuous2D(Continuous):
                 axis.set_xlabel(self.axis_labels[0])
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
+
+
+class Discrete(Geometry):
+
+    def __init__(self,variables):       
+        self.variables = variables
+
+    @property
+    def shape(self):
+        return (len(self.variables),)
+
+    @property
+    def variables(self):
+        return self._variables
+
+    @variables.setter
+    def variables(self, value):
+        variables_value_err_msg = "variables should be int, or list of strings"
+        if isinstance(value,(int,np.integer)):
+            value = ['v'+str(var) for var in range(value)]
+        elif isinstance(value,list): 
+            for var in value: 
+                if not isinstance(var,str):
+                    raise ValueError(variables_value_err_msg)
+        else:
+            raise ValueError(variables_value_err_msg) 
+        self._variables = value
+        self._ids = range(self.dim)
+
+    def plot(self,values, **kwargs):
+
+        if ('linestyle' not in kwargs.keys()) and ('ls' not in kwargs.keys()):
+            kwargs["linestyle"]  = ''
+        
+        if ('marker' not in kwargs.keys()):
+            kwargs["marker"]  = 'o'
+
+        self._plot_config() 
+        return plt.plot(self._ids,values,**kwargs)
+
+    def plot_envelope(self, lo_values, up_values, **kwargs):
+        self._plot_config()
+        if 'fmt' in kwargs.keys():
+            raise Exception("Argument 'fmt' cannot be passed by the user")
+
+        default = {'color':'dodgerblue', 'fmt':'none' ,'capsize':3, 'capthick':1}
+        for key in default:
+            if (key not in kwargs.keys()):
+                kwargs[key]  = default[key]
+        
+        return plt.errorbar(self._ids, lo_values, 
+                            yerr=np.vstack((np.zeros(len(lo_values)),up_values-lo_values)),
+                            **kwargs)
+
+    def _plot_config(self):
+        plt.xticks(self._ids, self.variables)

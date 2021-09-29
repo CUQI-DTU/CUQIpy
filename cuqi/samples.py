@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import Continuous1D
+from cuqi.geometry import Continuous1D, Discrete
 
 class Samples(object):
 
@@ -45,7 +45,7 @@ class Samples(object):
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
 
-        if not isinstance(self.geometry,Continuous1D):
+        if not isinstance(self.geometry,(Continuous1D,Discrete)):
             raise NotImplementedError("Confidence interval not implemented for {}".format(self.geometry))
         
         # Compute statistics
@@ -54,17 +54,14 @@ class Samples(object):
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
 
-        #Plot
-        self.geometry.plot(mean,*args,**kwargs)
-        if exact is not None:
-            self.geometry.plot(exact,*args,**kwargs)
-        plt.fill_between(self.geometry.grid,up_conf, lo_conf, color='dodgerblue', alpha=0.25)
+        lci = self.geometry.plot_envelope(lo_conf, up_conf, color='dodgerblue')
 
+        lmn = self.geometry.plot(mean,*args,**kwargs)
         if exact is not None:
-            plt.legend(["Mean","Exact","Confidence Interval"])
+            lex = self.geometry.plot(exact,*args,**kwargs)
+            plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
         else:
-            plt.legend(["Mean","Confidence Interval"])
-        
+            plt.legend([lmn[0], lci],["Mean","Confidence Interval"])
 
     def diagnostics(self):
         # Geweke test

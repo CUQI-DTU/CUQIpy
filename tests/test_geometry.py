@@ -18,3 +18,13 @@ def test_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,expecte
            and (geom.shape == expected_shape)
 	   and (geom.dim == expected_dim))
 
+@pytest.mark.parametrize("variables,expected_variables,expected_shape,expected_dim",
+                         [(3,['v0','v1','v2'],(3,),3),
+			  (['a','b'],['a','b'],(2,),2),
+			  (1,['v0'],(1,),1),
+			  ])
+def test_Discrete_geometry(variables,expected_variables,expected_shape,expected_dim):
+    geom = cuqi.geometry.Discrete(variables)
+    assert(geom.variables == expected_variables
+           and (geom.shape == expected_shape)
+	   and (geom.dim == expected_dim))
