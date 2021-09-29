@@ -39,8 +39,8 @@ class BayesianProblem(object):
             NB: 'Requires the prior to be defined.'
     """
     def __init__(self,likelihood,prior,data=None):
-        self.likelihood = likelihood
         self.prior = prior
+        self.likelihood = likelihood
         self.data = data
 
     @property
@@ -54,6 +54,7 @@ class BayesianProblem(object):
             msg = f"{self.model.__class__} range_geometry and likelihood geometry are not consistent"
             self.likelihood.geometry,self.model.range_geometry = \
                 self._check_geometries_consistency(self.likelihood.geometry,self.model.range_geometry,msg)
+            self.prior=self.prior
 
     @property
     def prior(self):
