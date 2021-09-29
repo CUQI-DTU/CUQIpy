@@ -5,6 +5,7 @@ from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
+from cuqi.geometry import _DefaultGeometry
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -24,6 +25,16 @@ class Distribution(ABC):
             raise ValueError("Name must be a string or None")
         self.name = name
         self.geometry = geometry
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    @geometry.setter
+    def geometry(self,value):
+        if value is None:
+            value = _DefaultGeometry(grid=self.dim)
+        self._geometry = value
 
     @abstractmethod
     def logpdf(self,x):
@@ -170,12 +181,12 @@ class Normal(Distribution):
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
     def __init__(self, mean=None, std=None, **kwargs):
-        # Init from abstract distribution class
-        super().__init__(**kwargs)
-
         # Init specific to this distribution
         self.mean = mean
-        self.std = std        
+        self.std = std  
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)      
 
     @property
     def dim(self):
@@ -253,7 +264,6 @@ class Gamma(Distribution):
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None,**kwargs):
-        super().__init__(**kwargs)
         self.mean = mean
         self.std = std
         if corrmat is None:
@@ -288,6 +298,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
         # inverse of Cholesky
         self.Linv = np.linalg.inv(self.L)
+        super().__init__(**kwargs)
 
         # Compute decomposition such that Q = U @ U.T
         # self.Q = np.linalg.inv(self.Sigma)   # precision matrix
@@ -511,12 +522,11 @@ class Uniform(Distribution):
         high : float or array_like of floats 
             Upper bound(s) of the uniform distribution.
         """
-        # Init from abstract distribution class
-        super().__init__(**kwargs)
-
         # Init specific to this distribution
         self.low = low
-        self.high = high        
+        self.high = high  
+        # Init from abstract distribution class
+        super().__init__(**kwargs)      
 
     @property
     def dim(self):

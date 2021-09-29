@@ -6,6 +6,7 @@ import time
 
 from cuqi.distribution import Cauchy_diff, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel, Model
+from cuqi.geometry import _DefaultGeometry
 
 class Generic(object):
     def __init__(self):
@@ -48,8 +49,11 @@ class BayesianProblem(object):
     
     @likelihood.setter
     def likelihood(self, value):
-        #check likelihood.geometry and model.range_geometry (both defaults -> check consistency | one of them default -> set it using the other | both of them user defined ->check consistency)
         self._likelihood = value
+        if value is not None:        
+            msg = f"{self.model.__class__} range_geometry and likelihood geometry are not consistent"
+            self.likelihood.geometry,self.model.range_geometry = \
+                self._check_geometries_consistency(self.likelihood.geometry,self.model.range_geometry,msg)
 
     @property
     def prior(self):
@@ -57,9 +61,11 @@ class BayesianProblem(object):
     
     @prior.setter
     def prior(self, value):
-        #check prior.geometry and model.domain_geometry (both defaults -> check consistency | one of them default -> set it using the other | both of them user defined ->check consistency)
         self._prior = value
-
+        if value is not None and self.likelihood is not None:
+            msg = f"{self.model.__class__} domain_geometry and prior geometry are not consistent"
+            self.prior.geometry,self.model.domain_geometry = \
+                self._check_geometries_consistency(self.prior.geometry,self.model.domain_geometry,msg)
 
     @property
     def model(self):
@@ -101,6 +107,22 @@ class BayesianProblem(object):
         #If no implementation exists give error
         else:
             raise NotImplementedError(f'MAP estimate is not implemented in for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+
+    def _check_geometries_consistency(self, geom1, geom2, fail_msg):
+        """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consisten"""
+        if isinstance(geom1,_DefaultGeometry):
+            if isinstance(geom2,_DefaultGeometry):
+                if geom1 == geom2:
+                    return geom1,geom2
+            else: 
+                return geom2, geom2
+        else:
+            if isinstance(geom2,_DefaultGeometry):
+                return geom1,geom1
+            else:
+                if geom1 == geom2:
+                    return geom1,geom2
+        raise Exception(fail_msg)
 
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
