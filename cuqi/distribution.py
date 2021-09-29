@@ -168,7 +168,7 @@ class Normal(Distribution):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean, std, **kwargs):
+    def __init__(self, mean=None, std=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
@@ -217,7 +217,7 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, shape, rate, **kwargs):
+    def __init__(self, shape=None, rate=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
@@ -500,7 +500,7 @@ class Laplace_diff(object):
 class Uniform(Distribution):
 
 
-    def __init__(self, low=0.0, high=1.0, **kwargs):
+    def __init__(self, low=None, high=None, **kwargs):
         """
         Parameters
         ----------
@@ -513,10 +513,13 @@ class Uniform(Distribution):
         super().__init__(**kwargs)
 
         # Init specific to this distribution
-
         self.low = low
         self.high = high        
-        self.dim = np.size(low)
+
+    @property
+    def dim(self):
+        return max(np.size(self.low),np.size(self.high))
+
 
     def logpdf(self, x):
         diff = self.high -self.low
