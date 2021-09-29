@@ -28,3 +28,13 @@ def test_Discrete_geometry(variables,expected_variables,expected_shape,expected_
     assert(geom.variables == expected_variables
            and (geom.shape == expected_shape)
 	   and (geom.dim == expected_dim))
+
+@pytest.mark.parametrize("geom1,geom2,truth_value",
+                         [(cuqi.geometry._DefaultGeometry(2),cuqi.geometry.Continuous1D(2), True),
+			  (cuqi.geometry.Continuous1D(2),cuqi.geometry.Continuous2D((1,2)), False),
+			  (cuqi.geometry._DefaultGeometry(np.array([0,1])),cuqi.geometry.Continuous1D(2), True),
+			  (cuqi.geometry._DefaultGeometry(3),cuqi.geometry.Continuous1D(2), False),
+			  (cuqi.geometry.Discrete(2),cuqi.geometry.Discrete(["v0","v1"]), True),
+			  (cuqi.geometry.Discrete(2),cuqi.geometry.Continuous1D(2), False)])
+def test_geometry_equivalence(geom1,geom2,truth_value):
+    assert( (geom1==geom2) == truth_value)

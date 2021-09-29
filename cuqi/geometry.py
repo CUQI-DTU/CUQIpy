@@ -91,6 +91,12 @@ class Continuous1D(Continuous):
     def __init__(self,grid,axis_labels=['x']):
         super().__init__(grid, axis_labels)
 
+    def __eq__(self, obj):
+        if not isinstance(obj, Continuous1D): return False
+        if not np.all(self.grid == obj.grid): return False
+        if not self.axis_labels == obj.axis_labels: return False
+        return True
+
     @property
     def shape(self):
         return self.grid.shape
@@ -120,6 +126,13 @@ class Continuous2D(Continuous):
 
     def __init__(self,grid,axis_labels=['x','y']):
         super().__init__(grid, axis_labels)
+
+    def __eq__(self, obj):
+        if not isinstance(obj, Continuous2D): return False
+        if not np.all(self.grid[0] == obj.grid[0]): return False
+        if not np.all(self.grid[1] == obj.grid[1]): return False
+        if not self.axis_labels == obj.axis_labels: return False
+        return True 
             
     @property
     def shape (self):
@@ -192,6 +205,11 @@ class Discrete(Geometry):
     def __init__(self,variables):       
         self.variables = variables
 
+    def __eq__(self, obj):
+        if not isinstance(obj, Discrete): return False
+        if not np.all(self.variables == obj.variables): return False
+        return True 
+
     @property
     def shape(self):
         return (len(self.variables),)
@@ -242,7 +260,7 @@ class Discrete(Geometry):
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
 
-        
+
 class _DefaultGeometry(Continuous1D):
     def __init__(self,grid, axis_labels=['x']):
         super().__init__(grid, axis_labels)
