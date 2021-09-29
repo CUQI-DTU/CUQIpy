@@ -337,7 +337,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 # ========================================================================
 class GMRF(Gaussian):
         
-    def __init__(self, mean, prec, N, dom, BCs):
+    def __init__(self, mean, prec, N, dom, BCs, geometry=None):
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
         self.N = N          # partition size
@@ -375,7 +375,8 @@ class GMRF(Gaussian):
             Dt = kron(Dmat, I)
             self.D = vstack([Ds, Dt])
             self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-            
+        self.geometry =  geometry
+
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
             # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
@@ -406,6 +407,16 @@ class GMRF(Gaussian):
                 # eigval = eigvalsh(self.L.todense())
                 self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
                 self.logdet = sum(np.log(self.L_eigval))
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    @geometry.setter
+    def geometry(self,value):
+        if value is None:
+            value = _DefaultGeometry(grid=self.dim)
+        self._geometry = value
 
     def logpdf(self, x):
         const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
