@@ -51,7 +51,7 @@ class Geometry(ABC):
 
 class Continuous(Geometry, ABC):
 
-    def __init__(self,grid,axis_labels):
+    def __init__(self,grid,axis_labels=None):
         self.axis_labels = axis_labels
         self.grid = grid
 
@@ -241,3 +241,8 @@ class Discrete(Geometry):
 
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
+
+        
+class _DefaultGeometry(Continuous1D):
+    def __init__(self,grid, axis_labels=['x']):
+        super().__init__(grid, axis_labels)

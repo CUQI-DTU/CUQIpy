@@ -43,6 +43,25 @@ class BayesianProblem(object):
         self.data = data
 
     @property
+    def likelihood(self):
+        return self._likelihood
+    
+    @likelihood.setter
+    def likelihood(self, value):
+        #check likelihood.geometry and model.range_geometry (both defaults -> check consistency | one of them default -> set it using the other | both of them user defined ->check consistency)
+        self._likelihood = value
+
+    @property
+    def prior(self):
+        return self._prior
+    
+    @prior.setter
+    def prior(self, value):
+        #check prior.geometry and model.domain_geometry (both defaults -> check consistency | one of them default -> set it using the other | both of them user defined ->check consistency)
+        self._prior = value
+
+
+    @property
     def model(self):
         """Extract the cuqi model from likelihood."""
 
