@@ -9,12 +9,12 @@ from mcmc import Random_Walk
 # u(x,0) = u0
 class heat:
     # class init func setting up FD method
-    def __init__(self, field_type="Gaussian"):
+    def __init__(self, field_type="continuous"):
         self.N = 128 # number of discretization points
         self.dx = np.pi/(self.N+1) # space step size
 
         self.x = np.linspace(self.dx,np.pi,self.N,endpoint=False)
-        if( field_type == "Gaussian" ):
+        if( field_type == "continuous" ):
             self.init_cond = rand_field(self.N) # definig the initial condition to be a Gaussian random field
         elif( field_type == "step" ):
             self.init_cond = step_field(self.N)
@@ -232,53 +232,7 @@ def inverse_heat_step():
     ax1.plot(true_init,label=r'true initial condition',color="orange",linewidth=2.)
     plt.show()
 
-def inverse_heat_step_new():
-    N = 128
-    dx = np.pi/(N+1)
-    x = np.linspace(dx,np.pi,N,endpoint=False)
-
-    field = step_field(N)
-    p = np.array( [1,2,0.5] )
-    field.set_params(p)
-    true_init = field.give_real_func()
-
-    prob = heat(field_type="Gaussian")
-    prob.set_init_cond(true_init)    
-    prob.time_stepping()
-    y_obs = prob.advance_with_init_cond(true_init)
-
-    SNR = 100 # signal to noise ratio
-    sigma = np.linalg.norm(y_obs)/SNR
-    sigma2 = sigma*sigma # variance of the observation Gaussian noise
-
-    # formulating the Bayesian inverse problem
-    pi_like = lambda p: - ( 0.5*np.sum(  (prob.forward(p) - y_obs)**2)/sigma2) # least squares likelihood
-    p0 = np.zeros(N) # initial parameter guess
-    Ns = 10000 # number of samples
-    Nb = 10 # number of burn-in samples
-    RWM = Random_Walk(pi_like,p0) # type of MCMC (Metropolis)
-    RWM.sample(Ns,Nb) # running MCMC
-
-    RWM.print_stat() # this prints the acceptance rate
-    samples, target = RWM.give_stats() # extracting samples
-
-    # computing the mean parameter
-    p_mean = np.mean(samples[300:,:],axis=0)
-
-    # computing the mean field
-    field = rand_field(N)
-    field.set_params(p_mean)
-    f = field.give_real_func()
-
-    # plotting the mean solution vs the true solution
-    fig, ax1 = plt.subplots(1)
-    ax1.plot(f,label=r'posterior mean',color="blue",linewidth=2.)
-    ax1.plot(true_init,label=r'true initial condition',color="orange",linewidth=2.)
-    plt.show()
-
-
-
 if __name__ == "__main__":
-    #inverse_heat()
+    inverse_heat()
     #inverse_heat_step()
-    inverse_heat_step_new()
+    #inverse_heat_step_new()
