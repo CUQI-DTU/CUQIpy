@@ -52,7 +52,7 @@ class Geometry(ABC):
     def __eq__(self, obj):
         if not isinstance(obj, self.__class__): return False
         for key, value in vars(self).items():
-            if np.all(value !=vars(obj)[key]): return False 
+            if not np.all(value ==vars(obj)[key]): return False 
         return True
 
 class Continuous(Geometry, ABC):
@@ -256,5 +256,5 @@ class _DefaultGeometry(Continuous1D):
     def __eq__(self, obj):
         if not isinstance(obj, (self.__class__,Continuous1D)): return False
         for key, value in vars(self).items():
-            if np.all(value !=vars(obj)[key]): return False 
+            if not np.all(value == vars(obj)[key]): return False 
         return True
