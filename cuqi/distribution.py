@@ -14,6 +14,8 @@ from copy import copy
 
 import inspect
 
+import time
+
 # import sksparse
 # from sksparse.cholmod import cholesky
 eps = np.finfo(float).eps
@@ -256,12 +258,12 @@ class GaussianGen(Distribution): # TODO: super general with precisions
 
     def __init__(self, loc=None, scale=None):
         self.mean = force_ndarray(loc)
-        if isinstance(scale, tuple):
-            var = scale[0]
-            corrmat = force_ndarray(scale[1])
-            self.cov = var*corrmat
-        else:
-            self.cov = force_ndarray(scale)
+        self.cov = force_ndarray(scale)
+
+        # if isinstance(scale, tuple):
+        #     var = scale[0]
+        #     corrmat = force_ndarray(scale[1])
+        #     self.cov = var*corrmat
         # self.dim = len(self.mean)
         # if scale[0] = 'cov':        
         # elif scale[0] = 'prec':
@@ -271,35 +273,32 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         #         self.precparam = scale[1]
         #         self.structmat = scale[2]
                 # self.prec = (self.precparam)*self.structmat
-    
+        # work-around to compute sparse Cholesky
+
     @property
     def cov(self):
         return self._cov
     @cov.setter
     def cov(self, value):
-        # taken from https://github.com/scipy/scipy/blob/v1.7.1/scipy/stats/_multivariate.py
         if (value is not None) and (not callable(value)):
-            print("\nComputing precision from covariance...\t")
-            eps = 1e-5
-            s, u = eigh(value, lower=True, check_finite=True)
-            # s, u  = splinalg.eigsh(value, self.dim-1, which='LM', return_eigenvectors=False)
+
+            print("Computing precision from covariance..")
+            # TODO: Check for sparse value and use sparse cholesky instead.
+            sqrtcov  = np.linalg.cholesky(value)
+            sqrtprec = np.linalg.inv(sqrtcov)
+            self._prec = sqrtprec.T@sqrtprec
+            self._sqrtprec = sqrtprec
+            self._logdet = 2*np.sum(np.log(np.diag(self.sqrtprec)))  # only for PSD matrices
+            print("Done !")
             
-            d = s[s > eps]
-            s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
-            self._sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
-            self._rank = len(d)
-            self._logdet = np.sum(np.log(d))
-            self._prec = self._sqrtprec @ self._sqrtprec.T
-            
-            prec2 = np.linalg.cholesky(self.cov)
-            sqrtprec2 = np.linalg.inv(prec2)
-            
-            
-            print("Done !!\n")
         self._cov = value
+
     @property
-    def rank(self):        
-        return self._rank
+    def dim(self):
+        return max(len(self.mean),self.cov.shape[0])
+    @property
+    def rank(self):       
+        return self.dim #Assumes spd 
     @property
     def sqrtprec(self):        
         return self._sqrtprec
@@ -376,7 +375,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         self.Linv = np.linalg.inv(self.L)
 
         # Compute decomposition such that Q = U @ U.T
-        self.Sigmainv = np.linalg.inv(self.Sigma)   # precision matrix
+        # self.Sigmainv = np.linalg.inv(self.Sigma)   # precision matrix
         # s, u = eigh(self.Q, lower=True, check_finite=True)
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
