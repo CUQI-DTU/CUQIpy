@@ -6,6 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
 from cuqi.model import LinearModel
+from cuqi.utilities import force_ndarray
 import warnings
 
 from abc import ABC, abstractmethod
@@ -254,13 +255,14 @@ class Gamma(Distribution):
 class GaussianGen(Distribution): # TODO: super general with precisions
 
     def __init__(self, loc=None, scale=None):
-        self.mean = loc
+        self.mean = force_ndarray(loc)
         if isinstance(scale, tuple):
-            std = scale[0]
-            corrmat = scale[1]
-            self.cov = (std**2)*corrmat
+            var = scale[0]
+            corrmat = force_ndarray(scale[1])
+            self.cov = var*corrmat
         else:
-            self.cov = scale
+            self.cov = force_ndarray(scale)
+        # self.dim = len(self.mean)
         # if scale[0] = 'cov':        
         # elif scale[0] = 'prec':
         #     if len(scale) == 2:
@@ -280,18 +282,38 @@ class GaussianGen(Distribution): # TODO: super general with precisions
             print("\nComputing precision from covariance...\t")
             eps = 1e-5
             s, u = eigh(value, lower=True, check_finite=True)
+            # s, u  = splinalg.eigsh(value, self.dim-1, which='LM', return_eigenvectors=False)
+            
             d = s[s > eps]
             s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
-            self.prec = np.multiply(u, np.sqrt(s_pinv)) 
-            self.rank = len(d)
-            self.logdet = np.sum(np.log(d))
+            self._sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
+            self._rank = len(d)
+            self._logdet = np.sum(np.log(d))
+            self._prec = self._sqrtprec @ self._sqrtprec.T
+            
+            prec2 = np.linalg.cholesky(self.cov)
+            sqrtprec2 = np.linalg.inv(prec2)
+            
+            
             print("Done !!\n")
         self._cov = value
-
-    def logpdf(self, x): 
+    @property
+    def rank(self):        
+        return self._rank
+    @property
+    def sqrtprec(self):        
+        return self._sqrtprec
+    @property
+    def prec(self):        
+        return self._prec
+    @property
+    def logdet(self):        
+        return self._logdet    
+        
+    def logpdf(self, x):
         dev = x - self.mean
-        maha = np.sum(np.square(np.dot(dev, self.prec)), axis=-1)
-        return -0.5 * (self.rank*np.log(2*np.pi) + self.logdet + maha)
+        mahadist = np.sum(np.square(dev @ self.sqrtprec), axis=-1)
+        return -0.5 * (self.rank*np.log(2*np.pi) + self.logdet + mahadist)
 
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
