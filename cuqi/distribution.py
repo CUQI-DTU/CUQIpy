@@ -5,6 +5,8 @@ from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
+from cuqi.model import LinearModel
+import warnings
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -249,6 +251,70 @@ class Gamma(Distribution):
             return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
+class GaussianGen(Distribution): # TODO: super general with precisions
+
+    def __init__(self, loc=None, scale=None):
+        self.mean = loc
+        if isinstance(scale, tuple):
+            std = scale[0]
+            corrmat = scale[1]
+            self.cov = (std**2)*corrmat
+        else:
+            self.cov = scale
+        # if scale[0] = 'cov':        
+        # elif scale[0] = 'prec':
+        #     if len(scale) == 2:
+        #         self.prec = scale[1]
+        #     elif len(scale) == 3:
+        #         self.precparam = scale[1]
+        #         self.structmat = scale[2]
+                # self.prec = (self.precparam)*self.structmat
+    
+    @property
+    def cov(self):
+        return self._cov
+    @cov.setter
+    def cov(self, value):
+        # taken from https://github.com/scipy/scipy/blob/v1.7.1/scipy/stats/_multivariate.py
+        if (value is not None) and (not callable(value)):
+            print("\nComputing precision from covariance...\t")
+            eps = 1e-5
+            s, u = eigh(value, lower=True, check_finite=True)
+            d = s[s > eps]
+            s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
+            self.prec = np.multiply(u, np.sqrt(s_pinv)) 
+            self.rank = len(d)
+            self.logdet = np.sum(np.log(d))
+            print("Done !!\n")
+        self._cov = value
+
+    def logpdf(self, x): 
+        dev = x - self.mean
+        maha = np.sum(np.square(np.dot(dev, self.prec)), axis=-1)
+        return -0.5 * (self.rank*np.log(2*np.pi) + self.logdet + maha)
+
+    def cdf(self, x1):   # TODO
+        return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
+
+    def gradient(self, x, data = None):
+        if not callable(self.mean): # for prior
+            return -self.prec @ (x - self.mean)
+        elif isinstance(self.mean, LinearModel): # for likelihood
+            model = self.mean
+            dev = data - model.forward(x)
+            return self.prec @ model.adjoint(dev)
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
+
+    def _sample(self, N=1, rng=None):
+        if rng is not None:
+            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
+        else:
+            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
+        return s
+
+        
+# ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None):
@@ -256,7 +322,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         self.std = std
         if corrmat is None:
             corrmat = np.eye(len(mean))
-        self.R = corrmat
+        self.corrmat = corrmat
         self.dim = len(np.diag(corrmat))
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
@@ -288,7 +354,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         self.Linv = np.linalg.inv(self.L)
 
         # Compute decomposition such that Q = U @ U.T
-        # self.Q = np.linalg.inv(self.Sigma)   # precision matrix
+        self.Sigmainv = np.linalg.inv(self.Sigma)   # precision matrix
         # s, u = eigh(self.Q, lower=True, check_finite=True)
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
@@ -309,6 +375,10 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
+
+    def gradient(self, x):
+        if not callable(self.mean):
+            return self.Sigmainv@(x-self.mean)
 
     def _sample(self, N=1, rng=None):
 
@@ -404,6 +474,10 @@ class GMRF(Gaussian):
     def pdf(self, x):
         # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return np.exp(self.logpdf(x))
+
+    def gradient(self, x):
+        if not callable(self.mean):
+            return (self.prec*self.L) @ (x-self.mean)
 
     def sample(self, Ns=1, rng=None):
         if (self.BCs == 'zero'):
