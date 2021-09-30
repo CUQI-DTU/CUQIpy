@@ -7,10 +7,41 @@ eps = np.finfo(float).eps
 
 import cuqi
 from cuqi.solver import CGLS
+from cuqi.samples import Samples
+from abc import ABC, abstractmethod
 
 #===================================================================
 #===================================================================
 #===================================================================
+class Sampler(ABC):
+
+    def sample(self,N,Nb):
+        # Get samples from the distribution sample method
+        s,loglike_eval, accave = self._sample(N,Nb)
+        return self._create_Sample_object(s,N),loglike_eval, accave
+
+    def sample_adapt(self,N,Nb):
+        # Get samples from the distribution sample method
+        s,loglike_eval, accave = self._sample_adapt(N,Nb)
+        return self._create_Sample_object(s,N),loglike_eval, accave
+
+    def _create_Sample_object(self,s,N):
+        #Store samples in cuqi samples object if more than 1 sample
+        if N==1:
+            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+                s = s.ravel()[0]
+            else:
+                s = s.flatten()
+        else:
+            s = Samples(s)
+
+        return s
+
+    @abstractmethod
+    def _sample(self,N,Nb):
+        pass
+
+
 class Linear_RTO(object):
     
     def __init__(self, likelihood, prior, model, data, x0, maxit=10, tol=1e-6, shift=0):
@@ -207,7 +238,7 @@ class CWMH(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class RWMH(object):
+class RWMH(Sampler):
 
     def __init__(self, logprior, loglike, scale, init_x):
         self.prior = logprior   # this works as proposal and must be a Gaussian
@@ -216,7 +247,7 @@ class RWMH(object):
         self.x0 = init_x
         self.n = len(init_x)
 
-    def sample(self, N, Nb):
+    def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -244,7 +275,7 @@ class RWMH(object):
         #
         return samples, loglike_eval, accave
 
-    def sample_adapt(self, N, Nb):
+    def _sample_adapt(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -326,7 +357,7 @@ class RWMH(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class pCN(object):    
+class pCN(Sampler):    
     
     def __init__(self, logprior, loglike, scale, init_x):
         self.prior = logprior   # this is used in the proposal and must be a Gaussian
@@ -335,7 +366,7 @@ class pCN(object):
         self.x0 = init_x
         self.n = len(init_x)
 
-    def sample(self, N, Nb):
+    def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -363,7 +394,7 @@ class pCN(object):
         #
         return samples, loglike_eval, accave
 
-    def sample_adapt(self, N, Nb):
+    def _sample_adapt(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation

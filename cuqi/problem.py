@@ -191,4 +191,4 @@ class BayesianProblem(object):
         x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
         print('Elapsed time:', time.time() - ti)
         
-        return cuqi.samples.Samples(x_s)
+        return x_s

@@ -96,7 +96,7 @@ def test_RWMH_sample_regression():
        [ 0.5       ,  0.61916105,  0.86364669,  0.9001697 ,  0.26407212,
          0.16837312, -0.10678787, -0.39255235, -0.39255235, -0.39255235]])
 
-    assert np.allclose(x_s2,reference)
+    assert np.allclose(x_s2.samples,reference)
 
 def test_pCN_sample_regression():
     np.random.seed(0)
@@ -111,7 +111,7 @@ def test_pCN_sample_regression():
     x0 = 0.5*np.ones(d)
     MCMC = pCN(ref, target, scale, x0)
     results = MCMC.sample(10,2)
-    assert np.allclose(results[0], np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
+    assert np.allclose(results[0].samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
          0.78752546, 0.68750247, 0.42875734, 0.40239322, 0.40495205],
         [0.66816968, 0.66816968, 0.61423278, 0.6233214 , 0.6233214 ,
          0.59968114, 0.6343679 , 0.69654995, 0.84449757, 0.82154609]]))
