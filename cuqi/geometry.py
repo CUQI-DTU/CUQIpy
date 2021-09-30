@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from scipy.fftpack import dst, idst
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
@@ -241,3 +242,41 @@ class Discrete(Geometry):
 
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
+
+class KLField(Geometry):
+    '''
+    class representation of the random field in  the sine basis
+    alpha = sum_i p * (1/i)^decay * sin(ix)
+    '''
+    
+    # init function defining paramters for the KL expansion
+    def __init__(self, N, axis_labels=['x']):
+        self.N = N # number of modes
+        self.modes = np.zeros(N) # vector of expansion coefs
+        self.real = np.zeros(N) # vector of real values
+        self.decay_rate = 2.5 # decay rate of KL
+        self.c = 12. # normalizer factor
+        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
+        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
+
+        self.p = np.zeros(self.N) # random variables in KL
+
+    # computes the real function out of expansion coefs
+    def to_function(self,p):
+        self.modes = p*self.coefs/self.c
+        self.real = idst(self.modes)/2
+        return self.real
+    
+    def shape(self):
+        return self.N
+    
+    def plot(self,values,*args,**kwargs):
+        p = plt.plot(values,*args,**kwargs)
+        self._plot_config()
+        return p
+
+    def _plot_config(self):
+        if self.axis_labels is not None:
+            plt.xlabel(self.axis_labels[0])
+
+        
