@@ -243,6 +243,7 @@ class Discrete(Geometry):
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
 
+
 class KLField(Geometry):
     '''
     class representation of the random field in  the sine basis
@@ -261,6 +262,8 @@ class KLField(Geometry):
 
         self.p = np.zeros(self.N) # random variables in KL
 
+        self.axis_labels = axis_labels
+
     # computes the real function out of expansion coefs
     def to_function(self,p):
         self.modes = p*self.coefs/self.c
@@ -278,5 +281,39 @@ class KLField(Geometry):
     def _plot_config(self):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
+
+class StepField(Geometry):
+    '''
+    class representation of the step random field with 3 intermidiate steps
+    '''
+    def __init__(self,N, axis_labels=['x']):
+        self.N = N
+        self.p = np.zeros(4)
+        self.dx = np.pi/(self.N+1)
+        self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
+
+    def to_function(self, p):
+        self.real = np.zeros_like(self.x)
+        
+        idx = np.where( (self.x>0.2*np.pi)&(self.x<=0.4*np.pi) )
+        self.real[idx[0]] = p[0]
+        idx = np.where( (self.x>0.4*np.pi)&(self.x<=0.6*np.pi) )
+        self.real[idx[0]] = p[1]
+        idx = np.where( (self.x>0.6*np.pi)&(self.x<=0.8*np.pi) )
+        self.real[idx[0]] = p[2]
+        return self.real
+    
+    def shape(self):
+        return self.N
+    
+    def plot(self,values,*args,**kwargs):
+        p = plt.plot(values,*args,**kwargs)
+        self._plot_config()
+        return p
+
+    def _plot_config(self):
+        if self.axis_labels is not None:
+            plt.xlabel(self.axis_labels[0])
+
 
         
