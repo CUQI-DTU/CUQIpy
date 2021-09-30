@@ -555,4 +555,49 @@ class Posterior(Distribution):
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
 
+class UserDefinedDistribution(Distribution):
+
+    def __init__(self, logpdf_func, **kwargs):
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        if not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
+        self.logpdf_func = logpdf_func
+
+    def logpdf(self, x):
+        return self.logpdf_func(x)
+
+    def _sample(self,N=1,rng=None):
+        raise Exception("'Generic.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+
+
+class Gallery(UserDefinedDistribution):
+
+    def __init__(self, distribution_name, **kwargs):
+
+        # Init from abstract distribution class
+        if distribution_name is "CalSom91":
+            #TODO: user can specify sig and delta
+            self.sig = 0.1
+            self.delta = 1
+            logpdf_func = self._CalSom91_logpdf_func
+        elif distribution_name is "BivariateGaussian":
+            #TODO: user can specify Gaussain input
+            #TODO: Keep Gaussian distribution other functionalities (e.g. _sample)
+            d = 2
+            mu = np.zeros(d)
+            sigma = np.linspace(0.5, 1, d)
+            R = np.array([[1.0, .9 ],[.9, 1]])
+            dist = Gaussian(mu, sigma, R)
+            self._sample = dist._sample
+            logpdf_func = dist.logpdf
+
+        super().__init__(logpdf_func, **kwargs)
+
+    def _CalSom91_logpdf_func(self,x):
+        if len(x.shape) == 1:
+            x = x.reshape( (1,2))
+        return -1/(2*self.sig**2)*(np.sqrt(x[:,0]**2+ x[:,1]**2) -1 )**2 -1/(2*self.delta**2)*(x[:,1]-1)**2
+
 

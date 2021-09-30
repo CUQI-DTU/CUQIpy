@@ -13,21 +13,19 @@ import matplotlib.pyplot as plt
 
 # myfuns
 from cuqi.sampler import pCN, RWMH
-from cuqi.distribution import Gaussian
+from cuqi.distribution import Gaussian, UserDefinedDistribution, Gallery
 from cuqi.samples import Samples
 #%%
 # ==========================================================================
 # sample a Gaussian
 # ==========================================================================
-d = 2
-mu = np.zeros(d)
-sigma = np.linspace(0.5, 1, d)
-R = np.array([[1.0, .9 ],[.9, 1]])
-
+ 
 # target function to sample
-dist = Gaussian(mu, sigma, R)
-def target(x): return dist.logpdf(x)
+dist = Gallery("CalSom91")
+#dist = Gallery("BivariateGaussian")
 
+def target(x): return dist.logpdf(x)
+#%%
 m, n = 200, 200
 X, Y = np.meshgrid(np.linspace(-3, 3, m), np.linspace(-3, 3, n))
 Xf, Yf = X.flatten(), Y.flatten()
@@ -35,15 +33,17 @@ pos = np.vstack([Xf, Yf]).T   # pos is (m*n, d)
 Z = dist.pdf(pos).reshape((m, n))
 
 plt.figure()
-plt.contourf(X, Y, Z, 4)
+plt.contourf(X, Y, Z, 10)
 plt.contour(X, Y, Z, 4, colors='k')
 plt.gca().set_aspect('equal', adjustable='box')
 
 #%%
 # =============================================================================
-# reference measure (or 'prior' if it is a BIP)
+# reference measure (or proposal)
 # =============================================================================
-ref = Gaussian(mu, np.ones(d), R)   # standard Gaussian
+d = 2
+mu = np.zeros(d)
+ref = Gaussian(mu, np.ones(d), np.eye(d))   # standard Gaussian
 
 # =============================================================================
 # posterior sampling
@@ -54,13 +54,13 @@ MCMC_pCN = pCN(ref, target, scale, x0)
 MCMC_RWMH = RWMH(ref, target, scale, x0)
 
 # run sampler
-Ns = int(1e3)      # number of samples
+Ns = int(1e4)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
 x_s_RWMH, target_eval, acc = MCMC_RWMH.sample_adapt(Ns, Nb)
 print('Elapsed time:', time.time() - ti)
-
+#%%
 plt.figure()
 plt.contourf(X, Y, Z, 4)
 plt.contour(X, Y, Z, 4, colors='k')
