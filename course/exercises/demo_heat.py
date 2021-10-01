@@ -34,23 +34,22 @@ likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N))
 #%% Prior
 prior = cuqi.distribution.Gaussian(np.zeros((N,)),1)
 
-#target = lambda xx: likelihood(x=y_obs).logpdf(xx) + prior.logpdf(xx)
-#proposal = cuqi.distribution.Gaussian(np.zeros((N,)),1)
-#scale = 1.0
-#init_x = np.zeros((N))
-
-#mysampler = cuqi.sampler.RWMH(proposal, target, scale, init_x)
-
-
+#%% Set up problem and sample
 IP=cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
 results=IP.sample_posterior(5000)
-#results=mysampler.sample_adapt(100,20)
 
 #%% Plot mean
 x_mean = np.mean(results.samples,axis=-1)
+
+plt.figure()
+model.domain_geometry.plot(x_mean); plt.title("Posterior mean")
+
+#%%
+plt.figure()
 model.domain_geometry.plot(model.domain_geometry.to_function(x_mean)); plt.title("Posterior mean")
 
 
+#%%
 '''
 #%%
 # formulating the Bayesian inverse problem
