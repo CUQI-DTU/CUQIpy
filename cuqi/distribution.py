@@ -256,9 +256,9 @@ class Gamma(Distribution):
 # ========================================================================
 class GaussianGen(Distribution): # TODO: super general with precisions
 
-    def __init__(self, loc=None, scale=None):
-        self.mean = force_ndarray(loc)
-        self.cov = force_ndarray(scale)
+    def __init__(self, mean=None, cov=None):
+        self.mean = force_ndarray(mean)
+        self.cov = force_ndarray(cov)
         # if isinstance(scale, tuple):
         #     var = scale[0]
         #     corrmat = force_ndarray(scale[1])
@@ -283,9 +283,9 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         print("Computing precision from covariance..")
         if (value is not None) and (not callable(value)):
             if (self.dim < 5000):
-                prec, sqrtprec, logdet, rank = get_prec_from_cov(value)
+                prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
             else: # approximate logdet to avoid 'excesive' time
-                prec, sqrtprec, logdet, rank = get_prec_from_cov_approx(value)
+                prec, sqrtprec, logdet, rank = self.get_prec_from_cov_approx(value)
         print("Done !")
         self._prec = prec
         self._sqrtprec = sqrtprec
@@ -321,20 +321,22 @@ class GaussianGen(Distribution): # TODO: super general with precisions
             prec = sqrtprec @ sqrtprec.T
         return prec, sqrtprec, logdet, rank
     
-    def get_prec_from_cov_approx(self, cov): # TODO: logdet and rank is approximated
+    def get_prec_from_cov_approx(self, cov): # TODO: logdet and rank are approximated
         rank = self.dim
         if issparse(cov): # sparse mat
             sqrtcov = self.sparse_cholesky(cov)
             sqrtprec = splinalg.inv(sqrtcov)
             prec = sqrtprec.T@sqrtprec
             sqrtprec = sqrtprec
-            logdet = np.sum(np.log(sp.sparse.diag(prec)))  # only for PSD matrices
+            logdet = np.sum(np.log(sp.sparse.diag(prec))) 
         else: # non-scalar non-sparse
             sqrtcov = np.linalg.cholesky(cov)
             sqrtprec = np.linalg.inv(sqrtcov)
             prec = sqrtprec.T@sqrtprec
             sqrtprec = sqrtprec
-            logdet = np.sum(np.log(np.diag(prec)))  # only for PSD matrices
+            logdet = np.sum(np.log(np.diag(prec))) 
+        # self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
+        # self.logdet = sum(np.log(self.L_eigval))
         return prec, sqrtprec, logdet, rank            
 
     def sparse_cholesky(self, cov): # work-around to compute sparse Cholesky
