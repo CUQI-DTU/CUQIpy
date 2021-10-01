@@ -542,15 +542,17 @@ class Uniform(Distribution):
 # ========================================================================
 class Posterior(Distribution):
         
-    def __init__(self, likelihood, prior,**kwargs):
+    def __init__(self, likelihood, prior, data, **kwargs):
         # Init from abstract distribution class
         self.likelihood = likelihood
         self.prior = prior 
+        self.data = data
         self.dim = prior.dim
         super().__init__(**kwargs)
 
     def logpdf(self,x):
-        return self.likelihood.logpdf(x)+ self.prior.logpdf(x)
+
+        return self.likelihood(x=x).logpdf(self.data)+ self.prior.logpdf(x)
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
