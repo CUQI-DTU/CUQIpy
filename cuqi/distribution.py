@@ -290,6 +290,7 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         self._prec = prec
         self._sqrtprec = sqrtprec
         self._logdet = logdet
+        self._rank = rank
 
     @property
     def dim(self):
@@ -303,12 +304,21 @@ class GaussianGen(Distribution): # TODO: super general with precisions
     @property
     def logdet(self):        
         return self._logdet
-    
+    @property
+    def rank(self):        
+        return self._rank
+
     def get_prec_from_cov(self, cov, eps = 1e-5):
         if (len(cov) == 1): # if cov is scalar, corrmat is identity or 1D
-            prec = (1/cov)*identity(self.dim)
-            sqrtprec = np.sqrt(1/cov)*identity(self.dim)
-            logdet = self.dim*np.log(cov)
+            var = cov.ravel()[0]
+            prec = (1/var)*identity(self.dim)
+            sqrtprec = np.sqrt(1/var)*identity(self.dim)
+            logdet = self.dim*np.log(var)
+            rank = self.dim
+        elif len(cov)==np.size(cov): # Cov is vector
+            prec = diags(1/cov)
+            sqrtprec = diags(np.sqrt(1/cov))
+            logdet = np.sum(np.log(cov))
             rank = self.dim
         else:
             s, u = eigh(cov, lower=True, check_finite=True)
@@ -322,19 +332,20 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         return prec, sqrtprec, logdet, rank
     
     def get_prec_from_cov_approx(self, cov): # TODO: logdet and rank are approximated
+        print("Using approximate rank and logdet of covariance due to problem size")
         rank = self.dim
         if issparse(cov): # sparse mat
             sqrtcov = self.sparse_cholesky(cov)
             sqrtprec = splinalg.inv(sqrtcov)
             prec = sqrtprec.T@sqrtprec
             sqrtprec = sqrtprec
-            logdet = np.sum(np.log(sp.sparse.diag(prec))) 
+            logdet = -np.sum(np.log(prec.diagonal())) 
         else: # non-scalar non-sparse
             sqrtcov = np.linalg.cholesky(cov)
             sqrtprec = np.linalg.inv(sqrtcov)
             prec = sqrtprec.T@sqrtprec
             sqrtprec = sqrtprec
-            logdet = np.sum(np.log(np.diag(prec))) 
+            logdet = np.sum(np.log(np.diag(cov))) 
         # self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
         # self.logdet = sum(np.log(self.L_eigval))
         return prec, sqrtprec, logdet, rank            
