@@ -132,7 +132,7 @@ def test_Uniform_sample(low, high, expected):
     ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_GaussianGen_logpdf(mean,cov,mean_full,cov_full):
+def test_GaussianGen(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
     prior = cuqi.distribution.GaussianGen(mean, cov)
 
