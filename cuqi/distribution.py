@@ -258,6 +258,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
             corrmat = np.eye(len(mean))
         self.R = corrmat
         self.dim = len(np.diag(corrmat))
+        self.is_symmetric = True
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
@@ -537,3 +538,21 @@ class Uniform(Distribution):
             s = np.random.uniform(self.low, self.high, (N,self.dim)).T
 
         return s
+
+# ========================================================================
+class Posterior(Distribution):
+        
+    def __init__(self, likelihood, prior,**kwargs):
+        # Init from abstract distribution class
+        self.likelihood = likelihood
+        self.prior = prior 
+        self.dim = prior.dim
+        super().__init__(**kwargs)
+
+    def logpdf(self,x):
+        return self.likelihood.logpdf(x)+ self.prior.logpdf(x)
+
+    def _sample(self,N=1,rng=None):
+        raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+
+

@@ -69,13 +69,12 @@ def test_RWMH_sample_regression():
 
     # target function to sample
     dist = cuqi.distribution.Gaussian(mu, sigma, R)
-    def target(x): return dist.logpdf(x)
 
     ref = cuqi.distribution.Gaussian(mu, np.ones(d), R)   # standard Gaussian
 
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    MCMC2 = cuqi.sampler.RWMH(ref, target, scale, x0)
+    MCMC2 = cuqi.sampler.MH( dist,proposal = ref,scale =scale, x0=x0)
 
     # run sampler
     Ns = int(1e1)      # number of samples
