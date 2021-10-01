@@ -14,7 +14,6 @@ N = 128
 model = heat(N=N, field_type="Step")
 
 #%% computing the true initial condition
-# alpha = x * exp(-2x) * sin(pi-x)
 true_init = model.domain_geometry.to_function(np.array([3,1,2]))
 plt.plot(true_init)
 
@@ -49,4 +48,10 @@ plt.figure()
 model.domain_geometry.plot(model.domain_geometry.to_function(x_mean)); plt.title("Posterior mean")
 plt.plot(true_init)
 
+# %%
+results.plot_chain([0,1,2])
+# %%
+results.plot_mean()
+# %%
+results.plot_ci(95)
 # %%
