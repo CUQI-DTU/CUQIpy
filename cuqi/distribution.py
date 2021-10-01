@@ -9,7 +9,7 @@ from cuqi.model import LinearModel
 from cuqi.utilities import force_ndarray
 import warnings
 
-from sksparse.cholmod import cholesky
+#from sksparse.cholmod import cholesky
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -340,6 +340,7 @@ class GaussianGen(Distribution): # TODO: super general with precisions
                 # cov2 = cov.todense()
                 # s2, u2 = eigh(cov2, lower=True, check_finite=True)
             else:
+                # Can we use cholesky factorization and somehow get the logdet also?
                 s, u = eigh(cov, lower=True, check_finite=True)
                 d = s[s > eps]
                 s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
