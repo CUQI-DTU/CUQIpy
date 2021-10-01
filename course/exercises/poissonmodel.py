@@ -13,20 +13,20 @@ import cuqi
 class poisson(cuqi.model.Model):
     """ Base cuqi model of the poisson problem"""
     def __init__(self, N=128, field_type="KL"):
-        self.N = N # number of FD nodes
+        self.N = N-1 # number of FD nodes
         self.dx = 1./self.N # step size
-        self.Dx =  - np.diag( np.ones(N) , 0 ) + np.diag( np.ones(N-1) , 1 )
-        vec = np.zeros(N)
+        self.Dx =  - np.diag( np.ones(self.N) , 0 ) + np.diag( np.ones(self.N-1) , 1 )
+        vec = np.zeros(self.N)
         vec[0] = 1
         self.Dx = np.concatenate( [ vec.reshape( [1,-1] ), self.Dx], axis = 0 )
         self.Dx /= self.dx # FD derivative matrix
 
-        x = np.linspace( self.dx,1.,N, endpoint=False )
+        x = np.linspace( self.dx,1.,self.N, endpoint=False )
         self.f = 10*np.exp( -( (x - 0.5)**2 ) / 0.02) # source term
 
         #self.alpha = gauss_field(self.N) # conductivity field
-        domain_geometry = cuqi.geometry.KLField(N+1)
-        range_geometry = cuqi.geometry.Continuous1D(N+1)
+        domain_geometry = cuqi.geometry.KLField(N)
+        range_geometry = cuqi.geometry.Continuous1D(N)
 
         super().__init__(self.forward, range_geometry, domain_geometry)
 
@@ -43,9 +43,9 @@ class poisson(cuqi.model.Model):
         return solve(Dxx,self.f)
 
 if __name__ == "__main__":
-    N = 128
+    N = 129 # number of spacial KL discretization 
     dx = np.pi/N
-    x = np.linspace(dx/2,np.pi-dx/2,N+1)
+    x = np.linspace(dx/2,np.pi-dx/2,N)
     true_alpha = np.exp( 5*x*np.exp(-2*x)*np.sin(np.pi-x) )
 
     model = poisson(N=N)
@@ -55,16 +55,19 @@ if __name__ == "__main__":
     sigma = np.linalg.norm(y_obs)/SNR
     sigma2 = sigma*sigma # variance of the observation Gaussian noise
 
-    likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N+1))
+    likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N-1))
 
     #%% Prior
-    prior = cuqi.distribution.Gaussian(np.zeros((N+1,)),1)
+    prior = cuqi.distribution.Gaussian(np.zeros((N,)),1)
 
-    target = lambda xx: likelihood(x=y_obs).logpdf(xx) + prior.logpdf(xx)
-    proposal = cuqi.distribution.Gaussian(np.zeros((N+1,)),1)
-    scale = 1.0
-    init_x = np.zeros((N+1))
 
-    mysampler = cuqi.sampler.RWMH(proposal, target, scale, init_x)
+    IP=cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
+    results=IP.sample_posterior(5000)
+    #results=mysampler.sample_adapt(100,20)
 
-    results=mysampler.sample_adapt(100,20)
+    #%% Plot mean
+    x_mean = np.mean(results.samples,axis=-1)
+    model.domain_geometry.plot(  np.exp( 5*model.domain_geometry.to_function(x_mean) ) ); plt.title("Posterior mean")
+
+    plt.plot(true_alpha)
+    plt.show()
