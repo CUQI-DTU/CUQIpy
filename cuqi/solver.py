@@ -1,10 +1,18 @@
 import numpy as np
 from numpy import linalg as LA
+from scipy.optimize import fmin_l_bfgs_b
 # import matplotlib
 # import matplotlib.pyplot as plt
 eps = np.finfo(float).eps
 
+class L_BFGS_B(object):
 
+    def __init__(self,func,x0):
+        self.func= func
+        self.x0 = x0
+    
+    def solve(self):
+        return fmin_l_bfgs_b(self.func,self.x0)[0]
 
 #===================================================================
 #===================================================================

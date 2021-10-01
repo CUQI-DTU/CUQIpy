@@ -9,8 +9,6 @@ from cuqi.model import LinearModel
 from cuqi.utilities import force_ndarray
 import warnings
 
-#from sksparse.cholmod import cholesky
-
 from abc import ABC, abstractmethod
 from copy import copy
 
@@ -259,7 +257,7 @@ class Gamma(Distribution):
 class GaussianGen(Distribution): # TODO: super general with precisions
 
     def __init__(self, mean=None, cov=None):
-        self.mean = force_ndarray(mean).flatten() #Enforce vector shape
+        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.cov = force_ndarray(cov)
         # if isinstance(scale, tuple):
         #     var = scale[0]
@@ -282,10 +280,8 @@ class GaussianGen(Distribution): # TODO: super general with precisions
     @cov.setter
     def cov(self, value):
         self._cov = value
-        print("Computing precision from covariance..")
         if (value is not None) and (not callable(value)):
             prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
-        print("Done !")
         self._prec = prec
         self._sqrtprec = sqrtprec
         self._logdet = logdet
@@ -322,7 +318,7 @@ class GaussianGen(Distribution): # TODO: super general with precisions
             logdet = np.sum(np.log(cov))
             rank = self.dim
         # Cov diagonal
-        elif (issparse(cov) and cov.format is 'dia') or (not issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
+        elif (issparse(cov) and cov.format == 'dia') or (not issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
             var = cov.diagonal()
             prec = diags(1/var)
             sqrtprec = diags(np.sqrt(1/var))
@@ -331,10 +327,13 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         # Cov is full
         else:
             if issparse(cov):
-                cholmodcov = cholesky(cov, ordering_method='natural')
-                sqrtcov = cholmodcov.L()
-                logdet = cholmodcov.logdet()
-                prec, sqrtprec, rank  = None, None, None
+                raise NotImplementedError("Sparse covariance is not supported for now")
+                #from sksparse.cholmod import cholesky
+                #Uses package sksparse>=0.1
+                #cholmodcov = None #cholesky(cov, ordering_method='natural')
+                #sqrtcov = cholmodcov.L()
+                #logdet = cholmodcov.logdet()
+                #prec, sqrtprec, logdet, rank  = None, None, None, None
                 # cov = cov.asfptype()# upcast your matrix to float or double
                 # s, u  = splinalg.eigsh(cov.asfptype(), self.dim-1)
                 # cov2 = cov.todense()
@@ -351,15 +350,15 @@ class GaussianGen(Distribution): # TODO: super general with precisions
 
         return prec, sqrtprec, logdet, rank     
 
-    def sparse_cholesky(self, cov): # work-around to compute sparse Cholesky
-        # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
-        LU = splinalg.splu(cov, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
+    # def sparse_cholesky(self, cov): # work-around to compute sparse Cholesky
+    #     # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
+    #     LU = splinalg.splu(cov, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
   
-        # check the matrix A is positive definite
-        if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
-            return LU.L @ (diags(LU.U.diagonal()**0.5))
-        else:
-            raise TypeError('The matrix is not positive semi-definite')
+    #     # check the matrix A is positive definite
+    #     if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
+    #         return LU.L @ (diags(LU.U.diagonal()**0.5))
+    #     else:
+    #         raise TypeError('The matrix is not positive semi-definite')
 
     def logpdf(self, x):
         dev = x - self.mean
@@ -369,12 +368,12 @@ class GaussianGen(Distribution): # TODO: super general with precisions
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
 
-    def gradient(self, x, data = None):
+    def gradient(self, val, **kwargs):
         if not callable(self.mean): # for prior
-            return -self.prec @ (x - self.mean)
+            return -self.prec @ (val - self.mean)
         elif isinstance(self.mean, LinearModel): # for likelihood
             model = self.mean
-            dev = data - model.forward(x)
+            dev = val - model.forward(**kwargs)
             return self.prec @ model.adjoint(dev)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))

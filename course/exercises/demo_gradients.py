@@ -9,33 +9,41 @@ import scipy.sparse as sps
 
 # myfuns
 import cuqi
-# %load_ext autoreload
-# %autoreload 2
+
+%load_ext autoreload
+%autoreload 2
 
 # %%
+TP = cuqi.testproblem.Deblur()
+model = TP.model #Deblur model
+data = TP.data #Data from deblur problem
+sigma2 = TP.likelihood.std**2
+n = model.domain_geometry.dim
+m = model.range_geometry.dim
 
-# prior = cuqi.distribution.GaussianGen(0, 5)
-#prior = cuqi.distribution.GaussianGen(np.zeros(1), 5*np.eye(1))
-#prior = cuqi.distribution.GaussianGen(np.zeros(5), 5*np.eye(5))
-#prior = cuqi.distribution.GaussianGen(np.zeros(5), 5)
-#prior = cuqi.distribution.GaussianGen(0,5*np.ones(5))
-#prior = cuqi.distribution.GaussianGen(0,5*np.eye(5))
-#prior = cuqi.distribution.GaussianGen(0,5*sps.eye(5))
-#prior = cuqi.distribution.GaussianGen(np.zeros(5), np.array([1,2,9,5,2]))
-#prior = cuqi.distribution.GaussianGen(np.zeros(5001), 5*np.eye(5001))
-#prior = cuqi.distribution.GaussianGen(np.zeros(5001), 5*sps.eye(5001))
-prior = cuqi.distribution.GaussianGen(np.zeros(2), sps.csc_matrix([[5,3],[-3,2]]))
-#A = 100*np.random.randn(5001,5001)
-#prior = cuqi.distribution.GaussianGen(np.zeros(5001), A@A.T)
 # %%
-# Some basic checkss
-x0 = 1000*np.random.rand(prior.dim)
-eval1 = prior.logpdf(x0)
-eval2 = sp.stats.multivariate_normal.logpdf(x0, 0*np.ones(prior.dim), prior.cov)
-print(np.linalg.norm(eval1-eval2)/np.linalg.norm(eval2))
+likelihood = cuqi.distribution.GaussianGen(model, sigma2)
+prior      = cuqi.distribution.GaussianGen(0, 0.1*np.ones(n))
+
 # %%
-gradeval1 = prior.gradient(x0)
-gradeval2 = sp.optimize.approx_fprime(x0, prior.logpdf, 1e-15)
-print(np.linalg.norm(gradeval1-gradeval2)/np.linalg.norm(gradeval2))
+def potential(x):
+    logpdf = -prior.logpdf(x)-likelihood(x=x).logpdf(data) 
+    grad   = -prior.gradient(x)-likelihood.gradient(data,x=x)
+    return logpdf,grad
+
 # %%
-#prior.sample(1)
+solver = cuqi.solver.L_BFGS_B(potential,np.random.randn(n))
+x_MAP = solver.solve()
+
+# %%
+model.domain_geometry.plot(x_MAP)
+model.domain_geometry.plot(TP.exactSolution)
+
+# %%
+prior2 = cuqi.distribution.Gaussian(np.zeros(n), np.sqrt(0.1), np.eye(n))
+TP.prior = prior2
+x_MAP2 = TP.MAP()
+model.domain_geometry.plot(x_MAP)
+model.domain_geometry.plot(x_MAP2,'--')
+
+# %%

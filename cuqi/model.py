@@ -70,6 +70,9 @@ class Model(object):
     def __call__(self,x):
         return self.forward(x)
     
+    def __len__(self):
+        return self.range_dim
+    
 class LinearModel(Model):
     """
     Class-based representation of Linear forward operator.
