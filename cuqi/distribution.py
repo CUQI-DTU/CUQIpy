@@ -572,22 +572,22 @@ class UserDefinedDistribution(Distribution):
         raise Exception("'Generic.sample' is not defined. Sampling can be performed with the 'sampler' module.")
 
 
-class Gallery(UserDefinedDistribution):
+class DistributionGallery(UserDefinedDistribution):
 
-    def __init__(self, distribution_name, **kwargs):
-
+    def __init__(self, distribution_name,**kwargs):
         # Init from abstract distribution class
         if distribution_name is "CalSom91":
             #TODO: user can specify sig and delta
+            self.dim = 2
             self.sig = 0.1
             self.delta = 1
             logpdf_func = self._CalSom91_logpdf_func
         elif distribution_name is "BivariateGaussian":
             #TODO: user can specify Gaussain input
             #TODO: Keep Gaussian distribution other functionalities (e.g. _sample)
-            d = 2
-            mu = np.zeros(d)
-            sigma = np.linspace(0.5, 1, d)
+            self.dim = 2
+            mu = np.zeros(self.dim)
+            sigma = np.linspace(0.5, 1, self.dim)
             R = np.array([[1.0, .9 ],[.9, 1]])
             dist = Gaussian(mu, sigma, R)
             self._sample = dist._sample

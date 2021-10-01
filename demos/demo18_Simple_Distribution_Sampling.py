@@ -5,6 +5,7 @@
 # Version 2020-10
 # =============================================================================
 #%%
+
 import sys
 sys.path.append("../")
 import time
@@ -12,8 +13,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import pCN, RWMH
-from cuqi.distribution import Gaussian, UserDefinedDistribution, Gallery
+from cuqi.sampler import pCN, MH
+from cuqi.distribution import Gaussian, Posterior, DistributionGallery
 from cuqi.samples import Samples
 #%%
 # ==========================================================================
@@ -21,10 +22,14 @@ from cuqi.samples import Samples
 # ==========================================================================
  
 # target function to sample
-dist = Gallery("CalSom91")
-#dist = Gallery("BivariateGaussian")
+#d = 2
+#mu = np.zeros(d)
+#likelihood = Gaussian(mu-2, np.ones(d), np.array([[1,.7],[.7,1]])) 
+#prior = Gaussian(mu+2, np.ones(d), np.array([[1,0],[0,1]])) 
+#dist = Posterior(likelihood, prior)
 
-def target(x): return dist.logpdf(x)
+dist = DistributionGallery("BivariateGaussian")
+
 #%%
 m, n = 200, 200
 X, Y = np.meshgrid(np.linspace(-3, 3, m), np.linspace(-3, 3, n))
@@ -41,17 +46,17 @@ plt.gca().set_aspect('equal', adjustable='box')
 # =============================================================================
 # reference measure (or proposal)
 # =============================================================================
-d = 2
-mu = np.zeros(d)
-ref = Gaussian(mu, np.ones(d), np.eye(d))   # standard Gaussian
+#d = 2
+#mu = np.zeros(d)
+#ref = Gaussian(mu, np.ones(d), np.eye(d))   # standard Gaussian
 
 # =============================================================================
 # posterior sampling
 # =============================================================================
-scale = 0.1
-x0 = 0.5*np.ones(d)
-MCMC_pCN = pCN(ref, target, scale, x0)
-MCMC_RWMH = RWMH(ref, target, scale, x0)
+
+
+MCMC_RWMH = MH(dist)
+
 
 # run sampler
 Ns = int(1e4)      # number of samples
@@ -72,16 +77,3 @@ plt.figure()
 x_s_RWMH.plot_chain(0)
 
 #%%
-ti = time.time()
-x_s_pCN, target_eval2, acc2 = MCMC_pCN.sample_adapt(Ns, Nb)
-print('Elapsed time:', time.time() - ti)
-
-plt.figure()
-plt.contourf(X, Y, Z, 4)
-plt.contour(X, Y, Z, 4, colors='k')
-plt.gca().set_aspect('equal', adjustable='box')
-plt.plot(x_s_pCN.samples[0,:], x_s_pCN.samples[1,:], 'b.', alpha=0.3)
-#
-
-plt.figure()
-x_s_pCN.plot_chain(0)
