@@ -257,7 +257,7 @@ class Gamma(Distribution):
 class GaussianGen(Distribution): # TODO: super general with precisions
 
     def __init__(self, mean=None, cov=None):
-        self.mean = force_ndarray(mean)
+        self.mean = force_ndarray(mean).flatten() #Enforce vector shape
         self.cov = force_ndarray(cov)
         # if isinstance(scale, tuple):
         #     var = scale[0]
@@ -282,10 +282,7 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         self._cov = value
         print("Computing precision from covariance..")
         if (value is not None) and (not callable(value)):
-            if (self.dim < 5000):
-                prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
-            else: # approximate logdet to avoid 'excesive' time
-                prec, sqrtprec, logdet, rank = self.get_prec_from_cov_approx(value)
+            prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
         print("Done !")
         self._prec = prec
         self._sqrtprec = sqrtprec
@@ -309,46 +306,40 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         return self._rank
 
     def get_prec_from_cov(self, cov, eps = 1e-5):
-        if (len(cov) == 1): # if cov is scalar, corrmat is identity or 1D
+        # if cov is scalar, corrmat is identity or 1D
+        if (cov.shape[0] == 1): 
             var = cov.ravel()[0]
             prec = (1/var)*identity(self.dim)
             sqrtprec = np.sqrt(1/var)*identity(self.dim)
             logdet = self.dim*np.log(var)
             rank = self.dim
-        elif len(cov)==np.size(cov): # Cov is vector
+        # Cov is vector
+        elif not issparse(cov) and cov.shape[0] == np.size(cov): 
             prec = diags(1/cov)
             sqrtprec = diags(np.sqrt(1/cov))
             logdet = np.sum(np.log(cov))
             rank = self.dim
+        # Cov diagonal
+        elif (issparse(cov) and cov.format is 'dia') or (not issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
+            var = cov.diagonal()
+            prec = diags(1/var)
+            sqrtprec = diags(np.sqrt(1/var))
+            logdet = np.sum(np.log(var))
+            rank = self.dim
+        # Cov is full
         else:
-            s, u = eigh(cov, lower=True, check_finite=True)
-            # s, u  = splinalg.eigsh(cov, self.dim-1, which='LM', return_eigenvectors=False)
+            if issparse(cov):
+                s, u  = splinalg.eigsh(cov, self.dim-1, which='LM', return_eigenvectors=False)
+            else:
+                s, u = eigh(cov, lower=True, check_finite=True)
             d = s[s > eps]
             s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
             sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
             rank = len(d)
             logdet = np.sum(np.log(d))
             prec = sqrtprec @ sqrtprec.T
-        return prec, sqrtprec, logdet, rank
-    
-    def get_prec_from_cov_approx(self, cov): # TODO: logdet and rank are approximated
-        print("Using approximate rank and logdet of covariance due to problem size")
-        rank = self.dim
-        if issparse(cov): # sparse mat
-            sqrtcov = self.sparse_cholesky(cov)
-            sqrtprec = splinalg.inv(sqrtcov)
-            prec = sqrtprec.T@sqrtprec
-            sqrtprec = sqrtprec
-            logdet = -np.sum(np.log(prec.diagonal())) 
-        else: # non-scalar non-sparse
-            sqrtcov = np.linalg.cholesky(cov)
-            sqrtprec = np.linalg.inv(sqrtcov)
-            prec = sqrtprec.T@sqrtprec
-            sqrtprec = sqrtprec
-            logdet = np.sum(np.log(np.diag(cov))) 
-        # self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
-        # self.logdet = sum(np.log(self.L_eigval))
-        return prec, sqrtprec, logdet, rank            
+
+        return prec, sqrtprec, logdet, rank     
 
     def sparse_cholesky(self, cov): # work-around to compute sparse Cholesky
         # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
