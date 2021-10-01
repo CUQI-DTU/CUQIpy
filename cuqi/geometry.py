@@ -270,6 +270,7 @@ class KLField(Geometry):
         self.real = idst(self.modes)/2
         return self.real
     
+    @property
     def shape(self):
         return self.N
     
@@ -305,6 +306,7 @@ class StepField(Geometry):
         self.real[idx[0]] = p[2]
         return self.real
     
+    @property
     def shape(self):
         return 3
     
