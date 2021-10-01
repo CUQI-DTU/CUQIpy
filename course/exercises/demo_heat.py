@@ -29,15 +29,22 @@ SNR = 100 # signal to noise ratio
 sigma = np.linalg.norm(y_obs)/SNR
 sigma2 = sigma*sigma # variance of the observation Gaussian noise
 
-likelihood = cuqi.distribution.Normal(model,sigma)
+likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N))
 
 #%% Prior
-prior = cuqi.distribution.Normal(np.zeros((N,1)),1)
+prior = cuqi.distribution.Gaussian(np.zeros((N,)),1)
+
+target = lambda xx: likelihood(x=y_obs).logpdf(xx) + prior.logpdf(xx)
+proposal = cuqi.distribution.Gaussian(np.zeros((N,)),1)
+scale = 1.0
+init_x = np.zeros((N))
+
+mysampler = cuqi.sampler.RWMH(proposal, target, scale, init_x)
 
 
-IP=cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
+#IP=cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
 
-results=IP.sample_posterior(50)
+results=mysampler.sample_adapt(100,20)
 
 #%%
 # formulating the Bayesian inverse problem
