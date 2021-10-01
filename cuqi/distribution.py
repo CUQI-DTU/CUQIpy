@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
-from scipy.sparse import diags, spdiags, eye, kron, vstack
+from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
@@ -259,7 +259,6 @@ class GaussianGen(Distribution): # TODO: super general with precisions
     def __init__(self, loc=None, scale=None):
         self.mean = force_ndarray(loc)
         self.cov = force_ndarray(scale)
-
         # if isinstance(scale, tuple):
         #     var = scale[0]
         #     corrmat = force_ndarray(scale[1])
@@ -280,25 +279,21 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         return self._cov
     @cov.setter
     def cov(self, value):
-        if (value is not None) and (not callable(value)):
-
-            print("Computing precision from covariance..")
-            # TODO: Check for sparse value and use sparse cholesky instead.
-            sqrtcov  = np.linalg.cholesky(value)
-            sqrtprec = np.linalg.inv(sqrtcov)
-            self._prec = sqrtprec.T@sqrtprec
-            self._sqrtprec = sqrtprec
-            self._logdet = 2*np.sum(np.log(np.diag(self.sqrtprec)))  # only for PSD matrices
-            print("Done !")
-            
         self._cov = value
+        print("Computing precision from covariance..")
+        if (value is not None) and (not callable(value)):
+            if (self.dim < 5000):
+                prec, sqrtprec, logdet, rank = get_prec_from_cov(value)
+            else: # approximate logdet to avoid 'excesive' time
+                prec, sqrtprec, logdet, rank = get_prec_from_cov_approx(value)
+        print("Done !")
+        self._prec = prec
+        self._sqrtprec = sqrtprec
+        self._logdet = logdet
 
     @property
     def dim(self):
         return max(len(self.mean),self.cov.shape[0])
-    @property
-    def rank(self):       
-        return self.dim #Assumes spd 
     @property
     def sqrtprec(self):        
         return self._sqrtprec
@@ -307,12 +302,55 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         return self._prec
     @property
     def logdet(self):        
-        return self._logdet    
-        
+        return self._logdet
+    
+    def get_prec_from_cov(self, cov, eps = 1e-5):
+        if (len(cov) == 1): # if cov is scalar, corrmat is identity or 1D
+            prec = (1/cov)*identity(self.dim)
+            sqrtprec = np.sqrt(1/cov)*identity(self.dim)
+            logdet = self.dim*np.log(cov)
+            rank = self.dim
+        else:
+            s, u = eigh(cov, lower=True, check_finite=True)
+            # s, u  = splinalg.eigsh(cov, self.dim-1, which='LM', return_eigenvectors=False)
+            d = s[s > eps]
+            s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
+            sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
+            rank = len(d)
+            logdet = np.sum(np.log(d))
+            prec = sqrtprec @ sqrtprec.T
+        return prec, sqrtprec, logdet, rank
+    
+    def get_prec_from_cov_approx(self, cov): # TODO: logdet and rank is approximated
+        rank = self.dim
+        if issparse(cov): # sparse mat
+            sqrtcov = self.sparse_cholesky(cov)
+            sqrtprec = splinalg.inv(sqrtcov)
+            prec = sqrtprec.T@sqrtprec
+            sqrtprec = sqrtprec
+            logdet = np.sum(np.log(sp.sparse.diag(prec)))  # only for PSD matrices
+        else: # non-scalar non-sparse
+            sqrtcov = np.linalg.cholesky(cov)
+            sqrtprec = np.linalg.inv(sqrtcov)
+            prec = sqrtprec.T@sqrtprec
+            sqrtprec = sqrtprec
+            logdet = np.sum(np.log(np.diag(prec)))  # only for PSD matrices
+        return prec, sqrtprec, logdet, rank            
+
+    def sparse_cholesky(self, cov): # work-around to compute sparse Cholesky
+        # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
+        LU = splinalg.splu(cov, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
+  
+        # check the matrix A is positive definite
+        if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
+            return LU.L @ (diags(LU.U.diagonal()**0.5))
+        else:
+            raise TypeError('The matrix is not positive semi-definite')
+
     def logpdf(self, x):
         dev = x - self.mean
         mahadist = np.sum(np.square(dev @ self.sqrtprec), axis=-1)
-        return -0.5 * (self.rank*np.log(2*np.pi) + self.logdet + mahadist)
+        return -0.5*(self.rank*np.log(2*np.pi) + self.logdet + mahadist)
 
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
@@ -334,7 +372,7 @@ class GaussianGen(Distribution): # TODO: super general with precisions
             s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
         return s
 
-        
+
 # ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
