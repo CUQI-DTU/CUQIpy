@@ -32,7 +32,7 @@ sigma2 = sigma*sigma # variance of the observation Gaussian noise
 likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N))
 
 #%% Prior
-prior = cuqi.distribution.Gaussian(np.zeros((N,)),1)
+prior = cuqi.distribution.Gaussian(np.zeros((model.domain_dim,)),1)
 
 #%% Set up problem and sample
 IP=cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
