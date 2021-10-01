@@ -49,15 +49,22 @@ if __name__ == "__main__":
     true_alpha = np.exp( 5*x*np.exp(-2*x)*np.sin(np.pi-x) )
 
     model = poisson(N=N)
-    problem = poisson(N)
-    y_obs = problem.solve_with_conductivity(true_alpha) 
+    y_obs = model.solve_with_conductivity(true_alpha) 
 
     SNR = 100 # signal to noise ratio
     sigma = np.linalg.norm(y_obs)/SNR
     sigma2 = sigma*sigma # variance of the observation Gaussian noise
 
     likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N+1))
-    #%% Prior
-    prior = cuqi.distribution.Gaussian(np.zeros((N+1,1)),1,np.eye(N+1))
 
-    IP=cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
+    #%% Prior
+    prior = cuqi.distribution.Gaussian(np.zeros((N+1,)),1)
+
+    target = lambda xx: likelihood(x=y_obs).logpdf(xx) + prior.logpdf(xx)
+    proposal = cuqi.distribution.Gaussian(np.zeros((N+1,)),1)
+    scale = 1.0
+    init_x = np.zeros((N+1))
+
+    mysampler = cuqi.sampler.RWMH(proposal, target, scale, init_x)
+
+    results=mysampler.sample_adapt(100,20)
