@@ -292,6 +292,8 @@ class StepField(Geometry):
         self.dx = np.pi/(self.N+1)
         self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
 
+        self.axis_labels = axis_labels
+
     def to_function(self, p):
         self.real = np.zeros_like(self.x)
         
@@ -304,7 +306,7 @@ class StepField(Geometry):
         return self.real
     
     def shape(self):
-        return self.N
+        return 3
     
     def plot(self,values,*args,**kwargs):
         p = plt.plot(values,*args,**kwargs)

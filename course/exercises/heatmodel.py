@@ -16,11 +16,6 @@ class heat(cuqi.model.Model):
         self.dx = np.pi/(self.N+1) # space step size
 
         self.x = np.linspace(self.dx,np.pi,self.N,endpoint=False)
-        #if( field_type == "KL" ):
-        #    self.init_cond = rand_field(self.N) # definig the initial condition to be a Gaussian random field
-        #elif( field_type == "step" ):
-        #    self.init_cond = step_field(self.N)
-        #self.u0 = self.init_cond.rand_func()
 
         cfl= 5/11 # the cfl condition to have a stable solution
         self.dt = cfl*self.dx**2 # defining time step
@@ -29,7 +24,10 @@ class heat(cuqi.model.Model):
 
         self.Dxx = np.diag( (1-2*cfl)*np.ones(self.N) ) + np.diag(cfl* np.ones(self.N-1),-1) + np.diag(cfl*np.ones(self.N-1),1) # FD diffusion operator
 
-        domain_geometry = cuqi.geometry.KLField(N)
+        if field_type=="KL":
+            domain_geometry = cuqi.geometry.KLField(N)
+        elif field_type=="Step":
+            domain_geometry = cuqi.geometry.StepField(N)
         range_geometry = cuqi.geometry.Continuous1D(N)
 
         super().__init__(self.forward, range_geometry, domain_geometry)
