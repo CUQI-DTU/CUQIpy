@@ -9,6 +9,8 @@ from cuqi.model import LinearModel
 from cuqi.utilities import force_ndarray
 import warnings
 
+from sksparse.cholmod import cholesky
+
 from abc import ABC, abstractmethod
 from copy import copy
 
@@ -329,15 +331,22 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         # Cov is full
         else:
             if issparse(cov):
-                s, u  = splinalg.eigsh(cov, self.dim-1, which='LM', return_eigenvectors=False)
+                cholmodcov = cholesky(cov, ordering_method='natural')
+                sqrtcov = cholmodcov.L()
+                logdet = cholmodcov.logdet()
+                prec, sqrtprec, rank  = None, None, None
+                # cov = cov.asfptype()# upcast your matrix to float or double
+                # s, u  = splinalg.eigsh(cov.asfptype(), self.dim-1)
+                # cov2 = cov.todense()
+                # s2, u2 = eigh(cov2, lower=True, check_finite=True)
             else:
                 s, u = eigh(cov, lower=True, check_finite=True)
-            d = s[s > eps]
-            s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
-            sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
-            rank = len(d)
-            logdet = np.sum(np.log(d))
-            prec = sqrtprec @ sqrtprec.T
+                d = s[s > eps]
+                s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
+                sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
+                rank = len(d)
+                logdet = np.sum(np.log(d))
+                prec = sqrtprec @ sqrtprec.T
 
         return prec, sqrtprec, logdet, rank     
 
