@@ -21,13 +21,6 @@ from cuqi.samples import Samples
 # sample a Gaussian
 # ==========================================================================
  
-# target function to sample
-#d = 2
-#mu = np.zeros(d)
-#likelihood = Gaussian(mu-2, np.ones(d), np.array([[1,.7],[.7,1]])) 
-#prior = Gaussian(mu+2, np.ones(d), np.array([[1,0],[0,1]])) 
-#dist = Posterior(likelihood, prior)
-
 dist = DistributionGallery("BivariateGaussian")
 
 #%%
