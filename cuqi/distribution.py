@@ -352,7 +352,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 # ========================================================================
 class GMRF(Gaussian):
         
-    def __init__(self, mean, prec, N, dom, BCs, geometry=None): #TODO: `geometry=None` should be replaced with `**kwargs` once GMRF calls Gaussian.__init__
+    def __init__(self, mean, prec, N, dom, BCs, **kwargs): 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
         self.N = N          # partition size
@@ -390,7 +390,7 @@ class GMRF(Gaussian):
             Dt = kron(Dmat, I)
             self.D = vstack([Ds, Dt])
             self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-        self.geometry =  geometry #TODO: this line should be removed once GMRF calls Gaussian __init__
+        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be repalced by calling Gaussian.__init__ 
 
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
