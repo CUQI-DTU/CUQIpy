@@ -27,13 +27,13 @@ class Distribution(ABC):
         self.geometry = geometry
 
     @property
-    def geometry(self):
-        return self._geometry
-
-    @property
     @abstractmethod
     def dim(self):
         pass
+
+    @property
+    def geometry(self):
+        return self._geometry
 
     @geometry.setter
     def geometry(self,value):
@@ -352,7 +352,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 # ========================================================================
 class GMRF(Gaussian):
         
-    def __init__(self, mean, prec, N, dom, BCs, geometry=None):
+    def __init__(self, mean, prec, N, dom, BCs, geometry=None): #TODO: `geometry=None` should be replaced with `**kwargs` once GMRF calls Gaussian.__init__
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
         self.N = N          # partition size
