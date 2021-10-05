@@ -255,28 +255,35 @@ class Gamma(Distribution):
 
 # ========================================================================
 class GaussianGen(Distribution): # TODO: super general with precisions
+    """
+    General Gaussian probability distribution. Generates instance of cuqi.distribution.GaussianGen
 
+    
+    Parameters
+    ------------
+    mean: Mean of distribution. Can be a scalar or 1d numpy array
+    cov: Covariance of distribution. Can be a scalar, 1d numpy array (assumes diagonal elements), or 2d numpy array.
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulatiuve probability function
+    
+    Example
+    -----------
+    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+    x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
+    """
     def __init__(self, mean=None, cov=None):
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.cov = force_ndarray(cov)
-        # if isinstance(scale, tuple):
-        #     var = scale[0]
-        #     corrmat = force_ndarray(scale[1])
-        #     self.cov = var*corrmat
-        # self.dim = len(self.mean)
-        # if scale[0] = 'cov':        
-        # elif scale[0] = 'prec':
-        #     if len(scale) == 2:
-        #         self.prec = scale[1]
-        #     elif len(scale) == 3:
-        #         self.precparam = scale[1]
-        #         self.structmat = scale[2]
-                # self.prec = (self.precparam)*self.structmat
-        # work-around to compute sparse Cholesky
 
     @property
     def cov(self):
         return self._cov
+
     @cov.setter
     def cov(self, value):
         self._cov = value
@@ -290,6 +297,7 @@ class GaussianGen(Distribution): # TODO: super general with precisions
     @property
     def dim(self):
         return max(len(self.mean),self.cov.shape[0])
+
     @property
     def sqrtprec(self):        
         return self._sqrtprec
@@ -328,16 +336,10 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         else:
             if issparse(cov):
                 raise NotImplementedError("Sparse covariance is not supported for now")
-                #from sksparse.cholmod import cholesky
-                #Uses package sksparse>=0.1
+                #from sksparse.cholmod import cholesky #Uses package sksparse>=0.1
                 #cholmodcov = None #cholesky(cov, ordering_method='natural')
                 #sqrtcov = cholmodcov.L()
                 #logdet = cholmodcov.logdet()
-                #prec, sqrtprec, logdet, rank  = None, None, None, None
-                # cov = cov.asfptype()# upcast your matrix to float or double
-                # s, u  = splinalg.eigsh(cov.asfptype(), self.dim-1)
-                # cov2 = cov.todense()
-                # s2, u2 = eigh(cov2, lower=True, check_finite=True)
             else:
                 # Can we use cholesky factorization and somehow get the logdet also?
                 s, u = eigh(cov, lower=True, check_finite=True)
@@ -349,16 +351,6 @@ class GaussianGen(Distribution): # TODO: super general with precisions
                 prec = sqrtprec @ sqrtprec.T
 
         return prec, sqrtprec, logdet, rank     
-
-    # def sparse_cholesky(self, cov): # work-around to compute sparse Cholesky
-    #     # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
-    #     LU = splinalg.splu(cov, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
-  
-    #     # check the matrix A is positive definite
-    #     if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
-    #         return LU.L @ (diags(LU.U.diagonal()**0.5))
-    #     else:
-    #         raise TypeError('The matrix is not positive semi-definite')
 
     def logpdf(self, x):
         dev = x - self.mean
