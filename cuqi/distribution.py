@@ -30,6 +30,11 @@ class Distribution(ABC):
     def geometry(self):
         return self._geometry
 
+    @property
+    @abstractmethod
+    def dim(self):
+        pass
+
     @geometry.setter
     def geometry(self,value):
         if value is None:
@@ -116,7 +121,6 @@ class Cauchy_diff(object):
     def __init__(self, location, scale, bndcond):
         self.loc = location
         self.scale = scale
-        self.dim = len(location)
         self.bnd = bndcond
 
         # finite difference matrix
@@ -140,6 +144,10 @@ class Cauchy_diff(object):
         elif (bndcond == 'none'):
             Dmat = eye(self.dim)
         self.D = Dmat
+
+    @property
+    def dim(self):
+        return len(self.loc)
 
     def pdf(self, x):
         Dx = self.D @ (x-self.loc)
@@ -183,7 +191,7 @@ class Normal(Distribution):
     def __init__(self, mean=None, std=None, **kwargs):
         # Init specific to this distribution
         self.mean = mean
-        self.std = std  
+        self.std = std
 
         # Init from abstract distribution class
         super().__init__(**kwargs)      
@@ -241,6 +249,10 @@ class Gamma(Distribution):
     def scale(self):
         return 1/self.rate
 
+    @property
+    def dim(self):
+        return max(np.size(self.shape),np.size(self.rate))
+
     def pdf(self, x):
         # sps.gamma.pdf(x, a=self.shape, loc=0, scale=self.scale)
         # (self.rate**self.shape)/(gamma(self.shape)) * (x**(self.shape-1)*np.exp(-self.rate*x))
@@ -269,7 +281,6 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         if corrmat is None:
             corrmat = np.eye(len(mean))
         self.R = corrmat
-        self.dim = len(np.diag(corrmat))
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
@@ -305,6 +316,10 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         # s, u = eigh(self.Q, lower=True, check_finite=True)
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
+
+    @property
+    def dim(self):
+        return len(np.diag(self.R)) 
 
     def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
         if callable(self.mean):
@@ -365,17 +380,17 @@ class GMRF(Gaussian):
         
         # structure matrix
         if (dom == 1):
-            self.dim = N
+            self._dim = N
             self.D = Dmat
             self.L = (Dmat.T @ Dmat).tocsc()
         elif (dom == 2):            
-            self.dim = N**2
+            self._dim = N**2
             I = eye(N, dtype=int)
             Ds = kron(I, Dmat)
             Dt = kron(Dmat, I)
             self.D = vstack([Ds, Dt])
             self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-        self.geometry =  geometry
+        self.geometry =  geometry #TODO: this line should be removed once GMRF calls Gaussian __init__
 
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
@@ -408,15 +423,9 @@ class GMRF(Gaussian):
                 self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
                 self.logdet = sum(np.log(self.L_eigval))
 
-    @property
-    def geometry(self):
-        return self._geometry
-
-    @geometry.setter
-    def geometry(self,value):
-        if value is None:
-            value = _DefaultGeometry(grid=self.dim)
-        self._geometry = value
+    @property 
+    def dim(self):
+        return self._dim
 
     def logpdf(self, x):
         const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
