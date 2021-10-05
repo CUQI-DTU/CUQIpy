@@ -1,15 +1,20 @@
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
-from scipy.sparse import diags, spdiags, eye, kron, vstack
+from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
+from cuqi.model import LinearModel
+from cuqi.utilities import force_ndarray
+import warnings
 
 from abc import ABC, abstractmethod
 from copy import copy
 
 import inspect
+
+import time
 
 # import sksparse
 # from sksparse.cholmod import cholesky
@@ -249,6 +254,131 @@ class Gamma(Distribution):
             return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
+class GaussianGen(Distribution): # TODO: super general with precisions
+    """
+    General Gaussian probability distribution. Generates instance of cuqi.distribution.GaussianGen
+
+    
+    Parameters
+    ------------
+    mean: Mean of distribution. Can be a scalar or 1d numpy array
+    cov: Covariance of distribution. Can be a scalar, 1d numpy array (assumes diagonal elements), or 2d numpy array.
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulatiuve probability function
+    
+    Example
+    -----------
+    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+    x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
+    """
+    def __init__(self, mean=None, cov=None):
+        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
+        self.cov = force_ndarray(cov)
+
+    @property
+    def cov(self):
+        return self._cov
+
+    @cov.setter
+    def cov(self, value):
+        self._cov = value
+        if (value is not None) and (not callable(value)):
+            prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
+        self._prec = prec
+        self._sqrtprec = sqrtprec
+        self._logdet = logdet
+        self._rank = rank
+
+    @property
+    def dim(self):
+        return max(len(self.mean),self.cov.shape[0])
+
+    @property
+    def sqrtprec(self):        
+        return self._sqrtprec
+    @property
+    def prec(self):        
+        return self._prec
+    @property
+    def logdet(self):        
+        return self._logdet
+    @property
+    def rank(self):        
+        return self._rank
+
+    def get_prec_from_cov(self, cov, eps = 1e-5):
+        # if cov is scalar, corrmat is identity or 1D
+        if (cov.shape[0] == 1): 
+            var = cov.ravel()[0]
+            prec = (1/var)*identity(self.dim)
+            sqrtprec = np.sqrt(1/var)*identity(self.dim)
+            logdet = self.dim*np.log(var)
+            rank = self.dim
+        # Cov is vector
+        elif not issparse(cov) and cov.shape[0] == np.size(cov): 
+            prec = diags(1/cov)
+            sqrtprec = diags(np.sqrt(1/cov))
+            logdet = np.sum(np.log(cov))
+            rank = self.dim
+        # Cov diagonal
+        elif (issparse(cov) and cov.format == 'dia') or (not issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
+            var = cov.diagonal()
+            prec = diags(1/var)
+            sqrtprec = diags(np.sqrt(1/var))
+            logdet = np.sum(np.log(var))
+            rank = self.dim
+        # Cov is full
+        else:
+            if issparse(cov):
+                raise NotImplementedError("Sparse covariance is not supported for now")
+                #from sksparse.cholmod import cholesky #Uses package sksparse>=0.1
+                #cholmodcov = None #cholesky(cov, ordering_method='natural')
+                #sqrtcov = cholmodcov.L()
+                #logdet = cholmodcov.logdet()
+            else:
+                # Can we use cholesky factorization and somehow get the logdet also?
+                s, u = eigh(cov, lower=True, check_finite=True)
+                d = s[s > eps]
+                s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
+                sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
+                rank = len(d)
+                logdet = np.sum(np.log(d))
+                prec = sqrtprec @ sqrtprec.T
+
+        return prec, sqrtprec, logdet, rank     
+
+    def logpdf(self, x):
+        dev = x - self.mean
+        mahadist = np.sum(np.square(dev @ self.sqrtprec), axis=-1)
+        return -0.5*(self.rank*np.log(2*np.pi) + self.logdet + mahadist)
+
+    def cdf(self, x1):   # TODO
+        return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
+
+    def gradient(self, val, **kwargs):
+        if not callable(self.mean): # for prior
+            return -self.prec @ (val - self.mean)
+        elif isinstance(self.mean, LinearModel): # for likelihood
+            model = self.mean
+            dev = val - model.forward(**kwargs)
+            return self.prec @ model.adjoint(dev)
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
+
+    def _sample(self, N=1, rng=None):
+        if rng is not None:
+            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
+        else:
+            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
+        return s
+
+
+# ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None):
@@ -256,7 +386,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         self.std = std
         if corrmat is None:
             corrmat = np.eye(len(mean))
-        self.R = corrmat
+        self.corrmat = corrmat
         self.dim = len(np.diag(corrmat))
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
@@ -288,7 +418,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         self.Linv = np.linalg.inv(self.L)
 
         # Compute decomposition such that Q = U @ U.T
-        # self.Q = np.linalg.inv(self.Sigma)   # precision matrix
+        # self.Sigmainv = np.linalg.inv(self.Sigma)   # precision matrix
         # s, u = eigh(self.Q, lower=True, check_finite=True)
         # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
         # self.U = u @ np.diag(np.sqrt(s_pinv))
@@ -309,6 +439,10 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
+
+    def gradient(self, x):
+        if not callable(self.mean):
+            return self.Sigmainv@(x-self.mean)
 
     def _sample(self, N=1, rng=None):
 
@@ -404,6 +538,10 @@ class GMRF(Gaussian):
     def pdf(self, x):
         # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return np.exp(self.logpdf(x))
+
+    def gradient(self, x):
+        if not callable(self.mean):
+            return (self.prec*self.L) @ (x-self.mean)
 
     def sample(self, Ns=1, rng=None):
         if (self.BCs == 'zero'):
