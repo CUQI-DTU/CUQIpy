@@ -19,7 +19,7 @@ model.domain_geometry.plot(true_init)
 
 #%% defining the heat equation as the forward map
 #model.time_stepping(true_init)
-y_obs = model.advance_time(true_init, makeplot=True) # observation vector
+y_obs = model._advance_time(true_init, makeplot=True) # observation vector
 
 model.domain_geometry.plot(y_obs)
 

@@ -33,7 +33,7 @@ class heat(cuqi.model.Model):
 
     # computes the solution at t=0.2 for a given initial condition
     # if makeplot is True, saves and displays all time steps.
-    def advance_time(self, u0, makeplot=False):
+    def _advance_time(self, u0, makeplot=False):
         u_old = np.copy(u0)
         
         if makeplot:
@@ -59,4 +59,4 @@ class heat(cuqi.model.Model):
     # computes the solution at t=0.2 for a given expansion coefficients
     def forward(self,p):
         u0 = self.domain_geometry.to_function(p)
-        return self.advance_time(u0)
+        return self._advance_time(u0)
