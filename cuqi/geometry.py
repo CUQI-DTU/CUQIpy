@@ -244,7 +244,7 @@ class Discrete(Geometry):
         plt.xticks(self._ids, self.variables)
 
 
-class KLField(Geometry):
+class KLExpansion(Geometry):
     '''
     class representation of the random field in  the sine basis
     alpha = sum_i p * (1/i)^decay * sin(ix)
@@ -283,7 +283,7 @@ class KLField(Geometry):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
 
-class StepField(Geometry):
+class StepExpansion(Geometry):
     '''
     class representation of the step random field with 3 intermidiate steps
     '''

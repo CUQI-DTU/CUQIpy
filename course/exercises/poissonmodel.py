@@ -25,7 +25,7 @@ class poisson(cuqi.model.Model):
         self.f = 10*np.exp( -( (x - 0.5)**2 ) / 0.02) # source term
 
         #self.alpha = gauss_field(self.N) # conductivity field
-        domain_geometry = cuqi.geometry.KLField(N)
+        domain_geometry = cuqi.geometry.KLExpansion(N)
         range_geometry = cuqi.geometry.Continuous1D(N)
 
         super().__init__(self.forward, range_geometry, domain_geometry)
