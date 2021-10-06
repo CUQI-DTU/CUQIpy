@@ -10,10 +10,11 @@ from heatmodel import heat
 
 #%% Set up model
 N = 128
-model = heat(N=N)
+#model = heat(N=N)
+model = heat(N=N, field_type="Step")
 
 #%% Set up and plot true initial function using grid from model domain geometry
-x = model.domain_geometry.grid
+x = model.grid
 true_init = x*np.exp(-2*x)*np.sin(np.pi-x)
 model.domain_geometry.plot(true_init)
 

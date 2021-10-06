@@ -14,7 +14,7 @@ class heat(cuqi.model.Model):
         self.N = N # number of discretization points
         self.dx = np.pi/(self.N+1) # space step size
 
-        self.x = np.linspace(self.dx,np.pi,self.N,endpoint=False)
+        self.grid = np.linspace(self.dx,np.pi,self.N,endpoint=False)
 
         cfl= 5/11 # the cfl condition to have a stable solution
         self.dt = cfl*self.dx**2 # defining time step
@@ -24,7 +24,7 @@ class heat(cuqi.model.Model):
         self.Dxx = np.diag( (1-2*cfl)*np.ones(self.N) ) + np.diag(cfl* np.ones(self.N-1),-1) + np.diag(cfl*np.ones(self.N-1),1) # FD diffusion operator
 
         if field_type=="KL":
-            domain_geometry = cuqi.geometry.KLExpansion(self.x)
+            domain_geometry = cuqi.geometry.KLExpansion(self.grid)
         elif field_type=="Step":
             domain_geometry = cuqi.geometry.StepExpansion(N)
         range_geometry = cuqi.geometry.Continuous1D(N)
@@ -48,7 +48,7 @@ class heat(cuqi.model.Model):
             self.sol = np.array(self.sol)
 
             T = np.array( range(0,self.MAX_ITER+1) )
-            (X,T) = np.meshgrid(self.x,T)
+            (X,T) = np.meshgrid(self.grid,T)
 
             fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
             ax.plot_surface(T,X,self.sol)

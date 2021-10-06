@@ -273,26 +273,29 @@ class KLExpansion(Continuous1D):
         self.real = idst(self.modes)/2
         return self.real
 
-class StepExpansion(Geometry):
+class StepExpansion(Continuous1D):
     '''
     class representation of the step random field with 3 intermidiate steps
     '''
-    def __init__(self,N, axis_labels=['x']):
-        self.N = N
+    def __init__(self, grid, axis_labels=['x']):
+
+        super().__init__(grid, axis_labels)
+
+        self.N = len(self.grid) # number of modes
         self.p = np.zeros(4)
-        self.dx = np.pi/(self.N+1)
-        self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
+        #self.dx = np.pi/(self.N+1)
+        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
 
         self.axis_labels = axis_labels
 
     def to_function(self, p):
-        self.real = np.zeros_like(self.x)
+        self.real = np.zeros_like(self.grid)
         
-        idx = np.where( (self.x>0.2*np.pi)&(self.x<=0.4*np.pi) )
+        idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
         self.real[idx[0]] = p[0]
-        idx = np.where( (self.x>0.4*np.pi)&(self.x<=0.6*np.pi) )
+        idx = np.where( (self.grid>0.4*np.pi)&(self.grid<=0.6*np.pi) )
         self.real[idx[0]] = p[1]
-        idx = np.where( (self.x>0.6*np.pi)&(self.x<=0.8*np.pi) )
+        idx = np.where( (self.grid>0.6*np.pi)&(self.grid<=0.8*np.pi) )
         self.real[idx[0]] = p[2]
         return self.real
     
@@ -300,6 +303,7 @@ class StepExpansion(Geometry):
     def shape(self):
         return 3
     
+    '''
     def plot(self,values,*args,**kwargs):
         p = plt.plot(values,*args,**kwargs)
         self._plot_config()
@@ -308,6 +312,7 @@ class StepExpansion(Geometry):
     def _plot_config(self):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
+            '''
 
 
         
