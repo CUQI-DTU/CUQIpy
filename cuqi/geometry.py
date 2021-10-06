@@ -244,7 +244,7 @@ class Discrete(Geometry):
         plt.xticks(self._ids, self.variables)
 
 
-class KLExpansion(Geometry):
+class KLExpansion(Continuous1D):
     '''
     class representation of the random field in  the sine basis
     alpha = sum_i p * (1/i)^decay * sin(ix)
@@ -252,6 +252,9 @@ class KLExpansion(Geometry):
     
     # init function defining paramters for the KL expansion
     def __init__(self, N, axis_labels=['x']):
+        
+        super().__init__(N, axis_labels)
+        
         self.N = N # number of modes
         self.modes = np.zeros(N) # vector of expansion coefs
         self.real = np.zeros(N) # vector of real values
@@ -270,7 +273,7 @@ class KLExpansion(Geometry):
         self.real = idst(self.modes)/2
         return self.real
     
-    @property
+    '''@property
     def shape(self):
         return self.N
     
@@ -281,7 +284,7 @@ class KLExpansion(Geometry):
 
     def _plot_config(self):
         if self.axis_labels is not None:
-            plt.xlabel(self.axis_labels[0])
+            plt.xlabel(self.axis_labels[0])'''
 
 class StepExpansion(Geometry):
     '''
