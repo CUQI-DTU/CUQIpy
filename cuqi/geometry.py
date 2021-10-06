@@ -251,13 +251,13 @@ class KLExpansion(Continuous1D):
     '''
     
     # init function defining paramters for the KL expansion
-    def __init__(self, N, axis_labels=['x']):
+    def __init__(self, grid, axis_labels=['x']):
         
-        super().__init__(N, axis_labels)
+        super().__init__(grid, axis_labels)
         
-        self.N = N # number of modes
-        self.modes = np.zeros(N) # vector of expansion coefs
-        self.real = np.zeros(N) # vector of real values
+        self.N = len(self.grid) # number of modes
+        self.modes = np.zeros(self.N) # vector of expansion coefs
+        self.real = np.zeros(self.N) # vector of real values
         self.decay_rate = 2.5 # decay rate of KL
         self.c = 12. # normalizer factor
         self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
@@ -272,19 +272,6 @@ class KLExpansion(Continuous1D):
         self.modes = p*self.coefs/self.c
         self.real = idst(self.modes)/2
         return self.real
-    
-    '''@property
-    def shape(self):
-        return self.N
-    
-    def plot(self,values,*args,**kwargs):
-        p = plt.plot(values,*args,**kwargs)
-        self._plot_config()
-        return p
-
-    def _plot_config(self):
-        if self.axis_labels is not None:
-            plt.xlabel(self.axis_labels[0])'''
 
 class StepExpansion(Geometry):
     '''

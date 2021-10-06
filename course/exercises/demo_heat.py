@@ -47,3 +47,5 @@ model.domain_geometry.plot(x_mean); plt.title("Posterior mean")
 #%%
 plt.figure()
 model.domain_geometry.plot(model.domain_geometry.to_function(x_mean)); plt.title("Posterior mean")
+plt.plot(true_init)
+# %%
