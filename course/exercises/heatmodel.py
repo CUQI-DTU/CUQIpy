@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fftpack import dst, idst
-#from mcmc import Random_Walk
 import cuqi
 
 # this class solves the heat equation with FD method
@@ -32,45 +31,32 @@ class heat(cuqi.model.Model):
 
         super().__init__(self.forward, range_geometry, domain_geometry)
 
-    def set_init_cond(self, u0):
-        self.u0 = u0
-
-    # solves the heat equation and shows the solution
-    def time_stepping(self):
-        self.sol = [ np.copy( self.u0 ) ]
-        u_old = np.copy( self.u0 )
-        for i in range(self.MAX_ITER):
-            u_old = self.Dxx@u_old
-
-            self.sol.append(u_old)
-
-        self.sol = np.array(self.sol)
-
-        T = np.array( range(0,self.MAX_ITER+1) )
-        (X,T) = np.meshgrid(self.x,T)
-
-        fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-        ax.plot_surface(T,X,self.sol)
-        plt.show()
-
     # computes the solution at t=0.2 for a given initial condition
-    def advance_with_init_cond(self,u0):
-        u_old = u0
+    # if makeplot is True, saves and displays all time steps.
+    def advance_time(self, u0, makeplot=False):
+        u_old = np.copy(u0)
+        
+        if makeplot:
+            self.sol = [ np.copy(u0) ]
+        
         for i in range(self.MAX_ITER):
             u_old = self.Dxx@u_old
+            if makeplot:
+                self.sol.append(u_old)
+        
+        if makeplot:
+            self.sol = np.array(self.sol)
+
+            T = np.array( range(0,self.MAX_ITER+1) )
+            (X,T) = np.meshgrid(self.x,T)
+
+            fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+            ax.plot_surface(T,X,self.sol)
+            plt.show()
 
         return u_old   
 
-    def advance_time(self):
-        u_old = np.copy( self.u0 )
-        for i in range(self.MAX_ITER):
-            u_old = self.Dxx@u_old
-
-        return u_old
-
     # computes the solution at t=0.2 for a given expansion coefficients
     def forward(self,p):
-        self.u0 = self.domain_geometry.to_function(p)
-        #self.init_cond.set_params(p) # set the expansion coefficients
-        #self.u0 = self.init_cond.give_real_func() # compute the real initial condition from expansion coefficients
-        return self.advance_time()
+        u0 = self.domain_geometry.to_function(p)
+        return self.advance_time(u0)
