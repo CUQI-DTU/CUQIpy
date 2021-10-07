@@ -22,6 +22,8 @@ from cuqi.samples import Samples
 # ==========================================================================
  
 dist = DistributionGallery("BivariateGaussian")
+#dist = DistributionGallery("CalSom91")
+
 
 #%%
 m, n = 200, 200
@@ -48,7 +50,7 @@ plt.gca().set_aspect('equal', adjustable='box')
 # =============================================================================
 
 
-MCMC_RWMH = MH(dist)
+MCMC_MH = MetropolisHastings(dist)
 
 
 # run sampler
@@ -56,17 +58,17 @@ Ns = int(1e4)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s_RWMH, target_eval, acc = MCMC_RWMH.sample_adapt(Ns, Nb)
+x_s_MH, target_eval, acc = MCMC_MH.sample_adapt(Ns, Nb)
 print('Elapsed time:', time.time() - ti)
 #%%
 plt.figure()
 plt.contourf(X, Y, Z, 4)
 plt.contour(X, Y, Z, 4, colors='k')
 plt.gca().set_aspect('equal', adjustable='box')
-plt.plot(x_s_RWMH.samples[0,:], x_s_RWMH.samples[1,:], 'b.', alpha=0.3)
+plt.plot(x_s_MH.samples[0,:], x_s_MH.samples[1,:], 'b.', alpha=0.3)
 #
 
 plt.figure()
-x_s_RWMH.plot_chain(0)
+x_s_MH.plot_chain(0)
 
 #%%

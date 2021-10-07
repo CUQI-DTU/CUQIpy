@@ -28,8 +28,8 @@ dim = test_problem.model.domain_dim
 prior = cuqi.distribution.Gaussian(np.zeros(dim), .2, np.eye(dim))
 posterior = cuqi.distribution.Posterior(L,prior,b)
 
-MCMC_RWMH = MetropolisHastings(posterior,scale= .31)
-MH_samples, _,_ = MCMC_RWMH.sample_adapt(10000,100)
+MCMC_MH = MetropolisHastings(posterior, scale=0.31)
+MH_samples, _,_ = MCMC_MH.sample_adapt(10000,100)
 #%%
 plt.figure()
 MH_samples.plot_mean()
