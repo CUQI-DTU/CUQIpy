@@ -8,6 +8,203 @@ eps = np.finfo(float).eps
 import cuqi
 from cuqi.solver import CGLS
 
+# another implementation is in https://github.com/mfouesneau/NUTS
+class NUTS(object):
+
+    def __init__(self, likelihood, prior, data, x0, maxdepth=20):
+        self.likelihood = likelihood
+        self.prior = prior
+        self.data = data
+        self.x0 = x0
+        self.maxdepth = maxdepth
+
+    def potential(self,x):
+        """Potential of likelihood+prior. Also returns the gradient"""
+        logpdf = -self.likelihood(x=x).logpdf(self.data)-self.prior.logpdf(x)
+        grad   = -self.likelihood.grad(x,self.data)  -self.prior.grad(x)
+        return logpdf, grad
+
+    def sample(self,N,Nb):
+
+        # Save dimension of prior
+        d = self.prior.dim
+
+        # Allocation
+        Ns = Nb+N               # total number of chains
+        theta = np.empty((d, Ns))
+        pot_eval = np.empty(Ns)
+
+        # Initial state
+        theta[:, 0] = self.x0
+        pot_eval[0], grad_pot = self.potential(self.x0)
+        
+        # Init parameters with dual averaging
+        epsilon = self._FindGoodEpsilon(theta[:, 0], pot_eval[0], grad_pot)
+        mu = np.log(10*epsilon)
+        gamma, t_0, kappa = 0.05, 10, 0.75
+        epsilon_bar, H_bar = 1, 0
+        delta = 0.8  # per stan: https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+
+        # run NUTS
+        for k in range(1, Ns):        
+            q_k = theta[:, k-1]                            # initial position (parameters)
+            p_k = self._Kfun(1, 'sample')                  # resample momentum vector
+            H = -pot_eval[k-1] - self._Kfun(p_k, 'eval')   # Hamiltonian
+
+            # slice variable
+            log_u = H - np.random.exponential(1)
+            # u = np.random.uniform(0, np.exp(H))
+
+            # if NUTS does not move, the next sample will be the previous one
+            theta[:, k] = q_k
+            pot_eval[k] = pot_eval[k-1]
+
+            # run NUTS
+            j, s, n = 0, 1, 1
+            q_minus, q_plus = np.copy(q_k), np.copy(q_k)
+            p_minus, p_plus = np.copy(p_k), np.copy(p_k)
+            grad_pot_minus, grad_pot_plus = np.copy(grad_pot), np.copy(grad_pot)
+            while (s == 1) and (j <= self.maxdepth):
+                # sample a direction
+                v = int(2*(np.random.rand() < 0.5)-1)
+
+                # build tree: doubling procedure
+                if (v == -1):
+                    q_minus, p_minus, grad_pot_minus, _, _, _, q_p, pot_p, grad_pot_p, n_p, s_p, alpha, n_alpha = \
+                        self._BuildTree(q_minus, p_minus, grad_pot_minus, H, log_u, v, j, epsilon)
+                else:
+                    _, _, _, q_plus, p_plus, grad_pot_plus, q_p, pot_p, grad_pot_p, n_p, s_p, alpha, n_alpha = \
+                        self._BuildTree(q_plus, p_plus, grad_pot_plus, H, log_u, v, j, epsilon)
+
+                # Metropolis step
+                logalpha = min(0, np.log(n_p) - np.log(n))
+                if (s_p == 1) and (np.log(np.random.rand()) <= logalpha) and (np.isnan(pot_p) == False):
+                    theta[:, k] = q_p
+                    pot_eval[k] = pot_p
+                    grad_pot = np.copy(grad_pot_p)
+
+                # update number of particles, tree level, and stopping criterion
+                n += n_p
+                j += 1
+                s = s_p*int(((q_plus-q_minus)@p_minus)>=0)*int(((q_plus-q_minus)@p_plus)>=0)
+
+            # adapt epsilon during burn-in using dual averaging
+            if (k < Nb):
+                eta1 = 1/(k + t_0)
+                H_bar = (1-eta1)*H_bar + eta1*(delta - (alpha/n_alpha))
+                #
+                epsilon = np.exp(mu - (np.sqrt(k)/gamma)*H_bar)
+                # print('\n', k, '\t', epsilon)
+                eta = k**(-kappa)
+                epsilon_bar = np.exp((1-eta)*np.log(epsilon_bar) + eta*np.log(epsilon))
+            elif (k == Nb):
+                epsilon = epsilon_bar   # fix epsilon after burn-in
+                
+            # msg
+            if (np.mod(k, 100) == 0):
+                print("\nSample {:d}/{:d}".format(k, Ns))
+                if np.isnan(pot_eval[k]):
+                    raise NameError('NaN potential func')
+
+        # apply burn-in 
+        theta = theta[:, Nb:]
+        pot_eval = pot_eval[Nb:]
+
+        return theta, pot_eval, epsilon
+
+    # auxiliary standard Gaussian PDF: kinetic energy function
+    # d_log_2pi = d*np.log(2*np.pi)
+    def _Kfun(self,p, flag):
+        if flag == 'eval': # evaluate
+            return 0.5*( (p.T @ p) ) #+ d_log_2pi 
+        if flag == 'sample': # sample
+            return np.random.normal(size=self.prior.dim)
+
+    def _FindGoodEpsilon(self,theta, pot, grad_pot):
+        epsilon = 1
+        r = self._Kfun(1, 'sample')
+        H = -pot - self._Kfun(r, 'eval')
+        _, r_p, pot_p, grad_pot_p = self._Leapfrog(theta, r, grad_pot, epsilon)
+
+        # additional step to correct in case of inf values
+        k = 1
+        while np.isinf(pot_p) or np.isinf(grad_pot_p).any():
+            k *= 0.5
+            _, r_p, pot_p, _ = self._Leapfrog(theta, r, grad_pot, epsilon*k)
+        epsilon = 0.5*k*epsilon
+
+        # doubles/halves the value of epsilon until the accprob of the Langevin proposal crosses 0.5
+        H_p = -pot_p - self._Kfun(r_p, 'eval')
+        log_ratio = H_p - H
+        a = 1 if log_ratio > np.log(0.5) else -1
+        while (a*log_ratio > -a*np.log(2)):
+            epsilon = (2**a)*epsilon
+            _, r_p, pot_p, _ = self._Leapfrog(theta, r, grad_pot, epsilon)
+            H_p = -pot_p - self._Kfun(r_p, 'eval')
+            log_ratio = H_p - H
+
+        return epsilon
+
+    #=========================================================================
+    def _Leapfrog(self,theta_old, r_old, grad_pot_old, epsilon):
+        # symplectic integrator: trajectories preserve phase space volumen
+        r_new = r_old - (epsilon/2)*grad_pot_old       # half-step
+        theta_new = theta_old + epsilon*r_new          # full-step
+        pot_new, grad_pot_new = self.potential(theta_new)   # new gradient
+        r_new -= (epsilon/2)*grad_pot_new              # half-step
+
+        return theta_new, r_new, pot_new, grad_pot_new
+
+
+    #=========================================================================
+    # @functools.lru_cache(maxsize=128)
+    def _BuildTree(self, theta, r, grad_pot, H, log_u, v, j, epsilon, Delta_max=1000):
+        if (j == 0): 
+            # single leapfrog step in the direction v
+            theta_p, r_p, pot_p, grad_pot_p = self._Leapfrog(theta, r, grad_pot, v*epsilon)
+            #
+            H_p = -pot_p - self._Kfun(r_p, 'eval')     # Hamiltonian eval
+            n_p = int(log_u <= H_p)              # if particle is in the slice
+            s_p = int((log_u-Delta_max) < H_p)   # check U-turn
+            alpha_p = min(1, np.exp(H_p - H))    # logalpha_p = min(0, H_p - H)
+
+            return theta_p, r_p, grad_pot_p, theta_p, r_p, grad_pot_p, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, 1
+            
+        else: 
+            # recursion: build the left/right subtrees
+            theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, \
+            theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p = \
+                self._BuildTree(theta, r, grad_pot, H, log_u, v, j-1, epsilon)
+            if (s_p == 1): # do only if the stopping criteria does not verify at the first subtree
+                if (v == -1):
+                    theta_minus, r_minus, grad_pot_minus, _, _, _, \
+                    theta_pp, pot_pp, grad_pot_pp, n_pp, s_pp, alpha_pp, n_alpha_pp = \
+                        self._BuildTree(theta_minus, r_minus, grad_pot_minus, H, log_u, v, j-1, epsilon)
+                else:
+                    _, _, _, theta_plus, r_plus, grad_pot_plus, \
+                    theta_pp, pot_pp, grad_pot_pp, n_pp, s_pp, alpha_pp, n_alpha_pp = \
+                        self._BuildTree(theta_plus, r_plus, grad_pot_plus, H, log_u, v, j-1, epsilon)
+
+                # Metropolis step
+                logalpha2 = np.log(n_pp) - np.log(n_p+n_pp) # n_pp/max(1, n_p+n_pp)
+                if (np.log(np.random.rand()) <= logalpha2):
+                    theta_p = np.copy(theta_pp)
+                    pot_p = np.copy(pot_pp)
+                    grad_pot_p = np.copy(grad_pot_pp)
+
+                # update number of particles and stopping criterion
+                alpha_p += alpha_pp
+                n_alpha_p += n_alpha_pp
+                n_p += n_pp   
+                s_p = s_pp*(((theta_plus-theta_minus)@r_minus)>=0)*(((theta_plus-theta_minus)@r_plus)>=0)
+
+            return theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p
+
+
+
+
+
+
 #===================================================================
 #===================================================================
 #===================================================================
