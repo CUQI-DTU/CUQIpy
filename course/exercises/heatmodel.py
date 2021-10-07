@@ -26,7 +26,7 @@ class heat(cuqi.model.Model):
         if field_type=="KL":
             domain_geometry = cuqi.geometry.KLExpansion(self.grid)
         elif field_type=="Step":
-            domain_geometry = cuqi.geometry.StepExpansion(N)
+            domain_geometry = cuqi.geometry.StepExpansion(self.grid)
         range_geometry = cuqi.geometry.Continuous1D(N)
 
         super().__init__(self.forward, range_geometry, domain_geometry)
