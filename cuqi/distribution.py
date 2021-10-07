@@ -363,10 +363,10 @@ class GaussianGen(Distribution): # TODO: super general with precisions
     def gradient(self, val, **kwargs):
         if not callable(self.mean): # for prior
             return -self.prec @ (val - self.mean)
-        elif isinstance(self.mean, LinearModel): # for likelihood
+        elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(**kwargs)
-            return self.prec @ model.adjoint(dev)
+            return self.prec @ model.gradient(dev)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
