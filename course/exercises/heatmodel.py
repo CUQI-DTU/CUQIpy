@@ -58,5 +58,5 @@ class heat(cuqi.model.Model):
 
     # computes the solution at t=0.2 for a given expansion coefficients
     def forward(self,p):
-        u0 = self.domain_geometry.to_function(p)
+        u0 = self.domain_geometry.par2fun(p)
         return self._advance_time(u0)

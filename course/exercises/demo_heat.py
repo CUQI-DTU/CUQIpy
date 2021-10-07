@@ -19,7 +19,7 @@ if field_type=="KL":
     x = model.grid
     true_init = x*np.exp(-2*x)*np.sin(np.pi-x)
 else:
-    true_init = model.domain_geometry.to_function(np.array([3,1,2]))
+    true_init = model.domain_geometry.par2fun(np.array([3,1,2]))
 
 model.domain_geometry.plot(true_init)
 
@@ -49,5 +49,5 @@ plt.plot(x_mean); plt.title("Posterior mean of parameters")
 
 #%%
 plt.figure()
-model.domain_geometry.plot(model.domain_geometry.to_function(x_mean)); plt.title("Posterior mean in function space")
+model.domain_geometry.plot(model.domain_geometry.par2fun(x_mean)); plt.title("Posterior mean in function space")
 model.domain_geometry.plot(true_init)

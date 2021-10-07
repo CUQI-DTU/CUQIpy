@@ -38,7 +38,7 @@ class poisson(cuqi.model.Model):
 
     # the forward map from field parameters to the solution
     def forward(self,p):
-        a = np.exp( 10*self.domain_geometry.to_function(p) )
+        a = np.exp( 10*self.domain_geometry.par2fun(p) )
         Dxx = self.Dx.T@np.diag(a)@self.Dx
         return solve(Dxx,self.f)
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     #%% Plot mean
     x_mean = np.mean(results.samples,axis=-1)
-    model.domain_geometry.plot(  np.exp( 5*model.domain_geometry.to_function(x_mean) ) ); plt.title("Posterior mean")
+    model.domain_geometry.plot(  np.exp( 5*model.domain_geometry.par2fun(x_mean) ) ); plt.title("Posterior mean")
 
     plt.plot(true_alpha)
     plt.show()

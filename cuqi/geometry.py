@@ -268,7 +268,7 @@ class KLExpansion(Continuous1D):
         self.axis_labels = axis_labels
 
     # computes the real function out of expansion coefs
-    def to_function(self,p):
+    def par2fun(self,p):
         self.modes = p*self.coefs/self.c
         self.real = idst(self.modes)/2
         return self.real
@@ -288,7 +288,7 @@ class StepExpansion(Continuous1D):
 
         self.axis_labels = axis_labels
 
-    def to_function(self, p):
+    def par2fun(self, p):
         self.real = np.zeros_like(self.grid)
         
         idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
