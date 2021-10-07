@@ -372,9 +372,9 @@ class GaussianGen(Distribution): # TODO: super general with precisions
 
     def _sample(self, N=1, rng=None):
         if rng is not None:
-            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
+            s = rng.multivariate_normal(self.mean, self.cov, N).T
         else:
-            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
+            s = np.random.multivariate_normal(self.mean, self.cov, N).T
         return s
 
 
