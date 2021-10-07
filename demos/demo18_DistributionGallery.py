@@ -13,7 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import pCN, MH
+from cuqi.sampler import pCN, MetropolisHastings
 from cuqi.distribution import Gaussian, Posterior, DistributionGallery
 from cuqi.samples import Samples
 #%%

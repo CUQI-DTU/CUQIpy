@@ -239,7 +239,7 @@ class CWMH(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class MH(Sampler):
+class MetropolisHastings(Sampler):
 
     def __init__(self, target, proposal=None, scale=1, x0=None):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""

@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 # myfuns
 import cuqi
-from cuqi.sampler import pCN, MH
+from cuqi.sampler import pCN, MetropolisHastings
 from cuqi.distribution import Gaussian, Posterior, DistributionGallery
 from cuqi.samples import Samples
 #
@@ -28,7 +28,7 @@ dim = test_problem.model.domain_dim
 prior = cuqi.distribution.Gaussian(np.zeros(dim), .2, np.eye(dim))
 posterior = cuqi.distribution.Posterior(L,prior,b)
 
-MCMC_RWMH = MH(posterior,scale= .31)
+MCMC_RWMH = MetropolisHastings(posterior,scale= .31)
 MH_samples, _,_ = MCMC_RWMH.sample_adapt(10000,100)
 #%%
 plt.figure()

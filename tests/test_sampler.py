@@ -74,7 +74,7 @@ def test_RWMH_sample_regression():
 
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    MCMC2 = cuqi.sampler.MH( dist,proposal = ref,scale =scale, x0=x0)
+    MCMC2 = cuqi.sampler.MetropolisHastings( dist,proposal = ref,scale =scale, x0=x0)
 
     # run sampler
     Ns = int(1e1)      # number of samples
