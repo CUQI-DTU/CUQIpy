@@ -20,12 +20,11 @@ class NUTS(object):
 
     def potential(self,x):
         """Potential of likelihood+prior. Also returns the gradient"""
-        logpdf = -self.likelihood(x=x).logpdf(self.data)-self.prior.logpdf(x)
-        grad   = -self.likelihood.grad(x,self.data)  -self.prior.grad(x)
+        logpdf = -self.likelihood(x=x).logpdf(self.data) - self.prior.logpdf(x)
+        grad = -self.likelihood.gradient(self.data,x=x) - self.prior.gradient(x)
         return logpdf, grad
 
-    def sample(self,N,Nb):
-
+    def sample(self, N, Nb):
         # Save dimension of prior
         d = self.prior.dim
 
@@ -43,7 +42,7 @@ class NUTS(object):
         mu = np.log(10*epsilon)
         gamma, t_0, kappa = 0.05, 10, 0.75
         epsilon_bar, H_bar = 1, 0
-        delta = 0.8  # per stan: https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+        delta = 0.65  # per stan: https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
 
         # run NUTS
         for k in range(1, Ns):        
@@ -101,7 +100,7 @@ class NUTS(object):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
                 
             # msg
-            if (np.mod(k, 100) == 0):
+            if (np.mod(k, 25) == 0):
                 print("\nSample {:d}/{:d}".format(k, Ns))
                 if np.isnan(pot_eval[k]):
                     raise NameError('NaN potential func')

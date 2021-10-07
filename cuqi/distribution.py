@@ -143,6 +143,12 @@ class Cauchy_diff(object):
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
         return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
     
+    def gradient(self, val, **kwargs):
+        if not callable(self.loc): # for prior
+            diff = self.D @ val
+            return (-2*diff/(diff**2+self.scale**2)) @ self.D
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self.loc)))
     # def cdf(self, x):   # TODO
     #     return 1/np.pi * np.atan((x-self.loc)/self.scale)
 
