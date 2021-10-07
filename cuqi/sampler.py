@@ -247,11 +247,8 @@ class MetropolisHastings(Sampler):
 
         if proposal is None:
             proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
-        elif hasattr(proposal,'is_symmetric'):
-            if not proposal.is_symmetric:
-                raise ValueError("Proposal needs to be a symmetric distribution")
-        else:
-            raise NotImplementedError("Proposal needs to have 'is_symmetric' attribute that is of value 'True'")
+        elif not proposal.is_symmetric:
+            raise ValueError("Proposal needs to be a symmetric distribution")
 
         if x0 is None:
             x0 = np.ones(self.dim)

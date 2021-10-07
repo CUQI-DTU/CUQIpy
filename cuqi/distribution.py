@@ -23,6 +23,7 @@ class Distribution(ABC):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
+        self.is_symmetric = None
 
     @abstractmethod
     def logpdf(self,x):
@@ -171,7 +172,7 @@ class Normal(Distribution):
     def __init__(self, mean=None, std=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
-
+        self.is_symmetric = True 
         # Init specific to this distribution
         self.mean = mean
         self.std = std        
@@ -220,6 +221,7 @@ class Gamma(Distribution):
     def __init__(self, shape=None, rate=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
+        self.is_symmetric = False
 
         # Init specific to this distribution
         self.shape = shape
@@ -258,7 +260,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
             corrmat = np.eye(len(mean))
         self.R = corrmat
         self.dim = len(np.diag(corrmat))
-        self.is_symmetric = True
+        self.is_symmetric = True #TODO: change once we call the super
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
@@ -363,7 +365,8 @@ class GMRF(Gaussian):
             Dt = kron(Dmat, I)
             self.D = vstack([Ds, Dt])
             self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-            
+
+        self.is_symmetric = True #TODO: change once we call the super   
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
             # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
@@ -481,6 +484,7 @@ class Laplace_diff(object):
         elif (bndcond == 'none'):
             Dmat = eye(self.dim)
         self.D = Dmat
+        self.is_symmetric = None #TODO: update
 
     def pdf(self, x):
         Dx = self.D @ (x-self.loc)  # np.diff(X)
@@ -515,7 +519,8 @@ class Uniform(Distribution):
 
         # Init specific to this distribution
         self.low = low
-        self.high = high        
+        self.high = high  
+        self.is_symmetric = True       
 
     @property
     def dim(self):
