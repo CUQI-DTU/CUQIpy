@@ -28,6 +28,7 @@ class Distribution(ABC):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
+        self.is_symmetric = None
 
     @abstractmethod
     def logpdf(self,x):
@@ -182,7 +183,7 @@ class Normal(Distribution):
     def __init__(self, mean=None, std=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
-
+        self.is_symmetric = True 
         # Init specific to this distribution
         self.mean = mean
         self.std = std        
@@ -231,6 +232,7 @@ class Gamma(Distribution):
     def __init__(self, shape=None, rate=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
+        self.is_symmetric = False
 
         # Init specific to this distribution
         self.shape = shape
@@ -394,6 +396,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
             corrmat = np.eye(len(mean))
         self.corrmat = corrmat
         self.dim = len(np.diag(corrmat))
+        self.is_symmetric = True #TODO: change once we call the super
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
@@ -502,7 +505,8 @@ class GMRF(Gaussian):
             Dt = kron(Dmat, I)
             self.D = vstack([Ds, Dt])
             self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-            
+
+        self.is_symmetric = True #TODO: change once we call the super   
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
             # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
@@ -624,6 +628,7 @@ class Laplace_diff(object):
         elif (bndcond == 'none'):
             Dmat = eye(self.dim)
         self.D = Dmat
+        self.is_symmetric = None #TODO: update
 
     def pdf(self, x):
         Dx = self.D @ (x-self.loc)  # np.diff(X)
@@ -658,7 +663,8 @@ class Uniform(Distribution):
 
         # Init specific to this distribution
         self.low = low
-        self.high = high        
+        self.high = high  
+        self.is_symmetric = True       
 
     @property
     def dim(self):
@@ -681,3 +687,68 @@ class Uniform(Distribution):
             s = np.random.uniform(self.low, self.high, (N,self.dim)).T
 
         return s
+
+# ========================================================================
+class Posterior(Distribution):
+        
+    def __init__(self, likelihood, prior, data, **kwargs):
+        # Init from abstract distribution class
+        self.likelihood = likelihood
+        self.prior = prior 
+        self.data = data
+        self.dim = prior.dim
+        super().__init__(**kwargs)
+
+    def logpdf(self,x):
+
+        return self.likelihood(x=x).logpdf(self.data)+ self.prior.logpdf(x)
+
+    def _sample(self,N=1,rng=None):
+        raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+
+class UserDefinedDistribution(Distribution):
+
+    def __init__(self, logpdf_func, **kwargs):
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        if not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
+        self.logpdf_func = logpdf_func
+
+    def logpdf(self, x):
+        return self.logpdf_func(x)
+
+    def _sample(self,N=1,rng=None):
+        raise Exception("'Generic.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+
+
+class DistributionGallery(UserDefinedDistribution):
+
+    def __init__(self, distribution_name,**kwargs):
+        # Init from abstract distribution class
+        if distribution_name is "CalSom91":
+            #TODO: user can specify sig and delta
+            self.dim = 2
+            self.sig = 0.1
+            self.delta = 1
+            logpdf_func = self._CalSom91_logpdf_func
+        elif distribution_name is "BivariateGaussian":
+            #TODO: user can specify Gaussain input
+            #TODO: Keep Gaussian distribution other functionalities (e.g. _sample)
+            self.dim = 2
+            mu = np.zeros(self.dim)
+            sigma = np.linspace(0.5, 1, self.dim)
+            R = np.array([[1.0, .9 ],[.9, 1]])
+            dist = Gaussian(mu, sigma, R)
+            self._sample = dist._sample
+            logpdf_func = dist.logpdf
+
+        super().__init__(logpdf_func, **kwargs)
+
+    def _CalSom91_logpdf_func(self,x):
+        if len(x.shape) == 1:
+            x = x.reshape( (1,2))
+        return -1/(2*self.sig**2)*(np.sqrt(x[:,0]**2+ x[:,1]**2) -1 )**2 -1/(2*self.delta**2)*(x[:,1]-1)**2
+
+
