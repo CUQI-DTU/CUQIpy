@@ -106,14 +106,14 @@ class CT2D_shifted(_astraCT2D):
                       im_size=(45,45),
                       det_count=50,
                       angles=np.linspace(0,2*np.pi,60),
-                      shift = -125.3, stc = 600, ctd = 500, dl = 411, domain=550):
+                      beamshift_x = -125.3, source_y = -600, detector_y = 500, dl = 411, domain=550):
         
         # Detector spacing
         det_spacing = dl/det_count
 
         #Define scan vectors
-        s0 = np.array([shift, stc])
-        d0 = np.array([shift, -ctd])
+        s0 = np.array([beamshift_x, source_y])
+        d0 = np.array([beamshift_x , detector_y])
         u0 = np.array([det_spacing, 0])
         vectors = np.empty([np.size(angles), 6])
         for i, val in enumerate(angles):
