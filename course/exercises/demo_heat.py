@@ -35,16 +35,32 @@ plt.title("Observed")
 SNR = 100 # signal to noise ratio
 sigma = np.linalg.norm(y_obs)/SNR   # std of the observation Gaussian noise
 
-likelihood = cuqi.distribution.Gaussian(model, sigma, np.eye(N))
+#%% Set up the likelihood. Optionally the geometry can be speficied.
+likelihood = cuqi.distribution.Gaussian(mean=model, 
+                                        std=sigma, 
+                                        corrmat=np.eye(N), 
+                                        geometry=model.range_geometry)
 
-#%% Prior
-prior = cuqi.distribution.Gaussian(np.zeros((model.domain_dim,)), 1)
+#%% Set up the prior. Optionally geometry can be set which allows simple plotting of prior samples
+prior = cuqi.distribution.Gaussian(mean=np.zeros((model.domain_dim,)), 
+                                   std=1,
+                                   geometry=model.domain_geometry)
+
+#%% Generate some prior samples and plot single sample and mean
+#   This uses the geometry's plot method which converts from parameters to function values.
+prior_samples = prior.sample(1000)
+
+plt.figure()
+prior_samples.plot(0)
+
+plt.figure()
+prior_samples.plot_mean()
 
 #%% Set up problem and sample
 IP = cuqi.problem.BayesianProblem(likelihood, prior, y_obs)
 results = IP.sample_posterior(5000)
 
-#%% Compute and plot sample mean of parameters
+#%% Compute and plot sample mean of parameters by extracting MANUALLY
 x_mean = np.mean(results.samples, axis=-1)
 
 plt.figure()
@@ -57,5 +73,13 @@ model.domain_geometry.plot(x_mean)
 model.domain_geometry.plot(true_init, is_fun=True)
 plt.legend(["Sample mean","True initial"])
 plt.title("Posterior mean in function space")
+
+# %% TODO Plot automatically using geometry, however results currently has _DefaultGeometry
+# but should have StepExpansion, seems it is not passed on from sample_posterior method.
+plt.figure()
+results.plot_mean()
+
+plt.figure()
+results.plot(1)
 
 # %%
