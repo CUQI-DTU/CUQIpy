@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import Continuous1D, Discrete
+from cuqi.geometry import Continuous1D, Discrete, _DefaultGeometry
 
 class Samples(object):
 
@@ -12,7 +12,7 @@ class Samples(object):
     @property
     def geometry(self):
         if self._geometry is None:
-            self._geometry = Continuous1D(grid=np.prod(self.samples.shape[:-1]))
+            self._geometry = _DefaultGeometry(grid=np.prod(self.samples.shape[:-1]))
         return self._geometry
 
     @geometry.setter
