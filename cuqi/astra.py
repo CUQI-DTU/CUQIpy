@@ -46,7 +46,7 @@ class _astraCT2D(cuqi.model.LinearModel):
         # Range geometry
         if vectors is None:
             q = angles.shape[0]
-            x_axis = angles
+            x_axis = np.rad2deg(angles)
         else:
             q = vectors.shape[0]
             x_axis = np.arange(q)
@@ -72,15 +72,15 @@ class _astraCT2D(cuqi.model.LinearModel):
 
     # CT forward projection
     def forward(self,x):
-        id, sinogram =  astra.create_sino(np.reshape(x,self.domain_geometry.shape), self.proj_id)
+        id, sinogram =  astra.create_sino(np.reshape(x,self.domain_geometry.shape,order='F'), self.proj_id)
         astra.data2d.delete(id)
-        return sinogram.ravel()
+        return sinogram.flatten(order='F')
 
     # CT back projection
     def adjoint(self,y):
-        id, volume = astra.create_backprojection(np.reshape(y,self.range_geometry.shape),self.proj_id)
+        id, volume = astra.create_backprojection(np.reshape(y,self.range_geometry.shape,order='F'),self.proj_id)
         astra.data2d.delete(id)
-        return volume.ravel()
+        return volume.flatten(order='F')
 
 
 class CT2D_basic(_astraCT2D):
