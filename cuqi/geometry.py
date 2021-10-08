@@ -13,6 +13,7 @@ class Geometry(ABC):
 
     @property
     def dim(self):
+        if self.shape is None: return None
         return np.prod(self.shape)
 
     @abstractmethod
@@ -57,12 +58,15 @@ class Geometry(ABC):
 
 class Continuous(Geometry, ABC):
 
-    def __init__(self,grid,axis_labels=None):
+    def __init__(self,grid=None, axis_labels=None):
         self.axis_labels = axis_labels
         self.grid = grid
 
     def _create_dimension(self, dim_grid):
-        dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, or 1D numpy.ndarray"
+        dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, 1D numpy.ndarray, or None"
+        if dim_grid is None:
+            return None
+
         if isinstance(dim_grid,tuple) and len(dim_grid)==1:
             dim_grid = dim_grid[0]
 
@@ -94,11 +98,12 @@ class Continuous1D(Continuous):
         1D array of node coordinates in a 1D grid
     """
 
-    def __init__(self,grid,axis_labels=['x']):
+    def __init__(self,grid=None,axis_labels=['x']):
         super().__init__(grid, axis_labels)
 
     @property
     def shape(self):
+        if self.grid is None: return None
         return self.grid.shape
 
     @Continuous.grid.setter
@@ -124,18 +129,21 @@ class Continuous1D(Continuous):
 
 class Continuous2D(Continuous):
 
-    def __init__(self,grid,axis_labels=['x','y']):
+    def __init__(self,grid=None,axis_labels=['x','y']):
         super().__init__(grid, axis_labels)
             
     @property
     def shape (self):
+        if self.grid is None: return None
         return (len(self.grid[0]), len(self.grid[1])) 
 
     @Continuous.grid.setter
     def grid(self, value):
-        if len(value)!=2:
-            raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
-        self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
+        if value is None: self._grid = None
+        else:
+            if len(value)!=2:
+                raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
+            self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
     def plot(self,values,plot_type='pcolor',**kwargs):
         """

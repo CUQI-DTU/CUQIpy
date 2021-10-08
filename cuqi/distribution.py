@@ -5,7 +5,7 @@ from scipy.sparse import diags, spdiags, eye, kron, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, eigvalsh, pinvh
 from cuqi.samples import Samples
-from cuqi.geometry import _DefaultGeometry
+from cuqi.geometry import _DefaultGeometry, Geometry
 
 from abc import ABC, abstractmethod
 from copy import copy
@@ -27,19 +27,17 @@ class Distribution(ABC):
         self.geometry = geometry
 
     @property
-    @abstractmethod
-    def dim(self):
-        pass
-
-    @property
     def geometry(self):
         return self._geometry
 
     @geometry.setter
     def geometry(self,value):
-        if value is None:
-            value = _DefaultGeometry(grid=self.dim)
-        self._geometry = value
+        if isinstance(value, int) or value is None:
+            self._geometry = _DefaultGeometry(grid=value)
+        elif isinstance(value, Geometry):
+            self._geometry = value
+        else:
+            raise TypeError("The attribute 'geometry' should be of type 'int' or 'cuqi.geometry.Geometry', or None.")
 
     @abstractmethod
     def logpdf(self,x):
@@ -147,6 +145,7 @@ class Cauchy_diff(object):
 
     @property
     def dim(self):
+        #TODO: handle the case when self.loc = None because len(None) = 1
         return len(self.loc)
 
     def pdf(self, x):
@@ -194,11 +193,15 @@ class Normal(Distribution):
         self.std = std
 
         # Init from abstract distribution class
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            #TODO: handle the case when self.mean or self.std = None because len(None) = 1
+            kwargs["geometry"] = max(np.size(self.mean),np.size(self.std))
+
         super().__init__(**kwargs)      
 
     @property
     def dim(self):
-        return max(np.size(self.mean),np.size(self.std))
+        return self.geometry.dim
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
@@ -238,20 +241,24 @@ class Normal(Distribution):
 class Gamma(Distribution):
 
     def __init__(self, shape=None, rate=None, **kwargs):
-        # Init from abstract distribution class
-        super().__init__(**kwargs)
-
         # Init specific to this distribution
         self.shape = shape
         self.rate = rate
 
-    @property
-    def scale(self):
-        return 1/self.rate
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
+            kwargs["geometry"] = max(np.size(self.shape),np.size(self.rate))
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)      
 
     @property
     def dim(self):
-        return max(np.size(self.shape),np.size(self.rate))
+        return self.geometry.dim
+
+    @property
+    def scale(self):
+        return 1/self.rate
 
     def pdf(self, x):
         # sps.gamma.pdf(x, a=self.shape, loc=0, scale=self.scale)
@@ -281,6 +288,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         if corrmat is None:
             corrmat = np.eye(len(mean))
         self.R = corrmat
+        dim = len(np.diag(self.R))   #TODO: handle the case when self.R = None because len(None) = 1
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
@@ -296,20 +304,25 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
                 self.L = np.linalg.cholesky(self.Sigma)
                 self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
         else:
-            self.Sigma = np.diag(std*np.ones(self.dim)) @ (corrmat @ np.diag(std*np.ones(self.dim)))   # covariance
+            self.Sigma = np.diag(std*np.ones(dim)) @ (corrmat @ np.diag(std*np.ones(dim)))   # covariance
             isdiag = np.count_nonzero(corrmat - np.diag(np.diagonal(corrmat)))
             if (isdiag == 0):   # uncorrelated
-                self.det = std**(2*self.dim)
-                self.logdet = 2*self.dim*np.log(std)
+                self.det = std**(2*dim)
+                self.logdet = 2*dim*np.log(std)
                 self.L = np.linalg.cholesky(self.Sigma)
             else:
-                self.det = std**(2*self.dim) * np.linalg.det(corrmat)
+                self.det = std**(2*dim) * np.linalg.det(corrmat)
                 self.L = np.linalg.cholesky(self.Sigma)
                 self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
 
         # inverse of Cholesky
         self.Linv = np.linalg.inv(self.L)
-        super().__init__(**kwargs)
+
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            kwargs["geometry"] = dim 
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)      
 
         # Compute decomposition such that Q = U @ U.T
         # self.Q = np.linalg.inv(self.Sigma)   # precision matrix
@@ -319,7 +332,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     @property
     def dim(self):
-        return len(np.diag(self.R)) 
+        return self.geometry.dim
 
     def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
         if callable(self.mean):
@@ -380,17 +393,17 @@ class GMRF(Gaussian):
         
         # structure matrix
         if (dom == 1):
-            self._dim = N
+            dim = N
             self.D = Dmat
             self.L = (Dmat.T @ Dmat).tocsc()
         elif (dom == 2):            
-            self._dim = N**2
+            dim = N**2
             I = eye(N, dtype=int)
             Ds = kron(I, Dmat)
             Dt = kron(Dmat, I)
             self.D = vstack([Ds, Dt])
             self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be repalced by calling Gaussian.__init__ 
+
 
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
@@ -398,14 +411,14 @@ class GMRF(Gaussian):
             LU = splinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
   
             # check the matrix A is positive definite
-            if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
+            if (LU.perm_r == np.arange(dim)).all() and (LU.U.diagonal() > 0).all(): 
                 return LU.L @ (diags(LU.U.diagonal()**0.5))
             else:
                 raise TypeError('The matrix is not positive semi-definite')
         
         # compute Cholesky and det
         if (BCs == 'zero'):    # only for PSD matrices
-            self.rank = self.dim
+            self.rank = dim
             self.chol = sparse_cholesky(self.L)
             self.logdet = 2*sum(np.log(self.chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
@@ -414,18 +427,22 @@ class GMRF(Gaussian):
             # 
             # np.log(np.linalg.det(self.L.todense()))
         elif (BCs == 'periodic') or (BCs == 'neumann'):
-            self.rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
-            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(self.dim, dtype=int))
-            if (self.dim > 5000):  # approximate to avoid 'excesive' time
+            self.rank = dim - 1   #np.linalg.matrix_rank(self.L.todense())
+            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(dim, dtype=int))
+            if (dim > 5000):  # approximate to avoid 'excesive' time
                 self.logdet = 2*sum(np.log(self.chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
                 self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
                 self.logdet = sum(np.log(self.L_eigval))
 
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            kwargs["geometry"] = dim 
+        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
+
     @property 
     def dim(self):
-        return self._dim
+        return self.geometry.dim
 
     def logpdf(self, x):
         const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
@@ -546,11 +563,14 @@ class Uniform(Distribution):
         self.low = low
         self.high = high  
         # Init from abstract distribution class
-        super().__init__(**kwargs)      
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            kwargs["geometry"] = max(np.size(self.low),np.size(self.high)) 
+        super().__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__      
 
-    @property
+
+    @property 
     def dim(self):
-        return max(np.size(self.low),np.size(self.high))
+        return self.geometry.dim
 
 
     def logpdf(self, x):

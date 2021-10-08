@@ -18,6 +18,25 @@ def test_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,expecte
            and (geom.shape == expected_shape)
 	   and (geom.dim == expected_dim))
 
+@pytest.mark.parametrize("geomClass",
+                         [(cuqi.geometry.Continuous1D),
+			  (cuqi.geometry.Continuous2D)])
+def test_None_Continuous_geometry(geomClass):
+    geom = geomClass()
+    assert(    (geom.grid == None)
+           and (geom.shape == None)
+	   and (geom.dim == None))
+
+@pytest.mark.parametrize("geomClass,grid,expected_grid,expected_shape,expected_dim",
+                         [(cuqi.geometry.Continuous1D, (4,), np.array([0,1,2,3]),(4,),4),
+			  (cuqi.geometry.Continuous2D, (2,3), (np.array([0,1]), np.array([0,1,2])), (2,3), 6)])
+def test_update_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,expected_dim):
+    geom = geomClass()
+    geom.grid = grid
+    assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
+           and (geom.shape == expected_shape)
+	   and (geom.dim == expected_dim))
+
 @pytest.mark.parametrize("variables,expected_variables,expected_shape,expected_dim",
                          [(3,['v0','v1','v2'],(3,),3),
 			  (['a','b'],['a','b'],(2,),2),
