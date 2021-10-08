@@ -240,12 +240,12 @@ class Linear_RTO(object):
         # pre-computations
         self.m = len(data)
         self.n = len(x0)
-        self.b_tild = np.hstack([L1*data, np.zeros(self.n)]) 
+        self.b_tild = np.hstack([L1@data, L2@prior.mean]) 
 
         self.model = model
 
         if not callable(model):
-            self.M = sp.sparse.vstack([L1*model, L2])
+            self.M = sp.sparse.vstack([L1@model, L2])
         else:
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
@@ -271,7 +271,7 @@ class Linear_RTO(object):
             y = self.b_tild + np.random.randn(self.m+self.n)
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
-            if (s % 100) == 0:
+            if (s % 1) == 0:
                 print('Sample', s, '/', Ns)
         
         # remove burn-in
