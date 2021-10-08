@@ -52,6 +52,8 @@ class heat(cuqi.model.Model):
 
             fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
             ax.plot_surface(T,X,self.sol)
+            plt.ylabel("x")
+            plt.xlabel("time")
             plt.show()
 
         return u_old   
