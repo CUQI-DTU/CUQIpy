@@ -1,5 +1,7 @@
 import cuqi
 import numpy as np
+import scipy as sp
+import scipy.sparse as sps
 
 from pytest import approx
 import pytest
@@ -115,7 +117,8 @@ def test_Uniform_sample(low, high, expected):
     rng = np.random.RandomState(3)
     UD = cuqi.distribution.Uniform(low, high)
     cuqi_samples = UD.sample(3,rng=rng)
-    assert np.allclose(cuqi_samples.samples, expected)
+    print(cuqi_samples)
+    assert np.allclose(cuqi_samples.samples, expected) 
 
 @pytest.mark.parametrize("distribution, kwargs",
                          [(cuqi.distribution.Uniform, 
@@ -129,4 +132,30 @@ def test_distribution_contains_geometry(distribution, kwargs):
     cuqi_samples = dist.sample(3,rng=rng)
     assert(cuqi_samples.geometry == geom and dist.geometry == geom and \
            np.all(geom.grid[0]==np.array([0, 1])) and np.all(geom.grid[1]== np.array([0, 1])))
-     
+
+# Compare computed covariance
+@pytest.mark.parametrize("mean,cov,mean_full,cov_full",[
+    ( (0),           (5),            (0),           (5)           ),
+    ( (0),           (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
+    ( (np.zeros(3)), (5),            (np.zeros(3)), (5*np.eye(3)) ),
+    ( (np.zeros(3)), (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
+    ( (0),           (5*np.eye(3)),  (np.zeros(3)), (5*np.eye(3)) ),
+    ( (0),           (5*sps.eye(3)), (np.zeros(3)), (5*np.eye(3)) ),
+    ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
+    #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
+])
+def test_GaussianGen(mean,cov,mean_full,cov_full):
+    # Define cuqi dist using various means and covs
+    prior = cuqi.distribution.GaussianGen(mean, cov)
+
+    # Compare logpdf with scipy using full vector+matrix rep
+    x0 = 1000*np.random.rand(prior.dim)
+    eval1 = prior.logpdf(x0)
+    eval2 = sp.stats.multivariate_normal.logpdf(x0, mean_full, cov_full)
+
+    assert np.allclose(eval1,eval2)
+
+    gradeval1 = prior.gradient(x0)
+    gradeval2 = sp.optimize.approx_fprime(x0, prior.logpdf, 1e-15)
+
+    assert np.allclose(gradeval1,gradeval2)

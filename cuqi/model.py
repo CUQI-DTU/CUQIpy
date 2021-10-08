@@ -69,6 +69,12 @@ class Model(object):
 
     def __call__(self,x):
         return self.forward(x)
+
+    def gradient(self,x):
+        raise NotImplementedError("Gradient is not implemented for this model.")
+    
+    def __len__(self):
+        return self.range_dim
     
 class LinearModel(Model):
     """
@@ -136,6 +142,9 @@ class LinearModel(Model):
             self._matrix = mat
 
             return self._matrix
+
+    def gradient(self,x):
+        return self.adjoint(x)
 
     def __mul__(self, x):
         return self.forward(x)
