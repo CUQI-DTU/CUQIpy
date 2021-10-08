@@ -309,14 +309,14 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
                 self.L = np.linalg.cholesky(self.Sigma)
                 self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
         else:
-            self.Sigma = np.diag(std*np.ones(dim)) @ (corrmat @ np.diag(std*np.ones(dim)))   # covariance
+            self.Sigma = np.diag(std*np.ones(self.dim)) @ (corrmat @ np.diag(std*np.ones(self.dim)))   # covariance
             isdiag = np.count_nonzero(corrmat - np.diag(np.diagonal(corrmat)))
             if (isdiag == 0):   # uncorrelated
-                self.det = std**(2*dim)
-                self.logdet = 2*dim*np.log(std)
+                self.det = std**(2*self.dim)
+                self.logdet = 2*self.dim*np.log(std)
                 self.L = np.linalg.cholesky(self.Sigma)
             else:
-                self.det = std**(2*dim) * np.linalg.det(corrmat)
+                self.det = std**(2*self.dim) * np.linalg.det(corrmat)
                 self.L = np.linalg.cholesky(self.Sigma)
                 self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
 
@@ -416,14 +416,14 @@ class GMRF(Gaussian):
             LU = splinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
   
             # check the matrix A is positive definite
-            if (LU.perm_r == np.arange(dim)).all() and (LU.U.diagonal() > 0).all(): 
+            if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
                 return LU.L @ (diags(LU.U.diagonal()**0.5))
             else:
                 raise TypeError('The matrix is not positive semi-definite')
         
         # compute Cholesky and det
         if (BCs == 'zero'):    # only for PSD matrices
-            self.rank = dim
+            self.rank = self.dim
             self.chol = sparse_cholesky(self.L)
             self.logdet = 2*sum(np.log(self.chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
@@ -432,9 +432,9 @@ class GMRF(Gaussian):
             # 
             # np.log(np.linalg.det(self.L.todense()))
         elif (BCs == 'periodic') or (BCs == 'neumann'):
-            self.rank = dim - 1   #np.linalg.matrix_rank(self.L.todense())
-            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(dim, dtype=int))
-            if (dim > 5000):  # approximate to avoid 'excesive' time
+            self.rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
+            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(self.dim, dtype=int))
+            if (self.dim > 5000):  # approximate to avoid 'excesive' time
                 self.logdet = 2*sum(np.log(self.chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
