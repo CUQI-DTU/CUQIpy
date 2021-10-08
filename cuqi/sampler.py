@@ -235,6 +235,7 @@ class Linear_RTO(object):
         self.shift = 0
                 
         L1 = likelihood.sqrtprec
+        likeprecsqrt = L1.data[0][0]
         L2 = prior.sqrtprec
 
         # pre-computations
@@ -255,7 +256,7 @@ class Linear_RTO(object):
                     out  = np.hstack([out1, out2])
                 elif flag == 2:
                     idx = int(len(x) - self.n)
-                    out1 = L2.T @ model.adjoint(x[:idx])
+                    out1 = likeprecsqrt*model.adjoint(x[:idx]) # if M*x = L1*model*x, then M.T*b = model.adjoint*L1.T*b. But we can not multiply with L1.T between model.adjoint and b in the current implementation
                     out2 = L2.T @ x[idx:]
                     out  = out1 + out2                
                 return out   
