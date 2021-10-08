@@ -70,7 +70,7 @@ class CGLS(object):
             alpha_cgls = gamma / delta_cgls
             #
             x += alpha_cgls*p
-            x  = np.maximum(x, 0)
+            #x  = np.maximum(x, 0)
             r -= alpha_cgls*q
             if self.explicitA:
                 s = self.A.T @ r - self.shift*x     
