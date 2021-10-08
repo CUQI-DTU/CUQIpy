@@ -54,7 +54,7 @@ m = det_count * len(angles)
 # Forward projection
 b_true = A.forward(phantom.flatten())
 fig = plt.figure()
-A.range_geometry.plot(b_true.reshape(A.range_geometry.shape).flatten(order = 'F')); plt.colorbar(); plt.title("clean sinogram")
+A.range_geometry.plot(b_true); plt.colorbar(); plt.title("clean sinogram")
 
 #%% add noise
 rnl = 0.02
@@ -63,7 +63,7 @@ noise_std = rnl*np.linalg.norm(b_true)/np.linalg.norm(e0)
 b_data = b_true + noise_std*e0
 
 fig = plt.figure()
-A.range_geometry.plot(b_data.reshape(A.range_geometry.shape).flatten(order = 'F')); plt.colorbar(); plt.title("noisy sinogram")
+A.range_geometry.plot(b_data); plt.colorbar(); plt.title("noisy sinogram")
 
 #%% ============================
 # Inverse problem
