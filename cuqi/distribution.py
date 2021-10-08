@@ -188,16 +188,16 @@ class Normal(Distribution):
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
     def __init__(self, mean=None, std=None, **kwargs):
+        # Init from abstract distribution class
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            #TODO: handle the case when self.mean or self.std = None because len(None) = 1
+            kwargs["geometry"] = max(np.size(mean),np.size(std))
+        super().__init__(**kwargs)  
+
         # Init specific to this distribution
         self.mean = mean
         self.std = std
 
-        # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            #TODO: handle the case when self.mean or self.std = None because len(None) = 1
-            kwargs["geometry"] = max(np.size(self.mean),np.size(self.std))
-
-        super().__init__(**kwargs)      
 
     @property
     def dim(self):
@@ -241,16 +241,15 @@ class Normal(Distribution):
 class Gamma(Distribution):
 
     def __init__(self, shape=None, rate=None, **kwargs):
-        # Init specific to this distribution
-        self.shape = shape
-        self.rate = rate
-
+        # Init from abstract distribution class
         if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
             #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-            kwargs["geometry"] = max(np.size(self.shape),np.size(self.rate))
+            kwargs["geometry"] = max(np.size(shape),np.size(rate))
+        super().__init__(**kwargs) 
 
-        # Init from abstract distribution class
-        super().__init__(**kwargs)      
+        # Init specific to this distribution
+        self.shape = shape
+        self.rate = rate     
 
     @property
     def dim(self):
@@ -283,12 +282,18 @@ class Gamma(Distribution):
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None,**kwargs):
-        self.mean = mean
-        self.std = std
+        # Init from abstract distribution class
         if corrmat is None:
             corrmat = np.eye(len(mean))
+        dim = len(np.diag(corrmat))   #TODO: handle the case when corrmat = None because len(None) = 1
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            kwargs["geometry"] = dim 
+        super().__init__(**kwargs)
+
+        self.mean = mean
+        self.std = std
         self.R = corrmat
-        dim = len(np.diag(self.R))   #TODO: handle the case when self.R = None because len(None) = 1
+
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
 
         # pre-computations (covariance and determinants)
@@ -316,13 +321,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
                 self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
 
         # inverse of Cholesky
-        self.Linv = np.linalg.inv(self.L)
-
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            kwargs["geometry"] = dim 
-
-        # Init from abstract distribution class
-        super().__init__(**kwargs)      
+        self.Linv = np.linalg.inv(self.L)   
 
         # Compute decomposition such that Q = U @ U.T
         # self.Q = np.linalg.inv(self.Sigma)   # precision matrix
@@ -366,6 +365,14 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 class GMRF(Gaussian):
         
     def __init__(self, mean, prec, N, dom, BCs, **kwargs): 
+        if dom == 1:
+            dim = N 
+        elif (dom==2):
+            dim = N**2
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            kwargs["geometry"] = dim 
+        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
+
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
         self.N = N          # partition size
@@ -393,11 +400,9 @@ class GMRF(Gaussian):
         
         # structure matrix
         if (dom == 1):
-            dim = N
             self.D = Dmat
             self.L = (Dmat.T @ Dmat).tocsc()
         elif (dom == 2):            
-            dim = N**2
             I = eye(N, dtype=int)
             Ds = kron(I, Dmat)
             Dt = kron(Dmat, I)
@@ -436,9 +441,6 @@ class GMRF(Gaussian):
                 self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
                 self.logdet = sum(np.log(self.L_eigval))
 
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            kwargs["geometry"] = dim 
-        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
     @property 
     def dim(self):
@@ -559,13 +561,14 @@ class Uniform(Distribution):
         high : float or array_like of floats 
             Upper bound(s) of the uniform distribution.
         """
+        # Init from abstract distribution class
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            kwargs["geometry"] = max(np.size(low),np.size(high)) 
+        super().__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__      
+
         # Init specific to this distribution
         self.low = low
         self.high = high  
-        # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            kwargs["geometry"] = max(np.size(self.low),np.size(self.high)) 
-        super().__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__      
 
 
     @property 
