@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from scipy.fftpack import dst, idst
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
@@ -241,3 +242,89 @@ class Discrete(Geometry):
 
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
+
+
+class KLExpansion(Continuous1D):
+    '''
+    class representation of the random field in  the sine basis
+    alpha = sum_i p * (1/i)^decay * sin(ix)
+    '''
+    
+    # init function defining paramters for the KL expansion
+    def __init__(self, grid, axis_labels=['x']):
+        
+        super().__init__(grid, axis_labels)
+        
+        self.N = len(self.grid) # number of modes
+        self.modes = np.zeros(self.N) # vector of expansion coefs
+        self.real = np.zeros(self.N) # vector of real values
+        self.decay_rate = 2.5 # decay rate of KL
+        self.c = 12. # normalizer factor
+        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
+        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
+
+        self.p = np.zeros(self.N) # random variables in KL
+
+        self.axis_labels = axis_labels
+
+    # computes the real function out of expansion coefs
+    def par2fun(self,p):
+        self.modes = p*self.coefs/self.c
+        self.real = idst(self.modes)/2
+        return self.real
+    
+    def plot(self, p, is_fun=False):
+        if is_fun:
+            super().plot(p)
+        else:    
+            super().plot(self.par2fun(p))
+
+class StepExpansion(Continuous1D):
+    '''
+    class representation of the step random field with 3 intermidiate steps
+    '''
+    def __init__(self, grid, axis_labels=['x']):
+
+        super().__init__(grid, axis_labels)
+
+        self.N = len(self.grid) # number of modes
+        self.p = np.zeros(4)
+        #self.dx = np.pi/(self.N+1)
+        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
+
+        self.axis_labels = axis_labels
+
+    def par2fun(self, p):
+        self.real = np.zeros_like(self.grid)
+        
+        idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
+        self.real[idx[0]] = p[0]
+        idx = np.where( (self.grid>0.4*np.pi)&(self.grid<=0.6*np.pi) )
+        self.real[idx[0]] = p[1]
+        idx = np.where( (self.grid>0.6*np.pi)&(self.grid<=0.8*np.pi) )
+        self.real[idx[0]] = p[2]
+        return self.real
+    
+    @property
+    def shape(self):
+        return 3
+    
+    def plot(self, p, is_fun=False):
+        if is_fun:
+            super().plot(p)
+        else:    
+            super().plot(self.par2fun(p))
+    
+    '''
+    def plot(self,values,*args,**kwargs):
+        p = plt.plot(values,*args,**kwargs)
+        self._plot_config()
+        return p
+
+    def _plot_config(self):
+        if self.axis_labels is not None:
+            plt.xlabel(self.axis_labels[0])
+            '''
+
+
+        
