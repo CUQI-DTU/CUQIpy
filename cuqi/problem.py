@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 
-from cuqi.distribution import Cauchy_diff, Laplace_diff, Gaussian, GMRF
+from cuqi.distribution import Cauchy_diff, GaussianGen, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel, Model
 
 class Generic(object):
@@ -86,7 +86,9 @@ class BayesianProblem(object):
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
 
-        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
+        if self._check(GaussianGen,GaussianGen,LinearModel):
+            return self._sampleLinearRTO(Ns)
+        elif self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
             return self._sampleMapCholesky(Ns)
 
         elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
@@ -118,6 +120,9 @@ class BayesianProblem(object):
         else:
             M = isinstance(self.model,typeModel)
         return L and P and M
+    def _sampleLinearRTO(self,Ns):
+        sampler = cuqi.sampler.Linear_RTO(self.likelihood,self.prior,self.model,self.data,np.zeros(self.model.domain_dim))
+        return sampler.sample(Ns,0)
 
     def _sampleMapCholesky(self,Ns):
         # Start timing
