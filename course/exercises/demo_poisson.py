@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fftpack import dst, idst
-#from mcmc import Random_Walk
 import sys
 sys.path.append("../..") 
 import cuqi
@@ -29,7 +28,7 @@ likelihood = cuqi.distribution.Gaussian(model,sigma,np.eye(N-1))
 #%% Prior
 prior = cuqi.distribution.Gaussian(np.zeros((N,)),1)
 
-
+#%%
 IP = cuqi.problem.BayesianProblem(likelihood,prior,y_obs)
 results = IP.sample_posterior(5000)
 
