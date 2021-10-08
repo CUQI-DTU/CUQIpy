@@ -235,7 +235,6 @@ class Linear_RTO(object):
         self.shift = 0
                 
         L1 = likelihood.sqrtprec
-        likeprecsqrt = L1.data[0][0]
         L2 = prior.sqrtprec
 
         # pre-computations
@@ -256,7 +255,7 @@ class Linear_RTO(object):
                     out  = np.hstack([out1, out2])
                 elif flag == 2:
                     idx = int(len(x) - self.n)
-                    out1 = likeprecsqrt*model.adjoint(x[:idx]) # if M*x = L1*model*x, then M.T*b = model.adjoint*L1.T*b. But we can not multiply with L1.T between model.adjoint and b in the current implementation
+                    out1 = model.adjoint(L1.T@x[:idx])
                     out2 = L2.T @ x[idx:]
                     out  = out1 + out2                
                 return out   
@@ -272,8 +271,8 @@ class Linear_RTO(object):
             y = self.b_tild + np.random.randn(self.m+self.n)
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
-            if (s % 1) == 0:
-                print('Sample', s, '/', Ns)
+            if (s % 1) == 0 or s == Ns-1:
+                print('Sample', s+2, '/', Ns)
         
         # remove burn-in
         samples = samples[:, Nb:]
