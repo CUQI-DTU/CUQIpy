@@ -377,11 +377,19 @@ class GaussianGen(Distribution): # TODO: super general with precisions
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
     def _sample(self, N=1, rng=None):
-        if rng is not None:
-            s = rng.multivariate_normal(self.mean, self.cov, N).T
+        # If scalar or vector cov use numpy normal
+        if (self.cov.shape[0] == 1) or (not issparse(self.cov) and self.cov.shape[0] == np.size(self.cov)): 
+            if rng is not None:
+                s = rng.normal(self.mean, self.cov, (N,self.dim)).T
+            else:
+                s = np.random.normal(self.mean, self.cov, (N,self.dim)).T
+            return s        
         else:
-            s = np.random.multivariate_normal(self.mean, self.cov, N).T
-        return s
+            if rng is not None:
+                s = rng.multivariate_normal(self.mean, self.cov, N).T
+            else:
+                s = np.random.multivariate_normal(self.mean, self.cov, N).T
+            return s
 
 
 # ========================================================================

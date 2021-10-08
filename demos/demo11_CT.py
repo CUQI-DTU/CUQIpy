@@ -46,7 +46,7 @@ model.domain_geometry.plot(model.adjoint(b_exact)); plt.title("Back projection")
 #%%
 # Define Gaussian prior and likelihood
 prior      = cuqi.distribution.GaussianGen(np.zeros(n),0.1)
-likelihood = cuqi.distribution.GaussianGen(model,np.eye(m))
+likelihood = cuqi.distribution.GaussianGen(model,1)
 
 #%%
 # Generate noisy data using the likelihood from x_exact
