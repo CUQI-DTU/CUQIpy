@@ -111,7 +111,7 @@ class BayesianProblem(object):
             raise NotImplementedError(f'MAP estimate is not implemented in for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
     def _check_geometries_consistency(self, geom1, geom2, fail_msg):
-        """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consisten"""
+        """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""
         if isinstance(geom1,_DefaultGeometry):
             if isinstance(geom2,_DefaultGeometry):
                 if geom1 == geom2:
