@@ -46,7 +46,7 @@ class _astraCT2D(cuqi.model.LinearModel):
         # Range geometry
         if vectors is None:
             q = angles.shape[0]
-            x_axis = angles
+            x_axis = np.rad2deg(angles)
         else:
             q = vectors.shape[0]
             x_axis = np.arange(q)
@@ -72,15 +72,15 @@ class _astraCT2D(cuqi.model.LinearModel):
 
     # CT forward projection
     def forward(self,x):
-        id, sinogram =  astra.create_sino(np.reshape(x,self.domain_geometry.shape), self.proj_id)
+        id, sinogram =  astra.create_sino(np.reshape(x,self.domain_geometry.shape,order='F'), self.proj_id)
         astra.data2d.delete(id)
-        return sinogram.ravel()
+        return sinogram.flatten(order='F')
 
     # CT back projection
     def adjoint(self,y):
-        id, volume = astra.create_backprojection(np.reshape(y,self.range_geometry.shape),self.proj_id)
+        id, volume = astra.create_backprojection(np.reshape(y,self.range_geometry.shape,order='F'),self.proj_id)
         astra.data2d.delete(id)
-        return volume.ravel()
+        return volume.flatten(order='F')
 
 
 class CT2D_basic(_astraCT2D):
@@ -106,14 +106,14 @@ class CT2D_shifted(_astraCT2D):
                       im_size=(45,45),
                       det_count=50,
                       angles=np.linspace(0,2*np.pi,60),
-                      shift = -125.3, stc = 600, ctd = 500, dl = 411, domain=550):
+                      beamshift_x = -125.3, source_y = -600, detector_y = 500, dl = 411, domain=550):
         
         # Detector spacing
         det_spacing = dl/det_count
 
         #Define scan vectors
-        s0 = np.array([shift, stc])
-        d0 = np.array([shift, -ctd])
+        s0 = np.array([beamshift_x, source_y])
+        d0 = np.array([beamshift_x , detector_y])
         u0 = np.array([det_spacing, 0])
         vectors = np.empty([np.size(angles), 6])
         for i, val in enumerate(angles):

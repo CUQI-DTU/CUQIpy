@@ -1,6 +1,8 @@
 import scipy as sp
 import scipy.stats as sps
 import numpy as np
+
+from cuqi.distribution import Laplace_diff
 # import matplotlib
 # import matplotlib.pyplot as plt
 eps = np.finfo(float).eps
@@ -247,42 +249,49 @@ class Linear_RTO(object):
         if not isinstance(model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
-        if not isinstance(likelihood, cuqi.distribution.Gaussian):
-            raise TypeError("Likelihood needs to be Gaussian")
+        if not isinstance(likelihood, cuqi.distribution.GaussianGen):
+            raise TypeError("Likelihood needs to be GaussianGen")
 
-        if not isinstance(prior, cuqi.distribution.GMRF): #TODO add support for Gaussian
-            raise TypeError("Prior needs to be GMRF")
+        if not isinstance(prior, cuqi.distribution.GaussianGen): #TODO add support for other Gaussians
+            raise TypeError("Prior needs to be GaussianGen")
     
         # Extract lambda, delta, L
-        self.lambd = 1/(likelihood.std**2)
-        self.delta = prior.prec
-        self.L = prior.L
-        self.A = model.get_matrix()
-        self.b = data
+        #self.lambd = 1/(likelihood.std**2)
+        #self.delta = prior.prec
+        #self.L = prior.L
+        #self.A = model.get_matrix()
+        #self.b = data        
         self.x0 = x0
         self.maxit = maxit
         self.tol = tol        
-        self.shift = shift
-        
+        self.shift = 0
+                
+        L1 = likelihood.sqrtprec
+        L2 = prior.sqrtprec
+
         # pre-computations
-        self.m = len(self.b)
+        self.m = len(data)
         self.n = len(x0)
-        self.b_tild = np.hstack([np.sqrt(self.lambd)*self.b, np.zeros(self.n)]) 
-        if not callable(self.A):
-            self.M = sp.sparse.vstack([np.sqrt(self.lambd)*self.A, np.sqrt(self.delta)*self.L])
-        # else:
-            # in this case, A is a function doing forward and backward operations
-            # def M(x, flag):
-            #     if flag == 1:
-            #         out1 = np.sqrt(self.lambd) * self.A(x, 1) # A @ x
-            #         out2 = np.sqrt(self.delta) * (self.L @ x)
-            #         out  = np.hstack([out1, out2])
-            #     elif flag == 2:
-            #         idx = int(len(x) - self.n)
-            #         out1 = np.sqrt(self.lambd) * self.A(x[:idx], 2) # A.T @ b
-            #         out2 = np.sqrt(self.delta) * (self.L.T @ x[idx:])
-            #         out  = out1 + out2                
-            #     return out          
+        self.b_tild = np.hstack([L1@data, L2@prior.mean]) 
+
+        self.model = model
+
+        if not callable(model):
+            self.M = sp.sparse.vstack([L1@model, L2])
+        else:
+            # in this case, model is a function doing forward and backward operations
+            def M(x, flag):
+                if flag == 1:
+                    out1 = L1 @ model.forward(x)
+                    out2 = L2 @ x
+                    out  = np.hstack([out1, out2])
+                elif flag == 2:
+                    idx = int(len(x) - self.n)
+                    out1 = model.adjoint(L1.T@x[:idx])
+                    out2 = L2.T @ x[idx:]
+                    out  = out1 + out2                
+                return out   
+            self.M = M       
 
     def sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
@@ -294,13 +303,13 @@ class Linear_RTO(object):
             y = self.b_tild + np.random.randn(self.m+self.n)
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+            if (s % 1) == 0 or s == Ns-1:
+                print('Sample', s+2, '/', Ns)
         
         # remove burn-in
         samples = samples[:, Nb:]
         
-        return samples
+        return cuqi.samples.Samples(samples,geometry=self.model.domain_geometry)
 
 
 

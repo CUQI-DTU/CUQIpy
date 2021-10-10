@@ -29,6 +29,13 @@ class Samples(object):
         # Plot mean according to geometry
         return self.geometry.plot(mean,*args,**kwargs)
 
+    def plot_std(self,*args,**kwargs):
+        # Compute std assuming samples are index in last dimension of nparray
+        std = np.std(self.samples,axis=-1)
+
+        # Plot mean according to geometry
+        return self.geometry.plot(std,*args,**kwargs)
+
     def plot(self,sample_indices=None,*args,**kwargs):
         Ns = self.samples.shape[-1]
         if sample_indices is None:
