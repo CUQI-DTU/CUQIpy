@@ -293,9 +293,9 @@ class Gamma(Distribution):
             return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
-class GaussianGen(Distribution): # TODO: super general with precisions
+class GaussianCov(Distribution): # TODO: super general with precisions
     """
-    General Gaussian probability distribution. Generates instance of cuqi.distribution.GaussianGen
+    General Gaussian probability distribution. Generates instance of cuqi.distribution.GaussianCov
 
     
     Parameters
