@@ -328,10 +328,10 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         self._cov = value
         if (value is not None) and (not callable(value)):
             prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
-        self._prec = prec
-        self._sqrtprec = sqrtprec
-        self._logdet = logdet
-        self._rank = rank
+            self._prec = prec
+            self._sqrtprec = sqrtprec
+            self._logdet = logdet
+            self._rank = rank
 
     @property
     def dim(self):

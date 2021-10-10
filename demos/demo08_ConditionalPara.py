@@ -53,7 +53,7 @@ z(sigma=2,delta=5,gamma=-5).sample()
 
 # %%
 # Example from Johns book. Algorithm 5.1
-n_samp = 1000
+n_samp = 5000
 alpha = 1
 beta = 1e-4
 
@@ -67,9 +67,14 @@ A = tp.model.get_matrix()
 b = tp.data
 L = np.eye(n)
 
-#x = cuqi.distribution.Gaussian(mean=None,std=None)
+# Define hyperpriors
 l = cuqi.distribution.Gamma(shape=m/2+alpha,rate=lambda x: .5*np.linalg.norm(A@x-b)**2+beta)
 d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=lambda x: .5*x.T@(L@x)+beta)
+
+# Define prior
+mean_func = lambda l,d: np.linalg.solve(l*A.T@A+d*L,l*A.T@b)
+cov_func  = lambda l,d: np.linalg.inv(l*A.T@A+d*L)
+x = cuqi.distribution.GaussianGen(mean=mean_func,cov=cov_func)
 
 # Preallocate sample vectors
 ls = np.zeros(n_samp+1)
@@ -77,29 +82,28 @@ ds = np.zeros(n_samp+1)
 xs = np.zeros((n,n_samp+1))
 
 # Initial parameters
-ls[0] = 0.05; ds[0]=0.2
+ls[0] = 1/0.05; ds[0]=1/0.02
 
 # Initial x
-mean_x = lambda l,d: np.linalg.inv(l*A.T@A+d*L)@(l*A.T@b)
-cov_x  = lambda l,d: np.linalg.inv(l*A.T@A+d*L)
-xs[:,0] = mean_x(ls[0],ds[0])
+xs[:,0] = x(l=ls[0],d=ds[0]).mean
 
 for k in range(n_samp):
 
-    #Sample hyperparameters
+    #Sample hyperparameters conditioned on x
     ls[k+1] = l(x=xs[:,k]).sample()
     ds[k+1] = d(x=xs[:,k]).sample()
 
-    # Sample x
-    S = np.linalg.cholesky(cov_x(ls[k+1],ds[k+1]))
-    xs[:,k+1] = mean_x(ls[k+1],ds[k+1]) + S@np.random.randn(n)
-    
+    # Sample x conditioned on l,d
+    xs[:,k+1] = x(l=ls[k+1],d=ds[k+1]).sample()
+
+
 # %%
-plt.subplot(121); plt.plot(ls); plt.title("lambda chain")
-plt.subplot(122); plt.plot(ds); plt.title("delta chain")
+plt.subplot(121); plt.plot(1/ls); plt.title("lambda chain")
+plt.subplot(122); plt.plot(1/ds); plt.title("delta chain")
 # %%
-burn_in = 200
-plt.plot(tp.exactSolution)
-plt.plot(np.mean(xs[:,burn_in:],axis=1))
+burn_in = 1000
+thin = 1
+xsamples = cuqi.sampler.Samples(xs[:,burn_in:thin:-1])
+xsamples.plot_ci(95,exact=tp.exactSolution)
 
 # %%
