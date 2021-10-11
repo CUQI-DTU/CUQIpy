@@ -77,8 +77,6 @@ plt.title("Posterior mean in function space")
 # %% Plot automatically using geometry
 plt.figure()
 results.plot_mean()
-
-plt.figure()
-results.plot(1)
-
+model.domain_geometry.plot(true_par)
+plt.legend(["Mean","Ground truth"])
 # %%
