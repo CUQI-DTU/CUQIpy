@@ -90,7 +90,7 @@ A.domain_geometry.plot(A.adjoint(b_true)); plt.title("Back projection"); plt.col
 # %% Setup likelihood
 likelihood = cuqi.distribution.GaussianCov(mean = A, cov = noise_std**2)
 
-#%% ============================
+# ============================
 # Gaussian prior
 # ============================
 
@@ -101,7 +101,7 @@ prior = cuqi.distribution.GaussianCov(mean = np.zeros(N**2), cov = 1/50)
 x0 = np.zeros(N**2)
 sampler = cuqi.sampler.Linear_RTO(likelihood, prior, A, b_data, x0)
 
-#%% Sample
+# Sample
 samples = sampler.sample(N = 500, Nb = 100)
 
 #%% Plot mean 
