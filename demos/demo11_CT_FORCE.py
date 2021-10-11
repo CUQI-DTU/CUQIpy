@@ -39,7 +39,7 @@ domain=550
 
 # CT geometry for creating synthetic data from high resolution phantom
 N = int(np.shape(phantom)[0])
-A = CT2D_shifted(beam_type=beam_type, 
+A_fine = CT2D_shifted(beam_type=beam_type, 
                     proj_type=proj_type, 
                     im_size=(N, N), 
                     det_count=det_count, 
@@ -52,9 +52,9 @@ A = CT2D_shifted(beam_type=beam_type,
 m = det_count * len(angles)
 
 # Forward projection
-b_true = A.forward(phantom.flatten())
+b_true = A_fine.forward(phantom.flatten())
 fig = plt.figure()
-A.range_geometry.plot(b_true); plt.colorbar(); plt.title("clean sinogram")
+A_fine.range_geometry.plot(b_true); plt.colorbar(); plt.title("clean sinogram")
 
 #%% add noise
 rnl = 0.02
@@ -63,7 +63,7 @@ noise_std = rnl*np.linalg.norm(b_true)/np.linalg.norm(e0)
 b_data = b_true + noise_std*e0
 
 fig = plt.figure()
-A.range_geometry.plot(b_data); plt.colorbar(); plt.title("noisy sinogram")
+A_fine.range_geometry.plot(b_data); plt.colorbar(); plt.title("noisy sinogram")
 
 #%% ============================
 # Inverse problem
@@ -87,7 +87,7 @@ m = det_count * len(angles)
 fig = plt.figure()
 A.domain_geometry.plot(A.adjoint(b_true)); plt.title("Back projection"); plt.colorbar()
 
-# Setup likelihood
+# %% Setup likelihood
 likelihood = cuqi.distribution.GaussianCov(mean = A, cov = noise_std**2)
 
 #%% ============================
