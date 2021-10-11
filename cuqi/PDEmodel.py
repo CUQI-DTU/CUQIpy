@@ -191,7 +191,7 @@ class FEniCSDiffusion2D(FEniCSDiffusion):
     def __init__(self, mesh=None, Vh=None, bc=None, bc0=None, f=None,\
                  measurement_type = 'potential', parameter_type="conductivity_field"):
         if mesh is None:
-            mesh = dl.UnitSquareMesh(80, 80)
+            mesh = dl.UnitSquareMesh(40, 40)
 
         if Vh is None: #TODO: creating spaces should be part of the super class (diffusion)
             Vh_STATE = dl.FunctionSpace(mesh, 'Lagrange', 1)
