@@ -201,8 +201,12 @@ class BayesianProblem(object):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
+<<<<<<< HEAD
         elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
             print("Using Component-wise Metropolis-Hastings sampler")
+=======
+        elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff) or self._check(Gaussian,Uniform):
+>>>>>>> fbc6e9b... Use Discrete geometry and edit demo/ Hack sampling method for discrete prior
             return self._sampleCWMH(Ns)
             
         elif self._check(Gaussian,Gaussian) or self._check(Gaussian,GMRF):
