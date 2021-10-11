@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fftpack import dst, idst
 import sys
-sys.path.append("../..") 
+sys.path.append("..") 
 import cuqi
 from heatmodel import heat
 
