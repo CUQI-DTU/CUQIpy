@@ -240,6 +240,7 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
 
         # Set geometry from prior
-        x_s.geometry = self.prior.geometry
+        if hasattr(x_s,"geometry"):
+            x_s.geometry = self.prior.geometry
         
         return x_s

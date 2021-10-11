@@ -126,6 +126,7 @@ class Cauchy_diff(object):
         self.loc = location
         self.scale = scale
         self.bnd = bndcond
+        self.geometry = None
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
@@ -660,13 +661,14 @@ class GMRF(Gaussian):
 
 
 # ========================================================================
-class Laplace_diff(object):
+class Laplace_diff():
 
     def __init__(self, location, scale, bndcond):
         self.loc = location
         self.scale = scale
         self.dim = len(location)
         self.bnd = bndcond
+        self.geometry = None
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
