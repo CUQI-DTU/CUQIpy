@@ -233,5 +233,8 @@ class BayesianProblem(object):
         ti = time.time()
         x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
         print('Elapsed time:', time.time() - ti)
+
+        # Set geometry from prior
+        x_s.geometry = self.prior.geometry
         
         return x_s
