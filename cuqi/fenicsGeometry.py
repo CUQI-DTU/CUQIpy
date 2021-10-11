@@ -25,6 +25,11 @@ class FenicsContinuous(Geometry):
     def mesh(self):
         return self.Vh.mesh()
 
+    @property
+    def shape(self):
+        return self.Vh.dim()
+
+
     def plot(self,values,subplots=True,**kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.

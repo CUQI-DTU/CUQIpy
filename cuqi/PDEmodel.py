@@ -23,7 +23,9 @@ class FEniCSPDEModel(cuqi.model.Model):
     bc : forward problem boundary conditions (Dirichlet)
     bc0: adjoint problem boundary conditions (Dirichlet)
     """
-    def __init__(self, form, mesh, Vh, bc=None, bc0=None, f=None, obs_op=None):
+    def __init__(self, form, mesh, Vh, bc=None, bc0=None, f=None, obs_op=None, range_geometry=None, domain_geometry=None):
+        if range_geometry is None: range_geometry = cuqi.fenicsGeometry.FenicsContinuous(Vh[0])
+        super().__init__(self._forward_func,range_geometry=range_geometry,domain_geometry=domain_geometry)
         self.form = form
         self.mesh = mesh
         self.Vh  = Vh
@@ -126,17 +128,19 @@ class FEniCSDiffusion(FEniCSPDEModel):
             tol = 1E-6  
             self.kappa = lambda m: dl.Expression('pow(x[0]-m0,2)+pow(x[1]-m1,2) <= pow(R,2) + tol ? 1+Gamma : 1', \
                                   degree=1, tol=tol, m0=m.vector()[0], m1=m.vector()[1], R=R, Gamma = Gamma)#TODO: make the form differentiable with respect to m
-               
+            domain_geometry = cuqi.geometry.Discrete(['x','y'])
             def form(u,m,p):
                 return self.kappa(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx 
 
         elif parameter_type == "conductivity_field":
+            domain_geometry = cuqi.fenicsGeometry.FenicsContinuous(Vh[1])
             def form(u,m,p):
                 return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx - f*p*ufl.dx 
 
                 #self, form, mesh, Vh, bc=None, bc0=None, obs_op=None
         obs_op = self._create_obs_op(measurement_type)
-        super().__init__(form, mesh, Vh, bc=bc, bc0=bc0, f=f, obs_op = obs_op)
+        super().__init__(form, mesh, Vh, bc=bc, bc0=bc0, f=f, obs_op = obs_op, 
+                         range_geometry=None , domain_geometry = domain_geometry)
     
 
     def _create_obs_op(cls, measurement_type):
