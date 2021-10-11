@@ -7,13 +7,8 @@ import matplotlib.pyplot as plt
 
 # %%
 # A simple normal distribution with mean 5 and std 1
-x = cuqi.distribution.Normal(5,1)
-x.sample()
-
-#%%
-# We can specify an optional name of distribution (to be used by certain sampling algorithms which require distributions to interconnect)
-y = cuqi.distribution.Normal(mean=5, std=1,name="y")
-y.name
+y = cuqi.distribution.Normal(mean=5,std=1)
+y.sample()
 
 # %%
 # We can change the value if internal parameters of the distribution as follows
@@ -21,8 +16,8 @@ y2 = y(std=10)
 y2.sample()
 
 # %%
-# We can omit one of the inputs to create an "incomplete" distribution, that
-# is how we represent a conditional distribution
+# We can omit one of the inputs to create an "incomplete" distribution,
+# that is one way to represent a conditional distribution
 y3 = cuqi.distribution.Normal(mean=5)
 
 # %%
@@ -39,17 +34,25 @@ z3 = y3(std=10)
 z3.sample()
 
 # %%
-# We can specify parameters as callable functions/methods and condition directly on the parameters of those methods
+# We can specify parameters as callable functions/methods
+# and condition directly on the parameters of those methods
 z = cuqi.distribution.Normal(0,lambda sigma: np.sqrt(sigma))
 z(sigma=2).sample()
 
 # %%
 #Functions for mean and std with various (shared) inputs
 mean = lambda sigma,gamma: sigma+gamma
-std  = lambda delta: np.sqrt(delta)
+std  = lambda delta,gamma: np.sqrt(delta+gamma)
 
 z = cuqi.distribution.Normal(mean,std)
-z(sigma=2,delta=5,gamma=-5).sample()
+Z = z(sigma=3,delta=5,gamma=-2)
+
+Z.sample()
+
+#%%
+# We can also specify an optional name of distribution (to be used by certain sampling algorithms which require distributions to interconnect)
+y = cuqi.distribution.Normal(mean=5, std=1,name="y")
+y.name
 
 # %%
 # Example from Johns book. Algorithm 5.1
