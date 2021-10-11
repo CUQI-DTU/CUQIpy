@@ -74,8 +74,7 @@ model.domain_geometry.plot(true_init, is_fun=True)
 plt.legend(["Sample mean","True initial"])
 plt.title("Posterior mean in function space")
 
-# %% TODO Plot automatically using geometry, however results currently has _DefaultGeometry
-# but should have StepExpansion, seems it is not passed on from sample_posterior method.
+# %% Plot automatically using geometry
 plt.figure()
 results.plot_mean()
 
