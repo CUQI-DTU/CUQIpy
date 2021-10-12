@@ -10,7 +10,8 @@ import cuqi
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 #%% Set up and solve cuqi problem that uses FEniCSPDEModel 
-A = cuqi.PDEmodel.FEniCSDiffusion2D(measurement_type ='potential',parameter_type = "fixed_radius_inclusion") 
+A = cuqi.PDEmodel.FEniCSDiffusion2D(measurement_type ='potential',
+parameter_type = "fixed_radius_inclusion") 
 
 #%% Create & plot prior 
 low = np.array([0,0])
@@ -24,7 +25,7 @@ ps.plot_ci(95,exact=np.array([.5,.5]))
 true_m = np.array([.42,.32])
 true_u = A(true_m)
 noise_std = 0.01 * np.max(true_u)
-likelihood = cuqi.distribution.Gaussian(A, noise_std, np.eye(len(true_u)))
+likelihood = cuqi.distribution.GaussianGen(A, noise_std* np.eye(len(true_u)))
 b = likelihood(x=true_m).sample()
 
 #%% Create cuqi Bayesian problem 
@@ -36,7 +37,7 @@ plt.figure()
 ps.plot_ci(95,exact=np.array([.5,.5]))
 
 #%% Sample & plot posterior
-results = IP.sample_posterior(Ns=10) 
+results = IP.sample_posterior(Ns=1000) 
 plt.figure()
 results.plot_ci(95,exact=true_m)
 
@@ -75,3 +76,4 @@ ims = A.range_geometry.plot(mean_kappa.vector().get_local())
 plt.title('Mean kappa')
 axins_p = inset_axes(plt.gca(), width='4%', height='50%', loc=4)
 cp_p =plt.colorbar(ims[0], cax = axins_p,  orientation ='vertical')#ticks=p_ticks_list[idx]
+# %%
