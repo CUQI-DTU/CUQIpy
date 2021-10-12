@@ -93,28 +93,6 @@ class FEniCSPDEModel(cuqi.model.Model):
         else:
             raise NotImplementedError("obs_op output must be a number, a numpy array or a ufl.algebra.Operator type")
 
-    def eval_param(self, DOF, X, Y):
-        m_fun = dl.Function(self.Vh[1])
-        m_fun.vector().set_local(DOF)
-        Z = np.empty_like(X).flatten()
-        for idx, (x,y) in enumerate(zip(X.flatten(),Y.flatten())):
-            #print(x,y)
-            Z[idx] = m_fun(x,y)
-        Z = Z.reshape(X.shape)
-        return Z
-
-    def eval_data(self, DOF, X, Y):
-        u_fun = dl.Function(self.Vh[0])
-        u_fun.vector().set_local(DOF)
-        Z = np.empty_like(X).flatten()
-        for idx, (x,y) in enumerate(zip(X.flatten(),Y.flatten())):
-            #print(x,y)
-            Z[idx] = u_fun(x,y)
-        Z = Z.reshape(X.shape)
-        return Z
-
-
-
 
 class FEniCSDiffusion(FEniCSPDEModel):
 
@@ -165,7 +143,10 @@ class FEniCSDiffusion1D(FEniCSDiffusion):
     def __init__(self, mesh=None, Vh=None, bc=None, bc0=None, f=None,\
                  measurement_type = 'potential', parameter_type="conductivity_field"):
         if mesh is None:
-            mesh = dl.UnitIntervalMesh(50) 
+            mesh = dl.UnitIntervalMesh(50)
+        elif (isinstance(mesh, tuple) and len(mesh) ==1) or isinstance(mesh, (int,np.integer)):
+            if isinstance(mesh, tuple): mesh = mesh[0] 
+            mesh = dl.UnitIntervalMesh(mesh)
 
         if Vh is None:
             Vh_STATE = dl.FunctionSpace(mesh, 'Lagrange', 1)
@@ -195,7 +176,9 @@ class FEniCSDiffusion2D(FEniCSDiffusion):
     def __init__(self, mesh=None, Vh=None, bc=None, bc0=None, f=None,\
                  measurement_type = 'potential', parameter_type="conductivity_field"):
         if mesh is None:
-            mesh = dl.UnitSquareMesh(80, 80)
+            mesh = dl.UnitSquareMesh(40, 40)
+        elif isinstance(mesh, tuple) and len(mesh) ==2: 
+            mesh = dl.UnitSquareMesh(mesh[0], mesh[1])
 
         if Vh is None: #TODO: creating spaces should be part of the super class (diffusion)
             Vh_STATE = dl.FunctionSpace(mesh, 'Lagrange', 1)
@@ -222,35 +205,3 @@ class FEniCSDiffusion2D(FEniCSDiffusion):
 
         super().__init__(mesh, Vh, bc=bc, bc0=bc0, f=f, measurement_type = measurement_type,\
                          parameter_type=parameter_type)
-
-    def grid4param_plot(self, DOF=None, x_res = 400, y_res = 400): #TODO: Make 2D diffusion inherit from FEniCSDiffusion & 
-                                         # FEniCS2D. grid4param_plot should be in FEniCS2D 
-        #TODO: x_res and y_res should be mesh dependant and can be passed by user
-
-        x_min = np.min(self.mesh.coordinates()[:,0]) 
-        x_max = np.max(self.mesh.coordinates()[:,0])
-        y_min = np.min(self.mesh.coordinates()[:,1]) 
-        y_max = np.max(self.mesh.coordinates()[:,1])
-        X, Y =  np.meshgrid(np.linspace(x_min, x_max,x_res), \
-                           np.linspace(y_min, y_max,y_res))
-        if DOF is None:
-            return X,Y
-        else:
-            Z = self.eval_param(DOF, X, Y)
-            return X,Y,Z
-
-    def grid4data_plot(self, DOF=None, x_res = 400, y_res = 400): #TODO: Make 2D diffusion inherit from FEniCSDiffusion & 
-                                         # FEniCS2D. grid4param_plot should be in FEniCS2D 
-        #TODO: x_res and y_res should be mesh dependant and can be passed by user
-        x_min = np.min(self.mesh.coordinates()[:,0]) 
-        x_max = np.max(self.mesh.coordinates()[:,0])
-        y_min = np.min(self.mesh.coordinates()[:,1]) 
-        y_max = np.max(self.mesh.coordinates()[:,1])
-        X, Y =  np.meshgrid(np.linspace(x_min, x_max,x_res), \
-                           np.linspace(y_min, y_max,y_res))
-        if DOF is None:
-            return X,Y
-        else:
-            Z = self.eval_data(DOF, X, Y)
-            return X,Y,Z
-
