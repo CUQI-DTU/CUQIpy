@@ -126,6 +126,7 @@ class Cauchy_diff(object):
         self.loc = location
         self.scale = scale
         self.bnd = bndcond
+        self.geometry = None
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
@@ -293,9 +294,9 @@ class Gamma(Distribution):
             return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
 
 # ========================================================================
-class GaussianGen(Distribution): # TODO: super general with precisions
+class GaussianCov(Distribution): # TODO: super general with precisions
     """
-    General Gaussian probability distribution. Generates instance of cuqi.distribution.GaussianGen
+    General Gaussian probability distribution. Generates instance of cuqi.distribution.GaussianCov
 
     
     Parameters
@@ -328,10 +329,10 @@ class GaussianGen(Distribution): # TODO: super general with precisions
         self._cov = value
         if (value is not None) and (not callable(value)):
             prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
-        self._prec = prec
-        self._sqrtprec = sqrtprec
-        self._logdet = logdet
-        self._rank = rank
+            self._prec = prec
+            self._sqrtprec = sqrtprec
+            self._logdet = logdet
+            self._rank = rank
 
     @property
     def dim(self):
@@ -660,13 +661,14 @@ class GMRF(Gaussian):
 
 
 # ========================================================================
-class Laplace_diff(object):
+class Laplace_diff():
 
     def __init__(self, location, scale, bndcond):
         self.loc = location
         self.scale = scale
         self.dim = len(location)
         self.bnd = bndcond
+        self.geometry = None
 
         # finite difference matrix
         one_vec = np.ones(self.dim)

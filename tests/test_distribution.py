@@ -144,9 +144,9 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_GaussianGen(mean,cov,mean_full,cov_full):
+def test_GaussianCov(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
-    prior = cuqi.distribution.GaussianGen(mean, cov)
+    prior = cuqi.distribution.GaussianCov(mean, cov)
 
     # Compare logpdf with scipy using full vector+matrix rep
     x0 = 1000*np.random.rand(prior.dim)

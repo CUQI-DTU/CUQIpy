@@ -22,11 +22,11 @@ x_true = TP.exactSolution
 
 # %%
 # Define Gaussian likelihood and prior
-likelihood = cuqi.distribution.GaussianGen(model, sigma2)
+likelihood = cuqi.distribution.GaussianCov(model, sigma2)
 pr = 'cauchy'
 if (pr == 'gaussian'):
     var = 0.2
-    prior = cuqi.distribution.GaussianGen(0, var*np.ones(n))
+    prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
 elif (pr == 'cauchy'):
     h = 1/n
     delta = 0.3
