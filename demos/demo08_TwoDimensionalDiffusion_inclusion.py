@@ -25,7 +25,7 @@ ps.plot_ci(95,exact=np.array([.5,.5]))
 true_m = np.array([.42,.32])
 true_u = A(true_m)
 noise_std = 0.01 * np.max(true_u)
-likelihood = cuqi.distribution.GaussianGen(A, noise_std* np.eye(len(true_u)))
+likelihood = cuqi.distribution.GaussianGen(A,cov = noise_std**2) # noise_std* np.eye(len(true_u)))
 b = likelihood(x=true_m).sample()
 
 #%% Create cuqi Bayesian problem 
