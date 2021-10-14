@@ -138,7 +138,7 @@ class BayesianProblem(object):
             return self._sampleMapCholesky(Ns)
 
         elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
-            print("Using Component-wise Metropolis-Hasing sampler")
+            print("Using Component-wise Metropolis-Hastings sampler")
             return self._sampleCWMH(Ns)
             
         elif self._check(Gaussian,Gaussian):
