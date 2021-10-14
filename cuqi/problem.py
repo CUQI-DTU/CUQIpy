@@ -130,14 +130,19 @@ class BayesianProblem(object):
         """Sample Ns samples of the posterior given data"""
 
         if self._check(GaussianCov,GaussianCov,LinearModel):
+            print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
+
         elif self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
+            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems.")
             return self._sampleMapCholesky(Ns)
 
         elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
+            print("Using Component-wise Metropolis-Hastings sampler")
             return self._sampleCWMH(Ns)
-
+            
         elif self._check(Gaussian,Gaussian):
+            print("Using preconditioned Crank-Nicolson sampler")
             return self._samplepCN(Ns)
 
         else:
