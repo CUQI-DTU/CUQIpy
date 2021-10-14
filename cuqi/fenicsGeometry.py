@@ -1,4 +1,4 @@
-from cuqi.geometry import Geometry
+from cuqi.geometry import Discrete, Geometry
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
@@ -69,4 +69,26 @@ class FenicsContinuous(Geometry):
                 for i, axis in enumerate(plt.gcf().axes):
                     axis.set_xlabel(self.labels[0])
                     if self.physical_dim == 2: axis.set_ylabel(self.labels[1])
-    
+
+
+class CircularInclusion(Discrete, FenicsContinuous):
+
+    def __init__(self, Vh, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
+        Discrete.__init__(self,inclusion_parameters)
+        FenicsContinuous.__init__(self,Vh,labels)
+        # assert len =3
+        if self.physical_dim !=2:
+            raise NotImplementedError("'CircularInclusion' object support 2D meshes only.")
+
+    @property
+    def shape(self):
+        #https://newbedev.com/calling-parent-class-init-with-multiple-inheritance-what-s-the-right-way
+        # super(Discrete,self).shape calls second parent shape
+        return super().shape #This calls first parent shape
+
+
+    def plot(self):
+        pass
+
+    def par2fun(self):
+        pass
