@@ -425,6 +425,18 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s = np.random.multivariate_normal(self.mean, self.cov, N).T
             return s
 
+class GaussianSqrtPrec(Distribution):
+    def __init__(self, mean=None, sqrtprec=None, **kwargs):
+        super().__init__(**kwargs)
+        self.mean = force_ndarray(mean, flatten=True)
+        self.sqrtprec = force_ndarray(sqrtprec)
+
+    def _sample(self, N):
+        raise NotImplementedError("Sampling not implemented for {}".format(type(self)))
+
+    def logpdf(self, x):
+        raise NotImplementedError("Logpdf not implemented for {}".format(type(self)))
+
 
 # ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant

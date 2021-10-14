@@ -249,11 +249,11 @@ class Linear_RTO(object):
         if not isinstance(model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
-        if not isinstance(likelihood, cuqi.distribution.GaussianCov):
-            raise TypeError("Likelihood needs to be GaussianCov")
+        if not hasattr(likelihood, "sqrtprec"):
+            raise TypeError("Likelihood must contain a sqrtprec attribute")
 
-        if not isinstance(prior, cuqi.distribution.GaussianCov): #TODO add support for other Gaussians
-            raise TypeError("Prior needs to be GaussianCov")
+        if not hasattr(prior, "sqrtprec"):
+            raise TypeError("Prior must contain a sqrtprec attribute")
     
         # Extract lambda, delta, L
         #self.lambd = 1/(likelihood.std**2)
