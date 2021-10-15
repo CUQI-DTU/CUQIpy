@@ -424,11 +424,11 @@ class CWMH(object):
             target_eval_star = self.target(x_star)
 
             # ratio and acceptance probability
-            ratio = np.exp(target_eval_star - target_eval_t)  # proposal is symmetric
-            alpha = min(1, ratio)
+            ratio = target_eval_star - target_eval_t  # proposal is symmetric
+            alpha = min(0, ratio)
 
             # accept/reject
-            u_theta = np.random.rand()
+            u_theta = np.log(np.random.rand())
             if (u_theta <= alpha):
                 x_t[j] = x_i_star[j]
                 target_eval_t = target_eval_star
@@ -555,11 +555,11 @@ class MetropolisHastings(Sampler):
         target_eval_star = self.target.logpdf(x_star)
 
         # ratio and acceptance probability
-        ratio = np.exp(target_eval_star - target_eval_t)  # proposal is symmetric
-        alpha = min(1, ratio)
+        ratio = target_eval_star - target_eval_t  # proposal is symmetric
+        alpha = min(0, ratio)
 
         # accept/reject
-        u_theta = np.random.rand()
+        u_theta = np.log(np.random.rand())
         if (u_theta <= alpha):
             x_next = x_star
             target_eval_next = target_eval_star
@@ -674,11 +674,11 @@ class pCN(Sampler):
         loglike_eval_star = self.loglike(x_star)
 
         # ratio and acceptance probability
-        ratio = np.exp(loglike_eval_star - loglike_eval_t)  # proposal is symmetric
-        alpha = min(1, ratio)
+        ratio = loglike_eval_star - loglike_eval_t  # proposal is symmetric
+        alpha = min(0, ratio)
 
         # accept/reject
-        u_theta = np.random.rand()
+        u_theta = np.log(np.random.rand())
         if (u_theta <= alpha):
             x_next = x_star
             loglike_eval_next = loglike_eval_star

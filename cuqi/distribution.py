@@ -3,7 +3,7 @@ import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, eigvalsh, pinvh, eigvals, lstsq
+from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.model import LinearModel
@@ -316,7 +316,9 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
     x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
     """
-    def __init__(self, mean=None, cov=None):
+    def __init__(self, mean=None, cov=None,**kwargs):
+        super().__init__(**kwargs) 
+
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.cov = force_ndarray(cov)
 
@@ -495,6 +497,33 @@ class GaussianSqrtPrec(Distribution):
         # rank(prec) = rank(sqrtprec.T*sqrtprec) = rank(sqrtprec)
         # logdet can also be pseudo-determinant, defined as the product of non-zero eigenvalues
         return -0.5*(rank*np.log(2*np.pi) - logdet + mahadist)
+
+class GaussianPrec(Distribution):
+
+    def __init__(self,mean,prec,**kwargs):
+        super().__init__(**kwargs) 
+
+        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
+        self.prec = force_ndarray(prec)
+
+    def _sample(self,N=1):
+        # Pre-allocate
+        s = np.zeros((self.dim,N))
+        
+        # Cholesky factor of precision
+        R,low = cho_factor(self.prec)
+        
+        # Sample
+        for i in range(N):
+            s[:,i] = self.mean+cho_solve((R,low),np.random.randn(self.dim))
+        return s
+
+    def logpdf(self,x):
+        raise NotImplementedError("Logpdf of GaussianPrec is not yet implemented.")
+
+    @property
+    def dim(self):
+        return max(len(self.mean),self.prec.shape[0])
 
 
 # ========================================================================
