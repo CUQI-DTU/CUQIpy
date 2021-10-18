@@ -85,7 +85,7 @@ class Distribution(ABC):
                 elif callable(attr_val) and kw_key in getNonDefaultArgs(attr_val):
                     val_found = 1
             if val_found == 0:
-                raise ValueError("The keyword {} is not part of any attribute or argument to any function of this distribution.".format(kw_key))
+                raise ValueError("The keyword {} is not part of any attribute or non-default argument to any function of this distribution.".format(kw_key))
 
 
         # EVALUATE CONDITIONAL DISTRIBUTION
