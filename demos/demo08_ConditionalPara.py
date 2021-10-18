@@ -45,8 +45,8 @@ mean = lambda sigma,gamma: sigma+gamma
 std  = lambda delta,gamma: np.sqrt(delta+gamma)
 
 z = cuqi.distribution.Normal(mean,std)
-Z = z(sigma=3,delta=5,gamma=-2)
-
+Z = z(sigma=3,gamma=-2)
+Z = Z(delta=5)
 Z.sample()
 
 #%%
