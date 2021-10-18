@@ -7,16 +7,12 @@ from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.model import LinearModel
-from cuqi.utilities import force_ndarray,getNonDefaultArgs
+from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
 
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
-
-import inspect
-
-import time
 
 # import sksparse
 # from sksparse.cholmod import cholesky
