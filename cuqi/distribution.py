@@ -7,15 +7,12 @@ from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.model import LinearModel
-from cuqi.utilities import force_ndarray
+from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
 
 from abc import ABC, abstractmethod
 from copy import copy
-
-import inspect
-
-import time
+from functools import partial
 
 # import sksparse
 # from sksparse.cholmod import cholesky
@@ -85,10 +82,10 @@ class Distribution(ABC):
             for attr_key, attr_val in vars(self).items():
                 if kw_key is attr_key:
                     val_found = 1
-                elif callable(attr_val) and kw_key in inspect.getfullargspec(attr_val)[0]:
+                elif callable(attr_val) and kw_key in getNonDefaultArgs(attr_val):
                     val_found = 1
             if val_found == 0:
-                raise ValueError("The keyword {} is not part of any attribute or argument to any function of this distribution.".format(kw_key))
+                raise ValueError("The keyword {} is not part of any attribute or non-default argument to any function of this distribution.".format(kw_key))
 
 
         # EVALUATE CONDITIONAL DISTRIBUTION
@@ -105,17 +102,23 @@ class Distribution(ABC):
             #If attribute is callable we check if any keyword arguments can be used as arguments
             if callable(attr_val):
 
-                accepted_keywords = inspect.getfullargspec(attr_val)[0]
+                accepted_keywords = getNonDefaultArgs(attr_val)
+                remaining_keywords = copy(accepted_keywords)
 
                 # Builds dict with arguments to call attribute with
                 attr_args = {}
                 for kw_key, kw_val in kwargs.items():
                     if kw_key in accepted_keywords:
                         attr_args[kw_key] = kw_val
+                        remaining_keywords.remove(kw_key)
 
                 # If any keywords matched call with those and store output in the new dist
-                if len(attr_args)>0:
+                if len(attr_args)==len(accepted_keywords):  #All keywords found
                     setattr(new_dist,attr_key,attr_val(**attr_args))
+                elif len(attr_args)>0:                      #Some keywords found
+                    # Define new function where the conditioned keywords are defined
+                    func = partial(attr_val,**attr_args)
+                    setattr(new_dist,attr_key,func)
 
         return new_dist
 
