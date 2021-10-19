@@ -794,7 +794,8 @@ class Posterior(Distribution):
         self.likelihood = likelihood
         self.prior = prior 
         self.data = data
-        if 'geometry' not in kwargs.keys(): kwargs["geometry"]=prior.geometry
+        if 'geometry' not in kwargs.keys(): 
+            kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
 
     @property
@@ -809,7 +810,7 @@ class Posterior(Distribution):
     def geometry(self, value):
         if value != self.prior.geometry:
             raise ValueError("Posterior and prior geometries are inconsistent.")
-        # no need to actually set geometry because self.gemmetry returns self.prior.geoemtry
+        # no need to actually set geometry because self.geometry returns self.prior.geometry
 
 
     def logpdf(self,x):
