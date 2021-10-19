@@ -161,7 +161,7 @@ class Cauchy_diff(object):
         self.D = Dmat
 
     @property
-    def dim(self): # From init to property
+    def dim(self): 
         #TODO: handle the case when self.loc = None because len(None) = 1
         return len(self.loc)
 
@@ -221,7 +221,7 @@ class Normal(Distribution):
 
 
     @property
-    def dim(self): # as is
+    def dim(self): 
         #TODO: handle the case when self.mean or self.std = None because len(None) = 1
         return max(np.size(self.mean),np.size(self.std))
 
@@ -272,7 +272,7 @@ class Gamma(Distribution):
         self.rate = rate     
 
     @property
-    def dim(self): # had no dim property or attribute 
+    def dim(self):
         #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
         return max(np.size(shape),np.size(rate))
 
@@ -512,7 +512,7 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
         # self.U = u @ np.diag(np.sqrt(s_pinv))
 
     @property
-    def dim(self): # remove def from init, replace corrmat with self.R & add **kwargs to the init signature and call super
+    def dim(self):
         #TODO: handle the case when corrmat = None because len(None) = 1
         return len(np.diag(self.R))
 
@@ -626,7 +626,7 @@ class GMRF(Gaussian):
 
 
     @property 
-    def dim(self): # make dom a property, add kwargs in init signature, call super, remove dim from init to be a property  
+    def dim(self):  
         if self.dom == 1:
             return self.N 
         elif self.dom==2:
@@ -794,11 +794,23 @@ class Posterior(Distribution):
         self.likelihood = likelihood
         self.prior = prior 
         self.data = data
+        if 'geometry' not in kwargs.keys(): kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
 
     @property
     def dim(self):
         return self.prior.dim
+
+    @property
+    def geometry(self):
+        return self.prior.geometry
+
+    @geometry.setter
+    def geometry(self, value):
+        if value != self.prior.geometry:
+            raise ValueError("Posterior and prior geometries are inconsistent.")
+        # no need to actually set geometry because self.gemmetry returns self.prior.geoemtry
+
 
     def logpdf(self,x):
 
@@ -809,13 +821,14 @@ class Posterior(Distribution):
 
 class UserDefinedDistribution(Distribution):
 
-    def __init__(self, logpdf_func, **kwargs):
+    def __init__(self, logpdf_func, dim, **kwargs):
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
         if not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
         self.logpdf_func = logpdf_func
+        self.dim = dim
 
     @property
     def dim(self):
@@ -836,24 +849,24 @@ class DistributionGallery(UserDefinedDistribution):
 
     def __init__(self, distribution_name,**kwargs):
         # Init from abstract distribution class
-        if distribution_name is "CalSom91":
+        if distribution_name == "CalSom91":
             #TODO: user can specify sig and delta
-            self.dim = 2
+            dim = 2
             self.sig = 0.1
             self.delta = 1
             logpdf_func = self._CalSom91_logpdf_func
-        elif distribution_name is "BivariateGaussian":
+        elif distribution_name == "BivariateGaussian":
             #TODO: user can specify Gaussain input
             #TODO: Keep Gaussian distribution other functionalities (e.g. _sample)
-            self.dim = 2
-            mu = np.zeros(self.dim)
-            sigma = np.linspace(0.5, 1, self.dim)
+            dim = 2
+            mu = np.zeros(dim)
+            sigma = np.linspace(0.5, 1, dim)
             R = np.array([[1.0, .9 ],[.9, 1]])
             dist = Gaussian(mu, sigma, R)
             self._sample = dist._sample
             logpdf_func = dist.logpdf
 
-        super().__init__(logpdf_func, **kwargs)
+        super().__init__(logpdf_func, dim, **kwargs)
 
 
     def _CalSom91_logpdf_func(self,x):
