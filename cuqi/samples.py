@@ -48,7 +48,16 @@ class Samples(object):
             return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
 
     def plot_chain(self,variable_indices,*args,**kwargs):
-        return plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
+        if 'label' in kwargs.keys():
+            raise Exception("Argument 'label' cannot be passed by the user")
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = variables[variable_indices]
+        else:
+            variables = [variable_indices]
+        lines = plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
+        plt.legend(variables)
+        return lines
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
 
