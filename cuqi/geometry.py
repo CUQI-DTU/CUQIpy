@@ -269,7 +269,7 @@ class _DefaultGeometry(Continuous1D):
             if not np.all(value == vars(obj)[key]): return False 
         return True
 
-class KLExpansion(Continuous1D):
+class KLExpansion(Continuous1D): #TODO: Generalize to other basis
     '''
     class representation of the random field in  the sine basis
     alpha = sum_i p * (1/i)^decay * sin(ix)
@@ -280,23 +280,16 @@ class KLExpansion(Continuous1D):
         
         super().__init__(grid, axis_labels)
         
-        self.N = len(self.grid) # number of modes
-        self.modes = np.zeros(self.N) # vector of expansion coefs
-        self.real = np.zeros(self.N) # vector of real values
-        self.decay_rate = 2.5 # decay rate of KL
-        self.c = 12. # normalizer factor
-        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
-        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
-
-        self.p = np.zeros(self.N) # random variables in KL
-
-        self.axis_labels = axis_labels
+        self._decay_rate = 2.5 # decay rate of KL
+        self.normalizer = 12. # normalizer factor
+        eigvals = np.array(range(1,self.dim+1)) # KL eigvals
+        self.coefs = 1/np.float_power(eigvals,self._decay_rate)
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        self.modes = p*self.coefs/self.c
-        self.real = idst(self.modes)/2
-        return self.real
+        modes = p*self.coefs/self.normalizer
+        real = idst(modes)/2
+        return real
     
     def plot(self, p, is_fun=False):
         if is_fun:
@@ -312,9 +305,9 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels)
 
-        self.N = len(self.grid) # number of modes
+        self.dim = len(self.grid) # number of modes
         self.p = np.zeros(4)
-        #self.dx = np.pi/(self.N+1)
+        #self.dx = np.pi/(self.dim+1)
         #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
 
         self.axis_labels = axis_labels
