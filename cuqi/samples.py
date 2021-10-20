@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.core.fromnumeric import var
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import Continuous1D, Discrete, _DefaultGeometry
 
