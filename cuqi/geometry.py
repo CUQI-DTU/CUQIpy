@@ -305,23 +305,15 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels)
 
-        self.dim = len(self.grid) # number of modes
-        self.p = np.zeros(4)
-        #self.dx = np.pi/(self.dim+1)
-        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
-
-        self.axis_labels = axis_labels
-
     def par2fun(self, p):
-        self.real = np.zeros_like(self.grid)
-        
+        real = np.zeros_like(self.grid)
         idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
-        self.real[idx[0]] = p[0]
+        real[idx[0]] = p[0]
         idx = np.where( (self.grid>0.4*np.pi)&(self.grid<=0.6*np.pi) )
-        self.real[idx[0]] = p[1]
+        real[idx[0]] = p[1]
         idx = np.where( (self.grid>0.6*np.pi)&(self.grid<=0.8*np.pi) )
-        self.real[idx[0]] = p[2]
-        return self.real
+        real[idx[0]] = p[2]
+        return real
     
     @property
     def shape(self):
@@ -331,19 +323,4 @@ class StepExpansion(Continuous1D):
         if is_fun:
             super().plot(p)
         else:    
-            super().plot(self.par2fun(p))
-    
-    '''
-    def plot(self,values,*args,**kwargs):
-        p = plt.plot(values,*args,**kwargs)
-        self._plot_config()
-        return p
-
-    def _plot_config(self):
-        if self.axis_labels is not None:
-            plt.xlabel(self.axis_labels[0])
-            '''
-
-
-        
-
+            super().plot(self.par2fun(p))  
