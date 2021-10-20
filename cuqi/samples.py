@@ -51,20 +51,18 @@ class Samples(object):
         return plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
 
     def plot_ci(self,percent,exact=None,*args,**kwargs):
-
-        if not isinstance(self.geometry,(Continuous1D,Discrete)):
-            raise NotImplementedError("Confidence interval not implemented for {}".format(self.geometry))
         
         # Compute statistics
         mean = np.mean(self.samples,axis=-1)
         lb = (100-percent)/2
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
-
-        lci = self.geometry.plot_envelope(lo_conf, up_conf, color='dodgerblue')
+        
+        #TODO: Separate kwargs for plot and plot_envelope
+        lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',*args,**kwargs)
 
         lmn = self.geometry.plot(mean,*args,**kwargs)
-        if exact is not None:
+        if exact is not None: #TODO: Allow exact to be defined in different space than mean?
             lex = self.geometry.plot(exact,*args,**kwargs)
             plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
         else:

@@ -17,8 +17,7 @@ class Geometry(ABC):
         if self.shape is None: return None
         return np.prod(self.shape)
 
-    @abstractmethod
-    def plot(self,values):
+    def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
         Plots a function over the set defined by the geometry object.
             
@@ -27,8 +26,45 @@ class Geometry(ABC):
         values : ndarray
             1D array that contains the values of the function degrees of freedom.
         """
+        #Error check
+        if plot_par and not is_par:
+            raise Exception("Plot par is true, but is_par is false (parameters were not given)")
+
+        if plot_par:
+            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            return geom.plot(values,**kwargs)
+
+        if is_par:
+            values = self.par2fun(values)
+
+        return self._plot(values,**kwargs)
+
+    def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
+        #Error check
+        if plot_par and not is_par:
+            raise Exception("Plot par is true, but is_par is false (parameters were not given)")
+        
+        if plot_par:
+            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            return geom.plot_envelope(lo_values, hi_values,**kwargs)
+
+        if is_par:
+            lo_values = self.par2fun(lo_values)
+            hi_values = self.par2fun(hi_values)
+
+        return self._plot_envelope(lo_values,hi_values,**kwargs)
+
+    def par2fun(self,par):
+        """Parameter to function map"""
+        return par
+
+    @abstractmethod
+    def _plot(self):
         pass
 
+    def _plot_envelope(self,*args,**kwargs):
+        raise NotImplementedError("Plot envelope not implemented for {}. Use flag plot_par to plot envelope of parameters instead.".format(type(self)))
+            
     def _plot_config(self,values):
         """
         A method that implements any default configuration for the plots. This method is to be called inside any 'plot_' method.
@@ -111,12 +147,12 @@ class Continuous1D(Continuous):
     def grid(self, value):
         self._grid = self._create_dimension(value)
 
-    def plot(self,values,*args,**kwargs):
+    def _plot(self,values,*args,**kwargs):
         p = plt.plot(self.grid,values,*args,**kwargs)
         self._plot_config()
         return p
 
-    def plot_envelope(self, lo_values, up_values, **kwargs):
+    def _plot_envelope(self, lo_values, up_values, **kwargs):
         default = {'color':'dodgerblue', 'alpha':0.25}
         for key in default:
             if (key not in kwargs.keys()):
@@ -146,7 +182,7 @@ class Continuous2D(Continuous):
                 raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
             self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
-    def plot(self,values,plot_type='pcolor',**kwargs):
+    def _plot(self,values,plot_type='pcolor',**kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
         
@@ -229,7 +265,7 @@ class Discrete(Geometry):
         self._variables = value
         self._ids = range(self.dim)
 
-    def plot(self,values, **kwargs):
+    def _plot(self,values, **kwargs):
 
         if ('linestyle' not in kwargs.keys()) and ('ls' not in kwargs.keys()):
             kwargs["linestyle"]  = ''
@@ -240,7 +276,7 @@ class Discrete(Geometry):
         self._plot_config() 
         return plt.plot(self._ids,values,**kwargs)
 
-    def plot_envelope(self, lo_values, up_values, **kwargs):
+    def _plot_envelope(self, lo_values, up_values, **kwargs):
         self._plot_config()
         if 'fmt' in kwargs.keys():
             raise Exception("Argument 'fmt' cannot be passed by the user")
@@ -249,6 +285,10 @@ class Discrete(Geometry):
         for key in default:
             if (key not in kwargs.keys()):
                 kwargs[key]  = default[key]
+
+        #Convert to 1d numpy array to handle subtraction
+        lo_values = np.array(lo_values).flatten()
+        up_values = np.array(up_values).flatten()
         
         return plt.errorbar(self._ids, lo_values, 
                             yerr=np.vstack((np.zeros(len(lo_values)),up_values-lo_values)),
@@ -291,11 +331,6 @@ class KLExpansion(Continuous1D): #TODO: Generalize to other basis
         real = idst(modes)/2
         return real
     
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
 
 class StepExpansion(Continuous1D):
     '''
@@ -319,8 +354,3 @@ class StepExpansion(Continuous1D):
     def shape(self):
         return 3
     
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))  
