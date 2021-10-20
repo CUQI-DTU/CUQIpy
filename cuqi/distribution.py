@@ -25,11 +25,11 @@ eps = np.finfo(float).eps
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
 
-    def __init__(self,name=None, geometry=None):
+    def __init__(self,name=None, geometry=None, is_symmetric=None):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
-        self.is_symmetric = None
+        self.is_symmetric = is_symmetric
         self.geometry = geometry
 
     @property
@@ -130,13 +130,15 @@ class Distribution(ABC):
         return new_dist
 
 # ========================================================================
-class Cauchy_diff(object):
+class Cauchy_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond, geometry=None):
+    def __init__(self, location, scale, bndcond,**kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs) 
+        
         self.loc = location
         self.scale = scale
         self.bnd = bndcond
-        self.geometry = geometry
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
@@ -180,6 +182,10 @@ class Cauchy_diff(object):
             return (-2*diff/(diff**2+self.scale**2)) @ self.D
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.loc)))
+
+    def _sample(self,N=1,rng=None):
+        raise NotImplementedError("'Cauchy_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
+
     # def cdf(self, x):   # TODO
     #     return 1/np.pi * np.atan((x-self.loc)/self.scale)
 
@@ -210,10 +216,9 @@ class Normal(Distribution):
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean=None, std=None, **kwargs):
+    def __init__(self, mean=None, std=None, is_symmetric=True, **kwargs):
         # Init from abstract distribution class
-        super().__init__(**kwargs)  
-        self.is_symmetric = True 
+        super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
         # Init specific to this distribution
         self.mean = mean
@@ -262,10 +267,9 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, shape=None, rate=None, **kwargs):
+    def __init__(self, shape=None, rate=None, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
-        super().__init__(**kwargs) 
-        self.is_symmetric = False
+        super().__init__(is_symmetric=is_symmetric,**kwargs) 
 
         # Init specific to this distribution
         self.shape = shape
@@ -322,8 +326,8 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
     x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
     """
-    def __init__(self, mean=None, cov=None,**kwargs):
-        super().__init__(**kwargs) 
+    def __init__(self, mean=None, cov=None, is_symmetric=True, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.cov = force_ndarray(cov)
@@ -435,8 +439,8 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
 class GaussianPrec(Distribution):
 
-    def __init__(self,mean,prec,**kwargs):
-        super().__init__(**kwargs) 
+    def __init__(self,mean,prec,is_symmetric=True,**kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.prec = force_ndarray(prec)
@@ -465,10 +469,9 @@ class GaussianPrec(Distribution):
 # ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
-    def __init__(self, mean, std, corrmat=None,**kwargs):
+    def __init__(self, mean, std, corrmat=None,is_symmetric=True,**kwargs):
         # Init from abstract distribution class
-        super().__init__(**kwargs)
-        self.is_symmetric = True #TODO: change once we call the super
+        super().__init__(is_symmetric=is_symmetric, **kwargs)
 
         self.mean = mean
         self.std = std
@@ -694,14 +697,15 @@ class GMRF(Gaussian):
 
 
 # ========================================================================
-class Laplace_diff():
+class Laplace_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond, geometry=None):
+    def __init__(self, location, scale, bndcond, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs) 
+
         self.loc = location
         self.scale = scale
-        self.dim = len(location)
         self.bnd = bndcond
-        self.geometry = geometry
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
@@ -726,6 +730,11 @@ class Laplace_diff():
         self.D = Dmat
         self.is_symmetric = None #TODO: update
 
+    @property
+    def dim(self):
+        #TODO: handle the case when self.loc is None 
+        return len(self.loc)
+
     def pdf(self, x):
         Dx = self.D @ (x-self.loc)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
@@ -733,6 +742,9 @@ class Laplace_diff():
     def logpdf(self, x):
         Dx = self.D @ (x-self.loc)
         return len(Dx)*(-(np.log(2)+np.log(self.scale))) - np.linalg.norm(Dx, ord=1, axis=0)/self.scale
+
+    def _sample(self,N=1,rng=None):
+        raise NotImplementedError("'Laplace_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
     #     return 1/2 + 1/2*np.sign(x-self.loc)*(1-np.exp(-np.linalg.norm(x, ord=1, axis=0)/self.scale))
@@ -745,7 +757,7 @@ class Laplace_diff():
 class Uniform(Distribution):
 
 
-    def __init__(self, low=None, high=None, **kwargs):
+    def __init__(self, low=None, high=None, is_symmetric=True, **kwargs):
         """
         Parameters
         ----------
@@ -755,12 +767,11 @@ class Uniform(Distribution):
             Upper bound(s) of the uniform distribution.
         """
         # Init from abstract distribution class
-        super().__init__(**kwargs)       
+        super().__init__(is_symmetric=is_symmetric, **kwargs)       
 
         # Init specific to this distribution
         self.low = low
-        self.high = high  
-        self.is_symmetric = True       
+        self.high = high      
 
 
     @property 
