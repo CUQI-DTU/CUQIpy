@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numpy.core.fromnumeric import var
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import Continuous1D, Discrete, _DefaultGeometry
 
@@ -52,9 +53,9 @@ class Samples(object):
             raise Exception("Argument 'label' cannot be passed by the user")
         if hasattr(self.geometry,"variables"):
             variables = np.array(self.geometry.variables) #Convert to np array for better slicing
-            variables = variables[variable_indices]
+            variables = np.array(variables[variable_indices]).flatten()
         else:
-            variables = [variable_indices]
+            variables = np.array(variable_indices).flatten()
         lines = plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
         return lines
