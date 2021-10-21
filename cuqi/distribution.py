@@ -3,20 +3,14 @@ import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor
+from scipy.linalg import eigh, dft, cho_solve, cho_factor
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
-from cuqi.model import LinearModel
 from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
-
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
-
-# import sksparse
-# from sksparse.cholmod import cholesky
-eps = np.finfo(float).eps
 
 
 # ========== Abstract distribution class ===========
@@ -59,7 +53,7 @@ class Distribution(ABC):
     def sample(self,N=1,*args,**kwargs):
         #Make sure all values are specified, if not give error
         for key, value in vars(self).items():
-            if isinstance(value,Distribution):
+            if isinstance(value,Distribution) or callable(value):
                 raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
         # Get samples from the distribution sample method
@@ -212,7 +206,7 @@ class Normal(Distribution):
     sample: generate one or more random samples
     pdf: evaluate probability density function
     logpdf: evaluate log probability density function
-    cdf: evaluate cumulatiuve probability function
+    cdf: evaluate cumulative probability function
     
     Example
     -----------
@@ -245,7 +239,7 @@ class Normal(Distribution):
     def _sample(self,N=1, rng=None):
 
         """
-        Draw sample(s) from distrubtion
+        Draw sample(s) from distribution
         
         Example
         -------
@@ -281,7 +275,7 @@ class Gamma(Distribution):
     @property
     def dim(self):
         #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-        return max(np.size(shape),np.size(rate))
+        return max(np.size(self.shape),np.size(self.rate))
 
     @property
     def scale(self):
@@ -322,7 +316,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     sample: generate one or more random samples
     pdf: evaluate probability density function
     logpdf: evaluate log probability density function
-    cdf: evaluate cumulatiuve probability function
+    cdf: evaluate cumulative probability function
     
     Example
     -----------
@@ -621,6 +615,7 @@ class GMRF(Gaussian):
             # 
             # np.log(np.linalg.det(self.L.todense()))
         elif (BCs == 'periodic') or (BCs == 'neumann'):
+            eps = np.finfo(float).eps
             self.rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
             self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(self.dim, dtype=int))
             if (self.dim > 5000):  # approximate to avoid 'excesive' time
@@ -654,15 +649,15 @@ class GMRF(Gaussian):
         if not callable(self.mean):
             return (self.prec*self.L) @ (x-self.mean)
 
-    def sample(self, Ns=1, rng=None):
+    def _sample(self, N=1, rng=None):
         if (self.BCs == 'zero'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.dim, Ns))   # standard Gaussian
+                xi = rng.standard_normal((self.dim, N))   # standard Gaussian
             else:
-                xi = np.random.randn(self.dim, Ns)   # standard Gaussian
+                xi = np.random.randn(self.dim, N)   # standard Gaussian
 
-            if Ns == 1:
+            if N == 1:
                 s = self.mean.flatten() + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
             else:
                 s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
@@ -671,9 +666,9 @@ class GMRF(Gaussian):
         elif (self.BCs == 'periodic'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.dim, Ns)) + 1j*rng.standard_normal((self.dim, Ns))
+                xi = rng.standard_normal((self.dim, N)) + 1j*rng.standard_normal((self.dim, N))
             else:
-                xi = np.random.randn(self.dim, Ns) + 1j*np.random.randn(self.dim, Ns)
+                xi = np.random.randn(self.dim, N) + 1j*np.random.randn(self.dim, N)
             
             F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
             # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
@@ -686,9 +681,9 @@ class GMRF(Gaussian):
         elif (self.BCs == 'neumann'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.D.shape[0], Ns))   # standard Gaussian
+                xi = rng.standard_normal((self.D.shape[0], N))   # standard Gaussian
             else:
-                xi = np.random.randn(self.D.shape[0], Ns)   # standard Gaussian
+                xi = np.random.randn(self.D.shape[0], N)   # standard Gaussian
             
             s = self.mean + (1/np.sqrt(self.prec))* \
                 splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self.D.T @ xi)))) 
