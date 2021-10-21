@@ -25,6 +25,14 @@ class Geometry(ABC):
         ----------
         values : ndarray
             1D array that contains the values of the function degrees of freedom.
+
+        is_par : Boolean, default True
+            Flag to indicate whether the values are parameters or function values.
+            True:  values are passed through the :meth:`par2fun` method.
+            False: values are plotted directly.
+        
+        plot_par : Boolean, default False
+            If true this method plots the parameters as a :class:`Discrete` geometry.
         """
         #Error check
         if plot_par and not is_par:
@@ -40,6 +48,25 @@ class Geometry(ABC):
         return self._plot(values,**kwargs)
 
     def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
+        """
+        Plots an envelope from lower and upper bounds over the set defined by the geometry object.
+            
+        Parameters
+        ----------
+        lo_values : ndarray
+            1D array that contains a lower bound of the function degrees of freedom.
+
+        hi_values : ndarray
+            1D array that contains an upper bound of the function degrees of freedom.
+
+        is_par : Boolean, default True
+            Flag to indicate whether the values are parameters or function values.
+            True:  values are passed through the :meth:`par2fun` method.
+            False: values are plotted directly.
+        
+        plot_par : Boolean, default False
+            If true this method plots the parameters as a :class:`Discrete` geometry.
+        """
         #Error check
         if plot_par and not is_par:
             raise Exception("Plot par is true, but is_par is false (parameters were not given)")
@@ -55,7 +82,7 @@ class Geometry(ABC):
         return self._plot_envelope(lo_values,hi_values,**kwargs)
 
     def par2fun(self,par):
-        """Parameter to function map"""
+        """The parameter to function map used to map parameters to function values in e.g. plotting."""
         return par
 
     @abstractmethod
