@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import Continuous1D, Discrete, _DefaultGeometry
+from copy import copy
 
 class Samples(object):
 
@@ -19,8 +20,32 @@ class Samples(object):
     def geometry(self,inGeometry):
         self._geometry = inGeometry
 
-    def burnthin(self, Nb, Nt):
-        self.samples = self.samples[Nb::Nt,:]
+    def burnthin(self, Nb, Nt=1):
+        """
+        Remove burn-in and thin samples. 
+        The burnthinned samples are returned as a new Samples object.
+        
+        Parameters
+        ----------
+        Nb : int
+            Number of samples to remove as burn-in from the start of the chain.
+        
+        Nt : int
+            Thin samples by selecting every Nt sample in the chain (after burn-in)
+
+        Example
+        ----------
+        # Remove 100 samples burn in and select every 2nd sample after burn-in
+        # Store as new samples object
+        S_burnthin = S.burnthin(100,2) 
+
+        # Same thing as above, but replace existing samples object
+        # (the burn-in and thinned samples are lost)
+        S = S.burnthin(100,2) 
+        """
+        new_samples = copy(self)
+        new_samples.samples = self.samples[...,Nb::Nt]
+        return new_samples
 
     def plot_mean(self,*args,**kwargs):
         # Compute mean assuming samples are index in last dimension of nparray
