@@ -25,10 +25,15 @@ class Samples(object):
     :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
+    :meth:`shape`: Returns the shape of samples.
     """
     def __init__(self, samples, geometry=None):
         self.samples = samples
         self.geometry = geometry
+
+    @property
+    def shape(self):
+        return self.samples.shape
 
     @property
     def geometry(self):
