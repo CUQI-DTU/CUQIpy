@@ -142,7 +142,6 @@ class Cauchy_diff(Distribution):
     def __init__(self, location, scale, bc_type, geometry=None):
         self.loc = location
         self.scale = scale
-        self.dim = len(location)
         self.bnd = bc_type
         self.geometry = geometry
 
@@ -552,8 +551,7 @@ class GMRF(Gaussian):
 
         self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
         self.L = self.P.L
-        self.D = self.P.D
-        self.dim = self.P.dim        
+        self.D = self.P.D      
             
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
