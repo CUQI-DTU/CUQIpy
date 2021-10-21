@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry
+from copy import copy
 
 class Samples(object):
 
