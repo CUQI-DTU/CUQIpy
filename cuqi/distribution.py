@@ -8,9 +8,14 @@ from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
+from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
+
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
+import warnings
+
+import inspect
 
 
 # ========== Abstract distribution class ===========
@@ -129,49 +134,28 @@ class Distribution(ABC):
 # ========================================================================
 class Cauchy_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond,**kwargs):
+    def __init__(self, location, scale, bc_type,**kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
         self.loc = location
         self.scale = scale
-        self.bnd = bndcond
+        self.bnd = bc_type
 
-        # finite difference matrix
-        one_vec = np.ones(self.dim)
-        diags = np.vstack([-one_vec, one_vec])
-        if (bndcond == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim)
-        elif (bndcond == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim).tocsr()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (bndcond == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(diags, locs, self.dim-1, self.dim)
-        elif (bndcond == 'backward'):
-            locs = [0, -1]
-            Dmat = spdiags(diags, locs, self.dim, self.dim).tocsr()
-            Dmat[0, 0] = 1
-        elif (bndcond == 'none'):
-            Dmat = eye(self.dim)
-        self.D = Dmat
+        self.FOFD = FirstOrderFiniteDifference(self.dim, bc_type=bc_type, dom = 1)
 
     @property
     def dim(self): 
         #TODO: handle the case when self.loc = None because len(None) = 1
         return len(self.loc)
 
-    def pdf(self, x):
-        Dx = self.D @ (x-self.loc)
-        return (1/(np.pi**len(Dx))) * np.prod(self.scale/(Dx**2 + self.scale**2))
-
     def logpdf(self, x):
-        Dx = self.D @ (x-self.loc)
+        Dx = self.FOFD.D @ (x-self.loc)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
         return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
+
+    def _sample(self, N):
+        raise NotImplementedError
     
     def gradient(self, val, **kwargs):
         if not callable(self.loc): # for prior
@@ -218,6 +202,7 @@ class Normal(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
         # Init specific to this distribution
+        warnings.warn("This Normal distribution generates iid samples.")
         self.mean = mean
         self.std = std
 
@@ -559,40 +544,13 @@ class GMRF(Gaussian):
         self.N = N          # partition size
         self.BCs = BCs      # boundary conditions
         self.dom = dom
-        
-        # BCs: 1D difference matrix 
-        one_vec = np.ones(N)
-        dgn = np.vstack([-one_vec, one_vec])
-        if (BCs == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-        elif (BCs == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (BCs == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(dgn, locs, N, N).tocsc()
-            Dmat[-1, -1] = 0
-        elif (BCs == 'none'):
-            Dmat = eye(N, dtype=int)
-        else:
-            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
-        
-        # structure matrix
-        if (dom == 1):
-            self.D = Dmat
-            self.L = (Dmat.T @ Dmat).tocsc()
-        elif (dom == 2):            
-            I = eye(N, dtype=int)
-            Ds = kron(I, Dmat)
-            Dt = kron(Dmat, I)
-            self.D = vstack([Ds, Dt])
-            self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
-
         self.is_symmetric = True #TODO: change once we call the super   
 
+
+        self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
+        self.L = self.P.L
+        self.D = self.P.D      
+            
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
             # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
@@ -885,3 +843,67 @@ class DistributionGallery(UserDefinedDistribution):
         return -1/(2*self.sig**2)*(np.sqrt(x[:,0]**2+ x[:,1]**2) -1 )**2 -1/(2*self.delta**2)*(x[:,1]-1)**2
 
 
+
+# ========================================================================
+class Laplace(Distribution):
+
+    def __init__(self, location, prec, **kwargs):
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        warnings.warn("This Laplace distribution generates iid samples")
+        self.location = location
+        self.prec = prec
+  
+    @property
+    def dim(self):
+        return np.size(self.location)
+
+    def logpdf(self, x):
+        if isinstance(x, (float,int)):
+            x = np.array([x])
+        return self.dim*(np.log(self.prec/2)) - self.prec*np.linalg.norm(x-self.location,1)
+
+    def _sample(self,N=1,rng=None):
+        if rng is not None:
+            s =  rng.laplace(self.location, 1.0/self.prec, (N,self.dim))
+        else:
+            s = np.random.laplace(self.location, 1.0/self.prec, (N,self.dim))
+        return s
+
+# ========================================================================
+class LMRF(Distribution):
+        
+    def __init__(self, mean, prec, N, dom, BCs, **kwargs):
+        super().__init__(**kwargs)
+        self.mean = mean.reshape(len(mean), 1)
+        self.prec = prec
+        self.N = N          # partition size
+        self.BCs = BCs      # boundary conditions
+        self.dom = dom
+
+        self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
+        # BCs: 1D difference matrix 
+
+    @property
+    def dim(self):
+        return self.P.dim
+
+    def logpdf(self, x):
+        if self.dom == 1:
+            const = self.dim *(np.log(self.prec)-np.log(2)) 
+            y = const -  self.prec*(np.linalg.norm(self.P.D@x, ord=1))
+        elif self.dom == 2:
+            const = self.dim *(np.log(self.prec)-np.log(2)) 
+            y = const -  self.prec*(np.linalg.norm(self.P.Ds@x, ord=1)+np.linalg.norm(self.P.Dt@x, ord=1))
+
+        return y
+
+    def _sample(self, N):
+        raise NotImplementedError
+
+
+
+
+                        
