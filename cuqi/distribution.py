@@ -3,7 +3,7 @@ import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor
+from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.model import LinearModel
@@ -436,6 +436,77 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s = np.random.multivariate_normal(self.mean, self.cov, N).T
             return s
 
+class GaussianSqrtPrec(Distribution):
+    """
+    Gaussian probability distribution defined using sqrt of precision matrix. 
+    Generates instance of cuqi.distribution.GaussianSqrtPrec
+    
+    Parameters
+    ------------
+    mean: Mean of distribution. 1d numpy array
+    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution. Can be a 2d sparse or numpy array.
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    
+    Example
+    -----------
+    # Generate an i.i.d. n-dim Gaussian with zero mean and some standard deviation std.
+    x = cuqi.distribution.Normal(mean=np.zeros(n), sqrtprec = 1/std*np.eye)
+    """
+    def __init__(self, mean=None, sqrtprec=None, **kwargs):
+        super().__init__(**kwargs)
+        self.mean = force_ndarray(mean, flatten=True)
+        self.sqrtprec = force_ndarray(sqrtprec)
+        self.dim = len(self.mean)
+
+        # Init from abstract distribution class
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
+            kwargs["geometry"] = max(np.size(mean),np.shape(sqrtprec)[1])
+        super().__init__(**kwargs) 
+        self.is_symmetric = True
+
+    def _sample(self, N):
+        if issparse(self.sqrtprec):        
+            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
+            samples = self.mean[:, None] + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        else:
+            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
+            samples = self.mean[:, None] + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0]
+        return samples
+
+    def logpdf(self, x):
+        # Sqrtprec diagonal
+        if (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
+            sqrtprec = self.sqrtprec.diagonal()
+            prec =sqrtprec**2
+            logdet = np.sum(np.log(prec))
+            rank = self.dim
+        # Cov is full
+        else:
+            if issparse(self.sqrtprec):
+                raise NotImplementedError("Non-diagonal sparse sqrtprec is not supported for now")
+                #from sksparse.cholmod import cholesky #Uses package sksparse>=0.1
+                #cholmodcov = None #cholesky(cov, ordering_method='natural')
+                #sqrtcov = cholmodcov.L()
+                #logdet = cholmodcov.logdet()
+            else:
+                # Can we use cholesky factorization and somehow get the logdet also?
+                s = eigvals(self.sqrtprec.T@self.sqrtprec)
+                d = s[s > eps]
+                rank = len(d)
+                logdet = np.sum(np.log(d))
+
+        dev = x - self.mean
+        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=0)
+        # rank(prec) = rank(sqrtprec.T*sqrtprec) = rank(sqrtprec)
+        # logdet can also be pseudo-determinant, defined as the product of non-zero eigenvalues
+        return -0.5*(rank*np.log(2*np.pi) - logdet + mahadist)
+
 class GaussianPrec(Distribution):
 
     def __init__(self,mean,prec,**kwargs):
@@ -462,7 +533,6 @@ class GaussianPrec(Distribution):
     @property
     def dim(self):
         return max(len(self.mean),self.prec.shape[0])
-
 
 
 # ========================================================================
