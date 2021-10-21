@@ -3,7 +3,7 @@ import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor
+from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.model import LinearModel
@@ -30,7 +30,17 @@ class Distribution(ABC):
         self.geometry = geometry
 
     @property
+    @abstractmethod
+    def dim(self):
+        pass
+
+    @property
     def geometry(self):
+        if self.dim != self._geometry.dim:
+            if isinstance(self._geometry,_DefaultGeometry):
+                self.geometry = self.dim
+            else:
+                raise Exception("Distribution Geometry attribute is not consistent with the distribution dimension ('dim')")
         return self._geometry
 
     @geometry.setter
@@ -125,11 +135,11 @@ class Distribution(ABC):
 # ========================================================================
 class Cauchy_diff(object):
 
-    def __init__(self, location, scale, bndcond):
+    def __init__(self, location, scale, bndcond, geometry=None):
         self.loc = location
         self.scale = scale
         self.bnd = bndcond
-        self.geometry = None
+        self.geometry = geometry
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
@@ -154,7 +164,7 @@ class Cauchy_diff(object):
         self.D = Dmat
 
     @property
-    def dim(self):
+    def dim(self): 
         #TODO: handle the case when self.loc = None because len(None) = 1
         return len(self.loc)
 
@@ -205,9 +215,6 @@ class Normal(Distribution):
     """
     def __init__(self, mean=None, std=None, **kwargs):
         # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            #TODO: handle the case when self.mean or self.std = None because len(None) = 1
-            kwargs["geometry"] = max(np.size(mean),np.size(std))
         super().__init__(**kwargs)  
         self.is_symmetric = True 
 
@@ -217,8 +224,9 @@ class Normal(Distribution):
 
 
     @property
-    def dim(self):
-        return self.geometry.dim
+    def dim(self): 
+        #TODO: handle the case when self.mean or self.std = None because len(None) = 1
+        return max(np.size(self.mean),np.size(self.std))
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
@@ -259,9 +267,6 @@ class Gamma(Distribution):
 
     def __init__(self, shape=None, rate=None, **kwargs):
         # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-            kwargs["geometry"] = max(np.size(shape),np.size(rate))
         super().__init__(**kwargs) 
         self.is_symmetric = False
 
@@ -271,7 +276,8 @@ class Gamma(Distribution):
 
     @property
     def dim(self):
-        return self.geometry.dim
+        #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
+        return max(np.size(shape),np.size(rate))
 
     @property
     def scale(self):
@@ -430,6 +436,77 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s = np.random.multivariate_normal(self.mean, self.cov, N).T
             return s
 
+class GaussianSqrtPrec(Distribution):
+    """
+    Gaussian probability distribution defined using sqrt of precision matrix. 
+    Generates instance of cuqi.distribution.GaussianSqrtPrec
+    
+    Parameters
+    ------------
+    mean: Mean of distribution. 1d numpy array
+    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution. Can be a 2d sparse or numpy array.
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    
+    Example
+    -----------
+    # Generate an i.i.d. n-dim Gaussian with zero mean and some standard deviation std.
+    x = cuqi.distribution.Normal(mean=np.zeros(n), sqrtprec = 1/std*np.eye)
+    """
+    def __init__(self, mean=None, sqrtprec=None, **kwargs):
+        super().__init__(**kwargs)
+        self.mean = force_ndarray(mean, flatten=True)
+        self.sqrtprec = force_ndarray(sqrtprec)
+        self.dim = len(self.mean)
+
+        # Init from abstract distribution class
+        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
+            #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
+            kwargs["geometry"] = max(np.size(mean),np.shape(sqrtprec)[1])
+        super().__init__(**kwargs) 
+        self.is_symmetric = True
+
+    def _sample(self, N):
+        if issparse(self.sqrtprec):        
+            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
+            samples = self.mean[:, None] + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        else:
+            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
+            samples = self.mean[:, None] + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0]
+        return samples
+
+    def logpdf(self, x):
+        # Sqrtprec diagonal
+        if (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
+            sqrtprec = self.sqrtprec.diagonal()
+            prec =sqrtprec**2
+            logdet = np.sum(np.log(prec))
+            rank = self.dim
+        # Cov is full
+        else:
+            if issparse(self.sqrtprec):
+                raise NotImplementedError("Non-diagonal sparse sqrtprec is not supported for now")
+                #from sksparse.cholmod import cholesky #Uses package sksparse>=0.1
+                #cholmodcov = None #cholesky(cov, ordering_method='natural')
+                #sqrtcov = cholmodcov.L()
+                #logdet = cholmodcov.logdet()
+            else:
+                # Can we use cholesky factorization and somehow get the logdet also?
+                s = eigvals(self.sqrtprec.T@self.sqrtprec)
+                d = s[s > eps]
+                rank = len(d)
+                logdet = np.sum(np.log(d))
+
+        dev = x - self.mean
+        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=0)
+        # rank(prec) = rank(sqrtprec.T*sqrtprec) = rank(sqrtprec)
+        # logdet can also be pseudo-determinant, defined as the product of non-zero eigenvalues
+        return -0.5*(rank*np.log(2*np.pi) - logdet + mahadist)
+
 class GaussianPrec(Distribution):
 
     def __init__(self,mean,prec,**kwargs):
@@ -458,22 +535,18 @@ class GaussianPrec(Distribution):
         return max(len(self.mean),self.prec.shape[0])
 
 
-
 # ========================================================================
 class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     def __init__(self, mean, std, corrmat=None,**kwargs):
         # Init from abstract distribution class
-        if corrmat is None:
-            corrmat = np.eye(len(mean))
-        dim = len(np.diag(corrmat))   #TODO: handle the case when corrmat = None because len(None) = 1
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            kwargs["geometry"] = dim 
         super().__init__(**kwargs)
         self.is_symmetric = True #TODO: change once we call the super
 
         self.mean = mean
         self.std = std
+        if corrmat is None:
+            corrmat = np.eye(len(mean))
         self.R = corrmat
 
         # self = sps.multivariate_normal(mean, (std**2)*corrmat)
@@ -513,7 +586,8 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 
     @property
     def dim(self):
-        return self.geometry.dim
+        #TODO: handle the case when corrmat = None because len(None) = 1
+        return len(np.diag(self.R))
 
     def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
         if callable(self.mean):
@@ -551,18 +625,13 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 class GMRF(Gaussian):
         
     def __init__(self, mean, prec, N, dom, BCs, **kwargs): 
-        if dom == 1:
-            dim = N 
-        elif (dom==2):
-            dim = N**2
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            kwargs["geometry"] = dim 
         super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
         self.N = N          # partition size
         self.BCs = BCs      # boundary conditions
+        self.dom = dom
         
         # BCs: 1D difference matrix 
         one_vec = np.ones(N)
@@ -630,8 +699,12 @@ class GMRF(Gaussian):
 
 
     @property 
-    def dim(self):
-        return self.geometry.dim
+    def dim(self):  
+        if self.dom == 1:
+            return self.N 
+        elif self.dom==2:
+            return self.N**2
+        raise ValueError("attribute dom can be either 1 or 2")
 
     def logpdf(self, x):
         const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
@@ -696,12 +769,12 @@ class GMRF(Gaussian):
 # ========================================================================
 class Laplace_diff():
 
-    def __init__(self, location, scale, bndcond):
+    def __init__(self, location, scale, bndcond, geometry=None):
         self.loc = location
         self.scale = scale
         self.dim = len(location)
         self.bnd = bndcond
-        self.geometry = None
+        self.geometry = geometry
 
         # finite difference matrix
         one_vec = np.ones(self.dim)
@@ -755,9 +828,7 @@ class Uniform(Distribution):
             Upper bound(s) of the uniform distribution.
         """
         # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            kwargs["geometry"] = max(np.size(low),np.size(high)) 
-        super().__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__      
+        super().__init__(**kwargs)       
 
         # Init specific to this distribution
         self.low = low
@@ -767,7 +838,8 @@ class Uniform(Distribution):
 
     @property 
     def dim(self):
-        return self.geometry.dim
+        #TODO: hanlde the case when high and low are None
+        return max(np.size(self.low),np.size(self.high)) 
 
 
     def logpdf(self, x):
@@ -795,8 +867,24 @@ class Posterior(Distribution):
         self.likelihood = likelihood
         self.prior = prior 
         self.data = data
-        self.dim = prior.dim
+        if 'geometry' not in kwargs.keys(): 
+            kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
+
+    @property
+    def dim(self):
+        return self.prior.dim
+
+    @property
+    def geometry(self):
+        return self.prior.geometry
+
+    @geometry.setter
+    def geometry(self, value):
+        if value != self.prior.geometry:
+            raise ValueError("Posterior and prior geometries are inconsistent.")
+        # no need to actually set geometry because self.geometry returns self.prior.geometry
+
 
     def logpdf(self,x):
 
@@ -807,13 +895,22 @@ class Posterior(Distribution):
 
 class UserDefinedDistribution(Distribution):
 
-    def __init__(self, logpdf_func, **kwargs):
+    def __init__(self, logpdf_func, dim, **kwargs):
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
         if not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
         self.logpdf_func = logpdf_func
+        self.dim = dim
+
+    @property
+    def dim(self):
+        return self._dim
+
+    @dim.setter
+    def dim(self, value):
+        self._dim = value
 
     def logpdf(self, x):
         return self.logpdf_func(x)
@@ -826,24 +923,25 @@ class DistributionGallery(UserDefinedDistribution):
 
     def __init__(self, distribution_name,**kwargs):
         # Init from abstract distribution class
-        if distribution_name is "CalSom91":
+        if distribution_name == "CalSom91":
             #TODO: user can specify sig and delta
-            self.dim = 2
+            dim = 2
             self.sig = 0.1
             self.delta = 1
             logpdf_func = self._CalSom91_logpdf_func
-        elif distribution_name is "BivariateGaussian":
+        elif distribution_name == "BivariateGaussian":
             #TODO: user can specify Gaussain input
             #TODO: Keep Gaussian distribution other functionalities (e.g. _sample)
-            self.dim = 2
-            mu = np.zeros(self.dim)
-            sigma = np.linspace(0.5, 1, self.dim)
+            dim = 2
+            mu = np.zeros(dim)
+            sigma = np.linspace(0.5, 1, dim)
             R = np.array([[1.0, .9 ],[.9, 1]])
             dist = Gaussian(mu, sigma, R)
             self._sample = dist._sample
             logpdf_func = dist.logpdf
 
-        super().__init__(logpdf_func, **kwargs)
+        super().__init__(logpdf_func, dim, **kwargs)
+
 
     def _CalSom91_logpdf_func(self,x):
         if len(x.shape) == 1:
