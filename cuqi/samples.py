@@ -5,7 +5,27 @@ from cuqi.geometry import Continuous1D, Discrete, _DefaultGeometry
 from copy import copy
 
 class Samples(object):
+    """
+    An object used to store samples from distributions. 
 
+    Parameters
+    ----------
+    samples : ndarray
+        Contains the raw samples as a numpy array indexed by the last axis of the array.
+
+    geometry : cuqi.geometry.Geometry, default None
+        Contains the geometry related of the samples
+
+    Methods
+    ----------
+    :meth:`plot`: Plots one or more samples.
+    :meth:`plot_ci`: Plots a confidence interval for the samples.
+    :meth:`plot_mean`: Plots the mean of the samples.
+    :meth:`plot_std`: Plots the std of the samples.
+    :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).
+    :meth:`burnthin`: Removes burn-in and thins samples.
+    :meth:`diagnostics`: Conducts diagnostics on the chain.
+    """
     def __init__(self, samples, geometry=None):
         self.samples = samples
         self.geometry = geometry
