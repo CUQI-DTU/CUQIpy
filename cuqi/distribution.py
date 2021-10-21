@@ -848,8 +848,10 @@ class Laplace(Distribution):
         warnings.warn("This Laplace distribution generates iid samples")
         self.location = location
         self.prec = prec
-        self.dim = np.size(location)
   
+    @property
+    def dim(self):
+        return np.size(self.location)
 
     def logpdf(self, x):
         if isinstance(x, (float,int)):
@@ -866,7 +868,8 @@ class Laplace(Distribution):
 # ========================================================================
 class LMRF(Distribution):
         
-    def __init__(self, mean, prec, N, dom, BCs):
+    def __init__(self, mean, prec, N, dom, BCs, **kwargs):
+        super().__init__(**kwargs)
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
         self.N = N          # partition size
