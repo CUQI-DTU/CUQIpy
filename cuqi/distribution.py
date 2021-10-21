@@ -9,13 +9,10 @@ from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
-
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
 import warnings
-
-import inspect
 
 
 # ========== Abstract distribution class ===========
@@ -138,19 +135,19 @@ class Cauchy_diff(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
-        self.loc = location
+        self.location = location
         self.scale = scale
-        self.bnd = bc_type
+        self._bc_type = bc_type
 
-        self.FOFD = FirstOrderFiniteDifference(self.dim, bc_type=bc_type, dom = 1)
+        self._FOFD = FirstOrderFiniteDifference(self.dim, bc_type=bc_type, dom = 1)
 
     @property
     def dim(self): 
         #TODO: handle the case when self.loc = None because len(None) = 1
-        return len(self.loc)
+        return len(self.location)
 
     def logpdf(self, x):
-        Dx = self.FOFD.D @ (x-self.loc)
+        Dx = self._FOFD.D @ (x-self.location)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
         return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
 
@@ -158,11 +155,11 @@ class Cauchy_diff(Distribution):
         raise NotImplementedError
     
     def gradient(self, val, **kwargs):
-        if not callable(self.loc): # for prior
+        if not callable(self.location): # for prior
             diff = self.D @ val
             return (-2*diff/(diff**2+self.scale**2)) @ self.D
         else:
-            warnings.warn('Gradient not implemented for {}'.format(type(self.loc)))
+            warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
 
     def _sample(self,N=1,rng=None):
         raise NotImplementedError("'Cauchy_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
@@ -536,20 +533,18 @@ class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
 # ========================================================================
 class GMRF(Gaussian):
         
-    def __init__(self, mean, prec, N, dom, BCs, **kwargs): 
-        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
+    def __init__(self, mean, prec, N, dom, bc_type, is_symmetric=True, **kwargs): 
+        super(Gaussian, self).__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self.N = N          # partition size
-        self.BCs = BCs      # boundary conditions
-        self.dom = dom
-        self.is_symmetric = True #TODO: change once we call the super   
+        self._N = N          # partition size
+        self._bc_type = bc_type      # boundary conditions
+        self._dom = dom
 
-
-        self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
-        self.L = self.P.L
-        self.D = self.P.D      
+        self._P = PrecisionFiniteDifference( N, bc_type= bc_type, dom = dom, order =1) 
+        self._L = self._P.L
+        self._D = self._P.D      
             
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
@@ -563,38 +558,38 @@ class GMRF(Gaussian):
                 raise TypeError('The matrix is not positive semi-definite')
         
         # compute Cholesky and det
-        if (BCs == 'zero'):    # only for PSD matrices
+        if (bc_type == 'zero'):    # only for PSD matrices
             self.rank = self.dim
-            self.chol = sparse_cholesky(self.L)
+            self.chol = sparse_cholesky(self._L)
             self.logdet = 2*sum(np.log(self.chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
             # self.chol = L_cholmod
             # self.logdet = L_cholmod.logdet()
             # 
             # np.log(np.linalg.det(self.L.todense()))
-        elif (BCs == 'periodic') or (BCs == 'neumann'):
+        elif (bc_type == 'periodic') or (bc_type == 'neumann'):
             eps = np.finfo(float).eps
             self.rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
-            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(self.dim, dtype=int))
+            self.chol = sparse_cholesky(self._L + np.sqrt(eps)*eye(self.dim, dtype=int))
             if (self.dim > 5000):  # approximate to avoid 'excesive' time
                 self.logdet = 2*sum(np.log(self.chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
-                self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
+                self.L_eigval = splinalg.eigsh(self._L, self.rank, which='LM', return_eigenvectors=False)
                 self.logdet = sum(np.log(self.L_eigval))
 
 
     @property 
     def dim(self):  
-        if self.dom == 1:
-            return self.N 
-        elif self.dom==2:
-            return self.N**2
+        if self._dom == 1:
+            return self._N 
+        elif self._dom==2:
+            return self._N**2
         raise ValueError("attribute dom can be either 1 or 2")
 
     def logpdf(self, x):
         const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
-        y = const - 0.5*( self.prec*((x-self.mean).T @ (self.L @ (x-self.mean))) )
+        y = const - 0.5*( self.prec*((x-self.mean).T @ (self._L @ (x-self.mean))) )
         y = np.diag(y)
         # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return y
@@ -605,10 +600,10 @@ class GMRF(Gaussian):
 
     def gradient(self, x):
         if not callable(self.mean):
-            return (self.prec*self.L) @ (x-self.mean)
+            return (self.prec*self._L) @ (x-self.mean)
 
     def _sample(self, N=1, rng=None):
-        if (self.BCs == 'zero'):
+        if (self._bc_type == 'zero'):
 
             if rng is not None:
                 xi = rng.standard_normal((self.dim, N))   # standard Gaussian
@@ -621,7 +616,7 @@ class GMRF(Gaussian):
                 s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
             # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
-        elif (self.BCs == 'periodic'):
+        elif (self._bc_type == 'periodic'):
 
             if rng is not None:
                 xi = rng.standard_normal((self.dim, N)) + 1j*rng.standard_normal((self.dim, N))
@@ -636,15 +631,15 @@ class GMRF(Gaussian):
             # L_sqrt = pinvh(np.diag(np.sqrt(eigv)))
             # s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ (L_sqrt @ xi))
             
-        elif (self.BCs == 'neumann'):
+        elif (self._bc_type == 'neumann'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.D.shape[0], N))   # standard Gaussian
+                xi = rng.standard_normal((self._D.shape[0], N))   # standard Gaussian
             else:
-                xi = np.random.randn(self.D.shape[0], N)   # standard Gaussian
+                xi = np.random.randn(self._D.shape[0], N)   # standard Gaussian
             
             s = self.mean + (1/np.sqrt(self.prec))* \
-                splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self.D.T @ xi)))) 
+                splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self._D.T @ xi)))) 
         else:
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
 
@@ -655,48 +650,29 @@ class GMRF(Gaussian):
 # ========================================================================
 class Laplace_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond, **kwargs):
+    def __init__(self, location, scale, bc_type, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
 
-        self.loc = location
+        self.location = location
         self.scale = scale
-        self.bnd = bndcond
+        self._bc_type = bc_type
 
         # finite difference matrix
-        one_vec = np.ones(self.dim)
-        diags = np.vstack([-one_vec, one_vec])
-        if (bndcond == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim)
-        elif (bndcond == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim).tocsr()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (bndcond == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(diags, locs, self.dim-1, self.dim)
-        elif (bndcond == 'backward'):
-            locs = [0, -1]
-            Dmat = spdiags(diags, locs, self.dim, self.dim).tocsr()
-            Dmat[0, 0] = 1
-        elif (bndcond == 'none'):
-            Dmat = eye(self.dim)
-        self.D = Dmat
-        self.is_symmetric = None #TODO: update
+        self._D = FirstOrderFiniteDifference(self.dim, bc_type=bc_type, dom = 1).D 
+
 
     @property
     def dim(self):
         #TODO: handle the case when self.loc is None 
-        return len(self.loc)
+        return len(self.location)
 
     def pdf(self, x):
-        Dx = self.D @ (x-self.loc)  # np.diff(X)
+        Dx = self._D @ (x-self.location)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
 
     def logpdf(self, x):
-        Dx = self.D @ (x-self.loc)
+        Dx = self._D @ (x-self.location)
         return len(Dx)*(-(np.log(2)+np.log(self.scale))) - np.linalg.norm(Dx, ord=1, axis=0)/self.scale
 
     def _sample(self,N=1,rng=None):
@@ -875,35 +851,30 @@ class Laplace(Distribution):
 # ========================================================================
 class LMRF(Distribution):
         
-    def __init__(self, mean, prec, N, dom, BCs, **kwargs):
+    def __init__(self, mean, prec, N, dom, bc_type, **kwargs):
         super().__init__(**kwargs)
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self.N = N          # partition size
-        self.BCs = BCs      # boundary conditions
-        self.dom = dom
+        self._N = N          # partition size
+        self._bc_type = bc_type      # boundary conditions
+        self._dom = dom
 
-        self.P = PrecisionFiniteDifference( N, bc_type= BCs, dom = dom, order =1) 
+        self._P = PrecisionFiniteDifference( N, bc_type= bc_type, dom = dom, order =1) 
         # BCs: 1D difference matrix 
 
     @property
     def dim(self):
-        return self.P.dim
+        return self._P.dim
 
     def logpdf(self, x):
-        if self.dom == 1:
+        if self._dom == 1:
             const = self.dim *(np.log(self.prec)-np.log(2)) 
-            y = const -  self.prec*(np.linalg.norm(self.P.D@x, ord=1))
-        elif self.dom == 2:
+            y = const -  self.prec*(np.linalg.norm(self._P.D@x, ord=1))
+        elif self._dom == 2:
             const = self.dim *(np.log(self.prec)-np.log(2)) 
-            y = const -  self.prec*(np.linalg.norm(self.P.Ds@x, ord=1)+np.linalg.norm(self.P.Dt@x, ord=1))
+            y = const -  self.prec*(np.linalg.norm(self._P.Ds@x, ord=1)+np.linalg.norm(self._P.Dt@x, ord=1))
 
         return y
 
     def _sample(self, N):
         raise NotImplementedError
-
-
-
-
-                        
