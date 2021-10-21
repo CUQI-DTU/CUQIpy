@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import Continuous1D, Discrete, _DefaultGeometry
+from cuqi.geometry import _DefaultGeometry
 
 class Samples(object):
 
@@ -50,16 +50,38 @@ class Samples(object):
     def plot_chain(self,variable_indices,*args,**kwargs):
         return plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
 
-    def plot_ci(self,percent,exact=None,*args,**kwargs):
+    def plot_ci(self,percent,exact=None,*args,plot_envelope_kwargs={},**kwargs):
+        """
+        Plots the confidence interval for the samples according to the geometry.
+
+        Parameters
+        ---------
+        percent : int
+            The percent confidence to plot (i.e. 95, 99 etc.)
+        
+        exact : ndarray, default None
+            The exact value (for comparison)
+
+        plot_envelope_kwargs : dict, default {}
+            Keyword arguments for the plot_envelope method
+        
+        """
         
         # Compute statistics
         mean = np.mean(self.samples,axis=-1)
         lb = (100-percent)/2
         up = 100-lb
         lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
-        
-        #TODO: Separate kwargs for plot and plot_envelope
-        lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',*args,**kwargs)
+
+        #Extract plotting keywords and put into plot_envelope
+        if len(plot_envelope_kwargs)==0:
+            pe_kwargs={}
+        else:
+            pe_kwargs = plot_envelope_kwargs
+        if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
+        if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"]=kwargs.get("plot_par")   
+
+        lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',**pe_kwargs)
 
         lmn = self.geometry.plot(mean,*args,**kwargs)
         if exact is not None: #TODO: Allow exact to be defined in different space than mean?
