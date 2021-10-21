@@ -16,6 +16,11 @@ class Samples(object):
     geometry : cuqi.geometry.Geometry, default None
         Contains the geometry related of the samples
 
+    Attributes
+    ----------
+    shape : tuple
+        Returns the shape of samples.
+
     Methods
     ----------
     :meth:`plot`: Plots one or more samples.
@@ -25,7 +30,6 @@ class Samples(object):
     :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
-    :meth:`shape`: Returns the shape of samples.
     """
     def __init__(self, samples, geometry=None):
         self.samples = samples
