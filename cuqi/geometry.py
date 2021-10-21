@@ -17,8 +17,7 @@ class Geometry(ABC):
         if self.shape is None: return None
         return np.prod(self.shape)
 
-    @abstractmethod
-    def plot(self,values):
+    def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
         Plots a function over the set defined by the geometry object.
             
@@ -26,9 +25,73 @@ class Geometry(ABC):
         ----------
         values : ndarray
             1D array that contains the values of the function degrees of freedom.
+
+        is_par : Boolean, default True
+            Flag to indicate whether the values are parameters or function values.
+            True:  values are passed through the :meth:`par2fun` method.
+            False: values are plotted directly.
+        
+        plot_par : Boolean, default False
+            If true this method plots the parameters as a :class:`Discrete` geometry.
         """
+        #Error check
+        if plot_par and not is_par:
+            raise Exception("Plot par is true, but is_par is false (parameters were not given)")
+
+        if plot_par:
+            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            return geom.plot(values,**kwargs)
+
+        if is_par:
+            values = self.par2fun(values)
+
+        return self._plot(values,**kwargs)
+
+    def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
+        """
+        Plots an envelope from lower and upper bounds over the set defined by the geometry object.
+            
+        Parameters
+        ----------
+        lo_values : ndarray
+            1D array that contains a lower bound of the function degrees of freedom.
+
+        hi_values : ndarray
+            1D array that contains an upper bound of the function degrees of freedom.
+
+        is_par : Boolean, default True
+            Flag to indicate whether the values are parameters or function values.
+            True:  values are passed through the :meth:`par2fun` method.
+            False: values are plotted directly.
+        
+        plot_par : Boolean, default False
+            If true this method plots the parameters as a :class:`Discrete` geometry.
+        """
+        #Error check
+        if plot_par and not is_par:
+            raise Exception("Plot par is true, but is_par is false (parameters were not given)")
+        
+        if plot_par:
+            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            return geom.plot_envelope(lo_values, hi_values,**kwargs)
+
+        if is_par:
+            lo_values = self.par2fun(lo_values)
+            hi_values = self.par2fun(hi_values)
+
+        return self._plot_envelope(lo_values,hi_values,**kwargs)
+
+    def par2fun(self,par):
+        """The parameter to function map used to map parameters to function values in e.g. plotting."""
+        return par
+
+    @abstractmethod
+    def _plot(self):
         pass
 
+    def _plot_envelope(self,*args,**kwargs):
+        raise NotImplementedError("Plot envelope not implemented for {}. Use flag plot_par to plot envelope of parameters instead.".format(type(self)))
+            
     def _plot_config(self,values):
         """
         A method that implements any default configuration for the plots. This method is to be called inside any 'plot_' method.
@@ -111,12 +174,12 @@ class Continuous1D(Continuous):
     def grid(self, value):
         self._grid = self._create_dimension(value)
 
-    def plot(self,values,*args,**kwargs):
+    def _plot(self,values,*args,**kwargs):
         p = plt.plot(self.grid,values,*args,**kwargs)
         self._plot_config()
         return p
 
-    def plot_envelope(self, lo_values, up_values, **kwargs):
+    def _plot_envelope(self, lo_values, up_values, **kwargs):
         default = {'color':'dodgerblue', 'alpha':0.25}
         for key in default:
             if (key not in kwargs.keys()):
@@ -146,7 +209,7 @@ class Continuous2D(Continuous):
                 raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
             self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
-    def plot(self,values,plot_type='pcolor',**kwargs):
+    def _plot(self,values,plot_type='pcolor',**kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
         
@@ -229,7 +292,7 @@ class Discrete(Geometry):
         self._variables = value
         self._ids = range(self.dim)
 
-    def plot(self,values, **kwargs):
+    def _plot(self,values, **kwargs):
 
         if ('linestyle' not in kwargs.keys()) and ('ls' not in kwargs.keys()):
             kwargs["linestyle"]  = ''
@@ -240,7 +303,7 @@ class Discrete(Geometry):
         self._plot_config() 
         return plt.plot(self._ids,values,**kwargs)
 
-    def plot_envelope(self, lo_values, up_values, **kwargs):
+    def _plot_envelope(self, lo_values, up_values, **kwargs):
         self._plot_config()
         if 'fmt' in kwargs.keys():
             raise Exception("Argument 'fmt' cannot be passed by the user")
@@ -249,6 +312,10 @@ class Discrete(Geometry):
         for key in default:
             if (key not in kwargs.keys()):
                 kwargs[key]  = default[key]
+
+        #Convert to 1d numpy array to handle subtraction
+        lo_values = np.array(lo_values).flatten()
+        up_values = np.array(up_values).flatten()
         
         return plt.errorbar(self._ids, lo_values, 
                             yerr=np.vstack((np.zeros(len(lo_values)),up_values-lo_values)),
@@ -269,7 +336,7 @@ class _DefaultGeometry(Continuous1D):
             if not np.all(value == vars(obj)[key]): return False 
         return True
 
-class KLExpansion(Continuous1D):
+class KLExpansion(Continuous1D): #TODO: Generalize to other basis
     '''
     class representation of the random field in  the sine basis
     alpha = sum_i p * (1/i)^decay * sin(ix)
@@ -280,29 +347,17 @@ class KLExpansion(Continuous1D):
         
         super().__init__(grid, axis_labels)
         
-        self.N = len(self.grid) # number of modes
-        self.modes = np.zeros(self.N) # vector of expansion coefs
-        self.real = np.zeros(self.N) # vector of real values
-        self.decay_rate = 2.5 # decay rate of KL
-        self.c = 12. # normalizer factor
-        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
-        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
-
-        self.p = np.zeros(self.N) # random variables in KL
-
-        self.axis_labels = axis_labels
+        self._decay_rate = 2.5 # decay rate of KL
+        self.normalizer = 12. # normalizer factor
+        eigvals = np.array(range(1,self.dim+1)) # KL eigvals
+        self.coefs = 1/np.float_power(eigvals,self._decay_rate)
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        self.modes = p*self.coefs/self.c
-        self.real = idst(self.modes)/2
-        return self.real
+        modes = p*self.coefs/self.normalizer
+        real = idst(modes)/2
+        return real
     
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
 
 class StepExpansion(Continuous1D):
     '''
@@ -312,45 +367,17 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels)
 
-        self.N = len(self.grid) # number of modes
-        self.p = np.zeros(4)
-        #self.dx = np.pi/(self.N+1)
-        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
-
-        self.axis_labels = axis_labels
-
     def par2fun(self, p):
-        self.real = np.zeros_like(self.grid)
-        
+        real = np.zeros_like(self.grid)
         idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
-        self.real[idx[0]] = p[0]
+        real[idx[0]] = p[0]
         idx = np.where( (self.grid>0.4*np.pi)&(self.grid<=0.6*np.pi) )
-        self.real[idx[0]] = p[1]
+        real[idx[0]] = p[1]
         idx = np.where( (self.grid>0.6*np.pi)&(self.grid<=0.8*np.pi) )
-        self.real[idx[0]] = p[2]
-        return self.real
+        real[idx[0]] = p[2]
+        return real
     
     @property
     def shape(self):
         return 3
     
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
-    
-    '''
-    def plot(self,values,*args,**kwargs):
-        p = plt.plot(values,*args,**kwargs)
-        self._plot_config()
-        return p
-
-    def _plot_config(self):
-        if self.axis_labels is not None:
-            plt.xlabel(self.axis_labels[0])
-            '''
-
-
-        
-

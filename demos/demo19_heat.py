@@ -22,13 +22,13 @@ else:
     true_par = np.array([3,1,2])
     true_init = model.domain_geometry.par2fun(true_par)
 
-model.domain_geometry.plot(true_init, is_fun=True)
+model.domain_geometry.plot(true_init, is_par=False)
 plt.title("Initial")
 
 #%% defining the heat equation as the forward map
 y_obs = model._advance_time(true_init, makeplot=True) # observation vector
 
-model.domain_geometry.plot(y_obs, is_fun=True)
+model.domain_geometry.plot(y_obs, is_par=False)
 plt.title("Observed")
 
 #%%
@@ -70,9 +70,16 @@ plt.title("Posterior mean of parameters")
 #%% Plot sample mean in function space and compare with true initial
 plt.figure()
 model.domain_geometry.plot(x_mean)
-model.domain_geometry.plot(true_init, is_fun=True)
+model.domain_geometry.plot(true_init, is_par=False)
 plt.legend(["Sample mean","True initial"])
 plt.title("Posterior mean in function space")
+
+# %%
+# Plot CI in function space
+results.plot_ci(95)
+# %%
+# Plot CI in parameter space
+results.plot_ci(95,plot_par=True)
 
 # %% Plot automatically using geometry
 plt.figure()
@@ -81,3 +88,4 @@ model.domain_geometry.plot(true_par)
 plt.legend(["Sample mean","True initial"])
 plt.title("Posterior mean in function space")
 # %%
+results.plot_ci(95,exact=true_par)
