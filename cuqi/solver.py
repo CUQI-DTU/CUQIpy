@@ -1,12 +1,23 @@
 import numpy as np
 from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b
-# import matplotlib
-# import matplotlib.pyplot as plt
-eps = np.finfo(float).eps
 
 class L_BFGS_B(object):
+    """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
 
+    Minimize a function func using the L-BFGS-B algorithm.
+    
+    Parameters
+    ----------
+    func : callable f(x,*args)
+        Function to minimize.
+    x0 : ndarray
+        Initial guess.
+
+    Methods
+    ----------
+    :meth:`solve`: Runs the solver and returns the solution.
+    """
     def __init__(self,func,x0):
         self.func= func
         self.x0 = x0
@@ -14,10 +25,26 @@ class L_BFGS_B(object):
     def solve(self):
         return fmin_l_bfgs_b(self.func,self.x0)[0]
 
-#===================================================================
-#===================================================================
-#===================================================================
 class CGLS(object):
+    """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
+
+    See http://web.stanford.edu/group/SOL/software/cgls/ for the matlab version it is based on.
+
+    Solve Ax=b or minimize ||Ax-b||^2 or solve (A^TA+sI)x=A^Tb.
+    
+    Parameters
+    ----------
+    A : ndarray or callable f(x,*args).
+    b : ndarray.
+    x0 : ndarray. Initial guess.
+    maxit : The maximum number of iterations.
+    tol : The numerical tolerance for convergence checks.
+    shift : The shift parameter (s) shown above.
+
+    Methods
+    ----------
+    :meth:`solve`: Runs the solver and returns the solution.
+    """
     # http://web.stanford.edu/group/SOL/software/cgls/
     # If SHIFT is 0, then CGLS is Hestenes and Stiefel's 
     # conjugate-gradient method for least-squares problems. 
@@ -36,6 +63,8 @@ class CGLS(object):
             self.explicitA = False
             
     def solve(self):
+        eps = np.finfo(float).eps
+
         # initial state
         x = self.x0.copy()
         if self.explicitA:
@@ -55,28 +84,26 @@ class CGLS(object):
         k, flag, indefinite = 0, 0, 0
         while (k < self.maxit) and (flag == 0):
             k += 1  
-            # xold = np.copy(x)
-            #
+
             if self.explicitA:
                 q = self.A @ p
             else:
                 q = self.A(p, 1)
             delta_cgls = LA.norm(q)**2 + self.shift*LA.norm(p)**2
-            #
+
             if (delta_cgls < 0):
                 indefinite = True
             elif (delta_cgls == 0):
                 delta_cgls = eps
             alpha_cgls = gamma / delta_cgls
-            #
+
             x += alpha_cgls*p
-            #x  = np.maximum(x, 0)
             r -= alpha_cgls*q
             if self.explicitA:
                 s = self.A.T @ r - self.shift*x     
             else:
                 s = self.A(r, 2) - self.shift*x
-            #
+
             gamma1 = gamma.copy()
             norms = LA.norm(s)
             gamma = norms**2
@@ -87,7 +114,7 @@ class CGLS(object):
             xmax = max(xmax, normx)
             flag = (norms <= norms0*self.tol) or (normx*self.tol >= 1)
             # resNE = norms / norms0
-        #
+
         shrink = normx/xmax
         # if k == self.maxit:          
         #     flag = 2   # CGLS iterated MAXIT times but did not converge
@@ -101,12 +128,8 @@ class CGLS(object):
     
         return x, k
 
-
-
-#===================================================================
-#===================================================================
-#===================================================================
 class PDHG(object):
+    """Primal-Dual Hybrid Gradient algorithm."""
     def __init__(self):
         raise NotImplementedError        
 
