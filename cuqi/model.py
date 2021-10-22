@@ -184,10 +184,15 @@ class LinearModel(Model):
     def gradient(self,x):
         """Evaluate the gradient of the forward map with respect to the model input."""
         return self.adjoint(x)
-
-    def __mul__(self, x):
-        return self.forward(x)
     
     def __matmul__(self, x):
-        return self*x
+        return self.forward(x)
+
+    @property
+    def T(self):
+        """Transpose of linear model. Returns a new linear model acting as the transpose."""
+        transpose = LinearModel(self.adjoint,self.forward,self.domain_geometry,self.range_geometry)
+        if self._matrix is not None:
+            transpose._matrix = self._matrix.T
+        return transpose
         
