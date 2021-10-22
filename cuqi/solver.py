@@ -36,7 +36,7 @@ class CGLS(object):
     ----------
     A : ndarray or callable f(x,*args).
     b : ndarray.
-    x0 : ndarray.
+    x0 : ndarray. Initial guess.
     maxit : The maximum number of iterations.
     tol : The numerical tolerance for convergence checks.
     shift : The shift parameter (s) shown above.
