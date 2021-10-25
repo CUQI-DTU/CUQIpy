@@ -40,7 +40,7 @@ likelihood = cuqi.distribution.GaussianCov(mean = tp.data, cov = noise_std**2)
 # %% Lets try with the Gaussian prior
 prior_mean = np.zeros(dim)
 prior_std = 0.2
-prior_cov = sps.diags(prior_std**2 * np.ones(dim))
+prior_cov = sps.diags(prior_std**2 * np.ones(dim)) # TODO: need to convert to array for GaussianCov to work :.toarray() or update GaussianCov to work with sparse array
 prior = cuqi.distribution.GaussianCov(mean = prior_mean, cov = prior_cov)
 
 # %% sample prior
