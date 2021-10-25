@@ -6,34 +6,34 @@ from scipy.sparse import spdiags, eye, kron, vstack
 class Operator(object):
 
     def __init__(self):
-        self._matr = None
+        self._matrix = None
         pass
 
     def __matmul__(self, vec):
-        return self._matr@vec
+        return self._matrix@vec
 
     def __rmatmul__(self, vec):
-        return vec@self._matr
+        return vec@self._matrix
 
     def __add__(self, val):
-        return self._matr+val
+        return self._matrix+val
 
     def __radd__(self, val):
         return self.__add__(val)
 
     def __mul__(self, val):
-        return self._matr*val
+        return self._matrix*val
 
     def __rmul__(self, val):
         return self.__mul__(val)
 
     @property
     def T(self):
-        return self._matr.T
+        return self._matrix.T
 
     @property
     def shape(self):
-        return self._matr.shape
+        return self._matrix.shape
 
 class FirstOrderFiniteDifference(Operator):
 
@@ -72,10 +72,6 @@ class FirstOrderFiniteDifference(Operator):
     def dim(self):
         return np.prod(self.num_nodes)
 
-    @property
-    def _matr(self):
-        return self._D
-
 
     def _create_diff_matrix(self):
         if self.physical_dim == 2:
@@ -109,13 +105,13 @@ class FirstOrderFiniteDifference(Operator):
 
         # structure matrix
         if (self.physical_dim == 1):
-            self._D = Dmat
+            self._matrix = Dmat
 
         elif (self.physical_dim == 2):            
             I = eye(N, dtype=int)
-            self._Ds = kron(I, Dmat)
-            self._Dt = kron(Dmat, I)
-            self._D = vstack([self._Ds, self._Dt])
+            Ds = kron(I, Dmat)
+            Dt = kron(Dmat, I)
+            self._matrix = vstack([Ds, Dt])
         
 
 
@@ -143,15 +139,12 @@ class PrecisionFiniteDifference(Operator):
     def dim(self):
         return self._diff_op.dim
 
-    @property
-    def _matr(self):
-        return self._L
+    def get_matrix(self):
+        return self._matrix
 
     def _create_prec_matrix(self):
-        if self.physical_dim == 1:
-            self._L = (self._diff_op.T @ self._diff_op).tocsc()
-        elif self.physical_dim == 2:            
-            self._L = ((self._diff_op._Ds.T @ self._diff_op._Ds) + (self._diff_op._Dt.T @ self._diff_op._Dt)).tocsc()
+        if self.physical_dim == 1 or self.physical_dim == 2:
+            self._matrix = (self._diff_op.T @ self._diff_op).tocsc()
         else:
             raise NotImplementedError
 
