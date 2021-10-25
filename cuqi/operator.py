@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import spdiags, eye, kron, vstack
 
 
-# ========== Covariance class ===========
+# ========== Operator class ===========
 class Operator(object):
 
     def __init__(self):
