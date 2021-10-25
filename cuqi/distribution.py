@@ -1,9 +1,9 @@
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
-from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
+from scipy.sparse import diags, eye, identity, issparse
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor, eigvals, lstsq
+from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.utilities import force_ndarray, getNonDefaultArgs
@@ -433,18 +433,16 @@ class GaussianSqrtPrec(Distribution):
     # Generate an i.i.d. n-dim Gaussian with zero mean and some standard deviation std.
     x = cuqi.distribution.Normal(mean=np.zeros(n), sqrtprec = 1/std*np.eye)
     """
-    def __init__(self, mean=None, sqrtprec=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, mean=None, sqrtprec=None, is_symmetric=True, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(is_symmetric=is_symmetric, **kwargs)
         self.mean = force_ndarray(mean, flatten=True)
         self.sqrtprec = force_ndarray(sqrtprec)
-        self.dim = len(self.mean)
 
-        # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-            kwargs["geometry"] = max(np.size(mean),np.shape(sqrtprec)[1])
-        super().__init__(**kwargs) 
-        self.is_symmetric = True
+    @property
+    def dim(self):
+        #TODO: handle the case when self.mean or self.sqrtprec = None because len(None) = 1
+        return max(np.size(self.mean),np.shape(self.sqrtprec)[1])
 
     def _sample(self, N):
         if issparse(self.sqrtprec):        
