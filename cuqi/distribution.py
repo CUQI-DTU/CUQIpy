@@ -439,95 +439,27 @@ class GaussianPrec(Distribution):
     def dim(self):
         return max(len(self.mean),self.prec.shape[0])
 
+class Gaussian(GaussianCov):
 
-
-# ========================================================================
-class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
-
-    def __init__(self, mean, std, corrmat=None,is_symmetric=True,**kwargs):
-        # Init from abstract distribution class
-        super().__init__(is_symmetric=is_symmetric, **kwargs)
-
-        self.mean = mean
-        self.std = std
+    def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
+        print("Initializing as GaussianCov. Mutable attributes: mean, cov")
+        #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
-        self.R = corrmat
-
-        # self = sps.multivariate_normal(mean, (std**2)*corrmat)
-
-        # pre-computations (covariance and determinants)
+        dim = len(np.diag(corrmat))
         if isinstance(std, (list, tuple, np.ndarray)):
-            self.Sigma = np.diag(std) @ (corrmat @ np.diag(std))   # covariance
-            isdiag = np.count_nonzero(corrmat - np.diag(np.diagonal(corrmat)))
-            if (isdiag == 0):    # uncorrelated
-                self.det = np.prod(std**2)
-                self.logdet = sum(2*np.log(std))
-                self.L = np.linalg.cholesky(self.Sigma)
-            else:
-                self.det = np.linalg.det(self.Sigma)
-                self.L = np.linalg.cholesky(self.Sigma)
-                self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
+            cov = np.diag(std) @ (corrmat @ np.diag(std))   # covariance
         else:
-            self.Sigma = np.diag(std*np.ones(self.dim)) @ (corrmat @ np.diag(std*np.ones(self.dim)))   # covariance
-            isdiag = np.count_nonzero(corrmat - np.diag(np.diagonal(corrmat)))
-            if (isdiag == 0):   # uncorrelated
-                self.det = std**(2*self.dim)
-                self.logdet = 2*self.dim*np.log(std)
-                self.L = np.linalg.cholesky(self.Sigma)
-            else:
-                self.det = std**(2*self.dim) * np.linalg.det(corrmat)
-                self.L = np.linalg.cholesky(self.Sigma)
-                self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
+            cov = np.diag(std*np.ones(dim)) @ (corrmat @ np.diag(std*np.ones(dim)))   # covariance
+        super().__init__(mean=mean, cov=cov, is_symmetric=is_symmetric, **kwargs)
 
-        # inverse of Cholesky
-        self.Linv = np.linalg.inv(self.L)   
-
-        # Compute decomposition such that Q = U @ U.T
-        # self.Sigmainv = np.linalg.inv(self.Sigma)   # precision matrix
-        # s, u = eigh(self.Q, lower=True, check_finite=True)
-        # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
-        # self.U = u @ np.diag(np.sqrt(s_pinv))
-
-    @property
-    def dim(self):
-        #TODO: handle the case when corrmat = None because len(None) = 1
-        return len(np.diag(self.R))
-
-    def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
-        if callable(self.mean):
-            mu = self.mean(x2[0])   # mean is variable
-        else:
-            mu = self.mean       # mean is fix
-        xLinv = (x1 - mu) @ self.Linv.T
-        quadform = np.sum(np.square(xLinv), 1) if (len(xLinv.shape) > 1) else np.sum(np.square(xLinv))
-        # = sps.multivariate_normal.logpdf(x1, mu, self.Sigma)
-        return -0.5*(self.logdet + quadform + self.dim*np.log(2*np.pi))
-
-    def pdf(self, x1, *x2):
-        # = sps.multivariate_normal.pdf(x1, self.mean, self.Sigma)
-        return np.exp(self.logpdf(x1, *x2))
-
-    def cdf(self, x1):   # TODO
-        return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
-
-    def gradient(self, x):
-        if not callable(self.mean):
-            return self.Sigmainv@(x-self.mean)
-
-    def _sample(self, N=1, rng=None):
-
-        if rng is not None:
-            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
-        else:
-            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
-            
-        return s
-
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        return self.cov
 
 
 # ========================================================================
-class GMRF(Gaussian):
+class GMRF(Distribution):
     """
         Parameters
         ----------
@@ -539,7 +471,7 @@ class GMRF(Gaussian):
     """
         
     def __init__(self, mean, prec, partition_size, physical_dim, bc_type, is_symmetric=True, **kwargs): 
-        super(Gaussian, self).__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
+        super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
@@ -568,7 +500,7 @@ class GMRF(Gaussian):
         # compute Cholesky and det
         if (bc_type == 'zero'):    # only for PSD matrices
             self._rank = self.dim
-            self._chol = sparse_cholesky(self._prec_op._matr)
+            self._chol = sparse_cholesky(self._prec_op.get_matrix())
             self._logdet = 2*sum(np.log(self._chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
             # self.chol = L_cholmod
@@ -583,7 +515,7 @@ class GMRF(Gaussian):
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
-                self._L_eigval = splinalg.eigsh(self._prec_op._matr, self._rank, which='LM', return_eigenvectors=False)
+                self._L_eigval = splinalg.eigsh(self._prec_op.get_matrix(), self._rank, which='LM', return_eigenvectors=False)
                 self._logdet = sum(np.log(self._L_eigval))
 
 
@@ -870,17 +802,17 @@ class LMRF(Distribution):
             The physical dimension of what the distribution represents (can take the values 1 or 2).
     """
         
-    def __init__(self, mean, prec, N, dom, bc_type, **kwargs):
+    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, **kwargs):
         super().__init__(**kwargs)
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self._N = N          # partition size
+        self._partition_size = partition_size          # partition size
         self._bc_type = bc_type      # boundary conditions
-        self._dom = dom
-        if dom == 1: 
-            num_nodes = (N,) 
+        self._physical_dim = physical_dim
+        if physical_dim == 1: 
+            num_nodes = (partition_size,) 
         else:
-            num_nodes = (N,N)
+            num_nodes = (partition_size,partition_size)
 
         self._diff_op = FirstOrderFiniteDifference( num_nodes, bc_type= bc_type) 
         # BCs: 1D difference matrix 
@@ -890,13 +822,12 @@ class LMRF(Distribution):
         return self._diff_op.dim
 
     def logpdf(self, x):
-        if self._dom == 1:
+
+        if self._physical_dim == 1 or self._physical_dim == 2:
             const = self.dim *(np.log(self.prec)-np.log(2)) 
             y = const -  self.prec*(np.linalg.norm(self._diff_op@x, ord=1))
-        elif self._dom == 2:
-            const = self.dim *(np.log(self.prec)-np.log(2)) 
-            y = const -  self.prec*(np.linalg.norm(self._diff_op._Ds@x, ord=1)+np.linalg.norm(self._diff_op._Dt@x, ord=1))
-
+        else:
+            raise NotImplementedError
         return y
 
     def _sample(self, N):
