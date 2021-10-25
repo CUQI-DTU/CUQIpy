@@ -3,22 +3,37 @@ from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from cuqi.samples import Samples
 from cuqi.geometry import Geometry, _DefaultGeometry
-import warnings
 
 class Model(object):
-    """
+    """Generic model defined by a forward operator.
+
     Parameters
-    ----------
-    forward : 2D ndarray or callable function
-        Forward operator
+    -----------
+    forward : 2D ndarray or callable function.
+        Forward operator.
+
+    range_geometry : integer or cuqi.geometry.Geometry
+        If integer is given a _DefaultGeometry is created with dimension of the integer.
+
+    domain_geometry : integer or cuqi.geometry.Geometry
+        If integer is given a _DefaultGeometry is created with dimension of the integer.
+
+    Attributes
+    -----------
+    range_geometry : cuqi.geometry.Geometry
+        The geometry representing the range.
+
+    domain_geometry : cuqi.geometry.Geometry
+        The geometry representing the domain.
+
+    Methods
+    -----------
+    :meth:`forward` the forward operator.
+    :meth:`range_dim` the dimension of the range.
+    :meth:`domain_dim` the dimension of the domain.
     """
     def __init__(self,forward,range_geometry,domain_geometry):
-        """
-        Parameters
-        ----------
-        forward : 2D ndarray or callable function
-            Forward operator
-        """
+
         #Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function of some kind")
@@ -54,7 +69,6 @@ class Model(object):
     def range_dim(self): 
         return self.range_geometry.dim
     
-               
     def forward(self, x):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
@@ -77,11 +91,35 @@ class Model(object):
         return self.range_dim
     
 class LinearModel(Model):
-    """
-    Class-based representation of Linear forward operator.
+    """Model based on a Linear forward operator.
 
-    :param forward: A matrix or callable function representing forward operator.
-    :param adjoint: A callable function representing adjoint operator.
+    Parameters
+    -----------
+    forward : 2D ndarray or callable function.
+        Forward operator.
+
+    adjoint : 2d ndarray or callable function. (optional if matrix is passed as forward)
+
+    range_geometry : integer or cuqi.geometry.Geometry (optional)
+        If integer is given a _DefaultGeometry is created with dimension of the integer.
+
+    domain_geometry : integer or cuqi.geometry.Geometry (optional)
+        If integer is given a _DefaultGeometry is created with dimension of the integer.
+
+    Attributes
+    -----------
+    range_geometry : cuqi.geometry.Geometry
+        The geometry representing the range.
+
+    domain_geometry : cuqi.geometry.Geometry
+        The geometry representing the domain.
+
+    Methods
+    -----------
+    :meth:`forward` the forward operator.
+    :meth:`range_dim` the dimension of the range.
+    :meth:`domain_dim` the dimension of the domain.
+    :meth:`get_matrix` returns an ndarray with the matrix representing the forward operator.
     """
     # Linear forward model with forward and adjoint (transpose).
     
@@ -100,12 +138,6 @@ class LinearModel(Model):
         if callable(adjoint_func) is not True:
             raise TypeError("Adjoint needs to be callable function of some kind")
 
-        #Add adjoint
-        self._adjoint_func = adjoint_func
-
-        #Store matrix privately
-        self._matrix = matrix
-
         # Use matrix to derive range_geometry and domain_geometry
         if matrix is not None:
             if range_geometry is None:
@@ -115,6 +147,12 @@ class LinearModel(Model):
 
         #Initialize Model class
         super().__init__(forward_func,range_geometry,domain_geometry)
+
+        #Add adjoint
+        self._adjoint_func = adjoint_func
+
+        #Store matrix privately
+        self._matrix = matrix
 
         if matrix is not None: 
             assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
@@ -131,7 +169,7 @@ class LinearModel(Model):
             mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
             e = np.zeros(self.domain_dim)
             
-            # Stacks sparse matricies on csc matrix
+            # Stacks sparse matrices on csc matrix
             for i in range(self.domain_dim):
                 e[i] = 1
                 col_vec = self.forward(e)
@@ -144,11 +182,17 @@ class LinearModel(Model):
             return self._matrix
 
     def gradient(self,x):
+        """Evaluate the gradient of the forward map with respect to the model input."""
         return self.adjoint(x)
-
-    def __mul__(self, x):
-        return self.forward(x)
     
     def __matmul__(self, x):
-        return self*x
+        return self.forward(x)
+
+    @property
+    def T(self):
+        """Transpose of linear model. Returns a new linear model acting as the transpose."""
+        transpose = LinearModel(self.adjoint,self.forward,self.domain_geometry,self.range_geometry)
+        if self._matrix is not None:
+            transpose._matrix = self._matrix.T
+        return transpose
         
