@@ -599,7 +599,7 @@ class Laplace_diff(Distribution):
         self._bc_type = bc_type
 
         # finite difference matrix
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type, physical_dim = 1)
+        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
 
 
     @property
