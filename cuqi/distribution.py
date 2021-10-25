@@ -171,7 +171,7 @@ class Cauchy_diff(Distribution):
 # ========================================================================
 class Normal(Distribution):
     """
-    Normal probability distribution. Generates instance of cuqi.distribution.Normal. The variables of this distributions are iid.
+    Normal probability distribution. Generates instance of cuqi.distribution.Normal. The variables of this distribution are iid.
 
     
     Parameters
@@ -832,7 +832,7 @@ class DistributionGallery(UserDefinedDistribution):
 # ========================================================================
 class Laplace(Distribution):
     """
-    The variables of this Laplace distributions are iid.
+    The variables of this Laplace distribution are iid.
     """
 
     def __init__(self, location, prec, **kwargs):
@@ -884,7 +884,6 @@ class LMRF(Distribution):
             num_nodes = (partition_size,partition_size)
 
         self._diff_op = FirstOrderFiniteDifference( num_nodes, bc_type= bc_type) 
-        # BCs: 1D difference matrix 
 
     @property
     def dim(self):
