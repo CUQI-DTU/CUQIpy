@@ -27,7 +27,11 @@ class abel(cuqi.model.Model):
         self.A = np.zeros([self.N,self.N]) # Abel integral operator
         self.A[idx[0],idx[1]] = self.h/np.sqrt( np.abs( smat[idx[0],idx[1]] - tmat[idx[0],idx[1]] ) )
 
-        domain_geometry = cuqi.geometry.KLExpansion(self.tvec.reshape(-1))
+        #domain_geometry = cuqi.geometry.KLExpansion(self.tvec.reshape(-1))
+
+        KL_map = lambda x: 10.*x
+        grid = np.linspace( 0,1,self.N )
+        domain_geometry = cuqi.geometry.MappedKL(grid, KL_map)
         range_geometry = cuqi.geometry.Continuous1D(self.N)
 
         super().__init__(self.forward, range_geometry, domain_geometry)
@@ -37,5 +41,5 @@ class abel(cuqi.model.Model):
 
     # computing the sino gram
     def forward(self,p):
-        im = 10*self.domain_geometry.par2fun(p)
+        im = self.domain_geometry.par2fun(p)
         return self.A@im

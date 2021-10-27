@@ -272,7 +272,8 @@ class _DefaultGeometry(Continuous1D):
 class KLExpansion(Continuous1D):
     '''
     class representation of the random field in  the sine basis
-    alpha = sum_i p * (1/i)^decay * sin(ix)
+    alpha = sum_i p * (1/i)^decay * sin(i*L*x/pi)
+    L is the length of the interval
     '''
     
     # init function defining paramters for the KL expansion
@@ -303,6 +304,24 @@ class KLExpansion(Continuous1D):
             super().plot(p)
         else:    
             super().plot(self.par2fun(p))
+
+class MappedKL(KLExpansion):
+    def __init__(self, grid, mapping, axis_labels=['x']):
+        super().__init__(grid, axis_labels)
+        self.map = mapping
+
+    def par2fun(self,p):
+        return self.map( super().par2fun(p) )
+
+    # plots the random field: "params", "KL", "mapped"
+    def plot(self, p, case="mapped"):
+        if( case == "params" ):
+            super().plot( p, is_fun=True )
+        elif( case == "KL" ):
+            super().plot( p, is_fun=False )
+        else:
+            super().plot( self.par2fun(p), is_fun=True )
+
 
 class StepExpansion(Continuous1D):
     '''

@@ -15,7 +15,7 @@ true_alpha = np.exp( 5*x*np.exp(-2*x)*np.sin(np.pi-x) )
 
 #%%
 model = poisson(N=N)
-y_obs = model.solve_with_conductivity(true_alpha) 
+y_obs = model.solve_with_conductivity(true_alpha)
 
 #%%
 SNR = 100 # signal to noise ratio
@@ -35,13 +35,13 @@ results = IP.sample_posterior(5000)
 #%% Plot mean
 x_mean = np.mean(results.samples,axis=-1)
 
-plt.plot(x_mean)
-plt.title('Posterior mean of parameters')
+#plt.plot(x_mean)
+#plt.title('Posterior mean of parameters')
 
 #%%
-model.domain_geometry.plot(  np.exp( 5*model.domain_geometry.par2fun(x_mean) ) ); 
+model.domain_geometry.plot( x_mean, case="mapped" )
 plt.title("Posterior mean")
 
-plt.plot(true_alpha)
+plt.plot(x,true_alpha)
 plt.show()
 # %%

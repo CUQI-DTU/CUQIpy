@@ -16,14 +16,16 @@ model = abel(N=N)
 tvec = model.tvec.reshape(-1)
 true_im = np.sin(tvec*np.pi)*np.exp(-2*tvec)
 
-model.domain_geometry.plot(true_im, is_fun=True)
-plt.title("Initial")
+#model.domain_geometry.plot(true_im, case='params')
+#plt.title("Initial")
 
 #%% defining the heat equation as the forward map
 y_obs = model.solve_with_image(true_im) # observation vector
 
-model.domain_geometry.plot(y_obs, is_fun=True)
-plt.title("Observed")
+#model.domain_geometry.plot(y_obs, case="params")
+#plt.title("Observed")
+#plt.show()
+#exit()
 
 #%%
 SNR = 100 # signal to noise ratio
@@ -48,7 +50,8 @@ plt.title("Posterior mean of parameters")
 #%% Plot sample mean in function space and compare with true initial
 plt.figure()
 model.domain_geometry.plot(x_mean)
-model.domain_geometry.plot(true_im, is_fun=True)
+model.domain_geometry.plot(true_im, case='params')
 plt.legend(["Sample mean","True initial"])
 plt.title("Posterior mean in function space")
+plt.show()
 # %%

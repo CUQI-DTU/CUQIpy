@@ -25,7 +25,11 @@ class poisson(cuqi.model.Model):
         self.f = 10*np.exp( -( (x - 0.5)**2 ) / 0.02) # source term
 
         #self.alpha = gauss_field(self.N) # conductivity field
-        domain_geometry = cuqi.geometry.KLExpansion(N)
+        #domain_geometry = cuqi.geometry.KLExpansion(N)
+
+        KL_map = lambda x: np.exp( 10.*x )
+        grid = np.linspace( 0,np.pi,N )
+        domain_geometry = cuqi.geometry.MappedKL(grid, KL_map)
         range_geometry = cuqi.geometry.Continuous1D(N)
 
         super().__init__(self.forward, range_geometry, domain_geometry)
@@ -38,7 +42,7 @@ class poisson(cuqi.model.Model):
 
     # the forward map from field parameters to the solution
     def forward(self,p):
-        a = np.exp( 10*self.domain_geometry.par2fun(p) )
+        a = self.domain_geometry.par2fun(p)
         Dxx = self.Dx.T@np.diag(a)@self.Dx
         return solve(Dxx,self.f)
 
