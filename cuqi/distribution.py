@@ -41,7 +41,7 @@ class Distribution(ABC):
 
     @geometry.setter
     def geometry(self,value):
-        if isinstance(value, int) or value is None:
+        if isinstance(value, (int,np.integer)) or value is None:
             self._geometry = _DefaultGeometry(grid=value)
         elif isinstance(value, Geometry):
             self._geometry = value
