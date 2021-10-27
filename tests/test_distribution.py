@@ -98,7 +98,7 @@ def test_Gaussian_rng(mean,std,R):
 def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
-    assert np.allclose(dist.sample(10),dist.sample(10,rng=rng))
+    assert np.allclose(dist.sample(10).samples,dist.sample(10,rng=rng).samples)
 
 def test_Uniform_logpdf():
     low = np.array([1, .5])

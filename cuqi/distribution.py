@@ -1,32 +1,28 @@
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
-from scipy.sparse import diags, spdiags, eye, kron, vstack, identity, issparse
+from scipy.sparse import diags, eye, identity, issparse
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, eigvalsh, pinvh, cho_solve, cho_factor, eigvals, lstsq
+from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
-from cuqi.model import LinearModel
 from cuqi.utilities import force_ndarray, getNonDefaultArgs
 import warnings
-
+from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
-
-# import sksparse
-# from sksparse.cholmod import cholesky
-eps = np.finfo(float).eps
+import warnings
 
 
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
 
-    def __init__(self,name=None, geometry=None):
+    def __init__(self,name=None, geometry=None, is_symmetric=None):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
-        self.is_symmetric = None
+        self.is_symmetric = is_symmetric
         self.geometry = geometry
 
     @property
@@ -45,7 +41,7 @@ class Distribution(ABC):
 
     @geometry.setter
     def geometry(self,value):
-        if isinstance(value, int) or value is None:
+        if isinstance(value, (int,np.integer)) or value is None:
             self._geometry = _DefaultGeometry(grid=value)
         elif isinstance(value, Geometry):
             self._geometry = value
@@ -58,9 +54,9 @@ class Distribution(ABC):
 
     def sample(self,N=1,*args,**kwargs):
         #Make sure all values are specified, if not give error
-        for key, value in vars(self).items():
-            if isinstance(value,Distribution):
-                raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
+        #for key, value in vars(self).items():
+        #    if isinstance(value,Distribution) or callable(value):
+        #        raise NotImplementedError("Parameter {} is {}. Parameter must be a fixed value.".format(key,value))
 
         # Get samples from the distribution sample method
         s = self._sample(N,*args,**kwargs)
@@ -133,56 +129,38 @@ class Distribution(ABC):
         return new_dist
 
 # ========================================================================
-class Cauchy_diff(object):
+class Cauchy_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond, geometry=None):
-        self.loc = location
+    def __init__(self, location, scale, bc_type,**kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs) 
+        
+        self.location = location
         self.scale = scale
-        self.bnd = bndcond
-        self.geometry = geometry
+        self._bc_type = bc_type
 
-        # finite difference matrix
-        one_vec = np.ones(self.dim)
-        diags = np.vstack([-one_vec, one_vec])
-        if (bndcond == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim)
-        elif (bndcond == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim).tocsr()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (bndcond == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(diags, locs, self.dim-1, self.dim)
-        elif (bndcond == 'backward'):
-            locs = [0, -1]
-            Dmat = spdiags(diags, locs, self.dim, self.dim).tocsr()
-            Dmat[0, 0] = 1
-        elif (bndcond == 'none'):
-            Dmat = eye(self.dim)
-        self.D = Dmat
+        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
 
     @property
     def dim(self): 
         #TODO: handle the case when self.loc = None because len(None) = 1
-        return len(self.loc)
-
-    def pdf(self, x):
-        Dx = self.D @ (x-self.loc)
-        return (1/(np.pi**len(Dx))) * np.prod(self.scale/(Dx**2 + self.scale**2))
+        return len(self.location)
 
     def logpdf(self, x):
-        Dx = self.D @ (x-self.loc)
+        Dx = self._diff_op @ (x-self.location)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
         return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
     
     def gradient(self, val, **kwargs):
-        if not callable(self.loc): # for prior
-            diff = self.D @ val
-            return (-2*diff/(diff**2+self.scale**2)) @ self.D
+        if not callable(self.location): # for prior
+            diff = self._diff_op @ val
+            return (-2*diff/(diff**2+self.scale**2)) @ self._diff_op
         else:
-            warnings.warn('Gradient not implemented for {}'.format(type(self.loc)))
+            warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
+
+    def _sample(self,N=1,rng=None):
+        raise NotImplementedError("'Cauchy_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
+
     # def cdf(self, x):   # TODO
     #     return 1/np.pi * np.atan((x-self.loc)/self.scale)
 
@@ -193,7 +171,7 @@ class Cauchy_diff(object):
 # ========================================================================
 class Normal(Distribution):
     """
-    Normal probability distribution. Generates instance of cuqi.distribution.Normal
+    Normal probability distribution. Generates instance of cuqi.distribution.Normal. The variables of this distribution are iid.
 
     
     Parameters
@@ -206,17 +184,16 @@ class Normal(Distribution):
     sample: generate one or more random samples
     pdf: evaluate probability density function
     logpdf: evaluate log probability density function
-    cdf: evaluate cumulatiuve probability function
+    cdf: evaluate cumulative probability function
     
     Example
     -----------
     #Generate Normal with mean 2 and standard deviation 1
     p = cuqi.distribution.Normal(mean=2, std=1)
     """
-    def __init__(self, mean=None, std=None, **kwargs):
+    def __init__(self, mean=None, std=None, is_symmetric=True, **kwargs):
         # Init from abstract distribution class
-        super().__init__(**kwargs)  
-        self.is_symmetric = True 
+        super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
         # Init specific to this distribution
         self.mean = mean
@@ -240,7 +217,7 @@ class Normal(Distribution):
     def _sample(self,N=1, rng=None):
 
         """
-        Draw sample(s) from distrubtion
+        Draw sample(s) from distribution
         
         Example
         -------
@@ -265,10 +242,9 @@ class Normal(Distribution):
 # ========================================================================
 class Gamma(Distribution):
 
-    def __init__(self, shape=None, rate=None, **kwargs):
+    def __init__(self, shape=None, rate=None, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
-        super().__init__(**kwargs) 
-        self.is_symmetric = False
+        super().__init__(is_symmetric=is_symmetric,**kwargs) 
 
         # Init specific to this distribution
         self.shape = shape
@@ -277,7 +253,7 @@ class Gamma(Distribution):
     @property
     def dim(self):
         #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-        return max(np.size(shape),np.size(rate))
+        return max(np.size(self.shape),np.size(self.rate))
 
     @property
     def scale(self):
@@ -318,15 +294,15 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     sample: generate one or more random samples
     pdf: evaluate probability density function
     logpdf: evaluate log probability density function
-    cdf: evaluate cumulatiuve probability function
+    cdf: evaluate cumulative probability function
     
     Example
     -----------
     # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
     x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
     """
-    def __init__(self, mean=None, cov=None,**kwargs):
-        super().__init__(**kwargs) 
+    def __init__(self, mean=None, cov=None, is_symmetric=True, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.cov = force_ndarray(cov)
@@ -457,18 +433,16 @@ class GaussianSqrtPrec(Distribution):
     # Generate an i.i.d. n-dim Gaussian with zero mean and some standard deviation std.
     x = cuqi.distribution.Normal(mean=np.zeros(n), sqrtprec = 1/std*np.eye)
     """
-    def __init__(self, mean=None, sqrtprec=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, mean=None, sqrtprec=None, is_symmetric=True, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(is_symmetric=is_symmetric, **kwargs)
         self.mean = force_ndarray(mean, flatten=True)
         self.sqrtprec = force_ndarray(sqrtprec)
-        self.dim = len(self.mean)
 
-        # Init from abstract distribution class
-        if "geometry" not in kwargs.keys() or kwargs["geometry"] is None:
-            #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-            kwargs["geometry"] = max(np.size(mean),np.shape(sqrtprec)[1])
-        super().__init__(**kwargs) 
-        self.is_symmetric = True
+    @property
+    def dim(self):
+        #TODO: handle the case when self.mean or self.sqrtprec = None because len(None) = 1
+        return max(np.size(self.mean),np.shape(self.sqrtprec)[1])
 
     def _sample(self, N):
         if issparse(self.sqrtprec):        
@@ -509,8 +483,8 @@ class GaussianSqrtPrec(Distribution):
 
 class GaussianPrec(Distribution):
 
-    def __init__(self,mean,prec,**kwargs):
-        super().__init__(**kwargs) 
+    def __init__(self,mean,prec,is_symmetric=True,**kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.prec = force_ndarray(prec)
@@ -534,138 +508,53 @@ class GaussianPrec(Distribution):
     def dim(self):
         return max(len(self.mean),self.prec.shape[0])
 
+class Gaussian(GaussianCov):
 
-# ========================================================================
-class Gaussian(Distribution): #ToDo. Make Gaussian init consistant
-
-    def __init__(self, mean, std, corrmat=None,**kwargs):
-        # Init from abstract distribution class
-        super().__init__(**kwargs)
-        self.is_symmetric = True #TODO: change once we call the super
-
-        self.mean = mean
-        self.std = std
+    def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
+        print("Initializing as GaussianCov. Mutable attributes: mean, cov")
+        #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
-        self.R = corrmat
-
-        # self = sps.multivariate_normal(mean, (std**2)*corrmat)
-
-        # pre-computations (covariance and determinants)
+        dim = len(np.diag(corrmat))
         if isinstance(std, (list, tuple, np.ndarray)):
-            self.Sigma = np.diag(std) @ (corrmat @ np.diag(std))   # covariance
-            isdiag = np.count_nonzero(corrmat - np.diag(np.diagonal(corrmat)))
-            if (isdiag == 0):    # uncorrelated
-                self.det = np.prod(std**2)
-                self.logdet = sum(2*np.log(std))
-                self.L = np.linalg.cholesky(self.Sigma)
-            else:
-                self.det = np.linalg.det(self.Sigma)
-                self.L = np.linalg.cholesky(self.Sigma)
-                self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
+            cov = np.diag(std) @ (corrmat @ np.diag(std))   # covariance
         else:
-            self.Sigma = np.diag(std*np.ones(self.dim)) @ (corrmat @ np.diag(std*np.ones(self.dim)))   # covariance
-            isdiag = np.count_nonzero(corrmat - np.diag(np.diagonal(corrmat)))
-            if (isdiag == 0):   # uncorrelated
-                self.det = std**(2*self.dim)
-                self.logdet = 2*self.dim*np.log(std)
-                self.L = np.linalg.cholesky(self.Sigma)
-            else:
-                self.det = std**(2*self.dim) * np.linalg.det(corrmat)
-                self.L = np.linalg.cholesky(self.Sigma)
-                self.logdet = 2*sum(np.log(np.diag(self.L)))  # only for PSD matrices
+            cov = np.diag(std*np.ones(dim)) @ (corrmat @ np.diag(std*np.ones(dim)))   # covariance
+        super().__init__(mean=mean, cov=cov, is_symmetric=is_symmetric, **kwargs)
 
-        # inverse of Cholesky
-        self.Linv = np.linalg.inv(self.L)   
-
-        # Compute decomposition such that Q = U @ U.T
-        # self.Sigmainv = np.linalg.inv(self.Sigma)   # precision matrix
-        # s, u = eigh(self.Q, lower=True, check_finite=True)
-        # s_pinv = np.array([0 if abs(x) <= 1e-5 else 1/x for x in s], dtype=float)
-        # self.U = u @ np.diag(np.sqrt(s_pinv))
-
-    @property
-    def dim(self):
-        #TODO: handle the case when corrmat = None because len(None) = 1
-        return len(np.diag(self.R))
-
-    def logpdf(self, x1, *x2): #TODO use cond dist to handle this kind of input..
-        if callable(self.mean):
-            mu = self.mean(x2[0])   # mean is variable
-        else:
-            mu = self.mean       # mean is fix
-        xLinv = (x1 - mu) @ self.Linv.T
-        quadform = np.sum(np.square(xLinv), 1) if (len(xLinv.shape) > 1) else np.sum(np.square(xLinv))
-        # = sps.multivariate_normal.logpdf(x1, mu, self.Sigma)
-        return -0.5*(self.logdet + quadform + self.dim*np.log(2*np.pi))
-
-    def pdf(self, x1, *x2):
-        # = sps.multivariate_normal.pdf(x1, self.mean, self.Sigma)
-        return np.exp(self.logpdf(x1, *x2))
-
-    def cdf(self, x1):   # TODO
-        return sps.multivariate_normal.cdf(x1, self.mean, self.Sigma)
-
-    def gradient(self, x):
-        if not callable(self.mean):
-            return self.Sigmainv@(x-self.mean)
-
-    def _sample(self, N=1, rng=None):
-
-        if rng is not None:
-            s = rng.multivariate_normal(self.mean, self.Sigma, N).T
-        else:
-            s = np.random.multivariate_normal(self.mean, self.Sigma, N).T
-            
-        return s
-
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        return self.cov
 
 
 # ========================================================================
-class GMRF(Gaussian):
+class GMRF(Distribution):
+    """
+        Parameters
+        ----------
+        partition_size : int
+            The dimension of the distribution in one physical dimension. 
+
+        physical_dim : int
+            The physical dimension of what the distribution represents (can take the values 1 or 2).
+    """
         
-    def __init__(self, mean, prec, N, dom, BCs, **kwargs): 
-        super(Gaussian, self).__init__(**kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
+    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, is_symmetric=True, **kwargs): 
+        super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self.N = N          # partition size
-        self.BCs = BCs      # boundary conditions
-        self.dom = dom
-        
-        # BCs: 1D difference matrix 
-        one_vec = np.ones(N)
-        dgn = np.vstack([-one_vec, one_vec])
-        if (BCs == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-        elif (BCs == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(dgn, locs, N+1, N).tocsc()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (BCs == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(dgn, locs, N, N).tocsc()
-            Dmat[-1, -1] = 0
-        elif (BCs == 'none'):
-            Dmat = eye(N, dtype=int)
+        self._partition_size = partition_size          # partition size
+        self._bc_type = bc_type      # boundary conditions
+        self._physical_dim = physical_dim
+        if physical_dim == 1: 
+            num_nodes = (partition_size,) 
         else:
-            raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
-        
-        # structure matrix
-        if (dom == 1):
-            self.D = Dmat
-            self.L = (Dmat.T @ Dmat).tocsc()
-        elif (dom == 2):            
-            I = eye(N, dtype=int)
-            Ds = kron(I, Dmat)
-            Dt = kron(Dmat, I)
-            self.D = vstack([Ds, Dt])
-            self.L = ((Ds.T @ Ds) + (Dt.T @ Dt)).tocsc()
+            num_nodes = (partition_size,partition_size)
 
-        self.is_symmetric = True #TODO: change once we call the super   
-
+        self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
+        self._diff_op = self._prec_op._diff_op      
+            
         # work-around to compute sparse Cholesky
         def sparse_cholesky(A):
             # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
@@ -678,37 +567,38 @@ class GMRF(Gaussian):
                 raise TypeError('The matrix is not positive semi-definite')
         
         # compute Cholesky and det
-        if (BCs == 'zero'):    # only for PSD matrices
-            self.rank = self.dim
-            self.chol = sparse_cholesky(self.L)
-            self.logdet = 2*sum(np.log(self.chol.diagonal()))
+        if (bc_type == 'zero'):    # only for PSD matrices
+            self._rank = self.dim
+            self._chol = sparse_cholesky(self._prec_op.get_matrix())
+            self._logdet = 2*sum(np.log(self._chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
             # self.chol = L_cholmod
             # self.logdet = L_cholmod.logdet()
             # 
             # np.log(np.linalg.det(self.L.todense()))
-        elif (BCs == 'periodic') or (BCs == 'neumann'):
-            self.rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
-            self.chol = sparse_cholesky(self.L + np.sqrt(eps)*eye(self.dim, dtype=int))
+        elif (bc_type == 'periodic') or (bc_type == 'neumann'):
+            eps = np.finfo(float).eps
+            self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
+            self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
             if (self.dim > 5000):  # approximate to avoid 'excesive' time
-                self.logdet = 2*sum(np.log(self.chol.diagonal()))
+                self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
-                self.L_eigval = splinalg.eigsh(self.L, self.rank, which='LM', return_eigenvectors=False)
-                self.logdet = sum(np.log(self.L_eigval))
+                self._L_eigval = splinalg.eigsh(self._prec_op.get_matrix(), self._rank, which='LM', return_eigenvectors=False)
+                self._logdet = sum(np.log(self._L_eigval))
 
 
     @property 
     def dim(self):  
-        if self.dom == 1:
-            return self.N 
-        elif self.dom==2:
-            return self.N**2
+        if self._physical_dim == 1:
+            return self._partition_size 
+        elif self._physical_dim==2:
+            return self._partition_size**2
         raise ValueError("attribute dom can be either 1 or 2")
 
     def logpdf(self, x):
-        const = 0.5*(self.rank*(np.log(self.prec)-np.log(2*np.pi)) + self.logdet)
-        y = const - 0.5*( self.prec*((x-self.mean).T @ (self.L @ (x-self.mean))) )
+        const = 0.5*(self._rank*(np.log(self.prec)-np.log(2*np.pi)) + self._logdet)
+        y = const - 0.5*( self.prec*((x-self.mean).T @ (self._prec_op @ (x-self.mean))) )
         y = np.diag(y)
         # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return y
@@ -719,46 +609,46 @@ class GMRF(Gaussian):
 
     def gradient(self, x):
         if not callable(self.mean):
-            return (self.prec*self.L) @ (x-self.mean)
+            return (self.prec*self._prec_op) @ (x-self.mean)
 
-    def sample(self, Ns=1, rng=None):
-        if (self.BCs == 'zero'):
+    def _sample(self, N=1, rng=None):
+        if (self._bc_type == 'zero'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.dim, Ns))   # standard Gaussian
+                xi = rng.standard_normal((self.dim, N))   # standard Gaussian
             else:
-                xi = np.random.randn(self.dim, Ns)   # standard Gaussian
+                xi = np.random.randn(self.dim, N)   # standard Gaussian
 
-            if Ns == 1:
-                s = self.mean.flatten() + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
+            if N == 1:
+                s = self.mean.flatten() + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
             else:
-                s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self.chol.T, xi)
+                s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
             # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
-        elif (self.BCs == 'periodic'):
+        elif (self._bc_type == 'periodic'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.dim, Ns)) + 1j*rng.standard_normal((self.dim, Ns))
+                xi = rng.standard_normal((self.dim, N)) + 1j*rng.standard_normal((self.dim, N))
             else:
-                xi = np.random.randn(self.dim, Ns) + 1j*np.random.randn(self.dim, Ns)
+                xi = np.random.randn(self.dim, N) + 1j*np.random.randn(self.dim, N)
             
             F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
             # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
-            eigv = np.hstack([self.L_eigval, self.L_eigval[-1]])  # repeat last eigval to complete dim
+            eigv = np.hstack([self._L_eigval, self._L_eigval[-1]])  # repeat last eigval to complete dim
             L_sqrt = diags(np.sqrt(eigv)) 
             s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
             # L_sqrt = pinvh(np.diag(np.sqrt(eigv)))
             # s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ (L_sqrt @ xi))
             
-        elif (self.BCs == 'neumann'):
+        elif (self._bc_type == 'neumann'):
 
             if rng is not None:
-                xi = rng.standard_normal((self.D.shape[0], Ns))   # standard Gaussian
+                xi = rng.standard_normal((self._diff_op.shape[0], N))   # standard Gaussian
             else:
-                xi = np.random.randn(self.D.shape[0], Ns)   # standard Gaussian
+                xi = np.random.randn(self._diff_op.shape[0], N)   # standard Gaussian
             
             s = self.mean + (1/np.sqrt(self.prec))* \
-                splinalg.spsolve(self.chol.T, (splinalg.spsolve(self.chol, (self.D.T @ xi)))) 
+                splinalg.spsolve(self._chol.T, (splinalg.spsolve(self._chol, (self._diff_op.T @ xi)))) 
         else:
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
 
@@ -767,45 +657,35 @@ class GMRF(Gaussian):
 
 
 # ========================================================================
-class Laplace_diff():
+class Laplace_diff(Distribution):
 
-    def __init__(self, location, scale, bndcond, geometry=None):
-        self.loc = location
+    def __init__(self, location, scale, bc_type, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs) 
+
+        self.location = location
         self.scale = scale
-        self.dim = len(location)
-        self.bnd = bndcond
-        self.geometry = geometry
+        self._bc_type = bc_type
 
         # finite difference matrix
-        one_vec = np.ones(self.dim)
-        diags = np.vstack([-one_vec, one_vec])
-        if (bndcond == 'zero'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim)
-        elif (bndcond == 'periodic'):
-            locs = [-1, 0]
-            Dmat = spdiags(diags, locs, self.dim+1, self.dim).tocsr()
-            Dmat[-1, 0] = 1
-            Dmat[0, -1] = -1
-        elif (bndcond == 'neumann'):
-            locs = [0, 1]
-            Dmat = spdiags(diags, locs, self.dim-1, self.dim)
-        elif (bndcond == 'backward'):
-            locs = [0, -1]
-            Dmat = spdiags(diags, locs, self.dim, self.dim).tocsr()
-            Dmat[0, 0] = 1
-        elif (bndcond == 'none'):
-            Dmat = eye(self.dim)
-        self.D = Dmat
-        self.is_symmetric = None #TODO: update
+        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+
+
+    @property
+    def dim(self):
+        #TODO: handle the case when self.loc is None 
+        return len(self.location)
 
     def pdf(self, x):
-        Dx = self.D @ (x-self.loc)  # np.diff(X)
+        Dx = self._diff_op @ (x-self.location)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
 
     def logpdf(self, x):
-        Dx = self.D @ (x-self.loc)
+        Dx = self._diff_op @ (x-self.location)
         return len(Dx)*(-(np.log(2)+np.log(self.scale))) - np.linalg.norm(Dx, ord=1, axis=0)/self.scale
+
+    def _sample(self,N=1,rng=None):
+        raise NotImplementedError("'Laplace_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
     #     return 1/2 + 1/2*np.sign(x-self.loc)*(1-np.exp(-np.linalg.norm(x, ord=1, axis=0)/self.scale))
@@ -818,7 +698,7 @@ class Laplace_diff():
 class Uniform(Distribution):
 
 
-    def __init__(self, low=None, high=None, **kwargs):
+    def __init__(self, low=None, high=None, is_symmetric=True, **kwargs):
         """
         Parameters
         ----------
@@ -828,12 +708,11 @@ class Uniform(Distribution):
             Upper bound(s) of the uniform distribution.
         """
         # Init from abstract distribution class
-        super().__init__(**kwargs)       
+        super().__init__(is_symmetric=is_symmetric, **kwargs)       
 
         # Init specific to this distribution
         self.low = low
-        self.high = high  
-        self.is_symmetric = True       
+        self.high = high      
 
 
     @property 
@@ -949,3 +828,75 @@ class DistributionGallery(UserDefinedDistribution):
         return -1/(2*self.sig**2)*(np.sqrt(x[:,0]**2+ x[:,1]**2) -1 )**2 -1/(2*self.delta**2)*(x[:,1]-1)**2
 
 
+
+# ========================================================================
+class Laplace(Distribution):
+    """
+    The variables of this Laplace distribution are iid.
+    """
+
+    def __init__(self, location, prec, **kwargs):
+
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        self.location = location
+        self.prec = prec
+  
+    @property
+    def dim(self):
+        return np.size(self.location)
+
+    def logpdf(self, x):
+        if isinstance(x, (float,int)):
+            x = np.array([x])
+        return self.dim*(np.log(self.prec/2)) - self.prec*np.linalg.norm(x-self.location,1)
+
+    def _sample(self,N=1,rng=None):
+        if rng is not None:
+            s =  rng.laplace(self.location, 1.0/self.prec, (N,self.dim))
+        else:
+            s = np.random.laplace(self.location, 1.0/self.prec, (N,self.dim))
+        return s
+
+# ========================================================================
+class LMRF(Distribution):
+    """
+        Parameters
+        ----------
+        partition_size : int
+            The dimension of the distribution in one physical dimension. 
+
+        physical_dim : int
+            The physical dimension of what the distribution represents (can take the values 1 or 2).
+    """
+        
+    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, **kwargs):
+        super().__init__(**kwargs)
+        self.mean = mean.reshape(len(mean), 1)
+        self.prec = prec
+        self._partition_size = partition_size          # partition size
+        self._bc_type = bc_type      # boundary conditions
+        self._physical_dim = physical_dim
+        if physical_dim == 1: 
+            num_nodes = (partition_size,) 
+        else:
+            num_nodes = (partition_size,partition_size)
+
+        self._diff_op = FirstOrderFiniteDifference( num_nodes, bc_type= bc_type) 
+
+    @property
+    def dim(self):
+        return self._diff_op.dim
+
+    def logpdf(self, x):
+
+        if self._physical_dim == 1 or self._physical_dim == 2:
+            const = self.dim *(np.log(self.prec)-np.log(2)) 
+            y = const -  self.prec*(np.linalg.norm(self._diff_op@x, ord=1))
+        else:
+            raise NotImplementedError
+        return y
+
+    def _sample(self, N):
+        raise NotImplementedError
