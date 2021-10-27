@@ -4,6 +4,9 @@ from scipy.sparse import spdiags, eye, kron, vstack
 
 # ========== Operator class ===========
 class Operator(object):
+    """
+    A linear operator which is represented by a matrix. 
+    """
 
     def __init__(self):
         self._matrix = None
@@ -35,7 +38,24 @@ class Operator(object):
     def shape(self):
         return self._matrix.shape
 
+    def get_matrix(self):
+        return self._matrix
+
 class FirstOrderFiniteDifference(Operator):
+    """
+    First order finite difference differential operator for 1D and 2D grids. 
+
+    Attributes:
+    -----------
+        num_nodes: int or tuple
+            For a 1D operator, num_nodes is a one dimensional tuple or an integer representing the number of discretization nodes in a 1D grid. For a 2D operator, num_nodes is a two dimensional tuple of integers representing the number of discretization nodes in the 2D grid in the x axis and the y axis, respectively.
+
+        bc_type: str
+            The boundary condition type for the operator. 
+
+        physical_dim: int
+            Either 1 or 2 for 1D and 2D operators, respectively. 
+    """
 
     def __init__(self, num_nodes, bc_type= 'periodic'):	
 
@@ -116,6 +136,20 @@ class FirstOrderFiniteDifference(Operator):
 
 
 class PrecisionFiniteDifference(Operator):
+    """
+    Precision operator constructed with a finite difference operator. 
+
+    Attributes:
+    -----------
+        num_nodes: int or tuple
+            For a 1D operator, num_nodes is a one dimensional tuple or an integer representing the number of discretization nodes in a 1D grid. For a 2D operator, num_nodes is a two dimensional tuple of integers representing the number of discretization nodes in the 2D grid in the x axis and the y axis, respectively.
+
+        bc_type: str
+            The boundary condition type for the finite difference operator. 
+
+        physical_dim: int
+            Either 1 or 2 for 1D and 2D operators, respectively. 
+    """
     def __init__(self, num_nodes , bc_type= 'periodic', order =1):
         if order == 1:
             self._diff_op = FirstOrderFiniteDifference(num_nodes, bc_type=bc_type)
@@ -138,9 +172,6 @@ class PrecisionFiniteDifference(Operator):
     @property
     def dim(self):
         return self._diff_op.dim
-
-    def get_matrix(self):
-        return self._matrix
 
     def _create_prec_matrix(self):
         if self.physical_dim == 1 or self.physical_dim == 2:
