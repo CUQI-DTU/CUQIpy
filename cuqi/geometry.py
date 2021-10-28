@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 import numpy as np
+import numpy.matlib as matlib
 import matplotlib.pyplot as plt
 import math
 from scipy.fftpack import dst, idst
+import scipy.sparse as sparse
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
@@ -336,7 +338,21 @@ class _DefaultGeometry(Continuous1D):
             if not np.all(value == vars(obj)[key]): return False 
         return True
 
-class KLExpansion(Continuous1D): #TODO: Generalize to other basis
+class DiscreteField(Discrete):
+    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
+        super().__init__(grid, axis_labels)
+
+        self.N = len(self.grid)
+        self.mean = mean
+        self.std = std
+        XX, YY = np.meshgrid(self.grid, self.grid, indexing='ij')
+        self.Sigma = cov_func(XX, YY)
+        self.L = np.linalg.chol(self.Sigma)
+
+    def par2fun(self, p):
+        return self.mean + self.L.T@p
+    
+class KLExpansion(Continuous1D):
     '''
     class representation of the random field in  the sine basis
     alpha = sum_i p * (1/i)^decay * sin(i*L*x/pi)
@@ -348,17 +364,29 @@ class KLExpansion(Continuous1D): #TODO: Generalize to other basis
         
         super().__init__(grid, axis_labels)
         
-        self._decay_rate = 2.5 # decay rate of KL
-        self.normalizer = 12. # normalizer factor
-        eigvals = np.array(range(1,self.dim+1)) # KL eigvals
-        self.coefs = 1/np.float_power(eigvals,self._decay_rate)
+        self.N = len(self.grid) # number of modes
+        self.modes = np.zeros(self.N) # vector of expansion coefs
+        self.real = np.zeros(self.N) # vector of real values
+        self.decay_rate = 2.5 # decay rate of KL
+        self.c = 12. # normalizer factor
+        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
+        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
+
+        self.p = np.zeros(self.N) # random variables in KL
+
+        self.axis_labels = axis_labels
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        modes = p*self.coefs/self.normalizer
-        real = idst(modes)/2
-        return real
+        self.modes = p*self.coefs/self.c
+        self.real = idst(self.modes)/2
+        return self.real
     
+    def plot(self, p, is_fun=False):
+        if is_fun:
+            super().plot(p)
+        else:    
+            super().plot(self.par2fun(p))
 
 class MappedKL(KLExpansion):
     def __init__(self, grid, mapping, axis_labels=['x']):
@@ -372,6 +400,90 @@ class MappedKL(KLExpansion):
     def plot_mapped(self, p, is_par = False):
         plt.plot(self.grid, self.apply_map(p))
 
+class CustomKL(Continuous1D):
+    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
+        super().__init__(grid, axis_labels)
+
+        self.N = len(self.grid)
+        self.mean = mean
+        self.std = std
+        self.Nystrom( grid, cov_func, std, trunc_term, self.N )
+
+    def par2fun(self,p):
+        return self.mean + np.sum( p*np.sqrt(self.eigval)*self.eigvec , axis=1).reshape(-1)
+
+    def Nystrom(self, xnod, C_nu, sigma, M, N_GL):
+        # xnod: points at which the field is realized (from geometry PDE)
+        # C_nu: lambda function with the covariance kernel (no variance multiplied)
+        # sigma: standard deviation of the field
+        # M: dimension of the field (KL truncation)
+        # N_GL: gauss-legendre points for the integration
+        ### return eigenpairs of an arbitrary 1D correlation kernel
+
+        # domain data    
+        n = xnod.size
+        a = (xnod[-1] - xnod[0])/2     # scale
+        
+        # compute the Gauss-Legendre abscissas and weights
+        #xi, w   = quad.Gauss_Legendre(N_GL) 
+        xi, w = np.polynomial.legendre.leggauss(N_GL)
+
+        # transform nodes and weights to [0, L]
+        xi_s = a*xi + a
+        w_s  = a*w
+        
+        # compute diagonal matrix 
+        D  = sparse.spdiags(np.sqrt(w_s), 0, N_GL, N_GL).toarray()
+        S1 = matlib.repmat(np.sqrt(w_s).reshape(1, N_GL), N_GL, 1)
+        S2 = matlib.repmat(np.sqrt(w_s).reshape(N_GL, 1), 1, N_GL)
+        S  = S1 * S2
+        
+        # compute covariance matrix 
+        Sigma_nu = np.zeros((N_GL, N_GL))
+        for i in range(N_GL):
+            for j in range(N_GL):
+                if i != j:
+                    Sigma_nu[i,j] = C_nu(xi_s[i], xi_s[j])
+                else:
+                    Sigma_nu[i,j] = sigma**2   # correct the diagonal term
+                      
+        # solve the eigenvalue problem
+        A    = Sigma_nu * S                             # D_sqrt*Sigma_nu*D_sqrt
+        L, h = np.linalg.eig(A)                         # solve eigenvalue problem
+        # L, h = sp.sparse.linalg.eigsh(A, M, which='LM')   # np.linalg.eig(A)         
+        idx  = np.argsort(-np.real(L))                  # index sorting descending
+        
+        # order the results
+        eigval = np.real(L[idx])
+        h      = h[:,idx]
+        
+        # take the M values
+        eigval = eigval[:M]
+        h      = h[:,:M]
+        
+        # replace for the actual eigenvectors
+        phi = np.linalg.solve(D, h)
+        
+        # Nystrom's interpolation formula
+        # recompute covariance matrix on partition nodes and quadrature nodes
+        Sigma_nu = np.zeros((n, N_GL))
+        for i in range(n):
+            for j in range(N_GL):
+                Sigma_nu[i,j] = C_nu(xnod[i], xi_s[j])
+                          
+        M1     = Sigma_nu * np.matlib.repmat(w_s.reshape(N_GL,1), 1, n).T
+        M2     = np.dot(phi, np.diag(1/eigval)) 
+        eigvec = np.dot(M1, M2)
+
+        # normalize eigenvectors (not necessary) integrate to 1
+        #norm_fact = np.zeros((M,1))
+        #for i in range(M):
+        #    norm_fact[i] = np.sqrt(np.trapz(eigvec[:,i]**2, xnod))
+        #eigvec = eigvec/np.matlib.repmat(norm_fact, 1, n)                
+            
+        self.eigval = eigval
+        self.eigvec = eigvec
+
 
 class StepExpansion(Continuous1D):
     '''
@@ -381,17 +493,41 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels)
 
+        self.N = len(self.grid) # number of modes
+        self.p = np.zeros(4)
+        #self.dx = np.pi/(self.N+1)
+        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
+
+        self.axis_labels = axis_labels
+
     def par2fun(self, p):
-        real = np.zeros_like(self.grid)
+        self.real = np.zeros_like(self.grid)
+        
         idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
-        real[idx[0]] = p[0]
+        self.real[idx[0]] = p[0]
         idx = np.where( (self.grid>0.4*np.pi)&(self.grid<=0.6*np.pi) )
-        real[idx[0]] = p[1]
+        self.real[idx[0]] = p[1]
         idx = np.where( (self.grid>0.6*np.pi)&(self.grid<=0.8*np.pi) )
-        real[idx[0]] = p[2]
-        return real
+        self.real[idx[0]] = p[2]
+        return self.real
     
     @property
     def shape(self):
         return 3
     
+    def plot(self, p, is_fun=False):
+        if is_fun:
+            super().plot(p)
+        else:    
+            super().plot(self.par2fun(p))
+    
+    '''
+    def plot(self,values,*args,**kwargs):
+        p = plt.plot(values,*args,**kwargs)
+        self._plot_config()
+        return p
+
+    def _plot_config(self):
+        if self.axis_labels is not None:
+            plt.xlabel(self.axis_labels[0])
+            '''

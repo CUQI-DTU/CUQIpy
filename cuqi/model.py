@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
+from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.geometry import Geometry, _DefaultGeometry
 
@@ -32,7 +33,7 @@ class Model(object):
     :meth:`range_dim` the dimension of the range.
     :meth:`domain_dim` the dimension of the domain.
     """
-    def __init__(self,forward,range_geometry,domain_geometry):
+    def __init__(self, forward, range_geometry, domain_geometry):
 
         #Check if input is callable
         if callable(forward) is not True:
@@ -195,4 +196,57 @@ class LinearModel(Model):
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
+        
+
+class Poisson_1D(Model):
+    """ Base cuqi model of the Poisson 1D problem"""
+    def __init__(self, N, L, source, field_type):
+        # N: number of discretization points
+        # f: source term
+        self.N = N-1          # number of FD nodes
+        self.dx = 1./self.N   # step size
+        self.Dx = - np.diag(np.ones(self.N), 0) + np.diag(np.ones(self.N-1), 1) 
+        #
+        vec = np.zeros(self.N)
+        vec[0] = 1
+        self.Dx = np.concatenate([vec.reshape([1,-1]), self.Dx], axis=0)
+        self.Dx /= self.dx # FD derivative matrix
+
+        # discretization
+        self.x = np.linspace(self.dx, L, self.N, endpoint=False)
+        self.f = source(self.x)
+        #
+        if field_type=="KL":
+            domain_geometry = Geometry.KLExpansion(self.grid)
+        elif field_type=="Step":
+            domain_geometry = Geometry.StepExpansion(self.grid)
+        else:
+            domain_geometry = Geometry.Continuous1D(self.grid)
+        range_geometry = Geometry.Continuous1D(N)
+        super().__init__(self.forward, range_geometry, domain_geometry)
+
+    # approximate the Jacobian matrix of callable function func
+    def approx_jacobian(x, func, epsilon, *args):
+        # x       - The state vector
+        # func    - A vector-valued function of the form f(x,*args)
+        # epsilon - The peturbation used to determine the partial derivatives
+        # The approximation is done using forward differences
+        x0 = np.asfarray(x)
+        f0 = func(*((x0,)+args))
+        jac = np.zeros([len(x0), len(f0)])
+        dx = np.zeros(len(x0))
+        for i in range(len(x0)):
+            dx[i] = epsilon
+            jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
+            dx[i] = 0.0
+        return jac.transpose()
+    
+    # forward projection: finite differences
+    def forward(self, kappa):
+        Dxx = self.Dx.T @ np.diag(kappa) @ self.Dx
+        return solve(Dxx, self.f)
+
+    # compute gradient of target function 
+    def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
+        return approx_jacobian(kappa, func, eps)
         
