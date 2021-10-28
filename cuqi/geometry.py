@@ -124,9 +124,10 @@ class Geometry(ABC):
 
 class Continuous(Geometry, ABC):
 
-    def __init__(self,grid=None, axis_labels=None):
+    def __init__(self,grid=None, axis_labels=None, mapping=lambda x: x):
         self.axis_labels = axis_labels
         self.grid = grid
+        self.mapping = mapping
 
     def _create_dimension(self, dim_grid):
         dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, 1D numpy.ndarray, or None"
@@ -146,6 +147,13 @@ class Continuous(Geometry, ABC):
             raise ValueError(dim_grid_value_err_msg)
         return dim_grid
 
+    def apply_map(self, p):
+        return self.mapping( self.par2fun(p) )
+
+    # plots the random field: "params", "KL", "mapped"
+    def plot_mapped(self, p, is_par = False):
+        plt.plot(self.grid, self.apply_map(p))
+        
     @property
     def grid(self):
         return self._grid
@@ -164,8 +172,8 @@ class Continuous1D(Continuous):
         1D array of node coordinates in a 1D grid
     """
 
-    def __init__(self,grid=None,axis_labels=['x']):
-        super().__init__(grid, axis_labels)
+    def __init__(self,grid=None,axis_labels=['x'],**kwargs):
+        super().__init__(grid, axis_labels,**kwargs)
 
     @property
     def shape(self):
@@ -360,9 +368,9 @@ class KLExpansion(Continuous1D):
     '''
     
     # init function defining paramters for the KL expansion
-    def __init__(self, grid, axis_labels=['x']):
+    def __init__(self, grid, axis_labels=['x'],**kwargs):
         
-        super().__init__(grid, axis_labels)
+        super().__init__(grid, axis_labels,**kwargs)
         
         self.N = len(self.grid) # number of modes
         self.modes = np.zeros(self.N) # vector of expansion coefs
@@ -371,9 +379,7 @@ class KLExpansion(Continuous1D):
         self.c = 12. # normalizer factor
         self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
         self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
-
         self.p = np.zeros(self.N) # random variables in KL
-
         self.axis_labels = axis_labels
 
     # computes the real function out of expansion coefs
@@ -387,30 +393,17 @@ class KLExpansion(Continuous1D):
             super().plot(p)
         else:    
             super().plot(self.par2fun(p))
-
-class MappedKL(KLExpansion):
-    def __init__(self, grid, mapping, axis_labels=['x']):
-        super().__init__(grid, axis_labels)
-        self.map = mapping
-
-    def apply_map(self,p):
-        return self.map( super().par2fun(p) )
-
-    # plots the random field: "params", "KL", "mapped"
-    def plot_mapped(self, p, is_par = False):
-        plt.plot(self.grid, self.apply_map(p))
-
 class CustomKL(Continuous1D):
-    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
-        super().__init__(grid, axis_labels)
+    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
+        super().__init__(grid, axis_labels,**kwargs)
 
         self.N = len(self.grid)
         self.mean = mean
         self.std = std
-        self.Nystrom( grid, cov_func, std, trunc_term, self.N )
+        self.Nystrom( grid, cov_func, std, trunc_term, int(2*self.N) )
 
-    def par2fun(self,p):
-        return self.mean + np.sum( p*np.sqrt(self.eigval)*self.eigvec , axis=1).reshape(-1)
+    def par2fun(self, p):
+        return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
 
     def Nystrom(self, xnod, C_nu, sigma, M, N_GL):
         # xnod: points at which the field is realized (from geometry PDE)
@@ -430,13 +423,13 @@ class CustomKL(Continuous1D):
 
         # transform nodes and weights to [0, L]
         xi_s = a*xi + a
-        w_s  = a*w
+        w_s = a*w
         
         # compute diagonal matrix 
-        D  = sparse.spdiags(np.sqrt(w_s), 0, N_GL, N_GL).toarray()
+        D = sparse.spdiags(np.sqrt(w_s), 0, N_GL, N_GL).toarray()
         S1 = matlib.repmat(np.sqrt(w_s).reshape(1, N_GL), N_GL, 1)
         S2 = matlib.repmat(np.sqrt(w_s).reshape(N_GL, 1), 1, N_GL)
-        S  = S1 * S2
+        S = S1 * S2
         
         # compute covariance matrix 
         Sigma_nu = np.zeros((N_GL, N_GL))
@@ -448,18 +441,18 @@ class CustomKL(Continuous1D):
                     Sigma_nu[i,j] = sigma**2   # correct the diagonal term
                       
         # solve the eigenvalue problem
-        A    = Sigma_nu * S                             # D_sqrt*Sigma_nu*D_sqrt
+        A = Sigma_nu * S                             # D_sqrt*Sigma_nu*D_sqrt
         L, h = np.linalg.eig(A)                         # solve eigenvalue problem
         # L, h = sp.sparse.linalg.eigsh(A, M, which='LM')   # np.linalg.eig(A)         
-        idx  = np.argsort(-np.real(L))                  # index sorting descending
+        idx = np.argsort(-np.real(L))                  # index sorting descending
         
         # order the results
         eigval = np.real(L[idx])
-        h      = h[:,idx]
+        h = h[:,idx]
         
         # take the M values
         eigval = eigval[:M]
-        h      = h[:,:M]
+        h = np.real(h[:,:M])
         
         # replace for the actual eigenvectors
         phi = np.linalg.solve(D, h)
@@ -471,16 +464,15 @@ class CustomKL(Continuous1D):
             for j in range(N_GL):
                 Sigma_nu[i,j] = C_nu(xnod[i], xi_s[j])
                           
-        M1     = Sigma_nu * np.matlib.repmat(w_s.reshape(N_GL,1), 1, n).T
-        M2     = np.dot(phi, np.diag(1/eigval)) 
-        eigvec = np.dot(M1, M2)
+        M1 = Sigma_nu * np.matlib.repmat(w_s.reshape(N_GL,1), 1, n).T
+        M2 = phi @ np.diag(1/eigval)
+        eigvec = M1 @ M2
 
         # normalize eigenvectors (not necessary) integrate to 1
         #norm_fact = np.zeros((M,1))
         #for i in range(M):
         #    norm_fact[i] = np.sqrt(np.trapz(eigvec[:,i]**2, xnod))
-        #eigvec = eigvec/np.matlib.repmat(norm_fact, 1, n)                
-            
+        #eigvec = eigvec/np.matlib.repmat(norm_fact, 1, n)             
         self.eigval = eigval
         self.eigvec = eigvec
 
@@ -489,25 +481,25 @@ class StepExpansion(Continuous1D):
     '''
     class representation of the step random field with 3 intermidiate steps
     '''
-    def __init__(self, grid, axis_labels=['x']):
+    def __init__(self, grid, axis_labels=['x'], **kwargs):
 
-        super().__init__(grid, axis_labels)
+        super().__init__(grid, axis_labels,**kwargs)
 
         self.N = len(self.grid) # number of modes
         self.p = np.zeros(4)
+        self.L = grid[-1]
         #self.dx = np.pi/(self.N+1)
         #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
-
         self.axis_labels = axis_labels
 
     def par2fun(self, p):
         self.real = np.zeros_like(self.grid)
         
-        idx = np.where( (self.grid>0.2*np.pi)&(self.grid<=0.4*np.pi) )
+        idx = np.where( (self.grid>0.2*self.L)&(self.grid<=0.4*self.L) )
         self.real[idx[0]] = p[0]
-        idx = np.where( (self.grid>0.4*np.pi)&(self.grid<=0.6*np.pi) )
+        idx = np.where( (self.grid>0.4*self.L)&(self.grid<=0.6*self.L) )
         self.real[idx[0]] = p[1]
-        idx = np.where( (self.grid>0.6*np.pi)&(self.grid<=0.8*np.pi) )
+        idx = np.where( (self.grid>0.6*self.L)&(self.grid<=0.8*self.L) )
         self.real[idx[0]] = p[2]
         return self.real
     

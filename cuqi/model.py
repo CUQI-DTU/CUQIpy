@@ -3,7 +3,7 @@ from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples
-from cuqi.geometry import Geometry, _DefaultGeometry
+from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -200,7 +200,7 @@ class LinearModel(Model):
 
 class Poisson_1D(Model):
     """ Base cuqi model of the Poisson 1D problem"""
-    def __init__(self, N, L, source, field_type):
+    def __init__(self, N, L, source, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
         # N: number of discretization points
         # f: source term
         self.N = N-1          # number of FD nodes
@@ -213,16 +213,19 @@ class Poisson_1D(Model):
         self.Dx /= self.dx # FD derivative matrix
 
         # discretization
-        self.x = np.linspace(self.dx, L, self.N, endpoint=False)
-        self.f = source(self.x)
+        self.x = np.linspace(0, L, self.N+1, endpoint=True)
+        self.x_u = np.linspace(self.dx, L, self.N, endpoint=False)
+        self.f = source(self.x_u)
         #
         if field_type=="KL":
-            domain_geometry = Geometry.KLExpansion(self.grid)
+            domain_geometry = KLExpansion(self.x, mapping=KL_map)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
         elif field_type=="Step":
-            domain_geometry = Geometry.StepExpansion(self.grid)
+            domain_geometry = StepExpansion(self.x, mapping=KL_map)
         else:
-            domain_geometry = Geometry.Continuous1D(self.grid)
-        range_geometry = Geometry.Continuous1D(N)
+            domain_geometry = Continuous1D(self.x, mapping=KL_map)
+        range_geometry = Continuous1D(self.x_u)
         super().__init__(self.forward, range_geometry, domain_geometry)
 
     # approximate the Jacobian matrix of callable function func
@@ -242,7 +245,8 @@ class Poisson_1D(Model):
         return jac.transpose()
     
     # forward projection: finite differences
-    def forward(self, kappa):
+    def forward(self, theta):
+        kappa = self.domain_geometry.apply_map(theta)
         Dxx = self.Dx.T @ np.diag(kappa) @ self.Dx
         return solve(Dxx, self.f)
 
