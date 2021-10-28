@@ -98,7 +98,7 @@ def test_Gaussian_rng(mean,std,R):
 def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
-    assert np.allclose(dist.sample(10),dist.sample(10,rng=rng))
+    assert np.allclose(dist.sample(10).samples,dist.sample(10,rng=rng).samples)
 
 def test_Uniform_logpdf():
     low = np.array([1, .5])
@@ -123,15 +123,21 @@ def test_Uniform_sample(low, high, expected):
 @pytest.mark.parametrize("distribution, kwargs",
                          [(cuqi.distribution.Uniform, 
                           {'low':np.array([2, 2.5, 3,5]),
-                          'high':np.array([5,7, 7,6])})])
+                          'high':np.array([5,7, 7,6])}),
+                          (cuqi.distribution.Gaussian, 
+                          {'mean':np.array([0, 0, 0, 0]),
+                          'std':np.array([1, 1, 1, 1]),
+                          'corrmat':np.eye(4)})])
 def test_distribution_contains_geometry(distribution, kwargs):
     rng = np.random.RandomState(3)
     geom = cuqi.geometry.Continuous2D((2,2))
     dist = distribution(**kwargs,geometry = geom)
-    dist = cuqi.distribution.Uniform(np.array([1,1,1,1]), np.array([2,2,2,2]), geometry=geom)
     cuqi_samples = dist.sample(3,rng=rng)
-    assert(cuqi_samples.geometry == geom and dist.geometry == geom and \
-           np.all(geom.grid[0]==np.array([0, 1])) and np.all(geom.grid[1]== np.array([0, 1])))
+    assert(dist.dim == geom.dim and 
+          cuqi_samples.geometry == geom and
+          dist.geometry == geom and 
+          np.all(geom.grid[0]==np.array([0, 1])) and
+          np.all(geom.grid[1]== np.array([0, 1])))
 
 # Compare computed covariance
 @pytest.mark.parametrize("mean,cov,mean_full,cov_full",[
@@ -144,9 +150,9 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_GaussianGen(mean,cov,mean_full,cov_full):
+def test_GaussianCov(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
-    prior = cuqi.distribution.GaussianGen(mean, cov)
+    prior = cuqi.distribution.GaussianCov(mean, cov)
 
     # Compare logpdf with scipy using full vector+matrix rep
     x0 = 1000*np.random.rand(prior.dim)

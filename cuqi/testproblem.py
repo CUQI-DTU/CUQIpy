@@ -10,17 +10,74 @@ from cuqi.problem import BayesianProblem
 
 #=============================================================================
 class Deblur(BayesianProblem):
-    
-    def __init__(self, a = 48, noise_std = 0.1, dim = 128, bnds = [0, 1]):
-        t = np.linspace(bnds[0], bnds[1], dim)
-        h = t[1] - t[0]
+    """
+    1D Deblur test problem.
+
+    Parameters
+    ------------
+    dim : int, default 128
+        size of the (dim,dim) deblur problem.
+
+    bounds : len=2 list of int's, default [0,1]
+        Lower and upper bounds for the mesh.
+
+    blur_size : int, default 48
+        size of blur.
+
+    noise_std : scalar, default 0.1
+        Standard deviation of the noise.
+
+    prior : cuqi.distribution.Distribution, default None
+        Distribution of the prior.
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.Model
+        Deblur forward model
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior (Default = None)
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data
+
+    mesh : ndarray
+        The mesh the model is defined on.
+
+    meshsize : float
+        Size of each mesh element.
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+    """
+    def __init__(self, dim = 128, bounds = [0, 1], blur_size = 48, noise_std = 0.1, prior=None):
+        # mesh
+        mesh = np.linspace(bounds[0], bounds[1], dim)
+        meshsize = mesh[1] - mesh[0]
 
         # set-up computational model kernel
-        kernel = lambda x, y, a: a / 2*np.exp(-a*abs((x-y)))   # blurring kernel
+        kernel = lambda x, y, blur_size: blur_size / 2*np.exp(-blur_size*abs((x-y)))   # blurring kernel
 
         # convolution matrix
-        T1, T2 = np.meshgrid(t, t)
-        A = h*kernel(T1, T2, a)
+        T1, T2 = np.meshgrid(mesh, mesh)
+        A = meshsize*kernel(T1, T2, blur_size)
         maxval = A.max()
         A[A < 5e-3*maxval] = 0
         A = csc_matrix(A)   # make A sparse
@@ -31,42 +88,40 @@ class Deblur(BayesianProblem):
         # Store likelihood
         likelihood = Gaussian(model,noise_std,np.eye(dim))
         
-        # Generate inverse-crime free data
-        data, f_true, g_true = _data_conv(t,kernel,likelihood)
+        # Generate inverse-crime free data (still same blur size)
+        data, f_true, g_true = self._generateData(mesh,kernel,blur_size,likelihood)
         
         #Initialize deblur as BayesianProblem cuqi problem
-        super().__init__(likelihood,None,data) #No default prior
+        super().__init__(likelihood,prior,data)
         
         #Store other properties
-        self.meshsize = h
+        self.meshsize = meshsize
         self.exactSolution = f_true
         self.exactData = g_true
-        self.t = t
+        self.mesh = mesh
         
+    def _generateData(self,mesh,kernel,blur_size,likelihood):
 
-def _data_conv(t,kernel,likelihood):
+        # f is piecewise constant
+        x_min, x_max = mesh[0], mesh[-1]
+        vals = np.array([0, 2, 3, 2, 0, 1, 0])
+        conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
+                (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
+                (0.6 <= x) & (x <= x_max)]
+        f_signal = lambda x: np.piecewise(x, conds(x), vals)
 
-    # f is piecewise constant
-    x_min, x_max = t[0], t[-1]
-    vals = np.array([0, 2, 3, 2, 0, 1, 0])
-    conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
-               (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
-               (0.6 <= x) & (x <= x_max)]
-    f_signal = lambda x: np.piecewise(x, conds(x), vals)
+        # numerically integrate the convolution
+        g_conv = lambda x: quad_vec(lambda y: f_signal(y)*kernel(x, y, blur_size), x_min, x_max)
+        # se also np.convolve(kernel(...), f_true, mode='same')
 
-    # numerically integrate the convolution
-    a_true = 50
-    g_conv = lambda x: quad_vec(lambda y: f_signal(y)*kernel(x, y, a_true), x_min, x_max)
-    # se also np.convolve(kernel(...), f_true, mode='same')
+        # true values
+        f_true = f_signal(mesh)
+        g_true = g_conv(mesh)[0]
 
-    # true values
-    f_true = f_signal(t)
-    g_true = g_conv(t)[0]
+        # noisy data
+        data = g_true + likelihood(x=np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
-    # noisy data
-    b = g_true + likelihood(x=np.zeros(len(t))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
-
-    return b, f_true, g_true
+        return data, f_true, g_true
 
 #=============================================================================
 class Deconvolution(BayesianProblem):

@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 
-from cuqi.distribution import Cauchy_diff, GaussianGen, Laplace_diff, Gaussian, GMRF
+from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 
@@ -128,16 +128,21 @@ class BayesianProblem(object):
 
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
-
-        if self._check(GaussianGen,GaussianGen,LinearModel):
-            return self._sampleLinearRTO(Ns)
-        elif self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
+        
+        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
+            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems.")
             return self._sampleMapCholesky(Ns)
 
-        elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
-            return self._sampleCWMH(Ns)
+        elif self._check(GaussianCov,GaussianCov,LinearModel):
+            print("Using Linear_RTO sampler")
+            return self._sampleLinearRTO(Ns)
 
-        elif self._check(Gaussian,Gaussian):
+        elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
+            print("Using Component-wise Metropolis-Hastings sampler")
+            return self._sampleCWMH(Ns)
+            
+        elif self._check(Gaussian,Gaussian) or self._check(Gaussian,GMRF):
+            print("Using preconditioned Crank-Nicolson sampler")
             return self._samplepCN(Ns)
 
         else:
@@ -200,7 +205,7 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood.logpdf(self.data,x) + self.prior.logpdf(x) #ToDo: Likelihood should only depend on x (not data)
+        def target(x): return self.likelihood(x=x).logpdf(self.data) + self.prior.logpdf(x) #ToDo: Likelihood should only depend on x (not data)
         def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 
         # Set up sampler
@@ -221,7 +226,7 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood.logpdf(self.data,x) #ToDo: Likelihood should only depend on x (not data)
+        def target(x): return self.likelihood(x=x).logpdf(self.data) #ToDo: Likelihood should only depend on x (not data)
         #def proposal(ns): return self.prior.sample(ns)
         
         scale = 0.02
@@ -238,5 +243,9 @@ class BayesianProblem(object):
         ti = time.time()
         x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
         print('Elapsed time:', time.time() - ti)
+
+        # Set geometry from prior
+        if hasattr(x_s,"geometry"):
+            x_s.geometry = self.prior.geometry
         
         return x_s

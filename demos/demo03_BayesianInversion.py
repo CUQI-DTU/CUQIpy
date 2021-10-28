@@ -13,9 +13,9 @@ tp = cuqi.testproblem.Deblur() #Default values
 
 #%% Plot true, blurred and noisy data
 plt.figure
-plt.plot(tp.t,tp.exactSolution)
-plt.plot(tp.t,tp.exactData)
-plt.plot(tp.t,tp.data)
+plt.plot(tp.mesh,tp.exactSolution)
+plt.plot(tp.mesh,tp.exactData)
+plt.plot(tp.mesh,tp.data)
 plt.ylim([-0.5,3.5])
 plt.legend(['True','Blurred','Blurred and noisy'])
 
@@ -43,7 +43,7 @@ sp1 = P1.sample(5)
 
 plt.figure
 plt.subplot(1,2,1)
-plt.plot(sp1)
+plt.plot(sp1.samples)
 plt.title('GMRF')
 #TODO
 #subplot(1,2,2)
@@ -86,9 +86,9 @@ print('\nCauchy Relerror median:', relerr, '\n')
 
 #%%
 plt.figure()
-plt.plot(tp.t, tp.exactSolution, 'k-')
-plt.plot(tp.t, tp.exactData, 'b-')
-plt.plot(tp.t, b, 'r.')
+plt.plot(tp.mesh, tp.exactSolution, 'k-')
+plt.plot(tp.mesh, tp.exactData, 'b-')
+plt.plot(tp.mesh, b, 'r.')
 plt.tight_layout()
 #%%
 plt.figure()
