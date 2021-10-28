@@ -365,17 +365,12 @@ class MappedKL(KLExpansion):
         super().__init__(grid, axis_labels)
         self.map = mapping
 
-    def par2fun(self,p):
+    def apply_map(self,p):
         return self.map( super().par2fun(p) )
 
     # plots the random field: "params", "KL", "mapped"
-    def plot(self, p, case="mapped"):
-        if( case == "params" ):
-            super().plot( p, is_fun=True )
-        elif( case == "KL" ):
-            super().plot( p, is_fun=False )
-        else:
-            super().plot( self.par2fun(p), is_fun=True )
+    def plot_mapped(self, p, is_par = False):
+        plt.plot(self.grid, self.apply_map(p))
 
 
 class StepExpansion(Continuous1D):
