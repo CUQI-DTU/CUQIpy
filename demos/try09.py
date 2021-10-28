@@ -48,21 +48,34 @@ TP.prior = prior2
 x_MAP_exact = TP.MAP()
 print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.norm(x_true))
 
-# L_BFGS_B MAP
-solver = cuqi.solver.L_BFGS_B(potential, x0)
-x_MAP_LBFGS = solver.solve()
-print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
+# # L_BFGS_B MAP
+# solver = cuqi.solver.L_BFGS_B(potential, x0)
+# x_MAP_LBFGS = solver.solve()
+# print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
-# BFGS MAP
-solver = cuqi.solver.minimize(posterior_logpdf, x0)
-x_MAP_BFGS = solver.solve()
-print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
+# # BFGS MAP
+# solver = cuqi.solver.minimize(posterior_logpdf, x0)
+# x_MAP_BFGS, info_MAP_BFGS = solver.solve()
+# print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
+
+#%% Nelder-Mead MAP
+solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'Nelder-Mead')
+x_MAP_NM, info_MAP_NM = solver.solve()
+print('relative error Nelder_Mead MAP:', np.linalg.norm(x_MAP_NM-x_true)/np.linalg.norm(x_true))
+
+#%% SLSQP MAP
+solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'SLSQP')
+x_MAP_SLSQP, info_MAP_SLSQP = solver.solve()
+print('relative error SLSQP MAP:', np.linalg.norm(x_MAP_SLSQP-x_true)/np.linalg.norm(x_true))
+
 
 # %% plots
 plt.plot(x_true, 'k-', label = "True")
 plt.plot(x_MAP_exact, 'b-', label = "Exact MAP")
 plt.plot(x_MAP_LBFGS, 'r--', label  = "LBFGS MAP")
 plt.plot(x_MAP_BFGS, 'y:', label  = "BFGS MAP")
+plt.plot(x_MAP_NM, 'g-', label  = "Nelder-Mead MAP")
+plt.plot(x_MAP_SLSQP, 'm:', label  = "SLSQP MAP")
 plt.legend()
 plt.show()
 
@@ -84,7 +97,7 @@ print('relative error L-BFGS ML:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.
 
 # BFGS MAP
 solver = cuqi.solver.minimize(likelihood_logpdf, x0)
-x_ML_BFGS = solver.solve()
+x_ML_BFGS, info_ML_BFGS = solver.solve()
 print('relative error BFGS ML:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
 
 # %% plots
