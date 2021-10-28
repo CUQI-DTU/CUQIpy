@@ -493,8 +493,7 @@ class StepExpansion(Continuous1D):
         self.axis_labels = axis_labels
 
     def par2fun(self, p):
-        self.real = np.zeros_like(self.grid)
-        
+        self.real = np.zeros_like(self.grid)        
         idx = np.where( (self.grid>0.2*self.L)&(self.grid<=0.4*self.L) )
         self.real[idx[0]] = p[0]
         idx = np.where( (self.grid>0.4*self.L)&(self.grid<=0.6*self.L) )
