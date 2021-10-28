@@ -42,7 +42,7 @@ class poisson(cuqi.model.Model):
 
     # the forward map from field parameters to the solution
     def forward(self,p):
-        a = self.domain_geometry.par2fun(p)
+        a = self.domain_geometry.apply_map(p)
         Dxx = self.Dx.T@np.diag(a)@self.Dx
         return solve(Dxx,self.f)
 
