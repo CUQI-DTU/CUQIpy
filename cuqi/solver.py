@@ -48,7 +48,8 @@ class minimize(object):
         self.method = method
     
     def solve(self):
-        return opt.minimize(self.func, self.x0, method = self.method)['x']
+        solution = opt.minimize(self.func, self.x0, method = self.method)
+        return solution['x'], solution
 
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
