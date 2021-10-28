@@ -58,11 +58,6 @@ print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.
 # x_MAP_BFGS, info_MAP_BFGS = solver.solve()
 # print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
 
-#%% Nelder-Mead MAP
-solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'Nelder-Mead')
-x_MAP_NM, info_MAP_NM = solver.solve()
-print('relative error Nelder_Mead MAP:', np.linalg.norm(x_MAP_NM-x_true)/np.linalg.norm(x_true))
-
 #%% SLSQP MAP
 solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'SLSQP')
 x_MAP_SLSQP, info_MAP_SLSQP = solver.solve()
@@ -74,8 +69,7 @@ plt.plot(x_true, 'k-', label = "True")
 plt.plot(x_MAP_exact, 'b-', label = "Exact MAP")
 plt.plot(x_MAP_LBFGS, 'r--', label  = "LBFGS MAP")
 plt.plot(x_MAP_BFGS, 'y:', label  = "BFGS MAP")
-plt.plot(x_MAP_NM, 'g-', label  = "Nelder-Mead MAP")
-plt.plot(x_MAP_SLSQP, 'm:', label  = "SLSQP MAP")
+plt.plot(x_MAP_SLSQP, 'g:', label  = "SLSQP MAP")
 plt.legend()
 plt.show()
 
