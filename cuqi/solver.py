@@ -1,6 +1,7 @@
 import numpy as np
 from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b
+import scipy.optimize as opt
 
 class L_BFGS_B(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
@@ -24,6 +25,30 @@ class L_BFGS_B(object):
     
     def solve(self):
         return fmin_l_bfgs_b(self.func,self.x0)[0]
+
+class minimize(object):
+    """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
+
+    Minimize a function func using the L-BFGS-B algorithm.
+    
+    Parameters
+    ----------
+    func : callable f(x,*args)
+        Function to minimize.
+    x0 : ndarray
+        Initial guess.
+
+    Methods
+    ----------
+    :meth:`solve`: Runs the solver and returns the solution.
+    """
+    def __init__(self,func,x0, method = 'BFGS'):
+        self.func= func
+        self.x0 = x0
+        self.method = method
+    
+    def solve(self):
+        return opt.minimize(self.func, self.x0, method = self.method)['x']
 
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
