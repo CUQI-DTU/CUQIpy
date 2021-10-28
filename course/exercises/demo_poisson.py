@@ -7,6 +7,8 @@ sys.path.append("../..")
 import cuqi
 from poissonmodel import poisson
 
+np.random.seed(seed =0)
+
 #%%
 N = 129 # number of spatial KL discretization 
 dx = np.pi/N
@@ -39,9 +41,9 @@ x_mean = np.mean(results.samples,axis=-1)
 #plt.title('Posterior mean of parameters')
 
 #%%
-model.domain_geometry.plot( x_mean, case="mapped" )
+model.domain_geometry.plot_mapped( x_mean )#, plot_mapped = False)
 plt.title("Posterior mean")
-
+#y = np.exp(10*model.domain_geometry.par2fun(x_mean))
+#plt.plot(y)
 plt.plot(x,true_alpha)
 plt.show()
-# %%

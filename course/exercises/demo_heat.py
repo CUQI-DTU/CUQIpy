@@ -9,7 +9,7 @@ from heatmodel import heat
 
 #%% Specify the model
 N = 128
-field_type = "Step"   # "KL" or "Step" 
+field_type = "KL"   # "KL" or "Step" 
 
 #%% Create the model
 model = heat(N=N, field_type=field_type)
@@ -22,13 +22,13 @@ else:
     true_par = np.array([3,1,2])
     true_init = model.domain_geometry.par2fun(true_par)
 
-model.domain_geometry.plot(true_init, is_fun=True)
+model.domain_geometry.plot(true_init, is_par=False)
 plt.title("Initial")
 
 #%% defining the heat equation as the forward map
-y_obs = model._advance_time(true_init, makeplot=True) # observation vector
+y_obs = model._advance_time(true_init, makeplot=False) # observation vector
 
-model.domain_geometry.plot(y_obs, is_fun=True)
+model.domain_geometry.plot(y_obs, is_par=False)
 plt.title("Observed")
 
 #%%
@@ -54,7 +54,7 @@ plt.title("Posterior mean of parameters")
 #%% Plot sample mean in function space and compare with true initial
 plt.figure()
 model.domain_geometry.plot(x_mean)
-model.domain_geometry.plot(true_init, is_fun=True)
+model.domain_geometry.plot(true_init, is_par=False)
 plt.legend(["Sample mean","True initial"])
 plt.title("Posterior mean in function space")
 
