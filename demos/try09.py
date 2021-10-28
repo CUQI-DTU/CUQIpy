@@ -27,7 +27,7 @@ likelihood = cuqi.distribution.GaussianCov(model, cov)
 var = 0.2
 prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
 
-# %%
+# %% MAP estimates
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
 
 def posterior_logpdf(x):
@@ -39,8 +39,7 @@ def potential(x):
     grad = -prior.gradient(x) - likelihood.gradient(data,x=x)
     return logpdf, grad
 
-# %%
-# Compare with MAP computed using BayesianProblem (within the testproblem)
+# Starting point
 x0 = np.random.randn(n)
 
 # Exact  MAP
@@ -50,24 +49,48 @@ x_MAP_exact = TP.MAP()
 print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.norm(x_true))
 
 # L_BFGS_B MAP
-# Solve posterior problem using L_BFGS_B
 solver = cuqi.solver.L_BFGS_B(potential, x0)
 x_MAP_LBFGS = solver.solve()
 print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
-#%% BFGS MAP
-# Solve posterior problem using L_BFGS_B
+# BFGS MAP
 solver = cuqi.solver.minimize(posterior_logpdf, x0)
 x_MAP_BFGS = solver.solve()
 print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
 
-
-# %%
-# plots
+# %% plots
 plt.plot(x_true, 'k-', label = "True")
 plt.plot(x_MAP_exact, 'b-', label = "Exact MAP")
 plt.plot(x_MAP_LBFGS, 'r--', label  = "LBFGS MAP")
-plt.plot(x_MAP_BFGS, 'r--', label  = "BFGS MAP")
+plt.plot(x_MAP_BFGS, 'y:', label  = "BFGS MAP")
 plt.legend()
 plt.show()
-# %%
+
+#%% ML estimates
+
+def likelihood_logpdf(x):
+    logpdf = - likelihood(x=x).logpdf(data) 
+    return logpdf
+
+def likelihood_potential(x):
+    logpdf = likelihood_logpdf(x) 
+    grad =  - likelihood.gradient(data,x=x)
+    return logpdf, grad
+
+# L_BFGS_B MAP
+solver = cuqi.solver.L_BFGS_B(likelihood_potential, x0)
+x_ML_LBFGS = solver.solve()
+print('relative error L-BFGS ML:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
+
+# BFGS MAP
+solver = cuqi.solver.minimize(likelihood_logpdf, x0)
+x_ML_BFGS = solver.solve()
+print('relative error BFGS ML:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
+
+# %% plots
+plt.plot(x_true, 'k-', label = "True")
+#plt.plot(x_ML_exact, 'b-', label = "Exact ML")
+plt.plot(x_ML_LBFGS, 'r--', label  = "LBFGS ML")
+plt.plot(x_ML_BFGS, 'y:', label  = "BFGS ML")
+plt.legend()
+plt.show()
