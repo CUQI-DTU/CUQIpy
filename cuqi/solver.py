@@ -8,6 +8,8 @@ class L_BFGS_B(object):
 
     Minimize a function func using the L-BFGS-B algorithm.
     
+    Note, Scipy does not recommend using this method.
+
     Parameters
     ----------
     func : callable f(x,*args)
@@ -17,15 +19,17 @@ class L_BFGS_B(object):
     gradfunc : callable f(x,*args), optional
         The gradient of func. 
         If None, then the solver approximates the gradient.
+    kwargs : keyword arguments passed to scipy's L-BFGS-B algorithm. See documentation for scipy.optimize.minimize
 
     Methods
     ----------
     :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None):
+    def __init__(self,func,x0, gradfunc = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.gradfunc = gradfunc
+        self.kwargs = kwargs
     
     def solve(self):
         """Runs optimization algorithm and returns solution and info.
@@ -49,7 +53,7 @@ class L_BFGS_B(object):
         else:
             approx_grad = 0
         # run solver
-        solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad)
+        solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad, **self.kwargs)
         if solution[2]['warnflag'] == 0:
             success = 1
             message = 'Optimization terminated successfully.'
@@ -98,16 +102,18 @@ class minimize(object):
             ‘trust-exact’ 
             ‘trust-krylov’ 
         If not given, chosen to be one of BFGS, L-BFGS-B, SLSQP, depending if the problem has constraints or bounds.
+    kwargs : keyword arguments passed to scipy's minimizer. See documentation for scipy.optimize.minimize
 
     Methods
     ----------
     :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None, method = None):
+    def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.method = method
         self.gradfunc = gradfunc
+        self.kwargs = kwargs
     
     def solve(self):
         """Runs optimization algorithm and returns solution and info.
@@ -125,7 +131,7 @@ class minimize(object):
             nit: Number of iterations.
             nfev: Number of func evaluations.
         """
-        solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method)
+        solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method, **self.kwargs)
         info = {"success": solution['success'],
                 "message": solution['message'],
                 "func": solution['fun'],
