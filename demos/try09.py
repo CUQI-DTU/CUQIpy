@@ -38,11 +38,6 @@ def posterior_logpdf_grad(x):
     grad = -prior.gradient(x) - likelihood.gradient(data,x=x) 
     return grad
 
-def potential(x):
-    logpdf = posterior_logpdf(x) 
-    grad = -prior.gradient(x) - likelihood.gradient(data,x=x)
-    return logpdf, grad
-
 # Starting point
 x0 = np.random.randn(n)
 
@@ -116,3 +111,4 @@ plt.plot(x_ML_LBFGS, 'r--', label  = "LBFGS ML")
 plt.plot(x_ML_BFGS, 'y:', label  = "BFGS ML")
 plt.legend()
 plt.show()
+
