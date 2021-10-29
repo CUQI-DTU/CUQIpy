@@ -82,12 +82,28 @@ class minimize(object):
         The gradient of func. 
         If None, then the solver approximates the gradient.
     method : str or callable, optional
+        Type of solver. Should be one of
+            ‘Nelder-Mead’
+            ‘Powell’
+            ‘CG’
+            ‘BFGS’
+            ‘Newton-CG’ 
+            ‘L-BFGS-B’
+            ‘TNC’ 
+            ‘COBYLA’ 
+            ‘SLSQP’
+            ‘trust-constr’
+            ‘dogleg’ 
+            ‘trust-ncg’ 
+            ‘trust-exact’ 
+            ‘trust-krylov’ 
+        If not given, chosen to be one of BFGS, L-BFGS-B, SLSQP, depending if the problem has constraints or bounds.
 
     Methods
     ----------
     :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None, method = 'BFGS'):
+    def __init__(self,func,x0, gradfunc = None, method = None):
         self.func= func
         self.x0 = x0
         self.method = method
