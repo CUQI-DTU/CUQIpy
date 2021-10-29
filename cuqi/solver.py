@@ -14,10 +14,13 @@ class L_BFGS_B(object):
         Function to minimize.
     x0 : ndarray
         Initial guess.
+    gradfunc : callable f(x,*args), optional
+        The gradient of func. 
+        If None, then the solver approximates the gradient.
 
     Methods
     ----------
-    :meth:`solve`: Runs the solver and returns the solution.
+    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
     def __init__(self,func,x0, gradfunc = None):
         self.func= func
@@ -25,6 +28,21 @@ class L_BFGS_B(object):
         self.gradfunc = gradfunc
     
     def solve(self):
+        """Runs optimization algorithm and returns solution and info.
+
+        Returns
+        ----------
+        solution : array_like
+            Estimated position of the minimum.
+        info : dict
+            Information dictionary.
+            success: 1 if minimization has converged, 0 if not.
+            message: Description of the cause of the termination.
+            func: Function value at the estimated minimum.
+            grad: Gradient at the estimated minimum.
+            nit: Number of iterations.
+            nfev: Number of func evaluations.
+        """
         # Check if there is a gradient. If not, let the solver use an approximate gradient
         if self.gradfunc is None:
             approx_grad = 1
@@ -32,12 +50,27 @@ class L_BFGS_B(object):
             approx_grad = 0
         # run solver
         solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad)
-        return solution[0], solution
+        if solution[2]['warnflag'] == 0:
+            success = 1
+            message = 'Optimization terminated successfully.'
+        elif solution[2]['warnflag'] == 1:
+            success = 0
+            message = 'Terminated due to too many function evaluations or too many iterations.'
+        else:
+            success = 0
+            message = solution[2]['task']
+        info = {"success": success,
+                "message": message,
+                "func": solution[1],
+                "grad": solution[2]['grad'],
+                "nit": solution[2]['nit'], 
+                "nfev": solution[2]['funcalls']}
+        return solution[0], info
 
 class minimize(object):
-    """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
+    """Wrapper for :meth:`scipy.optimize.minimize`.
 
-    Minimize a function func using the L-BFGS-B algorithm.
+    Minimize a function func using scipy's optimize.minimize module.
     
     Parameters
     ----------
@@ -45,10 +78,14 @@ class minimize(object):
         Function to minimize.
     x0 : ndarray
         Initial guess.
+    gradfunc : callable f(x,*args), optional
+        The gradient of func. 
+        If None, then the solver approximates the gradient.
+    method : str or callable, optional
 
     Methods
     ----------
-    :meth:`solve`: Runs the solver and returns the solution.
+    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
     def __init__(self,func,x0, gradfunc = None, method = 'BFGS'):
         self.func= func
@@ -57,8 +94,29 @@ class minimize(object):
         self.gradfunc = gradfunc
     
     def solve(self):
+        """Runs optimization algorithm and returns solution and info.
+
+        Returns
+        ----------
+        solution : array_like
+            Estimated position of the minimum.
+        info : dict
+            Information dictionary.
+            success: 1 if minimization has converged, 0 if not.
+            message: Description of the cause of the termination.
+            func: Function value at the estimated minimum.
+            grad: Gradient at the estimated minimum.
+            nit: Number of iterations.
+            nfev: Number of func evaluations.
+        """
         solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method)
-        return solution['x'], solution
+        info = {"success": solution['success'],
+                "message": solution['message'],
+                "func": solution['fun'],
+                "grad": solution['jac'],
+                "nit": solution['nit'], 
+                "nfev": solution['nfev']}
+        return solution['x'], info
 
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
