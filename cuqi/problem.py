@@ -94,9 +94,24 @@ class BayesianProblem(object):
     def ML(self):
         """Maximum Likelihood (ML) estimate"""
         x0 = np.random.randn(self.model.domain_dim)
-        solver = cuqi.solver.minimize(lambda x: -self.loglikelihood_function(x), x0)
-        x_BFGS, info_BFGS = solver.solve()
-        return x_BFGS
+        # Gradient should be used if available. We attempt to use gradients (in the
+        # "try" part) and  if any error is encountered, it is caught and instead 
+        # optimization without gradients is attempted.
+        try: 
+            print("Attempting to use gradients")
+            gradfunc = lambda x: -self.likelihood.gradient(self.data,x=x)
+            solver = cuqi.solver.minimize(
+                                     lambda x: -self.loglikelihood_function(x), 
+                                     x0, 
+                                     gradfunc=gradfunc)
+            x_BFGS, info_BFGS = solver.solve()
+        except BaseException as err:
+            print("Gradient not available, optimizing without.")
+            solver = cuqi.solver.minimize(
+                                     lambda x: -self.loglikelihood_function(x), 
+                                     x0)
+            x_BFGS, info_BFGS = solver.solve()
+        return x_BFGS, info_BFGS
 
 
     def MAP(self):
@@ -116,19 +131,26 @@ class BayesianProblem(object):
 
         # If no specific implementation exists, use numerical optimization.
         else:
+            x0 = np.random.randn(self.model.domain_dim)
             def posterior_logpdf(x):
                 logpdf = -self.prior.logpdf(x) - self.loglikelihood_function(x)
                 return logpdf
-            x0 = np.random.randn(self.model.domain_dim)
-            solver = cuqi.solver.minimize(posterior_logpdf, x0)
-            x_BFGS, info_BFGS = solver.solve()
-            return x_BFGS
-
-#def potential(x):
-#    logpdf = posterior_logpdf(x) 
-#    grad = -prior.gradient(x) - likelihood.gradient(data,x=x)
-#    return logpdf, grad
-#raise NotImplementedError(f'MAP estimate is not implemented in for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            # Gradient should be used if available. We attempt to use gradients (in the
+            # "try" part) and  if any error is encountered, it is caught and instead 
+            # optimization without gradients is attempted.
+            try: 
+                print("Attempting to use gradients")
+                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(self.data,x=x)
+                solver = cuqi.solver.minimize(posterior_logpdf, 
+                                              x0,
+                                              gradfunc=gradfunc)
+                x_BFGS, info_BFGS = solver.solve()
+            except BaseException as err:
+                print("Gradient not available, optimizing without.")        
+                solver = cuqi.solver.minimize(posterior_logpdf, 
+                                              x0)
+                x_BFGS, info_BFGS = solver.solve()
+            return x_BFGS, info_BFGS
 
     def _check_geometries_consistency(self, geom1, geom2, fail_msg):
         """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""

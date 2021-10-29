@@ -121,7 +121,7 @@ plt.show()
 
 prob = cuqi.problem.BayesianProblem(likelihood, prior, data)
 # %%
-MAP_prob = prob.MAP()
+MAP_prob, MAP_info = prob.MAP()
 # %%
 print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_true)/np.linalg.norm(x_true))
 # %%
@@ -129,7 +129,7 @@ print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_MAP_BFGS)/np.linalg.
 # %%
 
 # %%
-ML_prob = prob.ML()
+ML_prob, ML_info = prob.ML()
 # %%
 print('relative error BFGS ML:', np.linalg.norm(ML_prob-x_true)/np.linalg.norm(x_true))
 # %%
