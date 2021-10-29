@@ -34,6 +34,10 @@ def posterior_logpdf(x):
     logpdf = -prior.logpdf(x) - likelihood(x=x).logpdf(data) 
     return logpdf
 
+def posterior_logpdf_grad(x):
+    grad = -prior.gradient(x) - likelihood.gradient(data,x=x) 
+    return grad
+
 def potential(x):
     logpdf = posterior_logpdf(x) 
     grad = -prior.gradient(x) - likelihood.gradient(data,x=x)
@@ -48,15 +52,26 @@ TP.prior = prior2
 x_MAP_exact = TP.MAP()
 print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.norm(x_true))
 
-# L_BFGS_B MAP
-solver = cuqi.solver.L_BFGS_B(potential, x0)
-x_MAP_LBFGS = solver.solve()
+#%% L_BFGS_B MAP
+solver = cuqi.solver.L_BFGS_B(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad)
+x_MAP_LBFGS, info_MAP_LBFGS = solver.solve()
 print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
-# BFGS MAP
+#%% L_BFGS_B MAP using minimize
+solver = cuqi.solver.minimize(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad, method = "L-BFGS-B")
+x_MAP_LBFGS2, info_MAP_LBFGS2 = solver.solve()
+print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS2-x_true)/np.linalg.norm(x_true))
+
+#%% BFGS MAP without gradient input
 solver = cuqi.solver.minimize(posterior_logpdf, x0)
 x_MAP_BFGS, info_MAP_BFGS = solver.solve()
 print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
+
+#%% BFGS MAP with gradient input
+solver = cuqi.solver.minimize(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad)
+x_MAP_BFGSgrad, info_MAP_BFGSgrad = solver.solve()
+print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGSgrad-x_true)/np.linalg.norm(x_true))
+
 
 #%% SLSQP MAP
 solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'SLSQP')
@@ -68,7 +83,8 @@ print('relative error SLSQP MAP:', np.linalg.norm(x_MAP_SLSQP-x_true)/np.linalg.
 plt.plot(x_true, 'k-', label = "True")
 plt.plot(x_MAP_exact, 'b-', label = "Exact MAP")
 plt.plot(x_MAP_LBFGS, 'r--', label  = "LBFGS MAP")
-plt.plot(x_MAP_BFGS, 'y:', label  = "BFGS MAP")
+plt.plot(x_MAP_BFGS, 'y:', label  = "BFGS MAP, no grad func")
+plt.plot(x_MAP_BFGSgrad, 'm:', label  = "BFGS MAP, with grad func")
 plt.plot(x_MAP_SLSQP, 'g:', label  = "SLSQP MAP")
 plt.legend()
 plt.show()
@@ -79,14 +95,13 @@ def likelihood_logpdf(x):
     logpdf = - likelihood(x=x).logpdf(data) 
     return logpdf
 
-def likelihood_potential(x):
-    logpdf = likelihood_logpdf(x) 
+def likelihood_logpdf_grad(x):
     grad =  - likelihood.gradient(data,x=x)
-    return logpdf, grad
+    return grad
 
 # L_BFGS_B MAP
-solver = cuqi.solver.L_BFGS_B(likelihood_potential, x0)
-x_ML_LBFGS = solver.solve()
+solver = cuqi.solver.L_BFGS_B(likelihood_logpdf, x0, gradfunc = likelihood_logpdf_grad)
+x_ML_LBFGS, info_ML_LBFGS = solver.solve()
 print('relative error L-BFGS ML:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
 # BFGS MAP

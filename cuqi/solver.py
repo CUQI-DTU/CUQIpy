@@ -19,12 +19,20 @@ class L_BFGS_B(object):
     ----------
     :meth:`solve`: Runs the solver and returns the solution.
     """
-    def __init__(self,func,x0):
+    def __init__(self,func,x0, gradfunc = None):
         self.func= func
         self.x0 = x0
+        self.gradfunc = gradfunc
     
     def solve(self):
-        return fmin_l_bfgs_b(self.func,self.x0)[0]
+        # Check if there is a gradient. If not, let the solver use an approximate gradient
+        if self.gradfunc is None:
+            approx_grad = 1
+        else:
+            approx_grad = 0
+        # run solver
+        solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad)
+        return solution[0], solution
 
 class minimize(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
@@ -42,13 +50,14 @@ class minimize(object):
     ----------
     :meth:`solve`: Runs the solver and returns the solution.
     """
-    def __init__(self,func,x0, method = 'BFGS'):
+    def __init__(self,func,x0, gradfunc = None, method = 'BFGS'):
         self.func= func
         self.x0 = x0
         self.method = method
+        self.gradfunc = gradfunc
     
     def solve(self):
-        solution = opt.minimize(self.func, self.x0, method = self.method)
+        solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method)
         return solution['x'], solution
 
 class CGLS(object):
