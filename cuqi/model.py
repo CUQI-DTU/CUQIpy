@@ -202,7 +202,7 @@ class LinearModel(Model):
 
 class Poisson_1D(Model):
     """ Base cuqi model of the Poisson 1D problem"""
-    def __init__(self, N, L, source, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
+    def __init__(self, N, L, source, field_type, skip=1, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
         self.N = N-1          # number of FD nodes
         self.dx = 1./self.N   # step size
         self.Dx = - np.diag(np.ones(self.N), 0) + np.diag(np.ones(self.N-1), 1) 
@@ -216,6 +216,7 @@ class Poisson_1D(Model):
         self.x = np.linspace(0, L, self.N+1, endpoint=True)
         self.x_u = np.linspace(self.dx, L, self.N, endpoint=False)
         self.f = source(self.x_u)
+        self.skip = skip
         #
         if field_type=="KL":
             domain_geometry = KLExpansion(self.x, mapping=KL_map)
@@ -232,7 +233,13 @@ class Poisson_1D(Model):
     def forward(self, theta):
         kappa = self.domain_geometry.apply_map(theta)
         Dxx = self.Dx.T @ np.diag(kappa) @ self.Dx
-        return solve(Dxx, self.f)
+        sol = solve(Dxx, self.f)
+        return sol[::self.skip]
+
+    def _solve_with_conductivity(self, true_kappa):
+        Dxx = self.Dx.T@np.diag(true_kappa)@self.Dx
+        u = solve(Dxx,self.f)
+        return u[::self.skip]
 
     # compute gradient of target function 
     def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
