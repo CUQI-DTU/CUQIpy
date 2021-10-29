@@ -93,11 +93,8 @@ class BayesianProblem(object):
 
     def ML(self):
         """Maximum Likelihood (ML) estimate"""
-        def likelihood_logpdf(x):
-            logpdf = - self.likelihood(x=x).logpdf(self.data) 
-            return logpdf
         x0 = np.random.randn(self.model.domain_dim)
-        solver = cuqi.solver.minimize(likelihood_logpdf, x0)
+        solver = cuqi.solver.minimize(lambda x: -self.loglikelihood_function(x), x0)
         x_BFGS, info_BFGS = solver.solve()
         return x_BFGS
 
@@ -120,7 +117,7 @@ class BayesianProblem(object):
         # If no specific implementation exists, use numerical optimization.
         else:
             def posterior_logpdf(x):
-                logpdf = -self.prior.logpdf(x) - self.likelihood(x=x).logpdf(self.data) 
+                logpdf = -self.prior.logpdf(x) - self.loglikelihood_function(x)
                 return logpdf
             x0 = np.random.randn(self.model.domain_dim)
             solver = cuqi.solver.minimize(posterior_logpdf, x0)
