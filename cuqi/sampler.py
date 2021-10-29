@@ -11,7 +11,67 @@ import cuqi
 from cuqi.solver import CGLS
 from cuqi.samples import Samples
 from abc import ABC, abstractmethod
-import warnings
+from cuqi.utilities import check_geometries_consistency, get_direct_attributes, get_indirect_attributes
+
+#===================================================================
+class Sampler(ABC):
+
+    @property
+    def geometry(self):
+        geom1, geom2 = None, None
+        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry'):
+            geom1 =  self.proposal.geometry
+        if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
+            geom2 =  self.target.geometry
+        geom1, geom2 = check_geometries_consistency(geom1, geom2, "Target and proposal distributions geometries are inconsistent.")
+        return geom1
+
+    @property 
+    def target(self):
+        return self._target 
+
+    @target.setter 
+    def target(self, value):
+        if  not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+            value = cuqi.distribution.UserDefinedDistribution(logpdf_func=value, dim = self.proposal.dim)
+        self._target = value
+
+    def sample(self,N,Nb):
+        # Get samples from the distribution sample method
+        s,loglike_eval, accave = self._sample(N,Nb)
+        return self._create_Sample_object(s,N),loglike_eval, accave
+
+    def sample_adapt(self,N,Nb):
+        # Get samples from the distribution sample method
+        s,loglike_eval, accave = self._sample_adapt(N,Nb)
+        return self._create_Sample_object(s,N),loglike_eval, accave
+
+    def _create_Sample_object(self,s,N):
+        #Store samples in cuqi samples object if more than 1 sample
+        if N==1:
+            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+                s = s.ravel()[0]
+            else:
+                s = s.flatten()
+        else:
+            s = Samples(s, self.geometry)#, geometry = self.geometry)
+
+        return s
+
+    @abstractmethod
+    def _sample(self,N,Nb):
+        pass
+
+
+class ProposalBasedSampler(Sampler):
+    @property 
+    def proposal(self):
+        return self._proposal 
+
+    @proposal.setter 
+    def proposal(self, value):
+        self._proposal = value
+
 
 # another implementation is in https://github.com/mfouesneau/NUTS
 class NUTS(object):
@@ -205,42 +265,6 @@ class NUTS(object):
             return theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p
 
 
-
-
-
-
-#===================================================================
-#===================================================================
-#===================================================================
-class Sampler(ABC):
-
-    def sample(self,N,Nb):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
-
-    def sample_adapt(self,N,Nb):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample_adapt(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
-
-    def _create_Sample_object(self,s,N):
-        #Store samples in cuqi samples object if more than 1 sample
-        if N==1:
-            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
-                s = s.ravel()[0]
-            else:
-                s = s.flatten()
-        else:
-            s = Samples(s)
-
-        return s
-
-    @abstractmethod
-    def _sample(self,N,Nb):
-        pass
-
-
 class Linear_RTO(object):
     
     def __init__(self, likelihood, prior, model, data, x0, maxit=10, tol=1e-6, shift=0):
@@ -316,16 +340,34 @@ class Linear_RTO(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class CWMH(object):
+class CWMH(ProposalBasedSampler):
 
     def __init__(self, pi_target, proposal, scale, init_x):
-        self.target = pi_target
         self.proposal = proposal
+        self.target = pi_target
         self.scale = scale
         self.x0 = init_x
         self.n = len(init_x)
+        
+    @ProposalBasedSampler.proposal.setter 
+    def proposal(self, value):
+        if value is None:
+            value = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+        elif isinstance(value, cuqi.distribution.Distribution):
+            fail_msg = "Proposal need to be conditioned on 'scale' and 'location' "
 
-    def sample(self, N, Nb):
+            attributes_l0, attributes_l1 = get_direct_attributes(value), get_indirect_attributes(value) 
+            attributes = attributes_l0 + attributes_l1
+
+            for param in ['location', 'scale']:
+                assert (param in attributes), fail_msg 
+                if param in attributes_l0: assert (vars(value)[param] is None), fail_msg
+        else:
+            raise ValueError("proposal need to be of type cuqi.distribution.Distribution.")
+
+        self._proposal = value
+
+    def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -335,7 +377,7 @@ class CWMH(object):
 
         # initial state    
         samples[:, 0] = self.x0
-        target_eval[0] = self.target(self.x0)
+        target_eval[0] = self.target.logpdf(self.x0)
         acc[:, 0] = np.ones(self.n)
 
         # run MCMC
@@ -353,7 +395,7 @@ class CWMH(object):
         
         return samples, target_eval, acccomp
 
-    def sample_adapt(self, N, Nb):
+    def _sample_adapt(self, N, Nb):
         # this follows the vanishing adaptation Algorithm 4 in:
         # Andrieu and Thoms (2008) - A tutorial on adaptive MCMC
         Ns = N+Nb   # number of simulations
@@ -365,7 +407,7 @@ class CWMH(object):
 
         # initial state
         samples[:, 0] = self.x0
-        target_eval[0] = self.target(self.x0)
+        target_eval[0] = self.target.logpdf(self.x0)
         acc[:, 0] = np.ones(self.n)
 
         # initial adaptation params 
@@ -412,7 +454,8 @@ class CWMH(object):
         return samples, target_eval, acccomp
 
     def single_update(self, x_t, target_eval_t):
-        x_i_star = self.proposal(x_t, self.scale)
+        #x_i_star =  x_t + self.scale * self.proposal.sample()#, self.scale) 
+        x_i_star = self.proposal(location= x_t, scale = self.scale).sample() # x_t + self.scale * self.proposal.sample()#, self.scale)
         x_star = x_t.copy()
         acc = np.zeros(self.n)
 
@@ -421,7 +464,7 @@ class CWMH(object):
             x_star[j] = x_i_star[j]
 
             # evaluate target
-            target_eval_star = self.target(x_star)
+            target_eval_star = self.target.logpdf(x_star)
 
             # ratio and acceptance probability
             ratio = target_eval_star - target_eval_t  # proposal is symmetric
@@ -444,17 +487,11 @@ class CWMH(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class MetropolisHastings(Sampler):
+class MetropolisHastings(ProposalBasedSampler):
 
     def __init__(self, target, proposal=None, scale=1, x0=None):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
         self.dim = target.dim
-
-        if proposal is None:
-            proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
-        elif not proposal.is_symmetric:
-            raise ValueError("Proposal needs to be a symmetric distribution")
-
         if x0 is None:
             x0 = np.ones(self.dim)
 
@@ -463,6 +500,15 @@ class MetropolisHastings(Sampler):
         self.scale = scale
         self.x0 = x0
 
+    @ProposalBasedSampler.proposal.setter 
+    def proposal(self, value):
+        if value is None:
+            value = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
+        elif not value.is_symmetric:
+            raise ValueError("Proposal needs to be a symmetric distribution")
+        elif not isinstance(value, cuqi.distribution.Distribution):
+            raise ValueError("proposal need to be of type cuqi.distribution.Distribution.")
+        self._proposal = value
 
     def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
