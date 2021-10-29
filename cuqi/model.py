@@ -5,6 +5,8 @@ from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 
+import matplotlib.pyplot as plt
+
 class Model(object):
     """Generic model defined by a forward operator.
 
@@ -255,7 +257,7 @@ class Poisson_1D(Model):
     
 class Heat_1D(Model):
     """ Base cuqi model of the Heat 1D problem"""
-    def __init__(self, N, L, T, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
+    def __init__(self, N, L, T, field_type, skip=1, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
         self.N = N # number of discretization points
         self.dx = L/(self.N+1) # space step size
         #
@@ -267,6 +269,7 @@ class Heat_1D(Model):
 
         # discretization
         self.x = np.linspace(self.dx, L, self.N, endpoint=False)
+        self.skip = skip
         if field_type=="KL":
             domain_geometry = KLExpansion(self.x, mapping=KL_map)
         elif field_type=="CustomKL":
@@ -293,12 +296,18 @@ class Heat_1D(Model):
         if makeplot:
             self.sol = np.array(self.sol)
             T = np.array( range(0,self.MAX_ITER+1) )
-        return u_old   
+            (X,T) = np.meshgrid(self.x,T)
+
+            fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+            ax.plot_surface(T,X,self.sol)
+            plt.show()
+        return u_old[::self.skip]
 
     # computes the solution at t for a given expansion coefficients
     def forward(self, theta):
         u0 = self.domain_geometry.apply_map(theta)
-        return self._advance_time(u0)
+        sol = self._advance_time(u0)
+        return sol[::self.skip]
 
     # compute gradient of target function 
     def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
