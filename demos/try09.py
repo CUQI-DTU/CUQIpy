@@ -48,15 +48,15 @@ TP.prior = prior2
 x_MAP_exact = TP.MAP()
 print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.norm(x_true))
 
-# # L_BFGS_B MAP
-# solver = cuqi.solver.L_BFGS_B(potential, x0)
-# x_MAP_LBFGS = solver.solve()
-# print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
+# L_BFGS_B MAP
+solver = cuqi.solver.L_BFGS_B(potential, x0)
+x_MAP_LBFGS = solver.solve()
+print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
-# # BFGS MAP
-# solver = cuqi.solver.minimize(posterior_logpdf, x0)
-# x_MAP_BFGS, info_MAP_BFGS = solver.solve()
-# print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
+# BFGS MAP
+solver = cuqi.solver.minimize(posterior_logpdf, x0)
+x_MAP_BFGS, info_MAP_BFGS = solver.solve()
+print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
 
 #%% SLSQP MAP
 solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'SLSQP')
