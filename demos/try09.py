@@ -108,3 +108,7 @@ prob = cuqi.problem.BayesianProblem(likelihood, prior, data)
 # %%
 MAP_prob = prob.MAP()
 # %%
+print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_true)/np.linalg.norm(x_true))
+# %%
+print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_MAP_BFGS)/np.linalg.norm(x_MAP_BFGS))
+# %%

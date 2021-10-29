@@ -91,6 +91,17 @@ class BayesianProblem(object):
     def loglikelihood_function(self,x):
         return self.likelihood(x=x).logpdf(self.data)
 
+    def ML(self):
+        """Maximum Likelihood (ML) estimate"""
+        def likelihood_logpdf(x):
+            logpdf = - self.likelihood(x=x).logpdf(self.data) 
+            return logpdf
+        x0 = np.random.randn(self.model.domain_dim)
+        solver = cuqi.solver.minimize(likelihood_logpdf, x0)
+        x_BFGS, info_BFGS = solver.solve()
+        return x_BFGS
+
+
     def MAP(self):
         """MAP computed the MAP estimate of the posterior"""
         if self._check(Gaussian,Gaussian,LinearModel):
