@@ -101,3 +101,10 @@ plt.plot(x_ML_LBFGS, 'r--', label  = "LBFGS ML")
 plt.plot(x_ML_BFGS, 'y:', label  = "BFGS ML")
 plt.legend()
 plt.show()
+
+# %%
+
+prob = cuqi.problem.BayesianProblem(likelihood, prior, data)
+# %%
+MAP_prob = prob.MAP()
+# %%
