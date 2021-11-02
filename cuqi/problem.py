@@ -91,6 +91,29 @@ class BayesianProblem(object):
     def loglikelihood_function(self,x):
         return self.likelihood(x=x).logpdf(self.data)
 
+    def ML(self):
+        """Maximum Likelihood (ML) estimate"""
+        x0 = np.random.randn(self.model.domain_dim)
+        # Gradient should be used if available. We attempt to use gradients (in the
+        # "try" part) and  if any error is encountered, it is caught and instead 
+        # optimization without gradients is attempted.
+        try: 
+            print("Attempting to use gradients")
+            gradfunc = lambda x: -self.likelihood.gradient(self.data,x=x)
+            solver = cuqi.solver.minimize(
+                                     lambda x: -self.loglikelihood_function(x), 
+                                     x0, 
+                                     gradfunc=gradfunc)
+            x_BFGS, info_BFGS = solver.solve()
+        except BaseException as err:
+            print("Gradient not available, optimizing without.")
+            solver = cuqi.solver.minimize(
+                                     lambda x: -self.loglikelihood_function(x), 
+                                     x0)
+            x_BFGS, info_BFGS = solver.solve()
+        return x_BFGS, info_BFGS
+
+
     def MAP(self):
         """MAP computed the MAP estimate of the posterior"""
         if self._check(Gaussian,Gaussian,LinearModel):
@@ -100,15 +123,34 @@ class BayesianProblem(object):
             x0 = self.prior.mean
             Cx = self.prior.Sigma
 
-            #Basic map estimate using closed-form expression Tarantola 2005 (3.37-3.38)
+            #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
             
             return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
 
-        #If no implementation exists give error
+        # If no specific implementation exists, use numerical optimization.
         else:
-            raise NotImplementedError(f'MAP estimate is not implemented in for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            x0 = np.random.randn(self.model.domain_dim)
+            def posterior_logpdf(x):
+                logpdf = -self.prior.logpdf(x) - self.loglikelihood_function(x)
+                return logpdf
+            # Gradient should be used if available. We attempt to use gradients (in the
+            # "try" part) and  if any error is encountered, it is caught and instead 
+            # optimization without gradients is attempted.
+            try: 
+                print("Attempting to use gradients")
+                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(self.data,x=x)
+                solver = cuqi.solver.minimize(posterior_logpdf, 
+                                              x0,
+                                              gradfunc=gradfunc)
+                x_BFGS, info_BFGS = solver.solve()
+            except BaseException as err:
+                print("Gradient not available, optimizing without.")        
+                solver = cuqi.solver.minimize(posterior_logpdf, 
+                                              x0)
+                x_BFGS, info_BFGS = solver.solve()
+            return x_BFGS, info_BFGS
 
     def _check_geometries_consistency(self, geom1, geom2, fail_msg):
         """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""
