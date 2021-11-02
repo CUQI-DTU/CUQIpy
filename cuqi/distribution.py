@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
-from cuqi.utilities import force_ndarray, getNonDefaultArgs
+from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -127,6 +127,15 @@ class Distribution(ABC):
                     setattr(new_dist,attr_key,func)
 
         return new_dist
+
+
+    def get_conditioning_variables(self):
+        attributes = []
+        ignore_attributes = ['name', 'is_symmetric']
+        for key,value in vars(self).items():
+            if vars(self)[key] is None and key[0] != '_' and key not in ignore_attributes:
+                attributes.append(key)
+        return attributes + get_indirect_attributes(self) 
 
 # ========================================================================
 class Cauchy_diff(Distribution):
