@@ -342,30 +342,32 @@ class Linear_RTO(object):
 #===================================================================
 class CWMH(ProposalBasedSampler):
 
-    def __init__(self, pi_target, proposal, scale, init_x):
+    def __init__(self, target, proposal, scale, init_x):
         self.proposal = proposal
-        self.target = pi_target
+        self.target = target
         self.scale = scale
         self.x0 = init_x
         self.n = len(init_x)
         
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
+        fail_msg = "Proposal should be either None, cuqi.distribution.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
+
         if value is None:
-            value = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
-        elif isinstance(value, cuqi.distribution.Distribution):
-            fail_msg = "Proposal need to be conditioned on 'scale' and 'location' "
+            self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
 
-            attributes_l0, attributes_l1 = get_direct_attributes(value), get_indirect_attributes(value) 
-            attributes = attributes_l0 + attributes_l1
+        elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
+            self._proposal = value
 
-            for param in ['location', 'scale']:
-                assert (param in attributes), fail_msg 
-                if param in attributes_l0: assert (vars(value)[param] is None), fail_msg
+        elif isinstance(value, cuqi.distribution.Normal) and sorted(value.get_conditioning_variables())==['mean','std']:
+            self._proposal = value(mean = lambda location:location, std = lambda scale:scale)
+
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+            self._proposal = value
+
         else:
-            raise ValueError("proposal need to be of type cuqi.distribution.Distribution.")
+            raise ValueError(fail_msg)
 
-        self._proposal = value
 
     def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
@@ -454,8 +456,10 @@ class CWMH(ProposalBasedSampler):
         return samples, target_eval, acccomp
 
     def single_update(self, x_t, target_eval_t):
-        #x_i_star =  x_t + self.scale * self.proposal.sample()#, self.scale) 
-        x_i_star = self.proposal(location= x_t, scale = self.scale).sample() # x_t + self.scale * self.proposal.sample()#, self.scale)
+        if isinstance(self.proposal,cuqi.distribution.Distribution):
+            x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
+        else:
+            x_i_star = self.proposal(location= x_t, scale = self.scale) 
         x_star = x_t.copy()
         acc = np.zeros(self.n)
 
@@ -502,13 +506,16 @@ class MetropolisHastings(ProposalBasedSampler):
 
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
+        fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
+
         if value is None:
-            value = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
-        elif not value.is_symmetric:
-            raise ValueError("Proposal needs to be a symmetric distribution")
-        elif not isinstance(value, cuqi.distribution.Distribution):
-            raise ValueError("proposal need to be of type cuqi.distribution.Distribution.")
-        self._proposal = value
+            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+            raise NotImplementedError(fail_msg)
+        elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
+            self._proposal = value
+        else:
+            raise ValueError(fail_msg)
 
     def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
