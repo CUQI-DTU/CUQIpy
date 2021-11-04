@@ -4,6 +4,19 @@ from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry
 from copy import copy
 
+class Data(object):
+    """
+    An container type object to represent data objects equipped with geometry.
+    """
+
+    def __init__(self, array=None, geometry=None):
+        self.array = array
+        self.geometry = geometry
+    
+    def plot(self, **kwargs):
+        self.geometry.plot(self.array, **kwargs)
+    
+
 class Samples(object):
     """
     An object used to store samples from distributions. 
