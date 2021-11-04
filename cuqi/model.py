@@ -200,53 +200,48 @@ class LinearModel(Model):
         return transpose
         
 
-class Poisson_1D(Model):
-    """ Base cuqi model of the Poisson 1D problem"""
-    def __init__(self, N, L, source, field_type, skip=1, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N-1          # number of FD nodes
-        self.dx = 1./self.N   # step size
-        self.Dx = - np.diag(np.ones(self.N), 0) + np.diag(np.ones(self.N-1), 1) 
-        #
-        vec = np.zeros(self.N)
-        vec[0] = 1
-        self.Dx = np.concatenate([vec.reshape([1,-1]), self.Dx], axis=0)
-        self.Dx /= self.dx # FD derivative matrix
+class PDEModel_1D(Model):
+    def __init__(self, grid, source, range_geometry=None, domain_geometry=None):
 
+
+        #If grid is int set default grid
+        if isinstance(grid,(int,np.int)):
+            grid = np.linspace(0,1,grid+1,endpoint=True)
+        
         # discretization
-        self.x = np.linspace(0, L, self.N+1, endpoint=True)
-        self.x_u = np.linspace(self.dx, L, self.N, endpoint=False)
-        self.f = source(self.x_u)
-        self.skip = skip
-        #
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x_u)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # forward projection: finite differences
-    def forward(self, theta):
-        kappa = self.domain_geometry.apply_map(theta)
-        Dxx = self.Dx.T @ np.diag(kappa) @ self.Dx
-        sol = solve(Dxx, self.f)
-        return sol[::self.skip]
+        N = len(grid)-1 #Number of FD nodes
+        dx = 1./N   # step size
+        grid_u = np.linspace(dx, grid[-1], N, endpoint=False)
+        
+        #Set up derivative matrix
+        Dx = - np.diag(np.ones(N), 0) + np.diag(np.ones(N-1), 1) #Dx
+        vec = np.zeros(N)
+        vec[0] = 1
+        Dx = np.concatenate([vec.reshape([1,-1]), Dx], axis=0)
+        Dx /= dx # FD derivative matrix
 
-    def _solve_with_conductivity(self, true_kappa):
-        Dxx = self.Dx.T@np.diag(true_kappa)@self.Dx
-        u = solve(Dxx,self.f)
-        return u[::self.skip]
+        #Init as generic Model with this class forward
+        super().__init__(self.forward, range_geometry, domain_geometry)
+
+        #Store grid, source term and derivative matrix
+        self._grid = grid
+        self._grid_u = grid_u
+        self.source = source
+        self.deriv_mat = Dx
+
+    def forward(self,x,is_par=True):
+        if is_par:
+            x = self.domain_geometry.apply_map(x)
+        Dxx = self.deriv_mat.T @ np.diag(x) @ self.deriv_mat
+        sol = solve(Dxx, self.source(self._grid_u))
+        return sol
 
     # compute gradient of target function 
     def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
-        return self.approx_jacobian(kappa, func, eps)
+        return self._approx_jacobian(kappa, func, eps)
     
     # approximate the Jacobian matrix of callable function func
-    def approx_jacobian(x, func, epsilon, *args):
+    def _approx_jacobian(x, func, epsilon, *args):
         # x       - The state vector
         # func    - A vector-valued function of the form f(x,*args)
         # epsilon - The peturbation used to determine the partial derivatives
@@ -260,7 +255,6 @@ class Poisson_1D(Model):
             jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
             dx[i] = 0.0
         return jac.transpose()
-    
     
 class Heat_1D(Model):
     """ Base cuqi model of the Heat 1D problem"""

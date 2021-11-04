@@ -7,6 +7,7 @@ import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
+from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 
 #=============================================================================
 class Deblur(BayesianProblem):
@@ -368,3 +369,98 @@ def _getExactSolution(dim,phantom,phantom_param):
 
     else:
         raise NotImplementedError("This phantom is not implemented")
+
+
+class Poisson_1D(BayesianProblem):
+    """
+    1D Poisson test problem. TODO: Add more description here.
+
+    Parameters
+    ------------
+    dim : int
+        size of the grid for the poisson problem
+
+    endpoint : float
+        Location of end-point of grid.
+    
+    source : lambda function
+        Function for source term.
+
+    field_type : str or cuqi.geometry.Geometry
+        Field type of domain.
+
+    KL_map : lambda function
+        Mapping used to modify field
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.PDEModel_1D
+        Poisson 1D model
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data   
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+    """
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=lambda x: x, SNR=200):
+        
+        #Grids
+        grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
+        grid_range  = np.linspace(1./(dim-1), endpoint, dim, endpoint=False)
+
+        # Set up geometries
+        if isinstance(field_type,Geometry):
+            domain_geometry = field_type
+        elif field_type=="KL":
+            domain_geometry = KLExpansion(grid_domain, mapping=KL_map)
+        elif field_type=="Step":
+            domain_geometry = StepExpansion(grid_domain, mapping=KL_map)
+        else:
+            domain_geometry = Continuous1D(grid_domain, mapping=KL_map)
+
+        range_geometry = Continuous1D(grid_range)
+
+        # Set up model
+        model = cuqi.model.PDEModel_1D(grid_domain,source,range_geometry,domain_geometry)
+
+        # Set up exact solution
+        x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )
+
+        # Generate exact data
+        b_exact = model.forward(x_exact,is_par=False)
+
+        # Add noise to data
+        sigma = np.linalg.norm(b_exact)/SNR
+        sigma2 = sigma*sigma # variance of the observation Gaussian noise
+        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
+
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Store exact values
+        self.exactSolution = x_exact
+        self.exactData = b_exact
