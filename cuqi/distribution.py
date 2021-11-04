@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
-from scipy.sparse import diags, eye, identity, issparse
+from scipy.sparse import diags, eye, identity, issparse, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
@@ -412,6 +412,65 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s = np.random.multivariate_normal(self.mean, self.cov, N).T
             return s
 
+    @property
+    def sqrtprecTimesMean(self):
+        return (self.sqrtprec@self.mean).flatten()
+
+
+class JoinedGaussianSqrtPrec(Distribution):
+
+    def __init__(self,means=None,sqrtprecs=None,is_symmetric=True,**kwargs):
+
+        # Check if given as list
+        if not isinstance(means,list) or not isinstance(sqrtprecs,list):
+            raise ValueError("Means and sqrtprecs need to be a list of vectors and matrices respectively.")
+
+        # Force to numpy arrays
+        for i in range(len(means)):
+            means[i] = force_ndarray(means[i],flatten=True)
+        for i in range(len(sqrtprecs)):
+            sqrtprecs[i] = force_ndarray(sqrtprecs[i])
+
+        # Check dimension match TODO: move to setter methods for means and sqrtprecs
+        dim1 = len(means[0])
+        for mean in means:
+            if dim1 != len(mean):
+                raise ValueError("All means must have the same dimension")
+        dim2 = sqrtprecs[0].shape[1]
+        for sqrtprec in sqrtprecs:
+            if dim2 != sqrtprec.shape[1]:
+                raise ValueError("All sqrtprecs must have the same number of columns")
+
+        super().__init__(is_symmetric=is_symmetric,**kwargs)
+
+        self.means = means
+        self.sqrtprecs = sqrtprecs
+        self._dim = max(dim1,dim2)
+
+    def _sample(self,N):
+        raise NotImplementedError("Sampling not implemented")
+
+    def logpdf(self,x):
+        raise NotImplementedError("pdf not implemented")
+
+    def dim(self):
+        return self._dim
+
+    @property
+    def sqrtprec(self):
+        if issparse(self.sqrtprecs[0]):
+            return vstack((self.sqrtprecs))
+        else:
+            return np.vstack((self.sqrtprecs))
+
+    @property
+    def sqrtprecTimesMean(self):
+        result = []
+        for i in range(len(self.means)):
+            result.append((self.sqrtprecs[i]@self.means[i]).flatten())
+        return np.hstack(result)
+            
+
 class GaussianSqrtPrec(Distribution):
     """
     Gaussian probability distribution defined using sqrt of precision matrix. 
@@ -481,6 +540,10 @@ class GaussianSqrtPrec(Distribution):
         # logdet can also be pseudo-determinant, defined as the product of non-zero eigenvalues
         return -0.5*(rank*np.log(2*np.pi) - logdet + mahadist)
 
+    @property
+    def sqrtprecTimesMean(self):
+        return (self.sqrtprec@self.mean).flatten()
+
 class GaussianPrec(Distribution):
 
     def __init__(self,mean,prec,is_symmetric=True,**kwargs):
@@ -507,6 +570,10 @@ class GaussianPrec(Distribution):
     @property
     def dim(self):
         return max(len(self.mean),self.prec.shape[0])
+
+    @property
+    def sqrtprecTimesMean(self):
+        return (cho_factor(self.prec)@self.mean).flatten()
 
 class Gaussian(GaussianCov):
 
@@ -653,6 +720,14 @@ class GMRF(Distribution):
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
 
         return s
+    
+    @property
+    def sqrtprec(self):
+        return np.sqrt(self.prec)*self._diff_op._matrix
+
+    @property
+    def sqrtprecTimesMean(self):
+        return (self.sqrtprec@self.mean).flatten()
         
 
 

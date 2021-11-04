@@ -253,7 +253,10 @@ class Linear_RTO(object):
             raise TypeError("Likelihood must contain a sqrtprec attribute")
 
         if not hasattr(prior, "sqrtprec"):
-            raise TypeError("Prior must contain a sqrtprec attribute")
+            raise TypeError("prior must contain a sqrtprec attribute")
+
+        if not hasattr(prior, "sqrtprecTimesMean"):
+            raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
     
         # Extract lambda, delta, L
         #self.lambd = 1/(likelihood.std**2)
@@ -268,11 +271,12 @@ class Linear_RTO(object):
                 
         L1 = likelihood.sqrtprec
         L2 = prior.sqrtprec
+        L2mu = prior.sqrtprecTimesMean
 
         # pre-computations
         self.m = len(data)
         self.n = len(x0)
-        self.b_tild = np.hstack([L1@data, L2@prior.mean]) 
+        self.b_tild = np.hstack([L1@data, L2mu]) 
 
         self.model = model
 
@@ -286,7 +290,7 @@ class Linear_RTO(object):
                     out2 = L2 @ x
                     out  = np.hstack([out1, out2])
                 elif flag == 2:
-                    idx = int(len(x) - self.n)
+                    idx = int(self.m)
                     out1 = model.adjoint(L1.T@x[:idx])
                     out2 = L2.T @ x[idx:]
                     out  = out1 + out2                
@@ -300,7 +304,7 @@ class Linear_RTO(object):
         # initial state   
         samples[:, 0] = self.x0
         for s in range(Ns-1):
-            y = self.b_tild + np.random.randn(self.m+self.n)
+            y = self.b_tild + np.random.randn(len(self.b_tild))
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
             if (s % 1) == 0 or s == Ns-1:
