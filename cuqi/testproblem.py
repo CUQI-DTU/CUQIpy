@@ -392,6 +392,9 @@ class Poisson_1D(BayesianProblem):
     KL_map : lambda function
         Mapping used to modify field
 
+    SNR : int
+        Signal-to-noise ratio
+
     Attributes
     ----------
     data : ndarray
@@ -458,6 +461,211 @@ class Poisson_1D(BayesianProblem):
         likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
         prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
 
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Store exact values
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+
+class Abel_1D(BayesianProblem):
+    """
+    1D Abel test problem. TODO: Add more description here.
+
+    Parameters
+    ------------
+    dim : int
+        size of the grid for the problem
+
+    endpoint : float
+        Location of end-point of grid.
+    
+    field_type : str or cuqi.geometry.Geometry
+        Field type of domain.
+
+    KL_map : lambda function
+        Mapping used to modify field
+
+    SNR : int
+        Signal-to-noise ratio
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.PDEModel_1D
+        Poisson 1D model
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data   
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+    """
+    def __init__(self, dim, endpoint, field_type, KL_map=lambda x: x, SNR=100):
+        N = dim # number of quadrature points
+        h = endpoint/N # quadrature weight
+
+        tvec = np.linspace(h/2, endpoint-h/2, N).reshape(1, -1) 
+        svec = tvec.reshape(-1, 1) + h/2
+        tmat = np.tile( tvec, [N, 1] )
+        smat = np.tile( svec, [1, N] )
+        
+        idx = np.where(tmat<smat) # only applying the quadrature on 0<x<1
+        A = np.zeros([N,N]) # Abel integral operator
+        A[idx[0], idx[1]] = h/np.sqrt( np.abs( smat[idx[0], idx[1]] - tmat[idx[0], idx[1]] ) )
+
+        # discretization
+        grid = np.linspace(0, endpoint, N)
+
+        # Geometry
+        if isinstance(field_type,Geometry):
+            domain_geometry = field_type
+        elif field_type=="KL":
+            domain_geometry = KLExpansion(grid, mapping=KL_map)
+        elif field_type=="Step":
+            domain_geometry = StepExpansion(grid, mapping=KL_map)
+        else:
+            domain_geometry = Continuous1D(grid, mapping=KL_map)
+        range_geometry = Continuous1D(grid)
+
+        # Set up model
+        model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
+    
+        # Set up exact solution
+        x_exact = np.sin(tvec*np.pi)*np.exp(-2*tvec)
+
+        # Generate exact data
+        b_exact = model.forward(x_exact,is_par=False)
+
+        # Add noise to data
+        sigma = np.linalg.norm(b_exact)/SNR
+        sigma2 = sigma*sigma # variance of the observation Gaussian noise
+        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
+
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Store exact values
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+
+
+class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is it deblur?...
+    """
+    1D Deconv test problem. TODO: Add more description here.
+
+    Parameters
+    ------------
+    dim : int
+        size of the grid for the problem
+
+    endpoint : float
+        Location of end-point of grid.
+    
+    field_type : str or cuqi.geometry.Geometry
+        Field type of domain.
+
+    KL_map : lambda function
+        Mapping used to modify field
+
+    SNR : int
+        Signal-to-noise ratio
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.PDEModel_1D
+        Poisson 1D model
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data   
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+    """
+    def __init__(self, dim, endpoint, kernel, field_type, KL_map=lambda x: x, SNR=100):
+        N = dim # number of quadrature points
+        h = endpoint/N # quadrature weight
+        grid = np.linspace(0, endpoint, N)
+        
+        # convolution matrix
+        T1, T2 = np.meshgrid(grid, grid)
+        A = h*kernel(T1, T2)
+        maxval = A.max()
+        A[A < 5e-3*maxval] = 0
+        A = csc_matrix(A)   # make A sparse
+        
+        # discretization
+        if isinstance(field_type,Geometry):
+            domain_geometry = field_type
+        elif field_type=="KL":
+            domain_geometry = KLExpansion(grid, mapping=KL_map)
+        elif field_type=="Step":
+            domain_geometry = StepExpansion(grid, mapping=KL_map)
+        else:
+            domain_geometry = Continuous1D(grid, mapping=KL_map)
+        range_geometry = Continuous1D(grid)
+
+        # Set up model
+        model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
+    
+        # Prior
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
+
+        # Set up exact solution
+        x_exact = prior.sample()
+
+        # Generate exact data
+        b_exact = model.forward(x_exact)
+
+        # Add noise to data
+        sigma = np.linalg.norm(b_exact)/SNR
+        sigma2 = sigma*sigma # variance of the observation Gaussian noise
+        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood,prior,data)
 

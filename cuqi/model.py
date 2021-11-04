@@ -72,9 +72,12 @@ class Model(object):
     def range_dim(self): 
         return self.range_geometry.dim
     
-    def forward(self, x):
+    def forward(self, x, is_par=True):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
+        if is_par:
+            x = self.domain_geometry.apply_map(x)
+
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
             data_samples = np.zeros((self.range_dim,Ns))
@@ -328,77 +331,4 @@ class Heat_1D(Model):
             jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
             dx[i] = 0.0
         return jac.transpose()
-    
-    
-class Abel_1D(Model):
-    """ Base cuqi model of the Abel 1D problem"""
-    def __init__(self, N, L, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N # number of quadrature points
-        self.h = L/self.N # quadrature weight
-
-        self.tvec = np.linspace(self.h/2, L-self.h/2, self.N).reshape(1, -1) 
-        svec = self.tvec.reshape(-1, 1) + self.h/2
-        tmat = np.tile( self.tvec, [self.N, 1] )
-        smat = np.tile( svec, [1, self.N] )
         
-        idx = np.where(tmat<smat) # only applying the quadrature on 0<x<1
-        self.A = np.zeros([self.N,self.N]) # Abel integral operator
-        self.A[idx[0], idx[1]] = self.h/np.sqrt( np.abs( smat[idx[0], idx[1]] - tmat[idx[0], idx[1]] ) )
-
-        # discretization
-        self.x = np.linspace(0, L, self.N)
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # forward model
-    def forward(self, theta):
-        u = self.domain_geometry.apply_map(theta)
-        return self.A@u
-
-    # compute gradient of target function 
-    def gradient(self, kappa):
-        return self.A.T@kappa
-    
-    
-class Deconv_1D(Model):
-    """ Base cuqi model of the deconvolution 1D problem"""
-    def __init__(self, N, L, kernel, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N # number of quadrature points
-        self.h = L/self.N # quadrature weight
-        self.x = np.linspace(0, L, self.N)
-        
-        # convolution matrix
-        T1, T2 = np.meshgrid(self.x, self.x)
-        A = self.h*kernel(T1, T2)
-        maxval = A.max()
-        A[A < 5e-3*maxval] = 0
-        self.A = csc_matrix(A)   # make A sparse
-        
-        # discretization
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # forward model
-    def forward(self, theta):
-        u = self.domain_geometry.apply_map(theta)
-        return self.A@u
-
-    # compute gradient of target function 
-    def gradient(self, kappa):
-        return self.A.T@kappa
