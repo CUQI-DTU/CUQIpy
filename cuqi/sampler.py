@@ -11,7 +11,6 @@ import cuqi
 from cuqi.solver import CGLS
 from cuqi.samples import Samples
 from abc import ABC, abstractmethod
-from cuqi.utilities import check_geometries_consistency, get_direct_attributes, get_indirect_attributes
 
 #===================================================================
 class Sampler(ABC):
