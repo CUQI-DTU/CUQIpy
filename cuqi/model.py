@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
-from cuqi.samples import Samples
+from cuqi.samples import Samples, Data
 from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 
 import matplotlib.pyplot as plt
@@ -82,7 +82,10 @@ class Model(object):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
         else:
-            return self._forward_func(x)
+            if isinstance(x, Data):
+                return Data(self._forward_func(x.array), self.range_geometry)
+            else:
+                return self._forward_func(x)
 
     def __call__(self,x):
         return self.forward(x)
@@ -162,7 +165,11 @@ class LinearModel(Model):
             assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
-        return self._adjoint_func(y)
+        if isinstance(y, Data):
+            return Data(self._adjoint_func(y), self.domain_geometry)
+        else:
+            return self._adjoint_func(y)
+
 
     def get_matrix(self):
         if self._matrix is not None: #Matrix exists so return it
