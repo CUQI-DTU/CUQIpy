@@ -112,12 +112,13 @@ def test_pCN_sample_regression():
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
     R = np.eye(d)
-    dist = Gaussian(mu, sigma, R)
+    dist = Gaussian(mean= lambda x:x, std=sigma, corrmat = R)
     def target(x): return dist.logpdf(x)
     ref = Gaussian(mu, np.ones(d), R)
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    MCMC = pCN(ref, target, scale, x0)
+    posterior = cuqi.distribution.Posterior(dist,ref,np.zeros(d))
+    MCMC = pCN(posterior, scale, x0)
     results = MCMC.sample(10,2)
     assert np.allclose(results[0].samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
          0.78752546, 0.68750247, 0.42875734, 0.40239322, 0.40495205],

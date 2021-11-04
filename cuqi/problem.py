@@ -217,7 +217,9 @@ class BayesianProblem(object):
         x0 = np.zeros(n)
         
         #ToDO: Switch to pCN
-        MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
+        #TODO: create posterior in the initializer
+        posterior = cuqi.distribution.Posterior(self.likelihood,self.prior,self.data)
+        MCMC = cuqi.sampler.pCN(posterior,scale,x0)
         
         
         #TODO: Select burn-in 
