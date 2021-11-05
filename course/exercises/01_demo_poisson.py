@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 
-from numpy.core.defchararray import endswith
 sys.path.append("../..") 
 import cuqi
 
@@ -25,7 +24,6 @@ f = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
 # %%
 # define model using the Poisson testproblem
 model = cuqi.testproblem.Poisson_1D(dim=N, endpoint=L, source=f, field_type=None, KL_map=KL_map).model
-
 # %%
 # Grid
 x = model.domain_geometry.grid
