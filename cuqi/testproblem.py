@@ -428,11 +428,26 @@ class Poisson_1D(BayesianProblem):
     """
     def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=lambda x: x, SNR=200):
         
-        #Grids
+        # Prepare PDE form
+        N = dim-1   # Number of solution nodes
+        dx = 1./N   # step size
+        grid = np.linspace(dx, endpoint, N, endpoint=False)
+        Dx = - np.diag(np.ones(N), 0) + np.diag(np.ones(N-1), 1) #Dx
+        vec = np.zeros(N)
+        vec[0] = 1
+        Dx = np.concatenate([vec.reshape([1,-1]), Dx], axis=0)
+        Dx /= dx # FD derivative matrix
+        rhs = source(grid)
+        
+        # PDE form: LHS(x)u=rhs(x)
+        PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
+        PDE = cuqi.pde.LinearSteadyStatePDE(PDE_form)
+
+        # Grids for model
         grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
         grid_range  = np.linspace(1./(dim-1), endpoint, dim, endpoint=False)
 
-        # Set up geometries
+        # Set up geometries for model
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
@@ -444,8 +459,8 @@ class Poisson_1D(BayesianProblem):
 
         range_geometry = Continuous1D(grid_range)
 
-        # Set up model
-        model = cuqi.model.PDEModel_1D(grid_domain,source,range_geometry,domain_geometry)
+        # Prepare model
+        model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
 
         # Set up exact solution
         x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )
@@ -467,6 +482,121 @@ class Poisson_1D(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+
+class Heat_1D(BayesianProblem):
+    """
+    1D Heat test problem. TODO: Add more description here.
+
+    Parameters
+    ------------
+    dim : int
+        size of the grid for the poisson problem
+
+    endpoint : float
+        Location of end-point of grid.
+    
+    max_time : float
+        The last time step.
+    
+    source : lambda function
+        Function for source term.
+
+    field_type : str or cuqi.geometry.Geometry
+        Field type of domain.
+
+    KL_map : lambda function
+        Mapping used to modify field
+
+    SNR : int
+        Signal-to-noise ratio
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.PDEModel_1D
+        Poisson 1D model
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data   
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+    """
+    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=lambda x: x, SNR=200):
+        
+        # Prepare PDE form
+        N = dim   # Number of solution nodes
+        dx = endpoint/(N+1)   # space step size
+        cfl = 5/11 # the cfl condition to have a stable solution
+        dt = cfl*dx**2 # defining time step
+        max_iter = int(max_time/dt) # number of time steps
+        Dxx = np.diag( (1-2*cfl)*np.ones(N) ) + np.diag(cfl* np.ones(N-1),-1) + np.diag(cfl*np.ones(N-1),1) # FD diffusion operator
+        
+        time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
+
+        # PDE form
+        PDE_form = lambda : Dxx
+        PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form,time_steps)
+
+        # Grids for model
+        grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
+        grid_range  = grid_domain
+
+        # Set up geometries for model
+        if isinstance(field_type,Geometry):
+            domain_geometry = field_type
+        elif field_type=="KL":
+            domain_geometry = KLExpansion(grid_domain, mapping=KL_map)
+        elif field_type=="Step":
+            domain_geometry = StepExpansion(grid_domain, mapping=KL_map)
+        else:
+            domain_geometry = Continuous1D(grid_domain, mapping=KL_map)
+
+        range_geometry = Continuous1D(grid_range)
+
+        # Prepare model
+        model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
+
+        # Set up exact solution
+        x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
+
+        # Generate exact data
+        b_exact = model.forward(x_exact,is_par=False)
+
+        # Add noise to data
+        sigma = np.linalg.norm(b_exact)/SNR
+        sigma2 = sigma*sigma # variance of the observation Gaussian noise
+        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
+
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Store exact values
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+
 
 class Abel_1D(BayesianProblem):
     """
