@@ -41,7 +41,8 @@ A = prob.model.get_matrix()
 model = LinearModel(A)
 
 # Define as linear model
-phantomD = Data(parameters=prob.exactSolution,  geometry=model.domain_geometry)
+phantom = prob.exactSolution
+phantomD = Data(parameters=phantom,  geometry=model.domain_geometry)
 
 
 # %%
@@ -50,6 +51,55 @@ phantomD.plot(linestyle='--')
 # %%
 data_cleanD = model(phantomD)
 data_cleanD.plot()
+
+
+#%%
+noise_std = 0.05
+likelihood = Gaussian(model, noise_std, np.eye(dim))
+
+likelihood(x=np.zeros(dim)).sample(5).plot()
+plt.title('Noise samples'); plt.show()
+
+#%%
+data = likelihood(x=phantom).sample()
+
+#%%
+prior_std = 0.2
+prior = Gaussian(np.zeros(dim), prior_std, np.eye(dim))
+
+# Plot samples of prior
+prior.sample(5).plot()
+plt.title('Realizations from prior'); plt.show()
+
+#%%
+IP = BayesianProblem(likelihood, prior, data)
+
+#%%
+x_MAP = IP.MAP() 
+
+# Plot
+#plt.plot(phantom,'.-')
+#plt.plot(x_MAP,'.-')
+phantomD.plot()
+x_MAP.plot()
+plt.title("MAP estimate")
+plt.legend(["Exact","MAP"])
+plt.show()
+
+#%%
+Ns = 5000   # Number of samples
+result = IP.sample_posterior(Ns)
+
+type(result)
+
+result.plot_ci(95, exact=phantom)
+
+result.plot_std()
+
+idx = [20,55,60]
+result.plot_chain(idx)
+plt.legend(idx)
+
 
 
 # %% Now try heat
