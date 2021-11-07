@@ -9,12 +9,20 @@ class Data(object):
     An container type object to represent data objects equipped with geometry.
     """
 
-    def __init__(self, array=None, geometry=None):
-        self.array = array
+    def __init__(self, parameters=None, geometry=None):
+        self.parameters = parameters
         self.geometry = geometry
     
     def plot(self, **kwargs):
-        self.geometry.plot(self.array, **kwargs)
+        self.geometry.plot(self.parameters, **kwargs)
+    
+    @property
+    def parameters(self):
+        return self._parameters
+    
+    @parameters.setter
+    def parameters(self, value):
+        self._parameters = value
     
 
 class Samples(object):

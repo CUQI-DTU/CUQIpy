@@ -83,7 +83,7 @@ class Model(object):
             return Samples(data_samples)
         else:
             if isinstance(x, Data):
-                return Data(self._forward_func(x.array), self.range_geometry)
+                return Data(self._forward_func(x.parameters), self.range_geometry)
             else:
                 return self._forward_func(x)
 
@@ -166,7 +166,7 @@ class LinearModel(Model):
 
     def adjoint(self,y):
         if isinstance(y, Data):
-            return Data(self._adjoint_func(y), self.domain_geometry)
+            return Data(self._adjoint_func(y.parameters), self.domain_geometry)
         else:
             return self._adjoint_func(y)
 
