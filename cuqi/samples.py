@@ -9,12 +9,23 @@ class Data(object):
     An container type object to represent data objects equipped with geometry.
     """
 
-    def __init__(self, parameters=None, geometry=None):
-        self.parameters = parameters
+    def __init__(self, parameters=None, geometry=None, funvals=None):
+        
+        # Allow setting either parameter or function values, but not both.
+        # If both provided, function values take precedence (to be confirmed).
+        if parameters is not None and funvals is not None:
+            parameters = None
+        
+        if parameters is not None:
+            self.parameters = parameters
+        
+        if funvals is not None:
+            self.funvals = funvals
+
         self.geometry = geometry
-    
+        
     def plot(self, **kwargs):
-        self.geometry.plot(self.parameters, **kwargs)
+        self.geometry.plot(self.funvals, is_par=False, **kwargs)
     
     @property
     def parameters(self):
@@ -23,7 +34,22 @@ class Data(object):
     @parameters.setter
     def parameters(self, value):
         self._parameters = value
+        self.has_parameters = True
+        self.has_funvals = False
     
+    @property
+    def funvals(self):
+        if self.has_funvals:
+            return self._funvals
+        else:
+            return self.geometry.par2fun(self.parameters)
+    
+    @funvals.setter
+    def funvals(self, value):
+        self.has_funvals = True
+        self.has_parameters = False
+        self._funvals = value
+
 
 class Samples(object):
     """

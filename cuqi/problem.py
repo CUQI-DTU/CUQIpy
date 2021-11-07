@@ -233,7 +233,7 @@ class BayesianProblem(object):
         C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
         L = np.linalg.cholesky(C)
         for s in range(Ns):
-            x_s[:,s] = x_map.array + L@np.random.randn(n)
+            x_s[:,s] = x_map.parameters + L@np.random.randn(n)
             # display iterations 
             if (s % 5e2) == 0:
                 print("\r",'Sample', s, '/', Ns, end="")

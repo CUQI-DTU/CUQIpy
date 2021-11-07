@@ -387,12 +387,7 @@ class KLExpansion(Continuous1D):
         self.modes = p*self.coefs/self.c
         self.real = idst(self.modes)/2
         return self.real
-    
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
+
 class CustomKL(Continuous1D):
     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
         super().__init__(grid, axis_labels,**kwargs)
@@ -505,12 +500,6 @@ class StepExpansion(Continuous1D):
     @property
     def shape(self):
         return 3
-    
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
     
     '''
     def plot(self,values,*args,**kwargs):
