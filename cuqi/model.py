@@ -210,15 +210,12 @@ class PDEModel(Model):
         if not isinstance(PDE,cuqi.pde.PDE):
             raise ValueError("PDE needs to be a cuqi PDE.")
 
-        super().__init__(self.forward, range_geometry, domain_geometry)
+        super().__init__(self._forward_func, range_geometry, domain_geometry)
 
         self.pde = PDE
 
-    def forward(self,x, is_par=True):
+    def _forward_func(self,x):
         
-        if is_par:
-            x = self.domain_geometry.apply_map(x)
-
         self.pde.assemble(parameter=x)
 
         sol = self.pde.solve()
