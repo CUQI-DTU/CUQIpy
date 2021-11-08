@@ -441,7 +441,7 @@ class Poisson_1D(BayesianProblem):
         
         # PDE form: LHS(x)u=rhs(x)
         PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
-        PDE = cuqi.pde.LinearSteadyStatePDE(PDE_form)
+        PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form)
 
         # Grids for model
         grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
@@ -553,9 +553,9 @@ class Heat_1D(BayesianProblem):
         
         time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
 
-        # PDE form
-        PDE_form = lambda : Dxx
-        PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form,time_steps)
+        # PDE form (diff_op, IC, time_steps)
+        PDE_form = lambda IC: (Dxx, IC, time_steps)
+        PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form)
 
         # Grids for model
         grid_domain = np.linspace(dx, endpoint, N, endpoint=False)

@@ -17,7 +17,7 @@ class PDE(ABC):
         pass
 
 
-class LinearSteadyStatePDE(PDE):
+class SteadyStateLinearPDE(PDE):
     """Linear steady state PDE.
     
     Parameters
@@ -57,10 +57,10 @@ class TimeDependentLinearPDE(PDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function which returns a matrix used for the time-stepping.
-
-    time_steps : array, list
-        Array with the time steps.
+        Callable function which returns a tuple with 3 things:
+        1: matrix used for the time-stepping.
+        2: initial condition
+        3: time_steps array
 
     Example
     -----------  
@@ -68,17 +68,16 @@ class TimeDependentLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self,PDE_form,time_steps):
-        self.diff_op = PDE_form()
-        self.time_steps = time_steps
+    def __init__(self,PDE_form):
+        self.PDE_form = PDE_form
 
     def assemble(self, parameter):
-        """Sets initial condition"""
-        self.u0 = parameter #Set initial condition
+        """Assemble PDE"""
+        self.diff_op, self.IC, self.time_steps = self.PDE_form(parameter)
 
     def solve(self):
         """Solve PDE by time-stepping"""
-        u = self.u0
+        u = self.IC
         for t in self.time_steps:
             u = self.diff_op@u
         return u
