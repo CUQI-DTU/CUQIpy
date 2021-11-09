@@ -75,8 +75,14 @@ class Model(object):
     def forward(self, x, is_par=True):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
-        if is_par:
-            x = self.domain_geometry.apply_map(x)
+
+        if type(x) is CUQIarray:
+            is_par = x.is_par
+            if is_par:
+                x = x.funvals
+        else:
+            if is_par:
+                x = self.domain_geometry.apply_map(x)
 
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
@@ -86,7 +92,6 @@ class Model(object):
             return Samples(data_samples)
         else:
             out = self._forward_func(x)
-            print(type(x))
             if type(x) is CUQIarray:
                 out = CUQIarray(out, geometry=self.range_geometry)
             return out
