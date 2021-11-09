@@ -2,6 +2,7 @@ from . import data
 from . import distribution
 from . import geometry
 from . import model
+from . import pde
 from . import problem
 from . import sampler
 from . import samples

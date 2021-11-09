@@ -4,7 +4,7 @@ from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples, Data, CUQIarray
 from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
-
+import cuqi
 import matplotlib.pyplot as plt
 
 class Model(object):
@@ -72,9 +72,12 @@ class Model(object):
     def range_dim(self): 
         return self.range_geometry.dim
     
-    def forward(self, x):
+    def forward(self, x, is_par=True):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
+        if is_par:
+            x = self.domain_geometry.apply_map(x)
+
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
             data_samples = np.zeros((self.range_dim,Ns))
@@ -208,53 +211,33 @@ class LinearModel(Model):
         return transpose
         
 
-class Poisson_1D(Model):
-    """ Base cuqi model of the Poisson 1D problem"""
-    def __init__(self, N, L, source, field_type, skip=1, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N-1          # number of FD nodes
-        self.dx = 1./self.N   # step size
-        self.Dx = - np.diag(np.ones(self.N), 0) + np.diag(np.ones(self.N-1), 1) 
-        #
-        vec = np.zeros(self.N)
-        vec[0] = 1
-        self.Dx = np.concatenate([vec.reshape([1,-1]), self.Dx], axis=0)
-        self.Dx /= self.dx # FD derivative matrix
+class PDEModel(Model):
 
-        # discretization
-        self.x = np.linspace(0, L, self.N+1, endpoint=True)
-        self.x_u = np.linspace(self.dx, L, self.N, endpoint=False)
-        self.f = source(self.x_u)
-        self.skip = skip
-        #
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x_u)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # forward projection: finite differences
-    def forward(self, theta):
-        kappa = self.domain_geometry.apply_map(theta)
-        Dxx = self.Dx.T @ np.diag(kappa) @ self.Dx
-        sol = solve(Dxx, self.f)
-        return sol[::self.skip]
+    def __init__(self, PDE, range_geometry, domain_geometry):
+        #....
+        if not isinstance(PDE,cuqi.pde.PDE):
+            raise ValueError("PDE needs to be a cuqi PDE.")
 
-    def _solve_with_conductivity(self, true_kappa):
-        Dxx = self.Dx.T@np.diag(true_kappa)@self.Dx
-        u = solve(Dxx,self.f)
-        return u[::self.skip]
+        super().__init__(self._forward_func, range_geometry, domain_geometry)
+
+        self.pde = PDE
+
+    def _forward_func(self,x):
+        
+        self.pde.assemble(parameter=x)
+
+        sol = self.pde.solve()
+
+        obs = self.pde.observe(sol)
+
+        return obs
 
     # compute gradient of target function 
     def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
-        return self.approx_jacobian(kappa, func, eps)
+        return self._approx_jacobian(kappa, func, eps)
     
     # approximate the Jacobian matrix of callable function func
-    def approx_jacobian(x, func, epsilon, *args):
+    def _approx_jacobian(x, func, epsilon, *args):
         # x       - The state vector
         # func    - A vector-valued function of the form f(x,*args)
         # epsilon - The peturbation used to determine the partial derivatives
@@ -268,151 +251,4 @@ class Poisson_1D(Model):
             jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
             dx[i] = 0.0
         return jac.transpose()
-    
-    
-class Heat_1D(Model):
-    """ Base cuqi model of the Heat 1D problem"""
-    def __init__(self, N, L, T, field_type, skip=1, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N # number of discretization points
-        self.dx = L/(self.N+1) # space step size
-        #
-        cfl = 5/11 # the cfl condition to have a stable solution
-        self.dt = cfl*self.dx**2 # defining time step
-        self.T = T # defining the maximum time
-        self.MAX_ITER = int(self.T/self.dt) # number of time steps
-        self.Dxx = np.diag( (1-2*cfl)*np.ones(self.N) ) + np.diag(cfl* np.ones(self.N-1),-1) + np.diag(cfl*np.ones(self.N-1),1) # FD diffusion operator
-
-        # discretization
-        self.x = np.linspace(self.dx, L, self.N, endpoint=False)
-        self.skip = skip
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # computes the solution at t for a given initial condition
-    # if makeplot is True, saves and displays all time steps
-    def _advance_time(self, u0, makeplot=False):
-        u_old = np.copy(u0)        
-        if makeplot:
-            self.sol = [ np.copy(u0) ]
         
-        for i in range(self.MAX_ITER):
-            u_old = self.Dxx@u_old
-            if makeplot:
-                self.sol.append(u_old)
-        
-        if makeplot:
-            self.sol = np.array(self.sol)
-            T = np.array( range(0,self.MAX_ITER+1) )
-            (X,T) = np.meshgrid(self.x,T)
-
-            fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-            ax.plot_surface(T,X,self.sol)
-            plt.show()
-        return u_old[::self.skip]
-
-    # computes the solution at t for a given expansion coefficients
-    def forward(self, theta):
-        u0 = self.domain_geometry.apply_map(theta)
-        sol = self._advance_time(u0)
-        return sol[::self.skip]
-
-    # compute gradient of target function 
-    def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
-        return self.approx_jacobian(kappa, func, eps)
-    
-    # approximate the Jacobian matrix of callable function func
-    def approx_jacobian(x, func, epsilon, *args):
-        # x       - The state vector
-        # func    - A vector-valued function of the form f(x,*args)
-        # epsilon - The peturbation used to determine the partial derivatives
-        x0 = np.asfarray(x)
-        f0 = func(*((x0,)+args))
-        jac = np.zeros([len(x0), len(f0)])
-        dx = np.zeros(len(x0))
-        for i in range(len(x0)):
-            dx[i] = epsilon
-            jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
-            dx[i] = 0.0
-        return jac.transpose()
-    
-    
-class Abel_1D(Model):
-    """ Base cuqi model of the Abel 1D problem"""
-    def __init__(self, N, L, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N # number of quadrature points
-        self.h = L/self.N # quadrature weight
-
-        self.tvec = np.linspace(self.h/2, L-self.h/2, self.N).reshape(1, -1) 
-        svec = self.tvec.reshape(-1, 1) + self.h/2
-        tmat = np.tile( self.tvec, [self.N, 1] )
-        smat = np.tile( svec, [1, self.N] )
-        
-        idx = np.where(tmat<smat) # only applying the quadrature on 0<x<1
-        self.A = np.zeros([self.N,self.N]) # Abel integral operator
-        self.A[idx[0], idx[1]] = self.h/np.sqrt( np.abs( smat[idx[0], idx[1]] - tmat[idx[0], idx[1]] ) )
-
-        # discretization
-        self.x = np.linspace(0, L, self.N)
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # forward model
-    def forward(self, theta):
-        u = self.domain_geometry.apply_map(theta)
-        return self.A@u
-
-    # compute gradient of target function 
-    def gradient(self, kappa):
-        return self.A.T@kappa
-    
-    
-class Deconv_1D(Model):
-    """ Base cuqi model of the deconvolution 1D problem"""
-    def __init__(self, N, L, kernel, field_type, cov_fun=None, mean=None, std=None, d_KL=None, KL_map=lambda x: x):
-        self.N = N # number of quadrature points
-        self.h = L/self.N # quadrature weight
-        self.x = np.linspace(0, L, self.N)
-        
-        # convolution matrix
-        T1, T2 = np.meshgrid(self.x, self.x)
-        A = self.h*kernel(T1, T2)
-        maxval = A.max()
-        A[A < 5e-3*maxval] = 0
-        self.A = csc_matrix(A)   # make A sparse
-        
-        # discretization
-        if field_type=="KL":
-            domain_geometry = KLExpansion(self.x, mapping=KL_map)
-        elif field_type=="CustomKL":
-            domain_geometry = CustomKL(self.x, cov_fun, mean, std, d_KL, mapping=KL_map)
-        elif field_type=="Step":
-            domain_geometry = StepExpansion(self.x, mapping=KL_map)
-        else:
-            domain_geometry = Continuous1D(self.x, mapping=KL_map)
-        range_geometry = Continuous1D(self.x)
-        super().__init__(self.forward, range_geometry, domain_geometry)
-    
-    # forward model
-    def forward(self, theta):
-        u = self.domain_geometry.apply_map(theta)
-        return self.A@u
-
-    # compute gradient of target function 
-    def gradient(self, kappa):
-        return self.A.T@kappa
