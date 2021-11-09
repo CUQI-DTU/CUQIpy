@@ -162,8 +162,8 @@ class Cauchy_diff(Distribution):
     
     def gradient(self, val, **kwargs):
         if not callable(self.location): # for prior
-            diff = self._diff_op @ val
-            return (-2*diff/(diff**2+self.scale**2)) @ self._diff_op
+            diff = self._diff_op._matrix @ val
+            return (-2*diff/(diff**2+self.scale**2)) @ self._diff_op._matrix
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
 

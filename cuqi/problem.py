@@ -220,7 +220,7 @@ class BayesianProblem(object):
         x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
         print('Elapsed time:', time.time() - ti)
         
-        return cuqi.samples.Samples(x_s)
+        return x_s
 
     def _samplepCN(self,Ns):
         # Dimension
@@ -248,7 +248,7 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
 
         # Set geometry from prior
-        if hasattr(x_s,"geometry"):
-            x_s.geometry = self.prior.geometry
+        #if hasattr(x_s,"geometry"):
+        #    x_s.geometry = self.prior.geometry
         
         return x_s

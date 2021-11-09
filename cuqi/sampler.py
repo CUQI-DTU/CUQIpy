@@ -117,7 +117,7 @@ class ProposalBasedSampler(Sampler,ABC):
 
     @property
     def geometry(self):
-
+        geom1, geom2 = None, None
         if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.dim is not None:
             geom1=  self.proposal.geometry
         if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.dim is not None:
@@ -510,7 +510,7 @@ class CWMH(ProposalBasedSampler):
         if isinstance(self.proposal,cuqi.distribution.Distribution):
             x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
         else:
-            x_i_star = self.proposal(location= x_t, scale = self.scale) 
+            x_i_star = self.proposal(x_t, self.scale) 
         x_star = x_t.copy()
         acc = np.zeros(self.dim)
 
