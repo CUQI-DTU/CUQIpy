@@ -87,6 +87,10 @@ class Geometry(ABC):
         """The parameter to function map used to map parameters to function values in e.g. plotting."""
         return par
 
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. Must be implemented specifically for each geometry.")
+
     @abstractmethod
     def _plot(self):
         pass
@@ -157,6 +161,9 @@ class Continuous(Geometry, ABC):
     @property
     def grid(self):
         return self._grid
+    
+    def fun2par(self,funvals):
+        return funvals.ravel()
 
 class Continuous1D(Continuous):
     """A class that represents a continuous 1D geometry.
@@ -387,6 +394,10 @@ class KLExpansion(Continuous1D):
         self.modes = p*self.coefs/self.c
         self.real = idst(self.modes)/2
         return self.real
+    
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
 
 class CustomKL(Continuous1D):
     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
@@ -399,6 +410,11 @@ class CustomKL(Continuous1D):
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
+    
+        def fun2par(self,funvals):
+            """The function to parameter map used to map function values back to parameters, if available."""
+            raise NotImplementedError("fun2par not implemented. ")
+    
 
     def Nystrom(self, xnod, C_nu, sigma, M, N_GL):
         # xnod: points at which the field is realized (from geometry PDE)
@@ -496,6 +512,10 @@ class StepExpansion(Continuous1D):
         idx = np.where( (self.grid>0.6*self.L)&(self.grid<=0.8*self.L) )
         self.real[idx[0]] = p[2]
         return self.real
+    
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
     
     @property
     def shape(self):

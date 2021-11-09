@@ -165,4 +165,12 @@ y_stepC = model_step(true_stepC)
 y_stepC.plot()
 
 
-# %%
+# %%  Heat with KL
+
+model_KL = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='KL', KL_map=KL_map).model
+
+#%%
+true_initKL = cuqi.samples.CUQIarray(true_init, is_par=False,  geometry=model_KL.domain_geometry)
+
+# %% This should give an error as parameters are not available
+true_initKL.parameters
