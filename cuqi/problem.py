@@ -7,7 +7,6 @@ import time
 from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
-from cuqi.samples import Data
 
 class Generic(object):
     def __init__(self):
@@ -128,7 +127,7 @@ class BayesianProblem(object):
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
             
-            return Data(x0 + Cx@(A.T@np.linalg.solve(sysm,rhs)), self.model.domain_geometry)
+            return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
 
         # If no specific implementation exists, use numerical optimization.
         else:

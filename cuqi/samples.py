@@ -4,6 +4,54 @@ from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry
 from copy import copy
 
+class CUQIarray(np.ndarray):
+
+    def __repr__(self) -> str: 
+        return "CUQIarray: NumPy array wrapped with geometry.\n" + \
+               "---------------------------------------------\n\n" + \
+            "Geometry:\n {}\n\n".format(self.geometry) + \
+            "Parameters:\n {}\n\n".format(self.is_par) + \
+            "Array:\n" + \
+            super().__repr__()
+
+    def __new__(cls, input_array, is_par=True, geometry=None):
+        # Input array is an already formed ndarray instance
+        # We first cast to be our class type
+        obj = np.asarray(input_array).view(cls)
+        # add the new attribute to the created instance
+        obj.is_par = is_par
+        obj.geometry = geometry
+        # Finally, we must return the newly created object:
+        return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None: return
+        self.is_par = getattr(obj, 'is_par', True)
+        self.geometry = getattr(obj, 'geometry', None)
+
+    @property
+    def funvals(self):
+        if self.is_par is True:
+            vals = self.geometry.par2fun(self)
+        else:
+            vals = self
+
+        return CUQIarray(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)   
+
+    @property
+    def parameters(self):
+        if self.is_par is False:
+            vals = self.geometry.fun2par(self)
+        else:
+            vals = self
+
+        return CUQIarray(vals,is_par=True,geometry=self.geometry)
+    
+    def plot(self, **kwargs):
+        self.geometry.plot(self.funvals, is_par=False, **kwargs)
+
+
 class Data(object):
     """
     An container type object to represent data objects equipped with geometry.
