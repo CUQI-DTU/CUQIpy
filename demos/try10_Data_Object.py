@@ -17,7 +17,7 @@ from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
 from cuqi.sampler import CWMH
 from cuqi.problem import BayesianProblem
-from cuqi.samples import Samples, Data
+from cuqi.samples import Samples, Data, CUQIarray
 
 
 #%%
@@ -43,14 +43,20 @@ model = LinearModel(A)
 # Define as linear model
 phantom = prob.exactSolution
 phantomD = Data(parameters=phantom,  geometry=model.domain_geometry)
+phantomC = CUQIarray(phantom,  geometry=model.domain_geometry)
 
+phantomC
 
 # %%
-phantomD.plot(linestyle='--')
+phantomC.plot(linestyle='--')
 
 # %%
-data_cleanD = model(phantomD)
-data_cleanD.plot()
+#data_cleanD = model(phantomD)
+#data_cleanD.plot()
+
+# %%
+data_cleanC = model(phantomC)
+data_cleanC.plot()
 
 
 #%%
@@ -61,7 +67,7 @@ likelihood(x=np.zeros(dim)).sample(5).plot()
 plt.title('Noise samples'); plt.show()
 
 #%%
-data = likelihood(x=phantom).sample()
+data = likelihood(x=phantomC).sample()
 
 #%%
 prior_std = 0.2
@@ -80,7 +86,7 @@ x_MAP = IP.MAP()
 # Plot
 #plt.plot(phantom,'.-')
 #plt.plot(x_MAP,'.-')
-phantomD.plot()
+phantomC.plot()
 x_MAP.plot()
 plt.title("MAP estimate")
 plt.legend(["Exact","MAP"])
@@ -92,10 +98,13 @@ result = IP.sample_posterior(Ns)
 
 type(result)
 
+#%%
 result.plot_ci(95, exact=phantom)
 
+#%%
 result.plot_std()
 
+#%%
 idx = [20,55,60]
 result.plot_chain(idx)
 plt.legend(idx)
@@ -120,13 +129,17 @@ true_init = 100*x*np.exp(-5*x)*np.sin(L-x)
 
 # Signal as cuqi Data object
 true_initD = cuqi.samples.Data(funvals=true_init, geometry=model.domain_geometry)
+true_initC = cuqi.samples.CUQIarray(true_init, is_par=False, geometry=model.domain_geometry)
 
 # defining the heat equation as the forward map
 y_exact = model._advance_time(true_init) # observation vector
+y_exactC = model._advance_time(true_initC) # observation vector
 
-
+y_exactCC = model.forward(true_initC)
 
 # %%
+true_initC.plot()
+#%%
 true_initD.plot()
 # %%
 

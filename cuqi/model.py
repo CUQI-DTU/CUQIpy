@@ -82,10 +82,11 @@ class Model(object):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
         else:
-            if isinstance(x, Data):
-                return Data(self._forward_func(x.parameters), self.range_geometry)
-            else:
-                return self._forward_func(x)
+            out = self._forward_func(x)
+            print(type(x))
+            if type(x) is CUQIarray:
+                out = CUQIarray(out, geometry=self.range_geometry)
+            return out
 
     def __call__(self,x):
         return self.forward(x)
