@@ -38,6 +38,12 @@ class BayesianProblem(object):
             summary: 'Sample Ns samples of the inverse problem.'
             NB: 'Requires the prior to be defined.'
     """
+    @classmethod
+    def get_building_blocks(cls, **kwargs):
+        problem = cls(**kwargs)
+        noise = None
+        return problem.model, problem.data, noise 
+
     def __init__(self,likelihood,prior,data=None):
         self.likelihood = likelihood
         self.prior = prior
