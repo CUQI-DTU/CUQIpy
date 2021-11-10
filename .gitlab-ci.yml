@@ -29,14 +29,27 @@ test:
   script:
     - python -m pytest -v tests
 
+
+
+stages:
+  - publish
+
+cache:
+  # Required to keep artifacts from old builds, e.g. from master
+  paths:
+    - public
+
 pages:
-  stage: deploy
+  stage: publish
   script:
   - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
-  - sphinx-build -b html ./docs public
+  - mkdir -p public/$CI_COMMIT_REF_NAME
+  - sphinx-build -b html ./docs public/$CI_COMMIT_REF_NAME
   artifacts:
+    name: $CI_COMMIT_REF_NAME
     paths:
-    - public
+      - public
+    expire_in: never
   only:
-  - master
+  - branches
 
