@@ -37,7 +37,7 @@ class CUQIarray(np.ndarray):
         else:
             vals = self
 
-        return CUQIarray(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)   
+        return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)   
 
     @property
     def parameters(self):
@@ -46,7 +46,7 @@ class CUQIarray(np.ndarray):
         else:
             vals = self
 
-        return CUQIarray(vals,is_par=True,geometry=self.geometry)
+        return type(self)(vals,is_par=True,geometry=self.geometry)
     
     def plot(self, **kwargs):
         self.geometry.plot(self.funvals, is_par=False, **kwargs)
