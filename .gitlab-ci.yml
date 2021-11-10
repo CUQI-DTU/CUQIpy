@@ -25,14 +25,16 @@ before_script:
   - source venv/bin/activate
   - pip install -r requirements.txt
 
+
+stages:
+  - test
+  - publish
+
+
 test:
   script:
     - python -m pytest -v tests
 
-
-
-stages:
-  - publish
 
 cache:
   # Required to keep artifacts from old builds, e.g. from master
