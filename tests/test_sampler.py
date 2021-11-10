@@ -6,6 +6,7 @@ from cuqi.sampler import pCN
 
 from pytest import approx
 
+
 def test_CWMH_modify_proposal():
     # Parameters
     n = 2
@@ -17,8 +18,14 @@ def test_CWMH_modify_proposal():
     def target(x): return target_dist.pdf(x)
 
     # Set up proposals
-    def proposal1(x, sigma): return np.random.normal(x, sigma)
-    def proposal2(x, sigma): return np.random.normal(x, 2*sigma)
+    #proposal1 = cuqi.distribution.Normal(np.zeros(n),1 )
+    #proposal2 = cuqi.distribution.Normal(np.zeros(n),2 )
+    #def proposal1(x, sigma): return np.random.normal(x, sigma)
+    #def proposal2(x, sigma): return np.random.normal(x, 2*sigma)
+
+    proposal1 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+    proposal2 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:2*scale )
+
 
     # Set up sampler
     MCMC1 = cuqi.sampler.CWMH(target, proposal1, scale, x0)
@@ -29,11 +36,11 @@ def test_CWMH_modify_proposal():
 
     # Compute samples 1
     np.random.seed(0)
-    results1 = MCMC1.sample(10,2)
+    results1 = MCMC1.sample(10,2)[0].samples
 
     # Compute samples 2
     np.random.seed(0)
-    results2 = MCMC2.sample(10,2)
+    results2 = MCMC2.sample(10,2)[0].samples
 
     # Compare samples
     assert np.allclose(results1[0],results2[0])
@@ -49,13 +56,15 @@ def test_CWMH_sample_regression():
     def target(x): return cuqi.distribution.Gaussian(mean,std,R).pdf(x)
 
     # Define proposal
-    def proposal(x, sigma): return np.random.normal(x, sigma)
+    # def proposal(x, sigma): return np.random.normal(x, sigma)
+    #proposal = cuqi.distribution.Normal(np.zeros(len(mean)),1 )
+    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
 
     # Set up sampler
     MCMC = cuqi.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
 
     # Compare with previously computed results
-    np.allclose(MCMC.sample(5,1)[0],np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
+    np.allclose(MCMC.sample(5,1)[0].samples,np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
 
 
 def test_RWMH_sample_regression():
@@ -103,12 +112,13 @@ def test_pCN_sample_regression():
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
     R = np.eye(d)
-    dist = Gaussian(mu, sigma, R)
+    dist = Gaussian(mean= lambda x:x, std=sigma, corrmat = R)
     def target(x): return dist.logpdf(x)
     ref = Gaussian(mu, np.ones(d), R)
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    MCMC = pCN(ref, target, scale, x0)
+    posterior = cuqi.distribution.Posterior(dist,ref,np.zeros(d))
+    MCMC = pCN(posterior, scale, x0)
     results = MCMC.sample(10,2)
     assert np.allclose(results[0].samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
          0.78752546, 0.68750247, 0.42875734, 0.40239322, 0.40495205],
@@ -119,3 +129,24 @@ def test_pCN_sample_regression():
         -2.5649313 , -2.2912605 , -1.75498652, -1.82515857, -1.8101712 ]))
 
     assert results[2]==0.8
+
+
+def test_sampler_geometry_assignment():
+
+    n = 2
+    scale = 0.05*np.ones(n)
+    x0 = 0.5*np.ones(n)
+
+    # Set up target
+    target = cuqi.distribution.Cauchy_diff(np.zeros(n), 0.5, 'neumann')
+    target.geometry = cuqi.geometry.Continuous2D((1,2))
+
+    # Set up proposals
+    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+
+    # Set up sampler
+    MCMC_sampler = cuqi.sampler.CWMH(target, proposal, scale, x0)
+    samples = MCMC_sampler.sample(10,2)
+
+    assert(MCMC_sampler.geometry == target.geometry and\
+           MCMC_sampler.geometry == samples[0].geometry)

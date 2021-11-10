@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples
 from cuqi.geometry import _DefaultGeometry, Geometry
-from cuqi.utilities import force_ndarray, getNonDefaultArgs
+from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -128,6 +128,15 @@ class Distribution(ABC):
 
         return new_dist
 
+
+    def get_conditioning_variables(self):
+        attributes = []
+        ignore_attributes = ['name', 'is_symmetric']
+        for key,value in vars(self).items():
+            if vars(self)[key] is None and key[0] != '_' and key not in ignore_attributes:
+                attributes.append(key)
+        return attributes + get_indirect_attributes(self) 
+
 # ========================================================================
 class Cauchy_diff(Distribution):
 
@@ -153,8 +162,8 @@ class Cauchy_diff(Distribution):
     
     def gradient(self, val, **kwargs):
         if not callable(self.location): # for prior
-            diff = self._diff_op @ val
-            return (-2*diff/(diff**2+self.scale**2)) @ self._diff_op
+            diff = self._diff_op._matrix @ val
+            return (-2*diff/(diff**2+self.scale**2)) @ self._diff_op._matrix
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
 
@@ -203,7 +212,10 @@ class Normal(Distribution):
     @property
     def dim(self): 
         #TODO: handle the case when self.mean or self.std = None because len(None) = 1
-        return max(np.size(self.mean),np.size(self.std))
+        if self.mean is None and self.std is None:
+            return None
+        else:
+            return max(np.size(self.mean),np.size(self.std))
 
     def pdf(self, x):
         return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
@@ -323,7 +335,10 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     @property
     def dim(self):
-        return max(len(self.mean),self.cov.shape[0])
+        if not hasattr(self.mean,"__len__"): #TODO: this need to be generalized for all dim properties.
+            return self.cov.shape[0] 
+        else:
+            return max(len(self.mean),self.cov.shape[0])
 
     @property
     def sqrtprec(self):        
@@ -768,6 +783,9 @@ class Posterior(Distribution):
     def logpdf(self,x):
 
         return self.likelihood(x=x).logpdf(self.data)+ self.prior.logpdf(x)
+
+    def gradient(self, x):
+        return self.likelihood.gradient(self.data, x=x)+ self.prior.gradient(x)        
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")

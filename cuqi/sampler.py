@@ -11,31 +11,146 @@ import cuqi
 from cuqi.solver import CGLS
 from cuqi.samples import Samples
 from abc import ABC, abstractmethod
-import warnings
+
+#===================================================================
+class Sampler(ABC):
+
+    def __init__(self, target, x0=None, dim=None):
+
+        self._dim = dim
+        if hasattr(target,'dim'): 
+            if self._dim is None:
+                self._dim = target.dim 
+            elif self._dim != target.dim:
+                raise ValueError("'dim' need to be None or equal to 'target.dim'") 
+        elif x0 is not None:
+            self._dim = len(x0)
+
+        self.target = target
+
+        if x0 is None:
+            x0 = np.ones(self.dim)
+        self.x0 = x0
+
+    @property
+    def geometry(self):
+        if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
+            geom =  self.target.geometry
+        else:
+            geom = cuqi.geometry._DefaultGeometry(self.dim)
+        return geom
+
+    @property 
+    def target(self):
+        return self._target 
+
+    @target.setter 
+    def target(self, value):
+        if  not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+            # obtain self.dim
+            if self.dim is not None:
+                dim = self.dim
+            else:
+                raise ValueError(f"If 'target' is a lambda function, the parameter 'dim' need to be specified when initializing {self.__class__}.")
+
+            # set target
+            self._target = cuqi.distribution.UserDefinedDistribution(logpdf_func=value, dim = dim)
+
+        elif isinstance(value, cuqi.distribution.Distribution):
+            self._target = value
+        else:
+            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.distribution.Distribution'")
+
+
+    @property
+    def dim(self):
+        if hasattr(self,'target') and hasattr(self.target,'dim'):
+            self._dim = self.target.dim 
+        return self._dim
+    
+
+    def sample(self,N,Nb):
+        # Get samples from the distribution sample method
+        s,loglike_eval, accave = self._sample(N,Nb)
+        return self._create_Sample_object(s,N),loglike_eval, accave
+
+    def sample_adapt(self,N,Nb):
+        # Get samples from the distribution sample method
+        s,loglike_eval, accave = self._sample_adapt(N,Nb)
+        return self._create_Sample_object(s,N),loglike_eval, accave
+
+    def _create_Sample_object(self,s,N):
+        #Store samples in cuqi samples object if more than 1 sample
+        if N==1:
+            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+                s = s.ravel()[0]
+            else:
+                s = s.flatten()
+        else:
+            s = Samples(s, self.geometry)#, geometry = self.geometry)
+
+        return s
+
+    @abstractmethod
+    def _sample(self,N,Nb):
+        pass
+
+
+class ProposalBasedSampler(Sampler,ABC):
+    def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
+        #TODO: after fixing None dim
+        #if dim is None and hasattr(proposal,'dim'):
+        #    dim = proposal.dim
+        super().__init__(target, x0=x0, dim=dim)
+
+        self.proposal =proposal
+        self.scale = scale
+
+
+    @property 
+    def proposal(self):
+        return self._proposal 
+
+    @proposal.setter 
+    def proposal(self, value):
+        self._proposal = value
+
+    @property
+    def geometry(self):
+        geom1, geom2 = None, None
+        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.dim is not None:
+            geom1=  self.proposal.geometry
+        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.dim is not None:
+            geom2 = self.target.geometry
+
+        if not isinstance(geom1,cuqi.geometry._DefaultGeometry):
+            return geom1
+        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry): 
+            return geom2
+        else:
+            return cuqi.geometry._DefaultGeometry(self.dim)
+
+
 
 # another implementation is in https://github.com/mfouesneau/NUTS
-class NUTS(object):
+class NUTS(Sampler):
 
-    def __init__(self, likelihood, prior, data, x0, maxdepth=20):
-        self.likelihood = likelihood
-        self.prior = prior
-        self.data = data
-        self.x0 = x0
+    def __init__(self, target, x0=None, dim=None, maxdepth=20):
+        super().__init__(target, x0=x0, dim=dim)
         self.maxdepth = maxdepth
+
 
     def potential(self,x):
         """Potential of likelihood+prior. Also returns the gradient"""
-        logpdf = -self.likelihood(x=x).logpdf(self.data) - self.prior.logpdf(x)
-        grad = -self.likelihood.gradient(self.data,x=x) - self.prior.gradient(x)
+        logpdf = -self.target.logpdf(x)
+        grad = -self.target.gradient(x)
         return logpdf, grad
 
-    def sample(self, N, Nb):
-        # Save dimension of prior
-        d = self.prior.dim
+    def _sample(self, N, Nb):
 
         # Allocation
         Ns = Nb+N               # total number of chains
-        theta = np.empty((d, Ns))
+        theta = np.empty((self.dim, Ns))
         pot_eval = np.empty(Ns)
 
         # Initial state
@@ -122,7 +237,7 @@ class NUTS(object):
         if flag == 'eval': # evaluate
             return 0.5*( (p.T @ p) ) #+ d_log_2pi 
         if flag == 'sample': # sample
-            return np.random.normal(size=self.prior.dim)
+            return np.random.normal(size=self.dim)
 
     def _FindGoodEpsilon(self,theta, pot, grad_pot):
         epsilon = 1
@@ -205,42 +320,6 @@ class NUTS(object):
             return theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p
 
 
-
-
-
-
-#===================================================================
-#===================================================================
-#===================================================================
-class Sampler(ABC):
-
-    def sample(self,N,Nb):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
-
-    def sample_adapt(self,N,Nb):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample_adapt(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
-
-    def _create_Sample_object(self,s,N):
-        #Store samples in cuqi samples object if more than 1 sample
-        if N==1:
-            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
-                s = s.ravel()[0]
-            else:
-                s = s.flatten()
-        else:
-            s = Samples(s)
-
-        return s
-
-    @abstractmethod
-    def _sample(self,N,Nb):
-        pass
-
-
 class Linear_RTO(object):
     
     def __init__(self, likelihood, prior, model, data, x0, maxit=10, tol=1e-6, shift=0):
@@ -316,27 +395,43 @@ class Linear_RTO(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class CWMH(object):
+class CWMH(ProposalBasedSampler):
 
-    def __init__(self, pi_target, proposal, scale, init_x):
-        self.target = pi_target
-        self.proposal = proposal
-        self.scale = scale
-        self.x0 = init_x
-        self.n = len(init_x)
+    def __init__(self, target,  proposal=None, scale=1, x0=None, dim = None):
+        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
+        
+    @ProposalBasedSampler.proposal.setter 
+    def proposal(self, value):
+        fail_msg = "Proposal should be either None, cuqi.distribution.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
 
-    def sample(self, N, Nb):
+        if value is None:
+            self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+
+        elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
+            self._proposal = value
+
+        elif isinstance(value, cuqi.distribution.Normal) and sorted(value.get_conditioning_variables())==['mean','std']:
+            self._proposal = value(mean = lambda location:location, std = lambda scale:scale)
+
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+            self._proposal = value
+
+        else:
+            raise ValueError(fail_msg)
+
+
+    def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.n, Ns))
+        samples = np.empty((self.dim, Ns))
         target_eval = np.empty(Ns)
-        acc = np.zeros((self.n, Ns), dtype=int)
+        acc = np.zeros((self.dim, Ns), dtype=int)
 
         # initial state    
         samples[:, 0] = self.x0
-        target_eval[0] = self.target(self.x0)
-        acc[:, 0] = np.ones(self.n)
+        target_eval[0] = self.target.logpdf(self.x0)
+        acc[:, 0] = np.ones(self.dim)
 
         # run MCMC
         for s in range(Ns-1):
@@ -353,27 +448,27 @@ class CWMH(object):
         
         return samples, target_eval, acccomp
 
-    def sample_adapt(self, N, Nb):
+    def _sample_adapt(self, N, Nb):
         # this follows the vanishing adaptation Algorithm 4 in:
         # Andrieu and Thoms (2008) - A tutorial on adaptive MCMC
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.n, Ns))
+        samples = np.empty((self.dim, Ns))
         target_eval = np.empty(Ns)
-        acc = np.zeros((self.n, Ns), dtype=int)
+        acc = np.zeros((self.dim, Ns), dtype=int)
 
         # initial state
         samples[:, 0] = self.x0
-        target_eval[0] = self.target(self.x0)
-        acc[:, 0] = np.ones(self.n)
+        target_eval[0] = self.target.logpdf(self.x0)
+        acc[:, 0] = np.ones(self.dim)
 
         # initial adaptation params 
         Na = int(0.1*N)                                        # iterations to adapt
-        hat_acc = np.empty((self.n, int(np.floor(Ns/Na))))     # average acceptance rate of the chains
-        lambd = np.empty((self.n, int(np.floor(Ns/Na)+1)))     # scaling parameter \in (0,1)
+        hat_acc = np.empty((self.dim, int(np.floor(Ns/Na))))     # average acceptance rate of the chains
+        lambd = np.empty((self.dim, int(np.floor(Ns/Na)+1)))     # scaling parameter \in (0,1)
         lambd[:, 0] = self.scale
-        star_acc = 0.21/self.n + 0.23    # target acceptance rate RW
+        star_acc = 0.21/self.dim + 0.23    # target acceptance rate RW
         i, idx = 0, 0
 
         # run MCMC
@@ -391,7 +486,7 @@ class CWMH(object):
                 lambd[:, i+1] = np.exp(np.log(lambd[:, i]) + zeta*(hat_acc[:, i]-star_acc))  
 
                 # update parameters
-                self.scale = np.minimum(lambd[:, i+1], np.ones(self.n))
+                self.scale = np.minimum(lambd[:, i+1], np.ones(self.dim))
 
                 # update counters
                 i += 1
@@ -412,16 +507,19 @@ class CWMH(object):
         return samples, target_eval, acccomp
 
     def single_update(self, x_t, target_eval_t):
-        x_i_star = self.proposal(x_t, self.scale)
+        if isinstance(self.proposal,cuqi.distribution.Distribution):
+            x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
+        else:
+            x_i_star = self.proposal(x_t, self.scale) 
         x_star = x_t.copy()
-        acc = np.zeros(self.n)
+        acc = np.zeros(self.dim)
 
-        for j in range(self.n):
+        for j in range(self.dim):
             # propose state
             x_star[j] = x_i_star[j]
 
             # evaluate target
-            target_eval_star = self.target(x_star)
+            target_eval_star = self.target.logpdf(x_star)
 
             # ratio and acceptance probability
             ratio = target_eval_star - target_eval_t  # proposal is symmetric
@@ -444,25 +542,26 @@ class CWMH(object):
 #===================================================================
 #===================================================================
 #===================================================================
-class MetropolisHastings(Sampler):
-
-    def __init__(self, target, proposal=None, scale=1, x0=None):
+class MetropolisHastings(ProposalBasedSampler):
+    #target,  proposal=None, scale=1, x0=None, dim=None
+    #    super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
+    def __init__(self, target, proposal=None, scale=1, x0=None, dim=None):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
-        self.dim = target.dim
+        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
 
-        if proposal is None:
-            proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
-        elif not proposal.is_symmetric:
-            raise ValueError("Proposal needs to be a symmetric distribution")
 
-        if x0 is None:
-            x0 = np.ones(self.dim)
+    @ProposalBasedSampler.proposal.setter 
+    def proposal(self, value):
+        fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
-        self.proposal =proposal
-        self.target = target
-        self.scale = scale
-        self.x0 = x0
-
+        if value is None:
+            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+            raise NotImplementedError(fail_msg)
+        elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
+            self._proposal = value
+        else:
+            raise ValueError(fail_msg)
 
     def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
@@ -575,26 +674,42 @@ class MetropolisHastings(Sampler):
 #===================================================================
 #===================================================================
 #===================================================================
-class pCN(Sampler):    
-    
-    def __init__(self, logprior, loglike, scale, init_x):
-        self.prior = logprior   # this is used in the proposal and must be a Gaussian
-        self.loglike = loglike
+class pCN(Sampler):   
+    def __init__(self, target, scale=None, x0=None):
+        super().__init__(target, x0=x0, dim=None) 
         self.scale = scale
-        self.x0 = init_x
-        self.n = len(init_x)
+    
+    @property
+    def prior(self):
+        return self.target.prior
+
+    @property
+    def likelihood(self):
+        return self.target.likelihood
+
+    @Sampler.target.setter 
+    def target(self, value):
+        if isinstance(value, cuqi.distribution.Posterior):
+            self._target = value
+        else:
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
+        
+        #TODO:
+        #if not isinstance(self.prior,(cuqi.distribution.Gaussian,cuqi.distribution.GaussianCov, cuqi.distribution.GaussianPrec, cuqi.distribution.GaussianSqrtPrec, cuqi.distribution.Normal)):
+        #    raise ValueError("The prior distribution of the target need to be Gaussian")
+
 
     def _sample(self, N, Nb):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.n, Ns))
+        samples = np.empty((self.dim, Ns))
         loglike_eval = np.empty(Ns)
         acc = np.zeros(Ns, dtype=int)
 
         # initial state    
         samples[:, 0] = self.x0
-        loglike_eval[0] = self.loglike(self.x0)
+        loglike_eval[0] = self.likelihood(x=self.x0).logpdf(self.target.data)
         acc[0] = 1
 
         # run MCMC
@@ -616,13 +731,13 @@ class pCN(Sampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.n, Ns))
+        samples = np.empty((self.dim, Ns))
         loglike_eval = np.empty(Ns)
         acc = np.zeros(Ns)
 
         # initial state    
         samples[:, 0] = self.x0
-        loglike_eval[0] = self.loglike(self.x0)
+        loglike_eval[0] = self.likelihood(x=self.x0).logpdf(self.target.data)
         acc[0] = 1
 
         # initial adaptation params 
@@ -671,7 +786,7 @@ class pCN(Sampler):
         x_star = np.sqrt(1-self.scale**2)*x_t + self.scale*xi   # pCN proposal
 
         # evaluate target
-        loglike_eval_star = self.loglike(x_star)
+        loglike_eval_star = self.likelihood(x=x_star).logpdf(self.target.data)
 
         # ratio and acceptance probability
         ratio = loglike_eval_star - loglike_eval_t  # proposal is symmetric

@@ -337,7 +337,7 @@ class Discrete(Geometry):
 
 
 class _DefaultGeometry(Continuous1D):
-    def __init__(self,grid, axis_labels=['x']):
+    def __init__(self,grid=None, axis_labels=['x']):
         super().__init__(grid, axis_labels)
 
     def __eq__(self, obj):
