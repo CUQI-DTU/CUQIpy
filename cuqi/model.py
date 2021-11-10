@@ -174,10 +174,10 @@ class LinearModel(Model):
             assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
-        if isinstance(y, Data):
-            return Data(self._adjoint_func(y.parameters), self.domain_geometry)
-        else:
-            return self._adjoint_func(y)
+        out = self._adjoint_func(y)
+        if type(y) is CUQIarray:
+            out = CUQIarray(out, is_par=False, geometry=self.domain_geometry)
+        return out
 
 
     def get_matrix(self):

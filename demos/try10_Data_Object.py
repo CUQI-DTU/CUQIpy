@@ -58,6 +58,10 @@ phantomC.plot(linestyle='--')
 data_cleanC = model(phantomC)
 data_cleanC.plot()
 
+#%% Check adjoint
+z = model.adjoint(data_cleanC)
+z
+
 
 #%%
 noise_std = 0.05
