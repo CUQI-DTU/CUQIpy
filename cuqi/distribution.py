@@ -335,7 +335,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     @property
     def dim(self):
-        if callable(self.mean):
+        if not hasattr(self.mean,"__len__"): #TODO: this need to be generalized for all dim properties.
             return self.cov.shape[0] 
         else:
             return max(len(self.mean),self.cov.shape[0])
