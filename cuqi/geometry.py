@@ -411,9 +411,9 @@ class CustomKL(Continuous1D):
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
     
-        def fun2par(self,funvals):
-            """The function to parameter map used to map function values back to parameters, if available."""
-            raise NotImplementedError("fun2par not implemented. ")
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
     
 
     def Nystrom(self, xnod, C_nu, sigma, M, N_GL):
