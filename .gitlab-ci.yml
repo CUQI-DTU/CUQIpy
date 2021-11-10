@@ -26,13 +26,7 @@ before_script:
   - pip install -r requirements.txt
 
 
-stages:
-  - test
-  - publish
-
-
 test:
-  stage: test
   script:
     - python -m pytest -v tests
 
@@ -43,7 +37,7 @@ cache:
     - public
 
 pages:
-  stage: publish
+  stage: deploy
   script:
   - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
   - mkdir -p public/$CI_COMMIT_REF_NAME
