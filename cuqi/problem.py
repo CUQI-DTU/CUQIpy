@@ -6,7 +6,7 @@ import time
 
 from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel, Model
-from cuqi.distribution import _DefaultGeometry
+from cuqi.geometry import _DefaultGeometry
 
 class Generic(object):
     def __init__(self):
