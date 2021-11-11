@@ -391,12 +391,9 @@ class KLExpansion(Continuous1D):
         real = idst(modes)/2
         return real
     
-<<<<<<< HEAD
     def fun2par(self,funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
-=======
->>>>>>> fc1f82b (Remove unused stuff in KLExpansion)
 
 class CustomKL(Continuous1D):
     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
@@ -495,22 +492,15 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels,**kwargs)
 
-        self.N = len(self.grid) # number of modes
-        self.p = np.zeros(4)
-        self.L = grid[-1]
-        #self.dx = np.pi/(self.N+1)
-        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
-        self.axis_labels = axis_labels
-
     def par2fun(self, p):
-        self.real = np.zeros_like(self.grid)        
+        real = np.zeros_like(self.grid)        
         idx = np.where( (self.grid>0.2*self.L)&(self.grid<=0.4*self.L) )
-        self.real[idx[0]] = p[0]
+        real[idx[0]] = p[0]
         idx = np.where( (self.grid>0.4*self.L)&(self.grid<=0.6*self.L) )
-        self.real[idx[0]] = p[1]
+        real[idx[0]] = p[1]
         idx = np.where( (self.grid>0.6*self.L)&(self.grid<=0.8*self.L) )
-        self.real[idx[0]] = p[2]
-        return self.real
+        real[idx[0]] = p[2]
+        return real
     
     def fun2par(self,funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
@@ -519,6 +509,7 @@ class StepExpansion(Continuous1D):
     @property
     def shape(self):
         return 3
+<<<<<<< HEAD
     
     '''
     def plot(self,values,*args,**kwargs):
@@ -530,3 +521,6 @@ class StepExpansion(Continuous1D):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
             '''
+=======
+    
+>>>>>>> 499c892 (Remove unused stuff in StepExpansion)
