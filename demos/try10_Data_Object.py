@@ -17,7 +17,7 @@ from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
 from cuqi.sampler import CWMH
 from cuqi.problem import BayesianProblem
-from cuqi.samples import Samples, Data, CUQIarray
+from cuqi.samples import Samples, CUQIarray
 
 
 #%%
@@ -41,18 +41,11 @@ A = prob.model.get_matrix()
 model = LinearModel(A)
 
 # Define as linear model
-#phantom = prob.exactSolution
-#phantomD = Data(parameters=phantom,  geometry=model.domain_geometry)
 phantomC = CUQIarray(prob.exactSolution,  geometry=model.domain_geometry)
-
 phantomC
 
 # %%
 phantomC.plot(linestyle='--')
-
-# %%
-#data_cleanD = model(phantomD)
-#data_cleanD.plot()
 
 # %%
 data_cleanC = model(phantomC)
@@ -62,6 +55,8 @@ data_cleanC.plot()
 z = model.adjoint(data_cleanC)
 z
 
+#%%
+z.plot()
 
 #%%
 noise_std = 0.05
@@ -88,8 +83,6 @@ IP = BayesianProblem(likelihood, prior, data)
 x_MAP = IP.MAP() 
 
 # Plot
-#plt.plot(phantom,'.-')
-#plt.plot(x_MAP,'.-')
 phantomC.plot()
 x_MAP.plot()
 plt.title("MAP estimate")
@@ -99,7 +92,6 @@ plt.show()
 #%%
 Ns = 5000   # Number of samples
 result = IP.sample_posterior(Ns)
-
 type(result)
 
 #%%
@@ -113,8 +105,6 @@ idx = [20,55,60]
 result.plot_chain(idx)
 plt.legend(idx)
 
-
-
 # %% Now try heat
 
 # domain definition
@@ -125,7 +115,6 @@ skip = 1
 KL_map = lambda x: x
 
 model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type=None, KL_map=KL_map).model
-#model = cuqi.model.Heat_1D(N=N, L=L, T=T, field_type='KL', skip=skip)
 x = model.domain_geometry.grid
 x_data = x[::skip]
 M = x_data.shape[0]
@@ -134,24 +123,25 @@ M = x_data.shape[0]
 true_init = 100*x*np.exp(-5*x)*np.sin(L-x)
 
 # Signal as cuqi Data object
-#true_initD = cuqi.samples.Data(funvals=true_init, geometry=model.domain_geometry)
 true_initC = cuqi.samples.CUQIarray(true_init, is_par=False, geometry=model.domain_geometry)
 
 # defining the heat equation as the forward map
-#y_exact = model._advance_time(true_init) # observation vector
-#y_exactC = model._advance_time(true_initC) # observation vector
-
 y_exactC = model.forward(true_initC)
 
 # %%
 true_initC.plot()
 
+# %%
+true_initC.plot(plot_par=True)
+
 #%%
 y_exactC.plot()
-# %%
 
+#%%
+y_exactC.plot(plot_par=True)
+
+# %%  Now heat with step 
 model_step = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='Step', KL_map=KL_map).model
-#model_step = cuqi.model.Heat_1D(N=N, L=L, T=T, field_type='Step', skip=skip)
 
 # %%
 model_step.domain_geometry
@@ -162,15 +152,16 @@ true_stepC = CUQIarray(np.array([3,1,2]), geometry=model_step.domain_geometry)
 # %%
 true_stepC.plot()
 
+#%% 
+true_stepC.plot(plot_par=True)
+
 # %%
 y_stepC = model_step(true_stepC)
 
 # %%
 y_stepC.plot()
 
-
 # %%  Heat with KL
-
 model_KL = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='KL', KL_map=KL_map).model
 
 #%%
@@ -178,3 +169,16 @@ true_initKL = cuqi.samples.CUQIarray(true_init, is_par=False,  geometry=model_KL
 
 # %% This should give an error as parameters are not available
 true_initKL.parameters
+
+# %% Plotting parameters should also give an error
+true_initKL.plot(plot_par=True)
+
+# %% Plotting function values is available
+true_initKL.plot()
+
+# %% 
+y_exactKL = model_KL(true_initKL)
+y_exactKL.plot()
+
+# %%  Range geometry is default so fun2par is available and parameter plotting works
+y_exactKL.plot(plot_par=True)

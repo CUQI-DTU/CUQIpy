@@ -48,8 +48,12 @@ class CUQIarray(np.ndarray):
 
         return type(self)(vals,is_par=True,geometry=self.geometry)
     
-    def plot(self, **kwargs):
-        self.geometry.plot(self.funvals, is_par=False, **kwargs)
+    def plot(self, plot_par=False, **kwargs):
+        #self.geometry.plot(self.funvals, is_par=False, **kwargs)
+        if plot_par:
+            self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+        else:
+            self.geometry.plot(self.funvals, is_par=False, **kwargs)
 
 
 class Data(object):
@@ -72,8 +76,11 @@ class Data(object):
 
         self.geometry = geometry
         
-    def plot(self, **kwargs):
-        self.geometry.plot(self.funvals, is_par=False, **kwargs)
+    def plot(self, plot_par=False, **kwargs):
+        if plot_par:
+            self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+        else:
+            self.geometry.plot(self.funvals, is_par=False, **kwargs)
     
     @property
     def parameters(self):

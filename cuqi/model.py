@@ -77,9 +77,7 @@ class Model(object):
         # TODO: Check if this can be done all-at-once for computational speed-up
 
         if type(x) is CUQIarray:
-            is_par = x.is_par
-            if is_par:
-                x = x.funvals
+            x = x.funvals
         else:
             if is_par:
                 x = self.domain_geometry.apply_map(x)
