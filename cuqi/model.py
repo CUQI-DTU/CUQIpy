@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
-from cuqi.samples import Samples, Data, CUQIarray
+from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 import cuqi
 import matplotlib.pyplot as plt
