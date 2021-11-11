@@ -40,13 +40,13 @@ pages:
   stage: deploy
   script:
   - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
-  - mkdir -p public/$CI_COMMIT_REF_NAME
-  - sphinx-build -b html ./docs public/$CI_COMMIT_REF_NAME
+  - mkdir -p public/workshop
+  - sphinx-build -b html ./docs public/workshop
   artifacts:
-    name: $CI_COMMIT_REF_NAME
+    name: workshop
     paths:
       - public
     expire_in: never
   only:
-  - branches 
+  - UQIP02975_doc
 
