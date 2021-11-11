@@ -48,5 +48,5 @@ pages:
       - public
     expire_in: never
   only:
-  - UQIP02975_doc
+  - UQIP02975
 
