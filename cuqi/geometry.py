@@ -381,7 +381,7 @@ class KLExpansion(Continuous1D):
 
         self.decay_rate = 2.5 # decay rate of KL
         self.normalizer = 12. # normalizer factor
-        eigvals = np.array( range(1,self.N+1) ) # KL eigvals
+        eigvals = np.array( range(1,self.dim+1) ) # KL eigvals
         self.coefs = 1/np.float_power( eigvals,self.decay_rate )
 
 
@@ -493,12 +493,13 @@ class StepExpansion(Continuous1D):
         super().__init__(grid, axis_labels,**kwargs)
 
     def par2fun(self, p):
+        L = self.grid[-1]
         real = np.zeros_like(self.grid)        
-        idx = np.where( (self.grid>0.2*self.L)&(self.grid<=0.4*self.L) )
+        idx = np.where( (self.grid>0.2*L)&(self.grid<=0.4*L) )
         real[idx[0]] = p[0]
-        idx = np.where( (self.grid>0.4*self.L)&(self.grid<=0.6*self.L) )
+        idx = np.where( (self.grid>0.4*L)&(self.grid<=0.6*L) )
         real[idx[0]] = p[1]
-        idx = np.where( (self.grid>0.6*self.L)&(self.grid<=0.8*self.L) )
+        idx = np.where( (self.grid>0.6*L)&(self.grid<=0.8*L) )
         real[idx[0]] = p[2]
         return real
     
