@@ -353,19 +353,19 @@ class _DefaultGeometry(Continuous1D):
             if not np.all(value == vars(obj)[key]): return False 
         return True
 
-class DiscreteField(Discrete):
-    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
-        super().__init__(grid, axis_labels)
+# class DiscreteField(Discrete):
+#     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
+#         super().__init__(grid, axis_labels)
 
-        self.N = len(self.grid)
-        self.mean = mean
-        self.std = std
-        XX, YY = np.meshgrid(self.grid, self.grid, indexing='ij')
-        self.Sigma = cov_func(XX, YY)
-        self.L = np.linalg.chol(self.Sigma)
+#         self.N = len(self.grid)
+#         self.mean = mean
+#         self.std = std
+#         XX, YY = np.meshgrid(self.grid, self.grid, indexing='ij')
+#         self.Sigma = cov_func(XX, YY)
+#         self.L = np.linalg.chol(self.Sigma)
 
-    def par2fun(self, p):
-        return self.mean + self.L.T@p
+#     def par2fun(self, p):
+#         return self.mean + self.L.T@p
     
 class KLExpansion(Continuous1D):
     '''
