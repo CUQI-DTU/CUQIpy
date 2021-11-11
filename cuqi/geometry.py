@@ -341,6 +341,31 @@ class Discrete(Geometry):
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
 
+class MappedGeometry(Geometry):
+
+    def __init__(self,geometry,map,imap=None):
+        self.geometry = geometry
+        self.map = map
+        self.imap = imap
+
+    def shape(self):
+        return self.geometry.shape
+
+    def par2fun(self,p):
+        return self.map(self.geometry.par2fun(p))
+
+    def fun2par(self,f):
+        if self.imap is None:
+            raise ValueError("imap is not defined. This is needed for fun2par.")
+        return self.geometry.fun2par(self.imap(f))
+
+    def _plot(self, values, *args, **kwargs):
+        """Calls the underlying geometry plotting method."""
+        self.geometry._plot(values, *args, **kwargs)
+
+    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
+        """Calls the underlying geometry plotting of envelope method."""
+        self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
 
 class _DefaultGeometry(Continuous1D):
