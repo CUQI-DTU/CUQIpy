@@ -5,6 +5,32 @@ from cuqi.geometry import _DefaultGeometry
 from copy import copy
 
 class CUQIarray(np.ndarray):
+    """
+    A class to represent data arrays, subclassed from numpy array, along with geometry and plotting
+
+    Parameters
+    ----------
+    input_array : ndarray
+        A numpy array holding the parameter or function values. 
+    
+    is_par : bool, default True
+        Boolean flag whether input_array is to be interpreted as parameter (True) or function values (False).
+
+    geometry : cuqi.geometry.Geometry, default None
+        Contains the geometry related of the data
+
+    Attributes
+    ----------
+    funvals : CUQIarray
+        Returns itself as function values.
+
+    parameters : CUQIarray
+        Returns itself as parameters.
+
+    Methods
+    ----------
+    :meth:`plot`: Plots the data as function or parameters.
+    """
 
     def __repr__(self) -> str: 
         return "CUQIarray: NumPy array wrapped with geometry.\n" + \
@@ -36,7 +62,6 @@ class CUQIarray(np.ndarray):
             vals = self.geometry.par2fun(self)
         else:
             vals = self
-
         return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)   
 
     @property
@@ -45,11 +70,9 @@ class CUQIarray(np.ndarray):
             vals = self.geometry.fun2par(self)
         else:
             vals = self
-
         return type(self)(vals,is_par=True,geometry=self.geometry)
     
     def plot(self, plot_par=False, **kwargs):
-        #self.geometry.plot(self.funvals, is_par=False, **kwargs)
         if plot_par:
             self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
         else:
