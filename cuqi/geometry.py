@@ -367,6 +367,18 @@ class MappedGeometry(Geometry):
     def shape(self):
         return self.geometry.shape
 
+    @property
+    def grid(self):
+        return self.geometry.grid
+
+    @property
+    def axis_labels(self):
+        return self.geometry.axis_labels
+
+    @property
+    def variables(self):
+        return self.geometry.variables
+
     def par2fun(self,p):
         return self.map(self.geometry.par2fun(p))
 
