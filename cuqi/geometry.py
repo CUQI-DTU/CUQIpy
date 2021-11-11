@@ -399,10 +399,10 @@ class CustomKL(Continuous1D):
     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
         super().__init__(grid, axis_labels,**kwargs)
 
-        self.N = len(self.grid)
+        #self.N = len(self.grid)
         self.mean = mean
-        self.std = std
-        self.Nystrom( grid, cov_func, std, trunc_term, int(2*self.N) )
+        #self.std = std
+        self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
@@ -412,7 +412,7 @@ class CustomKL(Continuous1D):
         raise NotImplementedError("fun2par not implemented. ")
     
 
-    def Nystrom(self, xnod, C_nu, sigma, M, N_GL):
+    def _compute_eigpairs(self, xnod, C_nu, sigma, M, N_GL):
         # xnod: points at which the field is realized (from geometry PDE)
         # C_nu: lambda function with the covariance kernel (no variance multiplied)
         # sigma: standard deviation of the field
