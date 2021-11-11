@@ -517,36 +517,24 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels,**kwargs)
 
-    def par2fun(self, p):
         L = self.grid[-1]
+        self._idx1 = np.where( (self.grid>0.2*L)&(self.grid<=0.4*L) )
+        self._idx2 = np.where( (self.grid>0.4*L)&(self.grid<=0.6*L) )
+        self._idx3 = np.where( (self.grid>0.6*L)&(self.grid<=0.8*L) )
+
+    def par2fun(self, p):
         real = np.zeros_like(self.grid)        
-        idx = np.where( (self.grid>0.2*L)&(self.grid<=0.4*L) )
-        real[idx[0]] = p[0]
-        idx = np.where( (self.grid>0.4*L)&(self.grid<=0.6*L) )
-        real[idx[0]] = p[1]
-        idx = np.where( (self.grid>0.6*L)&(self.grid<=0.8*L) )
-        real[idx[0]] = p[2]
+        real[self._idx1[0]] = p[0]
+        real[self._idx2[0]] = p[1]
+        real[self._idx3[0]] = p[2]
         return real
-    
-    def fun2par(self,funvals):
-        """The function to parameter map used to map function values back to parameters, if available."""
-        raise NotImplementedError("fun2par not implemented. ")
-    
+
+    def fun2par(self,f):       
+        val1 = f[self._idx1[0][0]]
+        val2 = f[self._idx2[0][0]]
+        val3 = f[self._idx3[0][0]]
+        return np.array([val1,val2,val3])
+
     @property
     def shape(self):
         return 3
-<<<<<<< HEAD
-    
-    '''
-    def plot(self,values,*args,**kwargs):
-        p = plt.plot(values,*args,**kwargs)
-        self._plot_config()
-        return p
-
-    def _plot_config(self):
-        if self.axis_labels is not None:
-            plt.xlabel(self.axis_labels[0])
-            '''
-=======
-    
->>>>>>> 499c892 (Remove unused stuff in StepExpansion)

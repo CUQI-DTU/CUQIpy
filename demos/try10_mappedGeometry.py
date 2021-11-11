@@ -19,3 +19,6 @@ mapped_geom = MappedGeometry(geom,lambda x: np.exp(x))
 mapped_geom
 #%%
 mapped_geom.plot(vals)
+
+# %%
+geom.fun2par(geom.par2fun(vals))
