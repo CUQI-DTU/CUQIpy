@@ -34,7 +34,7 @@ Y = prior.sample(Ns).samples
 u = np.empty((N, Ns))  # store pressure field realizations
 for i in range(Ns):
     u[:, i] = model.forward(Y[:, i])
-kappa = model.domain_geometry.apply_map(Y)
+kappa = model.domain_geometry.par2fun(Y)
 #
 mu_kappa = np.mean(kappa, axis=1)
 sigma_kappa = np.std(kappa, ddof=0, axis=1)
@@ -59,7 +59,7 @@ theta = np.random.normal(0, 1, size=(d_KL, Ns)) # KL coefficients
 u = np.empty((N, Ns))  # store pressure field realizations
 kappa = np.empty((N, Ns))
 for i in range(Ns):
-    kappa[:, i] = model.domain_geometry.apply_map(theta[:, i])
+    kappa[:, i] = model.domain_geometry.par2fun(theta[:, i])
     u[:, i] = model.forward(theta[:, i])
     
 mu_kappa = np.mean(kappa, axis=1)
@@ -111,7 +111,7 @@ theta = np.random.normal(0, 1, size=(3, Ns)) # KL coefficients
 u = np.empty((N, Ns))  # store pressure field realizations
 kappa = np.empty((N, Ns))
 for i in range(Ns):
-    kappa[:, i] = model.domain_geometry.apply_map(theta[:, i])
+    kappa[:, i] = model.domain_geometry.par2fun(theta[:, i])
     u[:, i] = model.forward(theta[:, i])
     
 mu_kappa = np.mean(kappa, axis=1)

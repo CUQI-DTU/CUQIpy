@@ -128,10 +128,9 @@ class Geometry(ABC):
 
 class Continuous(Geometry, ABC):
 
-    def __init__(self,grid=None, axis_labels=None, mapping=lambda x: x):
+    def __init__(self,grid=None, axis_labels=None):
         self.axis_labels = axis_labels
         self.grid = grid
-        self.mapping = mapping
 
     def _create_dimension(self, dim_grid):
         dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, 1D numpy.ndarray, or None"
@@ -150,13 +149,6 @@ class Continuous(Geometry, ABC):
         else:
             raise ValueError(dim_grid_value_err_msg)
         return dim_grid
-
-    def apply_map(self, p):
-        return self.mapping( self.par2fun(p) )
-
-    # plots the random field: "params", "KL", "mapped"
-    def plot_mapped(self, p, is_par = False):
-        plt.plot(self.grid, self.apply_map(p))
         
     @property
     def grid(self):

@@ -80,7 +80,7 @@ class Model(object):
             x = x.funvals
         else:
             if is_par:
-                x = self.domain_geometry.apply_map(x)
+                x = self.domain_geometry.par2fun(x)
 
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
