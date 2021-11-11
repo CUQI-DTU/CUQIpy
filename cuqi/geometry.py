@@ -378,26 +378,25 @@ class KLExpansion(Continuous1D):
     def __init__(self, grid, axis_labels=['x'],**kwargs):
         
         super().__init__(grid, axis_labels,**kwargs)
-        
-        self.N = len(self.grid) # number of modes
-        self.modes = np.zeros(self.N) # vector of expansion coefs
-        self.real = np.zeros(self.N) # vector of real values
+
         self.decay_rate = 2.5 # decay rate of KL
-        self.c = 12. # normalizer factor
-        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
-        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
-        self.p = np.zeros(self.N) # random variables in KL
-        self.axis_labels = axis_labels
+        self.normalizer = 12. # normalizer factor
+        eigvals = np.array( range(1,self.N+1) ) # KL eigvals
+        self.coefs = 1/np.float_power( eigvals,self.decay_rate )
+
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        self.modes = p*self.coefs/self.c
-        self.real = idst(self.modes)/2
-        return self.real
+        modes = p*self.coefs/self.normalizer
+        real = idst(modes)/2
+        return real
     
+<<<<<<< HEAD
     def fun2par(self,funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
+=======
+>>>>>>> fc1f82b (Remove unused stuff in KLExpansion)
 
 class CustomKL(Continuous1D):
     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
