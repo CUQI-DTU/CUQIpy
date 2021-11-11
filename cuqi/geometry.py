@@ -363,6 +363,7 @@ class MappedGeometry(Geometry):
         self.map = map
         self.imap = imap
 
+    @property
     def shape(self):
         return self.geometry.shape
 
