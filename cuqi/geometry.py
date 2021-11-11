@@ -387,6 +387,9 @@ class MappedGeometry(Geometry):
         """Calls the underlying geometry plotting of envelope method."""
         self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
+    def __repr__(self) -> str:
+        return super().__repr__()+"\nMap is applied to: {}".format(self.geometry.__repr__())
+
 
 class _DefaultGeometry(Continuous1D):
     def __init__(self,grid=None, axis_labels=['x']):
