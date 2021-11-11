@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
-from cuqi.samples import Samples
+from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 import cuqi
 import matplotlib.pyplot as plt
@@ -75,8 +75,12 @@ class Model(object):
     def forward(self, x, is_par=True):
         # If input is samples then compute forward for each sample 
         # TODO: Check if this can be done all-at-once for computational speed-up
-        if is_par:
-            x = self.domain_geometry.apply_map(x)
+
+        if type(x) is CUQIarray:
+            x = x.funvals
+        else:
+            if is_par:
+                x = self.domain_geometry.apply_map(x)
 
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
@@ -85,7 +89,10 @@ class Model(object):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
             return Samples(data_samples)
         else:
-            return self._forward_func(x)
+            out = self._forward_func(x)
+            if type(x) is CUQIarray:
+                out = CUQIarray(out, geometry=self.range_geometry)
+            return out
 
     def __call__(self,x):
         return self.forward(x)
@@ -165,7 +172,11 @@ class LinearModel(Model):
             assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
-        return self._adjoint_func(y)
+        out = self._adjoint_func(y)
+        if type(y) is CUQIarray:
+            out = CUQIarray(out, is_par=False, geometry=self.domain_geometry)
+        return out
+
 
     def get_matrix(self):
         if self._matrix is not None: #Matrix exists so return it

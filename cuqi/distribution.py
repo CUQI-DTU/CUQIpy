@@ -4,7 +4,7 @@ from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, eye, identity, issparse
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
-from cuqi.samples import Samples
+from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 import warnings
@@ -67,6 +67,7 @@ class Distribution(ABC):
                 s = s.ravel()[0]
             else:
                 s = s.flatten()
+            s = CUQIarray(s, geometry=self.geometry)
         else:
             s = Samples(s, self.geometry)
 

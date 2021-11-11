@@ -4,6 +4,131 @@ from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry
 from copy import copy
 
+class CUQIarray(np.ndarray):
+    """
+    A class to represent data arrays, subclassed from numpy array, along with geometry and plotting
+
+    Parameters
+    ----------
+    input_array : ndarray
+        A numpy array holding the parameter or function values. 
+    
+    is_par : bool, default True
+        Boolean flag whether input_array is to be interpreted as parameter (True) or function values (False).
+
+    geometry : cuqi.geometry.Geometry, default None
+        Contains the geometry related of the data
+
+    Attributes
+    ----------
+    funvals : CUQIarray
+        Returns itself as function values.
+
+    parameters : CUQIarray
+        Returns itself as parameters.
+
+    Methods
+    ----------
+    :meth:`plot`: Plots the data as function or parameters.
+    """
+
+    def __repr__(self) -> str: 
+        return "CUQIarray: NumPy array wrapped with geometry.\n" + \
+               "---------------------------------------------\n\n" + \
+            "Geometry:\n {}\n\n".format(self.geometry) + \
+            "Parameters:\n {}\n\n".format(self.is_par) + \
+            "Array:\n" + \
+            super().__repr__()
+
+    def __new__(cls, input_array, is_par=True, geometry=None):
+        # Input array is an already formed ndarray instance
+        # We first cast to be our class type
+        obj = np.asarray(input_array).view(cls)
+        # add the new attribute to the created instance
+        obj.is_par = is_par
+        obj.geometry = geometry
+        # Finally, we must return the newly created object:
+        return obj
+
+    def __array_finalize__(self, obj):
+        # see InfoArray.__array_finalize__ for comments
+        if obj is None: return
+        self.is_par = getattr(obj, 'is_par', True)
+        self.geometry = getattr(obj, 'geometry', None)
+
+    @property
+    def funvals(self):
+        if self.is_par is True:
+            vals = self.geometry.par2fun(self)
+        else:
+            vals = self
+        return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)   
+
+    @property
+    def parameters(self):
+        if self.is_par is False:
+            vals = self.geometry.fun2par(self)
+        else:
+            vals = self
+        return type(self)(vals,is_par=True,geometry=self.geometry)
+    
+    def plot(self, plot_par=False, **kwargs):
+        if plot_par:
+            self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+        else:
+            self.geometry.plot(self.funvals, is_par=False, **kwargs)
+
+
+class Data(object):
+    """
+    An container type object to represent data objects equipped with geometry.
+    """
+
+    def __init__(self, parameters=None, geometry=None, funvals=None):
+        
+        # Allow setting either parameter or function values, but not both.
+        # If both provided, function values take precedence (to be confirmed).
+        if parameters is not None and funvals is not None:
+            parameters = None
+        
+        if parameters is not None:
+            self.parameters = parameters
+        
+        if funvals is not None:
+            self.funvals = funvals
+
+        self.geometry = geometry
+        
+    def plot(self, plot_par=False, **kwargs):
+        if plot_par:
+            self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+        else:
+            self.geometry.plot(self.funvals, is_par=False, **kwargs)
+    
+    @property
+    def parameters(self):
+        return self._parameters
+    
+    @parameters.setter
+    def parameters(self, value):
+        self._parameters = value
+        self.has_parameters = True
+        self.has_funvals = False
+    
+    @property
+    def funvals(self):
+        if self.has_funvals:
+            return self._funvals
+        else:
+            return self.geometry.par2fun(self.parameters)
+    
+    @funvals.setter
+    def funvals(self, value):
+        self.has_funvals = True
+        self.has_parameters = False
+        self._funvals = value
+
+
 class Samples(object):
     """
     An object used to store samples from distributions. 
