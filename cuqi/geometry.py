@@ -342,6 +342,21 @@ class Discrete(Geometry):
         plt.xticks(self._ids, self.variables)
 
 class MappedGeometry(Geometry):
+    """A class that represents a mapped geometry.
+    
+    This applies a map (callable function) to any cuqi geometry. This will change the par2fun map.
+    Additionally an inverse map (imap) can also be defined to allow inverting the function values to parameters redefining the fun2par map.
+
+    Parameters
+    -----------
+    geometry : cuqi.geometry.Geometry
+
+    map : callable function
+        Any callable function representing the map which should be applied after the par2fun of the geometry.
+
+    imap : callable function, Default None
+        Any callable function representing the inverse of map.
+    """
 
     def __init__(self,geometry,map,imap=None):
         self.geometry = geometry
