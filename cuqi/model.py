@@ -3,7 +3,7 @@ from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples, CUQIarray
-from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry, Continuous2D, Discrete
 import cuqi
 import matplotlib.pyplot as plt
 
@@ -200,6 +200,10 @@ class LinearModel(Model):
 
     def gradient(self,x):
         """Evaluate the gradient of the forward map with respect to the model input."""
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.domain_geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
+
         return self.adjoint(x)
     
     def __matmul__(self, x):

@@ -5,7 +5,7 @@ from scipy.sparse import diags, eye, identity, issparse
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
-from cuqi.geometry import _DefaultGeometry, Geometry
+from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
@@ -162,6 +162,10 @@ class Cauchy_diff(Distribution):
         return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
     
     def gradient(self, val, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+
         if not callable(self.location): # for prior
             diff = self._diff_op._matrix @ val
             return (-2*diff/(diff**2+self.scale**2)) @ self._diff_op._matrix
@@ -404,6 +408,10 @@ class GaussianCov(Distribution): # TODO: super general with precisions
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
 
     def gradient(self, val, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+
         if not callable(self.mean): # for prior
             return -self.prec @ (val - self.mean)
         elif hasattr(self.mean,"gradient"): # for likelihood
@@ -624,6 +632,10 @@ class GMRF(Distribution):
         return np.exp(self.logpdf(x))
 
     def gradient(self, x):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+
         if not callable(self.mean):
             return (self.prec*self._prec_op) @ (x-self.mean)
 
@@ -786,6 +798,10 @@ class Posterior(Distribution):
         return self.likelihood(x=x).logpdf(self.data)+ self.prior.logpdf(x)
 
     def gradient(self, x):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+            
         return self.likelihood.gradient(self.data, x=x)+ self.prior.gradient(x)        
 
     def _sample(self,N=1,rng=None):
