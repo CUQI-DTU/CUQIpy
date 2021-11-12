@@ -4,6 +4,7 @@
 # =============================================================================
 # Version 2020-10
 # =============================================================================
+# %%
 import sys
 sys.path.append("../")
 import time
@@ -18,7 +19,7 @@ import cuqi
 # =============================================================================
 test = cuqi.testproblem.Deblur()
 n = test.model.domain_dim
-tt = test.t
+tt = test.mesh
 h = test.meshsize
 
 # =============================================================================
@@ -30,7 +31,7 @@ norm_f = np.linalg.norm(test.exactSolution)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-def likelihood_logpdf(x): return test.likelihood.logpdf(b, x)
+def likelihood_logpdf(x): return test.likelihood(x=x).logpdf(b)
 
 # =============================================================================
 # prior
@@ -57,6 +58,9 @@ Nb = int(0.2*Ns)   # burn-in
 ti = time.time()
 x_s, target_eval, acc = MCMC.sample_adapt(Ns, Nb)
 print('Elapsed time:', time.time() - ti)
+
+#Extract raw samples
+x_s = x_s.samples
 
 # =============================================================================
 med_xpos = np.median(x_s, axis=1) # sp.stats.mode
