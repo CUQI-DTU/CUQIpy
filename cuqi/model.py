@@ -200,6 +200,10 @@ class LinearModel(Model):
 
     def gradient(self,x):
         """Evaluate the gradient of the forward map with respect to the model input."""
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.domain_geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
+
         return self.adjoint(x)
     
     def __matmul__(self, x):
