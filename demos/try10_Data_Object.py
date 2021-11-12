@@ -112,9 +112,8 @@ N = 128           # spatial discretization
 L = 1
 T = 0.2
 skip = 1
-KL_map = lambda x: x
 
-model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type=None, KL_map=KL_map).model
+model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type=None).model
 x = model.domain_geometry.grid
 x_data = x[::skip]
 M = x_data.shape[0]
@@ -141,7 +140,7 @@ y_exactC.plot()
 y_exactC.plot(plot_par=True)
 
 # %%  Now heat with step 
-model_step = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='Step', KL_map=KL_map).model
+model_step = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='Step').model
 
 # %%
 model_step.domain_geometry
@@ -162,7 +161,7 @@ y_stepC = model_step(true_stepC)
 y_stepC.plot()
 
 # %%  Heat with KL
-model_KL = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='KL', KL_map=KL_map).model
+model_KL = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='KL').model
 
 #%%
 true_initKL = cuqi.samples.CUQIarray(true_init, is_par=False,  geometry=model_KL.domain_geometry)
