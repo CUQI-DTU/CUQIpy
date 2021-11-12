@@ -23,7 +23,7 @@ class CauchyGrad(cuqi.distribution.Cauchy_diff):
 
 # %%
 test = cuqi.testproblem.Deblur()
-n = test.model.dim[1]
+n = test.model.domain_dim
 h = test.meshsize
 
 # Extract data
@@ -31,8 +31,8 @@ data = test.data
 
 #Likelihood
 mean = test.likelihood.mean
-std = test.likelihood.std
-corrmat = test.likelihood.R
+std = .1#test.likelihood.std
+corrmat = test.likelihood.Sigma
 likelihood = GaussianGrad(mean,std,corrmat)
 
 # Prior
@@ -43,20 +43,22 @@ prior = CauchyGrad(loc, scale, 'neumann')
 
 # %%
 x0 = cuqi.distribution.Gaussian(np.zeros(n),1).sample()
-MCMC = cuqi.sampler.NUTS(likelihood,prior,data,x0)
+posterior = cuqi.distribution.Posterior(likelihood,prior,data)
+MCMC = cuqi.sampler.NUTS(posterior,x0)
 
 # %%
-samples = MCMC.sample(1000,500)
+samples = MCMC.sample(10,10)
 
 # %%
 xs = samples[0]
 
 # %%
-x_mean = np.mean(xs,axis=1)
+x_mean = np.mean(xs.samples,axis=1)
 # %%
 plt.plot(x_mean)
 plt.plot(test.exactSolution)
 #%%
-results = cuqi.samples.Samples(xs)
+results = xs
 # %%
 results.plot_ci(95,exact=test.exactSolution)
+# %%

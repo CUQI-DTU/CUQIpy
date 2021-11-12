@@ -34,7 +34,7 @@ TP.UQ()
 # switch prior
 # Set up Bayesian model for inverse problem
 M  = LinearModel(forward=A)                                          #Model for inverse problem
-P  = Cauchy_diff(location=np.zeros(n),scale=0.05,bndcond='neumann')  #Prior distribution
+P  = Cauchy_diff(location=np.zeros(n),scale=0.05,bc_type='neumann')  #Prior distribution
 L  = Gaussian(mean=M,std=0.05)                                       #Likelihood distribution
 IP = BayesianProblem(likelihood=L,prior=P,data=b)                    #Bayesian model for inverse problem
 IP.UQ(exact=x_exact)                                                              #Perform UQ on inverse problem

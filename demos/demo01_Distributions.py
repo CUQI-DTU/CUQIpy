@@ -69,7 +69,7 @@ sampleX = pX.sample(Ns)
 if (dom == 1):
     tt = np.linspace(0, 1, N)
     plt.figure()
-    plt.plot(tt, sampleX)
+    plt.plot(tt, sampleX.samples)
     plt.xlim(0, 1)
     plt.show()
 elif (dom == 2):
@@ -77,7 +77,7 @@ elif (dom == 2):
     T, S = np.meshgrid(tt, tt)
     plt.figure()
     for i in range(Ns):
-        Z = sampleX[:, i].reshape(N,N)
+        Z = sampleX.samples[:, i].reshape(N,N)
         c = np.linspace(Z.min(), Z.max(), 6)
         plt.contour(T, S, Z, 7, linewidths=0.25, colors='k')
         plt.contourf(T, S, Z, cmap='Blues')
