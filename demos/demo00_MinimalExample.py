@@ -4,7 +4,7 @@ sys.path.append("..")
 import numpy as np
 import cuqi
 from cuqi.model import LinearModel
-from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
+from cuqi.distribution import Gaussian, Cauchy_diff
 from cuqi.problem import BayesianProblem
 
 # %% Minimal example
@@ -14,7 +14,7 @@ A      = np.load("data/Deconvolution.npz")["A"]          #Matrix (numpy)
 b      = np.load("data/Deconvolution.npz")["data"]       #Vector (numpy)
 m,n    = A.shape
 
-#Data from square function
+# Data from square function
 b = cuqi.testproblem.Deconvolution(phantom="square").data
 x_exact = cuqi.testproblem.Deconvolution(phantom="square").exactSolution
 
