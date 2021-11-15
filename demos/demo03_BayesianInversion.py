@@ -43,7 +43,7 @@ sp1 = P1.sample(5)
 
 plt.figure
 plt.subplot(1,2,1)
-plt.plot(sp1.samples)
+sp1.plot()
 plt.title('GMRF')
 #TODO
 #subplot(1,2,2)
