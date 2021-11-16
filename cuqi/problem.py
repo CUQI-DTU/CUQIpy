@@ -175,7 +175,7 @@ class BayesianProblem(object):
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems.")
             return self._sampleMapCholesky(Ns)
 
-        elif self._check(GaussianCov,GaussianCov,LinearModel):
+        elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
