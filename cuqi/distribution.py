@@ -594,8 +594,12 @@ class GaussianPrec(Distribution):
         return max(len(self.mean),self.prec.shape[0])
 
     @property
+    def sqrtprec(self):
+        return cho_factor(self.prec)[0]
+
+    @property
     def sqrtprecTimesMean(self):
-        return (cho_factor(self.prec)@self.mean).flatten()
+        return (self.sqrtprec@self.mean).flatten()
 
 class Gaussian(GaussianCov):
 
