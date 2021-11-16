@@ -464,8 +464,8 @@ class JointGaussianSqrtPrec(Distribution):
 
         super().__init__(is_symmetric=is_symmetric,**kwargs)
 
-        self.means = means
-        self.sqrtprecs = sqrtprecs
+        self._means = means
+        self._sqrtprecs = sqrtprecs
         self._dim = max(dim1,dim2)
 
     def _sample(self,N):
@@ -480,16 +480,16 @@ class JointGaussianSqrtPrec(Distribution):
 
     @property
     def sqrtprec(self):
-        if issparse(self.sqrtprecs[0]):
-            return vstack((self.sqrtprecs))
+        if issparse(self._sqrtprecs[0]):
+            return vstack((self._sqrtprecs))
         else:
-            return np.vstack((self.sqrtprecs))
+            return np.vstack((self._sqrtprecs))
 
     @property
     def sqrtprecTimesMean(self):
         result = []
-        for i in range(len(self.means)):
-            result.append((self.sqrtprecs[i]@self.means[i]).flatten())
+        for i in range(len(self._means)):
+            result.append((self._sqrtprecs[i]@self._means[i]).flatten())
         return np.hstack(result)
             
 
