@@ -7,7 +7,7 @@ import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
-from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
 
 #=============================================================================
 class Deblur(BayesianProblem):
@@ -390,7 +390,10 @@ class Poisson_1D(BayesianProblem):
         Field type of domain.
 
     KL_map : lambda function
-        Mapping used to modify field
+        Mapping used to modify field.
+
+    KL_imap : lambda function
+        Inverse of KL map.
 
     SNR : int
         Signal-to-noise ratio
@@ -426,7 +429,7 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=lambda x: x, SNR=200):
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200):
         
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
@@ -451,11 +454,14 @@ class Poisson_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain, mapping=KL_map)
+            domain_geometry = KLExpansion(grid_domain)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain, mapping=KL_map)
+            domain_geometry = StepExpansion(grid_domain)
         else:
-            domain_geometry = Continuous1D(grid_domain, mapping=KL_map)
+            domain_geometry = Continuous1D(grid_domain)
+
+        if KL_map is not None:
+            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
 
         range_geometry = Continuous1D(grid_range)
 
@@ -505,7 +511,10 @@ class Heat_1D(BayesianProblem):
         Field type of domain.
 
     KL_map : lambda function
-        Mapping used to modify field
+        Mapping used to modify field.
+
+    KL_imap : lambda function
+        Inverse of KL map.
 
     SNR : int
         Signal-to-noise ratio
@@ -541,7 +550,7 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=lambda x: x, SNR=200):
+    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200):
         
         # Prepare PDE form
         N = dim   # Number of solution nodes
@@ -565,11 +574,15 @@ class Heat_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain, mapping=KL_map)
+            domain_geometry = KLExpansion(grid_domain)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain, mapping=KL_map)
+            domain_geometry = StepExpansion(grid_domain)
         else:
-            domain_geometry = Continuous1D(grid_domain, mapping=KL_map)
+            domain_geometry = Continuous1D(grid_domain)
+
+        if KL_map is not None:
+            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
+
 
         range_geometry = Continuous1D(grid_range)
 
@@ -614,7 +627,10 @@ class Abel_1D(BayesianProblem):
         Field type of domain.
 
     KL_map : lambda function
-        Mapping used to modify field
+        Mapping used to modify field.
+
+    KL_imap : lambda function
+        Inverse of KL map.
 
     SNR : int
         Signal-to-noise ratio
@@ -650,7 +666,7 @@ class Abel_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim, endpoint, field_type, KL_map=lambda x: x, SNR=100):
+    def __init__(self, dim, endpoint, field_type, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
 
@@ -670,11 +686,15 @@ class Abel_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid, mapping=KL_map)
+            domain_geometry = KLExpansion(grid)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid, mapping=KL_map)
+            domain_geometry = StepExpansion(grid)
         else:
-            domain_geometry = Continuous1D(grid, mapping=KL_map)
+            domain_geometry = Continuous1D(grid)
+
+        if KL_map is not None:
+            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
+
         range_geometry = Continuous1D(grid)
 
         # Set up model
@@ -718,7 +738,10 @@ class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is 
         Field type of domain.
 
     KL_map : lambda function
-        Mapping used to modify field
+        Mapping used to modify field.
+
+    KL_imap : lambda function
+        Inverse of KL map.
 
     SNR : int
         Signal-to-noise ratio
@@ -754,7 +777,7 @@ class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is 
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim, endpoint, kernel, field_type, KL_map=lambda x: x, SNR=100):
+    def __init__(self, dim, endpoint, kernel, field_type, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
         grid = np.linspace(0, endpoint, N)
@@ -775,6 +798,10 @@ class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is 
             domain_geometry = StepExpansion(grid, mapping=KL_map)
         else:
             domain_geometry = Continuous1D(grid, mapping=KL_map)
+
+        if KL_map is not None:
+            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
+
         range_geometry = Continuous1D(grid)
 
         # Set up model

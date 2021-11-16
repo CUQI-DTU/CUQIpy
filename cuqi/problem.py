@@ -126,8 +126,8 @@ class BayesianProblem(object):
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
-            
-            return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+            map_estimate = x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+            return cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
 
         # If no specific implementation exists, use numerical optimization.
         else:
@@ -167,6 +167,7 @@ class BayesianProblem(object):
                 if geom1 == geom2:
                     return geom1,geom2
         raise Exception(fail_msg)
+
 
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
@@ -232,7 +233,7 @@ class BayesianProblem(object):
         C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
         L = np.linalg.cholesky(C)
         for s in range(Ns):
-            x_s[:,s] = x_map + L@np.random.randn(n)
+            x_s[:,s] = x_map.parameters + L@np.random.randn(n)
             # display iterations 
             if (s % 5e2) == 0:
                 print("\r",'Sample', s, '/', Ns, end="")
@@ -261,7 +262,7 @@ class BayesianProblem(object):
         x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
         print('Elapsed time:', time.time() - ti)
         
-        return cuqi.samples.Samples(x_s)
+        return x_s
 
     def _samplepCN(self,Ns):
         # Dimension
@@ -275,7 +276,9 @@ class BayesianProblem(object):
         x0 = np.zeros(n)
         
         #ToDO: Switch to pCN
-        MCMC = cuqi.sampler.pCN(self.prior,target,scale,x0)
+        #TODO: create posterior in the initializer
+        posterior = cuqi.distribution.Posterior(self.likelihood,self.prior,self.data)
+        MCMC = cuqi.sampler.pCN(posterior,scale,x0)
         
         
         #TODO: Select burn-in 
@@ -287,7 +290,7 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
 
         # Set geometry from prior
-        if hasattr(x_s,"geometry"):
-            x_s.geometry = self.prior.geometry
+        #if hasattr(x_s,"geometry"):
+        #    x_s.geometry = self.prior.geometry
         
         return x_s

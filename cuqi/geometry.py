@@ -87,6 +87,10 @@ class Geometry(ABC):
         """The parameter to function map used to map parameters to function values in e.g. plotting."""
         return par
 
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. Must be implemented specifically for each geometry.")
+
     @abstractmethod
     def _plot(self):
         pass
@@ -124,10 +128,9 @@ class Geometry(ABC):
 
 class Continuous(Geometry, ABC):
 
-    def __init__(self,grid=None, axis_labels=None, mapping=lambda x: x):
+    def __init__(self,grid=None, axis_labels=None):
         self.axis_labels = axis_labels
         self.grid = grid
-        self.mapping = mapping
 
     def _create_dimension(self, dim_grid):
         dim_grid_value_err_msg = "dim_grid should be int, tuple with one int element, list of numbers, 1D numpy.ndarray, or None"
@@ -146,17 +149,13 @@ class Continuous(Geometry, ABC):
         else:
             raise ValueError(dim_grid_value_err_msg)
         return dim_grid
-
-    def apply_map(self, p):
-        return self.mapping( self.par2fun(p) )
-
-    # plots the random field: "params", "KL", "mapped"
-    def plot_mapped(self, p, is_par = False):
-        plt.plot(self.grid, self.apply_map(p))
         
     @property
     def grid(self):
         return self._grid
+    
+    def fun2par(self,funvals):
+        return funvals.ravel()
 
 class Continuous1D(Continuous):
     """A class that represents a continuous 1D geometry.
@@ -334,10 +333,66 @@ class Discrete(Geometry):
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
 
+class MappedGeometry(Geometry):
+    """A class that represents a mapped geometry.
+    
+    This applies a map (callable function) to any cuqi geometry. This will change the par2fun map.
+    Additionally an inverse map (imap) can also be defined to allow inverting the function values to parameters redefining the fun2par map.
+
+    Parameters
+    -----------
+    geometry : cuqi.geometry.Geometry
+
+    map : callable function
+        Any callable function representing the map which should be applied after the par2fun of the geometry.
+
+    imap : callable function, Default None
+        Any callable function representing the inverse of map.
+    """
+
+    def __init__(self,geometry,map,imap=None):
+        self.geometry = geometry
+        self.map = map
+        self.imap = imap
+
+    @property
+    def shape(self):
+        return self.geometry.shape
+
+    @property
+    def grid(self):
+        return self.geometry.grid
+
+    @property
+    def axis_labels(self):
+        return self.geometry.axis_labels
+
+    @property
+    def variables(self):
+        return self.geometry.variables
+
+    def par2fun(self,p):
+        return self.map(self.geometry.par2fun(p))
+
+    def fun2par(self,f):
+        if self.imap is None:
+            raise ValueError("imap is not defined. This is needed for fun2par.")
+        return self.geometry.fun2par(self.imap(f))
+
+    def _plot(self, values, *args, **kwargs):
+        """Calls the underlying geometry plotting method."""
+        self.geometry._plot(values, *args, **kwargs)
+
+    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
+        """Calls the underlying geometry plotting of envelope method."""
+        self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
+
+    def __repr__(self) -> str:
+        return super().__repr__()+"\nMap is applied to: {}".format(self.geometry.__repr__())
 
 
 class _DefaultGeometry(Continuous1D):
-    def __init__(self,grid, axis_labels=['x']):
+    def __init__(self,grid=None, axis_labels=['x']):
         super().__init__(grid, axis_labels)
 
     def __eq__(self, obj):
@@ -346,19 +401,19 @@ class _DefaultGeometry(Continuous1D):
             if not np.all(value == vars(obj)[key]): return False 
         return True
 
-class DiscreteField(Discrete):
-    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
-        super().__init__(grid, axis_labels)
+# class DiscreteField(Discrete):
+#     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):
+#         super().__init__(grid, axis_labels)
 
-        self.N = len(self.grid)
-        self.mean = mean
-        self.std = std
-        XX, YY = np.meshgrid(self.grid, self.grid, indexing='ij')
-        self.Sigma = cov_func(XX, YY)
-        self.L = np.linalg.chol(self.Sigma)
+#         self.N = len(self.grid)
+#         self.mean = mean
+#         self.std = std
+#         XX, YY = np.meshgrid(self.grid, self.grid, indexing='ij')
+#         self.Sigma = cov_func(XX, YY)
+#         self.L = np.linalg.chol(self.Sigma)
 
-    def par2fun(self, p):
-        return self.mean + self.L.T@p
+#     def par2fun(self, p):
+#         return self.mean + self.L.T@p
     
 class KLExpansion(Continuous1D):
     '''
@@ -371,41 +426,41 @@ class KLExpansion(Continuous1D):
     def __init__(self, grid, axis_labels=['x'],**kwargs):
         
         super().__init__(grid, axis_labels,**kwargs)
-        
-        self.N = len(self.grid) # number of modes
-        self.modes = np.zeros(self.N) # vector of expansion coefs
-        self.real = np.zeros(self.N) # vector of real values
+
         self.decay_rate = 2.5 # decay rate of KL
-        self.c = 12. # normalizer factor
-        self.coefs = np.array( range(1,self.N+1) ) # KL eigvals
-        self.coefs = 1/np.float_power( self.coefs,self.decay_rate )
-        self.p = np.zeros(self.N) # random variables in KL
-        self.axis_labels = axis_labels
+        self.normalizer = 12. # normalizer factor
+        eigvals = np.array( range(1,self.dim+1) ) # KL eigvals
+        self.coefs = 1/np.float_power( eigvals,self.decay_rate )
+
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        self.modes = p*self.coefs/self.c
-        self.real = idst(self.modes)/2
-        return self.real
+        modes = p*self.coefs/self.normalizer
+        real = idst(modes)/2
+        return real
     
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
+
 class CustomKL(Continuous1D):
     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
         super().__init__(grid, axis_labels,**kwargs)
 
-        self.N = len(self.grid)
+        #self.N = len(self.grid)
         self.mean = mean
-        self.std = std
-        self.Nystrom( grid, cov_func, std, trunc_term, int(2*self.N) )
+        #self.std = std
+        self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
+    
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
+    
 
-    def Nystrom(self, xnod, C_nu, sigma, M, N_GL):
+    def _compute_eigpairs(self, xnod, C_nu, sigma, M, N_GL):
         # xnod: points at which the field is realized (from geometry PDE)
         # C_nu: lambda function with the covariance kernel (no variance multiplied)
         # sigma: standard deviation of the field
@@ -485,40 +540,24 @@ class StepExpansion(Continuous1D):
 
         super().__init__(grid, axis_labels,**kwargs)
 
-        self.N = len(self.grid) # number of modes
-        self.p = np.zeros(4)
-        self.L = grid[-1]
-        #self.dx = np.pi/(self.N+1)
-        #self.x = np.linspace(self.dx,np.pi,N,endpoint=False)
-        self.axis_labels = axis_labels
+        L = self.grid[-1]
+        self._idx1 = np.where( (self.grid>0.2*L)&(self.grid<=0.4*L) )
+        self._idx2 = np.where( (self.grid>0.4*L)&(self.grid<=0.6*L) )
+        self._idx3 = np.where( (self.grid>0.6*L)&(self.grid<=0.8*L) )
 
     def par2fun(self, p):
-        self.real = np.zeros_like(self.grid)        
-        idx = np.where( (self.grid>0.2*self.L)&(self.grid<=0.4*self.L) )
-        self.real[idx[0]] = p[0]
-        idx = np.where( (self.grid>0.4*self.L)&(self.grid<=0.6*self.L) )
-        self.real[idx[0]] = p[1]
-        idx = np.where( (self.grid>0.6*self.L)&(self.grid<=0.8*self.L) )
-        self.real[idx[0]] = p[2]
-        return self.real
-    
+        real = np.zeros_like(self.grid)        
+        real[self._idx1[0]] = p[0]
+        real[self._idx2[0]] = p[1]
+        real[self._idx3[0]] = p[2]
+        return real
+
+    def fun2par(self,f):       
+        val1 = f[self._idx1[0][0]]
+        val2 = f[self._idx2[0][0]]
+        val3 = f[self._idx3[0][0]]
+        return np.array([val1,val2,val3])
+
     @property
     def shape(self):
         return 3
-    
-    def plot(self, p, is_fun=False):
-        if is_fun:
-            super().plot(p)
-        else:    
-            super().plot(self.par2fun(p))
-    
-    '''
-    def plot(self,values,*args,**kwargs):
-        p = plt.plot(values,*args,**kwargs)
-        self._plot_config()
-        return p
-
-    def _plot_config(self):
-        if self.axis_labels is not None:
-            plt.xlabel(self.axis_labels[0])
-            '''
