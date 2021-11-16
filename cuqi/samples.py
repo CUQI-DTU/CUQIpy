@@ -112,6 +112,18 @@ class Samples(object):
         lines = plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
         return lines
+    
+    def hist_chain(self,variable_indices,*args,**kwargs):
+        if 'label' in kwargs.keys():
+            raise Exception("Argument 'label' cannot be passed by the user")
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = np.array(variables[variable_indices]).flatten()
+        else:
+            variables = np.array(variable_indices).flatten()
+        n, bins, patches = plt.hist(self.samples[variable_indices,:].T,*args,**kwargs)
+        plt.legend(variables)
+        return patches
 
     def plot_ci(self,percent,exact=None,*args,plot_envelope_kwargs={},**kwargs):
         """
