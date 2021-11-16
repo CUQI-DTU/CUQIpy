@@ -307,8 +307,11 @@ class Linear_RTO(object):
             y = self.b_tild + np.random.randn(len(self.b_tild))
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
-            if (s % 1) == 0 or s == Ns-1:
-                print('Sample', s+2, '/', Ns)
+
+            if ((s+1) % 5e2) == 0 or (s+1) == Ns-1:
+                print("\r",'Sample', s+1, '/', Ns, end="")
+
+        print("\r",'Sample', s+2, '/', Ns)
         
         # remove burn-in
         samples = samples[:, Nb:]
