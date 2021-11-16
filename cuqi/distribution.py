@@ -418,7 +418,28 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
 
 class JoinedGaussianSqrtPrec(Distribution):
+    """
+    Joined Gaussian probability distribution defined by means and sqrt of precision matricies of independent Gaussians.
+    Generates instance of cuqi.distribution.JoinedGaussianSqrtPrec.
 
+    
+    Parameters
+    ------------
+    means: List of means for each Gaussian distribution.
+    sqrtprecs: List of sqrt precision matricies for each Gaussian distribution.
+
+    Attributes
+    ------------
+    sqartprec: Returns the sqrt precision matrix of the joined gaussian in stacked form.
+    sqrtprecTimesMean: Returns the sqrt precision matrix times the mean of the distribution.
+    
+    Methods
+    -----------
+    sample: generate one or more random samples (NotImplemented)
+    pdf: evaluate probability density function (NotImplemented)
+    logpdf: evaluate log probability density function (NotImplemented)
+    cdf: evaluate cumulative probability function (NotImplemented)
+    """    
     def __init__(self,means=None,sqrtprecs=None,is_symmetric=True,**kwargs):
 
         # Check if given as list
