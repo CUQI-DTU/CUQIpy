@@ -15,7 +15,7 @@ import cuqi
 TP = cuqi.testproblem.Deblur()
 model = TP.model #Deblur model
 data = TP.data #Data from deblur problem
-sigma2 = TP.likelihood.std**2
+sigma2 = TP.likelihood.cov 
 n = model.domain_geometry.dim
 m = model.range_geometry.dim
 x_true = TP.exactSolution
@@ -34,10 +34,13 @@ elif (pr == 'cauchy'):
 
 # %%
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
-def potential(x):
-    logpdf = -prior.logpdf(x) - likelihood(x=x).logpdf(data) 
-    grad = -prior.gradient(x) - likelihood.gradient(data,x=x)
-    return logpdf, grad
+posterior = cuqi.distribution.Posterior(likelihood, prior, data)
+def log_pdf_func(x):
+    return -posterior.logpdf(x)
+
+def grad_func(x):
+    return -posterior.gradient(x)
+
 
 # %%
 # Compare with MAP computed using BayesianProblem (within the testproblem)
@@ -48,18 +51,18 @@ if (pr == 'gaussian'):
     x_MAP = TP.MAP()
 else:
     # Solve posterior problem using BFGS
-    solver = cuqi.solver.L_BFGS_B(potential, x0)
-    x_MAP = solver.solve()
+    solver = cuqi.solver.L_BFGS_B(log_pdf_func, x0, grad_func)
+    x_MAP, solution_info = solver.solve()
 print('relative error MAP:', np.linalg.norm(x_MAP-x_true)/np.linalg.norm(x_true))
 
 # %%
 # sampling using NUTS
-MCMC = cuqi.sampler.NUTS(likelihood, prior, data, x0, 12)
+MCMC = cuqi.sampler.NUTS(posterior, x0)
 Ns = int(1e3)      # number of samples
 Nb = int(0.5*Ns)   # burn-in
-samples = MCMC.sample(Ns, Nb)
+samples,loglike_eval, accave  = MCMC.sample(Ns, Nb)
 #
-xs = samples[0]
+xs = samples.samples
 x_mean = np.mean(xs, axis=1)
 x_std = np.std(xs, axis=1)
 print('relative error mean:', np.linalg.norm(x_mean-x_true)/np.linalg.norm(x_true))
