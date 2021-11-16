@@ -29,7 +29,7 @@ results_X2 = cuqi.testproblem.Deconvolution(prior=X2).sample_posterior(5000)
 # Third, define joined Gaussian that incorporates high probability of zero in both ends.
 means = [X1.mean,X2.mean]
 sqrtprecs = [X1.sqrtprec,X2.sqrtprec.toarray()] #Either all sparse or all non-sparse
-X = cuqi.distribution.JoinedGaussianSqrtPrec(means,sqrtprecs)
+X = cuqi.distribution.JointGaussianSqrtPrec(means,sqrtprecs)
 
 # and solve using joined prior
 TP = cuqi.testproblem.Deconvolution(prior=X)

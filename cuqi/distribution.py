@@ -417,9 +417,9 @@ class GaussianCov(Distribution): # TODO: super general with precisions
         return (self.sqrtprec@self.mean).flatten()
 
 
-class JoinedGaussianSqrtPrec(Distribution):
+class JointGaussianSqrtPrec(Distribution):
     """
-    Joined Gaussian probability distribution defined by means and sqrt of precision matricies of independent Gaussians.
+    Joint Gaussian probability distribution defined by means and sqrt of precision matricies of independent Gaussians.
     Generates instance of cuqi.distribution.JoinedGaussianSqrtPrec.
 
     
