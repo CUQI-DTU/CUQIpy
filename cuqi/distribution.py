@@ -430,7 +430,7 @@ class JoinedGaussianSqrtPrec(Distribution):
 
     Attributes
     ------------
-    sqartprec: Returns the sqrt precision matrix of the joined gaussian in stacked form.
+    sqrtprec: Returns the sqrt precision matrix of the joined gaussian in stacked form.
     sqrtprecTimesMean: Returns the sqrt precision matrix times the mean of the distribution.
     
     Methods
