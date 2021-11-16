@@ -474,6 +474,7 @@ class JoinedGaussianSqrtPrec(Distribution):
     def logpdf(self,x):
         raise NotImplementedError("pdf not implemented")
 
+    @property
     def dim(self):
         return self._dim
 
