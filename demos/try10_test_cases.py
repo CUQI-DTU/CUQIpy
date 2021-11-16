@@ -15,7 +15,7 @@ noise_type = ["Gaussian","ScaledGaussian"]
 noise_std = 0.05
 
 #%% Deconvolution Test problem
-model, data, noise = cuqi.testproblem.Deconvolution.get_building_blocks(
+model, data, problem_info = cuqi.testproblem.Deconvolution.get_components(
     dim = dim,
     kernel=kernel[0],
     phantom=phantom[3],
@@ -24,10 +24,10 @@ model, data, noise = cuqi.testproblem.Deconvolution.get_building_blocks(
 )
 
 #%% Deblur Test problem 
-model, data, noise = cuqi.testproblem.Deblur.get_building_blocks()
+model, data, problem_info = cuqi.testproblem.Deblur.get_components()
 
 #%%  Poisson_1D Test problem
 KL_map = lambda x: np.exp(x)
 f = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02) 
 
-model, data, noise = cuqi.testproblem.Poisson_1D.get_building_blocks(dim=501, endpoint=1, source=f, field_type=None, KL_map=KL_map)
+model, data, problem_info = cuqi.testproblem.Poisson_1D.get_components(dim=501, endpoint=1, source=f, field_type=None, KL_map=KL_map)

@@ -39,10 +39,23 @@ class BayesianProblem(object):
             NB: 'Requires the prior to be defined.'
     """
     @classmethod
-    def get_building_blocks(cls, **kwargs):
+    def get_components(cls, **kwargs):
+        """
+        Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
+        
+        Parameters:
+        -----------
+        Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution` constructor. 
+        """
+
+        problem_info = {'exactSolution':None, 'exactData':None}
         problem = cls(**kwargs)
-        noise = None
-        return problem.model, problem.data, noise 
+
+        for key, value in problem_info.items():
+            if hasattr(problem, key):
+                problem_info[key] = vars(problem)[key]
+
+        return problem.model, problem.data, problem_info
 
     def __init__(self,likelihood,prior,data=None):
         self.likelihood = likelihood
