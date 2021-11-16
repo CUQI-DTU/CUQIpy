@@ -126,8 +126,8 @@ class BayesianProblem(object):
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
-            
-            return x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+            map_estimate = x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+            return cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
 
         # If no specific implementation exists, use numerical optimization.
         else:

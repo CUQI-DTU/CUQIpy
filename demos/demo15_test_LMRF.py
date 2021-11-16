@@ -29,11 +29,11 @@ print(laplace.pdf(1))
 
 # %%
 plt.figure()
-samples.plot_chain(1)
+samples.plot_chain(0)
 #samples.plot()
 plt.figure()
 #plt.plot(samples.samples,[y.pdf(s) for s in samples.samples], 'o')
 
-plt.hist(samples.samples,bins = 30)
+plt.hist(samples.samples.T,bins = 30)
 # %%
 

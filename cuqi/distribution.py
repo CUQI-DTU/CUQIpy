@@ -889,9 +889,9 @@ class Laplace(Distribution):
 
     def _sample(self,N=1,rng=None):
         if rng is not None:
-            s =  rng.laplace(self.location, 1.0/self.prec, (N,self.dim))
+            s =  rng.laplace(self.location, 1.0/self.prec, (N,self.dim)).T
         else:
-            s = np.random.laplace(self.location, 1.0/self.prec, (N,self.dim))
+            s = np.random.laplace(self.location, 1.0/self.prec, (N,self.dim)).T
         return s
 
 # ========================================================================
