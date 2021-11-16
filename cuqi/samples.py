@@ -28,6 +28,7 @@ class Samples(object):
     :meth:`plot_mean`: Plots the mean of the samples.
     :meth:`plot_std`: Plots the std of the samples.
     :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).
+    :meth:`hist_chain`: Plots histogram of all samples of a single variable (MCMC chain).
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
