@@ -644,9 +644,13 @@ class GaussianPrec(Distribution):
         return (self.sqrtprec@self.mean).flatten()
 
 class Gaussian(GaussianCov):
-
+    """
+    Wrapper for GaussianCov using std and corrmat. See ::class::cuqi.distribution.GaussianCov.
+    
+    Mutable attributes: mean, cov.
+    """
     def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
-        print("Initializing as GaussianCov. Mutable attributes: mean, cov")
+        
         #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
