@@ -6,7 +6,7 @@ import cuqi
 
 @pytest.mark.parametrize("Ns,prior",
                          [
-                             (2000, cuqi.distribution.GMRF(np.zeros(128), 25, 128, 1, "zero"))
+                             (500, cuqi.distribution.GMRF(np.zeros(128), 25, 128, 1, "zero"))
                          ])
 def test_deblur_bayesian_inversion(copy_reference, Ns, prior):
     np.random.seed(19937)
@@ -42,7 +42,7 @@ def test_deblur_bayesian_inversion(copy_reference, Ns, prior):
 
 @pytest.mark.parametrize("Ns,prior",
                          [
-                             (2000, cuqi.distribution.GMRF(np.zeros(128), 25, 128, 1, "zero"))
+                             (500, cuqi.distribution.GMRF(np.zeros(128), 25, 128, 1, "zero"))
                          ])
 def test_type1_bayesian_inversion(copy_reference, Ns, prior):
     np.random.seed(19937)
