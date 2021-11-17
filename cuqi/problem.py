@@ -18,26 +18,45 @@ class BayesianProblem(object):
 
     Attributes
     ----------
-        `likelihood: cuqi.model.Distribution`:
-            summary: 'The likelihood distribution'
-            example: model = cuqi.model.LinearModel(A)
-                     likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
-        `prior: cuqi.model.Distribution`:
-            summary: 'A cuqi distribution for the prior'
-            example: cuqi.distribution.Gaussian(mean, std, corrmat)
-        `model: cuqi.model.Model`:
-            summary: 'A cuqi forward model (optional)'
-            example: cuqi.model.LinearModel(A) #A is a matrix
+    `likelihood: cuqi.model.Distribution`:
+        summary: 'The likelihood distribution'
+        example: model = cuqi.model.LinearModel(A)
+        likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
+    `prior: cuqi.model.Distribution`:
+        summary: 'A cuqi distribution for the prior'
+        example: cuqi.distribution.Gaussian(mean, std, corrmat)
+    `model: cuqi.model.Model`:
+        summary: 'A cuqi forward model (optional)'
+        example: cuqi.model.LinearModel(A) #A is a matrix
 
     Methods
     ----------
-        `MAP()`:
-            summary: 'Compute MAP estimate of the inverse problem.'
-            NB: 'Requires the prior to be defined.'
-        `Sample(Ns)`:
-            summary: 'Sample Ns samples of the inverse problem.'
-            NB: 'Requires the prior to be defined.'
+    `MAP()`:
+        summary: 'Compute MAP estimate of the inverse problem.'
+        NB: 'Requires the prior to be defined.'
+    `Sample(Ns)`:
+        summary: 'Sample Ns samples of the inverse problem.'
+        NB: 'Requires the prior to be defined.'
     """
+    @classmethod
+    def get_components(cls, **kwargs):
+        """
+        Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
+        
+        Parameters:
+        -----------
+        Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution` constructor. 
+        """
+
+        problem_info = {'exactSolution':None, 'exactData':None}
+        problem = cls(**kwargs)
+
+        for key, value in problem_info.items():
+            if hasattr(problem, key):
+                problem_info[key] = vars(problem)[key]
+
+        return problem.model, problem.data, problem_info
+
     def __init__(self,likelihood,prior,data=None):
         self.likelihood = likelihood
         self.prior = prior
@@ -176,7 +195,7 @@ class BayesianProblem(object):
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems.")
             return self._sampleMapCholesky(Ns)
 
-        elif self._check(GaussianCov,GaussianCov,LinearModel):
+        elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 

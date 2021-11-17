@@ -1,7 +1,11 @@
 import cuqi
 import numpy as np
-import astra #ASTRA Toolbox is used for all tomography projections
 import warnings
+try: 
+    import astra #ASTRA Toolbox is used for all tomography projections
+except Exception as error:
+    warnings.warn(error.msg)
+
 
 class _astraCT2D(cuqi.model.LinearModel):
     """ Base cuqi model using ASTRA for CT 2D projectors"""

@@ -11,6 +11,8 @@ def force_ndarray(value,flatten=False):
             
         if flatten is True:
             value = value.flatten()
+    if isinstance(value,np.matrix): #Convert to array if matrix (matrix acts different on (n,) arrays)
+        value = value.A
     return value
 
 
