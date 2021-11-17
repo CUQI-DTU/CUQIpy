@@ -563,4 +563,4 @@ class StepExpansion(Continuous1D):
 
     @property
     def shape(self):
-        return 3
+        return (3,)
