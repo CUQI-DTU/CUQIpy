@@ -126,6 +126,9 @@ class Geometry(ABC):
             if not np.all(value ==vars(obj)[key]): return False 
         return True
 
+    def __repr__(self) -> str:
+        return "{}{}".format(self.__class__.__name__,self.shape)
+
 class Continuous(Geometry, ABC):
 
     def __init__(self,grid=None, axis_labels=None):
