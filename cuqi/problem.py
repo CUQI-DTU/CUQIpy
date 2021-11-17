@@ -192,8 +192,8 @@ class BayesianProblem(object):
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
         
-        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF):
-            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems.")
+        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF) and self.model.domain_dim<=1000 and self.model.range_dim<=1000:
+            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=1000.")
             return self._sampleMapCholesky(Ns)
 
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
