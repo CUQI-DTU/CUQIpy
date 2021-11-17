@@ -428,7 +428,25 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s = rng.normal(self.mean, self.cov, (N,self.dim)).T
             else:
                 s = np.random.normal(self.mean, self.cov, (N,self.dim)).T
-            return s        
+            return s    
+        elif issparse(self.cov) and issparse(self.sqrtprec):        
+            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
+
+            #Sample N(0,I)
+            if rng is not None:
+                e = rng.random.randn(np.shape(self.sqrtprec)[0],N)
+            else:
+                e = np.random.randn(np.shape(self.sqrtprec)[0],N)
+
+            #Compute permutation
+            if N==1: #Ensures we add (dim,1) with (dim,1) and not with (dim,)
+                permutation = splinalg.spsolve(self.sqrtprec,e)[:,None]
+            else:
+                permutation = splinalg.spsolve(self.sqrtprec,e)
+                
+            # Add to mean
+            s = self.mean[:,None] + permutation
+            return s
         else:
             if rng is not None:
                 s = rng.multivariate_normal(self.mean, self.cov, N).T

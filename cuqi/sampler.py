@@ -387,7 +387,7 @@ class Linear_RTO(object):
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
 
-            if ((s+1) % 5e2) == 0 or (s+1) == Ns-1:
+            if ((s+1) % (Ns//100)) == 0 or (s+1) == Ns-1:
                 print("\r",'Sample', s+1, '/', Ns, end="")
 
         print("\r",'Sample', s+2, '/', Ns)
