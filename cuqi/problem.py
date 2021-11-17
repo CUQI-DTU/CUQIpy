@@ -18,25 +18,25 @@ class BayesianProblem(object):
 
     Attributes
     ----------
-        `likelihood: cuqi.model.Distribution`:
-            summary: 'The likelihood distribution'
-            example: model = cuqi.model.LinearModel(A)
-                     likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
-        `prior: cuqi.model.Distribution`:
-            summary: 'A cuqi distribution for the prior'
-            example: cuqi.distribution.Gaussian(mean, std, corrmat)
-        `model: cuqi.model.Model`:
-            summary: 'A cuqi forward model (optional)'
-            example: cuqi.model.LinearModel(A) #A is a matrix
+    `likelihood: cuqi.model.Distribution`:
+        summary: 'The likelihood distribution'
+        example: model = cuqi.model.LinearModel(A)
+        likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
+    `prior: cuqi.model.Distribution`:
+        summary: 'A cuqi distribution for the prior'
+        example: cuqi.distribution.Gaussian(mean, std, corrmat)
+    `model: cuqi.model.Model`:
+        summary: 'A cuqi forward model (optional)'
+        example: cuqi.model.LinearModel(A) #A is a matrix
 
     Methods
     ----------
-        `MAP()`:
-            summary: 'Compute MAP estimate of the inverse problem.'
-            NB: 'Requires the prior to be defined.'
-        `Sample(Ns)`:
-            summary: 'Sample Ns samples of the inverse problem.'
-            NB: 'Requires the prior to be defined.'
+    `MAP()`:
+        summary: 'Compute MAP estimate of the inverse problem.'
+        NB: 'Requires the prior to be defined.'
+    `Sample(Ns)`:
+        summary: 'Sample Ns samples of the inverse problem.'
+        NB: 'Requires the prior to be defined.'
     """
     def __init__(self,likelihood,prior,data=None):
         self.likelihood = likelihood
