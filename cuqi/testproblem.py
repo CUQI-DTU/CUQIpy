@@ -222,7 +222,7 @@ class Deconvolution(BayesianProblem):
         
         # Set up model
         A = _getCirculantMatrix(dim,kernel,kernel_param)
-        model = cuqi.model.LinearModel(A)
+        model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution
         x_exact = _getExactSolution(dim,phantom,phantom_param)
