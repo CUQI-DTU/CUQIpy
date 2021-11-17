@@ -7,6 +7,7 @@ import time
 from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
+from cuqi.utilities import ProblemInfo
 
 class Generic(object):
     def __init__(self):
@@ -48,12 +49,12 @@ class BayesianProblem(object):
         Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution` constructor. 
         """
 
-        problem_info = {'exactSolution':None, 'exactData':None}
+        problem_info = ProblemInfo() #Instead of a dict, we use our ProblemInfo dataclass.
         problem = cls(**kwargs)
 
-        for key, value in problem_info.items():
+        for key, value in vars(problem_info).items():
             if hasattr(problem, key):
-                problem_info[key] = vars(problem)[key]
+                setattr(problem_info,key,vars(problem)[key])
 
         return problem.model, problem.data, problem_info
 

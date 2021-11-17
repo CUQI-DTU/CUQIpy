@@ -2,6 +2,8 @@ import numpy as np
 import inspect
 from scipy.sparse import issparse
 from cuqi.geometry import _DefaultGeometry
+from dataclasses import dataclass
+
 def force_ndarray(value,flatten=False):
     if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:
@@ -41,3 +43,21 @@ def get_indirect_attributes(dist):
             attributes.extend(getNonDefaultArgs(value))
     return attributes
 
+@dataclass
+class ProblemInfo:
+    """Problem info dataclass. Gives a convenient way to store data defined in test-problems."""
+    exactSolution: np.ndarray = None
+    exactData: np.ndarray = None
+    infoString: str = None
+
+    def __repr__(self) -> str:
+        out_str = "ProblemInfo with the following set attributes:\n"+str(self.getSetAttributes())      
+        if self.infoString is not None:
+            return out_str+"\n infoString: "+str(self.infoString)
+        else:
+            return out_str
+
+    def getSetAttributes(self):
+        """Returns a list of all attributes that are not None."""
+        dict = vars(self)
+        return list({key for key in dict if dict[key] is not None})
