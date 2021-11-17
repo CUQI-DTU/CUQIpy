@@ -102,6 +102,9 @@ class Model(object):
     
     def __len__(self):
         return self.range_dim
+
+    def __repr__(self) -> str:
+        return "cuqi {}: {} -> {}".format(self.__class__.__name__,self.domain_geometry.shape,self.range_geometry.shape)
     
 class LinearModel(Model):
     """Model based on a Linear forward operator.
