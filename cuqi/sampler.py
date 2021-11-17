@@ -723,8 +723,11 @@ class pCN(Sampler):
         for s in range(Ns-1):
             # run component by component
             samples[:, s+1], loglike_eval[s+1], acc[s+1] = self.single_update(samples[:, s], loglike_eval[s])
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+
+            if ((s+1) % (Ns//100)) == 0 or (s+1) == Ns-1:
+                print("\r",'Sample', s+1, '/', Ns, end="")
+
+        print("\r",'Sample', s+2, '/', Ns)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -776,8 +779,10 @@ class pCN(Sampler):
                 idx += Na
 
             # display iterations
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+            if ((s+1) % (Ns//100)) == 0 or (s+1) == Ns-1:
+                print("\r",'Sample', s+1, '/', Ns, end="")
+
+        print("\r",'Sample', s+2, '/', Ns)
 
         # remove burn-in
         samples = samples[:, Nb:]
