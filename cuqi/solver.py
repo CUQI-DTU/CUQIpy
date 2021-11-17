@@ -87,20 +87,20 @@ class minimize(object):
         If None, then the solver approximates the gradient.
     method : str or callable, optional
         Type of solver. Should be one of
-            ‘Nelder-Mead’
-            ‘Powell’
-            ‘CG’
-            ‘BFGS’
-            ‘Newton-CG’ 
-            ‘L-BFGS-B’
-            ‘TNC’ 
-            ‘COBYLA’ 
-            ‘SLSQP’
-            ‘trust-constr’
-            ‘dogleg’ 
-            ‘trust-ncg’ 
-            ‘trust-exact’ 
-            ‘trust-krylov’ 
+        ‘Nelder-Mead’
+        ‘Powell’
+        ‘CG’
+        ‘BFGS’
+        ‘Newton-CG’ 
+        ‘L-BFGS-B’
+        ‘TNC’ 
+        ‘COBYLA’ 
+        ‘SLSQP’
+        ‘trust-constr’
+        ‘dogleg’ 
+        ‘trust-ncg’ 
+        ‘trust-exact’ 
+        ‘trust-krylov’ 
         If not given, chosen to be one of BFGS, L-BFGS-B, SLSQP, depending if the problem has constraints or bounds.
     kwargs : keyword arguments passed to scipy's minimizer. See documentation for scipy.optimize.minimize
 
