@@ -248,6 +248,7 @@ class Deconvolution(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+        self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
 
 def _getCirculantMatrix(dim,kernel,kernel_param):
     """
