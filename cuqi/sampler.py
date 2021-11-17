@@ -387,7 +387,7 @@ class Linear_RTO(object):
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
 
-            if ((s+1) % (Ns//100)) == 0 or (s+1) == Ns-1:
+            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
                 print("\r",'Sample', s+1, '/', Ns, end="")
 
         print("\r",'Sample', s+2, '/', Ns)
@@ -724,7 +724,7 @@ class pCN(Sampler):
             # run component by component
             samples[:, s+1], loglike_eval[s+1], acc[s+1] = self.single_update(samples[:, s], loglike_eval[s])
 
-            if ((s+1) % (Ns//100)) == 0 or (s+1) == Ns-1:
+            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
                 print("\r",'Sample', s+1, '/', Ns, end="")
 
         print("\r",'Sample', s+2, '/', Ns)
@@ -779,7 +779,7 @@ class pCN(Sampler):
                 idx += Na
 
             # display iterations
-            if ((s+1) % (Ns//100)) == 0 or (s+1) == Ns-1:
+            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
                 print("\r",'Sample', s+1, '/', Ns, end="")
 
         print("\r",'Sample', s+2, '/', Ns)
