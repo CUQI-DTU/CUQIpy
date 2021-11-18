@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b
 import scipy.optimize as opt
+from cuqi.samples import CUQIarray
 
 class L_BFGS_B(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
@@ -138,7 +139,11 @@ class minimize(object):
                 "grad": solution['jac'],
                 "nit": solution['nit'], 
                 "nfev": solution['nfev']}
-        return solution['x'], info
+        if isinstance(self.x0,CUQIarray):
+            sol = CUQIarray(solution['x'],geometry=self.x0.geometry)
+        else:
+            sol = solution['x']
+        return sol, info
 
 class maximize(minimize):
     """Simply calls ::class:: cuqi.solver.minimize with -func."""
