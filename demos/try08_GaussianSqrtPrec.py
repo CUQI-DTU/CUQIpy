@@ -55,7 +55,8 @@ prior.logpdf(np.zeros(dim))
 Ns = 5000
 Nb = 1000
 x0 = np.zeros(dim)
-sampler = cuqi.sampler.Linear_RTO(likelihood, prior, tp.model, tp.data, x0) 
+posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
 # plot mean + 95% of samples
@@ -74,7 +75,8 @@ prior_samples.plot()
 prior.logpdf(np.zeros(dim))
 
 #%% sample posterior
-sampler = cuqi.sampler.Linear_RTO(likelihood, prior, tp.model, tp.data, x0)
+posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
 # plot mean + 95% of samples
@@ -99,7 +101,8 @@ fig = plt.figure()
 prior_samples.plot()
 
 #%% sample posterior
-sampler = cuqi.sampler.Linear_RTO(likelihood, prior, tp.model, tp.data, x0)
+posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
 # plot mean + 95% of samples
@@ -124,7 +127,8 @@ fig = plt.figure()
 prior_samples.plot()
 
 #%% sample posterior
-sampler = cuqi.sampler.Linear_RTO(likelihood, prior, tp.model, tp.data, x0)
+posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
 # plot mean + 95% of samples

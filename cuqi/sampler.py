@@ -322,61 +322,85 @@ class NUTS(Sampler):
 
 class Linear_RTO(object):
     
-    def __init__(self, likelihood, prior, model, data, x0, maxit=10, tol=1e-6, shift=0):
+    def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
         
+        # Check target type and store
+        if isinstance(target, cuqi.distribution.Posterior):
+            self._target = target
+        else:
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
+
         # independent Posterior samples. Linear model and Gaussian prior-likelihood
-        if not isinstance(model, cuqi.model.LinearModel):
+        if not isinstance(self.model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
-        if not hasattr(likelihood, "sqrtprec"):
+        if not hasattr(self.likelihood, "sqrtprec"):
             raise TypeError("Likelihood must contain a sqrtprec attribute")
 
-        if not hasattr(prior, "sqrtprec"):
+        if not hasattr(self.prior, "sqrtprec"):
             raise TypeError("prior must contain a sqrtprec attribute")
 
-        if not hasattr(prior, "sqrtprecTimesMean"):
+        if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
-    
-        # Extract lambda, delta, L
-        #self.lambd = 1/(likelihood.std**2)
-        #self.delta = prior.prec
-        #self.L = prior.L
-        #self.A = model.get_matrix()
-        #self.b = data        
-        self.x0 = x0
+
+        # Initial guess        
+        if x0 is not None:
+            self.x0 = x0
+        else:
+            self.x0 = np.zeros(self.prior.dim)
+
+        # Other parameters
         self.maxit = maxit
         self.tol = tol        
         self.shift = 0
                 
-        L1 = likelihood.sqrtprec
-        L2 = prior.sqrtprec
-        L2mu = prior.sqrtprecTimesMean
+        L1 = self.likelihood.sqrtprec
+        L2 = self.prior.sqrtprec
+        L2mu = self.prior.sqrtprecTimesMean
 
         # pre-computations
-        self.m = len(data)
-        self.n = len(x0)
-        self.b_tild = np.hstack([L1@data, L2mu]) 
+        self.m = len(self.data)
+        self.n = len(self.x0)
+        self.b_tild = np.hstack([L1@self.data, L2mu]) 
 
-        self.model = model
-
-        if not callable(model):
-            self.M = sp.sparse.vstack([L1@model, L2])
+        if not callable(self.model):
+            self.M = sp.sparse.vstack([L1@self.model, L2])
         else:
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
                 if flag == 1:
-                    out1 = L1 @ model.forward(x)
+                    out1 = L1 @ self.model.forward(x)
                     out2 = L2 @ x
                     out  = np.hstack([out1, out2])
                 elif flag == 2:
                     idx = int(self.m)
-                    out1 = model.adjoint(L1.T@x[:idx])
+                    out1 = self.model.adjoint(L1.T@x[:idx])
                     out2 = L2.T @ x[idx:]
                     out  = out1 + out2                
                 return out   
             self.M = M       
 
-    def sample(self, N, Nb):   
+    @property
+    def prior(self):
+        return self.target.prior
+
+    @property
+    def likelihood(self):
+        return self.target.likelihood
+
+    @property
+    def target(self):
+        return self._target
+
+    @property
+    def model(self):
+        return self.target.model     
+    
+    @property
+    def data(self):
+        return self.target.data
+
+    def sample(self, N, Nb=0):   
         Ns = N+Nb   # number of simulations        
         samples = np.empty((self.n, Ns))
                      
@@ -707,6 +731,9 @@ class pCN(Sampler):
 
 
     def _sample(self, N, Nb):
+        if self.scale is None:
+            raise ValueError("Scale must be set to sample without adaptation. Consider using sample_adapt instead.")
+
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -738,6 +765,10 @@ class pCN(Sampler):
         return samples, loglike_eval, accave
 
     def _sample_adapt(self, N, Nb):
+        # Set intial scale if not set
+        if self.scale is None:
+            self.scale = 0.1
+
         Ns = N+Nb   # number of simulations
 
         # allocation

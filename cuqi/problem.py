@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 
-from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF
+from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF, Posterior
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
@@ -232,7 +232,8 @@ class BayesianProblem(object):
             M = isinstance(self.model,typeModel)
         return L and P and M
     def _sampleLinearRTO(self,Ns):
-        sampler = cuqi.sampler.Linear_RTO(self.likelihood,self.prior,self.model,self.data,np.zeros(self.model.domain_dim))
+        posterior = Posterior(self.likelihood,self.prior,self.data)
+        sampler = cuqi.sampler.Linear_RTO(posterior)
         return sampler.sample(Ns,0)
 
     def _sampleMapCholesky(self,Ns):
