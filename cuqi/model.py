@@ -87,7 +87,7 @@ class Model(object):
             data_samples = np.zeros((self.range_dim,Ns))
             for s in range(Ns):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
-            return Samples(data_samples)
+            return Samples(data_samples,geometry=self.range_geometry)
         else:
             out = self._forward_func(x)
             if type(x) is CUQIarray:
@@ -102,6 +102,9 @@ class Model(object):
     
     def __len__(self):
         return self.range_dim
+
+    def __repr__(self) -> str:
+        return "cuqi {}: {} -> {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry)
     
 class LinearModel(Model):
     """Model based on a Linear forward operator.

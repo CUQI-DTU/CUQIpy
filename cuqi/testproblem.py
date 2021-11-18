@@ -222,7 +222,7 @@ class Deconvolution(BayesianProblem):
         
         # Set up model
         A = _getCirculantMatrix(dim,kernel,kernel_param)
-        model = cuqi.model.LinearModel(A)
+        model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution
         x_exact = _getExactSolution(dim,phantom,phantom_param)
@@ -248,6 +248,7 @@ class Deconvolution(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+        self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
 
 def _getCirculantMatrix(dim,kernel,kernel_param):
     """

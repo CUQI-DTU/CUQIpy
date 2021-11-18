@@ -140,6 +140,13 @@ class minimize(object):
                 "nfev": solution['nfev']}
         return solution['x'], info
 
+class maximize(minimize):
+    """Simply calls ::class:: cuqi.solver.minimize with -func."""
+    def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
+        def nfunc(*args,**kwargs):
+            return -func(*args,**kwargs)
+        super().__init__(nfunc,x0,gradfunc,method,**kwargs)
+
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
 

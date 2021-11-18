@@ -644,9 +644,13 @@ class GaussianPrec(Distribution):
         return (self.sqrtprec@self.mean).flatten()
 
 class Gaussian(GaussianCov):
-
+    """
+    Wrapper for GaussianCov using std and corrmat. See ::class::cuqi.distribution.GaussianCov.
+    
+    Mutable attributes: mean, cov.
+    """
     def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
-        print("Initializing as GaussianCov. Mutable attributes: mean, cov")
+        
         #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
@@ -925,6 +929,10 @@ class Posterior(Distribution):
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+
+    def loglikelihood_function(self,x):
+        """The log-likelihood function defines the log probability density function of the observed data as a function of the parameters of the model."""
+        return self.likelihood(x=x).logpdf(self.data)
 
 class UserDefinedDistribution(Distribution):
 
