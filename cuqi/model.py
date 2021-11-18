@@ -87,7 +87,7 @@ class Model(object):
             data_samples = np.zeros((self.range_dim,Ns))
             for s in range(Ns):
                 data_samples[:,s] = self._forward_func(x.samples[:,s])
-            return Samples(data_samples)
+            return Samples(data_samples,geometry=self.range_geometry)
         else:
             out = self._forward_func(x)
             if type(x) is CUQIarray:
