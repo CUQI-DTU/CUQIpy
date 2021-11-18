@@ -8,6 +8,7 @@ from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
 from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.samples import CUQIarray
 
 #=============================================================================
 class Deblur(BayesianProblem):
@@ -226,6 +227,7 @@ class Deconvolution(BayesianProblem):
 
         # Set up exact solution
         x_exact = _getExactSolution(dim,phantom,phantom_param)
+        x_exact = CUQIarray(x_exact, geometry=model.domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact)

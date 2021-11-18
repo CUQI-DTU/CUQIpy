@@ -153,6 +153,7 @@ class Samples(object):
     :meth:`plot_mean`: Plots the mean of the samples.
     :meth:`plot_std`: Plots the std of the samples.
     :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).
+    :meth:`hist_chain`: Plots histogram of all samples of a single variable (MCMC chain).
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
@@ -237,6 +238,18 @@ class Samples(object):
         lines = plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
         return lines
+    
+    def hist_chain(self,variable_indices,*args,**kwargs):
+        if 'label' in kwargs.keys():
+            raise Exception("Argument 'label' cannot be passed by the user")
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = np.array(variables[variable_indices]).flatten()
+        else:
+            variables = np.array(variable_indices).flatten()
+        n, bins, patches = plt.hist(self.samples[variable_indices,:].T,*args,**kwargs)
+        plt.legend(variables)
+        return patches
 
     def plot_ci(self,percent,exact=None,*args,plot_envelope_kwargs={},**kwargs):
         """
