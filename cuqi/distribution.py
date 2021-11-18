@@ -7,6 +7,7 @@ from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
+from cuqi.model import Model
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -933,6 +934,25 @@ class Posterior(Distribution):
     def loglikelihood_function(self,x):
         """The log-likelihood function defines the log probability density function of the observed data as a function of the parameters of the model."""
         return self.likelihood(x=x).logpdf(self.data)
+
+    @property
+    def model(self):
+        """Extract the cuqi model from likelihood."""
+
+        model_value = None
+
+        for key, value in vars(self.likelihood).items():
+            if isinstance(value,Model):
+                if model_value is None:
+                    model_value = value
+                else:
+                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
+        
+        if model_value is None:
+            #If no model was found we also give error
+            raise TypeError("Cuqi model could not be extracted from likelihood distribution {}".format(self.likelihood))
+        else:
+            return model_value
 
 class UserDefinedDistribution(Distribution):
 
