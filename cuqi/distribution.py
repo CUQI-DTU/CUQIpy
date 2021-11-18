@@ -893,7 +893,7 @@ class Uniform(Distribution):
 # ========================================================================
 class Posterior(Distribution):
         
-    def __init__(self, likelihood, prior, data, **kwargs):
+    def __init__(self, likelihood, prior, data=None, **kwargs):
         # Init from abstract distribution class
         self.likelihood = likelihood
         self.prior = prior 
