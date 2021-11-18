@@ -69,12 +69,12 @@ class Sampler(ABC):
         return self._dim
     
 
-    def sample(self,N,Nb):
+    def sample(self,N,Nb=0):
         # Get samples from the distribution sample method
         s,loglike_eval, accave = self._sample(N,Nb)
         return self._create_Sample_object(s,N),loglike_eval, accave
 
-    def sample_adapt(self,N,Nb):
+    def sample_adapt(self,N,Nb=0):
         # Get samples from the distribution sample method
         s,loglike_eval, accave = self._sample_adapt(N,Nb)
         return self._create_Sample_object(s,N),loglike_eval, accave
@@ -95,6 +95,9 @@ class Sampler(ABC):
     def _sample(self,N,Nb):
         pass
 
+    @abstractmethod
+    def _sample_adapt(self,N,Nb):
+        pass
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
@@ -145,6 +148,9 @@ class NUTS(Sampler):
         logpdf = -self.target.logpdf(x)
         grad = -self.target.gradient(x)
         return logpdf, grad
+
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N,Nb)
 
     def _sample(self, N, Nb):
 
