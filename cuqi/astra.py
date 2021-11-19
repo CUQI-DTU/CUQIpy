@@ -2,6 +2,7 @@ import cuqi
 import numpy as np
 import warnings
 from scipy.interpolate import interp2d
+import scipy.io as io
 
 try: 
     import astra #ASTRA Toolbox is used for all tomography projections
@@ -80,13 +81,19 @@ class _astraCT2D(cuqi.model.LinearModel):
     def forward(self,x):
         id, sinogram =  astra.create_sino(np.reshape(x,self.domain_geometry.shape,order='F'), self.proj_id)
         astra.data2d.delete(id)
-        return sinogram.flatten(order='F')
+        out = sinogram.flatten(order='F')
+        if type(x) is cuqi.samples.CUQIarray:
+            out = cuqi.samples.CUQIarray(out, geometry=self.range_geometry)
+        return out
 
     # CT back projection
     def adjoint(self,y):
         id, volume = astra.create_backprojection(np.reshape(y,self.range_geometry.shape,order='F'),self.proj_id)
         astra.data2d.delete(id)
-        return volume.flatten(order='F')
+        out = volume.flatten(order='F')
+        if type(y) is cuqi.samples.CUQIarray:
+            out = CUQIarray(out, geometry=self.domain_geometry)
+        return out
 
 
 class CT2D_basic(_astraCT2D):
@@ -232,7 +239,9 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
         #######
         model = CT2D_basic() #CT model with default values
         #model= CT2D_shifted() #Shifted detector/source CT model with default values
-
+        
+        dim = model.domain_dim
+        
         # %%
         # Extract parameters from model
         N   = model.domain_geometry.shape[0]
@@ -241,7 +250,7 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
         m   = model.range_geometry.dim  #p*q
 
         # Get exact phantom
-        x_exact = io.loadmat("../demos/data/phantom512.mat")["X"]
+        x_exact = io.loadmat("./demos/data/phantom512.mat")["X"]
         
         #Resize phantom and make into vector
         x_exact_f = interp2d(np.linspace(0,1,x_exact.shape[0]),np.linspace(0,1,x_exact.shape[1]), x_exact)
@@ -255,15 +264,16 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
+            likelihood = cuqi.distribution.Gaussian(model,noise_std)
         elif noise_type.lower() == "scaledgaussian":
-            likelihood = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
+            likelihood = cuqi.distribution.Gaussian(model,b_exact*noise_std)
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate data
         if data is None:
             data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
+            data = cuqi.samples.CUQIarray(data, geometry=model.range_geometry)
 
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood,prior,data)
