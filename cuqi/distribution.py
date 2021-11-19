@@ -926,6 +926,13 @@ class Posterior(Distribution):
             else:
                 raise ValueError("Posterior and prior geometries are inconsistent.")
 
+        # Compare model and value
+        if self.model is not None and value is not None and value != self.model.domain_geometry:
+            if isinstance(self.model.domain_geometry,_DefaultGeometry):
+                pass #Allow default model geometry
+            else:
+                raise ValueError("Set geometry does not match with model geometry.")
+
         # If value is set, its consistant with prior (and prior is consistant with model)
         # If value is not set, take from model (if exists) or from prior as last resort
         if value is not None:
