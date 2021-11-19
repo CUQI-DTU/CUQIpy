@@ -1,4 +1,3 @@
-from typing import Type
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
