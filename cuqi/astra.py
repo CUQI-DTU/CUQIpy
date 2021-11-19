@@ -130,3 +130,157 @@ class CT2D_shifted(_astraCT2D):
             vectors[i, 4:6] = u
 
         super().__init__(beam_type,proj_type,im_size,det_count,det_spacing,None,vectors,domain)        
+
+#=============================================================================
+class CT(cuqi.problem.BayesianProblem):
+    """
+    2D parallel-beam Computed Tomography test problem using ASTRA
+
+    Parameters
+    ------------
+    dim : int
+        size of the (dim,dim) deconvolution problem
+
+    kernel : string 
+        Determines type of the underlying kernel
+        'Gauss' - a Gaussian function
+        'sinc' or 'prolate' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+
+    kernel_param : scalar
+        A parameter that determines the shape of the kernel;
+        the larger the parameter, the slower the initial
+        decay of the singular values of A
+
+    phantom : string
+        The phantom that is sampled to produce x
+        'Gauss' - a Gaussian function
+        'sinc' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+        'square' - a "top hat" function
+        'hat' - a triangular hat function
+        'bumps' - two bumps
+        'derivGauss' - the first derivative of Gauss function
+
+    phantom_param : scalar
+        A parameter that determines the width of the central 
+        "bump" of the function; the larger the parameter,
+        the narrower the "bump."  
+        Does not apply to phantom = 'bumps'
+
+    noise_type : string
+        The type of noise
+        "Gaussian" - Gaussian white noise¨
+        "scaledGaussian" - Scaled (by data) Gaussian noise
+
+    noise_std : scalar
+        Standard deviation of the noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.Model
+        Deconvolution forward model
+
+    noise : cuqi.distribution.Distribution
+        Distribution of the additive noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior (Default = None)
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+        (automatically computed from noise distribution)
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    Sample(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+
+    """
+    def __init__(self,
+        dim=128,
+        kernel="gauss",
+        kernel_param=None,
+        phantom="gauss",
+        phantom_param=None,
+        noise_type="gaussian",
+        noise_std=0.05,
+        prior=None,
+        data=None,
+        ):
+
+        #######
+        model = CT2D_basic() #CT model with default values
+        #model= CT2D_shifted() #Shifted detector/source CT model with default values
+
+        # %%
+        # Extract parameters from model
+        N   = model.domain_geometry.shape[0]
+        p,q = model.range_geometry.shape
+        n   = model.domain_geometry.dim #N*N
+        m   = model.range_geometry.dim  #p*q
+
+        # Get exact phantom
+        x_exact = io.loadmat("../demos/data/phantom512.mat")["X"]
+
+#Resize phantom and make into vector
+x_exact_f = interp2d(np.linspace(0,1,x_exact.shape[0]),np.linspace(0,1,x_exact.shape[1]), x_exact)
+x_exact = x_exact_f(np.linspace(0,1,N),np.linspace(0,1,N))
+x_exact = x_exact.ravel()
+model.domain_geometry.plot(x_exact); plt.title("Phantom")
+# %%
+# Generate exact data and plot it
+b_exact = model@x_exact 
+model.range_geometry.plot(b_exact); plt.title("Sinogram")
+
+
+
+        
+        # Set up model
+        A = _getCirculantMatrix(dim,kernel,kernel_param)
+        model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
+
+        # Set up exact solution
+        x_exact = _getExactSolution(dim,phantom,phantom_param)
+        x_exact = CUQIarray(x_exact, geometry=model.domain_geometry)
+
+        # Generate exact data
+        b_exact = model.forward(x_exact)
+
+        # Define and add noise #TODO: Add Poisson and logpoisson
+        if noise_type.lower() == "gaussian":
+            likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
+        elif noise_type.lower() == "scaledgaussian":
+            likelihood = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
+        else:
+            raise NotImplementedError("This noise type is not implemented")
+        
+        # Generate data
+        if data is None:
+            data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
+
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Store exact values
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+        self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
