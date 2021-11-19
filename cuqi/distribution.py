@@ -1,3 +1,4 @@
+from typing import Type
 import numpy as np
 import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
@@ -898,8 +899,8 @@ class Posterior(Distribution):
         self.likelihood = likelihood
         self.prior = prior 
         self.data = data
-        if 'geometry' not in kwargs.keys(): 
-            kwargs["geometry"]=prior.geometry
+#        if 'geometry' not in kwargs.keys(): 
+#            kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
 
     @property
@@ -908,13 +909,30 @@ class Posterior(Distribution):
 
     @property
     def geometry(self):
-        return self.prior.geometry
+        return self._geometry
 
     @geometry.setter
     def geometry(self, value):
-        if value != self.prior.geometry:
+        # Compare model and prior
+        if self.model is not None and self.model.domain_geometry != self.prior.geometry:
+            if isinstance(self.prior.geometry,_DefaultGeometry):
+                pass #We allow default geometry in prior
+            else:
+                raise ValueError("Geometry from likelihood (model.domain_geometry) does not match prior geometry")
+
+        # Compare prior and value
+        if self.model is None and value is not None and value != self.prior.geometry:
             raise ValueError("Posterior and prior geometries are inconsistent.")
-        # no need to actually set geometry because self.geometry returns self.prior.geometry
+
+        # If value is set, its consistant with prior (and prior is consistant with model)
+        # If value is not set, take from model (if exists) or from prior as last resort
+        if value is not None:
+            self._geometry = value
+        elif self.model is not None:
+            self._geometry = self.model.domain_geometry
+        else:
+            self._geometry = self.prior.geometry
+            
 
 
     def logpdf(self,x):
@@ -950,7 +968,7 @@ class Posterior(Distribution):
         
         if model_value is None:
             #If no model was found we also give error
-            raise TypeError("Cuqi model could not be extracted from likelihood distribution {}".format(self.likelihood))
+            return None
         else:
             return model_value
 
