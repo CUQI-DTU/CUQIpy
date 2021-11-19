@@ -1,6 +1,8 @@
 import cuqi
 import numpy as np
 import warnings
+from scipy.interpolate import interp2d
+
 try: 
     import astra #ASTRA Toolbox is used for all tomography projections
 except Exception as error:
@@ -132,7 +134,7 @@ class CT2D_shifted(_astraCT2D):
         super().__init__(beam_type,proj_type,im_size,det_count,det_spacing,None,vectors,domain)        
 
 #=============================================================================
-class CT(cuqi.problem.BayesianProblem):
+class ParBeamCT_2D(cuqi.problem.BayesianProblem):
     """
     2D parallel-beam Computed Tomography test problem using ASTRA
 
@@ -240,20 +242,38 @@ class CT(cuqi.problem.BayesianProblem):
 
         # Get exact phantom
         x_exact = io.loadmat("../demos/data/phantom512.mat")["X"]
-
-#Resize phantom and make into vector
-x_exact_f = interp2d(np.linspace(0,1,x_exact.shape[0]),np.linspace(0,1,x_exact.shape[1]), x_exact)
-x_exact = x_exact_f(np.linspace(0,1,N),np.linspace(0,1,N))
-x_exact = x_exact.ravel()
-model.domain_geometry.plot(x_exact); plt.title("Phantom")
-# %%
-# Generate exact data and plot it
-b_exact = model@x_exact 
-model.range_geometry.plot(b_exact); plt.title("Sinogram")
-
-
-
         
+        #Resize phantom and make into vector
+        x_exact_f = interp2d(np.linspace(0,1,x_exact.shape[0]),np.linspace(0,1,x_exact.shape[1]), x_exact)
+        x_exact = x_exact_f(np.linspace(0,1,N),np.linspace(0,1,N))
+        x_exact = x_exact.ravel()
+        x_exact = cuqi.samples.CUQIarray(x_exact, is_par=True, geometry=model.domain_geometry)
+
+        #model.domain_geometry.plot(x_exact); plt.title("Phantom")
+        # Generate exact data
+        b_exact = model.forward(x_exact)
+
+        # Define and add noise #TODO: Add Poisson and logpoisson
+        if noise_type.lower() == "gaussian":
+            likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
+        elif noise_type.lower() == "scaledgaussian":
+            likelihood = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
+        else:
+            raise NotImplementedError("This noise type is not implemented")
+        
+        # Generate data
+        if data is None:
+            data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
+
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Store exact values
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+        self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
+
+        """
         # Set up model
         A = _getCirculantMatrix(dim,kernel,kernel_param)
         model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
@@ -284,3 +304,4 @@ model.range_geometry.plot(b_exact); plt.title("Sinogram")
         self.exactSolution = x_exact
         self.exactData = b_exact
         self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
+        """
