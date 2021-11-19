@@ -473,6 +473,7 @@ class Poisson_1D(BayesianProblem):
 
         # Set up exact solution
         x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )
+        x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
@@ -594,6 +595,7 @@ class Heat_1D(BayesianProblem):
 
         # Set up exact solution
         x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
+        x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
@@ -669,7 +671,7 @@ class Abel_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim, endpoint, field_type, KL_map=None, KL_imap=None, SNR=100):
+    def __init__(self, dim=128, endpoint=1, field_type=None, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
 
@@ -705,6 +707,7 @@ class Abel_1D(BayesianProblem):
     
         # Set up exact solution
         x_exact = np.sin(tvec*np.pi)*np.exp(-2*tvec)
+        x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
@@ -780,14 +783,17 @@ class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is 
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim, endpoint, kernel, field_type, KL_map=None, KL_imap=None, SNR=100):
+    def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
         grid = np.linspace(0, endpoint, N)
+
+        if kernel is None:
+            kernel = lambda x, y, blur_size_var: blur_size_var / 2*np.exp(-blur_size*abs((x-y)))   # blurring kernel
         
         # convolution matrix
         T1, T2 = np.meshgrid(grid, grid)
-        A = h*kernel(T1, T2)
+        A = h*kernel(T1, T2, blur_size)
         maxval = A.max()
         A[A < 5e-3*maxval] = 0
         A = csc_matrix(A)   # make A sparse
@@ -796,11 +802,11 @@ class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is 
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid, mapping=KL_map)
+            domain_geometry = KLExpansion(grid)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid, mapping=KL_map)
+            domain_geometry = StepExpansion(grid)
         else:
-            domain_geometry = Continuous1D(grid, mapping=KL_map)
+            domain_geometry = Continuous1D(grid)
 
         if KL_map is not None:
             domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
