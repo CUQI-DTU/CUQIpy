@@ -17,7 +17,7 @@ import cuqi
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = cuqi.testproblem.Deblur()
+test = cuqi.testproblem.Deblur(dim=30)
 n = test.model.domain_dim
 tt = test.mesh
 h = test.meshsize
@@ -56,10 +56,11 @@ Ns = int(5e3)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s, target_eval, acc = MCMC.sample_adapt(Ns, Nb)
+x_s = MCMC.sample_adapt(Ns, Nb)
 print('Elapsed time:', time.time() - ti)
 
 #Extract raw samples
+target_eval = x_s.loglike_eval
 x_s = x_s.samples
 
 # =============================================================================

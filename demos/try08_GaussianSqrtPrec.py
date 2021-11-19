@@ -35,7 +35,7 @@ plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 
 #%% Set likelihood to be on GaussianCov form
-likelihood = cuqi.distribution.GaussianCov(mean = tp.data, cov = noise_std**2)
+likelihood = cuqi.distribution.GaussianCov(mean = tp.model, cov = noise_std**2)
 
 # %% Lets try with the Gaussian prior
 prior_mean = np.zeros(dim)

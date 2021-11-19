@@ -52,7 +52,7 @@ Ns = int(1e4)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s_MH, target_eval, acc = MCMC_MH.sample_adapt(Ns, Nb)
+x_s_MH = MCMC_MH.sample_adapt(Ns, Nb)
 print('Elapsed time:', time.time() - ti)
 #%%
 plt.figure()
