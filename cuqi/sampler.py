@@ -70,16 +70,27 @@ class Sampler(ABC):
     
 
     def sample(self,N,Nb=0):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
+        # Get samples from the samplers sample method
+        result = self._sample(N,Nb)
+        return self._create_Sample_object(result,N+Nb)
 
     def sample_adapt(self,N,Nb=0):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample_adapt(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
+        # Get samples from the samplers sample method
+        result = self._sample_adapt(N,Nb)
+        return self._create_Sample_object(result,N+Nb)
 
-    def _create_Sample_object(self,s,N):
+    def _create_Sample_object(self,result,N):
+        loglike_eval = None
+        acc_rate = None
+        if isinstance(result,tuple):
+            #Unpack samples+loglike+acc_rate
+            s = result[0]
+            if len(result)>1: loglike_eval = result[1]
+            if len(result)>2: acc_rate = result[2]
+            if len(result)>3: raise TypeError("Expected tuple of at most 3 elements from sampling method.")
+        else:
+            s = result
+                
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
@@ -88,7 +99,8 @@ class Sampler(ABC):
                 s = s.flatten()
         else:
             s = Samples(s, self.geometry)#, geometry = self.geometry)
-
+            s.loglike_eval = loglike_eval
+            s.acc_rate = acc_rate
         return s
 
     @abstractmethod
@@ -326,17 +338,17 @@ class NUTS(Sampler):
             return theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p
 
 
-class Linear_RTO(object):
+class Linear_RTO(Sampler):
     
     def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
         
-        # Check target type and store
-        if isinstance(target, cuqi.distribution.Posterior):
-            self._target = target
-        else:
-            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
+        super().__init__(target, x0=x0)
 
-        # independent Posterior samples. Linear model and Gaussian prior-likelihood
+        # Check target type and store
+        if not isinstance(target, cuqi.distribution.Posterior):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
+
+        # Check Linear model and Gaussian prior+likelihood
         if not isinstance(self.model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
@@ -349,7 +361,7 @@ class Linear_RTO(object):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
 
-        # Initial guess        
+        # Modify initial guess        
         if x0 is not None:
             self.x0 = x0
         else:
@@ -395,10 +407,6 @@ class Linear_RTO(object):
         return self.target.likelihood
 
     @property
-    def target(self):
-        return self._target
-
-    @property
     def model(self):
         return self.target.model     
     
@@ -406,7 +414,7 @@ class Linear_RTO(object):
     def data(self):
         return self.target.data
 
-    def sample(self, N, Nb=0):   
+    def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
         samples = np.empty((self.n, Ns))
                      
@@ -425,8 +433,10 @@ class Linear_RTO(object):
         # remove burn-in
         samples = samples[:, Nb:]
         
-        return cuqi.samples.Samples(samples,geometry=self.model.domain_geometry)
+        return samples, None, None
 
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N,Nb)
 
 
 #===================================================================
