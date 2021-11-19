@@ -111,6 +111,13 @@ class Sampler(ABC):
     def _sample_adapt(self,N,Nb):
         pass
 
+    def _print_progress(self,s,Ns):
+        """Prints sampling progress"""
+        if (s % (max(Ns//100,1))) == 0:
+            print("\r",'Sample', s, '/', Ns, end="")
+        elif s == Ns:
+            print("\r",'Sample', s, '/', Ns)
+
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
         #TODO: after fixing None dim
@@ -237,9 +244,10 @@ class NUTS(Sampler):
             elif (k == Nb):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
                 
+            self._print_progress(k+1,Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
+
             # msg
             if (np.mod(k, 25) == 0):
-                print("\nSample {:d}/{:d}".format(k, Ns))
                 if np.isnan(pot_eval[k]):
                     raise NameError('NaN potential func')
 
@@ -425,10 +433,7 @@ class Linear_RTO(Sampler):
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
 
-            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
-                print("\r",'Sample', s+1, '/', Ns, end="")
-
-        print("\r",'Sample', s+2, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
         
         # remove burn-in
         samples = samples[:, Nb:]
@@ -484,8 +489,8 @@ class CWMH(ProposalBasedSampler):
         for s in range(Ns-1):
             # run component by component
             samples[:, s+1], target_eval[s+1], acc[:, s+1] = self.single_update(samples[:, s], target_eval[s])
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -627,8 +632,7 @@ class MetropolisHastings(ProposalBasedSampler):
         for s in range(Ns-1):
             # run component by component
             samples[:, s+1], target_eval[s+1], acc[s+1] = self.single_update(samples[:, s], target_eval[s])
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -767,10 +771,7 @@ class pCN(Sampler):
             # run component by component
             samples[:, s+1], loglike_eval[s+1], acc[s+1] = self.single_update(samples[:, s], loglike_eval[s])
 
-            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
-                print("\r",'Sample', s+1, '/', Ns, end="")
-
-        print("\r",'Sample', s+2, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
