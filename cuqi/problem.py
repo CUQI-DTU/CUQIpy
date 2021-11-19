@@ -280,7 +280,7 @@ class BayesianProblem(object):
         # Run sampler
         Nb = int(0.2*Ns)   # burn-in
         ti = time.time()
-        x_s, target_eval, acc = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
+        x_s = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
         print('Elapsed time:', time.time() - ti)
         
         return x_s
@@ -307,7 +307,7 @@ class BayesianProblem(object):
 
         #Run sampler
         ti = time.time()
-        x_s, target_eval, acc = MCMC.sample(Ns,0) #ToDo: fix sampler input
+        x_s = MCMC.sample(Ns,0) #ToDo: fix sampler input
         print('Elapsed time:', time.time() - ti)
 
         # Set geometry from prior
