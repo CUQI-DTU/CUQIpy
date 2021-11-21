@@ -593,7 +593,7 @@ class Heat_1D(BayesianProblem):
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
 
         # Set up exact solution
-        x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
+        x_exact = CUQIarray(100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain), geometry=domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
@@ -612,6 +612,7 @@ class Heat_1D(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+        self.infoString = f"Noise type: Additive i.i.d. noise with mean zero and signal to noise ratio: {SNR}"
 
 
 class Abel_1D(BayesianProblem):
