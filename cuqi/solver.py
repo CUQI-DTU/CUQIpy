@@ -150,7 +150,10 @@ class maximize(minimize):
     def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
         def nfunc(*args,**kwargs):
             return -func(*args,**kwargs)
-        super().__init__(nfunc,x0,gradfunc,method,**kwargs)
+        if gradfunc is not None:
+            def ngradfunc(*args,**kwargs):
+                return -gradfunc(*args,**kwargs)
+        super().__init__(nfunc,x0,ngradfunc,method,**kwargs)
 
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
