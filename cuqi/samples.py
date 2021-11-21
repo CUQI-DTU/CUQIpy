@@ -74,9 +74,9 @@ class CUQIarray(np.ndarray):
     
     def plot(self, plot_par=False, **kwargs):
         if plot_par:
-            self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+            return self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
         else:
-            self.geometry.plot(self.funvals, is_par=False, **kwargs)
+            return self.geometry.plot(self.funvals, is_par=False, **kwargs)
 
 
 class Data(object):
