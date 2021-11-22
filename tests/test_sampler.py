@@ -36,14 +36,14 @@ def test_CWMH_modify_proposal():
 
     # Compute samples 1
     np.random.seed(0)
-    results1 = MCMC1.sample(10,2)[0].samples
+    results1 = MCMC1.sample(10,2).samples
 
     # Compute samples 2
     np.random.seed(0)
-    results2 = MCMC2.sample(10,2)[0].samples
+    results2 = MCMC2.sample(10,2).samples
 
     # Compare samples
-    assert np.allclose(results1[0],results2[0])
+    assert np.allclose(results1,results2)
 
 def test_CWMH_sample_regression():
     # Set seed
@@ -64,7 +64,7 @@ def test_CWMH_sample_regression():
     MCMC = cuqi.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
 
     # Compare with previously computed results
-    np.allclose(MCMC.sample(5,1)[0].samples,np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
+    np.allclose(MCMC.sample(5,1).samples,np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
 
 
 def test_RWMH_sample_regression():
@@ -90,7 +90,7 @@ def test_RWMH_sample_regression():
     Nb = int(0.2*Ns)   # burn-in
 
     #
-    x_s2, target_eval2, acc2 = MCMC2.sample_adapt(Ns, Nb)
+    x_s2 = MCMC2.sample_adapt(Ns, Nb)
     reference = np.array([[ 0.5       ,  0.77238519,  0.73381779,  0.7700134 ,  0.41274389,
          0.18348216,  0.37057737,  0.34837564,  0.34837564,  0.34837564],
        [ 0.5       ,  0.46259765,  0.70379628,  0.79213478,  1.00263215,
@@ -120,15 +120,15 @@ def test_pCN_sample_regression():
     posterior = cuqi.distribution.Posterior(dist,ref,np.zeros(d))
     MCMC = pCN(posterior, scale, x0)
     results = MCMC.sample(10,2)
-    assert np.allclose(results[0].samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
+    assert np.allclose(results.samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
          0.78752546, 0.68750247, 0.42875734, 0.40239322, 0.40495205],
         [0.66816968, 0.66816968, 0.61423278, 0.6233214 , 0.6233214 ,
          0.59968114, 0.6343679 , 0.69654995, 0.84449757, 0.82154609]]))
 
-    assert np.allclose(results[1], np.array([-1.76167363, -1.76167363, -1.97879155, -2.16160882, -2.16160882,
+    assert np.allclose(results.loglike_eval, np.array([-1.76167363, -1.76167363, -1.97879155, -2.16160882, -2.16160882,
         -2.5649313 , -2.2912605 , -1.75498652, -1.82515857, -1.8101712 ]))
 
-    assert results[2]==0.8
+    assert results.acc_rate==0.8
 
 
 def test_sampler_geometry_assignment():
@@ -149,4 +149,4 @@ def test_sampler_geometry_assignment():
     samples = MCMC_sampler.sample(10,2)
 
     assert(MCMC_sampler.geometry == target.geometry and\
-           MCMC_sampler.geometry == samples[0].geometry)
+           MCMC_sampler.geometry == samples.geometry)

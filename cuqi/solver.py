@@ -2,6 +2,7 @@ import numpy as np
 from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b
 import scipy.optimize as opt
+from cuqi.samples import CUQIarray
 
 class L_BFGS_B(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
@@ -138,14 +139,23 @@ class minimize(object):
                 "grad": solution['jac'],
                 "nit": solution['nit'], 
                 "nfev": solution['nfev']}
-        return solution['x'], info
+        if isinstance(self.x0,CUQIarray):
+            sol = CUQIarray(solution['x'],geometry=self.x0.geometry)
+        else:
+            sol = solution['x']
+        return sol, info
 
 class maximize(minimize):
     """Simply calls ::class:: cuqi.solver.minimize with -func."""
     def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
         def nfunc(*args,**kwargs):
             return -func(*args,**kwargs)
-        super().__init__(nfunc,x0,gradfunc,method,**kwargs)
+        if gradfunc is not None:
+            def ngradfunc(*args,**kwargs):
+                return -gradfunc(*args,**kwargs)
+        else:
+            ngradfunc = gradfunc
+        super().__init__(nfunc,x0,ngradfunc,method,**kwargs)
 
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.

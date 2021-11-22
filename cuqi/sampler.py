@@ -69,17 +69,28 @@ class Sampler(ABC):
         return self._dim
     
 
-    def sample(self,N,Nb):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
+    def sample(self,N,Nb=0):
+        # Get samples from the samplers sample method
+        result = self._sample(N,Nb)
+        return self._create_Sample_object(result,N+Nb)
 
-    def sample_adapt(self,N,Nb):
-        # Get samples from the distribution sample method
-        s,loglike_eval, accave = self._sample_adapt(N,Nb)
-        return self._create_Sample_object(s,N),loglike_eval, accave
+    def sample_adapt(self,N,Nb=0):
+        # Get samples from the samplers sample method
+        result = self._sample_adapt(N,Nb)
+        return self._create_Sample_object(result,N+Nb)
 
-    def _create_Sample_object(self,s,N):
+    def _create_Sample_object(self,result,N):
+        loglike_eval = None
+        acc_rate = None
+        if isinstance(result,tuple):
+            #Unpack samples+loglike+acc_rate
+            s = result[0]
+            if len(result)>1: loglike_eval = result[1]
+            if len(result)>2: acc_rate = result[2]
+            if len(result)>3: raise TypeError("Expected tuple of at most 3 elements from sampling method.")
+        else:
+            s = result
+                
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
@@ -88,13 +99,24 @@ class Sampler(ABC):
                 s = s.flatten()
         else:
             s = Samples(s, self.geometry)#, geometry = self.geometry)
-
+            s.loglike_eval = loglike_eval
+            s.acc_rate = acc_rate
         return s
 
     @abstractmethod
     def _sample(self,N,Nb):
         pass
 
+    @abstractmethod
+    def _sample_adapt(self,N,Nb):
+        pass
+
+    def _print_progress(self,s,Ns):
+        """Prints sampling progress"""
+        if (s % (max(Ns//100,1))) == 0:
+            print("\r",'Sample', s, '/', Ns, end="")
+        elif s == Ns:
+            print("\r",'Sample', s, '/', Ns)
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
@@ -145,6 +167,9 @@ class NUTS(Sampler):
         logpdf = -self.target.logpdf(x)
         grad = -self.target.gradient(x)
         return logpdf, grad
+
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N,Nb)
 
     def _sample(self, N, Nb):
 
@@ -219,9 +244,10 @@ class NUTS(Sampler):
             elif (k == Nb):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
                 
+            self._print_progress(k+1,Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
+
             # msg
             if (np.mod(k, 25) == 0):
-                print("\nSample {:d}/{:d}".format(k, Ns))
                 if np.isnan(pot_eval[k]):
                     raise NameError('NaN potential func')
 
@@ -320,63 +346,83 @@ class NUTS(Sampler):
             return theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p
 
 
-class Linear_RTO(object):
+class Linear_RTO(Sampler):
     
-    def __init__(self, likelihood, prior, model, data, x0, maxit=10, tol=1e-6, shift=0):
+    def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
         
-        # independent Posterior samples. Linear model and Gaussian prior-likelihood
-        if not isinstance(model, cuqi.model.LinearModel):
+        super().__init__(target, x0=x0)
+
+        # Check target type and store
+        if not isinstance(target, cuqi.distribution.Posterior):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
+
+        # Check Linear model and Gaussian prior+likelihood
+        if not isinstance(self.model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
-        if not hasattr(likelihood, "sqrtprec"):
+        if not hasattr(self.likelihood, "sqrtprec"):
             raise TypeError("Likelihood must contain a sqrtprec attribute")
 
-        if not hasattr(prior, "sqrtprec"):
+        if not hasattr(self.prior, "sqrtprec"):
             raise TypeError("prior must contain a sqrtprec attribute")
 
-        if not hasattr(prior, "sqrtprecTimesMean"):
+        if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
-    
-        # Extract lambda, delta, L
-        #self.lambd = 1/(likelihood.std**2)
-        #self.delta = prior.prec
-        #self.L = prior.L
-        #self.A = model.get_matrix()
-        #self.b = data        
-        self.x0 = x0
+
+        # Modify initial guess        
+        if x0 is not None:
+            self.x0 = x0
+        else:
+            self.x0 = np.zeros(self.prior.dim)
+
+        # Other parameters
         self.maxit = maxit
         self.tol = tol        
         self.shift = 0
                 
-        L1 = likelihood.sqrtprec
-        L2 = prior.sqrtprec
-        L2mu = prior.sqrtprecTimesMean
+        L1 = self.likelihood.sqrtprec
+        L2 = self.prior.sqrtprec
+        L2mu = self.prior.sqrtprecTimesMean
 
         # pre-computations
-        self.m = len(data)
-        self.n = len(x0)
-        self.b_tild = np.hstack([L1@data, L2mu]) 
+        self.m = len(self.data)
+        self.n = len(self.x0)
+        self.b_tild = np.hstack([L1@self.data, L2mu]) 
 
-        self.model = model
-
-        if not callable(model):
-            self.M = sp.sparse.vstack([L1@model, L2])
+        if not callable(self.model):
+            self.M = sp.sparse.vstack([L1@self.model, L2])
         else:
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
                 if flag == 1:
-                    out1 = L1 @ model.forward(x)
+                    out1 = L1 @ self.model.forward(x)
                     out2 = L2 @ x
                     out  = np.hstack([out1, out2])
                 elif flag == 2:
                     idx = int(self.m)
-                    out1 = model.adjoint(L1.T@x[:idx])
+                    out1 = self.model.adjoint(L1.T@x[:idx])
                     out2 = L2.T @ x[idx:]
                     out  = out1 + out2                
                 return out   
             self.M = M       
 
-    def sample(self, N, Nb):   
+    @property
+    def prior(self):
+        return self.target.prior
+
+    @property
+    def likelihood(self):
+        return self.target.likelihood
+
+    @property
+    def model(self):
+        return self.target.model     
+    
+    @property
+    def data(self):
+        return self.target.data
+
+    def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
         samples = np.empty((self.n, Ns))
                      
@@ -387,16 +433,15 @@ class Linear_RTO(object):
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
 
-            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
-                print("\r",'Sample', s+1, '/', Ns, end="")
-
-        print("\r",'Sample', s+2, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
         
         # remove burn-in
         samples = samples[:, Nb:]
         
-        return cuqi.samples.Samples(samples,geometry=self.model.domain_geometry)
+        return samples, None, None
 
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N,Nb)
 
 
 #===================================================================
@@ -444,8 +489,8 @@ class CWMH(ProposalBasedSampler):
         for s in range(Ns-1):
             # run component by component
             samples[:, s+1], target_eval[s+1], acc[:, s+1] = self.single_update(samples[:, s], target_eval[s])
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -587,8 +632,7 @@ class MetropolisHastings(ProposalBasedSampler):
         for s in range(Ns-1):
             # run component by component
             samples[:, s+1], target_eval[s+1], acc[s+1] = self.single_update(samples[:, s], target_eval[s])
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -707,6 +751,9 @@ class pCN(Sampler):
 
 
     def _sample(self, N, Nb):
+        if self.scale is None:
+            raise ValueError("Scale must be set to sample without adaptation. Consider using sample_adapt instead.")
+
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -724,10 +771,7 @@ class pCN(Sampler):
             # run component by component
             samples[:, s+1], loglike_eval[s+1], acc[s+1] = self.single_update(samples[:, s], loglike_eval[s])
 
-            if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
-                print("\r",'Sample', s+1, '/', Ns, end="")
-
-        print("\r",'Sample', s+2, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -738,6 +782,10 @@ class pCN(Sampler):
         return samples, loglike_eval, accave
 
     def _sample_adapt(self, N, Nb):
+        # Set intial scale if not set
+        if self.scale is None:
+            self.scale = 0.1
+
         Ns = N+Nb   # number of simulations
 
         # allocation

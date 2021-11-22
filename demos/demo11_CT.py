@@ -54,7 +54,8 @@ data=likelihood(x=x_exact).sample()
 model.range_geometry.plot(data); plt.title("noisy sinogram");
 
 # %%
-sampler = cuqi.sampler.Linear_RTO(likelihood,prior,model,data,np.zeros(n))
+posterior = cuqi.distribution.Posterior(likelihood,prior,data)
+sampler = cuqi.sampler.Linear_RTO(posterior)
 samples = sampler.sample(500,100)
 # %%
 # Plot mean

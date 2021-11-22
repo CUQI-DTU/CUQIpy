@@ -197,7 +197,7 @@ MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
 Nb = int(0.2*Ns)   
 
 # Run sampler (with adaptive parameter selection)
-result = MCMC.sample_adapt(Ns,Nb)[0]
+result = MCMC.sample_adapt(Ns,Nb)
 
 # plot mean + 95 ci of samples using specific sampler
 result.plot_ci(95,exact=tp.exactSolution)

@@ -99,7 +99,8 @@ prior = cuqi.distribution.GaussianCov(mean = np.zeros(N**2), cov = 1/50)
 
 # Setup sampler
 x0 = np.zeros(N**2)
-sampler = cuqi.sampler.Linear_RTO(likelihood, prior, A, b_data, x0)
+posterior = cuqi.distribution.Posterior(likelihood,prior,b_data)
+sampler = cuqi.sampler.Linear_RTO(posterior,x0)
 
 # Sample
 samples = sampler.sample(N = 500, Nb = 100)
@@ -140,7 +141,8 @@ prior = cuqi.distribution.GaussianCov(mean = prior_mean, cov = prior_cov)
 
 # Setup sampler
 x0 = np.zeros(N**2)
-sampler = cuqi.sampler.Linear_RTO(likelihood, prior, A, b_data, x0)
+posterior = cuqi.distribution.Posterior(likelihood,prior,b_data)
+sampler = cuqi.sampler.Linear_RTO(posterior,x0)
 
 #%% Sample
 samples_WG = sampler.sample(N = 500, Nb = 100)

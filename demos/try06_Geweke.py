@@ -45,7 +45,9 @@ Ns = int(2e4)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s, target_eval, acc = MCMC.sample_adapt(Ns, Nb)
+x_s = MCMC.sample_adapt(Ns, Nb)
+target_eval = x_s.loglike_eval
+acc = x_s.acc_rate
 print('Elapsed time:', time.time() - ti)
 
 # Extract samples

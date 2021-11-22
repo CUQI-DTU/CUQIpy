@@ -7,6 +7,7 @@ from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
+from cuqi.model import Model
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -892,13 +893,13 @@ class Uniform(Distribution):
 # ========================================================================
 class Posterior(Distribution):
         
-    def __init__(self, likelihood, prior, data, **kwargs):
+    def __init__(self, likelihood, prior, data=None, **kwargs):
         # Init from abstract distribution class
         self.likelihood = likelihood
         self.prior = prior 
         self.data = data
-        if 'geometry' not in kwargs.keys(): 
-            kwargs["geometry"]=prior.geometry
+#        if 'geometry' not in kwargs.keys(): 
+#            kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
 
     @property
@@ -907,13 +908,40 @@ class Posterior(Distribution):
 
     @property
     def geometry(self):
-        return self.prior.geometry
+        return self._geometry
 
     @geometry.setter
     def geometry(self, value):
-        if value != self.prior.geometry:
-            raise ValueError("Posterior and prior geometries are inconsistent.")
-        # no need to actually set geometry because self.geometry returns self.prior.geometry
+        # Compare model and prior
+        if self.model is not None and self.model.domain_geometry != self.prior.geometry:
+            if isinstance(self.prior.geometry,_DefaultGeometry):
+                pass #We allow default geometry in prior
+            else:
+                raise ValueError("Geometry from likelihood (model.domain_geometry) does not match prior geometry")
+
+        # Compare value and prior
+        if self.model is None and value is not None and value != self.prior.geometry:
+            if isinstance(self.prior.geometry,_DefaultGeometry):
+                pass #We allow default geometry in prior
+            else:
+                raise ValueError("Posterior and prior geometries are inconsistent.")
+
+        # Compare model and value
+        if self.model is not None and value is not None and value != self.model.domain_geometry:
+            if isinstance(self.model.domain_geometry,_DefaultGeometry):
+                pass #Allow default model geometry
+            else:
+                raise ValueError("Set geometry does not match with model geometry.")
+
+        # If value is set, its consistant with prior (and prior is consistant with model)
+        # If value is not set, take from model (if exists) or from prior as last resort
+        if value is not None:
+            self._geometry = value
+        elif self.model is not None:
+            self._geometry = self.model.domain_geometry
+        else:
+            self._geometry = self.prior.geometry
+            
 
 
     def logpdf(self,x):
@@ -933,6 +961,25 @@ class Posterior(Distribution):
     def loglikelihood_function(self,x):
         """The log-likelihood function defines the log probability density function of the observed data as a function of the parameters of the model."""
         return self.likelihood(x=x).logpdf(self.data)
+
+    @property
+    def model(self):
+        """Extract the cuqi model from likelihood."""
+
+        model_value = None
+
+        for key, value in vars(self.likelihood).items():
+            if isinstance(value,Model):
+                if model_value is None:
+                    model_value = value
+                else:
+                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
+        
+        if model_value is None:
+            #If no model was found we also give error
+            return None
+        else:
+            return model_value
 
 class UserDefinedDistribution(Distribution):
 
