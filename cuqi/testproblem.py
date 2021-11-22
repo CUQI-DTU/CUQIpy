@@ -593,7 +593,7 @@ class Heat_1D(BayesianProblem):
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
 
         # Set up exact solution
-        x_exact = CUQIarray(100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain), geometry=domain_geometry)
+        x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
