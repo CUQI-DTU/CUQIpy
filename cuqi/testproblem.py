@@ -614,6 +614,7 @@ class Heat_1D(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+        self.infoString = f"Noise type: Additive i.i.d. noise with mean zero and signal to noise ratio: {SNR}"
 
 
 class Abel_1D(BayesianProblem):

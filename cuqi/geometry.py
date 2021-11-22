@@ -384,11 +384,11 @@ class MappedGeometry(Geometry):
 
     def _plot(self, values, *args, **kwargs):
         """Calls the underlying geometry plotting method."""
-        self.geometry._plot(values, *args, **kwargs)
+        return self.geometry._plot(values, *args, **kwargs)
 
     def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
         """Calls the underlying geometry plotting of envelope method."""
-        self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
+        return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
     def __repr__(self) -> str:
         return super().__repr__()+"\nMap is applied to: {}".format(self.geometry.__repr__())
