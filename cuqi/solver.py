@@ -153,6 +153,8 @@ class maximize(minimize):
         if gradfunc is not None:
             def ngradfunc(*args,**kwargs):
                 return -gradfunc(*args,**kwargs)
+        else:
+            ngradfunc = gradfunc
         super().__init__(nfunc,x0,ngradfunc,method,**kwargs)
 
 class CGLS(object):
