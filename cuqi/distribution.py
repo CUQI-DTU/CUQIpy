@@ -139,6 +139,18 @@ class Distribution(ABC):
                 attributes.append(key)
         return attributes + get_indirect_attributes(self) 
 
+    @property
+    def is_cond(self):
+        if len(self.get_conditioning_variables()) == 0:
+            return False
+        else:
+            return True
+
+    def __repr__(self) -> str:
+        if self.is_cond is True:
+            return "CUQI {}. Conditional parameters {}.".format(self.__class__.__name__,self.get_conditioning_variables())
+        else:
+            return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
 class Cauchy_diff(Distribution):
 
