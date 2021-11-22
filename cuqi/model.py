@@ -104,7 +104,7 @@ class Model(object):
         return self.range_dim
 
     def __repr__(self) -> str:
-        return "cuqi {}: {} -> {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry)
+        return "CUQI {}: {} -> {}. Forward parameters: {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.getNonDefaultArgs(self))
     
 class LinearModel(Model):
     """Model based on a Linear forward operator.
