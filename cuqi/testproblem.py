@@ -451,7 +451,7 @@ class Poisson_1D(BayesianProblem):
 
         # Grids for model
         grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
-        grid_range  = np.linspace(1./(dim-1), endpoint, dim, endpoint=False)
+        grid_range  = np.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
 
         # Set up geometries for model
         if isinstance(field_type,Geometry):
@@ -708,7 +708,8 @@ class Abel_1D(BayesianProblem):
     
         # Set up exact solution
         x_exact = np.sin(tvec*np.pi)*np.exp(-2*tvec)
-        x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
+        x_exact.shape = (dim,)
+        x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
