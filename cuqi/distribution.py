@@ -904,7 +904,33 @@ class Uniform(Distribution):
 
 # ========================================================================
 class Posterior(Distribution):
-        
+    """
+    Posterior probability distribution defined by likelihood and prior. The geometry is automatically determined from the model and prior.
+    Generates instance of cuqi.distribution.Posterior
+    
+    Parameters
+    ------------
+    likelihood: Likelihood distribution, cuqi.distribution.Distribution.
+    prior: Prior distribution, cuqi.distribution.Distribution.
+    data: Data realization (optional).
+
+    Attributes
+    ------------
+    likelihood
+    prior
+    data
+    dim
+    geometry
+    model
+    loglikelihood_function
+    
+    Methods
+    -----------
+    sample: NotImplemented. Use sampler module instead.
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
+    """
     def __init__(self, likelihood, prior, data=None, **kwargs):
         # Init from abstract distribution class
         self.likelihood = likelihood
