@@ -104,7 +104,7 @@ class Model(object):
         return self.range_dim
 
     def __repr__(self) -> str:
-        return "cuqi {}: {} -> {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry)
+        return "CUQI {}: {} -> {}. Forward parameters: {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.getNonDefaultArgs(self))
     
 class LinearModel(Model):
     """Model based on a Linear forward operator.
@@ -222,7 +222,35 @@ class LinearModel(Model):
         
 
 class PDEModel(Model):
+    """
+    Model based on an underlying cuqi.pde.PDE.
+    In the forward operation the PDE is assembled, solved and observed.
+    
+    Parameters
+    -----------
+    forward : 2D ndarray or callable function.
+        Forward operator assembling, solving and observing the pde.
 
+    range_geometry : integer or cuqi.geometry.Geometry (optional)
+        If integer is given a _DefaultGeometry is created with dimension of the integer.
+
+    domain_geometry : integer or cuqi.geometry.Geometry (optional)
+        If integer is given a _DefaultGeometry is created with dimension of the integer.
+
+    Attributes
+    -----------
+    range_geometry : cuqi.geometry.Geometry
+        The geometry representing the range.
+
+    domain_geometry : cuqi.geometry.Geometry
+        The geometry representing the domain.
+
+    Methods
+    -----------
+    :meth:`forward` the forward operator.
+    :meth:`range_dim` the dimension of the range.
+    :meth:`domain_dim` the dimension of the domain.
+    """
     def __init__(self, PDE, range_geometry, domain_geometry):
         #....
         if not isinstance(PDE,cuqi.pde.PDE):
