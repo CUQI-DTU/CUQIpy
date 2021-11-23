@@ -8,6 +8,7 @@ from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, 
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
+from cuqi.pde import SteadyStateLinearPDE
 
 class Generic(object):
     def __init__(self):
@@ -192,8 +193,8 @@ class BayesianProblem(object):
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
         
-        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF) and self.model.domain_dim<=1000 and self.model.range_dim<=1000:
-            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=1000.")
+        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF) and self.model.domain_dim<=5000 and self.model.range_dim<=5000:
+            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
@@ -262,7 +263,7 @@ class BayesianProblem(object):
         print("\r",'Sample', s+1, '/', Ns)
         print('Elapsed time:', time.time() - ti)
         
-        return cuqi.samples.Samples(x_s)
+        return cuqi.samples.Samples(x_s,self.model.domain_geometry)
     
     def _sampleCWMH(self,Ns):
         # Dimension
@@ -294,20 +295,17 @@ class BayesianProblem(object):
         #def proposal(ns): return self.prior.sample(ns)
         
         scale = 0.02
-        x0 = np.zeros(n)
+        #x0 = np.zeros(n)
         
-        #ToDO: Switch to pCN
-        #TODO: create posterior in the initializer
         posterior = cuqi.distribution.Posterior(self.likelihood,self.prior,self.data)
-        MCMC = cuqi.sampler.pCN(posterior,scale,x0)
-        
+        MCMC = cuqi.sampler.pCN(posterior,scale)      
         
         #TODO: Select burn-in 
         #Nb = int(0.25*Ns)   # burn-in
 
         #Run sampler
         ti = time.time()
-        x_s = MCMC.sample(Ns,0) #ToDo: fix sampler input
+        x_s = MCMC.sample_adapt(Ns,0) #ToDo: fix sampler input
         print('Elapsed time:', time.time() - ti)
 
         # Set geometry from prior
