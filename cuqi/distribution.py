@@ -790,8 +790,8 @@ class GMRF(Distribution):
                 xi = rng.standard_normal((self._diff_op.shape[0], N))   # standard Gaussian
             else:
                 xi = np.random.randn(self._diff_op.shape[0], N)   # standard Gaussian
-            
-            s = self.mean + (1/np.sqrt(self.prec))* \
+            if N==1: mean_reshaped = self.mean.flatten()
+            s = mean_reshaped + (1/np.sqrt(self.prec))* \
                 splinalg.spsolve(self._chol.T, (splinalg.spsolve(self._chol, (self._diff_op.T @ xi)))) 
         else:
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
