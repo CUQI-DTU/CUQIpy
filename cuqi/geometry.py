@@ -544,15 +544,17 @@ class StepExpansion(Continuous1D):
         super().__init__(grid, axis_labels,**kwargs)
 
         L = self.grid[-1]
-        self._idx1 = np.where( (self.grid>0.2*L)&(self.grid<=0.4*L) )
-        self._idx2 = np.where( (self.grid>0.4*L)&(self.grid<=0.6*L) )
-        self._idx3 = np.where( (self.grid>0.6*L)&(self.grid<=0.8*L) )
+        self._idx1 = np.where( (self.grid>0*L)&(self.grid<=0.333*L) )
+        self._idx2 = np.where( (self.grid>0.333*L)&(self.grid<=0.666*L) )
+        self._idx3 = np.where( (self.grid>0.666*L)&(self.grid<=L) )
 
     def par2fun(self, p):
-        real = np.zeros_like(self.grid)        
+        real = np.zeros_like(self.grid)  
+ 
         real[self._idx1[0]] = p[0]
         real[self._idx2[0]] = p[1]
         real[self._idx3[0]] = p[2]
+ 
         return real
 
     def fun2par(self,f):       

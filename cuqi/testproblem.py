@@ -554,7 +554,7 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200):
+    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
         
         # Prepare PDE form
         N = dim   # Number of solution nodes
@@ -583,7 +583,7 @@ class Heat_1D(BayesianProblem):
             domain_geometry = StepExpansion(grid_domain)
         else:
             domain_geometry = Continuous1D(grid_domain)
-
+        domain_geometry_old = domain_geometry 
         if KL_map is not None:
             domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
 
@@ -592,11 +592,18 @@ class Heat_1D(BayesianProblem):
 
         # Prepare model
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
-
+        if exactSolution is not None:
+            x_exact = CUQIarray(exactSolution, is_par = False, geometry=domain_geometry)
         # Set up exact solution
-        x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
-        x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
-
+        
+        else:
+            if field_type=="Step":
+                x_exact = CUQIarray(domain_geometry_old.par2fun(np.array([1,2,3])), is_par=False, geometry=domain_geometry)
+            else:
+                grid_domain = model.domain_geometry.grid
+                x_exact = grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain)
+                x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
+        #x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
 

@@ -802,7 +802,7 @@ class GMRF(Distribution):
                 xi = rng.standard_normal((self._diff_op.shape[0], N))   # standard Gaussian
             else:
                 xi = np.random.randn(self._diff_op.shape[0], N)   # standard Gaussian
-            
+
             s = self.mean + (1/np.sqrt(self.prec))* \
                 splinalg.spsolve(self._chol.T, (splinalg.spsolve(self._chol, (self._diff_op.T @ xi)))) 
         else:

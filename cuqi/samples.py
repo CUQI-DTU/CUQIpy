@@ -308,7 +308,10 @@ class Samples(object):
             
             lmn = self.geometry.plot(mean,*args,**kwargs)
             if exact is not None: #TODO: Allow exact to be defined in different space than mean?
-                lex = self.geometry.plot(exact,*args,**kwargs)
+                if isinstance(exact, CUQIarray):
+                    lex = exact.plot(*args,**kwargs)
+                else:
+                    lex = self.geometry.plot(exact,*args,**kwargs)
                 plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
             else:
                 plt.legend([lmn[0], lci],["Mean","Confidence Interval"])
