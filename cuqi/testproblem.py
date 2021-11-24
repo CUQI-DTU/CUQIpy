@@ -128,7 +128,7 @@ class Deblur(BayesianProblem):
 #=============================================================================
 class Deconvolution(BayesianProblem):
     """
-    1D Deconvolution test problem
+    1D periodic deconvolution test problem
 
     Parameters
     ------------
@@ -376,7 +376,7 @@ def _getExactSolution(dim,phantom,phantom_param):
 
 class Poisson_1D(BayesianProblem):
     """
-    1D Poisson test problem. TODO: Add more description here.
+    1D Poisson test problem. Discretized 1D Poisson equation (steady-state linear PDE).
 
     Parameters
     ------------
@@ -451,7 +451,7 @@ class Poisson_1D(BayesianProblem):
 
         # Grids for model
         grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
-        grid_range  = np.linspace(1./(dim-1), endpoint, dim, endpoint=False)
+        grid_range  = np.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
 
         # Set up geometries for model
         if isinstance(field_type,Geometry):
@@ -495,12 +495,12 @@ class Poisson_1D(BayesianProblem):
 
 class Heat_1D(BayesianProblem):
     """
-    1D Heat test problem. TODO: Add more description here.
+    1D Heat test problem. Discretized Heat equation (time-dependent linear PDE).
 
     Parameters
     ------------
     dim : int
-        size of the grid for the poisson problem
+        size of the grid for the heat problem
 
     endpoint : float
         Location of end-point of grid.
@@ -529,7 +529,7 @@ class Heat_1D(BayesianProblem):
         Generated (noisy) data
 
     model : cuqi.model.PDEModel_1D
-        Poisson 1D model
+        Heat 1D model
 
     prior : cuqi.distribution.Distribution
         Distribution of the prior
@@ -626,7 +626,7 @@ class Heat_1D(BayesianProblem):
 
 class Abel_1D(BayesianProblem):
     """
-    1D Abel test problem. TODO: Add more description here.
+    1D Abel test problem. 1D model of rotationally symmetric computed tomography.
 
     Parameters
     ------------
@@ -653,8 +653,8 @@ class Abel_1D(BayesianProblem):
     data : ndarray
         Generated (noisy) data
 
-    model : cuqi.model.PDEModel_1D
-        Poisson 1D model
+    model : cuqi.model.LinearModel
+        Abel 1D model
 
     prior : cuqi.distribution.Distribution
         Distribution of the prior
@@ -715,7 +715,8 @@ class Abel_1D(BayesianProblem):
     
         # Set up exact solution
         x_exact = np.sin(tvec*np.pi)*np.exp(-2*tvec)
-        x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
+        x_exact.shape = (dim,)
+        x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
@@ -723,7 +724,7 @@ class Abel_1D(BayesianProblem):
         # Add noise to data
         sigma = np.linalg.norm(b_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+        data = b_exact + np.random.normal(0, sigma, b_exact.shape )
 
         likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
         prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
@@ -736,9 +737,9 @@ class Abel_1D(BayesianProblem):
         self.exactData = b_exact
 
 
-class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is it deblur?...
+class Deconv_1D(BayesianProblem):
     """
-    1D Deconv test problem. TODO: Add more description here.
+    1D Deconvolution test problem. Discreate linear problem from blurring kernel.
 
     Parameters
     ------------
@@ -765,8 +766,8 @@ class Deconv_1D(BayesianProblem): #TODO. Remove this Devonvolution model? Or is 
     data : ndarray
         Generated (noisy) data
 
-    model : cuqi.model.PDEModel_1D
-        Poisson 1D model
+    model : cuqi.model.LinearModel
+        Deconvolution 1D model
 
     prior : cuqi.distribution.Distribution
         Distribution of the prior

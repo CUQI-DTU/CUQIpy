@@ -221,8 +221,8 @@ class NUTS(Sampler):
                         self._BuildTree(q_plus, p_plus, grad_pot_plus, H, log_u, v, j, epsilon)
 
                 # Metropolis step
-                logalpha = min(0, np.log(n_p) - np.log(n))
-                if (s_p == 1) and (np.log(np.random.rand()) <= logalpha) and (np.isnan(pot_p) == False):
+                alpha = min(1,n_p/n) #min(0, np.log(n_p) - np.log(n)) TODO...
+                if (s_p == 1) and ((np.random.rand()) <= alpha) and (np.isnan(pot_p) == False): #TODO. Removed np.log
                     theta[:, k] = q_p
                     pot_eval[k] = pot_p
                     grad_pot = np.copy(grad_pot_p)
@@ -311,7 +311,13 @@ class NUTS(Sampler):
             H_p = -pot_p - self._Kfun(r_p, 'eval')     # Hamiltonian eval
             n_p = int(log_u <= H_p)              # if particle is in the slice
             s_p = int((log_u-Delta_max) < H_p)   # check U-turn
-            alpha_p = min(1, np.exp(H_p - H))    # logalpha_p = min(0, H_p - H)
+
+            #TODO: Quick fix to avoid overflow
+            diff_H = H_p-H
+            if diff_H>100:
+                alpha_p = 1
+            else:
+                alpha_p = min(1, np.exp(diff_H))    # logalpha_p = min(0, H_p - H)
 
             return theta_p, r_p, grad_pot_p, theta_p, r_p, grad_pot_p, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, 1
             
@@ -331,8 +337,9 @@ class NUTS(Sampler):
                         self._BuildTree(theta_plus, r_plus, grad_pot_plus, H, log_u, v, j-1, epsilon)
 
                 # Metropolis step
-                logalpha2 = np.log(n_pp) - np.log(n_p+n_pp) # n_pp/max(1, n_p+n_pp)
-                if (np.log(np.random.rand()) <= logalpha2):
+                #TODO: Check this update. Use log instead?
+                alpha2 = n_pp/max(1, n_p+n_pp) #np.log(n_pp) - np.log(n_p+n_pp)
+                if ((np.random.rand()) <= alpha2):
                     theta_p = np.copy(theta_pp)
                     pot_p = np.copy(pot_pp)
                     grad_pot_p = np.copy(grad_pot_pp)

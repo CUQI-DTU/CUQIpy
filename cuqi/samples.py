@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import _DefaultGeometry
+from cuqi.geometry import _DefaultGeometry, Continuous2D
 from copy import copy
 
 class CUQIarray(np.ndarray):
@@ -282,17 +282,39 @@ class Samples(object):
         if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
         if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"]=kwargs.get("plot_par")   
 
-        lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',**pe_kwargs)
-
-        lmn = self.geometry.plot(mean,*args,**kwargs)
-        if exact is not None: #TODO: Allow exact to be defined in different space than mean?
-            if isinstance(exact, CUQIarray):
-                lex = exact.plot(*args,**kwargs)
-            else:
-                lex = self.geometry.plot(exact,*args,**kwargs)
-            plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
+        if type(self.geometry) is Continuous2D:
+            plt.figure()
+            #fig.add_subplot(2,2,1)
+            self.geometry.plot(mean, *args, **kwargs)
+            plt.title("Sample mean")
+            if exact is not None:
+                #fig.add_subplot(2,2,3)
+                plt.figure()
+                self.geometry.plot(exact, *args, **kwargs)
+                plt.title("Exact")
+            #fig.add_subplot(2,2,2)
+            plt.figure()
+            self.geometry.plot(up_conf-lo_conf)
+            plt.title("Confidence interval (Upper minus lower)")
+            plt.figure()
+            self.geometry.plot(up_conf)
+            plt.title("Upper confidence interval limit")
+            #fig.add_subplot(2,2,4)
+            plt.figure()
+            self.geometry.plot(lo_conf)
+            plt.title("Lower confidence interval limit")
         else:
-            plt.legend([lmn[0], lci],["Mean","Confidence Interval"])
+            lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',**pe_kwargs)
+            
+            lmn = self.geometry.plot(mean,*args,**kwargs)
+            if exact is not None: #TODO: Allow exact to be defined in different space than mean?
+                if isinstance(exact, CUQIarray):
+                    lex = exact.plot(*args,**kwargs)
+                else:
+                    lex = self.geometry.plot(exact,*args,**kwargs)
+                plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
+            else:
+                plt.legend([lmn[0], lci],["Mean","Confidence Interval"])
 
     def diagnostics(self):
         # Geweke test

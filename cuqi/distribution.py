@@ -139,6 +139,18 @@ class Distribution(ABC):
                 attributes.append(key)
         return attributes + get_indirect_attributes(self) 
 
+    @property
+    def is_cond(self):
+        if len(self.get_conditioning_variables()) == 0:
+            return False
+        else:
+            return True
+
+    def __repr__(self) -> str:
+        if self.is_cond is True:
+            return "CUQI {}. Conditional parameters {}.".format(self.__class__.__name__,self.get_conditioning_variables())
+        else:
+            return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
 class Cauchy_diff(Distribution):
 
@@ -892,7 +904,33 @@ class Uniform(Distribution):
 
 # ========================================================================
 class Posterior(Distribution):
-        
+    """
+    Posterior probability distribution defined by likelihood and prior. The geometry is automatically determined from the model and prior.
+    Generates instance of cuqi.distribution.Posterior
+    
+    Parameters
+    ------------
+    likelihood: Likelihood distribution, cuqi.distribution.Distribution.
+    prior: Prior distribution, cuqi.distribution.Distribution.
+    data: Data realization (optional).
+
+    Attributes
+    ------------
+    likelihood
+    prior
+    data
+    dim
+    geometry
+    model
+    loglikelihood_function
+    
+    Methods
+    -----------
+    sample: NotImplemented. Use sampler module instead.
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
+    """
     def __init__(self, likelihood, prior, data=None, **kwargs):
         # Init from abstract distribution class
         self.likelihood = likelihood
