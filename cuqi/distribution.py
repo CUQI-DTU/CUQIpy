@@ -336,7 +336,6 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
         self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
         self.cov = force_ndarray(cov)
-        self.is_symmetric = True
 
     @property
     def cov(self):
