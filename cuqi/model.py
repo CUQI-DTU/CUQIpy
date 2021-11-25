@@ -289,3 +289,4 @@ class PDEModel(Model):
             jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
             dx[i] = 0.0
         return jac.transpose()
+        
