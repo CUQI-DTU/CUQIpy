@@ -604,7 +604,7 @@ class CWMH(ProposalBasedSampler):
 class MetropolisHastings(ProposalBasedSampler):
     #target,  proposal=None, scale=1, x0=None, dim=None
     #    super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
-    def __init__(self, target, proposal=None, scale=1, x0=None, dim=None):
+    def __init__(self, target, proposal=None, scale=None, x0=None, dim=None):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
         super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
 
@@ -623,6 +623,9 @@ class MetropolisHastings(ProposalBasedSampler):
             raise ValueError(fail_msg)
 
     def _sample(self, N, Nb):
+        if self.scale is None:
+            raise ValueError("Scale must be set to sample without adaptation. Consider using sample_adapt instead.")
+        
         Ns = N+Nb   # number of simulations
 
         # allocation
@@ -650,6 +653,10 @@ class MetropolisHastings(ProposalBasedSampler):
         return samples, target_eval, accave
 
     def _sample_adapt(self, N, Nb):
+        # Set intial scale if not set
+        if self.scale is None:
+            self.scale = 0.1
+            
         Ns = N+Nb   # number of simulations
 
         # allocation
