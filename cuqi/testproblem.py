@@ -436,7 +436,7 @@ class Poisson_1D(BayesianProblem):
         
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
-        dx = 1./N   # step size
+        dx = endpoint/N   # step size
         grid = np.linspace(dx, endpoint, N, endpoint=False)
         Dx = - np.diag(np.ones(N), 0) + np.diag(np.ones(N-1), 1) #Dx
         vec = np.zeros(N)
