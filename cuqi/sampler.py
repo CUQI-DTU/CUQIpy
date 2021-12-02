@@ -621,6 +621,7 @@ class MetropolisHastings(ProposalBasedSampler):
             self._proposal = value
         else:
             raise ValueError(fail_msg)
+        self._proposal.geometry = self.target.geometry
 
     def _sample(self, N, Nb):
         if self.scale is None:
