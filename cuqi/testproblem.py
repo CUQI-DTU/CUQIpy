@@ -834,7 +834,7 @@ class Deconv_1D(BayesianProblem):
         model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
     
         # Prior
-        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1, geometry=model.domain_geometry)
 
         # Set up exact solution
         x_exact = prior.sample()
