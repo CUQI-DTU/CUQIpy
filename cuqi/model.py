@@ -271,11 +271,11 @@ class PDEModel(Model):
         return obs
 
     # compute gradient of target function 
-    def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
-        return self._approx_jacobian(kappa, func, eps)
+    def gradient(self, x, func, eps=np.sqrt(np.finfo(np.float).eps)):
+        return self._approx_jacobian(x, func, eps)
     
     # approximate the Jacobian matrix of callable function func
-    def _approx_jacobian(x, func, epsilon, *args):
+    def _approx_jacobian(self, x, func, epsilon, *args):
         # x       - The state vector
         # func    - A vector-valued function of the form f(x,*args)
         # epsilon - The peturbation used to determine the partial derivatives
@@ -288,5 +288,5 @@ class PDEModel(Model):
             dx[i] = epsilon
             jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
             dx[i] = 0.0
-        return jac.transpose()
+        return jac.T
         
