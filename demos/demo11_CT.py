@@ -7,14 +7,17 @@ import numpy as np
 import scipy.io as io
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp2d
+import scipy.sparse as sps
 
 #Specifically load the CT library (not loaded by default in cuqi)
 from cuqi.astra import CT2D_basic, CT2D_shifted
 
+%load_ext autoreload
+%autoreload 2
 # %%
 # Define CT model conveniently with cuqi
-#model = CT2D_basic() #CT model with default values
-model= CT2D_shifted() #Shifted detector/source CT model with default values
+model = CT2D_basic() #CT model with default values
+#model= CT2D_shifted() #Shifted detector/source CT model with default values
 
 # %%
 # Extract parameters from model
@@ -34,7 +37,7 @@ model.domain_geometry.plot(x_exact); plt.title("Phantom")
 # %%
 # Generate exact data and plot it
 b_exact = model@x_exact 
-plt.imshow(b_exact.reshape((p,q))); plt.title("Sinogram") #model.range_geometry.plot(b_exact) TODO
+model.range_geometry.plot(b_exact); plt.title("Sinogram")
 
 # %%
 # Plot back projection
@@ -42,18 +45,30 @@ model.domain_geometry.plot(model.adjoint(b_exact)); plt.title("Back projection")
 
 #%%
 # Define Gaussian prior and likelihood
-prior      = cuqi.distribution.Gaussian(np.zeros(n),0.1)
-likelihood = cuqi.distribution.Gaussian(model,0.05,np.eye(m))
+prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5)
+likelihood = cuqi.distribution.GaussianCov(model,0.1)
 
 #%%
 # Generate noisy data using the likelihood from x_exact
 data=likelihood(x=x_exact).sample()
-plt.imshow(data.reshape((p,q))); plt.title("noisy sinogram");
+model.range_geometry.plot(data); plt.title("noisy sinogram");
+
+# %%
+posterior = cuqi.distribution.Posterior(likelihood,prior,data)
+sampler = cuqi.sampler.Linear_RTO(posterior)
+samples = sampler.sample(500,100)
+# %%
+# Plot mean
+samples.plot_mean(); plt.colorbar()
+
+# %%
+# Plot std
+samples.plot_std(); plt.colorbar()
 
 # %%
 # Sample posterior
 IP=cuqi.problem.BayesianProblem(likelihood,prior,data)
-results=IP.sample_posterior(5000)
+results=IP.sample_posterior(500)
 #%%
 # Plot mean
 x_mean = np.mean(results.samples,axis=-1)

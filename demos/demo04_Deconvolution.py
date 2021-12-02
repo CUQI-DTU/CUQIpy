@@ -183,7 +183,7 @@ scale = delta*1/dim
 prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
 
 # Target and proposal
-def target(x): return tp.likelihood.logpdf(tp.data,x)+prior.logpdf(x)
+def target(x): return tp.likelihood(x=x).logpdf(tp.data)+prior.logpdf(x)
 def proposal(x,scale): return np.random.normal(x,scale)
 
 # Parameters for sampler
@@ -197,10 +197,7 @@ MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
 Nb = int(0.2*Ns)   
 
 # Run sampler (with adaptive parameter selection)
-x_s = MCMC.sample_adapt(Ns,Nb)[0]
-
-# Store as cuqi samples
-result = cuqi.samples.Samples(x_s)
+result = MCMC.sample_adapt(Ns,Nb)
 
 # plot mean + 95 ci of samples using specific sampler
 result.plot_ci(95,exact=tp.exactSolution)

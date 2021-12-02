@@ -4,6 +4,7 @@
 # =============================================================================
 # Version 2020-10
 # =============================================================================
+# %%
 import sys
 sys.path.append("../")
 import time
@@ -11,8 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import pCN, RWMH
-from cuqi.distribution import Gaussian
+from cuqi.sampler import CWMH
+from cuqi.distribution import Gaussian, Normal
 from cuqi.diagnostics import Geweke
 
 # ==========================================================================
@@ -30,22 +31,27 @@ def target(x): return dist.logpdf(x)
 # =============================================================================
 # reference measure (or 'prior' if it is a BIP)
 # =============================================================================
-ref = Gaussian(mu, np.ones(d), R)   # standard Gaussian
+ref = Normal(lambda mean: mean, lambda std: std)   # standard Gaussian
 
 # =============================================================================
 # posterior sampling
 # =============================================================================
 scale = 0.1
 x0 = 0.25*np.ones(d)
-MCMC = RWMH(ref, target, scale, x0)
+MCMC = CWMH(target, ref, scale, x0)
 
 # run sampler
 Ns = int(2e4)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s, target_eval, acc = MCMC.sample_adapt(Ns, Nb)
+x_s = MCMC.sample_adapt(Ns, Nb)
+target_eval = x_s.loglike_eval
+acc = x_s.acc_rate
 print('Elapsed time:', time.time() - ti)
+
+# Extract samples
+x_s = x_s.samples
 
 # =============================================================================
 # stat
@@ -74,3 +80,4 @@ ax2.set_xlim(0.5,1)
 ax2.set_ylim(0,1.1)
 
 plt.show()
+# %%

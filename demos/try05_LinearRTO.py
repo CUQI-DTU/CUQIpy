@@ -1,3 +1,4 @@
+# %%
 # =============================================================================
 # Created by:
 # Felipe Uribe @ DTU
@@ -20,7 +21,7 @@ from cuqi.sampler import Linear_RTO
 # =============================================================================
 test = cuqi.testproblem.Deblur()
 n = test.model.domain_dim
-tt = test.t
+tt = test.mesh
 h = test.meshsize
 
 # =============================================================================
@@ -45,10 +46,11 @@ Nb = 0             # burn-in
 x0 = mu_pr
 maxit = 20
 #
-MCMC = Linear_RTO(test.likelihood, prior, test.model, test.data, x0, maxit)
+posterior = cuqi.distribution.Posterior(test.likelihood,prior,test.data)
+MCMC = Linear_RTO(posterior, x0, maxit)
 #
 ti = time.time()
-x_s = MCMC.sample(Ns, Nb)
+x_s = MCMC.sample(Ns, Nb).samples
 print('Elapsed time:', time.time() - ti)
 
 # =============================================================================
