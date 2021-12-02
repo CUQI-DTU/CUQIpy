@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import scipy
+from scipy.interpolate import interp1d
 
 class PDE(ABC):
     """Parametrized PDE abstract base class"""
@@ -32,8 +33,10 @@ class SteadyStateLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self,PDE_form):
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None):
         self.PDE_form = PDE_form
+        self.grid_sol = grid_sol
+        self.grid_obs = grid_obs
 
     def assemble(self, parameter):
         """Assembles differential operator and rhs according to PDE_form"""
@@ -48,8 +51,19 @@ class SteadyStateLinearPDE(PDE):
 
         return solution
 
-    def observe(self,solution):
-        return solution
+    def observe(self, solution):
+        m, n = len(self.grid_obs), len(self.grid_sol)
+        if (m == n):            
+            equal_arrays = (self.grid_obs == self.grid_sol).all()
+        else:
+            equal_arrays = False
+            
+        if (equal_arrays == False):
+            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
+        else:
+            solution_obs = solution
+            
+        return solution_obs
         
 class TimeDependentLinearPDE(PDE):
     """Time steady state PDE.
@@ -68,8 +82,10 @@ class TimeDependentLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self,PDE_form):
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None):
         self.PDE_form = PDE_form
+        self.grid_sol = grid_sol
+        self.grid_obs = grid_obs
 
     def assemble(self, parameter):
         """Assemble PDE"""
@@ -82,5 +98,12 @@ class TimeDependentLinearPDE(PDE):
             u = self.diff_op@u
         return u
 
-    def observe(self,solution):
-        return solution
+    def observe(self, solution):
+        comparison = (self.grid_obs == self.grid_sol)
+        equal_arrays = comparison.all()
+        if (equal_arrays == False):
+            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
+        else:
+            solution_obs = solution
+            
+        return solution_obs
