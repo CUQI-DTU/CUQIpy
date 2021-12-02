@@ -391,7 +391,7 @@ class MappedGeometry(Geometry):
         return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
     def __repr__(self) -> str:
-        return super().__repr__()+"\nMap is applied to: {}".format(self.geometry.__repr__())
+        return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())
 
 
 class _DefaultGeometry(Continuous1D):
