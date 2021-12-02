@@ -1021,14 +1021,17 @@ class Posterior(Distribution):
 
 class UserDefinedDistribution(Distribution):
 
-    def __init__(self, logpdf_func, dim, **kwargs):
+    def __init__(self, dim=None, logpdf_func=None, sample_func=None, **kwargs):
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
-        if not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
-        self.logpdf_func = logpdf_func
+        if logpdf_func is not None and not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
+        if sample_func is not None and not callable(sample_func): raise ValueError("sample_func should be callable")
         self.dim = dim
+        self.logpdf_func = logpdf_func
+        self.sample_func = sample_func
+
 
     @property
     def dim(self):
@@ -1039,10 +1042,17 @@ class UserDefinedDistribution(Distribution):
         self._dim = value
 
     def logpdf(self, x):
-        return self.logpdf_func(x)
+        if self.logpdf_func is not None:
+            return self.logpdf_func(x)
+        else:
+            raise Exception("logpdf_func is not defined.")
 
-    def _sample(self,N=1,rng=None):
-        raise Exception("'Generic.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+    def _sample(self, N=1, rng=None):
+        #TODO(nabr) allow sampling more than 1 sample and potentially rng?
+        if self.sample_func is not None:
+            return self.sample_func(N)
+        else:
+            raise Exception("sample_func is not defined. Sampling can be performed with the 'sampler' module.")
 
 
 class DistributionGallery(UserDefinedDistribution):
