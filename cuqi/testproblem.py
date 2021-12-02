@@ -432,11 +432,11 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200):
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
         
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
-        dx = 1./N   # step size
+        dx = endpoint/N   # step size
         grid = np.linspace(dx, endpoint, N, endpoint=False)
         Dx = - np.diag(np.ones(N), 0) + np.diag(np.ones(N-1), 1) #Dx
         vec = np.zeros(N)
@@ -457,9 +457,11 @@ class Poisson_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain)
+            domain_geometry = KLExpansion(grid_domain,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid_domain,field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
 
@@ -472,7 +474,7 @@ class Poisson_1D(BayesianProblem):
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
 
         # Set up exact solution
-        x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )
+        x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )   
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data

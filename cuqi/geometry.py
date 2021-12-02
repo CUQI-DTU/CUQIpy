@@ -426,12 +426,13 @@ class KLExpansion(Continuous1D):
     '''
     
     # init function defining paramters for the KL expansion
-    def __init__(self, grid, axis_labels=['x'],**kwargs):
+    def __init__(self, grid, params=None, axis_labels=['x'],**kwargs):
         
         super().__init__(grid, axis_labels,**kwargs)
 
         self.decay_rate = 2.5 # decay rate of KL
         self.normalizer = 12. # normalizer factor
+        self.ampfactor = 10 # Amplification factor
         eigvals = np.array( range(1,self.dim+1) ) # KL eigvals
         self.coefs = 1/np.float_power( eigvals,self.decay_rate )
 
@@ -440,20 +441,31 @@ class KLExpansion(Continuous1D):
     def par2fun(self,p):
         modes = p*self.coefs/self.normalizer
         real = idst(modes)/2
-        return real
+        return self.ampfactor*real
     
     def fun2par(self,funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
 
 class CustomKL(Continuous1D):
-    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
+    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
         super().__init__(grid, axis_labels,**kwargs)
+
+        cov_func = params["cov_func"]
+        mean = params["mean"]
+        std = params["std"]
+        trunc_term = params["trunc_term"]
+        self._trunc_term = trunc_term 
 
         #self.N = len(self.grid)
         self.mean = mean
         #self.std = std
         self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
+
+
+    @property
+    def shape(self):
+        return (self._trunc_term,)
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
@@ -544,7 +556,7 @@ class StepExpansion(Continuous1D):
         super().__init__(grid, axis_labels,**kwargs)
 
         L = self.grid[-1]
-        self._idx1 = np.where( (self.grid>0*L)&(self.grid<=0.333*L) )
+        self._idx1 = np.where( (self.grid>=0*L)&(self.grid<=0.333*L) )
         self._idx2 = np.where( (self.grid>0.333*L)&(self.grid<=0.666*L) )
         self._idx3 = np.where( (self.grid>0.666*L)&(self.grid<=L) )
 

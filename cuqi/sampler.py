@@ -741,6 +741,9 @@ class MetropolisHastings(ProposalBasedSampler):
 #===================================================================
 #===================================================================
 class pCN(Sampler):   
+    #Samples target*proposal
+    #TODO. Check proposal, needs to be Gaussian and zero mean.
+    
     def __init__(self, target, scale=None, x0=None):
         super().__init__(target, x0=x0, dim=None) 
         self.scale = scale
