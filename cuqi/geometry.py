@@ -432,6 +432,7 @@ class KLExpansion(Continuous1D):
 
         self.decay_rate = 2.5 # decay rate of KL
         self.normalizer = 12. # normalizer factor
+        self.ampfactor = 10 # Amplification factor
         eigvals = np.array( range(1,self.dim+1) ) # KL eigvals
         self.coefs = 1/np.float_power( eigvals,self.decay_rate )
 
@@ -440,7 +441,7 @@ class KLExpansion(Continuous1D):
     def par2fun(self,p):
         modes = p*self.coefs/self.normalizer
         real = idst(modes)/2
-        return real
+        return self.ampfactor*real
     
     def fun2par(self,funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
