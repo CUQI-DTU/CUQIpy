@@ -454,11 +454,17 @@ class CustomKL(Continuous1D):
         mean = params["mean"]
         std = params["std"]
         trunc_term = params["trunc_term"]
+        self._trunc_term = trunc_term 
 
         #self.N = len(self.grid)
         self.mean = mean
         #self.std = std
         self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
+
+
+    @property
+    def shape(self):
+        return (self._trunc_term,)
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
