@@ -699,8 +699,8 @@ class MetropolisHastings(ProposalBasedSampler):
                 idx += Na
 
             # display iterations
-            if (s % 5e2) == 0:
-                print('Sample', s, '/', Ns)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+
 
         # remove burn-in
         samples = samples[:, Nb:]
