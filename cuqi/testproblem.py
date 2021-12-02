@@ -556,7 +556,7 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
+    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
         
         # Prepare PDE form
         N = dim   # Number of solution nodes
@@ -580,9 +580,11 @@ class Heat_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain)
+            domain_geometry = KLExpansion(grid_domain,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid_domain,field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
         domain_geometry_old = domain_geometry 
@@ -681,7 +683,7 @@ class Abel_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, field_type=None, KL_map=None, KL_imap=None, SNR=100):
+    def __init__(self, dim=128, endpoint=1, field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
 
@@ -701,9 +703,11 @@ class Abel_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid)
+            domain_geometry = KLExpansion(grid,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid,field_params)
         else:
             domain_geometry = Continuous1D(grid)
 
@@ -794,7 +798,7 @@ class Deconv_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, KL_map=None, KL_imap=None, SNR=100):
+    def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
         grid = np.linspace(0, endpoint, N)
@@ -813,9 +817,11 @@ class Deconv_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid)
+            domain_geometry = KLExpansion(grid,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid,field_params)
         else:
             domain_geometry = Continuous1D(grid)
 
