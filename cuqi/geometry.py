@@ -426,7 +426,7 @@ class KLExpansion(Continuous1D):
     '''
     
     # init function defining paramters for the KL expansion
-    def __init__(self, grid, axis_labels=['x'],**kwargs):
+    def __init__(self, grid, params=None, axis_labels=['x'],**kwargs):
         
         super().__init__(grid, axis_labels,**kwargs)
 
@@ -447,8 +447,13 @@ class KLExpansion(Continuous1D):
         raise NotImplementedError("fun2par not implemented. ")
 
 class CustomKL(Continuous1D):
-    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
+    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
         super().__init__(grid, axis_labels,**kwargs)
+
+        cov_func = params["cov_func"]
+        mean = params["mean"]
+        std = params["std"]
+        trunc_term = params["trunc_term"]
 
         #self.N = len(self.grid)
         self.mean = mean
@@ -544,7 +549,7 @@ class StepExpansion(Continuous1D):
         super().__init__(grid, axis_labels,**kwargs)
 
         L = self.grid[-1]
-        self._idx1 = np.where( (self.grid>0*L)&(self.grid<=0.333*L) )
+        self._idx1 = np.where( (self.grid>=0*L)&(self.grid<=0.333*L) )
         self._idx2 = np.where( (self.grid>0.333*L)&(self.grid<=0.666*L) )
         self._idx3 = np.where( (self.grid>0.666*L)&(self.grid<=L) )
 
