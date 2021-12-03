@@ -1020,6 +1020,32 @@ class Posterior(Distribution):
             return model_value
 
 class UserDefinedDistribution(Distribution):
+    """
+    Class to wrap user-defined logpdf, gradient, and/or sampling callable into CUQIpy Distribution.
+
+    Parameters
+    ------------
+    logpdf_func: Function evaluating log probability density function. Callable.
+    gradient_func: Function evaluating the gradient of the logpdf. Callable.
+    logpdf_func: Function evaluating log probability density function. Callable.
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    logpdf: evaluate log probability density function
+    gradient: evaluate gradient of logpdf
+    
+    Example
+    -----------
+    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+    mu1 = -1.0
+    std1 = 4.0
+    X = cuqi.distribution.Normal(mean=mu1, std=std1)
+    dim1 = 1
+    logpdf_func = lambda xx: -np.log(std1*np.sqrt(2*np.pi))-0.5*((xx-mu1)/std1)**2
+    sample_func = lambda : mu1 + std1*np.random.randn(dim1,1)
+    XU = cuqi.distribution.UserDefinedDistribution(dim=dim1, logpdf_func=logpdf_func, sample_func=sample_func)
+    """
 
     def __init__(self, dim=None, logpdf_func=None, gradient_func=None, sample_func=None, **kwargs):
 
