@@ -1050,7 +1050,13 @@ class UserDefinedDistribution(Distribution):
     def _sample(self, N=1, rng=None):
         #TODO(nabr) allow sampling more than 1 sample and potentially rng?
         if self.sample_func is not None:
-            return self.sample_func(N)
+            if N==1:
+                return self.sample_func().flatten()
+            else:
+                out = np.zeros((self.dim,N))
+                for i in range(N):
+                    out[:,i] = self.sample_func()
+                return out
         else:
             raise Exception("sample_func is not defined. Sampling can be performed with the 'sampler' module.")
 

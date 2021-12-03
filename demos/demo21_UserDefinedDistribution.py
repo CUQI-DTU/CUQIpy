@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 sys.path.append("..")
 import cuqi
 
+from scipy.sparse import diags
+
 #%% Create X ~ Normal( -1.0,4.0) distirbution
 
 mu1 = -1.0
@@ -46,13 +48,27 @@ s_NU = NU.sample(NS)
 s_N.hist_chain(0, bins=100)
 s_NU.hist_chain(0, bins=100)
 
-#%%
+#%%  NOW DO THE SAME TEST FOR A 5-dim GAUSSIANCOV
 
 #%%
-mu = np.array([1,2,3,4,5])
-std = 0.4
+mu2 = np.array([1,2,3,4,5])
+cov2 = np.array([0.5, 0.4, 0.3, 0.2, 0.1])
 
-pX = cuqi.distribution.Gaussian(mu, std=4.0)
+dim2 = 5
+
+G = cuqi.distribution.GaussianCov(mean=mu2, cov=cov2)
 
 #%%
-grid = np.
+
+logpdf_func2 = lambda xx: -0.5*(dim2*np.log(2*np.pi) + np.sum(np.log(cov2)) + \
+        np.sum(np.square( (xx-mu2) @ diags(np.sqrt(1/cov2))), axis=-1))
+GU = cuqi.distribution.UserDefinedDistribution(logpdf_func=logpdf_func2)
+
+#%%
+try_point = np.array([1.5, 2.5, 3.5, 4.5, 5.5])
+
+G.logpdf(try_point)
+
+#%%
+GU.logpdf(try_point)
+# %%
