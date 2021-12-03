@@ -17,6 +17,49 @@ class PDE(ABC):
     def observe(self,solution):
         pass
 
+    @staticmethod
+    def _compare_grid(grid1,grid2):
+        """Compares two grids and returns if they are equal"""
+
+        # If one of the grids are none, we assume they are equal
+        if grid1 is None or grid2 is None:
+            return True
+
+        m, n = len(grid1), len(grid2)
+        if (m == n):            
+            equal_arrays = (grid1 == grid2).all()
+        else:
+            equal_arrays = False
+
+        return equal_arrays
+
+    @property
+    def grid_sol(self):
+        if hasattr(self,"_grid_sol"):
+            return self._grid_sol
+        else:
+            return None
+
+    @grid_sol.setter
+    def grid_sol(self,value):
+        self._grids_equal = self._compare_grid(value,self.grid_obs)
+        self._grid_sol = value
+
+    @property
+    def grid_obs(self):
+        if hasattr(self,"_grid_obs"):
+            return self._grid_obs
+        else:
+            return None
+
+    @grid_obs.setter
+    def grid_obs(self,value):
+        self._grids_equal = self._compare_grid(value,self.grid_sol)
+        self._grid_obs = value
+
+    @property
+    def grids_equal(self):
+        return self._grids_equal
 
 class SteadyStateLinearPDE(PDE):
     """Linear steady state PDE.
@@ -52,16 +95,11 @@ class SteadyStateLinearPDE(PDE):
         return solution
 
     def observe(self, solution):
-        m, n = len(self.grid_obs), len(self.grid_sol)
-        if (m == n):            
-            equal_arrays = (self.grid_obs == self.grid_sol).all()
-        else:
-            equal_arrays = False
             
-        if (equal_arrays == False):
-            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
-        else:
+        if self.grids_equal:
             solution_obs = solution
+        else:
+            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
             
         return solution_obs
         
@@ -99,11 +137,10 @@ class TimeDependentLinearPDE(PDE):
         return u
 
     def observe(self, solution):
-        comparison = (self.grid_obs == self.grid_sol)
-        equal_arrays = comparison.all()
-        if (equal_arrays == False):
-            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
-        else:
+            
+        if self.grids_equal:
             solution_obs = solution
+        else:
+            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
             
         return solution_obs
