@@ -44,11 +44,15 @@ Ns = int(1e4)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s, target_eval, acc = MCMC.sample_adapt(Ns, Nb)
+x_s = MCMC.sample_adapt(Ns, Nb)
+target_eval = x_s.loglike_eval
+acc = x_s.acc_rate
 print('Elapsed time:', time.time() - ti)
 #
 ti = time.time()
-x_s2, target_eval2, acc2 = MCMC2.sample_adapt(Ns, Nb)
+x_s2 = MCMC2.sample_adapt(Ns, Nb)
+target_eval2 = x_s2.loglike_eval
+acc2 = x_s2.acc_rate
 print('Elapsed time:', time.time() - ti)
 
 # =============================================================================

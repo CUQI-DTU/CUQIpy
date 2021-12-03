@@ -8,7 +8,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # %%
 geom = cuqi.geometry.Continuous2D((100,40))
-z = geom.grid[0]**2 + geom.grid[1]**2
+X, Y = np.meshgrid(geom.grid[0], geom.grid[1])
+z = X**2 + Y**2
 # %%
 plt.figure(1)
 geom.plot(np.ravel(z))

@@ -1,5 +1,7 @@
 import cuqi
 import numpy as np
+import scipy as sp
+import scipy.sparse as sps
 
 from pytest import approx
 import pytest
@@ -20,7 +22,7 @@ def test_Normal_pdf_mean():
 def test_Normal_sample_regression(mean,var,expected):
     rng = np.random.RandomState(0) #Replaces legacy method: np.random.seed(0)
     samples = cuqi.distribution.Normal(mean,var).sample(2,rng=rng)
-    target = np.array(expected)
+    target = np.array(expected).T
     assert np.allclose( samples.samples, target)
 
 def test_Gaussian_mean():
@@ -96,7 +98,7 @@ def test_Gaussian_rng(mean,std,R):
 def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
-    assert np.allclose(dist.sample(10),dist.sample(10,rng=rng))
+    assert np.allclose(dist.sample(10).samples,dist.sample(10,rng=rng).samples)
 
 def test_Uniform_logpdf():
     low = np.array([1, .5])
@@ -117,4 +119,49 @@ def test_Uniform_sample(low, high, expected):
     cuqi_samples = UD.sample(3,rng=rng)
     print(cuqi_samples)
     assert np.allclose(cuqi_samples.samples, expected) 
-     
+
+@pytest.mark.parametrize("distribution, kwargs",
+                         [(cuqi.distribution.Uniform, 
+                          {'low':np.array([2, 2.5, 3,5]),
+                          'high':np.array([5,7, 7,6])}),
+                          (cuqi.distribution.Gaussian, 
+                          {'mean':np.array([0, 0, 0, 0]),
+                          'std':np.array([1, 1, 1, 1]),
+                          'corrmat':np.eye(4)})])
+def test_distribution_contains_geometry(distribution, kwargs):
+    rng = np.random.RandomState(3)
+    geom = cuqi.geometry.Continuous2D((2,2))
+    dist = distribution(**kwargs,geometry = geom)
+    cuqi_samples = dist.sample(3,rng=rng)
+    assert(dist.dim == geom.dim and 
+          cuqi_samples.geometry == geom and
+          dist.geometry == geom and 
+          np.all(geom.grid[0]==np.array([0, 1])) and
+          np.all(geom.grid[1]== np.array([0, 1])))
+
+# Compare computed covariance
+@pytest.mark.parametrize("mean,cov,mean_full,cov_full",[
+    ( (0),           (5),            (0),           (5)           ),
+    ( (0),           (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
+    ( (np.zeros(3)), (5),            (np.zeros(3)), (5*np.eye(3)) ),
+    ( (np.zeros(3)), (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
+    ( (0),           (5*np.eye(3)),  (np.zeros(3)), (5*np.eye(3)) ),
+    ( (0),           (5*sps.eye(3)), (np.zeros(3)), (5*np.eye(3)) ),
+    ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
+    #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
+])
+def test_GaussianCov(mean,cov,mean_full,cov_full):
+    # Define cuqi dist using various means and covs
+    prior = cuqi.distribution.GaussianCov(mean, cov)
+
+    # Compare logpdf with scipy using full vector+matrix rep
+    x0 = 1000*np.random.rand(prior.dim)
+    eval1 = prior.logpdf(x0)
+    eval2 = sp.stats.multivariate_normal.logpdf(x0, mean_full, cov_full)
+
+    assert np.allclose(eval1,eval2)
+
+    gradeval1 = prior.gradient(x0)
+    gradeval2 = sp.optimize.approx_fprime(x0, prior.logpdf, 1e-15)
+
+    assert np.allclose(gradeval1,gradeval2)

@@ -42,50 +42,41 @@ sY = pY.sample(10000)
 
 #%% Define geometry and parameter for GMRF distribution
 N = 150       # number of pixels
-dom = 1      # 1D or 2D domain
+dom = 2      # 1D or 2D domain
 if (dom == 1):
-   n = N 
+   geometry = cuqi.geometry.Continuous1D(np.linspace(0, 1, N))
 elif (dom == 2):
-   n = N**2
+   geometry = cuqi.geometry.Continuous2D((np.linspace(0, 1, N),np.linspace(0, 1, N)))
 
 # Set up GMRF
-mean = np.zeros(n)
+mean = np.zeros(geometry.dim)
 prec = 4
-pX = cuqi.distribution.GMRF(mean, prec, N, dom, 'neumann')
+pX = cuqi.distribution.GMRF(mean, prec, N, dom, 'neumann', geometry = geometry)
 
 # evaluation of PDF
 Ns = 8
-xi = np.random.randn(n, Ns)
+xi = np.random.randn(geometry.dim, Ns)
 Z = pX.pdf(xi)
 
 # call method to sample
 sampleX = pX.sample(Ns)
 
-# Display samples - Samples.plot makes different plot depending on dimension
-#figure
-#sampleX.plot(6)
+#%%
 if (dom == 1):
-    tt = np.linspace(0, 1, N)
-    plt.figure()
-    plt.plot(tt, sampleX)
+    sampleX.plot()
     plt.xlim(0, 1)
-    plt.show()
 elif (dom == 2):
-    tt = np.linspace(0, 1, N)    
-    T, S = np.meshgrid(tt, tt)
-    plt.figure()
     for i in range(Ns):
-        Z = sampleX[:, i].reshape(N,N)
-        c = np.linspace(Z.min(), Z.max(), 6)
-        plt.contour(T, S, Z, 7, linewidths=0.25, colors='k')
-        plt.contourf(T, S, Z, cmap='Blues')
+        plt.figure()
+        sampleX.plot(i, plot_type = 'contour',levels= 7, linewidths=0.25, colors='k')
+        sampleX.plot(i, plot_type = 'contourf', cmap='Blues')
+        c = np.linspace(sampleX.samples[:,i].min(), sampleX.samples[:,i].max(), 6)
         cb = plt.colorbar(shrink=0.95, aspect=25, pad = 0.03, ticks=c)
         cb.formatter.set_scientific(True)
         cb.formatter.set_powerlimits((0, 0))
         cb.ax.yaxis.set_offset_position('left')
         cb.update_ticks()
-        plt.xlim(0, 1)
-        plt.ylim(0, 1)
         plt.gca().set_aspect('equal', adjustable='box')
         plt.pause(1.5)
         plt.clf()
+# %%
