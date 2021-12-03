@@ -1021,16 +1021,19 @@ class Posterior(Distribution):
 
 class UserDefinedDistribution(Distribution):
 
-    def __init__(self, dim=None, logpdf_func=None, sample_func=None, **kwargs):
+    def __init__(self, dim=None, logpdf_func=None, gradient_func=None, sample_func=None, **kwargs):
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
-        if logpdf_func is not None and not callable(logpdf_func): raise ValueError("logpdf_func should be callable")
-        if sample_func is not None and not callable(sample_func): raise ValueError("sample_func should be callable")
+        if logpdf_func is not None and not callable(logpdf_func): raise ValueError("logpdf_func should be callable.")
+        if sample_func is not None and not callable(sample_func): raise ValueError("sample_func should be callable.")
+        if gradient_func is not None and not callable(gradient_func): raise ValueError("grad_func should be callable.")
+        
         self.dim = dim
         self.logpdf_func = logpdf_func
         self.sample_func = sample_func
+        self.gradient_func = gradient_func
 
 
     @property
@@ -1046,6 +1049,12 @@ class UserDefinedDistribution(Distribution):
             return self.logpdf_func(x)
         else:
             raise Exception("logpdf_func is not defined.")
+    
+    def gradient(self, x):
+        if self.gradient_func is not None:
+            return self.gradient_func(x)
+        else:
+            raise Exception("gradient_func is not defined.")
 
     def _sample(self, N=1, rng=None):
         #TODO(nabr) allow sampling more than 1 sample and potentially rng?
