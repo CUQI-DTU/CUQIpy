@@ -432,8 +432,11 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
+    def __init__(self, dim=128, dim_obs=None, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
         
+        if dim_obs is None:
+            dim_obs = dim-1
+
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
         dx = endpoint/N   # step size
@@ -557,8 +560,11 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=128, endpoint=1, max_time=0.2, field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
+    def __init__(self, dim=128, dim_obs=None, endpoint=1, max_time=0.2, field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
         
+        if dim_obs is None:
+            dim_obs = dim
+
         # Prepare PDE form
         N = dim   # Number of solution nodes
         dx = endpoint/(N+1)   # space step size
@@ -573,7 +579,7 @@ class Heat_1D(BayesianProblem):
         time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
 
         # PDE form (diff_op, IC, time_steps)
-        grid_obs = np.linspace(dx, endpoint, dim_obs-1, endpoint=False)
+        grid_obs = np.linspace(dx, endpoint, dim_obs, endpoint=False)
         PDE_form = lambda IC: (Dxx, IC, time_steps)
         PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form, grid_domain, grid_obs)
 
