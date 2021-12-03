@@ -73,3 +73,42 @@ def test_testproblem_pde_grid_obs():
     assert model2.pde.grids_equal == False
     assert model3.pde.grids_equal == True
     assert model4.pde.grids_equal == False
+
+def test_Poisson():
+    # %% Poisson
+    N = 129 # spatial discretization 
+    L = np.pi   # Length of domain
+    amp_fact = 10
+    f = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
+    KL_map = lambda x: np.exp(amp_fact*x)
+    dx = L/(N-1)
+    x = np.linspace(dx/2,L-dx/2,N)
+    true_kappa = np.exp( 5*x*np.exp(-2*x)*np.sin(L-x) )
+    model = cuqi.testproblem.Poisson_1D(dim=N, endpoint=L, source=f, field_type="KL", KL_map=KL_map).model
+
+    assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(6.183419642601269)
+    assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(5.195849938761418)
+
+def test_Heat():
+    # %% HEAT
+    N = 128
+    L = np.pi
+    dx = L/(N+1)
+    x = np.linspace(dx,L,N,endpoint=False)
+    true_kappa = x*np.exp(-2*x)*np.sin(L-x)
+    model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, field_type="KL").model
+
+    assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(0.5478069279144476)
+    assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(0.5487907807357283)
+
+def test_Abel():
+    N = 128
+    L = 1
+    h = L/N
+    tvec = np.linspace(h/2, L-h/2, N)
+    true_image = np.sin(tvec*np.pi)*np.exp(-2*tvec)
+    KL_map = lambda x: 10*x
+    model = cuqi.testproblem.Abel_1D(dim=N, endpoint=L, field_type="KL", KL_map=KL_map).model
+
+    assert np.linalg.norm(model.forward(true_image, is_par=False)) == approx(4.580752014966276)
+    assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(9.37456136258068)
