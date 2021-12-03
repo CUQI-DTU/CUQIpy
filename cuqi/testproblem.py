@@ -432,7 +432,7 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=10, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
+    def __init__(self, dim=128, dim_obs=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
         
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
@@ -557,7 +557,7 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=50, endpoint=1, max_time=0.2, field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
+    def __init__(self, dim=128, dim_obs=128, endpoint=1, max_time=0.2, field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
         
         # Prepare PDE form
         N = dim   # Number of solution nodes
