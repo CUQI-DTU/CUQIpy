@@ -782,7 +782,7 @@ class pCN(Sampler):
         if isinstance(value, cuqi.distribution.Posterior):
             self._target = value
             self._loglikelihood = lambda x : self.likelihood(x=x).logpdf(self.target.data) 
-        elif isinstance(value,tuple) and len(self.target)==2 and \
+        elif isinstance(value,tuple) and len(value)==2 and \
              isinstance(value[0], cuqi.distribution.Distribution) and\
              isinstance(value[1], cuqi.distribution.Distribution):
             self._target = value
