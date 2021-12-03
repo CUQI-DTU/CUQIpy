@@ -57,3 +57,19 @@ def test_Deconvolution_noise_regression(noise_type,noise_std,expected):
     np.random.seed(1337)
     tp = cuqi.testproblem.Deconvolution(noise_type=noise_type,noise_std=noise_std)
     assert np.linalg.norm(tp.data) == approx(expected)
+
+# Test the observation operator working on grids or not
+def test_testproblem_pde_grid_obs():
+    N = 128
+    L = np.pi
+    T = 0.2
+
+    model1 = cuqi.testproblem.Poisson_1D(dim=N,endpoint=L, field_type="Step").model
+    model2 = cuqi.testproblem.Poisson_1D(dim=N,dim_obs=10,endpoint=L, field_type="Step").model
+    model3 = cuqi.testproblem.Heat_1D(dim=N,endpoint=L, field_type="Step").model
+    model4 = cuqi.testproblem.Heat_1D(dim=N,dim_obs=10,endpoint=L, field_type="Step").model
+
+    assert model1.pde.grids_equal == True
+    assert model2.pde.grids_equal == False
+    assert model3.pde.grids_equal == True
+    assert model4.pde.grids_equal == False
