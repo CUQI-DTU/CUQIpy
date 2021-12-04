@@ -1,3 +1,4 @@
+
 #%%
 import sys
 
@@ -29,7 +30,7 @@ results1 = MCMC.sample(10,2)
 #%%
 np.random.seed(0)
 likelihood = cuqi.distribution.UserDefinedDistribution(logpdf_func=posterior.loglikelihood_function)
-prior = cuqi.distribution.UserDefinedDistribution(sample_func= lambda : posterior.prior.sample())
+prior = cuqi.distribution.UserDefinedDistribution(sample_func= posterior.prior.sample)
 
 MCMC = pCN((prior,likelihood), scale, x0)
 results2 = MCMC.sample(10,2)
