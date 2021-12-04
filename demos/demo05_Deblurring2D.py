@@ -23,11 +23,20 @@ tp.exactData.plot()
 tp.exactSolution.plot()
 
 #%%
+tp.prior.sample(5).plot()
+
+#%%
 post_samples = tp.sample_posterior(200)
 
 #%%
 post_samples.plot_mean()
 
+#%%
+post_samples.plot_ci(95)
+
+
+#%%
+'''
 #%% Unpack problem in b = A*x + e
 b = tp.data    #%Measured data
 A = tp.model    # Class with model
@@ -36,14 +45,6 @@ A = tp.model    # Class with model
 #%% A few additional parameters from test problem needed
 # h = tp.meshsize;        # Size of mesh elements
 # n = tp.model.dim[1];    # Number of unknowns
-
-#%% plot
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-plt.figure()
-A.domain_geometry.plot(tp.exactSolution, cmap='Greys_r')
-plt.figure()
-A.range_geometry.plot(b, cmap='Greys_r')
-plt.show()
 
 #%% Two choices of prior
 
@@ -132,3 +133,4 @@ plt.ylim(-0.5, 3.5)
 plt.tight_layout()
 plt.title('Cauchy prior')
 plt.show()
+'''
