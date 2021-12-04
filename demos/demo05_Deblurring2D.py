@@ -1,4 +1,4 @@
-import sys
+#%%import sys
 import time
 sys.path.append("../")
 
@@ -8,12 +8,30 @@ import matplotlib.pyplot as plt
 import cuqi
 
 #%% %Cuqi deblur test problem
-tp = cuqi.testproblem.Deconvolution2D() #Default values
+tp = cuqi.testproblem.Deconv_2D() #Default values
+
+#%%
+tp.data.plot()
+
+#%%
+tp.exactData.plot()
+
+#%%
+(tp.data-tp.exactData).plot()
+
+#%%
+tp.exactSolution.plot()
+
+#%%
+post_samples = tp.sample_posterior(200)
+
+#%%
+post_samples.plot_mean()
 
 #%% Unpack problem in b = A*x + e
-b = tp.data;    #%Measured data
+b = tp.data    #%Measured data
 A = tp.model    # Class with model
-e = tp.noise    # Class with noise
+#e = tp.noise    # Class with noise
 
 #%% A few additional parameters from test problem needed
 # h = tp.meshsize;        # Size of mesh elements

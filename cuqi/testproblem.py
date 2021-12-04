@@ -1,3 +1,4 @@
+#%% 
 import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
@@ -982,7 +983,7 @@ class Deconv_2D(BayesianProblem):
         
         if noise_type.lower() == "gaussian":
             #noise = cuqi.distribution.Normal(0, noise_std)
-            noise = cuqi.distribution.Gaussian(np.zeros(dim2), noise_std)
+            noise = cuqi.distribution.GaussianCov(np.zeros(dim2), noise_std, geometry=range_geometry)
         elif noise_type.lower() == "scaledgaussian":
             # bnorm = np.linalg.norm(b_exact)
             # sigma_obs = err_lev * (bnorm/np.sqrt(dim2))
@@ -992,7 +993,7 @@ class Deconv_2D(BayesianProblem):
         
         data = b_exact + noise.sample()
 
-        likelihood = cuqi.distribution.Gaussian(model, (noise_std**2)*np.eye(range_geometry.dim))
+        likelihood = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry)
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood,prior,data)
