@@ -1,13 +1,7 @@
 from cuqi.geometry import Discrete, Geometry
 import numpy as np
 import matplotlib.pyplot as plt
-import warnings
-
-try: 
-    import dolfin as dl
-except Exception as error:
-    warnings.warn(error.msg)
-
+import dolfin as dl
 
 class FenicsContinuous(Geometry):
 
@@ -27,7 +21,7 @@ class FenicsContinuous(Geometry):
 
     @property
     def shape(self):
-        return self.Vh.dim()
+        return (self.Vh.dim(),)
 
 
     def _plot(self,values,subplots=True,**kwargs):
