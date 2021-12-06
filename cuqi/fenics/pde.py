@@ -1,23 +1,11 @@
 import numpy as np
-from scipy.sparse import csc_matrix
-from scipy.sparse import hstack
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-from cuqi.pde import PDE
+from abc import ABC
+from ..pde import PDE
+import dolfin as dl
+import ufl
 
-import cuqi
-from cuqi.samples import Samples
-from cuqi.model import Model
-import warnings
 
-try: 
-    import dolfin as dl
-    import ufl
-except Exception as error:
-    warnings.warn(error.msg)
-
-class FEniCSPDE(PDE):
+class FEniCSPDE(PDE,ABC):
     def __init__(self, PDE_form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=None):
         self.PDE_form = PDE_form # function of PDE_solution, PDE_parameter, test_function
         self.mesh = mesh 
@@ -26,7 +14,7 @@ class FEniCSPDE(PDE):
         self.dirichlet_bc  = dirichlet_bc
         self.observation_operator = observation_operator
 
-    def assemble(self,PDE_parameter):
+    def assemble(self,parameter):
         pass
 
     def solve(self):
@@ -40,9 +28,9 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
     def __init__(self, PDE_form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=None):
         super().__init__(PDE_form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=observation_operator)
 
-    def assemble(self,PDE_parameter_dof):
+    def assemble(self,parameter):
         PDE_parameter_fun = dl.Function(self.parameter_function_space)
-        PDE_parameter_fun.vector().set_local(PDE_parameter_dof) 
+        PDE_parameter_fun.vector().set_local(parameter) 
         solution_trial_function = dl.TrialFunction(self.solution_function_space)
         solution_test_function = dl.TestFunction(self.solution_function_space)
         self.diff_op, self.rhs  = \
