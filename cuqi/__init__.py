@@ -1,5 +1,4 @@
 from . import data
-from . import fenics
 from . import diagnostics
 from . import distribution
 from . import geometry
@@ -12,3 +11,6 @@ from . import samples
 from . import solver
 from . import testproblem
 from . import utilities
+
+# Import engines
+from . import fenics 
