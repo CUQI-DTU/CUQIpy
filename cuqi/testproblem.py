@@ -7,7 +7,7 @@ import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
-from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, _DefaultGeometry
 from cuqi.samples import CUQIarray
 
 #=============================================================================
@@ -462,6 +462,8 @@ class Poisson_1D(BayesianProblem):
             domain_geometry = field_type
         elif field_type=="KL":
             domain_geometry = KLExpansion(grid_domain,field_params)
+        elif field_type=="KL_Full":
+            domain_geometry = KLExpansion_Full(grid_domain,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain)
         elif field_type=="CustomKL":
@@ -588,6 +590,8 @@ class Heat_1D(BayesianProblem):
             domain_geometry = field_type
         elif field_type=="KL":
             domain_geometry = KLExpansion(grid_domain, field_params)
+        elif field_type=="KL_Full":
+            domain_geometry = KLExpansion_Full(grid_domain,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain)
         elif field_type=="CustomKL":

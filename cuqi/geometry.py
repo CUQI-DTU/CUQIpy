@@ -446,6 +446,44 @@ class KLExpansion(Continuous1D):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
 
+class KLExpansion_Full(Continuous1D):
+    '''
+    class representation of the random field in  the sine basis
+    alpha = sum_i p * (1/i)^decay * sin(i*L*x/pi)
+    L is the length of the interval
+    '''
+    
+    # init function defining paramters for the KL expansion
+    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
+
+        el = params['cor_len']
+        self.tau2 = 1./el/el
+        nu = params["nu"]
+        self.gamma = nu+1.
+        self.var = params["std"]**2
+        self.N = len(grid)
+        
+        super().__init__(grid, axis_labels,**kwargs)
+
+        #self.modes = np.concatenate( [range(0, int(self.N / 2) ) , range(-int(self.N / 2) ,0) ] )
+        self.modes = np.arange(0,self.N)
+
+        self.coefs =  np.float_power( self.tau2,self.gamma ) * np.float_power(self.tau2+self.modes**2,-self.gamma)
+
+    # computes the real function out of expansion coefs
+    def par2fun(self,p):
+        freq = np.zeros(self.N)
+        m = len(p)
+        freq[:m] = p
+        temp = freq*self.coefs
+        real = idst(temp)/2/np.pi
+        return self.var*real
+    
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
+
+
 class CustomKL(Continuous1D):
     def __init__(self, grid, params, axis_labels=['x'],**kwargs):
         super().__init__(grid, axis_labels,**kwargs)
