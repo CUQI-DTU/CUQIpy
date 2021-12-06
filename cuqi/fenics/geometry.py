@@ -5,23 +5,23 @@ import dolfin as dl
 
 class FenicsContinuous(Geometry):
 
-    def __init__(self, Vh, labels = ['x', 'y']):
-        self.Vh = Vh
+    def __init__(self, function_space, labels = ['x', 'y']):
+        self.function_space = function_space
         if self.physical_dim >2:
             raise NotImplementedError("'FenicsContinuous' object does not support 3D meshes yet. 'mesh' needs to be a 1D or 2D mesh.")
         self.labels = labels
 
     @property
     def physical_dim(self):
-        return self.Vh.mesh().geometry().dim()  
+        return self.function_space.mesh().geometry().dim()  
 
     @property
     def mesh(self):
-        return self.Vh.mesh()
+        return self.function_space.mesh()
 
     @property
     def shape(self):
-        return (self.Vh.dim(),)
+        return (self.function_space.dim(),)
 
 
     def _plot(self,values,subplots=True,**kwargs):
@@ -37,7 +37,7 @@ class FenicsContinuous(Geometry):
         subplot_ids = self._create_subplot_list(values,subplots=subplots)
 
         ims = []
-        func = dl.Function(self.Vh)
+        func = dl.Function(self.function_space)
         for rows,cols,subplot_id in subplot_ids:
             func.vector().zero()
             func.vector().set_local(values[...,subplot_id-1])
@@ -67,9 +67,9 @@ class FenicsContinuous(Geometry):
 
 class CircularInclusion(Discrete, FenicsContinuous):
 
-    def __init__(self, Vh, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
+    def __init__(self, function_space, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
         Discrete.__init__(self,inclusion_parameters)
-        FenicsContinuous.__init__(self,Vh,labels)
+        FenicsContinuous.__init__(self,function_space,labels)
         # assert len =3
         if self.physical_dim !=2:
             raise NotImplementedError("'CircularInclusion' object support 2D meshes only.")
