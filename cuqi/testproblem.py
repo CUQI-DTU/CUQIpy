@@ -433,7 +433,7 @@ class Poisson_1D(BayesianProblem):
 
     """
     def __init__(self, dim=128, dim_obs=None, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
-        
+
         if dim_obs is None:
             dim_obs = dim-1
 
