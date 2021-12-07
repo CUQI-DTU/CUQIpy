@@ -34,7 +34,7 @@ except ModuleNotFoundError:
 #Print extra modules
 
 if len(engines)>0:
-    print("3rd party engines available in cuqi:",end=" ")
+    print("3rd party engines available for cuqi:",end=" ")
     print(*engines)
 
 del engines
