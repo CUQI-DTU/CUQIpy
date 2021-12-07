@@ -289,4 +289,8 @@ class PDEModel(Model):
             jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
             dx[i] = 0.0
         return jac.transpose()
+
+    # Add the underlying PDE class name to the repr.
+    def __repr__(self) -> str:
+        return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
