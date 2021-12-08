@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import scipy
+from inspect import getsource
 
 class PDE(ABC):
     """Parametrized PDE abstract base class"""
@@ -16,6 +17,11 @@ class PDE(ABC):
     def observe(self,solution):
         pass
 
+    def __repr__(self) -> str:
+        msg = "CUQI {}.".format(self.__class__.__name__)
+        if hasattr(self,"PDE_form"):
+            msg+="\nPDE form expression:\n{}".format(getsource(self.PDE_form))
+        return msg
 
 class SteadyStateLinearPDE(PDE):
     """Linear steady state PDE.

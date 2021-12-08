@@ -11,7 +11,59 @@ import ufl
 
 
 class FEniCSDiffusion1D(BayesianProblem):
+    """
+    1D Diffusion PDE problem using FEniCS.
 
+    Parameters
+    ------------
+    dim : int, Default 100
+        Dimension of the 1D problem
+
+    endpoint : float, Default 1
+        Endpoint of the 1D grid (starts at 0).
+
+    exactSolution : ndarray, CUQIarray, Default None
+        Exact solution used to generate data. 
+        If None a default exact solution is chosen.
+
+    SNR : float, Default 100
+        Signal-to-noise ratio.
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.Model
+        Deconvolution forward model
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior (Default = None)
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data
+
+    infoSring : str
+        String with information about the problem, noise etc.
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+
+    """
+    
     def __init__(self, dim = 100, L = 1, exactSolution = None, SNR = 100, observation_operator = None):
 
         def u_boundary(x, on_boundary):

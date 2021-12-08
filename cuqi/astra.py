@@ -4,10 +4,7 @@ import warnings
 from scipy.interpolate import interp2d
 import scipy.io as io
 
-try: 
-    import astra #ASTRA Toolbox is used for all tomography projections
-except Exception as error:
-    warnings.warn(error.msg)
+import astra
 
 
 class _astraCT2D(cuqi.model.LinearModel):
