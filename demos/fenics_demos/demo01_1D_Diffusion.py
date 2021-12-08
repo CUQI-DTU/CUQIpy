@@ -17,7 +17,7 @@ myExactSolution[:floor(N/3)] = .2
 myExactSolution[floor(N/3):floor(2*N/3)] = 1
 myExactSolution[floor(2*N/3):] = .5
 #%%
-model, data, problemInfo = cuqi.fenics.testproblem.FEniCSDiffusion1D.get_components(dim = dim, exactSolution = myExactSolution, observation_operator='gradu_squared' )
+model, data, problemInfo = cuqi.fenics.testproblem.FEniCSDiffusion1D.get_components(dim = dim, exactSolution = myExactSolution, observation_operator='gradu_squared' , SNR = 2000)
 # %%
 prior = cuqi.distribution.GMRF(np.zeros(model.domain_dim),25,model.domain_dim,1,'zero') 
 

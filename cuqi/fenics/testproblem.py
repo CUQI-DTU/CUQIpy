@@ -12,12 +12,12 @@ import ufl
 
 class FEniCSDiffusion1D(BayesianProblem):
 
-    def __init__(self, dim = 100, L = 1, exactSolution = None, SNR = 100):
+    def __init__(self, dim = 100, L = 1, exactSolution = None, SNR = 100, observation_operator = None):
 
         def u_boundary(x, on_boundary):
             return on_boundary
         
-        def form(u,m,p):
+        def form(m,u,p):
             return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx 
         
         #%% Create PDE model
@@ -26,7 +26,7 @@ class FEniCSDiffusion1D(BayesianProblem):
         parameter_function_space = dl.FunctionSpace(mesh, 'Lagrange', 1)
         dirichlet_bc_expression = dl.Expression("x[0]", degree=1)
         dirichlet_bc = dl.DirichletBC(solution_function_space, dirichlet_bc_expression, u_boundary)
-        PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=None)
+        PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=observation_operator)
 
         domain_geometry = cuqi.fenics.geometry.FenicsContinuous(parameter_function_space)
         range_geometry = cuqi.fenics.geometry.FenicsContinuous(solution_function_space)
