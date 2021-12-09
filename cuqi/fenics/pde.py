@@ -1,6 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 from ..pde import PDE
+from ..samples import CUQIarray
 import dolfin as dl
 import ufl
 
@@ -35,8 +36,13 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
         super().__init__(PDE_form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=observation_operator)
 
     def assemble(self,parameter):
-        PDE_parameter_fun = dl.Function(self.parameter_function_space)
-        PDE_parameter_fun.vector().set_local(parameter) 
+        if isinstance(parameter, CUQIarray): 
+            PDE_parameter_fun = parameter.funvals.item()
+        elif isinstance(parameter, dl.function.function.Function): 
+            PDE_parameter_fun = parameter
+        else:
+            raise ValueError("parameter should be of type 'CUQIarray' or 'dl.function.function.Function'")
+
         solution_trial_function = dl.TrialFunction(self.solution_function_space)
         solution_test_function = dl.TestFunction(self.solution_function_space)
         self.diff_op, self.rhs  = \
@@ -75,11 +81,11 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
         elif observation_operator == 'gradu_squared':
             observation_operator = lambda m, u: dl.inner(dl.grad(u),dl.grad(u))
         elif observation_operator == 'power_density':
-            observation_operator = lambda m, u: dl.exp(m)*dl.inner(dl.grad(u),dl.grad(u))
+            observation_operator = lambda m, u: m*dl.inner(dl.grad(u),dl.grad(u))
         elif observation_operator == 'sigma_u':
-            observation_operator = lambda m, u: dl.exp(m)*u
+            observation_operator = lambda m, u: m*u
         elif observation_operator == 'sigma_norm_gradu':
-            observation_operator = lambda m, u: dl.exp(m)*dl.sqrt(dl.inner(dl.grad(u),dl.grad(u)))
+            observation_operator = lambda m, u: m*dl.sqrt(dl.inner(dl.grad(u),dl.grad(u)))
         elif observation_operator == None or callable(observation_operator):
             observation_operator = observation_operator
         else:
