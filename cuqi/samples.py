@@ -251,7 +251,7 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self,percent,exact=None,*args,plot_envelope_kwargs={},**kwargs):
+    def plot_ci(self,percent=95,exact=None,*args,plot_envelope_kwargs={},**kwargs):
         """
         Plots the confidence interval for the samples according to the geometry.
 
