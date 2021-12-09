@@ -1,9 +1,10 @@
-from cuqi.geometry import Discrete, Geometry
+from cuqi.geometry import Discrete, Geometry, MappedGeometry
 import numpy as np
 import matplotlib.pyplot as plt
 import dolfin as dl
+import ufl
 
-class FenicsContinuous(Geometry):
+class FEniCSContinuous(Geometry):
 
     def __init__(self, function_space, labels = ['x', 'y']):
         self.function_space = function_space
@@ -23,6 +24,21 @@ class FenicsContinuous(Geometry):
     def shape(self):
         return (self.function_space.dim(),)
 
+    def par2fun(self,par):
+        """The parameter to function map used to map parameters to function values in e.g. plotting."""
+        par = self._process_values(par)
+        Ns = par.shape[-1]
+        fun_list = []
+        for idx in range(Ns):
+            fun = dl.Function(self.function_space)
+            fun.vector().zero()
+            fun.vector().set_local(par[...,idx])
+            fun_list.append(fun)
+
+        if len(fun_list) == 1:
+            return fun_list[0]
+        else:
+            return fun_list
 
     def _plot(self,values,subplots=True,**kwargs):
         """
@@ -33,23 +49,28 @@ class FenicsContinuous(Geometry):
         kwargs : keyword arguments
             keyword arguments which the function :meth:`dolfin.plot` normally takes.
         """
-        values = self._process_values(values)
-        subplot_ids = self._create_subplot_list(values,subplots=subplots)
+        if isinstance(values, dl.function.function.Function):
+            Ns = 1
+            values = [values]
+        elif hasattr(values,'__len__'): 
+            Ns = len(values)
+        subplot_ids = self._create_subplot_list(Ns,subplots=subplots)
 
         ims = []
-        func = dl.Function(self.function_space)
         for rows,cols,subplot_id in subplot_ids:
-            func.vector().zero()
-            func.vector().set_local(values[...,subplot_id-1])
+            print(subplot_id)
+            fun = values[subplot_id-1]
             if subplots:
                 plt.subplot(rows,cols,subplot_id); 
-            ims.append(dl.plot(func, **kwargs))
+            ims.append(dl.plot(fun, **kwargs))
 
         self._plot_config(subplots) 
         return ims
 
     def _process_values(self, values):
-        if len(values.shape) == 1:
+        if isinstance(values, dl.function.function.Function):
+            return [values]
+        elif len(values.shape) == 1:
             values = values[..., np.newaxis]
         
         return values
@@ -65,24 +86,49 @@ class FenicsContinuous(Geometry):
                     if self.physical_dim == 2: axis.set_ylabel(self.labels[1])
 
 
-class CircularInclusion(Discrete, FenicsContinuous):
+class FEniCSMappedGeometry(MappedGeometry):
+    """
+    """
+    def par2fun(self,p):
+        funvals = self.geometry.par2fun(p)
+        if isinstance(funvals, dl.function.function.Function):
+            funvals = [funvals]
+        mapped_value_list = []
+        for idx in range(len(funvals)):
+            mapped_value = self.map(funvals[idx]) 
+            if isinstance(mapped_value, ufl.algebra.Operator):
+                mapped_value_list.append(dl.project(mapped_value, self.geometry.function_space))
+            elif isinstance(mapped_value,dl.function.function.Function):
+                mapped_value_list.append(mapped_value)
+            else:
+                raise ValueError(f"'{self.__class__.__name__}.map' should return 'ufl.algebra.Operator'")
+            
+        if len(mapped_value_list) == 1:
+            return mapped_value_list[0]
+        else:
+            return mapped_value_list
+    
+    def fun2par(self,f):
+        raise NotImplementedError
 
-    def __init__(self, function_space, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
-        Discrete.__init__(self,inclusion_parameters)
-        FenicsContinuous.__init__(self,function_space,labels)
-        # assert len =3
-        if self.physical_dim !=2:
-            raise NotImplementedError("'CircularInclusion' object support 2D meshes only.")
-
-    @property
-    def shape(self):
-        #https://newbedev.com/calling-parent-class-init-with-multiple-inheritance-what-s-the-right-way
-        # super(Discrete,self).shape calls second parent shape
-        return super().shape #This calls first parent shape
-
-
-    def plot(self):
-        pass
-
-    def par2fun(self):
-        pass
+#class CircularInclusion(Discrete, FenicsContinuous):
+#
+#    def __init__(self, function_space, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
+#        Discrete.__init__(self,inclusion_parameters)
+#        FenicsContinuous.__init__(self,function_space,labels)
+#        # assert len =3
+#        if self.physical_dim !=2:
+#            raise NotImplementedError("'CircularInclusion' object support 2D meshes only.")
+#
+#    @property
+#    def shape(self):
+#        #https://newbedev.com/calling-parent-class-init-with-multiple-inheritance-what-s-the-right-way
+#        # super(Discrete,self).shape calls second parent shape
+#        return super().shape #This calls first parent shape
+#
+#
+#    def plot(self):
+#        pass
+#
+#    def par2fun(self):
+#        pass
