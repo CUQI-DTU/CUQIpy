@@ -390,7 +390,7 @@ class MappedGeometry(Geometry):
         return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
     def __repr__(self) -> str:
-        return super().__repr__()+"\nMap is applied to: {}".format(self.geometry.__repr__())
+        return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())
 
 
 class _DefaultGeometry(Continuous1D):
@@ -425,7 +425,7 @@ class KLExpansion(Continuous1D):
     '''
     
     # init function defining paramters for the KL expansion
-    def __init__(self, grid, axis_labels=['x'],**kwargs):
+    def __init__(self, grid, params=None, axis_labels=['x'],**kwargs):
         
         super().__init__(grid, axis_labels,**kwargs)
 
@@ -445,14 +445,61 @@ class KLExpansion(Continuous1D):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
 
-class CustomKL(Continuous1D):
-    def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x'],**kwargs):
+class KLExpansion_Full(Continuous1D):
+    '''
+    class representation of the random field in  the sine basis
+    alpha = sum_i p * (1/i)^decay * sin(i*L*x/pi)
+    L is the length of the interval
+    '''
+    
+    # init function defining paramters for the KL expansion
+    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
+
         super().__init__(grid, axis_labels,**kwargs)
+
+        cl = params['cor_len']
+        tau2 = 1./cl/cl
+        nu = params["nu"]
+        gamma = nu+1.
+        self.var = params["std"]**2
+
+        modes = np.arange(0,self.dim)
+
+        self.coefs =  np.float_power( tau2,gamma ) * np.float_power(tau2+modes**2,-gamma)
+
+    # computes the real function out of expansion coefs
+    def par2fun(self,p):
+        freq = np.zeros(self.dim)
+        m = len(p)
+        freq[:m] = p
+        temp = freq*self.coefs
+        real = idst(temp)/2/np.pi
+        return self.var*real
+    
+    def fun2par(self,funvals):
+        """The function to parameter map used to map function values back to parameters, if available."""
+        raise NotImplementedError("fun2par not implemented. ")
+
+
+class CustomKL(Continuous1D):
+    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
+        super().__init__(grid, axis_labels,**kwargs)
+
+        cov_func = params["cov_func"]
+        mean = params["mean"]
+        std = params["std"]
+        trunc_term = params["trunc_term"]
+        self._trunc_term = trunc_term 
 
         #self.N = len(self.grid)
         self.mean = mean
         #self.std = std
         self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
+
+
+    @property
+    def shape(self):
+        return (self._trunc_term,)
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
@@ -543,7 +590,7 @@ class StepExpansion(Continuous1D):
         super().__init__(grid, axis_labels,**kwargs)
 
         L = self.grid[-1]
-        self._idx1 = np.where( (self.grid>0*L)&(self.grid<=0.333*L) )
+        self._idx1 = np.where( (self.grid>=0*L)&(self.grid<=0.333*L) )
         self._idx2 = np.where( (self.grid>0.333*L)&(self.grid<=0.666*L) )
         self._idx3 = np.where( (self.grid>0.666*L)&(self.grid<=L) )
 

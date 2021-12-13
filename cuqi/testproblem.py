@@ -7,7 +7,7 @@ import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
-from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, _DefaultGeometry
 from cuqi.samples import CUQIarray
 
 #=============================================================================
@@ -432,34 +432,42 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200):
-        
+    def __init__(self, dim=128, dim_obs=None, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
+
+        if dim_obs is None:
+            dim_obs = dim-1
+
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
-        dx = 1./N   # step size
+        dx = endpoint/N   # step size
         grid = np.linspace(dx, endpoint, N, endpoint=False)
         Dx = - np.diag(np.ones(N), 0) + np.diag(np.ones(N-1), 1) #Dx
         vec = np.zeros(N)
         vec[0] = 1
-        Dx = np.concatenate([vec.reshape([1,-1]), Dx], axis=0)
+        Dx = np.concatenate([vec.reshape([1, -1]), Dx], axis=0)
         Dx /= dx # FD derivative matrix
         rhs = source(grid)
         
-        # PDE form: LHS(x)u=rhs(x)
-        PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
-        PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form)
-
         # Grids for model
         grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
         grid_range  = np.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
+
+        # PDE form: LHS(x)u=rhs(x)
+        grid_obs = np.linspace(1./(dim_obs), endpoint, dim_obs, endpoint=False)
+        PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
+        PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_range, grid_obs)
 
         # Set up geometries for model
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain)
+            domain_geometry = KLExpansion(grid_domain,field_params)
+        elif field_type=="KL_Full":
+            domain_geometry = KLExpansion_Full(grid_domain,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid_domain,field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
 
@@ -472,7 +480,7 @@ class Poisson_1D(BayesianProblem):
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
 
         # Set up exact solution
-        x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )
+        x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )   
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
@@ -554,8 +562,11 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, max_time=0.2, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
+    def __init__(self, dim=128, dim_obs=None, endpoint=1, max_time=0.2, field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
         
+        if dim_obs is None:
+            dim_obs = dim
+
         # Prepare PDE form
         N = dim   # Number of solution nodes
         dx = endpoint/(N+1)   # space step size
@@ -564,30 +575,32 @@ class Heat_1D(BayesianProblem):
         max_iter = int(max_time/dt) # number of time steps
         Dxx = np.diag( (1-2*cfl)*np.ones(N) ) + np.diag(cfl* np.ones(N-1),-1) + np.diag(cfl*np.ones(N-1),1) # FD diffusion operator
         
-        time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
-
-        # PDE form (diff_op, IC, time_steps)
-        PDE_form = lambda IC: (Dxx, IC, time_steps)
-        PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form)
-
         # Grids for model
         grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
         grid_range  = grid_domain
+        time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
+
+        # PDE form (diff_op, IC, time_steps)
+        grid_obs = np.linspace(dx, endpoint, dim_obs, endpoint=False)
+        PDE_form = lambda IC: (Dxx, IC, time_steps)
+        PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form, grid_domain, grid_obs)
 
         # Set up geometries for model
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain)
+            domain_geometry = KLExpansion(grid_domain, field_params)
+        elif field_type=="KL_Full":
+            domain_geometry = KLExpansion_Full(grid_domain,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid_domain, field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
         domain_geometry_old = domain_geometry 
         if KL_map is not None:
             domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
-
-
         range_geometry = Continuous1D(grid_range)
 
         # Prepare model
@@ -679,7 +692,7 @@ class Abel_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, field_type=None, KL_map=None, KL_imap=None, SNR=100):
+    def __init__(self, dim=128, endpoint=1, field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
 
@@ -699,9 +712,11 @@ class Abel_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid)
+            domain_geometry = KLExpansion(grid,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid,field_params)
         else:
             domain_geometry = Continuous1D(grid)
 
@@ -792,7 +807,7 @@ class Deconv_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, KL_map=None, KL_imap=None, SNR=100):
+    def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=100):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
         grid = np.linspace(0, endpoint, N)
@@ -811,9 +826,11 @@ class Deconv_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid)
+            domain_geometry = KLExpansion(grid,field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid)
+        elif field_type=="CustomKL":
+            domain_geometry = CustomKL(grid,field_params)
         else:
             domain_geometry = Continuous1D(grid)
 
@@ -826,7 +843,7 @@ class Deconv_1D(BayesianProblem):
         model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
     
         # Prior
-        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1, geometry=model.domain_geometry)
 
         # Set up exact solution
         x_exact = prior.sample()

@@ -100,6 +100,22 @@ class Model(object):
     def gradient(self,x):
         raise NotImplementedError("Gradient is not implemented for this model.")
     
+    # approximate the Jacobian matrix of callable function func
+    def approx_jacobian(self, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
+        # x       - The state vector
+        # func    - A vector-valued function of the form f(x,*args)
+        # epsilon - The peturbation used to determine the partial derivatives
+        # The approximation is done using forward differences
+        x0 = np.asfarray(x)
+        f0 = self.forward(x0)
+        jac = np.zeros([len(x0), len(f0)])
+        dx = np.zeros(len(x0))
+        for i in range(len(x0)):
+            dx[i] = epsilon
+            jac[i] = (self.forward(x0+dx) - f0)/epsilon
+            dx[i] = 0.0
+        return jac.T
+    
     def __len__(self):
         return self.range_dim
 
@@ -141,7 +157,7 @@ class LinearModel(Model):
     
     def __init__(self,forward,adjoint=None,range_geometry=None,domain_geometry=None):
         #Assume forward is matrix if not callable (TODO: add more checks)
-        if not callable(forward): 
+        if not callable(forward):      
             forward_func = lambda x: self._matrix@x
             adjoint_func = lambda y: self._matrix.T@y
             matrix = forward
@@ -170,9 +186,9 @@ class LinearModel(Model):
         #Store matrix privately
         self._matrix = matrix
 
-        if matrix is not None: 
-            assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-            assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+        # if matrix is not None: 
+        #     assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
+        #     assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
     def adjoint(self,y):
         out = self._adjoint_func(y)
@@ -269,26 +285,6 @@ class PDEModel(Model):
         obs = self.pde.observe(sol)
 
         return obs
-
-    # compute gradient of target function 
-    def gradient(self, func, kappa, eps=np.sqrt(np.finfo(np.float).eps)):
-        return self._approx_jacobian(kappa, func, eps)
-    
-    # approximate the Jacobian matrix of callable function func
-    def _approx_jacobian(x, func, epsilon, *args):
-        # x       - The state vector
-        # func    - A vector-valued function of the form f(x,*args)
-        # epsilon - The peturbation used to determine the partial derivatives
-        # The approximation is done using forward differences
-        x0 = np.asfarray(x)
-        f0 = func(*((x0,)+args))
-        jac = np.zeros([len(x0), len(f0)])
-        dx = np.zeros(len(x0))
-        for i in range(len(x0)):
-            dx[i] = epsilon
-            jac[i] = (func(*((x0+dx,)+args)) - f0)/epsilon
-            dx[i] = 0.0
-        return jac.transpose()
 
     # Add the underlying PDE class name to the repr.
     def __repr__(self) -> str:
