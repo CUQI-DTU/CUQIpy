@@ -12,7 +12,7 @@ import ufl
 
 class FEniCSDiffusion1D(BayesianProblem):
     """
-    1D Diffusion PDE problem using FEniCS.
+    1D Diffusion PDE problem using FEniCS. The problem has Dirichlet boundary conditions.
 
     Parameters
     ------------
@@ -51,6 +51,9 @@ class FEniCSDiffusion1D(BayesianProblem):
 
     infoSring : str
         String with information about the problem, noise etc.
+    
+    mapping: str or function
+        mapping to parametrize the Bayesain parameters. If provided as string, it can take one of the values: ['exponential'] 
 
     Methods
     ----------
@@ -64,32 +67,35 @@ class FEniCSDiffusion1D(BayesianProblem):
 
     """
     
-    def __init__(self, dim = 100, endpoint = 1, exactSolution = None, SNR = 100, observation_operator = None, form = 'default_form', map = None):
+    def __init__(self, dim = 100, endpoint = 1, exactSolution = None, SNR = 100, observation_operator = None, mapping = None, left_bc=0, right_bc=1):
 
         # Create FEniCSPDE        
         def u_boundary(x, on_boundary):
             return on_boundary
-        if form == 'default_form':
-            def form(m,u,p):
-                return m*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx 
-        elif form == 'exp_form':
-            def form(m,u,p):
-                return ufl.exp(m)*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx 
+
+        def form(m,u,p):
+            return m*ufl.inner(ufl.grad(u), ufl.grad(p))*ufl.dx
         
         mesh = dl.IntervalMesh(dim, 0,endpoint)
 
         solution_function_space = dl.FunctionSpace(mesh, 'Lagrange', 1)
         parameter_function_space = dl.FunctionSpace(mesh, 'Lagrange', 1)
 
-        dirichlet_bc_expression = dl.Expression("x[0]", degree=1)
+        dirichlet_bc_expression = dl.Expression("left_bc*(x[0]<eps)+right_bc*(x[0]>endpoint-eps)", eps=dl.DOLFIN_EPS, endpoint=endpoint, left_bc=left_bc, right_bc=right_bc, degree=1)
         dirichlet_bc = dl.DirichletBC(solution_function_space, dirichlet_bc_expression, u_boundary)
 
         PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=observation_operator)
         
         # Create PDE model
         domain_geometry = cuqi.fenics.geometry.FEniCSContinuous(parameter_function_space)
-        if map is not None:
-            domain_geometry =  cuqi.fenics.geometry.FEniCSMappedGeometry(geometry=domain_geometry, map = map)
+        if mapping is not None:
+            if mapping == 'exponential':
+                mapping = lambda x : ufl.exp(x)
+            elif callable(mapping):
+                mapping = mapping
+            else:
+                raise ValueError('mapping can be a function or one of the expected keywords.')
+            domain_geometry =  cuqi.fenics.geometry.FEniCSMappedGeometry(geometry=domain_geometry, map = mapping)
 
         range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_function_space)
         
@@ -102,6 +108,12 @@ class FEniCSDiffusion1D(BayesianProblem):
         # Set up exact solution
         if exactSolution is None:
             exactSolution = prior.sample()
+        elif exactSolution == 'smooth_step':
+            N = dim + 1
+            fun = lambda grid:  0.8*np.exp( -( (grid -endpoint/2.0 )**2 ) / 0.02)
+            grid = np.linspace(0,endpoint,N)
+            exactSolution = np.ones(N)*.8
+            exactSolution[np.where(grid>endpoint/2.0)] = fun(grid[np.where(grid>endpoint/2.0)]) 
 
         # Generate exact data
         b_exact = model.forward(domain_geometry.par2fun(exactSolution),is_par=False)
