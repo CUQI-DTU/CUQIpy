@@ -54,10 +54,13 @@ class FirstOrderFiniteDifference(Operator):
             The boundary condition type for the operator. 
 
         physical_dim: int
-            Either 1 or 2 for 1D and 2D operators, respectively. 
+            Either 1 or 2 for 1D and 2D operators, respectively.
+
+        dx : int or float
+            The grid spacing (length between two consecutive nodes). 
     """
 
-    def __init__(self, num_nodes, bc_type= 'periodic'):	
+    def __init__(self, num_nodes, bc_type= 'periodic', dx=None):	
 
         if isinstance(num_nodes, (int,np.integer)):
             self._num_nodes = (num_nodes,)
@@ -73,6 +76,12 @@ class FirstOrderFiniteDifference(Operator):
             raise ValueError("num_nodes should be either and integer or a two dimensional tuple of integers")
 
         self._bc_type = bc_type
+        if dx == None:
+            self._dx = 1
+        elif self.physical_dim == 1:
+            self._dx = dx #TODO: check dx is a scalar value
+        else:
+            raise NotImplementedError('Specifying dx for a 2D operator is not implemented')
         self._create_diff_matrix()
 
 
@@ -125,7 +134,7 @@ class FirstOrderFiniteDifference(Operator):
 
         # structure matrix
         if (self.physical_dim == 1):
-            self._matrix = Dmat
+            self._matrix = Dmat/self._dx
 
         elif (self.physical_dim == 2):            
             I = eye(N, dtype=int)
