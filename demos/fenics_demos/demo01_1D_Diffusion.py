@@ -5,30 +5,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append("../../")
 import cuqi
-from math import floor
-import dolfin  as dl
-import ufl
- 
+
 np.random.seed(0)
-trial_id = 1
-if trial_id == 1:
-    map = lambda x : ufl.exp(x)
-    form = 'default_form'
-else:
-    map = lambda x : x
-    form = 'exp_form'
+mapping =  'exponential'
 dim = 30
 N= dim + 1
+L = 1
+myExactSolution= 'smooth_step'
 
-myExactSolution = np.zeros(N)
-myExactSolution[:floor(N/3)] = .2
-myExactSolution[floor(N/3):floor(2*N/3)] = .8
-myExactSolution[floor(2*N/3):] = .5
 #%%
-SNR = 100
-model, data, problemInfo = cuqi.fenics.testproblem.FEniCSDiffusion1D.get_components(dim = dim, exactSolution = myExactSolution, observation_operator='sigma_u' , SNR = SNR, form = form, map = map)
+observation_operator=None
+SNR = 1000
+model, data, problemInfo = cuqi.fenics.testproblem.FEniCSDiffusion1D.get_components(dim = dim, exactSolution = myExactSolution, observation_operator=observation_operator , SNR = SNR, mapping = mapping, left_bc = 1, right_bc = 8, endpoint=L)
 
 model.range_geometry.plot(data)
+plt.title('Data')
 
 
 # %%
@@ -40,13 +31,18 @@ likelihood = cuqi.distribution.GaussianCov(model, sigma**2*np.eye(model.range_di
 posterior = cuqi.distribution.Posterior(likelihood, prior, data)
 # %%
 sampler = cuqi.sampler.pCN(posterior)
-samples = sampler.sample_adapt(1000)
+samples = sampler.sample_adapt(5000)
 # %%
-#samples.burnthin(1000, 100)
-samples.plot_ci(95, plot_par = True, exact = problemInfo.exactSolution)
-#plt.xticks(np.arange(posterior.dim)[::5]);
+
+samples.plot_ci(95, plot_par = True, exact = problemInfo.exactSolution, linestyle='-', marker='.')
+plt.xticks(np.arange(prior.dim)[::5],['v'+str(i) for i in range(prior.dim)][::5]);
+
 
 # %%
-samples.plot([10,30])
-samples.plot([1])
+samples.plot([10,24]);
 # %%
+
+# %%
+new_samples = samples.burnthin(1000) 
+new_samples.plot_ci(95, plot_par = True, exact = problemInfo.exactSolution, linestyle='-', marker='.')
+plt.xticks(np.arange(prior.dim)[::5],['v'+str(i) for i in range(prior.dim)][::5]);
