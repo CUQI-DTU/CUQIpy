@@ -58,7 +58,6 @@ class FEniCSContinuous(Geometry):
 
         ims = []
         for rows,cols,subplot_id in subplot_ids:
-            print(subplot_id)
             fun = values[subplot_id-1]
             if subplots:
                 plt.subplot(rows,cols,subplot_id); 
