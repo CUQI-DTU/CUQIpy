@@ -28,6 +28,9 @@ class FEniCSDiffusion1D(BayesianProblem):
 
     SNR : float, Default 100
         Signal-to-noise ratio.
+    
+    mapping: str or function
+        mapping to parametrize the Bayesain parameters. If provided as string, it can take one of the values: ['exponential'] 
 
     Attributes
     ----------
@@ -51,9 +54,6 @@ class FEniCSDiffusion1D(BayesianProblem):
 
     infoSring : str
         String with information about the problem, noise etc.
-    
-    mapping: str or function
-        mapping to parametrize the Bayesain parameters. If provided as string, it can take one of the values: ['exponential'] 
 
     Methods
     ----------
