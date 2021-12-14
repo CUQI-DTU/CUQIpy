@@ -2,8 +2,6 @@
 *.pyc
 
 # ignore other files
-*.png
-*.gif
 *.out
 
 # ignore compiled python 3 files and vscode stuff
