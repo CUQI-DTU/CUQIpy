@@ -1,6 +1,9 @@
 # ignore compiled python 2 files
 *.pyc
 
+# ignore other files
+*.out
+
 # ignore compiled python 3 files and vscode stuff
 __pycache__
 .vscode/

@@ -104,8 +104,7 @@ class Geometry(ABC):
         """
         pass
 
-    def _create_subplot_list(self,values,subplots=True):
-        Ns = values.shape[-1]
+    def _create_subplot_list(self,Ns,subplots=True):
         Nx = math.ceil(np.sqrt(Ns))
         Ny = Nx
         subplot_ids = []
@@ -243,7 +242,7 @@ class Continuous2D(Continuous):
             raise ValueError(f"unknown value: {plot_type} of the parameter 'plot_type'")
         
         values = self._process_values(values)
-        subplot_ids = self._create_subplot_list(values)
+        subplot_ids = self._create_subplot_list(values.shape[-1])
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 

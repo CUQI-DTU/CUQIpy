@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import scipy
+from inspect import getsource
 from scipy.interpolate import interp1d
 
 class PDE(ABC):
@@ -17,6 +18,12 @@ class PDE(ABC):
     def observe(self,solution):
         pass
 
+    def __repr__(self) -> str:
+        msg = "CUQI {}.".format(self.__class__.__name__)
+        if hasattr(self,"PDE_form"):
+            msg+="\nPDE form expression:\n{}".format(getsource(self.PDE_form))
+        return msg
+        
     @staticmethod
     def _compare_grid(grid1,grid2):
         """Compares two grids and returns if they are equal"""
