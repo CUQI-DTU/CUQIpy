@@ -552,10 +552,7 @@ class CWMH(ProposalBasedSampler):
                 idx += Na
 
             # display iterations 
-            if ((s % 5e2) == 0 and s < Nb) or s ==  Nb:
-                print('Burn-in', s, '/', Nb)
-            elif (s % 5e2) == 0:
-                print('Sample', s-Nb, '/', N)
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
 
         # remove burn-in
         samples = samples[:, Nb:]
