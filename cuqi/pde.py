@@ -91,7 +91,7 @@ class SteadyStateLinearPDE(PDE):
     -----------   
     PDE_form : callable function
         Callable function which returns a tuple with
-        the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as a first and second parameters, respectively. 
+        the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
     Example
     -----------  
