@@ -10,7 +10,7 @@ class PDE(ABC):
     Parameters
     -----------
     linalg_solve: lambda function or function handle
-        linear system solver function of signature `x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is additional keywords arguments that the function can take. x is the solution of A*x=b. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+        linear system solver function with the signature `x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
 
     linalg_solve_kwargs: a dictionary 
         A dictionary of the keywords arguments that linalg_solve can take.    
@@ -91,7 +91,7 @@ class SteadyStateLinearPDE(PDE):
     -----------   
     PDE_form : callable function
         Callable function which returns a tuple with
-        the discretized differential operator and right-hand-side.
+        the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as a first and second parameters, respectively. 
 
     Example
     -----------  

@@ -16,7 +16,7 @@ def test_solver_choice():
     grid_obs = grid_sol
     source = lambda a, x0: a*np.exp( -50 * ( (grid_sol - x0)/L)**2 ) #source term
     kappa = np.ones(dim)
-    kappa[np.where(np.arange(dim)>dim/2)] = 2 #kappa is diffusivity 
+    kappa[np.where(np.arange(dim)>dim/2)] = 2 #kappa is the diffusivity 
 
 
     # Solver1 (default)
