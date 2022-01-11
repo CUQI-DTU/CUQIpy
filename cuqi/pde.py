@@ -10,7 +10,7 @@ class PDE(ABC):
     Parameters
     -----------
     linalg_solve: lambda function or function handle
-        linear system solver function of signature :meth:`x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is additional keywords arguments that the function can take. x is the solution of A*x=b. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+        linear system solver function of signature `x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is additional keywords arguments that the function can take. x is the solution of A*x=b. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
 
     linalg_solve_kwargs: a dictionary 
         A dictionary of the keywords arguments that linalg_solve can take.    
@@ -99,6 +99,7 @@ class SteadyStateLinearPDE(PDE):
     <<< ....
     <<< ....
     """
+
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
         super().__init__(linalg_solve=linalg_solve, linalg_solve_kwargs=linalg_solve_kwargs) 
         self.PDE_form = PDE_form
