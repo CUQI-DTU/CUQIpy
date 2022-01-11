@@ -743,6 +743,20 @@ class MetropolisHastings(ProposalBasedSampler):
 class pCN(Sampler):   
     #Samples target*proposal
     #TODO. Check proposal, needs to be Gaussian and zero mean.
+    """
+    preconditioned Crank–Nicolson sampler 
+
+    Parameters
+    ------------
+    target : `cuqi.distribution.Posterior` or tuple of two `cuqi.distribution.Distribution` objects
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the prior and the second distribution is considered the likelihood.
+
+    scale : int
+
+    x0 : `np.ndarray` 
+      Initial point for the sampler
+        
+    """
     
     def __init__(self, target, scale=None, x0=None):
         super().__init__(target, x0=x0, dim=None) 
@@ -750,16 +764,29 @@ class pCN(Sampler):
     
     @property
     def prior(self):
-        return self.target.prior
+        if isinstance(self.target, cuqi.distribution.Posterior):
+            return self.target.prior
+        elif isinstance(self.target,tuple) and len(self.target)==2:
+            return self.target[0]
 
     @property
     def likelihood(self):
-        return self.target.likelihood
+        if isinstance(self.target, cuqi.distribution.Posterior):
+            return self.target.likelihood
+        elif isinstance(self.target,tuple) and len(self.target)==2:
+            return self.target[1]
+
 
     @Sampler.target.setter 
     def target(self, value):
         if isinstance(value, cuqi.distribution.Posterior):
             self._target = value
+            self._loglikelihood = lambda x : self.likelihood(x=x).logpdf(self.target.data) 
+        elif isinstance(value,tuple) and len(value)==2 and \
+             isinstance(value[0], cuqi.distribution.Distribution) and\
+             isinstance(value[1], cuqi.distribution.Distribution):
+            self._target = value
+            self._loglikelihood = lambda x : self.likelihood.logpdf(x)
         else:
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
         
@@ -781,7 +808,7 @@ class pCN(Sampler):
 
         # initial state    
         samples[:, 0] = self.x0
-        loglike_eval[0] = self.likelihood(x=self.x0).logpdf(self.target.data)
+        loglike_eval[0] = self._loglikelihood(self.x0)
         acc[0] = 1
 
         # run MCMC
@@ -813,7 +840,7 @@ class pCN(Sampler):
 
         # initial state    
         samples[:, 0] = self.x0
-        loglike_eval[0] = self.likelihood(x=self.x0).logpdf(self.target.data)
+        loglike_eval[0] = self._loglikelihood(self.x0) 
         acc[0] = 1
 
         # initial adaptation params 
@@ -864,7 +891,7 @@ class pCN(Sampler):
         x_star = np.sqrt(1-self.scale**2)*x_t + self.scale*xi   # pCN proposal
 
         # evaluate target
-        loglike_eval_star = self.likelihood(x=x_star).logpdf(self.target.data)
+        loglike_eval_star =  self._loglikelihood(x_star) 
 
         # ratio and acceptance probability
         ratio = loglike_eval_star - loglike_eval_t  # proposal is symmetric
