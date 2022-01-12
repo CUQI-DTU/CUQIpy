@@ -791,6 +791,13 @@ class pCN(Sampler):
         #if not isinstance(self.prior,(cuqi.distribution.Gaussian,cuqi.distribution.GaussianCov, cuqi.distribution.GaussianPrec, cuqi.distribution.GaussianSqrtPrec, cuqi.distribution.Normal)):
         #    raise ValueError("The prior distribution of the target need to be Gaussian")
 
+    @property
+    def dim(self):
+        if hasattr(self,'target') and hasattr(self.target,'dim'):
+            self._dim = self.target.dim
+        elif hasattr(self,'target') and isinstance(self.target,tuple) and len(self.target)==2:
+            self._dim = self.target[0].dim
+        return self._dim
 
     def _sample(self, N, Nb):
         if self.scale is None:
