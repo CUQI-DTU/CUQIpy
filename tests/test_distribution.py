@@ -165,3 +165,15 @@ def test_GaussianCov(mean,cov,mean_full,cov_full):
     gradeval2 = sp.optimize.approx_fprime(x0, prior.logpdf, 1e-15)
 
     assert np.allclose(gradeval1,gradeval2)
+
+def test_lognormal_sample():
+    rng = np.random.RandomState(3)
+
+    mean = np.array([0, 0])
+    std = np.array([1, 1])
+    R = np.array([[1, -0.7], [-0.7, 1]])
+    normal = cuqi.distribution.Gaussian(mean, std, R)
+    LND = cuqi.distribution.Lognormal(normal)
+    cuqi_samples = LND.sample(3,rng=rng)
+    print(cuqi_samples)
+

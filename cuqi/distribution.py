@@ -1198,3 +1198,43 @@ class LMRF(Distribution):
 
     def _sample(self, N):
         raise NotImplementedError
+
+
+class Lognormal(Distribution):
+    """
+    Multivariate Lognormal distribution class
+
+    
+    Parameters
+    ------------
+    par1: ...
+    par2: ...
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulative probability function
+    
+    Example
+    -----------
+    # Generate a ...
+    x = cuqi.distribution.Lognormal ...
+    """
+    def __init__(self, normal_distribution, is_symmetric=False, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+        self._normal = normal_distribution
+
+    @property
+    def dim(self):
+        self._normal.dim
+
+    def logpdf(self, x):
+        raise NotImplementedError
+
+    def gradient(self, val, **kwargs):
+        raise NotImplementedError
+
+    def _sample(self, N=1, rng=None):
+        return np.exp(self._normal._sample(N,rng))
