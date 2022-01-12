@@ -102,7 +102,9 @@ def test_GMRF_rng(dist):
 
 @pytest.mark.parametrize( \
   "low,high,toeval,expected",[ \
-    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([1, 0.5]), np.log(0.5)) \
+    (-2.0, 3.0, 1.0, np.log(0.2)), \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([1, 0.5]), np.log(0.5)), \
+    (np.array([1.0, 2.0, 3.0]), np.array([3.0, 4.0, 5.0]), np.array([3.0, 4.0, 3.0]), np.log(0.125)) \
   ])
 def test_Uniform_logpdf(low, high, toeval, expected):
     UD = cuqi.distribution.Uniform(low, high)
