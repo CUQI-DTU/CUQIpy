@@ -102,8 +102,13 @@ def test_GMRF_rng(dist):
 
 @pytest.mark.parametrize( \
   "low,high,toeval,expected",[ \
-    (-2.0, 3.0, 1.0, np.log(0.2)), \
+    (-2.0, 3.0, 1.0, np.log(2.2)), \
+    (-2.0, 3.0, 3.5, -np.inf, \
     (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([1, 0.5]), np.log(0.5)), \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([0.0, 0.5]), -np.inf, \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([0.0, 0.0]), -np.inf, \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([3.0, 0.5]), -np.inf, \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([3.0, 3.0]), -np.inf, \
     (np.array([1.0, 2.0, 3.0]), np.array([3.0, 4.0, 5.0]), np.array([3.0, 4.0, 3.0]), np.log(0.125)) \
   ])
 def test_Uniform_logpdf(low, high, toeval, expected):
