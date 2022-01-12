@@ -100,11 +100,13 @@ def test_GMRF_rng(dist):
     rng = np.random.RandomState(3)
     assert np.allclose(dist.sample(10).samples,dist.sample(10,rng=rng).samples)
 
-def test_Uniform_logpdf():
-    low = np.array([1, .5])
-    high = np.array([2, 2.5])
+@pytest.mark.parametrize( \
+  "low,high,toeval,expected",[ \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([1, 0.5]), np.log(0.5)) \
+  ])
+def test_Uniform_logpdf(low, high, toeval, expected):
     UD = cuqi.distribution.Uniform(low, high)
-    assert np.allclose(UD.logpdf(np.array([1,.5])), np.log(.5) ) 
+    assert np.allclose(UD.logpdf(toeval), expected) 
 
 
 @pytest.mark.parametrize("low,high,expected",[(np.array([1, .5]), 
