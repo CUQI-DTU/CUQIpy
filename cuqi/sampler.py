@@ -156,7 +156,42 @@ class ProposalBasedSampler(Sampler,ABC):
 
 # another implementation is in https://github.com/mfouesneau/NUTS
 class NUTS(Sampler):
+    """No-U-Turn Sampler.
 
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    dim : int
+        Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
+
+    Example
+    -------
+    .. code-block:: python
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        gradient_func = lambda x: -1/(std**2)*(x - mu)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.NUTS(target)
+
+        # Sample
+        samples = sampler.sample(2000)
+
+    """
     def __init__(self, target, x0=None, dim=None, maxdepth=20):
         super().__init__(target, x0=x0, dim=dim)
         self.maxdepth = maxdepth
