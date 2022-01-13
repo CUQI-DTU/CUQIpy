@@ -919,11 +919,10 @@ class MetropolisHastings(ProposalBasedSampler):
 class pCN(Sampler):   
     #Samples target*proposal
     #TODO. Check proposal, needs to be Gaussian and zero mean.
-    """
-    preconditioned Crank–Nicolson sampler 
-
+    """Preconditioned Crank-Nicolson sampler 
+    
     Parameters
-    ------------
+    ----------
     target : `cuqi.distribution.Posterior` or tuple of two `cuqi.distribution.Distribution` objects
         If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the prior and the second distribution is considered the likelihood.
 
@@ -932,8 +931,53 @@ class pCN(Sampler):
     x0 : `np.ndarray` 
       Initial point for the sampler
         
+    Example (UserDefinedDistribution)
+    ---------------------------------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function of likelihood
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+
+        # sample function of prior N(0,I)
+        sample_func = lambda : 0 + 1*np.random.randn(dim,1)
+
+        # Define as UserDefinedDistributions
+        likelihood = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+        prior = cuqi.distribution.UserDefinedDistribution(dim=dim, sample_func=sample_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.pCN((prior,likelihood), scale = 0.1)
+
+        # Sample
+        samples = sampler.sample(5000)
+
+    Example (Posterior)
+    -------------------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Define as UserDefinedDistributions
+        likelihood = cuqi.distribution.GaussianCov(mean=lambda x: x, cov=np.ones(dim))
+        prior = cuqi.distribution.GaussianCov(mean=np.zeros(dim), cov=1)
+
+        target = cuqi.distribution.Posterior(likelihood, prior, mu)
+
+        # Set up sampler
+        sampler = cuqi.sampler.pCN(target, scale = 0.1)
+
+        # Sample
+        samples = sampler.sample(5000)
+        
     """
-    
     def __init__(self, target, scale=None, x0=None):
         super().__init__(target, x0=x0, dim=None) 
         self.scale = scale
