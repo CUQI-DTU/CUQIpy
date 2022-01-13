@@ -354,12 +354,69 @@ class NUTS(Sampler):
 
 
 class Linear_RTO(Sampler):
-    
+    """
+    Linear RTO (Randomize-Then-Optimize) sampler.
+
+    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is Linear.
+
+    Parameters
+    ------------
+    target : `cuqi.distribution.Posterior` or tuple of five numpy arrays.
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
+        If target is a tuple of five numpy arrays it assumes the following structure:
+            (data, model, L_sqrtprec, P_mean, P_sqrtrec)
+        where
+        data: is a m-dimensional numpy array containing the measured data.
+        model: is a m by n dimensionalm matrix or LinearModel representing the forward model.
+        L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.
+        P_mean: is the prior mean.
+        P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
+
+    x0 : `np.ndarray` 
+        Initial point for the sampler
+
+    maxit : int
+        Maximum number of iterations of the inner CGLS solver.
+
+    tol : float
+        Tolerance of the inner CGLS solver
+        
+    """
     def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
         
+        # Accept tuple of inputs and construct posterior
+        if isinstance(target, tuple) and len(target) == 5:
+            # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
+            data = target[0]
+            model = target[1]
+            L_sqrtprec = target[2]
+            P_mean = target[3]
+            P_sqrtprec = target[4]
+
+
+            # If numpy matrix convert to CUQI model
+            if isinstance(model, np.ndarray) and len(model.shape) == 2:
+                model = cuqi.model.LinearModel(model)
+
+            # Check model input
+            if not isinstance(model, cuqi.model.LinearModel):
+                raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
+
+            # Likelihood
+            L = cuqi.distribution.GaussianSqrtPrec(model, L_sqrtprec)
+
+            # Prior (allow multiple priors stacked)
+            if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
+                P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
+            else:
+                P = cuqi.distribution.GaussianSqrtPrec(P_mean, P_sqrtprec)
+
+            # Construct posterior
+            target = cuqi.distribution.Posterior(L, P, data)
+
         super().__init__(target, x0=x0)
 
-        # Check target type and store
+        # Check target type
         if not isinstance(target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 

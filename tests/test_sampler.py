@@ -172,10 +172,10 @@ def test_sampler_UserDefined_basic():
     assert np.allclose(s_CWMH.shape,(X.dim,Ns))
     assert np.allclose(s_NUTS.shape,(X.dim,Ns))
 
-def test_sampler_UserDefined_Advanced():
+def test_sampler_UserDefined_tuple():
     """
-    This tests samplers with a more advanced input interface.
-    Here we may require two userdefined distributions or even a cuqi model.
+    This tests samplers with a two userdefined distributions.
+    Here we require two userdefined distributions.
     """
     # This provides a way to give the logpdf
     P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
@@ -194,10 +194,13 @@ def test_sampler_UserDefined_Advanced():
 
     assert np.allclose(s_pCN.shape,(P.dim,Ns))
 
-def test_sampler_UserDefined_AdvancedModel():
-    
+def test_sampler_CustomInput_Linear_RTO():
+    """
+    This tests the Linear_RTO sampler which requires a specific input structure.
+    """
     # In some special cases A model must be part of the likelihood (e.g. in Linear_RTO)
-    model = cuqi.model.LinearModel(lambda x: x, lambda y: y, 2, 2) # Identity model
+    model = np.eye(2) # Identity model
+    #model = cuqi.model.LinearModel(lambda x: x, lambda y: y, 2, 2) 
 
     # In linear_RTO we require Gaussian distributions
     # or at least classes with sqrtprec and sqrtprecTimesMean 
@@ -206,16 +209,17 @@ def test_sampler_UserDefined_AdvancedModel():
     L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]]))
 
     # Data
-    D = np.array([5,6])
+    data = np.array([5,6])
 
     # Posterior
-    post = cuqi.distribution.Posterior(L, P, D)
+    target = (data, model, L.sqrtprec, P.mean, P.sqrtprec)
+    #target = cuqi.distribution.Posterior(L, P, data)
 
     # Parameters
     Ns = 2000   # number of samples
     Nb = 200   # burn-in
 
     # Sampling
-    s_RTO = cuqi.sampler.Linear_RTO(post).sample_adapt(Ns,Nb)
+    s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
