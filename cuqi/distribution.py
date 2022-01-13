@@ -886,12 +886,22 @@ class Uniform(Distribution):
 
 
     def logpdf(self, x):
-        diff = self.high -self.low
-        if isinstance(diff, (list, tuple, np.ndarray)): 
-            v= np.prod(diff)
+        # First check whether x is outside bounds.
+        # It is outside if any coordinate is outside the interval.
+        if np.any(x < self.low) or np.any(x > self.high):
+            # If outside always return -inf
+            return_val = -np.inf  
         else:
-            v = diff
-        return np.log(1.0/v) 
+            # If inside, compute the area and obtain the constant 
+            # probability (pdf) as 1 divided by the area, the convert 
+            # to logpdf. Special case if scalar.
+            diff = self.high - self.low
+            if isinstance(diff, (list, tuple, np.ndarray)): 
+                v= np.prod(diff)
+            else:
+                v = diff
+            return_val = np.log(1.0/v)
+        return return_val
 
     def _sample(self,N=1, rng=None):
 
