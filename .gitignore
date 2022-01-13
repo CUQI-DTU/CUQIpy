@@ -16,3 +16,6 @@ __pycache__
 
 #Windows related
 desktop.ini
+
+# Ignore build docs
+/docs/_build
