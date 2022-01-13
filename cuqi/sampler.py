@@ -656,6 +656,50 @@ class CWMH(ProposalBasedSampler):
 #===================================================================
 #===================================================================
 class MetropolisHastings(ProposalBasedSampler):
+    """Metropolis Hastings sampler.
+
+    Allows sampling of a target distribution by random-walk sampling of a proposal distribution along with an accept/reject step.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    proposal : `cuqi.distribution.Distribution` or callable method
+        The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
+
+    scale : float
+        Scale parameter used to define correlation between previous and proposed sample in random-walk.  *Optional*.
+
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    dim : int
+        Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
+
+    Example
+    -------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.MetropolisHastings(target, scale=1)
+
+        # Sample
+        samples = sampler.sample(2000)
+
+    """
     #target,  proposal=None, scale=1, x0=None, dim=None
     #    super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
     def __init__(self, target, proposal=None, scale=None, x0=None, dim=None):
