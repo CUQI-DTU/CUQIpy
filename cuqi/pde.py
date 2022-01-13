@@ -6,21 +6,7 @@ from scipy.interpolate import interp1d
 class PDE(ABC):
     """
     Parametrized PDE abstract base class
-    
-    Parameters
-    -----------
-    linalg_solve: lambda function or function handle
-        linear system solver function with the signature `x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
-
-    linalg_solve_kwargs: a dictionary 
-        A dictionary of the keywords arguments that linalg_solve can take.    
-
     """
-    def __init__(self, linalg_solve=None, linalg_solve_kwargs={}):
-        if linalg_solve == None:
-            linalg_solve = scipy.linalg.solve
-        self._linalg_solve = linalg_solve
-        self._linalg_solve_kwargs = linalg_solve_kwargs 
 
     @abstractmethod
     def assemble(self,parameter):
@@ -93,6 +79,12 @@ class SteadyStateLinearPDE(PDE):
         Callable function which returns a tuple with
         the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
+    linalg_solve: lambda function or function handle
+        linear system solver function with the signature `x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+
+    linalg_solve_kwargs: a dictionary 
+        A dictionary of the keywords arguments that linalg_solve can take. 
+
     Example
     -----------  
     <<< ....
@@ -101,10 +93,13 @@ class SteadyStateLinearPDE(PDE):
     """
 
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
-        super().__init__(linalg_solve=linalg_solve, linalg_solve_kwargs=linalg_solve_kwargs) 
         self.PDE_form = PDE_form
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
+        if linalg_solve == None:
+            linalg_solve = scipy.linalg.solve
+        self._linalg_solve = linalg_solve
+        self._linalg_solve_kwargs = linalg_solve_kwargs 
 
     def assemble(self, parameter):
         """Assembles differential operator and rhs according to PDE_form"""
@@ -145,8 +140,7 @@ class TimeDependentLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
-        super().__init__(linalg_solve=linalg_solve, linalg_solve_kwargs=linalg_solve_kwargs) 
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None):
         self.PDE_form = PDE_form
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
