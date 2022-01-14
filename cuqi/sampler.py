@@ -396,25 +396,26 @@ class Linear_RTO(Sampler):
 
     Parameters
     ------------
-    target : `cuqi.distribution.Posterior` or tuple of five numpy arrays.
+    target : `cuqi.distribution.Posterior` or 5-dimensional tuple.
         If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
         If target is a tuple of five numpy arrays it assumes the following structure:
             (data, model, L_sqrtprec, P_mean, P_sqrtrec)
-        where
+        
+        Here:
         data: is a m-dimensional numpy array containing the measured data.
-        model: is a m by n dimensionalm matrix or LinearModel representing the forward model.
+        model: is a m by n dimensional matrix or LinearModel representing the forward model.
         L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.
         P_mean: is the prior mean.
         P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
 
     x0 : `np.ndarray` 
-        Initial point for the sampler
+        Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the inner CGLS solver.
+        Maximum number of iterations of the inner CGLS solver. *Optional*.
 
     tol : float
-        Tolerance of the inner CGLS solver
+        Tolerance of the inner CGLS solver. *Optional*.
         
     """
     def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
@@ -440,11 +441,11 @@ class Linear_RTO(Sampler):
             # Likelihood
             L = cuqi.distribution.GaussianSqrtPrec(model, L_sqrtprec)
 
-            # Prior (allow multiple priors stacked)
-            if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
-                P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
-            else:
-                P = cuqi.distribution.GaussianSqrtPrec(P_mean, P_sqrtprec)
+            # Prior TODO: allow multiple priors stacked
+            #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
+            #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
+            #else:
+            P = cuqi.distribution.GaussianSqrtPrec(P_mean, P_sqrtprec)
 
             # Construct posterior
             target = cuqi.distribution.Posterior(L, P, data)
