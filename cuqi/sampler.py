@@ -554,7 +554,7 @@ class CWMH(ProposalBasedSampler):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution`
+    target : `cuqi.distribution.Distribution` or lambda function
         The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     proposal : `cuqi.distribution.Distribution` or callable method
@@ -581,7 +581,7 @@ class CWMH(ProposalBasedSampler):
         # Logpdf function
         logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
 
-        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported as inputs to UserDefinedDistribution)
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
@@ -741,7 +741,7 @@ class MetropolisHastings(ProposalBasedSampler):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution`
+    target : `cuqi.distribution.Distribution` or lambda function
         The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     proposal : `cuqi.distribution.Distribution` or callable method
