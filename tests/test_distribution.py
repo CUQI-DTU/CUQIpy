@@ -168,12 +168,39 @@ def test_GaussianCov(mean,cov,mean_full,cov_full):
 
 def test_lognormal_sample():
     rng = np.random.RandomState(3)
-
-    mean = np.array([0, 0])
-    std = np.array([1, 1])
+    mean = np.array([0, -4])
+    std = np.array([1, 14])
     R = np.array([[1, -0.7], [-0.7, 1]])
-    normal = cuqi.distribution.Gaussian(mean, std, R)
-    LND = cuqi.distribution.Lognormal(normal)
+    LND = cuqi.distribution.Lognormal(mean, std**2*R)
     cuqi_samples = LND.sample(3,rng=rng)
-    print(cuqi_samples)
+    result = np.array([[1.16127738e+00, 2.97702504e-01, 8.11608466e-01],
+                       [1.89883185e+10, 8.10091757e-02, 2.50607929e-04]])
+    assert(np.all(np.isclose(cuqi_samples.samples, result)))
 
+@pytest.mark.parametrize("mean,std",[
+                        (np.array([0, 0]),
+                        np.array([1, 1])),
+                        (np.array([-3.14159265,  2.23606798]),
+                        np.array([3.14159265, 50.  ])),
+                        (np.array([1.   ,  0.001]),
+                        np.array([1, 120]))
+                        ])
+@pytest.mark.parametrize("x",[
+                        (np.array([100, 0.00001])),
+                        (np.array([0, -.45])),
+                        (np.array([-3.14159265, 2.23606798]))])
+def test_lognormal_logpdf(mean,std, x ):
+
+    # CUQI lognormal x1,x2
+    R = np.array([[1, 0], [0, 1]])
+    LND = cuqi.distribution.Lognormal(mean, std**2*R)
+    
+    # Scipy lognormal for x1
+    x_1_pdf_scipy = sp.stats.lognorm.pdf(x[0], s = std[0], scale= np.exp(mean[0]))
+
+    # Scipy lognormal for x2
+    x_2_pdf_scipy = sp.stats.lognorm.pdf(x[1], s = std[1], scale= np.exp(mean[1]))
+    
+    # x1 and x2 are independent 
+    assert(np.isclose(LND.pdf(x), x_1_pdf_scipy*x_2_pdf_scipy))
+    assert(np.isclose(LND.logpdf(x), np.log(x_1_pdf_scipy*x_2_pdf_scipy)))
