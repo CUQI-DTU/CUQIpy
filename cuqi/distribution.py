@@ -1222,16 +1222,22 @@ class Lognormal(Distribution):
     # Generate a ...
     x = cuqi.distribution.Lognormal ...
     """
-    def __init__(self, normal_distribution, is_symmetric=False, **kwargs):
+    def __init__(self, mean, cov, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self._normal = normal_distribution
+        self._normal = GaussianCov(mean, cov)
 
     @property
     def dim(self):
         self._normal.dim
 
+    def pdf(self, x):
+        if np.any(x<=0):
+            return 0
+        else:
+            return self._normal.pdf(np.log(x))*np.prod(1/x)
+
     def logpdf(self, x):
-        raise NotImplementedError
+        return np.log(self.pdf(x))
 
     def gradient(self, val, **kwargs):
         raise NotImplementedError
