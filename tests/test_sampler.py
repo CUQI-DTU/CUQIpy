@@ -190,7 +190,7 @@ def test_sampler_UserDefined_tuple():
     Nb = 200   # burn-in
 
     # Run samplers
-    s_pCN = cuqi.sampler.pCN((distP,distL)).sample_adapt(Ns)
+    s_pCN = cuqi.sampler.pCN((distL,distP)).sample_adapt(Ns)
 
     assert np.allclose(s_pCN.shape,(P.dim,Ns))
 

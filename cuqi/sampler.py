@@ -952,7 +952,7 @@ class pCN(Sampler):
         prior = cuqi.distribution.UserDefinedDistribution(dim=dim, sample_func=sample_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.pCN((prior,likelihood), scale = 0.1)
+        sampler = cuqi.sampler.pCN((likelihood,prior), scale = 0.1)
 
         # Sample
         samples = sampler.sample(5000)
@@ -988,14 +988,14 @@ class pCN(Sampler):
         if isinstance(self.target, cuqi.distribution.Posterior):
             return self.target.prior
         elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[0]
+            return self.target[1]
 
     @property
     def likelihood(self):
         if isinstance(self.target, cuqi.distribution.Posterior):
             return self.target.likelihood
         elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[1]
+            return self.target[0]
 
 
     @Sampler.target.setter 
