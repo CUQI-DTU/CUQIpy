@@ -1202,13 +1202,15 @@ class LMRF(Distribution):
 
 class Lognormal(Distribution):
     """
-    Multivariate Lognormal distribution class
+    Multivariate Lognormal distribution
 
-    
     Parameters
     ------------
-    par1: ...
-    par2: ...
+    mean: np.ndarray
+        mean of the normal distribution used to define the lognormal distribution 
+
+    cov: np.ndarray
+        correlation matrix of the normal distribution used to define the lognormal distribution 
     
     Methods
     -----------
@@ -1218,17 +1220,25 @@ class Lognormal(Distribution):
     cdf: evaluate cumulative probability function
     
     Example
-    -----------
-    # Generate a ...
-    x = cuqi.distribution.Lognormal ...
+    -------
+    .. code-block:: python
+        # Generate a lognormal distribution
+        mean = np.array([1.5,1])
+        cov = np.array([[3, 0],[0, 1]])
+        x = cuqi.distribution.Lognormal(mean, cov)
     """
     def __init__(self, mean, cov, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self._normal = GaussianCov(mean, cov)
+        self.mean = mean
+        self.cov = cov
 
     @property
+    def _normal(self):
+        return GaussianCov(self.mean, self.cov) 
+        
+    @property
     def dim(self):
-        self._normal.dim
+        return self._normal.dim
 
     def pdf(self, x):
         if np.any(x<=0):
@@ -1239,8 +1249,17 @@ class Lognormal(Distribution):
     def logpdf(self, x):
         return np.log(self.pdf(x))
 
-    def gradient(self, val, **kwargs):
-        raise NotImplementedError
+    def gradient(self, val, x=None):
+        #if np.any(val<0):
+        #    return np.zeros(val.shape)*np.nan
+        if not callable(self._normal.mean): # for prior
+            return np.diag(1/val)@(-1+self._normal.gradient(np.log(val)))
+        elif hasattr(self.mean,"gradient"): # for likelihood
+            model = self._normal.mean
+            dev = np.log(val) - model.forward(x)
+            return  model.gradient(self._normal.prec@dev,x) # Jac(x).T@(self._normal.prec@dev)
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self._normal.mean)))
 
     def _sample(self, N=1, rng=None):
         return np.exp(self._normal._sample(N,rng))
