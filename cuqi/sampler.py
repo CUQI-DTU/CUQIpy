@@ -156,7 +156,46 @@ class ProposalBasedSampler(Sampler,ABC):
 
 # another implementation is in https://github.com/mfouesneau/NUTS
 class NUTS(Sampler):
+    """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
+    Samples a distribution given its logpdf and gradient using a Hamiltonian Monte Carlo (HMC) algorithm with automatic parameter tuning.
+
+    For more details see: See Hoffman, M. D., & Gelman, A. (2014). The no-U-turn sampler: Adaptively setting path lengths in Hamiltonian Monte Carlo. Journal of Machine Learning Research, 15, 1593-1623.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    dim : int
+        Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
+
+    Example
+    -------
+    .. code-block:: python
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        gradient_func = lambda x: -1/(std**2)*(x - mu)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.NUTS(target)
+
+        # Sample
+        samples = sampler.sample(2000)
+
+    """
     def __init__(self, target, x0=None, dim=None, maxdepth=20):
         super().__init__(target, x0=x0, dim=dim)
         self.maxdepth = maxdepth
@@ -354,12 +393,70 @@ class NUTS(Sampler):
 
 
 class Linear_RTO(Sampler):
-    
+    """
+    Linear RTO (Randomize-Then-Optimize) sampler.
+
+    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is Linear.
+
+    Parameters
+    ------------
+    target : `cuqi.distribution.Posterior` or 5-dimensional tuple.
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
+        If target is a 5-dimensional tuple, it assumes the following structure:
+            (data, model, L_sqrtprec, P_mean, P_sqrtrec)
+        
+        Here:
+        data: is a m-dimensional numpy array containing the measured data.
+        model: is a m by n dimensional matrix or LinearModel representing the forward model.
+        L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.
+        P_mean: is the prior mean.
+        P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
+
+    x0 : `np.ndarray` 
+        Initial point for the sampler. *Optional*.
+
+    maxit : int
+        Maximum number of iterations of the inner CGLS solver. *Optional*.
+
+    tol : float
+        Tolerance of the inner CGLS solver. *Optional*.
+        
+    """
     def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
         
+        # Accept tuple of inputs and construct posterior
+        if isinstance(target, tuple) and len(target) == 5:
+            # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
+            data = target[0]
+            model = target[1]
+            L_sqrtprec = target[2]
+            P_mean = target[3]
+            P_sqrtprec = target[4]
+
+
+            # If numpy matrix convert to CUQI model
+            if isinstance(model, np.ndarray) and len(model.shape) == 2:
+                model = cuqi.model.LinearModel(model)
+
+            # Check model input
+            if not isinstance(model, cuqi.model.LinearModel):
+                raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
+
+            # Likelihood
+            L = cuqi.distribution.GaussianSqrtPrec(model, L_sqrtprec)
+
+            # Prior TODO: allow multiple priors stacked
+            #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
+            #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
+            #else:
+            P = cuqi.distribution.GaussianSqrtPrec(P_mean, P_sqrtprec)
+
+            # Construct posterior
+            target = cuqi.distribution.Posterior(L, P, data)
+
         super().__init__(target, x0=x0)
 
-        # Check target type and store
+        # Check target type
         if not isinstance(target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 
@@ -455,7 +552,50 @@ class Linear_RTO(Sampler):
 #===================================================================
 #===================================================================
 class CWMH(ProposalBasedSampler):
+    """Component-wise Metropolis Hastings sampler.
 
+    Allows sampling of a target distribution by a component-wise random-walk sampling of a proposal distribution along with an accept/reject step.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution` or lambda function
+        The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    proposal : `cuqi.distribution.Distribution` or callable method
+        The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
+
+    scale : float
+        Scale parameter used to define correlation between previous and proposed sample in random-walk.  *Optional*.
+
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    dim : int
+        Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
+
+    Example
+    -------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported as inputs to UserDefinedDistribution)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.CWMH(target, scale=1)
+
+        # Sample
+        samples = sampler.sample(2000)
+
+    """
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim = None):
         super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
         
@@ -599,6 +739,50 @@ class CWMH(ProposalBasedSampler):
 #===================================================================
 #===================================================================
 class MetropolisHastings(ProposalBasedSampler):
+    """Metropolis Hastings sampler.
+
+    Allows sampling of a target distribution by random-walk sampling of a proposal distribution along with an accept/reject step.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution` or lambda function
+        The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    proposal : `cuqi.distribution.Distribution` or callable method
+        The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
+
+    scale : float
+        Scale parameter used to define correlation between previous and proposed sample in random-walk.  *Optional*.
+
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    dim : int
+        Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
+
+    Example
+    -------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.MetropolisHastings(target, scale=1)
+
+        # Sample
+        samples = sampler.sample(2000)
+
+    """
     #target,  proposal=None, scale=1, x0=None, dim=None
     #    super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
     def __init__(self, target, proposal=None, scale=None, x0=None, dim=None):
@@ -740,21 +924,65 @@ class MetropolisHastings(ProposalBasedSampler):
 class pCN(Sampler):   
     #Samples target*proposal
     #TODO. Check proposal, needs to be Gaussian and zero mean.
-    """
-    preconditioned Crank–Nicolson sampler 
-
+    """Preconditioned Crank-Nicolson sampler 
+    
     Parameters
-    ------------
+    ----------
     target : `cuqi.distribution.Posterior` or tuple of two `cuqi.distribution.Distribution` objects
-        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the prior and the second distribution is considered the likelihood.
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the likelihood and the second distribution is considered the prior.
 
     scale : int
 
     x0 : `np.ndarray` 
       Initial point for the sampler
         
+    Example (UserDefinedDistribution)
+    ---------------------------------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function of likelihood
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+
+        # sample function of prior N(0,I)
+        sample_func = lambda : 0 + 1*np.random.randn(dim,1)
+
+        # Define as UserDefinedDistributions
+        likelihood = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+        prior = cuqi.distribution.UserDefinedDistribution(dim=dim, sample_func=sample_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.pCN((likelihood,prior), scale = 0.1)
+
+        # Sample
+        samples = sampler.sample(5000)
+
+    Example (Posterior)
+    -------------------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Define as UserDefinedDistributions
+        likelihood = cuqi.distribution.GaussianCov(mean=lambda x: x, cov=np.ones(dim))
+        prior = cuqi.distribution.GaussianCov(mean=np.zeros(dim), cov=1)
+
+        target = cuqi.distribution.Posterior(likelihood, prior, mu)
+
+        # Set up sampler
+        sampler = cuqi.sampler.pCN(target, scale = 0.1)
+
+        # Sample
+        samples = sampler.sample(5000)
+        
     """
-    
     def __init__(self, target, scale=None, x0=None):
         super().__init__(target, x0=x0, dim=None) 
         self.scale = scale
@@ -764,14 +992,14 @@ class pCN(Sampler):
         if isinstance(self.target, cuqi.distribution.Posterior):
             return self.target.prior
         elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[0]
+            return self.target[1]
 
     @property
     def likelihood(self):
         if isinstance(self.target, cuqi.distribution.Posterior):
             return self.target.likelihood
         elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[1]
+            return self.target[0]
 
 
     @Sampler.target.setter 
@@ -791,6 +1019,13 @@ class pCN(Sampler):
         #if not isinstance(self.prior,(cuqi.distribution.Gaussian,cuqi.distribution.GaussianCov, cuqi.distribution.GaussianPrec, cuqi.distribution.GaussianSqrtPrec, cuqi.distribution.Normal)):
         #    raise ValueError("The prior distribution of the target need to be Gaussian")
 
+    @property
+    def dim(self):
+        if hasattr(self,'target') and hasattr(self.target,'dim'):
+            self._dim = self.target.dim
+        elif hasattr(self,'target') and isinstance(self.target,tuple) and len(self.target)==2:
+            self._dim = self.target[0].dim
+        return self._dim
 
     def _sample(self, N, Nb):
         if self.scale is None:

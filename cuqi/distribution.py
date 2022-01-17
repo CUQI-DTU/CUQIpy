@@ -1127,7 +1127,7 @@ class DistributionGallery(UserDefinedDistribution):
             self._sample = dist._sample
             logpdf_func = dist.logpdf
 
-        super().__init__(logpdf_func, dim, **kwargs)
+        super().__init__(logpdf_func=logpdf_func, dim=dim, **kwargs)
 
 
     def _CalSom91_logpdf_func(self,x):

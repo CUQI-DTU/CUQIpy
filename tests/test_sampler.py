@@ -150,3 +150,76 @@ def test_sampler_geometry_assignment():
 
     assert(MCMC_sampler.geometry == target.geometry and\
            MCMC_sampler.geometry == samples.geometry)
+
+def test_sampler_UserDefined_basic():
+    """
+    This tests all samplers which can work with any logpdf as input 
+    (potentially requireing a gradient or sample method also)
+    """
+    # Distribution
+    X = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    distX = cuqi.distribution.UserDefinedDistribution(X.dim, X.logpdf, X.gradient, X.sample)
+
+    # Parameters
+    Ns = 500   # number of samples
+    Nb = 100   # burn-in
+
+    s_MH = cuqi.sampler.MetropolisHastings(distX).sample_adapt(Ns,Nb)
+    s_CWMH = cuqi.sampler.CWMH(distX).sample_adapt(Ns,Nb)
+    s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns) #TODO. Add burn-in here when fixed #219
+
+    assert np.allclose(s_MH.shape,(X.dim,Ns))
+    assert np.allclose(s_CWMH.shape,(X.dim,Ns))
+    assert np.allclose(s_NUTS.shape,(X.dim,Ns))
+
+def test_sampler_UserDefined_tuple():
+    """
+    This tests samplers with a two userdefined distributions.
+    Here we require two userdefined distributions.
+    """
+    # This provides a way to give the logpdf
+    P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    L = cuqi.distribution.GaussianCov(np.array([5,6]),np.array([[1,0.5],[0.5,3]]))
+
+    # Define userdefined distributions (e.g. like likelihood+prior)
+    distP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
+    distL = cuqi.distribution.UserDefinedDistribution(2, L.logpdf, L.gradient, L.sample)
+
+    # Parameters
+    Ns = 2000   # number of samples
+    Nb = 200   # burn-in
+
+    # Run samplers
+    s_pCN = cuqi.sampler.pCN((distL,distP)).sample_adapt(Ns)
+
+    assert np.allclose(s_pCN.shape,(P.dim,Ns))
+
+def test_sampler_CustomInput_Linear_RTO():
+    """
+    This tests the Linear_RTO sampler which requires a specific input structure.
+    """
+    # In some special cases A model must be part of the likelihood (e.g. in Linear_RTO)
+    model = np.eye(2) # Identity model
+    #model = cuqi.model.LinearModel(lambda x: x, lambda y: y, 2, 2) 
+
+    # In linear_RTO we require Gaussian distributions
+    # or at least classes with sqrtprec and sqrtprecTimesMean 
+    # This is most easily done by defining a Gaussian. #TODO make UserDefined.
+    P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]]))
+
+    # Data
+    data = np.array([5,6])
+
+    # Posterior
+    target = (data, model, L.sqrtprec, P.mean, P.sqrtprec)
+    #target = cuqi.distribution.Posterior(L, P, data)
+
+    # Parameters
+    Ns = 2000   # number of samples
+    Nb = 200   # burn-in
+
+    # Sampling
+    s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
+
+    assert np.allclose(s_RTO.shape,(P.dim,Ns))
