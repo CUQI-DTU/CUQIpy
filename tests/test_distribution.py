@@ -292,4 +292,4 @@ def test_gradient_lognormal_as_likelihood(std, R, val, x):
         x_plus_eps = x + eps_vec
         FD_gradient[i] = (LND(x=x_plus_eps).logpdf(val) - LND(x=x).logpdf(val))/eps
     
-    assert(np.all(np.isclose(FD_gradient, LND.gradient(val, x))))
+    assert(np.all(np.isclose(FD_gradient, LND.gradient(val, x=x))))
