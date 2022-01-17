@@ -156,7 +156,11 @@ class ProposalBasedSampler(Sampler,ABC):
 
 # another implementation is in https://github.com/mfouesneau/NUTS
 class NUTS(Sampler):
-    """No-U-Turn Sampler.
+    """No-U-Turn Sampler (Hoffman and Gelman, 2014).
+
+    Samples a distribution given its logpdf and gradient using a Hamiltonian Monte Carlo (HMC) algorithm with automatic parameter tuning.
+
+    For more details see: See Hoffman, M. D., & Gelman, A. (2014). The no-U-turn sampler: Adaptively setting path lengths in Hamiltonian Monte Carlo. Journal of Machine Learning Research, 15, 1593-1623.
 
     Parameters
     ----------
