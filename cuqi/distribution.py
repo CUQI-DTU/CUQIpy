@@ -1257,10 +1257,6 @@ class Lognormal(Distribution):
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
-        if np.any(val<0):
-            return np.zeros(val.shape)*np.nan
-        elif np.any(val==0):
-            return np.ones(val.shape)*np.inf
         elif not callable(self._normal.mean): # for prior
             return np.diag(1/val)@(-1+self._normal.gradient(np.log(val)))
         elif hasattr(self.mean,"gradient"): # for likelihood

@@ -1,3 +1,4 @@
+from math import isnan
 import cuqi
 import numpy as np
 import scipy as sp
@@ -218,6 +219,7 @@ def test_lognormal_logpdf(mean,std, x ):
                         ])
 @pytest.mark.parametrize("val",[
                         (np.array([100, 0.1])),
+                        (np.array([-10, .1])),
                         (np.array([0.1, .45])),
                         (np.array([3.14159265, 2.23606798]))])
 def test_gradient_lognormal_as_prior(mean, std, R, val):  
@@ -231,9 +233,11 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
         eps_vec = np.zeros(LND.dim)
         eps_vec[i] = eps
         val_plus_eps = val + eps_vec
-        FD_gradient[i] = (LND.logpdf(val_plus_eps) - LND.logpdf(val))/eps
+        FD_gradient[i] = (LND.logpdf(val_plus_eps) - LND.logpdf(val))/eps 
     
-    assert(np.all(np.isclose(FD_gradient, LND.gradient(val))))
+    assert(np.all(np.isclose(FD_gradient, LND.gradient(val))) or
+           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val))) )
+           )
 
 @pytest.mark.parametrize("std, R",[
                         (
