@@ -398,7 +398,7 @@ class Linear_RTO(Sampler):
     ------------
     target : `cuqi.distribution.Posterior` or 5-dimensional tuple.
         If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
-        If target is a tuple of five numpy arrays it assumes the following structure:
+        If target is a 5-dimensional tuple, it assumes the following structure:
             (data, model, L_sqrtprec, P_mean, P_sqrtrec)
         
         Here:
@@ -925,7 +925,7 @@ class pCN(Sampler):
     Parameters
     ----------
     target : `cuqi.distribution.Posterior` or tuple of two `cuqi.distribution.Distribution` objects
-        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the prior and the second distribution is considered the likelihood.
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the likelihood and the second distribution is considered the prior.
 
     scale : int
 
