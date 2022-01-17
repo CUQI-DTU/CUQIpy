@@ -258,7 +258,7 @@ def test_gradient_lognormal_as_likelihood(std, R, val, x):
              np.exp(2*x[1]) + 3*x[0],
              x[0]+2*x[1]])
     
-    def gradient(val=None, x=None):
+    def gradient(val, x=None):
         jac = np.zeros((range_geometry, domain_geometry))
         jac[0,0] =  np.exp(x[0])#d f1/ d x1
         jac[0,1] =  1 #d f1/ d x2
