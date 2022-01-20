@@ -176,7 +176,7 @@ def test_GaussianCov(mean,cov,mean_full,cov_full):
 
     assert np.allclose(gradeval1,gradeval2)
 
-def test_gammaInverse_sample():
+def test_InverseGamma_sample():
     a = [1,2]
     location = 0
     scale = 1
@@ -197,7 +197,7 @@ def test_gammaInverse_sample():
                          [([1, 4, .5]),
                           ([1000, 0, -40])])
 @pytest.mark.parametrize("func", [("pdf"),("cdf"),("logpdf")])                        
-def test_gammaInverse_pdf_logpdf_cdf(a, location, scale, x, func):
+def test_InverseGamma_pdf_logpdf_cdf(a, location, scale, x, func):
     IGD = cuqi.distribution.InverseGamma(a, location=location, scale=scale)
     if func == "pdf":
         assert np.all(np.isclose(IGD.pdf(x),sp.stats.invgamma.pdf(x, a=a, loc=location, scale=scale)))
