@@ -175,3 +175,35 @@ def test_GaussianCov(mean,cov,mean_full,cov_full):
     gradeval2 = sp.optimize.approx_fprime(x0, prior.logpdf, 1e-15)
 
     assert np.allclose(gradeval1,gradeval2)
+
+def test_gammaInverse_sample():
+    a = [1,2]
+    location = 0
+    scale = 1
+    N = 1000
+    rng1 = np.random.RandomState(1)
+    rng2 = np.random.RandomState(1)
+    x = cuqi.distribution.InverseGamma(a=a, location=location, scale=scale)
+    samples1 = x.sample(N, rng=rng1).samples
+    samples2 = sp.stats.invgamma.rvs(a=a, loc=location, scale=scale, size=(N,len(a)), random_state=rng2).T
+
+    assert x.dim == len(a)
+    assert np.all(np.isclose(samples1, samples2))
+
+@pytest.mark.parametrize("a, location, scale",
+                         [([1,2,1], [0,-1, 100], np.array([.1, 1, 20])),
+                          (np.array([3,2,1]), (0,-1, 100), 1)])
+@pytest.mark.parametrize("x",
+                         [([1, 4, .5]),
+                          ([1000, 0, -40])])
+@pytest.mark.parametrize("func", [("pdf"),("cdf"),("logpdf")])                        
+def test_gammaInverse_pdf_logpdf_cdf(a, location, scale, x, func):
+    IGD = cuqi.distribution.InverseGamma(a, location=location, scale=scale)
+    if func == "pdf":
+        assert np.all(np.isclose(IGD.pdf(x),sp.stats.invgamma.pdf(x, a=a, loc=location, scale=scale)))
+    elif func == "cdf":
+        assert np.all(np.isclose(IGD.cdf(x),sp.stats.invgamma.cdf(x, a=a, loc=location, scale=scale)))
+    elif func == "logpdf":
+        assert np.all(np.isclose(IGD.logpdf(x),sp.stats.invgamma.logpdf(x, a=a, loc=location, scale=scale)))
+    else:
+        raise ValueError
