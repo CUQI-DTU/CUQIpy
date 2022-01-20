@@ -1216,11 +1216,14 @@ class InverseGamma(Distribution):
 
     Parameters
     ------------
-    a: array_like
+    a: float or array_like
+        shape parameter
 
-    location: array_like
+    location: float or array_like
+        The location of the inverse gamma distribution
 
-    scale: array_like
+    scale: float or array_like
+        The scale of the inverse gamma distribution (non-negative)
 
     
     Methods
@@ -1234,11 +1237,14 @@ class InverseGamma(Distribution):
     -------
     .. code-block:: python
         # Generate a lognormal distribution
-        a = 1
+        a = [1,2]
         location = 0
-        scale = 2
+        scale = 1
+        rng = np.random.RandomState(1)
         x = cuqi.distribution.InverseGamma(a, location, scale)
-        samples = x.sample(10000)
+        samples = x.sample(1000, rng=rng)
+        samples.hist_chain(0, bins=70)
+        plt.figure()
         samples.hist_chain(1, bins=70)
 
     """
@@ -1250,10 +1256,15 @@ class InverseGamma(Distribution):
     
     @property
     def dim(self):
-        return np.max([len(self.a), len(self.location), len(self.scale)])
+        lens = [ (len(item) if hasattr(item,'__len__') else 1) 
+                 for item in [self.a, self.location, self.scale]]
+        return np.max(lens)
 
     def logpdf(self, x):
         return sps.invgamma.logpdf(x, a=self.a, loc=self.location, scale=self.scale)
 
+    def cdf(self, x):
+        return sps.invgamma.cdf(x, a=self.a, loc=self.location, scale=self.scale)
+
     def _sample(self, N=1, rng=None):
-        return sps.invgamma.rvs(a=self.a, loc= self.location, scale = self.scale ,size=N)
+        return sps.invgamma.rvs(a=self.a, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T
