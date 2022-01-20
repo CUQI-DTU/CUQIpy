@@ -1208,3 +1208,52 @@ class LMRF(Distribution):
 
     def _sample(self, N):
         raise NotImplementedError
+
+
+class InverseGamma(Distribution):
+    """
+    Multivariate inverse gamma distribution
+
+    Parameters
+    ------------
+    a: array_like
+
+    location: array_like
+
+    scale: array_like
+
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulative probability function
+    
+    Example
+    -------
+    .. code-block:: python
+        # Generate a lognormal distribution
+        a = 1
+        location = 0
+        scale = 2
+        x = cuqi.distribution.InverseGamma(a, location, scale)
+        samples = x.sample(10000)
+        samples.hist_chain(1, bins=70)
+
+    """
+    def __init__(self, a, location=0, scale=1, is_symmetric=False, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+        self.a = a
+        self.location = location
+        self.scale = scale
+    
+    @property
+    def dim(self):
+        return np.max([len(self.a), len(self.location), len(self.scale)])
+
+    def logpdf(self, x):
+        return sps.invgamma.logpdf(x, a=self.a, loc=self.location, scale=self.scale)
+
+    def _sample(self, N=1, rng=None):
+        return sps.invgamma.rvs(a=self.a, loc= self.location, scale = self.scale ,size=N)
