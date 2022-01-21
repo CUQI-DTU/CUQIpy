@@ -1212,12 +1212,12 @@ class LMRF(Distribution):
 
 class InverseGamma(Distribution):
     """
-    Multivariate inverse gamma distribution
+    Multivariate inverse gamma distribution of uncorrelated variables
 
     Parameters
     ------------
     a: float or array_like
-        shape parameter
+        The shape parameter
 
     location: float or array_like
         The location of the inverse gamma distribution
