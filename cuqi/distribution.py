@@ -1207,10 +1207,10 @@ class Lognormal(Distribution):
     Parameters
     ------------
     mean: np.ndarray
-        mean of the normal distribution used to define the lognormal distribution 
+        Mean of the normal distribution used to define the lognormal distribution 
 
     cov: np.ndarray
-        correlation matrix of the normal distribution used to define the lognormal distribution 
+        Covariance matrix of the normal distribution used to define the lognormal distribution 
     
     Methods
     -----------
@@ -1234,10 +1234,19 @@ class Lognormal(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
         self.mean = mean
         self.cov = cov
+        self._normal = GaussianCov(self.mean, self.cov)
 
     @property
     def _normal(self):
-        return GaussianCov(self.mean, self.cov) 
+        if not np.all(self._GaussianCov.mean == self.mean):
+            self._GaussianCov.mean = self.mean
+        if not np.all(self._GaussianCov.cov == self.cov):
+            self._GaussianCov.cov = self.cov 
+        return self._GaussianCov
+
+    @_normal.setter
+    def _normal(self, value):
+        self._GaussianCov = value
 
     @property
     def dim(self):
@@ -1255,7 +1264,8 @@ class Lognormal(Distribution):
     def gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
-            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+            raise NotImplementedError("Gradient not implemented for distribution {} "
+                                      "with geometry {}".format(self,self.geometry))
 
         elif not callable(self._normal.mean): # for prior
             return np.diag(1/val)@(-1+self._normal.gradient(np.log(val)))
