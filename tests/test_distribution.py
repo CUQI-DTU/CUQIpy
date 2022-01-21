@@ -222,19 +222,26 @@ def test_lognormal_logpdf(mean,std, x ):
                         (np.array([-10, .1])),
                         (np.array([0.1, .45])),
                         (np.array([3.14159265, 2.23606798]))])
-def test_gradient_lognormal_as_prior(mean, std, R, val):  
+def test_gradient_lognormal_as_prior(mean, std, R, val):
+    # This test verifies the lognormal distribution gradient correctness
+    # (when the mean is a numpy.ndarray) by comparing it with a finite
+    # difference approximation of the gradient.
+
+    # ------------------- 1. Create lognormal distribution --------------------
     LND = cuqi.distribution.Lognormal(mean, std**2*R)
     
-    # Finite difference gradient
+    # -------------- 2. Create the finite difference gradient -----------------
     eps = 0.000001
     FD_gradient = np.empty(LND.dim)
     
     for i in range(LND.dim):
+        # compute the ith component of the gradient
         eps_vec = np.zeros(LND.dim)
         eps_vec[i] = eps
         val_plus_eps = val + eps_vec
         FD_gradient[i] = (LND.logpdf(val_plus_eps) - LND.logpdf(val))/eps 
-    
+
+    # ---------------- 3. Verify correctness of the gradient ------------------
     assert(np.all(np.isclose(FD_gradient, LND.gradient(val))) or
            (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val))) )
            )
@@ -255,13 +262,21 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
                         (np.array([-3.14159265, 2.23606798]))])
                       
 def test_gradient_lognormal_as_likelihood(std, R, val, x):
+    # This test verifies the lognormal distribution gradient correctness
+    # (when the mean is a cuqi.Model) by comparing it with a finite
+    # difference approximation of the gradient.
+
+    # ------------------------ 1. Create a cuqi.model -------------------------
     domain_geometry = 2
     range_geometry = 3
+
+    # model's forward function
     def forward(x=None):
         return np.array([np.exp(x[0]) + x[1],
              np.exp(2*x[1]) + 3*x[0],
              x[0]+2*x[1]])
     
+    # model's gradient
     def gradient(val, x=None):
         jac = np.zeros((range_geometry, domain_geometry))
         jac[0,0] =  np.exp(x[0])#d f1/ d x1
@@ -275,25 +290,24 @@ def test_gradient_lognormal_as_likelihood(std, R, val, x):
     
         return jac.T@val
     
+    # create the cuqi.Model
     model = cuqi.model.Model(forward=forward, 
                              domain_geometry=domain_geometry, 
     			 range_geometry=range_geometry)
     model.gradient = gradient
     
-    #R = np.array([[1, .3, 0], [.3, 1, .3], [0, .3, 1]])
-    #std = 1
+    # ------------------- 2. Create lognormal distribution --------------------
     LND = cuqi.distribution.Lognormal(model, std**2*R)
     
-    # Finite difference gradient
+    # -------------- 3. Create the finite difference gradient -----------------
     eps = 0.000001
     FD_gradient = np.empty(domain_geometry)
-    #val = np.array([1,1,1])
-    #x = np.array([0, .2])
-    
+ 
     for i in range(domain_geometry):
         eps_vec = np.zeros(domain_geometry)
         eps_vec[i] = eps
         x_plus_eps = x + eps_vec
         FD_gradient[i] = (LND(x=x_plus_eps).logpdf(val) - LND(x=x).logpdf(val))/eps
     
+    # ---------------- 4. Verify correctness of the gradient ------------------
     assert(np.all(np.isclose(FD_gradient, LND.gradient(val, x=x))))
