@@ -1208,3 +1208,83 @@ class LMRF(Distribution):
 
     def _sample(self, N):
         raise NotImplementedError
+
+
+class Lognormal(Distribution):
+    """
+    Multivariate Lognormal distribution
+
+    Parameters
+    ------------
+    mean: np.ndarray
+        Mean of the normal distribution used to define the lognormal distribution 
+
+    cov: np.ndarray
+        Covariance matrix of the normal distribution used to define the lognormal distribution 
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulative probability function
+    
+    Example
+    -------
+    .. code-block:: python
+        # Generate a lognormal distribution
+        mean = np.array([1.5,1])
+        cov = np.array([[3, 0],[0, 1]])
+        x = cuqi.distribution.Lognormal(mean, cov)
+        samples = x.sample(10000)
+        samples.hist_chain(1, bins=70)
+
+    """
+    def __init__(self, mean, cov, is_symmetric=False, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+        self.mean = mean
+        self.cov = cov
+        self._normal = GaussianCov(self.mean, self.cov)
+
+    @property
+    def _normal(self):
+        if not np.all(self._GaussianCov.mean == self.mean):
+            self._GaussianCov.mean = self.mean
+        if not np.all(self._GaussianCov.cov == self.cov):
+            self._GaussianCov.cov = self.cov 
+        return self._GaussianCov
+
+    @_normal.setter
+    def _normal(self, value):
+        self._GaussianCov = value
+
+    @property
+    def dim(self):
+        return self._normal.dim
+
+    def pdf(self, x):
+        if np.any(x<=0):
+            return 0
+        else:
+            return self._normal.pdf(np.log(x))*np.prod(1/x)
+
+    def logpdf(self, x):
+        return np.log(self.pdf(x))
+
+    def gradient(self, val, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} "
+                                      "with geometry {}".format(self,self.geometry))
+
+        elif not callable(self._normal.mean): # for prior
+            return np.diag(1/val)@(-1+self._normal.gradient(np.log(val)))
+        elif hasattr(self.mean,"gradient"): # for likelihood
+            model = self._normal.mean
+            dev = np.log(val) - model.forward(**kwargs)
+            return  model.gradient(self._normal.prec@dev, **kwargs) # Jac(x).T@(self._normal.prec@dev)
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self._normal.mean)))
+
+    def _sample(self, N=1, rng=None):
+        return np.exp(self._normal._sample(N,rng))
