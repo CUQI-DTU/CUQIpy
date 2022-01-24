@@ -215,8 +215,10 @@ class Normal(Distribution):
     
     Example
     -----------
-    #Generate Normal with mean 2 and standard deviation 1
-    p = cuqi.distribution.Normal(mean=2, std=1)
+    .. code-block:: python
+
+        #Generate Normal with mean 2 and standard deviation 1
+        p = cuqi.distribution.Normal(mean=2, std=1)
     """
     def __init__(self, mean=None, std=None, is_symmetric=True, **kwargs):
         # Init from abstract distribution class
@@ -1047,14 +1049,16 @@ class UserDefinedDistribution(Distribution):
     
     Example
     -----------
-    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
-    mu1 = -1.0
-    std1 = 4.0
-    X = cuqi.distribution.Normal(mean=mu1, std=std1)
-    dim1 = 1
-    logpdf_func = lambda xx: -np.log(std1*np.sqrt(2*np.pi))-0.5*((xx-mu1)/std1)**2
-    sample_func = lambda : mu1 + std1*np.random.randn(dim1,1)
-    XU = cuqi.distribution.UserDefinedDistribution(dim=dim1, logpdf_func=logpdf_func, sample_func=sample_func)
+    .. code-block:: python
+
+        # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+        mu1 = -1.0
+        std1 = 4.0
+        X = cuqi.distribution.Normal(mean=mu1, std=std1)
+        dim1 = 1
+        logpdf_func = lambda xx: -np.log(std1*np.sqrt(2*np.pi))-0.5*((xx-mu1)/std1)**2
+        sample_func = lambda : mu1 + std1*np.random.randn(dim1,1)
+        XU = cuqi.distribution.UserDefinedDistribution(dim=dim1, logpdf_func=logpdf_func, sample_func=sample_func)
     """
 
     def __init__(self, dim=None, logpdf_func=None, gradient_func=None, sample_func=None, **kwargs):
@@ -1212,11 +1216,17 @@ class LMRF(Distribution):
 
 class InverseGamma(Distribution):
     """
-    Multivariate inverse gamma distribution of uncorrelated variables
+    Multivariate inverse gamma distribution of independent random variables :math:`x_i`. Each is distributed according to the PDF function
+
+    .. math::
+
+        f_i(x) =  \\frac{(x-\\mathrm{location}_i)^{-\\mathrm{shape}_i-1}}{\mathrm{scale}_i^{-\\mathrm{shape}_i}\\Gamma(\\mathrm{shape}_i)}\\mathrm{exp}(-\\frac{\\mathrm{scale}_i}{x-\\mathrm{location}_i})
+
+    where :math:`\\mathrm{shape}_i`, :math:`\\mathrm{location}_i` and :math:`\\mathrm{scale}_i` are the shape, location and scale of :math:`x_i`, respectively.
 
     Parameters
     ------------
-    a: float or array_like
+    shape: float or array_like
         The shape parameter
 
     location: float or array_like
@@ -1236,35 +1246,36 @@ class InverseGamma(Distribution):
     Example
     -------
     .. code-block:: python
+
         # Generate a lognormal distribution
-        a = [1,2]
+        shape = [1,2]
         location = 0
         scale = 1
         rng = np.random.RandomState(1)
-        x = cuqi.distribution.InverseGamma(a, location, scale)
+        x = cuqi.distribution.InverseGamma(shape, location, scale)
         samples = x.sample(1000, rng=rng)
         samples.hist_chain(0, bins=70)
         plt.figure()
         samples.hist_chain(1, bins=70)
 
     """
-    def __init__(self, a, location=0, scale=1, is_symmetric=False, **kwargs):
+    def __init__(self, shape, location=0, scale=1, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self.a = a
+        self.shape = shape
         self.location = location
         self.scale = scale
     
     @property
     def dim(self):
         lens = [ (len(item) if hasattr(item,'__len__') else 1) 
-                 for item in [self.a, self.location, self.scale]]
+                 for item in [self.shape, self.location, self.scale]]
         return np.max(lens)
 
     def logpdf(self, x):
-        return sps.invgamma.logpdf(x, a=self.a, loc=self.location, scale=self.scale)
+        return sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale)
 
     def cdf(self, x):
-        return sps.invgamma.cdf(x, a=self.a, loc=self.location, scale=self.scale)
+        return sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale)
 
     def _sample(self, N=1, rng=None):
-        return sps.invgamma.rvs(a=self.a, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T
+        return sps.invgamma.rvs(a=self.shape, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T
