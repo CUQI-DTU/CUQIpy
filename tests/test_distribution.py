@@ -183,7 +183,7 @@ def test_InverseGamma_sample():
     N = 1000
     rng1 = np.random.RandomState(1)
     rng2 = np.random.RandomState(1)
-    x = cuqi.distribution.InverseGamma(a=a, location=location, scale=scale)
+    x = cuqi.distribution.InverseGamma(shape=a, location=location, scale=scale)
     samples1 = x.sample(N, rng=rng1).samples
     samples2 = sp.stats.invgamma.rvs(a=a, loc=location, scale=scale, size=(N,len(a)), random_state=rng2).T
 
