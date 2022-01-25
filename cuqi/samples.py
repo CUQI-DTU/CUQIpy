@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry, Continuous2D
 from copy import copy
+import arviz # Plotting tool
 
 class CUQIarray(np.ndarray):
     """
@@ -324,3 +325,33 @@ class Samples(object):
     def diagnostics(self):
         # Geweke test
         Geweke(self.samples.T)
+
+    def plot_autocorrelation(self, variable_indices=None):
+        """Plot the autocorrelation function of one or more variables
+        
+        """
+
+        # In case no variable indices are given we give a good default choice
+        dim = self.geometry.dim
+        if variable_indices == None:
+            if dim<=5:
+                variable_indices = np.arange(dim)
+            else:
+                print("Plotting 5 randomly selected variables")
+                variable_indices = np.random.choice(dim,5,replace=False)
+
+        # Get variable names
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = np.array(variables[variable_indices]).flatten()
+        else:
+            variables = np.array(variable_indices).flatten()
+
+        # Construct inference data structure
+        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+        #coords = {"a": np.arange(1), "b": np.arange(1)}
+        #dims = {"a": ["a"], "b": ["b"]}
+        #dataset = arviz.convert_to_inference_data(datadict, coords=coords, dims=dims)
+        
+        # Plot autocorrelation using arviz
+        arviz.plot_autocorr(datadict)
