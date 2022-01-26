@@ -330,8 +330,11 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     
     Example
     -----------
-    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
-    x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
+    .. code-block:: python
+
+        # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+        n = 4
+        x = cuqi.distribution.GaussianCov(mean=np.zeros(n), cov=2)
     """
     def __init__(self, mean=None, cov=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
@@ -1248,6 +1251,9 @@ class InverseGamma(Distribution):
     .. code-block:: python
 
         # Generate a lognormal distribution
+        import numpy as np
+        import cuqi
+        import matplotlib.pyplot as plt
         shape = [1,2]
         location = 0
         scale = 1
@@ -1261,9 +1267,9 @@ class InverseGamma(Distribution):
     """
     def __init__(self, shape, location=0, scale=1, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self.shape = shape
-        self.location = location
-        self.scale = scale
+        self.shape = force_ndarray(shape, flatten=True)
+        self.location = force_ndarray(location, flatten=True)
+        self.scale = force_ndarray(scale, flatten=True)
     
     @property
     def dim(self):
@@ -1272,10 +1278,25 @@ class InverseGamma(Distribution):
         return np.max(lens)
 
     def logpdf(self, x):
-        return sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale)
+        return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
     def cdf(self, x):
-        return sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale)
+        return np.prod(sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale))
+
+    def gradient(self, val, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+
+        if len(self.get_conditioning_variables()) == 0:
+            if np.any(val <= self.location):
+                return val*np.nan
+            else:
+                return (-self.shape-1)/(val - self.location) +\
+                        self.scale/(val - self.location)**2
+        else:
+            raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
+
 
     def _sample(self, N=1, rng=None):
         return sps.invgamma.rvs(a=self.shape, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T
