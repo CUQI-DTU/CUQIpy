@@ -42,6 +42,17 @@ def get_indirect_attributes(dist):
             attributes.extend(getNonDefaultArgs(value))
     return attributes
 
+def first_order_finite_difference_gradient(func, x, dim, epsilon= 0.000001):
+    FD_gradient = np.empty(dim)
+ 
+    for i in range(dim):
+        eps_vec = np.zeros(dim)
+        eps_vec[i] = epsilon
+        x_plus_eps = x + eps_vec
+        FD_gradient[i] = (func(x_plus_eps) - func(x))/epsilon
+        
+    return FD_gradient
+
 @dataclass
 class ProblemInfo:
     """Problem info dataclass. Gives a convenient way to store data defined in test-problems."""
