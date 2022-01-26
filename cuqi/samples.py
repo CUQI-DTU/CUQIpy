@@ -326,9 +326,25 @@ class Samples(object):
         # Geweke test
         Geweke(self.samples.T)
 
-    def plot_autocorrelation(self, variable_indices=None):
-        """Plot the autocorrelation function of one or more variables
-        
+    def plot_autocorrelation(self, variable_indices=None, max_lag=None, combined=True, **kwargs):
+        """Plot the autocorrelation function of one or more variables in chain.
+
+        Parameters
+        ----------
+        variable_indices : list, optional
+            List of variable indices to plot the autocorrelation for.
+
+        max_lag : int, optional
+            Maximum lag to calculate autocorrelation. Defaults to 100 or num draws,
+            whichever is smaller.
+
+        combined: bool, default=True
+            Flag for combining multiple chains into a single chain. If False, chains will be
+            plotted separately.
+
+        Any remaining keyword arguments will be passed to the arviz plotting tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_autocorr.html.
+
         """
 
         # In case no variable indices are given we give a good default choice
@@ -340,7 +356,7 @@ class Samples(object):
                 print("Plotting 5 randomly selected variables")
                 variable_indices = np.random.choice(dim,5,replace=False)
 
-        # Get variable names
+        # Get variable names from geometry
         if hasattr(self.geometry,"variables"):
             variables = np.array(self.geometry.variables) #Convert to np array for better slicing
             variables = np.array(variables[variable_indices]).flatten()
@@ -349,9 +365,11 @@ class Samples(object):
 
         # Construct inference data structure
         datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+
+        # TODO: Better handling as inference data object
         #coords = {"a": np.arange(1), "b": np.arange(1)}
         #dims = {"a": ["a"], "b": ["b"]}
         #dataset = arviz.convert_to_inference_data(datadict, coords=coords, dims=dims)
         
         # Plot autocorrelation using arviz
-        arviz.plot_autocorr(datadict)
+        arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
