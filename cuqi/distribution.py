@@ -1223,7 +1223,7 @@ class InverseGamma(Distribution):
 
     .. math::
 
-        f_i(x) =  \\frac{(x-\\mathrm{location}_i)^{-\\mathrm{shape}_i-1}}{\mathrm{scale}_i^{-\\mathrm{shape}_i}\\Gamma(\\mathrm{shape}_i)}\\mathrm{exp}(-\\frac{\\mathrm{scale}_i}{x-\\mathrm{location}_i})
+        f_i(x) =  \\frac{(x-\\mathrm{location}_i)^{-\\mathrm{shape}_i-1}}{\\mathrm{scale}_i^{-\\mathrm{shape}_i}\\Gamma(\\mathrm{shape}_i)}\\mathrm{exp}(-\\frac{\\mathrm{scale}_i}{x-\\mathrm{location}_i})
 
     where :math:`\\mathrm{shape}_i`, :math:`\\mathrm{location}_i` and :math:`\\mathrm{scale}_i` are the shape, location and scale of :math:`x_i`, respectively.
 
