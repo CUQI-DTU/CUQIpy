@@ -229,7 +229,7 @@ def test_InverseGamma(a, location, scale, x, func):
 
     elif func == "gradient":
         FD_gradient = cuqi.utilities.first_order_finite_difference_gradient(IGD.logpdf, x, IGD.dim, epsilon=0.000000001)
-        #assert gradients the InverseGamma gradient is close to the FD approximation or both gradients are nan.
+        #Assert that the InverseGamma gradient is close to the FD approximation or both gradients are nan.
         assert (np.all(np.isclose(IGD.gradient(x),FD_gradient,rtol=1e-3)) or
           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(IGD.gradient(x)))))
 
