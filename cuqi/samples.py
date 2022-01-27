@@ -335,7 +335,7 @@ class Samples(object):
             List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.
 
         max_lag : int, optional
-            Maximum lag to calculate autocorrelation. Defaults to 100 or num draws,
+            Maximum lag to calculate autocorrelation. Defaults to 100 or number of samples,
             whichever is smaller.
 
         combined: bool, default=True
