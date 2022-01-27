@@ -371,11 +371,6 @@ class Samples(object):
 
         # Construct inference data structure
         datadict =  dict(zip(variables,self.samples[variable_indices,:]))
-
-        # TODO: Better handling as inference data object
-        #coords = {"a": np.arange(1), "b": np.arange(1)}
-        #dims = {"a": ["a"], "b": ["b"]}
-        #dataset = arviz.convert_to_inference_data(datadict, coords=coords, dims=dims)
         
         # Plot autocorrelation using arviz
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
