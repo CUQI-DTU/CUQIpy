@@ -340,7 +340,7 @@ class Samples(object):
 
         combined: bool, default=True
             Flag for combining multiple chains into a single chain. If False, chains will be
-            plotted separately.
+            plotted separately. Note multiple chains are not fully supported yet.
 
         Any remaining keyword arguments will be passed to the arviz plotting tool.
         See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_autocorr.html.
