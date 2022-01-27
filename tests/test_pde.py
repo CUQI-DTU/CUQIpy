@@ -26,7 +26,7 @@ def test_solver_choice():
     CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs)
     x_exact = np.array([10,3]) # [10,3] are the source term parameters [a, x0]
     CUQI_pde.assemble(x_exact)
-    sol = CUQI_pde.solve()
+    sol, info = CUQI_pde.solve()
     observed_sol_1 = CUQI_pde.observe(sol)
 
     #Solver2 (sparse)
@@ -36,7 +36,7 @@ def test_solver_choice():
     CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, linalg_solve=scipy.sparse.linalg.spsolve, linalg_solve_kwargs={"use_umfpack":False})
     x_exact = np.array([10,3]) # [10,3] are the source term parameters [a, x0]
     CUQI_pde.assemble(x_exact)
-    sol = CUQI_pde.solve()
+    sol, info = CUQI_pde.solve()
     observed_sol_2 = CUQI_pde.observe(sol)
 
     #Solver3 (cg)
@@ -46,7 +46,7 @@ def test_solver_choice():
     CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, linalg_solve=mycg)
     x_exact = np.array([10,3]) # [10,3] are the source term parameters [a, x0]
     CUQI_pde.assemble(x_exact)
-    sol = CUQI_pde.solve()
+    sol, info = CUQI_pde.solve()
     observed_sol_3 = CUQI_pde.observe(sol)
 
     assert(np.allclose(observed_sol_1,observed_sol_2) and np.allclose(observed_sol_1,observed_sol_3))
