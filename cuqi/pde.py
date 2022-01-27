@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import scipy
 from inspect import getsource
 from scipy.interpolate import interp1d
+import numpy as np
 
 class PDE(ABC):
     """
@@ -110,9 +111,15 @@ class SteadyStateLinearPDE(PDE):
         if not hasattr(self,"diff_op") or not hasattr(self,"rhs"):
             raise Exception("PDE is not assembled.")
 
-        solution = self._linalg_solve(self.diff_op,self.rhs,**self._linalg_solve_kwargs)
+        returned_values = self._linalg_solve(self.diff_op,self.rhs,**self._linalg_solve_kwargs)
+        if len(returned_values) > 1 and not isinstance(returned_values, np.ndarray):
+            solution_x = returned_values[0]
+            info = returned_values[1:]
+        else:
+            solution_x = returned_values
+            info = None
 
-        return solution
+        return solution_x, info
 
     def observe(self, solution):
             
@@ -154,7 +161,9 @@ class TimeDependentLinearPDE(PDE):
         u = self.IC
         for t in self.time_steps:
             u = self.diff_op@u
-        return u
+        
+        info = None
+        return u, info
 
     def observe(self, solution):
             
