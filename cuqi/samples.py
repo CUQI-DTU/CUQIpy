@@ -327,7 +327,7 @@ class Samples(object):
         Geweke(self.samples.T)
 
     def plot_autocorrelation(self, variable_indices=None, max_lag=None, combined=True, **kwargs):
-        """Plot the autocorrelation function of one or more variables in chain.
+        """Plot the autocorrelation function of one or more variables in a single chain.
 
         Parameters
         ----------
