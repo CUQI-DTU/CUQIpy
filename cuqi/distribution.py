@@ -1219,13 +1219,11 @@ class LMRF(Distribution):
 
 class InverseGamma(Distribution):
     """
-    Multivariate inverse gamma distribution of independent random variables :math:`x_i`. Each is distributed according to the PDF function
+    Multivariate inverse gamma distribution of independent random variables x_i. Each is distributed according to the PDF function
 
-    .. math::
+    f(x) = (x-location)^(-shape-1) * exp(-scale/(x-location)) / (scale^(-shape)*Gamma(shape))
 
-        f_i(x) =  \\frac{(x-\\mathrm{location}_i)^{-\\mathrm{shape}_i-1}}{\\mathrm{scale}_i^{-\\mathrm{shape}_i}\\Gamma(\\mathrm{shape}_i)}\\mathrm{exp}(-\\frac{\\mathrm{scale}_i}{x-\\mathrm{location}_i})
-
-    where :math:`\\mathrm{shape}_i`, :math:`\\mathrm{location}_i` and :math:`\\mathrm{scale}_i` are the shape, location and scale of :math:`x_i`, respectively.
+    where shape, location and scale are the shape, location and scale of x_i, respectively. And Gamma is the Gamma function.
 
     Parameters
     ------------
@@ -1233,7 +1231,7 @@ class InverseGamma(Distribution):
         The shape parameter
 
     location: float or array_like
-        The location of the inverse gamma distribution
+        The location of the inverse gamma distribution. The support of the pdf function is the Cartesian product of the open intervals (location_1, infinity), (location_2, infinity), ..., (location_dim, infinity).
 
     scale: float or array_like
         The scale of the inverse gamma distribution (non-negative)
@@ -1265,7 +1263,7 @@ class InverseGamma(Distribution):
         samples.hist_chain(1, bins=70)
 
     """
-    def __init__(self, shape, location=0, scale=1, is_symmetric=False, **kwargs):
+    def __init__(self, shape=None, location=None, scale=None, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
         self.shape = force_ndarray(shape, flatten=True)
         self.location = force_ndarray(location, flatten=True)
@@ -1275,7 +1273,7 @@ class InverseGamma(Distribution):
     def dim(self):
         lens = [ (np.size(item) if item is not None else 0) 
                  for item in [self.shape, self.location, self.scale]]
-        return np.max(lens)
+        return np.max(lens) if np.max(lens)>0 else None
 
     def logpdf(self, x):
         return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
@@ -1287,15 +1285,16 @@ class InverseGamma(Distribution):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
-
-        if len(self.get_conditioning_variables()) == 0:
-            if np.any(val <= self.location):
-                return val*np.nan
-            else:
-                return (-self.shape-1)/(val - self.location) +\
-                        self.scale/(val - self.location)**2
-        else:
+        #Computing the gradient for conditional InverseGamma distribution is not supported yet    
+        elif len(self.get_conditioning_variables()) > 0:
             raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
+        
+        #Compute the gradient
+        if np.any(val <= self.location):
+            return val*np.nan
+        else:
+            return (-self.shape-1)/(val - self.location) +\
+                    self.scale/(val - self.location)**2
 
 
     def _sample(self, N=1, rng=None):
