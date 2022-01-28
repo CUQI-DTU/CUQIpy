@@ -376,10 +376,15 @@ class Samples(object):
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
 
         if label_axis:
-            plt.subplot(axis[0])
-            plt.ylabel("Autocorrelation", fontsize=16)
-            for ax in axis:
-                plt.subplot(ax)
+            # Output is ndarray for len>1 else just axis elements
+            if len(variables)==1:
+                plt.ylabel("Autocorrelation", fontsize=16)
                 plt.xlabel("Lag", fontsize=16)
+            else:
+                plt.subplot(axis[0])
+                plt.ylabel("Autocorrelation", fontsize=16)
+                for ax in axis:
+                    plt.subplot(ax)
+                    plt.xlabel("Lag", fontsize=16)
         
         return axis
