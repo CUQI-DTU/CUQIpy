@@ -326,7 +326,7 @@ class Samples(object):
         # Geweke test
         Geweke(self.samples.T)
 
-    def plot_autocorrelation(self, variable_indices=None, max_lag=None, combined=True, label_axis=True, **kwargs):
+    def plot_autocorrelation(self, variable_indices=None, max_lag=None, combined=True, **kwargs):
         """Plot the autocorrelation function of one or more variables in a single chain.
 
         Parameters
@@ -341,9 +341,6 @@ class Samples(object):
         combined: bool, default=True
             Flag for combining multiple chains into a single chain. If False, chains will be
             plotted separately. Note multiple chains are not fully supported yet.
-
-        label_axis: bool, default=True
-            Label x and y axis of plot?
 
         Any remaining keyword arguments will be passed to the arviz plotting tool.
         See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_autocorr.html.
@@ -375,16 +372,4 @@ class Samples(object):
         # Plot autocorrelation using arviz
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
 
-        if label_axis:
-            # Output is ndarray for len>1 else just axis elements
-            if len(variables)==1:
-                plt.ylabel("Autocorrelation", fontsize=16)
-                plt.xlabel("Lag", fontsize=16)
-            else:
-                plt.subplot(axis[0])
-                plt.ylabel("Autocorrelation", fontsize=16)
-                for ax in axis:
-                    plt.subplot(ax)
-                    plt.xlabel("Lag", fontsize=16)
-        
         return axis
