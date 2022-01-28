@@ -424,3 +424,49 @@ class Samples(object):
         if tight_layout: plt.tight_layout() 
 
         return ax
+
+    def plot_pair(self, variable_indices=None, kind="scatter", marginals=False, **kwargs):
+        """Plot marginals using a scatter, kde and/or hexbin matrix.
+        
+        Parameters
+        ----------
+        variable_indices : list, optional
+            List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.
+
+        kind : str or List[str], default="scatter"
+            Type of plot to display (scatter, kde and/or hexbin)
+
+        marginals: bool, optional, default=False
+            If True pairplot will include marginal distributions for every variable
+
+        Any remaining keyword arguments will be passed to the arviz plotting tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_pair.html.
+
+        Returns
+        -------
+        axes: matplotlib axes or bokeh figures  
+        
+        """
+
+        # In case no variable indices are given we give a good default choice
+        dim = self.geometry.dim
+        if variable_indices == None:
+            if dim<=5:
+                variable_indices = np.arange(dim)
+            else:
+                print("Plotting 5 randomly selected variables")
+                variable_indices = np.random.choice(dim,5,replace=False)
+
+        # Get variable names from geometry
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = np.array(variables[variable_indices]).flatten()
+        else:
+            variables = np.array(variable_indices).flatten()
+
+        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+
+        ax =  arviz.plot_pair(datadict, kind=kind, marginals=marginals, **kwargs)
+
+        return ax
+
