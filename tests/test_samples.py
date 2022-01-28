@@ -49,3 +49,26 @@ def test_samples_plot_autocorrelation(kwargs):
 
     # Plot for single parameter + arguments
     samples.plot_autocorrelation([0],**kwargs)
+
+
+@pytest.mark.parametrize("kwargs",[
+                        ({}),
+                        ({"combined":False,"tight_layout":False}),
+                        ])
+def test_samples_plot_trace(kwargs):
+    # Make basic distribution and sample
+    dist = cuqi.distribution.DistributionGallery("CalSom91")
+    sampler = cuqi.sampler.MetropolisHastings(dist)
+    samples = sampler.sample_adapt(1000)
+
+    # Switch to discrete geometry (easiest for "variable" names)
+    samples.geometry = cuqi.geometry.Discrete(["alpha","beta"])
+
+    # Plot with defaults
+    samples.plot_trace()
+
+    # Plot with defaults arguments
+    samples.plot_trace(**kwargs)
+
+    # Plot for single parameter + arguments
+    samples.plot_trace([0],**kwargs)

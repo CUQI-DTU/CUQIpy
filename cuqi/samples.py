@@ -373,3 +373,54 @@ class Samples(object):
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
 
         return axis
+
+    def plot_trace(self, variable_indices=None, combined=True, tight_layout=True, **kwargs):
+        """Creates a traceplot of the samples consisting of 1) a histogram/density plot of the samples and 2) an MCMC chain plot.
+        
+        Parameters
+        ----------
+        variable_indices : list, optional
+            List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.
+
+        combined : bool, default=True
+            Flag for combining multiple chains into a single chain. If False, chains will be
+            plotted separately. Note multiple chains are not fully supported yet.        
+
+        tight_layout: bool, default=True
+            Improves the layout of the traceplot for multiple variables by calling `plt.tight_layout()`.
+            Set to False if this causes issues.
+
+        Any remaining keyword arguments will be passed to the arviz plotting tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_trace.html.
+
+        Returns
+        -------
+        axes: matplotlib axes or bokeh figures  
+
+        """
+
+        # In case no variable indices are given we give a good default choice
+        dim = self.geometry.dim
+        if variable_indices == None:
+            if dim<=5:
+                variable_indices = np.arange(dim)
+            else:
+                print("Plotting 5 randomly selected variables")
+                variable_indices = np.random.choice(dim,5,replace=False)
+
+        # Get variable names from geometry
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = np.array(variables[variable_indices]).flatten()
+        else:
+            variables = np.array(variable_indices).flatten()
+
+        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+
+        # Plot using arviz
+        ax =  arviz.plot_trace(datadict, combined=combined, **kwargs)
+
+        # Improves subplot spacing
+        if tight_layout: plt.tight_layout() 
+
+        return ax
