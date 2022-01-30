@@ -1,3 +1,4 @@
+from math import isnan
 import cuqi
 import numpy as np
 import scipy as sp
@@ -235,3 +236,147 @@ def test_InverseGamma(a, location, scale, x, func):
 
     else:
         raise ValueError
+def test_lognormal_sample():
+    rng = np.random.RandomState(3)
+    mean = np.array([0, -4])
+    std = np.array([1, 14])
+    R = np.array([[1, -0.7], [-0.7, 1]])
+    LND = cuqi.distribution.Lognormal(mean, std**2*R)
+    cuqi_samples = LND.sample(3,rng=rng)
+    result = np.array([[1.16127738e+00, 2.97702504e-01, 8.11608466e-01],
+                       [1.89883185e+10, 8.10091757e-02, 2.50607929e-04]])
+    assert(np.all(np.isclose(cuqi_samples.samples, result)))
+
+@pytest.mark.parametrize("mean,std",[
+                        (np.array([0, 0]),
+                        np.array([1, 1])),
+                        (np.array([-3.14159265,  2.23606798]),
+                        np.array([3.14159265, 50.  ])),
+                        (np.array([1.   ,  0.001]),
+                        np.array([1, 120]))
+                        ])
+@pytest.mark.parametrize("x",[
+                        (np.array([100, 0.00001])),
+                        (np.array([0, -.45])),
+                        (np.array([-3.14159265, 2.23606798]))])
+def test_lognormal_logpdf(mean,std, x ):
+
+    # CUQI lognormal x1,x2
+    R = np.array([[1, 0], [0, 1]])
+    LND = cuqi.distribution.Lognormal(mean, std**2*R)
+    
+    # Scipy lognormal for x1
+    x_1_pdf_scipy = sp.stats.lognorm.pdf(x[0], s = std[0], scale= np.exp(mean[0]))
+
+    # Scipy lognormal for x2
+    x_2_pdf_scipy = sp.stats.lognorm.pdf(x[1], s = std[1], scale= np.exp(mean[1]))
+    
+    # x1 and x2 are independent 
+    assert(np.isclose(LND.pdf(x), x_1_pdf_scipy*x_2_pdf_scipy))
+    assert(np.isclose(LND.logpdf(x), np.log(x_1_pdf_scipy*x_2_pdf_scipy)))
+
+@pytest.mark.parametrize("mean, std, R",[
+                        (np.array([0, 0]),
+                        np.array([1, 1]),
+                        np.array([[1, .3], [.3, 1]])),
+                        (np.array([-3.14159265,  2.23606798]),
+                        np.array([3.14159265, 50.  ]),
+                        np.array([[1, 0], [0, 1]])),
+                        (np.array([1.   ,  0.001]),
+                        np.array([1, 120]),
+                        np.array([[2, 2], [2, 14]]))
+                        ])
+@pytest.mark.parametrize("val",[
+                        (np.array([100, 0.1])),
+                        (np.array([-10, .1])),
+                        (np.array([0.1, .45])),
+                        (np.array([3.14159265, 2.23606798]))])
+def test_gradient_lognormal_as_prior(mean, std, R, val):
+    # This test verifies the lognormal distribution gradient correctness
+    # (when the mean is a numpy.ndarray) by comparing it with a finite
+    # difference approximation of the gradient.
+
+    # ------------------- 1. Create lognormal distribution --------------------
+    LND = cuqi.distribution.Lognormal(mean, std**2*R)
+    
+    # -------------- 2. Create the finite difference gradient -----------------
+    eps = 0.000001
+    FD_gradient = np.empty(LND.dim)
+    
+    for i in range(LND.dim):
+        # compute the ith component of the gradient
+        eps_vec = np.zeros(LND.dim)
+        eps_vec[i] = eps
+        val_plus_eps = val + eps_vec
+        FD_gradient[i] = (LND.logpdf(val_plus_eps) - LND.logpdf(val))/eps 
+
+    # ---------------- 3. Verify correctness of the gradient ------------------
+    assert(np.all(np.isclose(FD_gradient, LND.gradient(val))) or
+           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val))) )
+           )
+
+@pytest.mark.parametrize("std, R",[
+                        (
+                        3,
+                        np.array([[1, .3, 0], [.3, 1, .3], [0, .3, 1]])),
+                        (
+                        12,
+                        np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+                        ])
+@pytest.mark.parametrize("val",[
+                        (np.array([10, 0.1, 3])),
+                        (np.array([0.1, .45, 6]))])
+@pytest.mark.parametrize("x",[
+                        (np.array([1, -0.1])),
+                        (np.array([-3.14159265, 2.23606798]))])
+                      
+def test_gradient_lognormal_as_likelihood(std, R, val, x):
+    # This test verifies the lognormal distribution gradient correctness
+    # (when the mean is a cuqi.Model) by comparing it with a finite
+    # difference approximation of the gradient.
+
+    # ------------------------ 1. Create a cuqi.model -------------------------
+    domain_geometry = 2
+    range_geometry = 3
+
+    # model's forward function
+    def forward(x=None):
+        return np.array([np.exp(x[0]) + x[1],
+             np.exp(2*x[1]) + 3*x[0],
+             x[0]+2*x[1]])
+    
+    # model's gradient
+    def gradient(val, x=None):
+        jac = np.zeros((range_geometry, domain_geometry))
+        jac[0,0] =  np.exp(x[0])#d f1/ d x1
+        jac[0,1] =  1 #d f1/ d x2
+    
+        jac[1,0] =  3 #d f2/ d x1
+        jac[1,1] =  2*np.exp(2*x[1]) #d f2/ d x2
+    
+        jac[2,0] =  1 #d f2/ d x1
+        jac[2,1] =  2 #d f2/ d x2
+    
+        return jac.T@val
+    
+    # create the cuqi.Model
+    model = cuqi.model.Model(forward=forward, 
+                             domain_geometry=domain_geometry, 
+    			 range_geometry=range_geometry)
+    model.gradient = gradient
+    
+    # ------------------- 2. Create lognormal distribution --------------------
+    LND = cuqi.distribution.Lognormal(model, std**2*R)
+    
+    # -------------- 3. Create the finite difference gradient -----------------
+    eps = 0.000001
+    FD_gradient = np.empty(domain_geometry)
+ 
+    for i in range(domain_geometry):
+        eps_vec = np.zeros(domain_geometry)
+        eps_vec[i] = eps
+        x_plus_eps = x + eps_vec
+        FD_gradient[i] = (LND(x=x_plus_eps).logpdf(val) - LND(x=x).logpdf(val))/eps
+    
+    # ---------------- 4. Verify correctness of the gradient ------------------
+    assert(np.all(np.isclose(FD_gradient, LND.gradient(val, x=x))))
