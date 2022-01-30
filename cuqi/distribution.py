@@ -1327,7 +1327,7 @@ class InverseGamma(Distribution):
     -------
     .. code-block:: python
 
-        # Generate a lognormal distribution
+        # Generate an InverseGamma distribution
         import numpy as np
         import cuqi
         import matplotlib.pyplot as plt
