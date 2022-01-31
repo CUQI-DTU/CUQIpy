@@ -215,8 +215,10 @@ class Normal(Distribution):
     
     Example
     -----------
-    #Generate Normal with mean 2 and standard deviation 1
-    p = cuqi.distribution.Normal(mean=2, std=1)
+    .. code-block:: python
+
+        #Generate Normal with mean 2 and standard deviation 1
+        p = cuqi.distribution.Normal(mean=2, std=1)
     """
     def __init__(self, mean=None, std=None, is_symmetric=True, **kwargs):
         # Init from abstract distribution class
@@ -328,8 +330,11 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     
     Example
     -----------
-    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
-    x = cuqi.distribution.Normal(mean=np.zeros(n), cov=2)
+    .. code-block:: python
+
+        # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+        n = 4
+        x = cuqi.distribution.GaussianCov(mean=np.zeros(n), cov=2)
     """
     def __init__(self, mean=None, cov=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
@@ -1047,14 +1052,16 @@ class UserDefinedDistribution(Distribution):
     
     Example
     -----------
-    # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
-    mu1 = -1.0
-    std1 = 4.0
-    X = cuqi.distribution.Normal(mean=mu1, std=std1)
-    dim1 = 1
-    logpdf_func = lambda xx: -np.log(std1*np.sqrt(2*np.pi))-0.5*((xx-mu1)/std1)**2
-    sample_func = lambda : mu1 + std1*np.random.randn(dim1,1)
-    XU = cuqi.distribution.UserDefinedDistribution(dim=dim1, logpdf_func=logpdf_func, sample_func=sample_func)
+    .. code-block:: python
+
+        # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
+        mu1 = -1.0
+        std1 = 4.0
+        X = cuqi.distribution.Normal(mean=mu1, std=std1)
+        dim1 = 1
+        logpdf_func = lambda xx: -np.log(std1*np.sqrt(2*np.pi))-0.5*((xx-mu1)/std1)**2
+        sample_func = lambda : mu1 + std1*np.random.randn(dim1,1)
+        XU = cuqi.distribution.UserDefinedDistribution(dim=dim1, logpdf_func=logpdf_func, sample_func=sample_func)
     """
 
     def __init__(self, dim=None, logpdf_func=None, gradient_func=None, sample_func=None, **kwargs):
@@ -1288,3 +1295,86 @@ class Lognormal(Distribution):
 
     def _sample(self, N=1, rng=None):
         return np.exp(self._normal._sample(N,rng))
+
+class InverseGamma(Distribution):
+    """
+    Multivariate inverse gamma distribution of independent random variables x_i. Each is distributed according to the PDF function
+
+    f(x) = (x-location)^(-shape-1) * exp(-scale/(x-location)) / (scale^(-shape)*Gamma(shape))
+
+    where shape, location and scale are the shape, location and scale of x_i, respectively. And Gamma is the Gamma function.
+
+    Parameters
+    ------------
+    shape: float or array_like
+        The shape parameter
+
+    location: float or array_like
+        The location of the inverse gamma distribution. The support of the pdf function is the Cartesian product of the open intervals (location_1, infinity), (location_2, infinity), ..., (location_dim, infinity).
+
+    scale: float or array_like
+        The scale of the inverse gamma distribution (non-negative)
+
+    
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulative probability function
+    
+    Example
+    -------
+    .. code-block:: python
+
+        # Generate an InverseGamma distribution
+        import numpy as np
+        import cuqi
+        import matplotlib.pyplot as plt
+        shape = [1,2]
+        location = 0
+        scale = 1
+        rng = np.random.RandomState(1)
+        x = cuqi.distribution.InverseGamma(shape, location, scale)
+        samples = x.sample(1000, rng=rng)
+        samples.hist_chain(0, bins=70)
+        plt.figure()
+        samples.hist_chain(1, bins=70)
+
+    """
+    def __init__(self, shape=None, location=None, scale=None, is_symmetric=False, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+        self.shape = force_ndarray(shape, flatten=True)
+        self.location = force_ndarray(location, flatten=True)
+        self.scale = force_ndarray(scale, flatten=True)
+    
+    @property
+    def dim(self):
+        lens = [ (np.size(item) if item is not None else 0) 
+                 for item in [self.shape, self.location, self.scale]]
+        return np.max(lens) if np.max(lens)>0 else None
+
+    def logpdf(self, x):
+        return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
+
+    def cdf(self, x):
+        return np.prod(sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale))
+
+    def gradient(self, val, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+        #Computing the gradient for conditional InverseGamma distribution is not supported yet    
+        elif len(self.get_conditioning_variables()) > 0:
+            raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
+        
+        #Compute the gradient
+        if np.any(val <= self.location):
+            return val*np.nan
+        else:
+            return (-self.shape-1)/(val - self.location) +\
+                    self.scale/(val - self.location)**2
+
+
+    def _sample(self, N=1, rng=None):
+        return sps.invgamma.rvs(a=self.shape, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T

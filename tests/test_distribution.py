@@ -177,6 +177,65 @@ def test_GaussianCov(mean,cov,mean_full,cov_full):
 
     assert np.allclose(gradeval1,gradeval2)
 
+def test_InverseGamma_sample():
+    a = [1,2]
+    location = 0
+    scale = 1
+    N = 1000
+    rng1 = np.random.RandomState(1)
+    rng2 = np.random.RandomState(1)
+    x = cuqi.distribution.InverseGamma(shape=a, location=location, scale=scale)
+    samples1 = x.sample(N, rng=rng1).samples
+    samples2 = sp.stats.invgamma.rvs(a=a, loc=location, scale=scale, size=(N,len(a)), random_state=rng2).T
+
+    assert x.dim == len(a)
+    assert np.all(np.isclose(samples1, samples2))
+
+@pytest.mark.parametrize("a, location, scale",
+                         [([1,2,1], [0,-1, 100], np.array([.1, 1, 20])),
+                          (np.array([3,2,1]), (0, 0, 0), 1)])
+@pytest.mark.parametrize("x",
+                         [(np.array([1, 4, .5])),
+                          (np.array([6, 6, 120])),
+                          (np.array([1000, 0, -40]))])
+@pytest.mark.parametrize("func", [("pdf"),("cdf"),("logpdf"),("gradient")])                        
+def test_InverseGamma(a, location, scale, x, func):
+    IGD = cuqi.distribution.InverseGamma(a, location=location, scale=scale)
+
+    # PDF formula for InverseGamma
+    def my_pdf( x, a, location, scale):
+        if np.any(x <= location):
+            val = x*0
+        else:
+            val =  (scale**a)\
+            /((x-location)**(a+1)*sp.special.gamma(a))\
+            *np.exp(-scale/(x-location))
+        return val
+
+    if func == "pdf":
+        # The joint PDF of independent random vairables is the product of their individual PDFs.
+        print("#########")
+        print(IGD.pdf(x))
+        print(np.prod(my_pdf(x, IGD.shape, IGD.location, IGD.scale)))
+
+        assert np.all(np.isclose(IGD.pdf(x),np.prod(sp.stats.invgamma.pdf(x, a=a, loc=location, scale=scale)))) and np.all(np.isclose(IGD.pdf(x),np.prod(my_pdf(x, IGD.shape, IGD.location, IGD.scale))))
+
+    elif func == "cdf":
+        # The joint CDF of independent random vairables is the product of their individual CDFs.
+        assert np.all(np.isclose(IGD.cdf(x),np.prod(sp.stats.invgamma.cdf(x, a=a, loc=location, scale=scale))))
+
+    elif func == "logpdf":
+        # The joint PDF of independent random vairables is the product of their individual PDFs (the product is replaced by sum for logpdf).
+        assert np.all(np.isclose(IGD.logpdf(x),np.sum(sp.stats.invgamma.logpdf(x, a=a, loc=location, scale=scale)))) and np.all(np.isclose(IGD.logpdf(x),np.sum(np.log(my_pdf(x, IGD.shape, IGD.location, IGD.scale)))))
+
+    elif func == "gradient":
+        FD_gradient = cuqi.utilities.first_order_finite_difference_gradient(IGD.logpdf, x, IGD.dim, epsilon=0.000000001)
+        #Assert that the InverseGamma gradient is close to the FD approximation or both gradients are nan.
+        assert (np.all(np.isclose(IGD.gradient(x),FD_gradient,rtol=1e-3)) or
+          (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(IGD.gradient(x)))))
+
+    else:
+        raise ValueError
 def test_lognormal_sample():
     rng = np.random.RandomState(3)
     mean = np.array([0, -4])
