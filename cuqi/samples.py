@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry, Continuous2D
 from copy import copy
+import arviz # Plotting tool
 
 class CUQIarray(np.ndarray):
     """
@@ -324,3 +325,51 @@ class Samples(object):
     def diagnostics(self):
         # Geweke test
         Geweke(self.samples.T)
+
+    def plot_autocorrelation(self, variable_indices=None, max_lag=None, combined=True, **kwargs):
+        """Plot the autocorrelation function of one or more variables in a single chain.
+
+        Parameters
+        ----------
+        variable_indices : list, optional
+            List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.
+
+        max_lag : int, optional
+            Maximum lag to calculate autocorrelation. Defaults to 100 or number of samples,
+            whichever is smaller.
+
+        combined: bool, default=True
+            Flag for combining multiple chains into a single chain. If False, chains will be
+            plotted separately. Note multiple chains are not fully supported yet.
+
+        Any remaining keyword arguments will be passed to the arviz plotting tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_autocorr.html.
+
+        Returns
+        -------
+        axes: matplotlib axes or bokeh figures
+        """
+
+        # In case no variable indices are given we give a good default choice
+        dim = self.geometry.dim
+        if variable_indices == None:
+            if dim<=5:
+                variable_indices = np.arange(dim)
+            else:
+                print("Plotting 5 randomly selected variables")
+                variable_indices = np.random.choice(dim,5,replace=False)
+
+        # Get variable names from geometry
+        if hasattr(self.geometry,"variables"):
+            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+            variables = np.array(variables[variable_indices]).flatten()
+        else:
+            variables = np.array(variable_indices).flatten()
+
+        # Construct inference data structure
+        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+        
+        # Plot autocorrelation using arviz
+        axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
+
+        return axis
