@@ -87,10 +87,8 @@ class SteadyStateLinearPDE(PDE):
         A dictionary of the keywords arguments that linalg_solve can take. 
 
     Example
-    -----------  
-    <<< ....
-    <<< ....
-    <<< ....
+    -------- 
+    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices.
     """
 
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
@@ -107,19 +105,19 @@ class SteadyStateLinearPDE(PDE):
         self.diff_op, self.rhs = self.PDE_form(parameter)
 
     def solve(self):
-        """Solve PDE and return solution"""
+        """Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution."""
         if not hasattr(self,"diff_op") or not hasattr(self,"rhs"):
             raise Exception("PDE is not assembled.")
 
         returned_values = self._linalg_solve(self.diff_op,self.rhs,**self._linalg_solve_kwargs)
         if len(returned_values) > 1 and not isinstance(returned_values, np.ndarray):
-            solution_x = returned_values[0]
+            solution = returned_values[0]
             info = returned_values[1:]
         else:
-            solution_x = returned_values
+            solution = returned_values
             info = None
 
-        return solution_x, info
+        return solution, info
 
     def observe(self, solution):
             
