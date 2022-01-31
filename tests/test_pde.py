@@ -51,12 +51,29 @@ def test_solver_choice():
 
     assert(np.allclose(observed_sol_1,observed_sol_2) and np.allclose(observed_sol_1,observed_sol_3))
 
-@pytest.mark.parametrize("solve_kwargs, expected_returned",
+@pytest.mark.parametrize("solve_kwargs, expected_info",
                          [
-                          ({"num_returns":2, "dim":50}, (2,)),
-                          ({"num_returns":3}, (2,1)) 
+                          ({}, None),
+                          ({"num_info_vars":2}, (2,)),
+                          ({"num_info_vars":3}, (2, np.zeros(10))) 
                          ])
-def test_solver_signature(solve_kwargs, expected_returned):
+def test_solver_signature(solve_kwargs, expected_info):
+    # Create solver function that can have different number of returned values
+    # based on argument num_returns. It imitates solvers with different signature.
+    def mySolve(*args, num_info_vars=1):
+        solution = scipy.linalg.solve(*args)
+        dummy_info1 = 2
+        dummy_info2 = np.zeros(10)
+        if num_info_vars == 1:
+            # A solver that only returns a solution
+            return solution
+        elif num_info_vars == 2:
+            # A solver that returns a solution and one info variable
+            return solution, dummy_info1
+        elif num_info_vars == 3:
+            # A solver that returns a solution and two info variables
+            return solution, dummy_info1, dummy_info2
+
     # Poisson equation
     dim = 50 #Number of nodes
     L = 10 # Length of the domain
@@ -67,34 +84,29 @@ def test_solver_signature(solve_kwargs, expected_returned):
     kappa = np.ones(dim)
     kappa[np.where(np.arange(dim)>dim/2)] = 2 #kappa is the diffusivity 
 
-
-    # Solver1 (default)
+    # Differential operator
     FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1,bc_type='zero',dx=dx).get_matrix().todense()
     diff_operator = FOFD_operator.T @np.diag(kappa) @ FOFD_operator
+
+    # PDE form
     poisson_form = lambda x: (diff_operator, source(x[0],x[1]))
-    CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs)
-    x_exact = np.array([10,3]) # [10,3] are the source term parameters [a, x0]
-    CUQI_pde.assemble(x_exact)
-    sol, info = CUQI_pde.solve()
-    assert isinstance(sol, np.ndarray)
 
-    def mySolve(*args, num_returns=1, dim=50):
-        val1 = scipy.linalg.solve(*args)
-        val2 = 2
-        val3 = 1
-        if num_returns == 1:
-            return val1
-        elif num_returns == 2:
-            return val1, val2
-        elif num_returns == 3:
-            return val1, val2, val3
-
+    # create PDE class
     CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, linalg_solve=mySolve, linalg_solve_kwargs=solve_kwargs)
+
+    # assemble PDE
     x_exact = np.array([10,3]) # [10,3] are the source term parameters [a, x0]
     CUQI_pde.assemble(x_exact)
-    sol, returned = CUQI_pde.solve()
 
-    assert np.all(expected_returned == returned)
+    #solve PDE
+    sol, info = CUQI_pde.solve()
+    
+    # assert first returned value is a numpy array
+    assert isinstance(sol, np.ndarray) 
+    # assert either info is None (the case when the solver only returns the solution)
+    # or each element of info equals to the corresponding element of expected_info (the case in which the solver returned one or more info variables) 
+    assert (expected_info == None and info == None) \
+               or np.all( [np.all(expected_info[i] == info[i]) for i in range(len(info))]) 
 
 
 
