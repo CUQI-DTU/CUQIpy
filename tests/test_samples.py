@@ -72,3 +72,32 @@ def test_samples_plot_trace(kwargs):
 
     # Plot for single parameter + arguments
     samples.plot_trace([0],**kwargs)
+
+@pytest.mark.parametrize("kwargs",[
+                        ({"marginals": False}),
+                        ({"marginals": True}),
+                        ({"kind":"kde","marginals":False}),
+                        ({"kind":"kde","marginals":True}),
+                        ({"kind":"hexbin","marginals":False}),
+                        ({"kind":"hexbin","marginals":True}),
+                        ])
+def test_samples_plot_pair(kwargs):
+    # Make basic distribution and sample
+    dist = cuqi.distribution.Gaussian(np.array([1,2,3,4]),1)
+    sampler = cuqi.sampler.MetropolisHastings(dist)
+    samples = sampler.sample_adapt(1000)
+    samples.geometry = cuqi.geometry.Discrete(["a","b","c","d"])
+
+    # Plot with defaults
+    samples.plot_pair()
+
+    # Plot with defaults arguments
+    samples.plot_pair(**kwargs)
+
+    # Plot for single parameter + arguments
+    ax = samples.plot_pair([1,2],**kwargs)
+
+    # Check if the correct labels are passed in specific case
+    if kwargs.get("marginals") == False:
+        assert ax.get_xlabel() == "b"
+        assert ax.get_ylabel() == "c"
