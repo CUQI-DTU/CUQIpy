@@ -1,6 +1,5 @@
 #%% Imports
 import sys
-from matplotlib.markers import MarkerStyle
 sys.path.append("..")
 import cuqi
 import numpy as np
@@ -20,11 +19,11 @@ kappa[np.where(np.arange(dim)>dim/2)] = 2 #kappa is the diffusivity
 
 #%% ------------------- 1. Solve using default solver -------------------
 # Differential operator
-FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1,bc_type='zero',dx=dx).get_matrix().todense()
+FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
 diff_operator = FOFD_operator.T @np.diag(kappa) @ FOFD_operator
 
 # PDE form
-poisson_form = lambda x: (diff_operator, source(x[0],x[1]))
+poisson_form = lambda x: (diff_operator, source(x[0], x[1]))
 
 # Create PDE class
 CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol,
@@ -43,11 +42,11 @@ print(info_1)
 
 #%% ------------------- 2. Solve using scipy iterative solver -------------------
 # Differential operator
-FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1,bc_type='zero',dx=dx).get_matrix()
+FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix()
 diff_operator = FOFD_operator.T @np.diag(kappa) @ FOFD_operator
 
 # PDE form
-poisson_form = lambda x: (diff_operator, source(x[0],x[1]))
+poisson_form = lambda x: (diff_operator, source(x[0], x[1]))
 
 # Create PDE class (passing solver of choice)
 linalg_solve_2 = scipy.sparse.linalg.cg
@@ -71,11 +70,11 @@ print(info_2)
 
 #%% ------------------- 3. Solve using user defined solver -------------------
 # Differential operator
-FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1,bc_type='zero',dx=dx).get_matrix().todense()
+FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
 diff_operator = FOFD_operator.T @np.diag(kappa) @ FOFD_operator
 
 # PDE form
-poisson_form = lambda x: (diff_operator, source(x[0],x[1]))
+poisson_form = lambda x: (diff_operator, source(x[0], x[1]))
 
 # Create PDE class (passing solver of choice)
 def linalg_solve_3(A, b):
@@ -104,24 +103,24 @@ print(info_3)
 
 
 #%% ------------------- 4. Plot the three solutions -------------------
-plt.plot(grid_sol, sol_1, linestyle='--', marker='.' , label="Solution")
-plt.plot(grid_obs, observed_sol_1, linestyle='', marker='*' , label="Observed solution")
+plt.plot(grid_sol, sol_1, linestyle='--', marker='.', label="Solution")
+plt.plot(grid_obs, observed_sol_1, linestyle='', marker='*', label="Observed solution")
 plt.xlabel("x")
 plt.ylabel("solution (u)")
 plt.title("Solution using default solver")
 plt.legend()
 
 plt.figure()
-plt.plot(grid_sol, sol_2, linestyle='--', marker='.' , label="Solution")
-plt.plot(grid_obs, observed_sol_2, linestyle='', marker='*' , label="Observed solution")
+plt.plot(grid_sol, sol_2, linestyle='--', marker='.', label="Solution")
+plt.plot(grid_obs, observed_sol_2, linestyle='', marker='*', label="Observed solution")
 plt.xlabel("x")
 plt.ylabel("solution (u)")
 plt.title("Solution using scipy cg solver")
 plt.legend()
 
 plt.figure()
-plt.plot(grid_sol, sol_3, linestyle='--', marker='.' , label="Solution")
-plt.plot(grid_obs, observed_sol_3, linestyle='', marker='*' , label="Observed solution")
+plt.plot(grid_sol, sol_3, linestyle='--', marker='.', label="Solution")
+plt.plot(grid_obs, observed_sol_3, linestyle='', marker='*', label="Observed solution")
 plt.xlabel("x")
 plt.ylabel("solution (u)")
 plt.title("Solution using user defined solver")
