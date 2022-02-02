@@ -109,8 +109,8 @@ class SteadyStateLinearPDE(PDE):
         if not hasattr(self,"diff_op") or not hasattr(self,"rhs"):
             raise Exception("PDE is not assembled.")
 
-        returned_values = self._linalg_solve(self.diff_op,self.rhs,**self._linalg_solve_kwargs)
-        if len(returned_values) > 1 and not isinstance(returned_values, np.ndarray):
+        returned_values = self._linalg_solve(self.diff_op, self.rhs, **self._linalg_solve_kwargs)
+        if isinstance(returned_values, tuple):
             solution = returned_values[0]
             info = returned_values[1:]
         else:
