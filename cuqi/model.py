@@ -280,7 +280,7 @@ class PDEModel(Model):
         
         self.pde.assemble(parameter=x)
 
-        sol = self.pde.solve()
+        sol, info = self.pde.solve()
 
         obs = self.pde.observe(sol)
 

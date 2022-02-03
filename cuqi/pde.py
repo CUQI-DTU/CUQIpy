@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import scipy
 from inspect import getsource
 from scipy.interpolate import interp1d
+import numpy as np
 
 class PDE(ABC):
     """
@@ -80,16 +81,14 @@ class SteadyStateLinearPDE(PDE):
         the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
     linalg_solve: lambda function or function handle
-        linear system solver function with the signature `x=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. if linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+        linear system solver function with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
 
     linalg_solve_kwargs: a dictionary 
         A dictionary of the keywords arguments that linalg_solve can take. 
 
     Example
-    -----------  
-    <<< ....
-    <<< ....
-    <<< ....
+    -------- 
+    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices.
     """
 
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
@@ -106,13 +105,19 @@ class SteadyStateLinearPDE(PDE):
         self.diff_op, self.rhs = self.PDE_form(parameter)
 
     def solve(self):
-        """Solve PDE and return solution"""
+        """Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution."""
         if not hasattr(self,"diff_op") or not hasattr(self,"rhs"):
             raise Exception("PDE is not assembled.")
 
-        solution = self._linalg_solve(self.diff_op,self.rhs,**self._linalg_solve_kwargs)
+        returned_values = self._linalg_solve(self.diff_op, self.rhs, **self._linalg_solve_kwargs)
+        if isinstance(returned_values, tuple):
+            solution = returned_values[0]
+            info = returned_values[1:]
+        else:
+            solution = returned_values
+            info = None
 
-        return solution
+        return solution, info
 
     def observe(self, solution):
             
@@ -154,7 +159,9 @@ class TimeDependentLinearPDE(PDE):
         u = self.IC
         for t in self.time_steps:
             u = self.diff_op@u
-        return u
+        
+        info = None
+        return u, info
 
     def observe(self, solution):
             
