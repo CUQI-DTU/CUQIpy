@@ -5,7 +5,12 @@ sys.path.append("..")
 import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
-from findiff import FinDiff, BoundaryConditions
+try:
+    from findiff import FinDiff, BoundaryConditions
+except Exception as err:
+    print(err)
+    raise ImportError("This demo requires installing the python library findiff")
+
 import scipy as sp
 
 #%%----------------------------------------------------------------------------
