@@ -6,7 +6,7 @@ import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
 
-#%% Poisson equation in 1D (mixed Dirichlet and Nuemann BCs):
+#%% Poisson equation in 1D (mixed Dirichlet and Neumann BCs):
 # d**2/(dx)**2 u = sin(x), x in (0, pi/2)
 # u(0) = g1, and d/dx u(pi/2) = g2
 
@@ -14,10 +14,10 @@ dim = 100 #Number of nodes
 L = np.pi/2 # Length of the domain
 dx = L/(dim-1) # grid spacing 
 grid_sol = np.linspace(dx, L, dim-1, endpoint=False)
-grid_obs = grid_sol # we observe evey 8th node
+grid_obs = grid_sol
 kappa = 1 # kappa is the diffusivity
 g1=2 # Dirichlet bc
-g2=3 # Nuemann bc
+g2=3 # Neumann bc
 
 # Differential operator building blocks (divergence and gradient)
 Div = cuqi.operator.FirstOrderFiniteDifference(dim-1,bc_type='zero',dx=dx).get_matrix().todense()
@@ -25,7 +25,7 @@ Grad = -Div.T
 Grad[0,0] = 0
 Grad[-1,-1] = 0
 
-# PDE form. x[0] is g1 (Dirichlet BC) and x[1] is g2 (Nuemann BC).
+# PDE form. x[0] is g1 (Dirichlet BC) and x[1] is g2 (Neumann BC).
 def poisson_form(x): #= lambda x: (Laplace, source)
 
     Laplace = kappa*Grad @ Div  #Differential operator (Laplace)
@@ -41,7 +41,7 @@ CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol,
 					 grid_obs=grid_obs)
 
 # Assemble PDE
-x_exact = np.array([g1,g2]) # [g1,g2] are the Dirichlet and Nuemann BCs values, respectively.
+x_exact = np.array([g1,g2]) # [g1,g2] are the Dirichlet and Neumann BCs values, respectively.
 CUQI_pde.assemble(x_exact)
 
 # Solve PDE
