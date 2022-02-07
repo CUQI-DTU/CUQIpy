@@ -224,23 +224,20 @@ class Samples(object):
 
     def plot(self,sample_indices=None,*args,**kwargs):
         Ns = self.samples.shape[-1]
+        Np = 5 # Number of samples to plot if Ns > 5
+        
         if sample_indices is None:
-            if Ns < 10:
-                return self.geometry.plot(self.samples,*args,**kwargs)
-            else:
-                print("Plotting 5 randomly selected samples")
-                return self.geometry.plot(self.samples[:,np.random.choice(Ns,5,replace=False)],*args,**kwargs)
-        else:
-            return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
+            if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
+            sample_indices = self._select_random_indices(Np, Ns)
+        
+        return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
+
 
     def plot_chain(self,variable_indices,*args,**kwargs):
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
-        if hasattr(self.geometry,"variables"):
-            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
-            variables = np.array(variables[variable_indices]).flatten()
-        else:
-            variables = np.array(variable_indices).flatten()
+        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = variables[variable_indices].flatten()
         lines = plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
         return lines
@@ -248,11 +245,8 @@ class Samples(object):
     def hist_chain(self,variable_indices,*args,**kwargs):
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
-        if hasattr(self.geometry,"variables"):
-            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
-            variables = np.array(variables[variable_indices]).flatten()
-        else:
-            variables = np.array(variable_indices).flatten()
+        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = variables[variable_indices].flatten()
         n, bins, patches = plt.hist(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
         return patches
@@ -349,25 +343,16 @@ class Samples(object):
         -------
         axes: matplotlib axes or bokeh figures
         """
-
-        # In case no variable indices are given we give a good default choice
         dim = self.geometry.dim
-        if variable_indices == None:
-            if dim<=5:
-                variable_indices = np.arange(dim)
-            else:
-                print("Plotting 5 randomly selected variables")
-                variable_indices = np.random.choice(dim,5,replace=False)
+        Nv = 5 # Max number of variables to plot if none are chosen
 
-        # Get variable names from geometry
-        if hasattr(self.geometry,"variables"):
-            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
-            variables = np.array(variables[variable_indices]).flatten()
-        else:
-            variables = np.array(variable_indices).flatten()
+        # If no variables are given we randomly select some at random
+        if variable_indices is None:
+            if Nv<dim: print("Selecting 5 randomly chosen variables")
+            variable_indices = self._select_random_indices(Nv, dim)
 
-        # Construct inference data structure
-        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+        # Convert to arviz InferenceData object
+        datadict = self.to_inferencedata(variable_indices)
         
         # Plot autocorrelation using arviz
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
@@ -398,24 +383,16 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
 
         """
-
-        # In case no variable indices are given we give a good default choice
         dim = self.geometry.dim
-        if variable_indices == None:
-            if dim<=5:
-                variable_indices = np.arange(dim)
-            else:
-                print("Plotting 5 randomly selected variables")
-                variable_indices = np.random.choice(dim,5,replace=False)
+        Nv = 5 # Max number of variables to plot if none are chosen
 
-        # Get variable names from geometry
-        if hasattr(self.geometry,"variables"):
-            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
-            variables = np.array(variables[variable_indices]).flatten()
-        else:
-            variables = np.array(variable_indices).flatten()
+        # If no variables are given we randomly select some at random
+        if variable_indices is None:
+            if Nv<dim: print("Selecting 5 randomly chosen variables")
+            variable_indices = self._select_random_indices(Nv, dim)
 
-        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+        # Convert to arviz InferenceData object
+        datadict = self.to_inferencedata(variable_indices)
 
         # Plot using arviz
         ax =  arviz.plot_trace(datadict, combined=combined, **kwargs)
@@ -447,26 +424,43 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
         
         """
-
-        # In case no variable indices are given we give a good default choice
         dim = self.geometry.dim
-        if variable_indices == None:
-            if dim<=5:
-                variable_indices = np.arange(dim)
-            else:
-                print("Plotting 5 randomly selected variables")
-                variable_indices = np.random.choice(dim,5,replace=False)
+        Nv = 5 # Max number of variables to plot if none are chosen
 
-        # Get variable names from geometry
-        if hasattr(self.geometry,"variables"):
-            variables = np.array(self.geometry.variables) #Convert to np array for better slicing
-            variables = np.array(variables[variable_indices]).flatten()
-        else:
-            variables = np.array(variable_indices).flatten()
+        # If no variables are given we randomly select some at random
+        if variable_indices is None:
+            if Nv<dim: print("Selecting 5 randomly chosen variables")
+            variable_indices = self._select_random_indices(Nv, dim)
 
-        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+        # Convert to arviz InferenceData object
+        datadict = self.to_inferencedata(variable_indices)
 
         ax =  arviz.plot_pair(datadict, kind=kind, marginals=marginals, **kwargs)
 
         return ax
 
+    def _select_random_indices(self, number, total):
+        """ Selects a random number (sorted) of indices defined by input number from a total number. If total>=dim returns all. """
+        total
+        if total<=number:
+            indices = np.arange(total)
+        else:
+            indices = np.random.choice(total, number, replace=False)
+            indices.sort()
+        return indices
+
+    def to_inferencedata(self, variable_indices=None):
+        """ Return arviz InferenceData object of samples for the given variable indices"""
+        # If no variable indices given we convert all
+        if variable_indices is None:
+            variable_indices = np.arange(self.geometry.dim)
+
+        # Get variable names from geometry
+        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = variables[variable_indices].flatten()
+
+        # Construct inference data structure
+        datadict =  dict(zip(variables,self.samples[variable_indices,:]))
+
+        return datadict
+        
