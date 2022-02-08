@@ -91,14 +91,15 @@ class SteadyStateLinearPDE(PDE):
     See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices.
     """
 
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None, linalg_solve=None, linalg_solve_kwargs={}):
         self.PDE_form = PDE_form
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
         if linalg_solve == None:
             linalg_solve = scipy.linalg.solve
         self._linalg_solve = linalg_solve
-        self._linalg_solve_kwargs = linalg_solve_kwargs 
+        self._linalg_solve_kwargs = linalg_solve_kwargs
+        self.observation_map = observation_map 
 
     def assemble(self, parameter):
         """Assembles differential operator and rhs according to PDE_form"""
@@ -125,7 +126,10 @@ class SteadyStateLinearPDE(PDE):
             solution_obs = solution
         else:
             solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
-            
+
+        if self.observation_map is not None:
+            solution_obs = self.observation_map(solution_obs)
+                
         return solution_obs
         
 class TimeDependentLinearPDE(PDE):
@@ -145,10 +149,11 @@ class TimeDependentLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None):
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None):
         self.PDE_form = PDE_form
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
+        self.observation_map = observation_map
 
     def assemble(self, parameter):
         """Assemble PDE"""
@@ -169,5 +174,8 @@ class TimeDependentLinearPDE(PDE):
             solution_obs = solution
         else:
             solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
+
+        if self.observation_map is not None:
+            solution_obs = self.observation_map(solution_obs)
             
         return solution_obs
