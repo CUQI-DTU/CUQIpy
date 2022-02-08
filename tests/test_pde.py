@@ -109,8 +109,29 @@ def test_solver_signature(solve_kwargs, expected_info):
                or np.all( [np.all(expected_info[i] == info[i]) for i in range(len(info))]) 
 
 
+def test_observe():
+    # Poisson equation
+    dim = 20 #Number of nodes
+    L = 20 # Length of the domain
+    dx = L/(dim-1) # grid spacing 
+    grid_sol = np.linspace(dx, L, dim-1, endpoint=False)
+    grid_obs = grid_sol[5:]
+    source =  lambda mag: mag*np.sin(grid_sol) #source term
+    kappa = np.ones(dim) #kappa is the diffusivity 
 
+    # Build the solver
+    FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
+    diff_operator = FOFD_operator.T @ np.diag(kappa) @ FOFD_operator
+    poisson_form = lambda x: (diff_operator, source(x[0]))
+    CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
+    x_exact = np.array([2]) # [2] is the source term parameter [mag]
+    CUQI_pde.assemble(x_exact)
+    sol, info = CUQI_pde.solve()
+    observed_sol = CUQI_pde.observe(sol)
 
+    expected_observed_sol =  scipy.linalg.solve(diff_operator, source(2))[5:]**2
+
+    assert(np.all(np.isclose(observed_sol, expected_observed_sol)))
 
 
     
