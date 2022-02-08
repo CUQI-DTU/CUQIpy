@@ -88,7 +88,7 @@ class SteadyStateLinearPDE(PDE):
 
     Example
     -------- 
-    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices.
+    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems.
     """
 
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
