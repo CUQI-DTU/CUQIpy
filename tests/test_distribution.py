@@ -380,3 +380,33 @@ def test_gradient_lognormal_as_likelihood(std, R, val, x):
     
     # ---------------- 4. Verify correctness of the gradient ------------------
     assert(np.all(np.isclose(FD_gradient, LND.gradient(val, x=x))))
+
+def test_beta(): #TODO. Make more tests
+    alpha = 2; beta = 5; x=0.5
+
+    # Create beta distribution
+    BD = cuqi.distribution.Beta(alpha, beta)
+
+    # Gamma function
+    gamma = lambda x: sp.special.gamma(x)
+
+    # Direct PDF formula for Beta
+    def my_pdf( x, a, b):
+        if np.any(x<=0) or np.any(x>=1) or np.any(a<=0) or np.any(b<=0):
+            val = x*0
+        else:
+            val = gamma(a+b)/(gamma(a)*gamma(b)) * x**(a-1) * (1-x)**(b-1)
+        return val
+
+    # PDF
+    assert np.allclose(BD.pdf(x), my_pdf(x, BD.alpha, BD.beta))
+
+    # CDF
+    assert np.allclose(BD.cdf(x),np.prod(sp.stats.beta.cdf(x, a=alpha, b=beta)))
+
+    # logpdf
+    assert np.allclose(BD.logpdf(x), np.log(my_pdf(x, alpha, beta)))
+    
+    # GRADIENT
+    FD_gradient = cuqi.utilities.first_order_finite_difference_gradient(BD.logpdf, x, BD.dim, epsilon=0.000000001)
+    assert np.allclose(BD.gradient(x),FD_gradient,rtol=1e-3) or (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(BD.gradient(x))))
