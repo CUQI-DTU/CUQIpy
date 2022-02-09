@@ -84,21 +84,31 @@ class SteadyStateLinearPDE(PDE):
         linear system solver function with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
 
     linalg_solve_kwargs: a dictionary 
-        A dictionary of the keywords arguments that linalg_solve can take. 
+        A dictionary of the keywords arguments that linalg_solve can take.
+
+    observation_map: a function handle
+        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
+
+    grid_sol: np.ndarray
+        The grid on which solution is defined
+
+    grid_obs: np.ndarray
+        The grid on which the observed solution should be interpolated (Currently only supported for 1D problems).  
 
     Example
     -------- 
-    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems.
+    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2D.py also illustrates how to observe on a specific boundary, for example.
     """
 
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, linalg_solve=None, linalg_solve_kwargs={}):
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None, linalg_solve=None, linalg_solve_kwargs={}):
         self.PDE_form = PDE_form
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
         if linalg_solve == None:
             linalg_solve = scipy.linalg.solve
         self._linalg_solve = linalg_solve
-        self._linalg_solve_kwargs = linalg_solve_kwargs 
+        self._linalg_solve_kwargs = linalg_solve_kwargs
+        self.observation_map = observation_map 
 
     def assemble(self, parameter):
         """Assembles differential operator and rhs according to PDE_form"""
@@ -125,7 +135,10 @@ class SteadyStateLinearPDE(PDE):
             solution_obs = solution
         else:
             solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
-            
+
+        if self.observation_map is not None:
+            solution_obs = self.observation_map(solution_obs)
+                
         return solution_obs
         
 class TimeDependentLinearPDE(PDE):
@@ -145,10 +158,11 @@ class TimeDependentLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None):
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None):
         self.PDE_form = PDE_form
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
+        self.observation_map = observation_map
 
     def assemble(self, parameter):
         """Assemble PDE"""
@@ -169,5 +183,8 @@ class TimeDependentLinearPDE(PDE):
             solution_obs = solution
         else:
             solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
+
+        if self.observation_map is not None:
+            solution_obs = self.observation_map(solution_obs)
             
         return solution_obs

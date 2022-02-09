@@ -14,11 +14,12 @@ except Exception as err:
 import scipy as sp
 
 #%%----------------------------------------------------------------------------
-# PDE_form function is based on https://github.com/maroba/findiff 
+# PDE_form function is based on 2D findiff example in https://github.com/maroba/findiff. 
 # Create a PDE form for a two dimensional Poisson problem with 
 # Neumann and Dirichlet BC. 
+shape = (100, 100)
 
-def PDE_form(x, shape=(100,100)):
+def PDE_form(x, shape=shape):
     # x is the Bayesian parameters.
 
     #--- 1. set up grid, spacing, and meshgrid
@@ -32,12 +33,13 @@ def PDE_form(x, shape=(100,100)):
     
     #--- 3. Set up boundary conditions
     bc = BoundaryConditions(shape)
-    bc[1,:] = FinDiff(0, dx, 1), 0  # Neumann BC
-    bc[-1,:] = x[0] - 200*Y   # Dirichlet BC
-    bc[:, 0] = x[1]   # Dirichlet BC
-    bc[1:-1, -1] = FinDiff(1, dy, 1), 0  # Neumann BC
+    bc[1,:] = FinDiff(0, dx, 1), 0  # Neumann BC (at x=0)
+    bc[-1,:] = x[0] - 200*Y   # Dirichlet BC (at x=1)
+    bc[:, 0] = x[1]   # Dirichlet BC (at y=0)
+    bc[1:-1, -1] = FinDiff(1, dy, 1), 0  # Neumann BC (y=1)
 
     #--- 4. Apply the BCs to the operator L_op and the rhs f
+    # This is based on solve function in https://github.com/maroba/findiff/blob/master/findiff/pde.py
     L_op_matrix = sp.sparse.lil_matrix(L_op.matrix(shape))
     f = f.reshape(-1, 1)
     
@@ -51,7 +53,8 @@ def PDE_form(x, shape=(100,100)):
     #--- 5. return the operator L_op and the rhs f 
     return (L_op_matrix,f)
 
-
+def observation_map(x):
+    return x.reshape(shape)[0] # return solution u where x=0
 #%% Poisson equation
 
 # Create cuqi PDE class (passing solver of choice)
@@ -60,7 +63,8 @@ linalg_solve_kwargs = {}
 
 CUQI_pde = cuqi.pde.SteadyStateLinearPDE(PDE_form,
 					 linalg_solve=linalg_solve,
-					 linalg_solve_kwargs=linalg_solve_kwargs)
+					 linalg_solve_kwargs=linalg_solve_kwargs,
+                     observation_map=observation_map)
 
 # Assemble PDE
 x_exact = np.array([300,300]) # [300,300] are the values x[0], x[1] in the Dirichlet boundary conditions 
@@ -78,5 +82,11 @@ print(info)
 shape = (100,100) 
 x_axis, y_axis = np.linspace(0, 1, shape[0]), np.linspace(0, 1, shape[1])
 X, Y = np.meshgrid(x_axis, y_axis, indexing='ij')
-im = plt.contourf( X,Y, sol.reshape(100,100), levels=20)
+im = plt.contourf( X,Y, sol.reshape(shape), levels=20)
 plt.colorbar(im)
+
+plt.figure()
+plt.title("Observed solution at x=0")
+plt.plot(Y[0], observed_sol)
+plt.xlabel('x')
+plt.ylabel('Solution (u)')
