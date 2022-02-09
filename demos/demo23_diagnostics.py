@@ -25,10 +25,10 @@ samples_bt.plot_pair(marginals=True)
 # %% Try the plotting tools with 4 variable distribution
 import numpy as np
 #dist4 = cuqi.distribution.Gaussian(np.array([1,2,3,4]),1)
-dist4 = cuqi.distribution.LMRF(np.array([1,2,3,4]), 1, 4, 1, 'zero')
+dist4 = cuqi.distribution.LMRF(np.array([1,2,3,4,5,6]), 1, 6, 1, 'zero')
 sampler4 = cuqi.sampler.MetropolisHastings(dist4)
 samples4 = sampler4.sample_adapt(50000)
-samples4.geometry = cuqi.geometry.Discrete(["a","b","c","d"])
+samples4.geometry = cuqi.geometry.Discrete(["a","b","c","d","e","f"])
 # %%
 samples4.plot_trace()
 samples4_bt = samples4.burnthin(20000,5)
@@ -45,4 +45,4 @@ samples4_bt.plot_pair(kind='hexbin', textsize=25)
 # %%
 ax_4 = samples4_bt.plot_autocorrelation()
 # %%
-ax_22 = samples4_bt.plot_autocorrelation(grid=(2,2))
+ax_22 = samples4_bt.plot_autocorrelation(np.arange(6), grid=(3,2))
