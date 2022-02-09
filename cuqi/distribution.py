@@ -1380,7 +1380,43 @@ class InverseGamma(Distribution):
         return sps.invgamma.rvs(a=self.shape, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T
 
 class Beta(Distribution):
+    """
+    Multivariate beta distribution of independent random variables x_i. Each is distributed according to the PDF function
 
+    f(x) = x^(alpha-1) * (1-x)^(beta-1) * Gamma(alpha+beta) / (Gamma(alpha)*Gamma(beta))
+
+    where Gamma is the Gamma function.
+
+    Parameters
+    ------------
+    alpha: float or array_like
+
+    beta: float or array_like
+
+    Methods
+    -----------
+    sample: generate one or more random samples
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    cdf: evaluate cumulative probability function
+    gradient: evaluate the gradient of the logpdf
+    
+    Example
+    -------
+    .. code-block:: python
+
+        # % Generate a beta distribution
+        import numpy as np
+        import cuqi
+        import matplotlib.pyplot as plt
+        alpha = 0.5
+        beta  = 0.5
+        rng = np.random.RandomState(1)
+        x = cuqi.distribution.Beta(alpha, beta)
+        samples = x.sample(1000, rng=rng)
+        samples.hist_chain(0, bins=70)
+
+    """
     def __init__(self, alpha=None, beta=None, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs)
         self.alpha = force_ndarray(alpha, flatten=True)
