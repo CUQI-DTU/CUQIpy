@@ -352,7 +352,7 @@ class Samples(object):
             variable_indices = self._select_random_indices(Nv, dim)
 
         # Convert to arviz InferenceData object
-        datadict = self.to_inferencedata(variable_indices)
+        datadict = self.to_arviz_inferencedata(variable_indices)
         
         # Plot autocorrelation using arviz
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
@@ -392,7 +392,7 @@ class Samples(object):
             variable_indices = self._select_random_indices(Nv, dim)
 
         # Convert to arviz InferenceData object
-        datadict = self.to_inferencedata(variable_indices)
+        datadict = self.to_arviz_inferencedata(variable_indices)
 
         # Plot using arviz
         ax =  arviz.plot_trace(datadict, combined=combined, **kwargs)
@@ -433,7 +433,7 @@ class Samples(object):
             variable_indices = self._select_random_indices(Nv, dim)
 
         # Convert to arviz InferenceData object
-        datadict = self.to_inferencedata(variable_indices)
+        datadict = self.to_arviz_inferencedata(variable_indices)
 
         ax =  arviz.plot_pair(datadict, kind=kind, marginals=marginals, **kwargs)
 
@@ -449,7 +449,7 @@ class Samples(object):
             indices.sort()
         return indices
 
-    def to_inferencedata(self, variable_indices=None):
+    def to_arviz_inferencedata(self, variable_indices=None):
         """ Return arviz InferenceData object of samples for the given variable indices"""
         # If no variable indices given we convert all
         if variable_indices is None:
