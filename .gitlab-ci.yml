@@ -40,13 +40,13 @@ pages:
   stage: deploy
   script:
   - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
-  - mkdir -p public/workshop
-  - sphinx-build -b html ./docs public/workshop
+  - mkdir -p public/
+  - sphinx-build -b html ./docs public/
   artifacts:
-    name: workshop
+    name: doc
     paths:
       - public
     expire_in: never
   only:
-  - UQIP02975
+  - doc_fix
 
