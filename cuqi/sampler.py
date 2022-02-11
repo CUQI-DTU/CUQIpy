@@ -177,6 +177,7 @@ class NUTS(Sampler):
     Example
     -------
     .. code-block:: python
+
         # Parameters
         dim = 5 # Dimension of distribution
         mu = np.arange(dim) # Mean of Gaussian
@@ -403,7 +404,7 @@ class Linear_RTO(Sampler):
     target : `cuqi.distribution.Posterior` or 5-dimensional tuple.
         If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
         If target is a 5-dimensional tuple, it assumes the following structure:
-            (data, model, L_sqrtprec, P_mean, P_sqrtrec)
+        (data, model, L_sqrtprec, P_mean, P_sqrtrec)
         
         Here:
         data: is a m-dimensional numpy array containing the measured data.
@@ -935,9 +936,12 @@ class pCN(Sampler):
 
     x0 : `np.ndarray` 
       Initial point for the sampler
-        
-    Example (UserDefinedDistribution)
-    ---------------------------------
+
+    Example 
+    -------
+
+    This uses a custom logpdf and sample function.
+
     .. code-block:: python
 
         # Parameters
@@ -961,8 +965,11 @@ class pCN(Sampler):
         # Sample
         samples = sampler.sample(5000)
 
-    Example (Posterior)
-    -------------------
+    Example
+    -------
+
+    This uses CUQIpy distributions.
+
     .. code-block:: python
 
         # Parameters
