@@ -1,3 +1,4 @@
+#%%
 import sys
 sys.path.append("../")
 import numpy as np
@@ -14,7 +15,7 @@ pX_1 = cuqi.distribution.Gaussian(mean, std, R)
 
 # draw samples
 N = 1000
-s = pX_1.sample(N)
+s = pX_1.sample(N).samples
 
 # evaluation of PDF
 m, n = 200, 200

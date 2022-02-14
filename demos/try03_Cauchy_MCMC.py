@@ -4,6 +4,7 @@
 # =============================================================================
 # Version 2020-10
 # =============================================================================
+# %%
 import sys
 sys.path.append("../")
 import time
@@ -16,21 +17,21 @@ import cuqi
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = cuqi.testproblem.Deblur()
-n = test.model.dim[1]
-tt = test.t
+test = cuqi.testproblem.Deblur(dim=30)
+n = test.model.domain_dim
+tt = test.mesh
 h = test.meshsize
 
 # =============================================================================
 # data and noise
 # =============================================================================
 # compute truth and noisy convolved data
-norm_f = np.linalg.norm(test.f_true)
+norm_f = np.linalg.norm(test.exactSolution)
 
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-def likelihood_logpdf(x): return test.likelihood.logpdf(b, x)
+def likelihood_logpdf(x): return test.likelihood(x=x).logpdf(b)
 
 # =============================================================================
 # prior
@@ -55,22 +56,26 @@ Ns = int(5e3)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 #
 ti = time.time()
-x_s, target_eval, acc = MCMC.sample_adapt(Ns, Nb)
+x_s = MCMC.sample_adapt(Ns, Nb)
 print('Elapsed time:', time.time() - ti)
+
+#Extract raw samples
+target_eval = x_s.loglike_eval
+x_s = x_s.samples
 
 # =============================================================================
 med_xpos = np.median(x_s, axis=1) # sp.stats.mode
 sigma_xpos = x_s.std(axis=1)
 lo95, up95 = np.percentile(x_s, [2.5, 97.5], axis=1)
-relerr = round(np.linalg.norm(med_xpos - test.f_true)/norm_f*100, 2)
+relerr = round(np.linalg.norm(med_xpos - test.exactSolution)/norm_f*100, 2)
 print('\nRelerror median:', relerr, '\n')
 
 # =============================================================================
 # plots
 # =============================================================================
 plt.figure()
-plt.plot(tt, test.f_true, 'k-')
-plt.plot(tt, test.g_true, 'b-')
+plt.plot(tt, test.exactSolution, 'k-')
+plt.plot(tt, test.exactData, 'b-')
 plt.plot(tt, b, 'r.')
 plt.tight_layout()
 
@@ -81,7 +86,7 @@ plt.ylabel('Target function values')
 plt.tight_layout()
 
 plt.figure()
-plt.plot(tt, test.f_true, '-', color='forestgreen', linewidth=3, label='True')
+plt.plot(tt, test.exactSolution, '-', color='forestgreen', linewidth=3, label='True')
 plt.plot(tt, med_xpos, '--', color='crimson', label='median')
 plt.fill_between(tt, up95, lo95, color='dodgerblue', alpha=0.25)
 plt.legend(loc='upper right', shadow=False, ncol = 1, fancybox=True, prop={'size':15})

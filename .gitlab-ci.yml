@@ -25,18 +25,28 @@ before_script:
   - source venv/bin/activate
   - pip install -r requirements.txt
 
+
 test:
   script:
     - python -m pytest -v tests
+
+
+cache:
+  # Required to keep artifacts from old builds, e.g. from master
+  paths:
+    - public
 
 pages:
   stage: deploy
   script:
   - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
-  - sphinx-build -b html ./docs public
+  - mkdir -p public/
+  - sphinx-build -b html ./docs public/
   artifacts:
+    name: doc
     paths:
-    - public
+      - public
+    expire_in: never
   only:
-  - master
+  - dev
 
