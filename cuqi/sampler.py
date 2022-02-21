@@ -1148,3 +1148,124 @@ class pCN(Sampler):
             acc = 0
         
         return x_next, loglike_eval_next, acc
+    
+    
+
+#=========================================================================
+#=========================================================================
+#=========================================================================
+def ULA(Nc, Nb, epsilon, theta_0, logtarget, msg = False):
+    # Unadjusted Langevin algorithm
+    # logtarget = log-posterior (up-to constants)
+    if hasattr(theta_0, "__len__"):
+        d = len(theta_0)
+    else:
+        d = 1
+
+    # allocation
+    Ns = Nb+Nc
+    theta = np.empty((d, Ns))
+    logpi_eval = np.empty(Ns)
+
+    # initial state
+    theta[:, 0] = theta_0
+    logpi_eval[0], g_logpi_k = logtarget(theta_0)
+
+    # ULA
+    for k in range(Ns-1):
+        # current state
+        theta_k = theta[:, k]
+        # logpi_eval_k = logpi_eval[k]
+        
+        # approximate Langevin diffusion
+        xi_k = np.random.normal(0, epsilon, d)
+        theta_star = theta_k + ((epsilon**2)/2)*g_logpi_k + xi_k
+        logpi_eval_star, g_logpi_star = logtarget(theta_star)
+
+        # accept without Metropolis correction
+        theta[:, k+1] = theta_star
+        logpi_eval[k+1] = logpi_eval_star
+        g_logpi_k = g_logpi_star.copy()
+
+        # msg
+        if np.isnan(logpi_eval[k+1]):
+            raise NameError('NaN potential func')
+        if (np.mod(k, 500) == 0) and msg == True:
+            print("\nSample {:d}/{:d}".format(k, Ns))
+
+    # apply burn-in 
+    theta = theta[:, Nb:]
+    logpi_eval = logpi_eval[Nb:]
+
+    return theta, logpi_eval
+
+
+
+#=========================================================================
+#=========================================================================
+#=========================================================================
+def MALA(Nc, Nb, epsilon, theta_0, logtarget):
+    # Metropolis-adjusted Langevin algorithm
+    # logtarget = log-posterior (up-to constants)
+    if hasattr(theta_0, "__len__"):
+        d = len(theta_0)
+    else:
+        d = 1
+
+    # allocation
+    Ns = Nb+Nc            # total number of chains
+    theta = np.empty((d, Ns))
+    logpi_eval = np.empty(Ns)
+    acc = np.zeros(Ns, dtype=int)
+
+    # initial state
+    theta[:, 0] = theta_0
+    logpi_eval[0], g_logpi_k = logtarget(theta_0)
+    acc[0] = 1
+    
+    # MALA proposal
+    def log_proposal(theta_star, theta_k, g_logpi_k):
+        mu = theta_k + ((epsilon**2)/2)*g_logpi_k
+        misfit = theta_star - mu
+        return -0.5*((1/(epsilon**2))*(misfit.T @ misfit))
+
+    # MALA
+    for k in range(Ns-1):
+        # current state
+        theta_k = theta[:, k]
+        logpi_eval_k = logpi_eval[k]
+        
+        # approximate Langevin diffusion
+        xi_k = np.random.normal(0, epsilon, d)
+        theta_star = theta_k + ((epsilon**2)/2)*g_logpi_k + xi_k
+        logpi_eval_star, g_logpi_star = logtarget(theta_star)
+            
+        # Metropolis step
+        log_target_ratio = logpi_eval_star - logpi_eval_k
+        log_prop_ratio = log_proposal(theta_k, theta_star, g_logpi_star) - log_proposal(theta_star, theta_k, g_logpi_k)
+        log_alpha = min(0, log_target_ratio + log_prop_ratio)
+        
+        # accept/reject
+        log_u = np.log(np.random.rand())
+        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star)==False):
+            theta[:, k+1] = theta_star
+            logpi_eval[k+1] = logpi_eval_star
+            acc[k+1] = 1
+            g_logpi_k = g_logpi_star.copy()
+        else:
+            theta[:, k+1] = theta_k
+            logpi_eval[k+1] = logpi_eval_k
+        
+        # msg
+        if (np.mod(k, 500) == 0):
+            print("\nSample {:d}/{:d}".format(k, Ns), "\tacc:", np.mean(acc[:k+1]))
+            if np.isnan(logpi_eval[k]):
+                raise NameError('NaN potential func')
+    
+    # apply burn-in 
+    theta = theta[:, Nb:]
+    logpi_eval = logpi_eval[Nb:]
+    acc = acc[Nb:]
+    print('\t-Acceptance rate:', np.mean(acc)) # optimal is 0.574
+    
+    return theta, logpi_eval, acc
