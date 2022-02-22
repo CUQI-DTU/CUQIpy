@@ -223,3 +223,24 @@ def test_sampler_CustomInput_Linear_RTO():
     s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
+
+
+def test_initialize_ULA():
+
+    # Parameters
+    dim = 5 # Dimension of distribution
+    mu = np.arange(dim) # Mean of Gaussian
+    std = 1 # standard deviation of Gaussian
+
+    # Logpdf function
+    logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+    gradient_func = lambda x: -1/(std**2)*(x - mu)
+
+    # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+    target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+
+    # Set up sampler
+    sampler = cuqi.sampler.ULA(target)
+
+    # Sample
+    samples = sampler.sample(2000)
