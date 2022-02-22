@@ -1151,121 +1151,174 @@ class pCN(Sampler):
     
     
 
-#=========================================================================
-#=========================================================================
-#=========================================================================
-def ULA(Nc, Nb, epsilon, theta_0, logtarget, msg = False):
-    # Unadjusted Langevin algorithm
-    # logtarget = log-posterior (up-to constants)
-    if hasattr(theta_0, "__len__"):
-        d = len(theta_0)
-    else:
-        d = 1
+#===================================================================
+#===================================================================
+#===================================================================
+class ULA(Sampler):
+    """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
-    # allocation
-    Ns = Nb+Nc
-    theta = np.empty((d, Ns))
-    logpi_eval = np.empty(Ns)
+    Samples a distribution given its logpdf and gradient based on Langevin diffusion 
+    dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is the Langevin diffusion 
+    and W_t is the `dim`-dimensional standard Brownian motion.
 
-    # initial state
-    theta[:, 0] = theta_0
-    logpi_eval[0], g_logpi_k = logtarget(theta_0)
+    For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
+    of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
 
-    # ULA
-    for k in range(Ns-1):
-        # current state
-        theta_k = theta[:, k]
-        # logpi_eval_k = logpi_eval[k]
-        
-        # approximate Langevin diffusion
-        xi_k = np.random.normal(0, epsilon, d)
-        theta_star = theta_k + ((epsilon**2)/2)*g_logpi_k + xi_k
-        logpi_eval_star, g_logpi_star = logtarget(theta_star)
+    Parameters
+    ----------
 
-        # accept without Metropolis correction
-        theta[:, k+1] = theta_star
-        logpi_eval[k+1] = logpi_eval_star
-        g_logpi_k = g_logpi_star.copy()
-
-        # msg
-        if np.isnan(logpi_eval[k+1]):
-            raise NameError('NaN potential func')
-        if (np.mod(k, 500) == 0) and msg == True:
-            print("\nSample {:d}/{:d}".format(k, Ns))
-
-    # apply burn-in 
-    theta = theta[:, Nb:]
-    logpi_eval = logpi_eval[Nb:]
-
-    return theta, logpi_eval
-
-
-
-#=========================================================================
-#=========================================================================
-#=========================================================================
-def MALA(Nc, Nb, epsilon, theta_0, logtarget):
-    # Metropolis-adjusted Langevin algorithm
-    # logtarget = log-posterior (up-to constants)
-    if hasattr(theta_0, "__len__"):
-        d = len(theta_0)
-    else:
-        d = 1
-
-    # allocation
-    Ns = Nb+Nc            # total number of chains
-    theta = np.empty((d, Ns))
-    logpi_eval = np.empty(Ns)
-    acc = np.zeros(Ns, dtype=int)
-
-    # initial state
-    theta[:, 0] = theta_0
-    logpi_eval[0], g_logpi_k = logtarget(theta_0)
-    acc[0] = 1
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    # MALA proposal
-    def log_proposal(theta_star, theta_k, g_logpi_k):
-        mu = theta_k + ((epsilon**2)/2)*g_logpi_k
-        misfit = theta_star - mu
-        return -0.5*((1/(epsilon**2))*(misfit.T @ misfit))
+    x0 : ndarray
+        Initial parameters. *Optional*
 
-    # MALA
-    for k in range(Ns-1):
-        # current state
-        theta_k = theta[:, k]
-        logpi_eval_k = logpi_eval[k]
-        
-        # approximate Langevin diffusion
-        xi_k = np.random.normal(0, epsilon, d)
-        theta_star = theta_k + ((epsilon**2)/2)*g_logpi_k + xi_k
-        logpi_eval_star, g_logpi_star = logtarget(theta_star)
+    scale : int
+        The standard deviation of the Brownian motion. *Optional*
+
+    dim : int
+        Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
+
+
+    Example
+    -------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        gradient_func = lambda x: -1/(std**2)*(x - mu)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+
+        # Set up sampler
+        sampler = cuqi.sampler.ULA(target)
+
+        # Sample
+        samples = sampler.sample(2000)
+
+    """
+    def __init__(self, target, scale=0.01, x0=None, dim=None):
+        super().__init__(target, x0=x0, dim=dim)
+        self.scale = scale
+
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N,Nb)
+
+    def _sample(self, N, Nb):
+        # Unadjusted Langevin algorithm
+        # logtarget = log-posterior (up-to constants)
+    
+        # allocation
+        Ns = Nb+N
+        samples = np.empty((self.dim, Ns))
+        loglike_eval = np.empty(Ns)
+    
+        # initial state
+        samples[:, 0] = self.x0
+        loglike_eval[0], g_logpi_k = self.target.logpdf(self.x0), self.target.gradient(self.x0)
+         #samples[:, s+1], loglike_eval[s+1], acc[s+1] 
+    
+        # ULA
+        for k in range(Ns-1):
+            # current state
+            x_i = samples[:, k]
+            # logpi_eval_k = logpi_eval[k]
             
-        # Metropolis step
-        log_target_ratio = logpi_eval_star - logpi_eval_k
-        log_prop_ratio = log_proposal(theta_k, theta_star, g_logpi_star) - log_proposal(theta_star, theta_k, g_logpi_k)
-        log_alpha = min(0, log_target_ratio + log_prop_ratio)
-        
-        # accept/reject
-        log_u = np.log(np.random.rand())
-        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star)==False):
-            theta[:, k+1] = theta_star
-            logpi_eval[k+1] = logpi_eval_star
-            acc[k+1] = 1
+            # approximate Langevin diffusion
+            w_i = np.random.normal(0, self.scale, self.dim)
+            x_star = x_i + ((self.scale**2)/2)*g_logpi_k + w_i
+            logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
+    
+            # accept without Metropolis correction
+            samples[:, k+1] = x_star
+            loglike_eval[k+1] = logpi_eval_star
             g_logpi_k = g_logpi_star.copy()
-        else:
-            theta[:, k+1] = theta_k
-            logpi_eval[k+1] = logpi_eval_k
-        
-        # msg
-        if (np.mod(k, 500) == 0):
-            print("\nSample {:d}/{:d}".format(k, Ns), "\tacc:", np.mean(acc[:k+1]))
-            if np.isnan(logpi_eval[k]):
+    
+            # msg
+            if np.isnan(loglike_eval[k+1]):
                 raise NameError('NaN potential func')
+            self._print_progress(k+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
     
-    # apply burn-in 
-    theta = theta[:, Nb:]
-    logpi_eval = logpi_eval[Nb:]
-    acc = acc[Nb:]
-    print('\t-Acceptance rate:', np.mean(acc)) # optimal is 0.574
-    
-    return theta, logpi_eval, acc
+        # apply burn-in 
+        samples = samples[:, Nb:]
+        loglike_eval = loglike_eval[Nb:]
+        print('\nBy design, ULA acceptance rate is 1.\n')
+        return samples, loglike_eval, 1
+
+
+
+
+##=========================================================================
+##=========================================================================
+##=========================================================================
+#def MALA(Nc, Nb, epsilon, theta_0, logtarget):
+#    # Metropolis-adjusted Langevin algorithm
+#    # logtarget = log-posterior (up-to constants)
+#    if hasattr(theta_0, "__len__"):
+#        d = len(theta_0)
+#    else:
+#        d = 1
+#
+#    # allocation
+#    Ns = Nb+Nc            # total number of chains
+#    theta = np.empty((d, Ns))
+#    logpi_eval = np.empty(Ns)
+#    acc = np.zeros(Ns, dtype=int)
+#
+#    # initial state
+#    theta[:, 0] = theta_0
+#    logpi_eval[0], g_logpi_k = logtarget(theta_0)
+#    acc[0] = 1
+#    
+#    # MALA proposal
+#    def log_proposal(theta_star, theta_k, g_logpi_k):
+#        mu = theta_k + ((epsilon**2)/2)*g_logpi_k
+#        misfit = theta_star - mu
+#        return -0.5*((1/(epsilon**2))*(misfit.T @ misfit))
+#
+#    # MALA
+#    for k in range(Ns-1):
+#        # current state
+#        theta_k = theta[:, k]
+#        logpi_eval_k = logpi_eval[k]
+#        
+#        # approximate Langevin diffusion
+#        xi_k = np.random.normal(0, epsilon, d)
+#        theta_star = theta_k + ((epsilon**2)/2)*g_logpi_k + xi_k
+#        logpi_eval_star, g_logpi_star = logtarget(theta_star)
+#            
+#        # Metropolis step
+#        log_target_ratio = logpi_eval_star - logpi_eval_k
+#        log_prop_ratio = log_proposal(theta_k, theta_star, g_logpi_star) - log_proposal(theta_star, theta_k, g_logpi_k)
+#        log_alpha = min(0, log_target_ratio + log_prop_ratio)
+#        
+#        # accept/reject
+#        log_u = np.log(np.random.rand())
+#        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star)==False):
+#            theta[:, k+1] = theta_star
+#            logpi_eval[k+1] = logpi_eval_star
+#            acc[k+1] = 1
+#            g_logpi_k = g_logpi_star.copy()
+#        else:
+#            theta[:, k+1] = theta_k
+#            logpi_eval[k+1] = logpi_eval_k
+#        
+#        # msg
+#        if (np.mod(k, 500) == 0):
+#            print("\nSample {:d}/{:d}".format(k, Ns), "\tacc:", np.mean(acc[:k+1]))
+#            if np.isnan(logpi_eval[k]):
+#                raise NameError('NaN potential func')
+#    
+#    # apply burn-in 
+#    theta = theta[:, Nb:]
+#    logpi_eval = logpi_eval[Nb:]
+#    acc = acc[Nb:]
+#    print('\t-Acceptance rate:', np.mean(acc)) # optimal is 0.574
+#    
+#    return theta, logpi_eval, acc
