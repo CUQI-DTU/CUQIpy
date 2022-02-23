@@ -1219,40 +1219,39 @@ class ULA(Sampler):
         # allocation
         Ns = Nb+N
         samples = np.empty((self.dim, Ns))
-        loglike_eval = np.empty(Ns)
+        target_eval = np.empty(Ns)
+        g_target_eval = np.empty((self.dim, Ns))
     
         # initial state
         samples[:, 0] = self.x0
-        loglike_eval[0], g_logpi_k = self.target.logpdf(self.x0), self.target.gradient(self.x0)
+        target_eval[0], g_target_eval[:,0] = self.target.logpdf(self.x0), self.target.gradient(self.x0)
          #samples[:, s+1], loglike_eval[s+1], acc[s+1] 
     
         # ULA
-        for k in range(Ns-1):
-            # current state
-            x_i = samples[:, k]
-            # logpi_eval_k = logpi_eval[k]
-            
-            # approximate Langevin diffusion
-            w_i = self._brownian_dist(std=self.scale).sample(rng=self.rng)
-         
-            x_star = x_i + ((self.scale**2)/2)*g_logpi_k + w_i
-            logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
-    
-            # accept without Metropolis correction
-            samples[:, k+1] = x_star
-            loglike_eval[k+1] = logpi_eval_star
-            g_logpi_k = g_logpi_star.copy()
-    
-            # msg
-            if np.isnan(loglike_eval[k+1]):
-                raise NameError('NaN potential func')
-            self._print_progress(k+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+        for s in range(Ns-1):
+            samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], _ = self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
     
         # apply burn-in 
         samples = samples[:, Nb:]
-        loglike_eval = loglike_eval[Nb:]
+        target_eval = target_eval[Nb:]
         print('\nBy design, ULA acceptance rate is 1.\n')
-        return samples, loglike_eval, 1
+        return samples, target_eval, 1
+
+
+    def single_update(self, x_t, target_eval_t, g_target_eval_t):
+
+        # approximate Langevin diffusion
+        w_i = self._brownian_dist(std=self.scale).sample(rng=self.rng)
+     
+        x_star = x_t + ((self.scale**2)/2)*g_target_eval_t + w_i
+        logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
+
+        # msg
+        if np.isnan(logpi_eval_star):
+            raise NameError('NaN potential func. Consider using smaller scale parameter')
+        
+        return x_star, logpi_eval_star, g_logpi_star, 1 # sample always accepted without Metropolis correction
 
 
 
