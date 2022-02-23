@@ -82,12 +82,14 @@ class Sampler(ABC):
     def _create_Sample_object(self,result,N):
         loglike_eval = None
         acc_rate = None
+        g_loglike_eval = None
         if isinstance(result,tuple):
             #Unpack samples+loglike+acc_rate
             s = result[0]
             if len(result)>1: loglike_eval = result[1]
             if len(result)>2: acc_rate = result[2]
-            if len(result)>3: raise TypeError("Expected tuple of at most 3 elements from sampling method.")
+            if len(result)>3: g_loglike_eval = result[3] 
+            if len(result)>4: raise TypeError("Expected tuple of at most 3 elements from sampling method.")
         else:
             s = result
                 
@@ -101,6 +103,7 @@ class Sampler(ABC):
             s = Samples(s, self.geometry)#, geometry = self.geometry)
             s.loglike_eval = loglike_eval
             s.acc_rate = acc_rate
+            s.g_loglike_eval = g_loglike_eval
         return s
 
     @abstractmethod
@@ -1229,15 +1232,16 @@ class ULA(Sampler):
     
         # ULA
         for s in range(Ns-1):
-            samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], _ = \
+            samples[:, s+1], target_eval[s+1], _, g_target_eval[:,s+1] = \
                 self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
     
         # apply burn-in 
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
+        g_target_eval = g_target_eval[:,Nb:]
         print('\nBy design, ULA acceptance rate is 1.\n')
-        return samples, target_eval, 1
+        return samples, target_eval, 1, g_target_eval
 
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
@@ -1252,7 +1256,7 @@ class ULA(Sampler):
         if np.isnan(logpi_eval_star):
             raise NameError('NaN potential func. Consider using smaller scale parameter')
         
-        return x_star, logpi_eval_star, g_logpi_star, 1 # sample always accepted without Metropolis correction
+        return x_star, logpi_eval_star, 1, g_logpi_star  # sample always accepted without Metropolis correction
 
 
 
