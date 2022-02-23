@@ -225,22 +225,66 @@ def test_sampler_CustomInput_Linear_RTO():
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
 
 
-def test_initialize_ULA():
-
+def test_ULA_UserDefinedDistribution():
+    expected_samples = \
+        np.array([[0.1, 0.11763052, 0.12740614],
+                  [1.1, 1.10399157, 1.1263901 ]])
+    np.random.seed(0)
     # Parameters
-    dim = 5 # Dimension of distribution
+    dim = 2 # Dimension of distribution
     mu = np.arange(dim) # Mean of Gaussian
     std = 1 # standard deviation of Gaussian
 
     # Logpdf function
     logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
-    gradient_func = lambda x: -1/(std**2)*(x - mu)
+    gradient_func = lambda x: -2/(std**2)*(x - mu)
 
     # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
     target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
 
     # Set up sampler
-    sampler = cuqi.sampler.ULA(target)
+    sampler = cuqi.sampler.ULA(target,scale=.0001,x0=np.array([.1,1.1]))
 
     # Sample
-    samples = sampler.sample(2000)
+    samples = sampler.sample(3)
+    print(samples.samples)
+    print(samples.mean())    
+    print(np.var(samples.samples)) 
+
+    assert np.all(np.isclose(samples.samples, expected_samples))
+
+
+def test_ULA_regression(copy_reference):
+    # This tests compares ULA class results with results 
+    # generate from original ULA code provided by Felipe Uribe.
+    # The original code is found in commit:
+    # c172442d8d7f34a33681b9c1d76889c99ac8dfcd
+
+    np.random.seed(0)
+    # %% Create CUQI test problem
+    test = cuqi.testproblem.Deblur()
+    n = test.model.domain_dim
+    h = test.meshsize
+    
+    # Extract data
+    data = test.data
+    
+    # Extract Likelihood
+    likelihood  = test.likelihood
+    
+    # Define Prior
+    loc = np.zeros(n)
+    delta = 1
+    scale = delta*h
+    prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+    
+    # %% Create the posterior and the sampler
+    posterior = cuqi.distribution.Posterior(likelihood,prior,data)
+    MCMC = cuqi.sampler.ULA(posterior)
+
+    # %% Sample
+    samples  = MCMC.sample(5)
+    samples_orig_file = copy_reference("data/ULA_felipe_original_code_results.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.all(np.isclose(samples.samples, samples_orig['arr_0'])))
