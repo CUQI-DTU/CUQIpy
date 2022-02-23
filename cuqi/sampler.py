@@ -1174,7 +1174,7 @@ class ULA(Sampler):
         Initial parameters. *Optional*
 
     scale : int
-        The standard deviation of the Brownian motion. *Optional*
+        The Langevin diffusion discretization time step. *Optional*
 
     dim : int
         Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
@@ -1191,7 +1191,7 @@ class ULA(Sampler):
 
         # Logpdf function
         logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
-        gradient_func = lambda x: -1/(std**2)*(x - mu)
+        gradient_func = lambda x: -2/(std**2)*(x - mu)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
@@ -1202,8 +1202,9 @@ class ULA(Sampler):
         # Sample
         samples = sampler.sample(2000)
 
+    A Deblur example can be found in demos/demo27_ULA.py
     """
-    def __init__(self, target, scale=0.01, x0=None, dim=None, rng=None):
+    def __init__(self, target, scale=0.0001, x0=None, dim=None, rng=None):
         super().__init__(target, x0=x0, dim=dim)
         self.scale = scale
         self.rng = rng
@@ -1242,9 +1243,9 @@ class ULA(Sampler):
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
         # approximate Langevin diffusion
-        w_i = self._brownian_dist(std=self.scale).sample(rng=self.rng)
+        w_i = self._brownian_dist(std=np.sqrt(self.scale)).sample(rng=self.rng)
      
-        x_star = x_t + ((self.scale**2)/2)*g_target_eval_t + w_i
+        x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
         logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
 
         # msg
