@@ -1157,9 +1157,9 @@ class pCN(Sampler):
 class ULA(Sampler):
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
-    Samples a distribution given its logpdf and gradient based on Langevin diffusion 
-    dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is the Langevin diffusion 
-    and W_t is the `dim`-dimensional standard Brownian motion.
+    Samples a distribution given its logpdf and gradient (up to a constrant) based on
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is 
+    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
 
     For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
     of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
@@ -1168,7 +1168,8 @@ class ULA(Sampler):
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
+        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     x0 : ndarray
         Initial parameters. *Optional*
@@ -1177,7 +1178,8 @@ class ULA(Sampler):
         The Langevin diffusion discretization time step. *Optional*
 
     dim : int
-        Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
+        Dimension of parameter space. Required if target logpdf and gradient are callable 
+        functions. *Optional*.
 
 
     Example
@@ -1194,7 +1196,8 @@ class ULA(Sampler):
         gradient_func = lambda x: -2/(std**2)*(x - mu)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
-        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
+            gradient_func=gradient_func)
 
         # Set up sampler
         sampler = cuqi.sampler.ULA(target)
@@ -1213,10 +1216,7 @@ class ULA(Sampler):
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
 
-    def _sample(self, N, Nb):
-        # Unadjusted Langevin algorithm
-        # logtarget = log-posterior (up-to constants)
-    
+    def _sample(self, N, Nb):    
         # allocation
         Ns = Nb+N
         samples = np.empty((self.dim, Ns))
@@ -1226,11 +1226,11 @@ class ULA(Sampler):
         # initial state
         samples[:, 0] = self.x0
         target_eval[0], g_target_eval[:,0] = self.target.logpdf(self.x0), self.target.gradient(self.x0)
-         #samples[:, s+1], loglike_eval[s+1], acc[s+1] 
     
         # ULA
         for s in range(Ns-1):
-            samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], _ = self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
+            samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], _ = \
+                self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
     
         # apply burn-in 
