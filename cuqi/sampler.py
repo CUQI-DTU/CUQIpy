@@ -1203,9 +1203,11 @@ class ULA(Sampler):
         samples = sampler.sample(2000)
 
     """
-    def __init__(self, target, scale=0.01, x0=None, dim=None):
+    def __init__(self, target, scale=0.01, x0=None, dim=None, rng=None):
         super().__init__(target, x0=x0, dim=dim)
         self.scale = scale
+        self.rng = rng
+        self._brownian_dist = cuqi.distribution.Normal(mean=np.zeros(self.dim))
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
@@ -1231,7 +1233,8 @@ class ULA(Sampler):
             # logpi_eval_k = logpi_eval[k]
             
             # approximate Langevin diffusion
-            w_i = np.random.normal(0, self.scale, self.dim)
+            w_i = self._brownian_dist(std=self.scale).sample(rng=self.rng)
+         
             x_star = x_i + ((self.scale**2)/2)*g_logpi_k + w_i
             logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
     
