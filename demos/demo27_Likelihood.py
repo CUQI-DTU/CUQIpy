@@ -14,11 +14,20 @@ n = TP.model.domain_dim
 # %%
 likelihood = cuqi.likelihood.Likelihood(data_dist, data)
 likelihood
+
+# %%
+gt = TP.exactSolution
+likelihood(x=gt); 
+likelihood.gradient(x=gt); 
 # %%
 f = lambda x: data_dist(x=x).logpdf(data) #Custom function
-likelihoodU = cuqi.likelihood.UserDefinedLikelihood(dim=n, function=f)
+g = lambda x: data_dist.gradient(data, x=x)
+likelihoodU = cuqi.likelihood.UserDefinedLikelihood(dim=n, logpdf_func=f, gradient_func=g)
 likelihoodU
-# %% Five line example
+# %%
+likelihoodU(x=gt); 
+likelihoodU.gradient(x=gt); 
+# %% Five line example (No change yet)
 model = TP.model #Model data etc.
 prior = cuqi.distribution.Gaussian(mean=np.zeros(n), std=0.2)
 data_dist = cuqi.distribution.Gaussian(model, 0.05) # this is also the likelihood dist.

@@ -30,10 +30,10 @@ class Likelihood(object):
 class UserDefinedLikelihood(Likelihood):
     """User defined likelihood"""
 
-    def __init__(self, dim, function, gradient=None):
+    def __init__(self, dim, logpdf_func, gradient_func=None):
         self.dim = dim
-        self.function = function
-        self.gradient = gradient
+        self.logpdf_func = logpdf_func
+        self.gradient_func = gradient_func
 
     @property
     def dim(self):
@@ -45,15 +45,15 @@ class UserDefinedLikelihood(Likelihood):
 
     def __call__(self, *args, **kwargs):
         """Returns value of likelihood function"""
-        return self.fun(*args, **kwargs)
+        return self.logpdf_func(*args, **kwargs)
 
     def gradient(self, *args, **kwargs):
         """Return gradient of likelihood function"""
-        return self.gradient(*args, **kwargs)
+        return self.gradient_func(*args, **kwargs)
 
     def get_parameter_names(self):
         """Return parameter names of likelihood"""
-        return getNonDefaultArgs(self.function)
+        return getNonDefaultArgs(self.logpdf_func)
 
     def __repr__(self) -> str:
         return "CUQI {} function. Parameters {}.".format(self.__class__.__name__,self.get_parameter_names())
