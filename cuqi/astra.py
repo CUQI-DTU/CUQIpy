@@ -89,7 +89,7 @@ class _astraCT2D(cuqi.model.LinearModel):
         astra.data2d.delete(id)
         out = volume.flatten(order='F')
         if type(y) is cuqi.samples.CUQIarray:
-            out = CUQIarray(out, geometry=self.domain_geometry)
+            out = cuqi.samples.CUQIarray(out, geometry=self.domain_geometry)
         return out
 
 
