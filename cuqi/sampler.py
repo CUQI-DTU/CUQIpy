@@ -1210,11 +1210,12 @@ class ULA(Sampler):
 
     A Deblur example can be found in demos/demo27_ULA.py
     """
-    def __init__(self, target, scale=0.0001, x0=None, dim=None, rng=None):
+    def __init__(self, target, scale=0.0001, x0=None, dim=None, rng=None, store_gradient=False):
         super().__init__(target, x0=x0, dim=dim)
         self.scale = scale
         self.rng = rng
         self._brownian_dist = cuqi.distribution.Normal(mean=np.zeros(self.dim))
+        self.store_gradient = store_gradient
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
@@ -1224,24 +1225,35 @@ class ULA(Sampler):
         Ns = Nb+N
         samples = np.empty((self.dim, Ns))
         target_eval = np.empty(Ns)
-        g_target_eval = np.empty((self.dim, Ns))
+        if self.store_gradient:
+            g_target_eval = np.empty((self.dim, Ns))
     
         # initial state
         samples[:, 0] = self.x0
-        target_eval[0], g_target_eval[:,0] = self.target.logpdf(self.x0), self.target.gradient(self.x0)
+        target_eval[0], g_target_eval_idx = self.target.logpdf(self.x0), self.target.gradient(self.x0)
+        if self.store_gradient:
+            g_target_eval[:, 0] = g_target_eval_idx
+
     
         # ULA
         for s in range(Ns-1):
-            samples[:, s+1], target_eval[s+1], _, g_target_eval[:,s+1] = \
-                self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
+            samples[:, s+1], target_eval[s+1], _, g_target_eval_idx = \
+                self.single_update(samples[:, s], target_eval[s], g_target_eval_idx.copy())            
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            if self.store_gradient:
+                g_target_eval[:, s+1] = g_target_eval_idx
     
         # apply burn-in 
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
-        g_target_eval = g_target_eval[:,Nb:]
+        if self.store_gradient:
+            g_target_eval = g_target_eval[:, Nb:]
         print('\nBy design, ULA acceptance rate is 1.\n')
-        return samples, target_eval, 1, g_target_eval
+
+        if self.store_gradient: 
+            return samples, target_eval, 1, g_target_eval
+        else: 
+            return samples, target_eval, 1
 
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
