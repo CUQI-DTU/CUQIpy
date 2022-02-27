@@ -85,3 +85,5 @@ x_MLU, info3 = cuqi.solver.maximize(likelihoodU, x0, likelihoodU.gradient).solve
 
 # 6: cuqi.likelihood.Likelihood(data_dist, data)..
 #    Note: Its mostly data_dist.to_likelihood(data) now. User will most likely use this approach.
+
+# 7: Dimension is still unclear?
