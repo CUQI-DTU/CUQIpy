@@ -40,8 +40,8 @@ class Deblur(BayesianProblem):
     model : cuqi.model.Model
         Deblur forward model
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function.
 
     prior : cuqi.distribution.Distribution
         Distribution of the prior (Default = None)
@@ -87,14 +87,17 @@ class Deblur(BayesianProblem):
         # Store forward model
         model = LinearModel(A)
         
-        # Store likelihood
-        likelihood = Gaussian(model,noise_std,np.eye(dim))
+        # Store data_dist
+        data_dist = Gaussian(model, noise_std, np.eye(dim))
         
         # Generate inverse-crime free data (still same blur size)
-        data, f_true, g_true = self._generateData(mesh,kernel,blur_size,likelihood)
+        data, f_true, g_true = self._generateData(mesh,kernel,blur_size,data_dist)
         
+        # Create likelihood function
+        likelihood = data_dist.to_likelihood(data)
+
         #Initialize deblur as BayesianProblem cuqi problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
         
         #Store other properties
         self.meshsize = meshsize
@@ -102,7 +105,7 @@ class Deblur(BayesianProblem):
         self.exactData = g_true
         self.mesh = mesh
         
-    def _generateData(self,mesh,kernel,blur_size,likelihood):
+    def _generateData(self,mesh,kernel,blur_size,data_dist):
 
         # f is piecewise constant
         x_min, x_max = mesh[0], mesh[-1]
@@ -121,7 +124,7 @@ class Deblur(BayesianProblem):
         g_true = g_conv(mesh)[0]
 
         # noisy data
-        data = g_true + likelihood(x=np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
+        data = g_true + data_dist(x=np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
         return data, f_true, g_true
 
@@ -187,8 +190,8 @@ class Deconvolution(BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior (Default = None)
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function. 
         (automatically computed from noise distribution)
 
     exactSolution : ndarray
@@ -242,11 +245,11 @@ class Deconvolution(BayesianProblem):
         
         # Generate data
         if data is None:
-            data = data_dist(x=x_exact).sample() #ToDo: (remove flatten)
+            data = data_dist(x=x_exact).sample()
 
         # Initialize Deconvolution as BayesianProblem problem
         likelihood = data_dist.to_likelihood(data)
-        super().__init__(likelihood,prior)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
@@ -413,8 +416,8 @@ class Poisson_1D(BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -492,11 +495,11 @@ class Poisson_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
 
-        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim)).to_likelihood(data)
         prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
 
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
@@ -543,8 +546,8 @@ class Heat_1D(BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -626,11 +629,11 @@ class Heat_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
 
-        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim)).to_likelihood(data)
         prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
 
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
@@ -673,8 +676,8 @@ class Abel_1D(BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -742,11 +745,11 @@ class Abel_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = b_exact + np.random.normal(0, sigma, b_exact.shape )
 
-        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim)).to_likelihood(data)
         prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1)
 
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
@@ -788,8 +791,8 @@ class Deconv_1D(BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -857,10 +860,10 @@ class Deconv_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
 
-        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim)).to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
