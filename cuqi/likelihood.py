@@ -49,7 +49,7 @@ class Likelihood(object):
         else:
             return model_value
 
-class UserDefinedLikelihood(Likelihood):
+class UserDefinedLikelihood(object):
     """User defined likelihood"""
 
     def __init__(self, dim, logpdf_func, gradient_func=None):
