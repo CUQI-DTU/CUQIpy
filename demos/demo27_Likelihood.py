@@ -39,9 +39,9 @@ IP.UQ(exact=TP.exactSolution)
 # %% Five line example (Make to_likelihood method)
 model = TP.model #Model data etc.
 prior = cuqi.distribution.Gaussian(mean=np.zeros(n), std=0.2)
-#likelihood = cuqi.distribution.Gaussian(model, 0.05).to_likelihood(data) # Avoid naming the conditional distribution :D
-IP = cuqi.problem.BayesianProblem(likelihood, prior)
-IP.UQ(exact=TP.exactSolution)
+likelihood = cuqi.distribution.Gaussian(model, 0.05).to_likelihood(data) # Avoid naming the conditional distribution :D
+#IP = cuqi.problem.BayesianProblem(likelihood, prior)
+#IP.UQ(exact=TP.exactSolution)
 
 # %% Posterior (remains with distribution..)
 

@@ -1,10 +1,12 @@
-from cuqi.distribution import Distribution
+#from cuqi.distribution import Distribution #How to avoid circular import?
 from cuqi.utilities import getNonDefaultArgs
 
 class Likelihood(object):
     """Likelihood function"""
 
-    def __init__(self, distribution: Distribution, data):
+    def __init__(self, distribution, data):
+        if not distribution.is_cond:
+            raise TypeError("Input distribution must be a conditional distribution to convert to likelihood.")
         self.distribution = distribution
         self.data = data
 

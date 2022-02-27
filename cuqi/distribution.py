@@ -8,6 +8,7 @@ from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 from cuqi.model import Model
+from cuqi.likelihood import Likelihood
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -145,6 +146,11 @@ class Distribution(ABC):
             return False
         else:
             return True
+
+    def to_likelihood(self, data):
+        """Convert conditional distribution to a likelihood function"""
+        return Likelihood(self, data)
+
 
     def __repr__(self) -> str:
         if self.is_cond is True:
