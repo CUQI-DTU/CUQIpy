@@ -1,4 +1,5 @@
 #from cuqi.distribution import Distribution #How to avoid circular import?
+from cuqi.model import Model
 from cuqi.utilities import getNonDefaultArgs
 
 class Likelihood(object):
@@ -28,6 +29,25 @@ class Likelihood(object):
 
     def __repr__(self) -> str:
         return "CUQI {} {} function. Parameters {}.".format(self.distribution.__class__.__name__,self.__class__.__name__,self.get_parameter_names())
+
+    @property
+    def model(self):
+        """Extract the cuqi model from data distribution."""
+
+        model_value = None
+
+        for key, value in vars(self.distribution).items():
+            if isinstance(value,Model):
+                if model_value is None:
+                    model_value = value
+                else:
+                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
+        
+        if model_value is None:
+            #If no model was found we also give error
+            raise TypeError("Cuqi model could not be extracted from distribution {}".format(self.distribution))
+        else:
+            return model_value
 
 class UserDefinedLikelihood(Likelihood):
     """User defined likelihood"""
