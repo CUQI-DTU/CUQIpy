@@ -234,18 +234,19 @@ class Deconvolution(BayesianProblem):
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
+            data_dist = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
         elif noise_type.lower() == "scaledgaussian":
-            likelihood = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
+            data_dist = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate data
         if data is None:
-            data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
+            data = data_dist(x=x_exact).sample() #ToDo: (remove flatten)
 
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        likelihood = data_dist.to_likelihood(data)
+        super().__init__(likelihood,prior)
 
         # Store exact values
         self.exactSolution = x_exact
