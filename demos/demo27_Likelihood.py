@@ -13,7 +13,7 @@ n = TP.model.domain_dim
 
 # %%
 model = TP.model #Model data etc.
-data_dist = cuqi.distribution.GaussianCov(model, lambda sigma: sigma, conds_dists=[s]) # this is also the likelihood dist.
+#data_dist = cuqi.distribution.GaussianCov(model, lambda sigma: sigma]) # this is also the likelihood dist.
 likelihood = cuqi.likelihood.Likelihood(data_dist, data)
 likelihood
 
