@@ -82,8 +82,16 @@ class Distribution(ABC):
     def pdf(self,x):
         return np.exp(self.logpdf(x))
 
-    def __call__(self,**kwargs):
+    def __call__(self, *args, **kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
+
+        # PARSE ARGS AND ADD TO KWARGS
+        if len(args)>0:
+            ordered_keys = self.get_conditioning_variables() # Args follow order of cond. vars
+            for index, arg in enumerate(args):
+                if ordered_keys[index] in kwargs:
+                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditional variable order: {self.get_conditioning_variables()}")
+                kwargs[ordered_keys[index]] = arg
 
         # KEYWORD ERROR CHECK
         for kw_key, kw_val in kwargs.items():
@@ -431,7 +439,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
 
-    def gradient(self, val, **kwargs):
+    def gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
@@ -440,7 +448,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             return -self.prec @ (val - self.mean)
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
-            dev = val - model.forward(**kwargs)
+            dev = val - model.forward(*args, **kwargs)
             return self.prec @ model.gradient(dev)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))

@@ -44,8 +44,8 @@ post_dist_v2 = cuqi.distribution.Posterior(likelihood, prior) #Does not work as 
 
 # %% Evaluations of likelihood and gradients are clear.
 gt = probInfo.exactSolution
-likelihood(x=gt); # Gives value of log-likelihood function at x=gt.
-likelihood.gradient(x=gt); #Gives gradient of log-likelihood function at x=gt.
+likelihood(gt); # Gives value of log-likelihood function at x=gt.
+likelihood.gradient(gt); #Gives gradient of log-likelihood function at x=gt.
 
 # %% User Defined likelihood works similar to distributions, but makes clear its likelihood.
 std = 0.2
@@ -58,8 +58,9 @@ likelihoodU
 # %% Solvers
 x0 = np.zeros(n)
 x_MAP, info1 = cuqi.solver.maximize(post_dist.logpdf, x0, post_dist.gradient).solve()
-#x_ML, info2  = cuqi.solver.maximize(likelihood, x0, likelihood.gradient).solve()
+x_ML, info2  = cuqi.solver.maximize(likelihood, x0, likelihood.gradient).solve()
 x_MLU, info3 = cuqi.solver.maximize(likelihoodU, x0, likelihoodU.gradient).solve()
+
 
 # %% Cons to work at
 # 1: Likelihood, prior was not given to BayesianProblem (it was data_dist, prior, data).
