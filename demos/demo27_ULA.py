@@ -24,7 +24,7 @@ prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 
 # %% Create the posterior and the sampler
 posterior = cuqi.distribution.Posterior(likelihood, prior, data)
-MCMC = cuqi.sampler.ULA(posterior)
+MCMC = cuqi.sampler.ULA(posterior, scale=1/n**2)
 
 # %% Sample
 samples  = MCMC.sample(1000, 500)
