@@ -248,7 +248,7 @@ def test_ULA_UserDefinedDistribution():
     # Sample
     samples = sampler.sample(3)
 
-    assert np.all(np.isclose(samples.samples, expected_samples)) and np.isclose(samples.acc_rate,1)
+    assert np.all(np.isclose(samples.samples, expected_samples)) and np.isclose(samples.acc_rate, 1)
 
 
 def test_ULA_regression(copy_reference):
