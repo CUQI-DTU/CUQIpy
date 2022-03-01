@@ -1320,10 +1320,6 @@ class MALA(ULA):
         x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
         logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
 
-        # msg
-        if np.isnan(logpi_eval_star):
-            raise NameError('NaN potential func. Consider using smaller scale parameter')
-
         # Metropolis step
         log_target_ratio = logpi_eval_star - target_eval_t
         log_prop_ratio = self.log_proposal(x_t, x_star, g_logpi_star) - self.log_proposal(x_star, x_t,  g_target_eval_t)
