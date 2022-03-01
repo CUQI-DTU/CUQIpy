@@ -1195,7 +1195,7 @@ class ULA(Sampler):
         logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
         gradient_func = lambda x: -2/(std**2)*(x - mu)
 
-        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        # Define distribution from logpdf and gradient as UserDefinedDistribution
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
             gradient_func=gradient_func)
 
