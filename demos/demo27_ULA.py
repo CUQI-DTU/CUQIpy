@@ -27,7 +27,7 @@ posterior = cuqi.distribution.Posterior(likelihood, prior, data)
 MCMC = cuqi.sampler.ULA(posterior)
 
 # %% Sample
-samples  = MCMC.sample(1000,500)
+samples  = MCMC.sample(1000, 500)
 
 # %% Compute mean
 x_mean = np.mean(samples.samples,axis=1)
