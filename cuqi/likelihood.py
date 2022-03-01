@@ -1,27 +1,47 @@
 #from cuqi.distribution import Distribution #How to avoid circular import?
 from cuqi.model import Model
 from cuqi.utilities import getNonDefaultArgs
+import warnings
 
 class Likelihood(object):
     """Likelihood function"""
 
     def __init__(self, distribution, data):
+        # Check if distribution is conditional
         if not distribution.is_cond:
             raise TypeError("Input distribution must be a conditional distribution to convert to likelihood.")
+        
         self.distribution = distribution
         self.data = data
 
-    def __call__(self, *args, **kwargs):
-        """Returns value of likelihood function"""
+        # Check if a CUQI model is inside distribution
+        self.model # returns error if distribution does not have model
+
+    def log(self, *args, **kwargs):
+        """Return the log-likelihood function at given value"""
         return self.distribution(*args, **kwargs).logpdf(self.data)
 
     def gradient(self, *args, **kwargs):
-        """Return gradient of likelihood function"""
+        """Return gradient of the log-likelihood function at given value"""
         return self.distribution.gradient(self.data, *args, **kwargs)
 
     @property
     def dim(self):
-        raise NotImplementedError("Dimension is not yet implemented.")
+        if len(self.get_parameter_names()) > 1:
+            warnings.warn("returned dim is only w.r.t. parameter of model input, but likelihood has more parameters!")
+        return self.model.domain_dim
+
+    @property
+    def shape(self):
+        if len(self.get_parameter_names()) > 1:
+            warnings.warn("returned shape is only w.r.t. parameter of model input, but likelihood has more parameters!")
+        return self.model.domain_geometry.shape
+
+    @property
+    def geometry(self):
+        if len(self.get_parameter_names()) > 1:
+            warnings.warn("returned geometry is only w.r.t. parameter of model input, but likelihood has more parameters!")
+        return self.model.domain_geometry
 
     def get_parameter_names(self):
         """Return parameter names of likelihood"""
@@ -65,7 +85,7 @@ class UserDefinedLikelihood(object):
     def dim(self, value):
         self._dim = value
 
-    def __call__(self, *args, **kwargs):
+    def log(self, *args, **kwargs):
         """Returns value of likelihood function"""
         return self.logpdf_func(*args, **kwargs)
 

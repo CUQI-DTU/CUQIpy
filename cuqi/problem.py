@@ -106,16 +106,16 @@ class BayesianProblem(object):
         # optimization without gradients is attempted.
         try: 
             print("Attempting to use gradients")
-            gradfunc = lambda x: -self.likelihood.gradient(x=x)
+            gradfunc = lambda x: -self.likelihood.gradient(x)
             solver = cuqi.solver.minimize(
-                                     lambda x: -self.likelihood(x=x), 
+                                     lambda x: -self.likelihood.log(x), 
                                      x0, 
                                      gradfunc=gradfunc)
             x_BFGS, info_BFGS = solver.solve()
         except BaseException as err:
             print("Gradient not available, optimizing without.")
             solver = cuqi.solver.minimize(
-                                     lambda x: -self.likelihood(x=x), 
+                                     lambda x: -self.likelihood.log(x), 
                                      x0)
             x_BFGS, info_BFGS = solver.solve()
         return x_BFGS, info_BFGS
@@ -140,14 +140,14 @@ class BayesianProblem(object):
         else:
             x0 = np.random.randn(self.model.domain_dim)
             def posterior_logpdf(x):
-                logpdf = -self.prior.logpdf(x) - self.likelihood(x=x)
+                logpdf = -self.prior.logpdf(x) - self.likelihood.log(x)
                 return logpdf
             # Gradient should be used if available. We attempt to use gradients (in the
             # "try" part) and  if any error is encountered, it is caught and instead 
             # optimization without gradients is attempted.
             try: 
                 print("Attempting to use gradients")
-                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(x=x)
+                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(x)
                 solver = cuqi.solver.minimize(posterior_logpdf, 
                                               x0,
                                               gradfunc=gradfunc)
@@ -256,7 +256,7 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood(x=x).logpdf(self.data) + self.prior.logpdf(x) #ToDo: Likelihood should only depend on x (not data)
+        def target(x): return self.likelihood.log(x) + self.prior.logpdf(x)
         def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 
         # Set up sampler
@@ -277,7 +277,7 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood(x=x).logpdf(self.data) #ToDo: Likelihood should only depend on x (not data)
+        def target(x): return self.likelihood.log(x)
         #def proposal(ns): return self.prior.sample(ns)
         
         scale = 0.02

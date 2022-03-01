@@ -12,15 +12,7 @@ from cuqi.problem import BayesianProblem
 # Parameters
 n = 128
 
-# %% Likelihood is a function defined according to a conditional distribution.
-# X ~ p(x | theta): Conditional distribution.
-# L(theta | x=10) : p(x=10 | theta): The likelihood function w. "data" x=10.
-X = cuqi.distribution.Normal(mean=0, std=lambda theta: theta**2)
-L = X.to_likelihood(data=10)
-print(X)
-print(L)
-
-# %% Five line example (likelihood + prior) Q: do we also keep BP(data_dist, prior, data)?
+# %% Five line example (likelihood + prior)
 model, data, probInfo = Deconvolution.get_components(dim=n, phantom="Square")
 likelihood = Gaussian(mean=model, std=0.05).to_likelihood(data)
 prior = Gaussian(mean=np.zeros(n), std=0.2)
@@ -44,7 +36,7 @@ post_dist_v2 = cuqi.distribution.Posterior(likelihood, prior) #Does not work as 
 
 # %% Evaluations of likelihood and gradients are clear.
 gt = probInfo.exactSolution
-likelihood(gt); # Gives value of log-likelihood function at x=gt.
+likelihood.log(gt); # Gives value of log-likelihood function at x=gt.
 likelihood.gradient(gt); #Gives gradient of log-likelihood function at x=gt.
 
 # %% User Defined likelihood works similar to distributions, but makes clear its likelihood.
@@ -58,9 +50,12 @@ likelihoodU
 # %% Solvers
 x0 = np.zeros(n)
 x_MAP, info1 = cuqi.solver.maximize(post_dist.logpdf, x0, post_dist.gradient).solve()
-x_ML, info2  = cuqi.solver.maximize(likelihood, x0, likelihood.gradient).solve()
-x_MLU, info3 = cuqi.solver.maximize(likelihoodU, x0, likelihoodU.gradient).solve()
+x_ML, info2  = cuqi.solver.maximize(likelihood.log, x0, likelihood.gradient).solve()
+x_MLU, info3 = cuqi.solver.maximize(likelihoodU.log, x0, likelihoodU.gradient).solve()
 
+# %% Likelihood with "hyperparameters"
+likelihood = cuqi.distribution.GaussianCov(mean=model, cov=lambda sigma: sigma**2).to_likelihood(data)
+likelihood
 
 # %% Cons to work at
 # 1: Likelihood, prior was not given to BayesianProblem (it was data_dist, prior, data).
@@ -78,8 +73,8 @@ x_MLU, info3 = cuqi.solver.maximize(likelihoodU, x0, likelihoodU.gradient).solve
 #    Note: If we need to distinguish between "x" and other params later like "sigma",
 #    we can use this: Gaussian(mean=model, lambda sigma: sigma**2, conds=["sigma"]).
 
-# 5: Maximizer(posterior.logpdf), Maximizer(likelihood), Maximizer(prior.logpdf)
-#    Posterior and prior act differently than likelhood.
+# 5: Maximizer(posterior.logpdf), Maximizer(likelihood.log), Maximizer(prior.logpdf)
+#    Posterior and prior act differently than likelihood.
 #    Note: This is by design now.. We can discuss if this is good design though..
 #    Idea: We could add a logpdf method? And write that its strictly not the PDF,
 #    but convenient for the code.
