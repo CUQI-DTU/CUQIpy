@@ -30,7 +30,7 @@ MCMC = cuqi.sampler.ULA(posterior)
 samples  = MCMC.sample(1000, 500)
 
 # %% Compute mean
-x_mean = np.mean(samples.samples,axis=1)
+x_mean = np.mean(samples.samples, axis=1)
 
 # %% Compare mean and exact solution by plotting
 plt.plot(x_mean)
