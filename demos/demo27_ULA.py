@@ -37,7 +37,7 @@ plt.plot(x_mean)
 plt.plot(test.exactSolution)
 
 # %% Plot confidence interval
-samples.plot_ci(95,exact=test.exactSolution)
+samples.plot_ci(95, exact=test.exactSolution)
 
 # %% Plot autocorrelation
 samples.plot_autocorrelation(max_lag = 300)
