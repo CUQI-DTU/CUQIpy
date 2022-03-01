@@ -1214,7 +1214,7 @@ class ULA(Sampler):
         self._brownian_dist = cuqi.distribution.Normal(mean=np.zeros(self.dim))
 
     def _sample_adapt(self, N, Nb):
-        return self._sample(N,Nb)
+        return self._sample(N, Nb)
 
     def _sample(self, N, Nb):    
         # allocation
