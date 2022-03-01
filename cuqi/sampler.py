@@ -1236,7 +1236,6 @@ class ULA(Sampler):
         # apply burn-in 
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
-        print('\nBy design, ULA acceptance rate is 1.\n')
         return samples, target_eval, 1
 
 
