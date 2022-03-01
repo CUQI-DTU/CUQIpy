@@ -1175,7 +1175,8 @@ class ULA(Sampler):
         Initial parameters. *Optional*
 
     scale : int
-        The Langevin diffusion discretization time step. *Optional*
+        The Langevin diffusion discretization time step (In practice, a scale of 1/dim**2 is
+        recommended but not guaranteed to be the optimal choice).
 
     dim : int
         Dimension of parameter space. Required if target logpdf and gradient are callable 
@@ -1200,14 +1201,14 @@ class ULA(Sampler):
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.ULA(target)
+        sampler = cuqi.sampler.ULA(target, scale=1/dim**2)
 
         # Sample
         samples = sampler.sample(2000)
 
     A Deblur example can be found in demos/demo27_ULA.py
     """
-    def __init__(self, target, scale=0.0001, x0=None, dim=None, rng=None):
+    def __init__(self, target, scale, x0=None, dim=None, rng=None):
         super().__init__(target, x0=x0, dim=dim)
         self.scale = scale
         self.rng = rng

@@ -277,7 +277,7 @@ def test_ULA_regression(copy_reference):
     
     # %% Create the posterior and the sampler
     posterior = cuqi.distribution.Posterior(likelihood, prior, data)
-    MCMC = cuqi.sampler.ULA(posterior)
+    MCMC = cuqi.sampler.ULA(posterior, scale=0.0001)
 
     # %% Sample
     samples  = MCMC.sample(5)
