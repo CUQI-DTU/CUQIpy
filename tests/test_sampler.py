@@ -243,7 +243,7 @@ def test_ULA_UserDefinedDistribution():
     target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
 
     # Set up sampler
-    sampler = cuqi.sampler.ULA(target,scale=.0001,x0=np.array([.1,1.1]))
+    sampler = cuqi.sampler.ULA(target, scale=.0001, x0=np.array([.1, 1.1]))
 
     # Sample
     samples = sampler.sample(3)
