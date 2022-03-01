@@ -1157,7 +1157,7 @@ class pCN(Sampler):
 class ULA(Sampler):
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
-    Samples a distribution given its logpdf and gradient (up to a constrant) based on
+    Samples a distribution given its logpdf and gradient (up to a constant) based on
     Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is 
     the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
 
