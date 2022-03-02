@@ -112,12 +112,13 @@ def test_pCN_sample_regression():
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
     R = np.eye(d)
-    dist = Gaussian(mean= lambda x:x, std=sigma, corrmat = R)
-    def target(x): return dist.logpdf(x)
-    ref = Gaussian(mu, np.ones(d), R)
+    model = cuqi.model.Model(lambda x: x, range_geometry=d, domain_geometry=d)
+    L = Gaussian(mean=model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
+    def target(x): return L.log(x)
+    P = Gaussian(mu, np.ones(d), R)
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    posterior = cuqi.distribution.Posterior(dist,ref,np.zeros(d))
+    posterior = cuqi.distribution.Posterior(L, P)
     MCMC = pCN(posterior, scale, x0)
     results = MCMC.sample(10,2)
     assert np.allclose(results.samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
@@ -179,18 +180,22 @@ def test_sampler_UserDefined_tuple():
     """
     # This provides a way to give the logpdf
     P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
-    L = cuqi.distribution.GaussianCov(np.array([5,6]),np.array([[1,0.5],[0.5,3]]))
 
-    # Define userdefined distributions (e.g. like likelihood+prior)
-    distP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
-    distL = cuqi.distribution.UserDefinedDistribution(2, L.logpdf, L.gradient, L.sample)
+    #
+    model = cuqi.model.Model(lambda x: x, range_geometry=2, domain_geometry=2)
+    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]])).to_likelihood(np.array([5,6]))
+
+    # Define userdefined distribution + likelihood
+    userP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
+
+    userL = cuqi.likelihood.UserDefinedLikelihood(2, L.log, L.gradient)
 
     # Parameters
     Ns = 2000   # number of samples
     Nb = 200   # burn-in
 
     # Run samplers
-    s_pCN = cuqi.sampler.pCN((distL,distP)).sample_adapt(Ns)
+    s_pCN = cuqi.sampler.pCN((userL,userP)).sample_adapt(Ns)
 
     assert np.allclose(s_pCN.shape,(P.dim,Ns))
 

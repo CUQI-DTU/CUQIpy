@@ -219,7 +219,7 @@ class BayesianProblem(object):
             M = isinstance(self.model,typeModel)
         return L and P and M
     def _sampleLinearRTO(self,Ns):
-        posterior = Posterior(self.likelihood.distribution,self.prior,self.likelihood.data)
+        posterior = Posterior(self.likelihood, self.prior)
         sampler = cuqi.sampler.Linear_RTO(posterior)
         return sampler.sample(Ns,0)
 
@@ -283,7 +283,7 @@ class BayesianProblem(object):
         scale = 0.02
         #x0 = np.zeros(n)
         
-        posterior = cuqi.distribution.Posterior(self.likelihood.distribution,self.prior,self.data)
+        posterior = cuqi.distribution.Posterior(self.likelihood, self.prior)
         MCMC = cuqi.sampler.pCN(posterior,scale)      
         
         #TODO: Select burn-in 

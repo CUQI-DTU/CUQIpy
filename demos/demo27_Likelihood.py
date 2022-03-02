@@ -19,20 +19,9 @@ prior = Gaussian(mean=np.zeros(n), std=0.2)
 IP = BayesianProblem(likelihood, prior)
 IP.UQ(exact=probInfo.exactSolution)
 
-# %% Posterior (conditional on data)
-data_dist = Gaussian(mean=model, std=0.2)
-prior_dist = Gaussian(mean=np.zeros(n), std=0.2)
-post_dist_cond = cuqi.distribution.Posterior(data_dist, prior_dist)
-print(post_dist_cond)
-
-# Adding data creates a fully defined distribution
-post_dist = post_dist_cond(data=data)
-print(post_dist)
-
-# Q: Should we allow providing likelihood and prior to posterior like below?
-post_dist_v2 = cuqi.distribution.Posterior(likelihood, prior) #Does not work as intended.
-
-# Q: Should we get rid of the "conditional" idea for posterior and just use likelihood, prior?
+# %% Posterior
+posterior = cuqi.distribution.Posterior(likelihood, prior)
+cuqi.sampler.NUTS(posterior).sample(10); 
 
 # %% Evaluations of likelihood and gradients are clear.
 gt = probInfo.exactSolution
@@ -49,37 +38,14 @@ likelihoodU
 
 # %% Solvers
 x0 = np.zeros(n)
-x_MAP, info1 = cuqi.solver.maximize(post_dist.logpdf, x0, post_dist.gradient).solve()
+x_MAP, info1 = cuqi.solver.maximize(posterior.logpdf, x0, posterior.gradient).solve()
 x_ML, info2  = cuqi.solver.maximize(likelihood.log, x0, likelihood.gradient).solve()
 x_MLU, info3 = cuqi.solver.maximize(likelihoodU.log, x0, likelihoodU.gradient).solve()
+
+# %% pCN (likelihood+prior)
+cuqi.sampler.pCN(posterior).sample_adapt(50); 
+cuqi.sampler.pCN((likelihood,prior)).sample_adapt(50); 
 
 # %% Likelihood with "hyperparameters"
 likelihood = cuqi.distribution.GaussianCov(mean=model, cov=lambda sigma: sigma**2).to_likelihood(data)
 likelihood
-
-# %% Cons to work at
-# 1: Likelihood, prior was not given to BayesianProblem (it was data_dist, prior, data).
-#    This is now updated to only be likelihood, prior (see above)
-
-# 2: “Likelihood(x)+prior.logpdf(x)“. Different interface for likelihood and prior.
-#    If likelihood can only be likelihood function this is OK I believe. (Check w. pCN).
-
-# 3: pdf, cdf are gone from likelihood.
-#    Solution: They still exist in "likelihood.distribution".
-#    Also, they should not be part of the likelihood function!
-
-# 4: "Conditional likelihood".
-#    Solution: There is no concept of conditional likelihood anymore. Just a function.
-#    Note: If we need to distinguish between "x" and other params later like "sigma",
-#    we can use this: Gaussian(mean=model, lambda sigma: sigma**2, conds=["sigma"]).
-
-# 5: Maximizer(posterior.logpdf), Maximizer(likelihood.log), Maximizer(prior.logpdf)
-#    Posterior and prior act differently than likelihood.
-#    Note: This is by design now.. We can discuss if this is good design though..
-#    Idea: We could add a logpdf method? And write that its strictly not the PDF,
-#    but convenient for the code.
-
-# 6: cuqi.likelihood.Likelihood(data_dist, data)..
-#    Note: Its mostly data_dist.to_likelihood(data) now. User will most likely use this approach.
-
-# 7: Dimension is still unclear?

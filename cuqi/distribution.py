@@ -960,14 +960,14 @@ class Posterior(Distribution):
     logpdf: evaluate log probability density function
     gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
     """
-    def __init__(self, likelihood, prior, data=None, **kwargs):
-        # Init from abstract distribution class
+    def __init__(self, likelihood, prior, **kwargs):
         self.likelihood = likelihood
         self.prior = prior 
-        self.data = data
-#        if 'geometry' not in kwargs.keys(): 
-#            kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
+
+    @property
+    def data(self):
+        return self.likelihood.data
 
     @property
     def dim(self):
@@ -1009,44 +1009,28 @@ class Posterior(Distribution):
         else:
             self._geometry = self.prior.geometry
             
+    def logpdf(self, *args, **kwargs):
+        """ Returns the logpdf of the posterior distribution"""
+        return self.likelihood.log(*args, **kwargs)+ self.prior.logpdf(*args, **kwargs)
 
-
-    def logpdf(self,x):
-
-        return self.likelihood(x=x).logpdf(self.data)+ self.prior.logpdf(x)
-
-    def gradient(self, x):
+    def gradient(self, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
             
-        return self.likelihood.gradient(self.data, x=x)+ self.prior.gradient(x)        
+        return self.likelihood.gradient(*args, **kwargs)+ self.prior.gradient(*args, **kwargs)        
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
 
-    def loglikelihood_function(self,x):
+    def loglikelihood_function(self, *args, **kwargs):
         """The log-likelihood function defines the log probability density function of the observed data as a function of the parameters of the model."""
-        return self.likelihood(x=x).logpdf(self.data)
+        return self.likelihood.log(*args, **kwargs)
 
     @property
     def model(self):
         """Extract the cuqi model from likelihood."""
-
-        model_value = None
-
-        for key, value in vars(self.likelihood).items():
-            if isinstance(value,Model):
-                if model_value is None:
-                    model_value = value
-                else:
-                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
-        
-        if model_value is None:
-            #If no model was found we also give error
-            return None
-        else:
-            return model_value
+        return self.likelihood.model
 
 class UserDefinedDistribution(Distribution):
     """
