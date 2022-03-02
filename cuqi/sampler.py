@@ -1223,11 +1223,12 @@ class ULA(Sampler):
         samples = np.empty((self.dim, Ns))
         target_eval = np.empty(Ns)
         g_target_eval = np.empty((self.dim, Ns))
-        acc = np.empty(Ns)
+        acc = np.zeros(Ns)
     
         # initial state
         samples[:, 0] = self.x0
         target_eval[0], g_target_eval[:,0] = self.target.logpdf(self.x0), self.target.gradient(self.x0)
+        acc[0] = 1
     
         # ULA
         for s in range(Ns-1):
