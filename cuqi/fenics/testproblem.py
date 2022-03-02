@@ -43,8 +43,8 @@ class FEniCSDiffusion1D(BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior (Default = None)
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function.
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -124,10 +124,10 @@ class FEniCSDiffusion1D(BayesianProblem):
         data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
         
         # Create likelihood
-        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim))
+        likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim)).to_likelihood(data)
 
         # Initialize FEniCSDiffusion1D as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
 
         # Store exact values and information
         self.exactSolution = exactSolution
