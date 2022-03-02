@@ -156,7 +156,7 @@ class Distribution(ABC):
             return True
 
     def to_likelihood(self, data):
-        """Convert conditional distribution to a likelihood function"""
+        """Convert conditional distribution to a likelihood function given observed data"""
         return Likelihood(self, data)
 
 
@@ -934,14 +934,14 @@ class Uniform(Distribution):
 # ========================================================================
 class Posterior(Distribution):
     """
-    Posterior probability distribution defined by likelihood and prior. The geometry is automatically determined from the model and prior.
+    Posterior probability distribution defined by likelihood and prior.
+    The geometry is automatically determined from the model and prior.
     Generates instance of cuqi.distribution.Posterior
     
     Parameters
     ------------
-    likelihood: Likelihood distribution, cuqi.distribution.Distribution.
+    likelihood: Likelihood function, cuqi.likelihood.Likelihood.
     prior: Prior distribution, cuqi.distribution.Distribution.
-    data: Data realization (optional).
 
     Attributes
     ------------
