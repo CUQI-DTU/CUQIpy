@@ -4,7 +4,32 @@ from cuqi.utilities import getNonDefaultArgs
 import warnings
 
 class Likelihood(object):
-    """Likelihood function"""
+    """Likelihood function defined from a conditional distribution and observation.
+
+    The likelihood takes the value of the logpdf of a distribution given an observation.
+    The geometry is automatically determined from the model of data distribution.
+    Generates instance of cuqi.likelihood.Likelihood
+    
+    Parameters
+    ------------
+    distribution: distribution to create likelihood from.
+    data: observation to create likelihood from.
+
+    Attributes
+    ------------
+    distribution
+    data
+    dim
+    shape
+    geometry
+    model
+    
+    Methods
+    -----------
+    log: evaluate log density function w.r.t input parameter.
+    gradient: evaluate the gradient of the log density function w.r.t. input parameter.
+    get_parameter_names: gets the input parameter names.
+    """
 
     def __init__(self, distribution, data):
         # Check if distribution is conditional
@@ -70,7 +95,21 @@ class Likelihood(object):
             return model_value
 
 class UserDefinedLikelihood(object):
-    """User defined likelihood"""
+    """Class to wrap user-defined likelihood functions.
+
+    Parameters
+    ------------
+    dim: Dimension of the likelihood. Int.
+    logpdf_func: Function evaluating log density function. Callable.
+    gradient_func: Function evaluating the gradient of the log density. Callable.
+    geometry: cuqi.geometry.Geometry.
+    
+    Methods
+    -----------
+    log: evaluate log density function w.r.t input parameter.
+    gradient: evaluate the gradient of the log density function w.r.t. input parameter.
+    get_parameter_names: gets the input parameter names.
+    """
 
     def __init__(self, dim, logpdf_func, gradient_func=None, geometry=None):
         self.dim = dim
