@@ -72,10 +72,11 @@ class Likelihood(object):
 class UserDefinedLikelihood(object):
     """User defined likelihood"""
 
-    def __init__(self, dim, logpdf_func, gradient_func=None):
+    def __init__(self, dim, logpdf_func, gradient_func=None, geometry=None):
         self.dim = dim
         self.logpdf_func = logpdf_func
         self.gradient_func = gradient_func
+        self.geometry = geometry
 
     @property
     def dim(self):
