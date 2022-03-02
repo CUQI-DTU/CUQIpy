@@ -285,3 +285,32 @@ def test_ULA_regression(copy_reference):
     samples_orig = np.load(samples_orig_file)
 
     assert(np.all(np.isclose(samples.samples, samples_orig['arr_0'])))
+
+def test_MALA_regression(copy_reference):
+    #%% CUQI
+    dim = 5 # Dimension of distribution
+    mu = np.arange(dim) # Mean of Gaussian
+    std = 1 # standard deviation of Gaussian
+    N = 2000
+    Nb = 500
+    eps = 1/dim
+    
+    # Logpdf function
+    logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+    gradient_func = lambda x: -2/(std**2)*(x-mu)
+    
+    # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+    target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
+        gradient_func=gradient_func)
+    
+    # Set up sampler
+    x0 = np.zeros(dim)
+    np.random.seed(0)
+    sampler = cuqi.sampler.MALA(target, scale = eps**2, x0=x0)
+    # Sample
+    samples = sampler.sample(N, Nb)
+
+    samples_orig_file = copy_reference("data/MALA_felipe_original_code_results.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.all(np.isclose(samples.samples, samples_orig['arr_0'])))
