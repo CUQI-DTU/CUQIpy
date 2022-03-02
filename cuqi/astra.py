@@ -192,8 +192,8 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
     prior : cuqi.distribution.Distribution
         Distribution of the prior (Default = None)
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
+    likelihood : cuqi.likelihood.Likelihood
+        Likelihood function. 
         (automatically computed from noise distribution)
 
     exactSolution : ndarray
@@ -256,19 +256,22 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            likelihood = cuqi.distribution.Gaussian(model, noise_std)
+            data_dist = cuqi.distribution.Gaussian(model, noise_std)
         elif noise_type.lower() == "scaledgaussian":
-            likelihood = cuqi.distribution.Gaussian(model, b_exact*noise_std)
+            data_dist = cuqi.distribution.Gaussian(model, b_exact*noise_std)
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate data
         if data is None:
-            data = likelihood(x=x_exact).sample() #ToDo: (remove flatten)
+            data = data_dist(x_exact).sample()
             data = cuqi.samples.CUQIarray(data, geometry=model.range_geometry)
 
+        # Make likelihood
+        likelihood = data_dist.to_likelihood(data)
+
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood, prior, data)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
