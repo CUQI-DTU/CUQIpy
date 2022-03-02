@@ -46,7 +46,7 @@ Nb = 0             # burn-in
 x0 = mu_pr
 maxit = 20
 #
-posterior = cuqi.distribution.Posterior(test.likelihood,prior,test.data)
+posterior = cuqi.distribution.Posterior(test.likelihood, prior)
 MCMC = Linear_RTO(posterior, x0, maxit)
 #
 ti = time.time()

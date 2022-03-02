@@ -15,14 +15,14 @@ import cuqi
 TP = cuqi.testproblem.Deblur()
 model = TP.model #Deblur model
 data = TP.data #Data from deblur problem
-cov = TP.likelihood.cov
+cov = TP.likelihood.distribution.cov
 n = model.domain_geometry.dim
 m = model.range_geometry.dim
 x_true = TP.exactSolution
 
 # %%
 # Define Gaussian likelihood and prior
-likelihood = cuqi.distribution.GaussianCov(model, cov)
+likelihood = cuqi.distribution.GaussianCov(model, cov).to_likelihood(data)
 
 var = 0.2
 prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
@@ -31,11 +31,11 @@ prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
 
 def posterior_logpdf(x):
-    logpdf = -prior.logpdf(x) - likelihood(x=x).logpdf(data) 
+    logpdf = -prior.logpdf(x) - likelihood.log(x)
     return logpdf
 
 def posterior_logpdf_grad(x):
-    grad = -prior.gradient(x) - likelihood.gradient(data,x=x) 
+    grad = -prior.gradient(x) - likelihood.gradient(x) 
     return grad
 
 # Starting point
@@ -87,11 +87,11 @@ plt.show()
 #%% ML estimates
 
 def likelihood_logpdf(x):
-    logpdf = - likelihood(x=x).logpdf(data) 
+    logpdf = - likelihood.log(x)
     return logpdf
 
 def likelihood_logpdf_grad(x):
-    grad =  - likelihood.gradient(data,x=x)
+    grad =  - likelihood.gradient(x)
     return grad
 
 # L_BFGS_B MAP
@@ -115,7 +115,7 @@ plt.show()
 
 # %%
 
-prob = cuqi.problem.BayesianProblem(likelihood, prior, data)
+prob = cuqi.problem.BayesianProblem(likelihood, prior)
 # %%
 MAP_prob, MAP_info = prob.MAP()
 # %%
