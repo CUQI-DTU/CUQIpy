@@ -929,8 +929,10 @@ class pCN(Sampler):
     
     Parameters
     ----------
-    target : `cuqi.distribution.Posterior` or tuple of two `cuqi.distribution.Distribution` objects
-        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the likelihood and the second distribution is considered the prior.
+    target : `cuqi.distribution.Posterior` or tuple of likelihood and prior objects
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
+        If target is a tuple of (cuqi.likelihood.Likelihood, cuqi.distribution.Distribution) objects,
+        the first element is considered the likelihood and the second is considered the prior.
 
     scale : int
 
@@ -956,7 +958,7 @@ class pCN(Sampler):
         sample_func = lambda : 0 + 1*np.random.randn(dim,1)
 
         # Define as UserDefinedDistributions
-        likelihood = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+        likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=dim, logpdf_func=logpdf_func)
         prior = cuqi.distribution.UserDefinedDistribution(dim=dim, sample_func=sample_func)
 
         # Set up sampler
@@ -978,10 +980,11 @@ class pCN(Sampler):
         std = 1 # standard deviation of Gaussian
 
         # Define as UserDefinedDistributions
-        likelihood = cuqi.distribution.GaussianCov(mean=lambda x: x, cov=np.ones(dim))
+        model = cuqi.model.Model(lambda x: x, range_geometry=dim, domain_geometry=dim)
+        likelihood = cuqi.distribution.GaussianCov(mean=model, cov=np.ones(dim)).to_likelihood(mu)
         prior = cuqi.distribution.GaussianCov(mean=np.zeros(dim), cov=1)
 
-        target = cuqi.distribution.Posterior(likelihood, prior, mu)
+        target = cuqi.distribution.Posterior(likelihood, prior)
 
         # Set up sampler
         sampler = cuqi.sampler.pCN(target, scale = 0.1)

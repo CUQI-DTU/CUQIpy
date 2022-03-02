@@ -16,14 +16,14 @@ class Generic(object):
 
 class BayesianProblem(object):
     """
-    Bayesian representation of inverse problem represented by likelihood and prior
+    Bayesian representation of inverse problem represented by likelihood and prior.
 
     Attributes
     ----------
-    `likelihood: cuqi.model.Distribution`:
-        summary: 'The likelihood distribution'
-        example: model = cuqi.model.LinearModel(A)
-        likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
+    `likelihood: cuqi.likelihood.Likelihood`:
+        summary: 'The likelihood function'
+        example: model = cuqi.model.LinearModel(A);
+                 likelihood = cuqi.distribution.Gaussian(model, std).to_likelihood(data) 
     `prior: cuqi.model.Distribution`:
         summary: 'A cuqi distribution for the prior'
         example: cuqi.distribution.Gaussian(mean, std, corrmat)
@@ -196,7 +196,7 @@ class BayesianProblem(object):
             return self._samplepCN(Ns)
 
         else:
-            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
     def UQ(self,exact=None):
         print("Computing 5000 samples")
