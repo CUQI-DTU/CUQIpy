@@ -111,7 +111,7 @@ class UserDefinedLikelihood(object):
     get_parameter_names: gets the input parameter names.
     """
 
-    def __init__(self, dim, logpdf_func, gradient_func=None, geometry=None):
+    def __init__(self, dim=None, logpdf_func=None, gradient_func=None, geometry=None):
         self.dim = dim
         self.logpdf_func = logpdf_func
         self.gradient_func = gradient_func
