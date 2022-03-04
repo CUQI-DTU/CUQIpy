@@ -1262,7 +1262,7 @@ class ULA(Sampler):
 class MALA(ULA):
     """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
 
-    Samples a distribution given its logpdf and gradient (up to a constrant) based on
+    Samples a distribution given its logpdf and gradient (up to a constant) based on
     Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is 
     the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion. 
     The sample is then accepted or rejected according to Metropolis–Hastings algorithm.
@@ -1281,7 +1281,7 @@ class MALA(ULA):
         Initial parameters. *Optional*
 
     scale : int
-        The Langevin diffusion discretization time step. *Optional*
+        The Langevin diffusion discretization time step.
 
     dim : int
         Dimension of parameter space. Required if target logpdf and gradient are callable 
@@ -1306,12 +1306,12 @@ class MALA(ULA):
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.MALA(target)
+        sampler = cuqi.sampler.MALA(target, scale=1/5**2)
 
         # Sample
         samples = sampler.sample(2000)
 
-    A Deblur example can be found in demos/demo27_ULA.py
+    A Deblur example can be found in demos/demo28_MALA.py
     """
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
@@ -1323,7 +1323,8 @@ class MALA(ULA):
 
         # Metropolis step
         log_target_ratio = logpi_eval_star - target_eval_t
-        log_prop_ratio = self.log_proposal(x_t, x_star, g_logpi_star) - self.log_proposal(x_star, x_t,  g_target_eval_t)
+        log_prop_ratio = self.log_proposal(x_t, x_star, g_logpi_star) \
+            - self.log_proposal(x_star, x_t,  g_target_eval_t)
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
         # accept/reject
@@ -1339,73 +1340,3 @@ class MALA(ULA):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
-
-
-##=========================================================================
-##=========================================================================
-##=========================================================================
-#def MALA(Nc, Nb, epsilon, theta_0, logtarget):
-#    # Metropolis-adjusted Langevin algorithm
-#    # logtarget = log-posterior (up-to constants)
-#    if hasattr(theta_0, "__len__"):
-#        d = len(theta_0)
-#    else:
-#        d = 1
-#
-#    # allocation
-#    Ns = Nb+Nc            # total number of chains
-#    theta = np.empty((d, Ns))
-#    logpi_eval = np.empty(Ns)
-#    acc = np.zeros(Ns, dtype=int)
-#
-#    # initial state
-#    theta[:, 0] = theta_0
-#    logpi_eval[0], g_logpi_k = logtarget(theta_0)
-#    acc[0] = 1
-#    
-#    # MALA proposal
-#    def log_proposal(theta_star, theta_k, g_logpi_k):
-#        mu = theta_k + ((epsilon**2)/2)*g_logpi_k
-#        misfit = theta_star - mu
-#        return -0.5*((1/(epsilon**2))*(misfit.T @ misfit))
-#
-#    # MALA
-#    for k in range(Ns-1):
-#        # current state
-#        theta_k = theta[:, k]
-#        logpi_eval_k = logpi_eval[k]
-#        
-#        # approximate Langevin diffusion
-#        xi_k = np.random.normal(0, epsilon, d)
-#        theta_star = theta_k + ((epsilon**2)/2)*g_logpi_k + xi_k
-#        logpi_eval_star, g_logpi_star = logtarget(theta_star)
-#            
-#        # Metropolis step
-#        log_target_ratio = logpi_eval_star - logpi_eval_k
-#        log_prop_ratio = log_proposal(theta_k, theta_star, g_logpi_star) - log_proposal(theta_star, theta_k, g_logpi_k)
-#        log_alpha = min(0, log_target_ratio + log_prop_ratio)
-#        
-#        # accept/reject
-#        log_u = np.log(np.random.rand())
-#        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star)==False):
-#            theta[:, k+1] = theta_star
-#            logpi_eval[k+1] = logpi_eval_star
-#            acc[k+1] = 1
-#            g_logpi_k = g_logpi_star.copy()
-#        else:
-#            theta[:, k+1] = theta_k
-#            logpi_eval[k+1] = logpi_eval_k
-#        
-#        # msg
-#        if (np.mod(k, 500) == 0):
-#            print("\nSample {:d}/{:d}".format(k, Ns), "\tacc:", np.mean(acc[:k+1]))
-#            if np.isnan(logpi_eval[k]):
-#                raise NameError('NaN potential func')
-#    
-#    # apply burn-in 
-#    theta = theta[:, Nb:]
-#    logpi_eval = logpi_eval[Nb:]
-#    acc = acc[Nb:]
-#    print('\t-Acceptance rate:', np.mean(acc)) # optimal is 0.574
-#    
-#    return theta, logpi_eval, acc
