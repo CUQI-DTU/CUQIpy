@@ -1240,7 +1240,6 @@ class ULA(Sampler):
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
         acc = acc[Nb:]
-        print(f'\nAcceptance rate is {np.mean(acc)}.\n')
         return samples, target_eval, np.mean(acc)
 
 
