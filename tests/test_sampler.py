@@ -315,23 +315,25 @@ def test_MALA_regression(copy_reference):
 
     assert(np.all(np.isclose(samples.samples, samples_orig['arr_0'])))
 
+
 def test_MALA_UserDefinedDistribution():
     expected_samples = \
         np.array([[0.1, 0.11763052, 0.09493548],
                   [1.1, 1.10399157, 1.11731663]])
     np.random.seed(0)
-    
+
     # Parameters
-    dim = 2 # Dimension of distribution
-    mu = np.arange(dim) # Mean of Gaussian
-    std = 1 # standard deviation of Gaussian
+    dim = 2  # Dimension of distribution
+    mu = np.arange(dim)  # Mean of Gaussian
+    std = 1  # standard deviation of Gaussian
 
     # Logpdf function
     logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
     gradient_func = lambda x: -2/(std**2)*(x - mu)
 
     # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
-    target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+    target = cuqi.distribution.UserDefinedDistribution(
+        dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
 
     # Set up sampler
     sampler = cuqi.sampler.MALA(target, scale=.0001, x0=np.array([.1, 1.1]))
@@ -339,4 +341,5 @@ def test_MALA_UserDefinedDistribution():
     # Sample
     samples = sampler.sample(3)
 
-    assert np.all(np.isclose(samples.samples, expected_samples)) and np.isclose(samples.acc_rate, 1)
+    assert np.all(np.isclose(samples.samples, expected_samples)
+                  ) and np.isclose(samples.acc_rate, 1)
