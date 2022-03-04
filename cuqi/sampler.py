@@ -1312,6 +1312,9 @@ class MALA(ULA):
 
     A Deblur example can be found in demos/demo28_MALA.py
     """
+    def __init__(self, target, scale, x0=None, dim=None, rng=None):
+        super().__init__(target, scale, x0=x0, dim=dim, rng=rng)
+        self._uniform = cuqi.distribution.Uniform(low=0, high=1)
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
@@ -1329,7 +1332,7 @@ class MALA(ULA):
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
         # accept/reject
-        log_u = np.log(np.random.rand())
+        log_u = np.log(self._uniform.sample(rng=self.rng))
         if (log_u <= log_alpha) and (np.isnan(logpi_eval_star) == False):
             return x_star, logpi_eval_star, g_logpi_star, 1
         else:
