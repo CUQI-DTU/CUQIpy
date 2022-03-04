@@ -1313,13 +1313,15 @@ class MALA(ULA):
 
     A Deblur example can be found in demos/demo28_MALA.py
     """
+
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
         # approximate Langevin diffusion
         w_i = self._brownian_dist(std=np.sqrt(self.scale)).sample(rng=self.rng)
-     
+
         x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
-        logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
+        logpi_eval_star, g_logpi_star = self.target.logpdf(
+            x_star), self.target.gradient(x_star)
 
         # Metropolis step
         log_target_ratio = logpi_eval_star - target_eval_t
@@ -1329,13 +1331,11 @@ class MALA(ULA):
 
         # accept/reject
         log_u = np.log(np.random.rand())
-        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star)==False):
+        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star) == False):
             return x_star, logpi_eval_star, g_logpi_star, 1
         else:
             return x_t.copy(), target_eval_t, g_target_eval_t.copy(), 0
 
-
-    # MALA proposal
     def log_proposal(self, theta_star, theta_k, g_logpi_k):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
