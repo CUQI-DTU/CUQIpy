@@ -248,7 +248,7 @@ def test_ULA_UserDefinedDistribution():
     # Sample
     samples = sampler.sample(3)
 
-    assert np.all(np.isclose(samples.samples, expected_samples)) and np.isclose(samples.acc_rate, 1)
+    assert np.allclose(samples.samples, expected_samples) and np.isclose(samples.acc_rate, 1)
 
 
 def test_ULA_regression(copy_reference):
@@ -284,7 +284,7 @@ def test_ULA_regression(copy_reference):
     samples_orig_file = copy_reference("data/ULA_felipe_original_code_results.npz")
     samples_orig = np.load(samples_orig_file)
 
-    assert(np.all(np.isclose(samples.samples, samples_orig['arr_0'])))
+    assert(np.allclose(samples.samples, samples_orig['arr_0']))
 
 
 def test_MALA_UserDefinedDistribution():
@@ -312,8 +312,8 @@ def test_MALA_UserDefinedDistribution():
     # Sample
     samples = sampler.sample(3)
 
-    assert np.all(np.isclose(samples.samples, expected_samples)
-                  ) and np.isclose(samples.acc_rate, 1)
+    assert np.allclose(samples.samples, expected_samples)\
+                    and np.isclose(samples.acc_rate, 1)
 
 
 def test_MALA_regression(copy_reference):
@@ -344,4 +344,4 @@ def test_MALA_regression(copy_reference):
         "data/MALA_felipe_original_code_results.npz")
     samples_orig = np.load(samples_orig_file)
 
-    assert(np.all(np.isclose(samples.samples, samples_orig['arr_0'])))
+    assert(np.allclose(samples.samples, samples_orig['arr_0']))
