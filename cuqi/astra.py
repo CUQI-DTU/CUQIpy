@@ -194,7 +194,7 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
 
     likelihood : cuqi.likelihood.Likelihood
         Likelihood function. 
-        (automatically computed from noise distribution)
+        (automatically computed from data distribution)
 
     exactSolution : ndarray
         Exact solution (ground truth)

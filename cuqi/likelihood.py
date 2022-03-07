@@ -1,4 +1,3 @@
-#from cuqi.distribution import Distribution #How to avoid circular import?
 from cuqi.model import Model
 from cuqi.utilities import getNonDefaultArgs
 import warnings
