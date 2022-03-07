@@ -597,7 +597,7 @@ class GaussianSqrtPrec(Distribution):
     @property
     def dim(self):
         #TODO: handle the case when self.mean or self.sqrtprec = None because len(None) = 1
-        return max(np.size(self.mean),np.shape(self.sqrtprec)[1])
+        return max(np.size(self.mean),np.shape(self.sqrtprec)[0])
 
     def _sample(self, N):
         if issparse(self.sqrtprec):        
@@ -614,6 +614,12 @@ class GaussianSqrtPrec(Distribution):
             prec = self.sqrtprec[0][0]**2
             sqrtprec = np.sqrt(prec)*identity(self.dim)
             logdet = np.sum(np.log(prec))
+            rank = self.dim
+        # sqrtprec is vector
+        elif not issparse(self.sqrtprec) and self.sqrtprec.shape[0] == np.size(self.sqrtprec): 
+            prec = diags(self.sqrtprec**2)
+            sqrtprec = diags(self.sqrtprec)
+            logdet = np.sum(np.log(self.sqrtprec**2))
             rank = self.dim
         # Sqrtprec diagonal
         elif (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
