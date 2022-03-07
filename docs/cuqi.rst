@@ -19,6 +19,7 @@ cuqi
    cuqi.operator.rst
    cuqi.pde.rst
    cuqi.problem.rst
+   cuqi.likelihood.rst
    cuqi.sampler.rst
    cuqi.samples.rst
    cuqi.solver.rst
