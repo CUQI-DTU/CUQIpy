@@ -609,8 +609,14 @@ class GaussianSqrtPrec(Distribution):
         return samples
 
     def logpdf(self, x):
+        # sqrtprec is scalar
+        if (self.sqrtprec.shape[0] == 1): 
+            prec = self.sqrtprec[0][0]**2
+            sqrtprec = np.sqrt(prec)*identity(self.dim)
+            logdet = np.sum(np.log(prec))
+            rank = self.dim
         # Sqrtprec diagonal
-        if (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
+        elif (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
             sqrtprec = self.sqrtprec.diagonal()
             prec =sqrtprec**2
             logdet = np.sum(np.log(prec))
@@ -625,13 +631,15 @@ class GaussianSqrtPrec(Distribution):
                 #logdet = cholmodcov.logdet()
             else:
                 # Can we use cholesky factorization and somehow get the logdet also?
+                eps = np.finfo(float).eps
                 s = eigvals(self.sqrtprec.T@self.sqrtprec)
                 d = s[s > eps]
                 rank = len(d)
                 logdet = np.sum(np.log(d))
+                sqrtprec = self.sqrtprec
 
         dev = x - self.mean
-        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=0)
+        mahadist = np.sum(np.square(sqrtprec @ dev), axis=0)
         # rank(prec) = rank(sqrtprec.T*sqrtprec) = rank(sqrtprec)
         # logdet can also be pseudo-determinant, defined as the product of non-zero eigenvalues
         return -0.5*(rank*np.log(2*np.pi) - logdet + mahadist)
