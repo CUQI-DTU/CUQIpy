@@ -1212,7 +1212,6 @@ class ULA(Sampler):
         super().__init__(target, x0=x0, dim=dim)
         self.scale = scale
         self.rng = rng
-        self._brownian_dist = cuqi.distribution.Normal(mean=np.zeros(self.dim))
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N, Nb)
@@ -1246,7 +1245,7 @@ class ULA(Sampler):
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
         # approximate Langevin diffusion
-        w_i = self._brownian_dist(std=np.sqrt(self.scale)).sample(rng=self.rng)
+        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
      
         x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
         logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
@@ -1314,12 +1313,11 @@ class MALA(ULA):
     """
     def __init__(self, target, scale, x0=None, dim=None, rng=None):
         super().__init__(target, scale, x0=x0, dim=dim, rng=rng)
-        self._uniform = cuqi.distribution.Uniform(low=0, high=1)
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
         # approximate Langevin diffusion
-        w_i = self._brownian_dist(std=np.sqrt(self.scale)).sample(rng=self.rng)
+        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
 
         x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
         logpi_eval_star, g_logpi_star = self.target.logpdf(
@@ -1332,7 +1330,7 @@ class MALA(ULA):
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
         # accept/reject
-        log_u = np.log(self._uniform.sample(rng=self.rng))
+        log_u = np.log(cuqi.distribution.Uniform(low=0, high=1).sample(rng=self.rng))
         if (log_u <= log_alpha) and (np.isnan(logpi_eval_star) == False):
             return x_star, logpi_eval_star, g_logpi_star, 1
         else:
