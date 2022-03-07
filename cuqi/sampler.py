@@ -1245,7 +1245,8 @@ class ULA(Sampler):
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
         # approximate Langevin diffusion
-        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim),
+            std=np.sqrt(self.scale)).sample(rng=self.rng)
      
         x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
         logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
@@ -1317,7 +1318,8 @@ class MALA(ULA):
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
         # approximate Langevin diffusion
-        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim),
+            std=np.sqrt(self.scale)).sample(rng=self.rng)
 
         x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
         logpi_eval_star, g_logpi_star = self.target.logpdf(
