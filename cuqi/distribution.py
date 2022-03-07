@@ -1246,6 +1246,7 @@ class Lognormal(Distribution):
     Example
     -------
     .. code-block:: python
+    
         # Generate a lognormal distribution
         mean = np.array([1.5,1])
         cov = np.array([[3, 0],[0, 1]])
