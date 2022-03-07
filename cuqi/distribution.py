@@ -1009,16 +1009,16 @@ class Posterior(Distribution):
         else:
             self._geometry = self.prior.geometry
             
-    def logpdf(self, *args, **kwargs):
+    def logpdf(self, x):
         """ Returns the logpdf of the posterior distribution"""
-        return self.likelihood.log(*args, **kwargs)+ self.prior.logpdf(*args, **kwargs)
+        return self.likelihood.log(x)+ self.prior.logpdf(x)
 
-    def gradient(self, *args, **kwargs):
+    def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
             
-        return self.likelihood.gradient(*args, **kwargs)+ self.prior.gradient(*args, **kwargs)        
+        return self.likelihood.gradient(x)+ self.prior.gradient(x)        
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
