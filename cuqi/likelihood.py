@@ -6,7 +6,8 @@ import warnings
 class Likelihood(object):
     """Likelihood function defined from a conditional distribution and observation.
 
-    The likelihood takes the value of the logpdf of a distribution given an observation.
+    The likelihood function L(x|d) evaluated at x is defined via a pdf of a conditional
+    distribution of the observed data d given the parameter value x, P(d|x).
     The geometry is automatically determined from the model of data distribution.
     Generates instance of cuqi.likelihood.Likelihood
     
