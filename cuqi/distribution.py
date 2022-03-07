@@ -951,7 +951,6 @@ class Posterior(Distribution):
     dim
     geometry
     model
-    loglikelihood_function
     
     Methods
     -----------
@@ -1022,10 +1021,6 @@ class Posterior(Distribution):
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
-
-    def loglikelihood_function(self, *args, **kwargs):
-        """The log-likelihood function defines the log probability density function of the observed data as a function of the parameters of the model."""
-        return self.likelihood.log(*args, **kwargs)
 
     @property
     def model(self):
