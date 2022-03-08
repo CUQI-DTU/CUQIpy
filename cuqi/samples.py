@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
