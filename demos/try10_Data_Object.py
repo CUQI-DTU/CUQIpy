@@ -60,13 +60,13 @@ z.plot()
 
 #%%
 noise_std = 0.05
-likelihood = Gaussian(model, noise_std, np.eye(dim))
+data_dist = Gaussian(model, noise_std, np.eye(dim))
 
-likelihood(x=np.zeros(dim)).sample(5).plot()
+data_dist(x=np.zeros(dim)).sample(5).plot()
 plt.title('Noise samples'); plt.show()
 
 #%%
-data = likelihood(x=phantomC).sample()
+data = data_dist(x=phantomC).sample()
 
 #%%
 prior_std = 0.2
@@ -77,7 +77,10 @@ prior.sample(5).plot()
 plt.title('Realizations from prior'); plt.show()
 
 #%%
-IP = BayesianProblem(likelihood, prior, data)
+
+likelihood = data_dist.to_likelihood(data)
+
+IP = BayesianProblem(likelihood, prior)
 
 #%%
 x_MAP = IP.MAP() 

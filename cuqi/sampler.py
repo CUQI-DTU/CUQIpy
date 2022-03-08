@@ -444,7 +444,7 @@ class Linear_RTO(Sampler):
                 raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
 
             # Likelihood
-            L = cuqi.distribution.GaussianSqrtPrec(model, L_sqrtprec)
+            L = cuqi.distribution.GaussianSqrtPrec(model, L_sqrtprec).to_likelihood(data)
 
             # Prior TODO: allow multiple priors stacked
             #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
@@ -453,7 +453,7 @@ class Linear_RTO(Sampler):
             P = cuqi.distribution.GaussianSqrtPrec(P_mean, P_sqrtprec)
 
             # Construct posterior
-            target = cuqi.distribution.Posterior(L, P, data)
+            target = cuqi.distribution.Posterior(L, P)
 
         super().__init__(target, x0=x0)
 
@@ -465,8 +465,8 @@ class Linear_RTO(Sampler):
         if not isinstance(self.model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
-        if not hasattr(self.likelihood, "sqrtprec"):
-            raise TypeError("Likelihood must contain a sqrtprec attribute")
+        if not hasattr(self.likelihood.distribution, "sqrtprec"):
+            raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
 
         if not hasattr(self.prior, "sqrtprec"):
             raise TypeError("prior must contain a sqrtprec attribute")
@@ -485,7 +485,7 @@ class Linear_RTO(Sampler):
         self.tol = tol        
         self.shift = 0
                 
-        L1 = self.likelihood.sqrtprec
+        L1 = self.likelihood.distribution.sqrtprec
         L2 = self.prior.sqrtprec
         L2mu = self.prior.sqrtprecTimesMean
 
@@ -929,8 +929,10 @@ class pCN(Sampler):
     
     Parameters
     ----------
-    target : `cuqi.distribution.Posterior` or tuple of two `cuqi.distribution.Distribution` objects
-        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution. If target is a tuple of two cuqi.distribution.Distribution objects, the first distribution is considered the likelihood and the second distribution is considered the prior.
+    target : `cuqi.distribution.Posterior` or tuple of likelihood and prior objects
+        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
+        If target is a tuple of (cuqi.likelihood.Likelihood, cuqi.distribution.Distribution) objects,
+        the first element is considered the likelihood and the second is considered the prior.
 
     scale : int
 
@@ -956,7 +958,7 @@ class pCN(Sampler):
         sample_func = lambda : 0 + 1*np.random.randn(dim,1)
 
         # Define as UserDefinedDistributions
-        likelihood = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+        likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=dim, logpdf_func=logpdf_func)
         prior = cuqi.distribution.UserDefinedDistribution(dim=dim, sample_func=sample_func)
 
         # Set up sampler
@@ -978,10 +980,11 @@ class pCN(Sampler):
         std = 1 # standard deviation of Gaussian
 
         # Define as UserDefinedDistributions
-        likelihood = cuqi.distribution.GaussianCov(mean=lambda x: x, cov=np.ones(dim))
+        model = cuqi.model.Model(lambda x: x, range_geometry=dim, domain_geometry=dim)
+        likelihood = cuqi.distribution.GaussianCov(mean=model, cov=np.ones(dim)).to_likelihood(mu)
         prior = cuqi.distribution.GaussianCov(mean=np.zeros(dim), cov=1)
 
-        target = cuqi.distribution.Posterior(likelihood, prior, mu)
+        target = cuqi.distribution.Posterior(likelihood, prior)
 
         # Set up sampler
         sampler = cuqi.sampler.pCN(target, scale = 0.1)
@@ -1013,12 +1016,12 @@ class pCN(Sampler):
     def target(self, value):
         if isinstance(value, cuqi.distribution.Posterior):
             self._target = value
-            self._loglikelihood = lambda x : self.likelihood(x=x).logpdf(self.target.data) 
+            self._loglikelihood = lambda x : self.likelihood.log(x)
         elif isinstance(value,tuple) and len(value)==2 and \
-             isinstance(value[0], cuqi.distribution.Distribution) and\
+             (isinstance(value[0], cuqi.likelihood.Likelihood) or isinstance(value[0], cuqi.likelihood.UserDefinedLikelihood))  and \
              isinstance(value[1], cuqi.distribution.Distribution):
             self._target = value
-            self._loglikelihood = lambda x : self.likelihood.logpdf(x)
+            self._loglikelihood = lambda x : self.likelihood.log(x)
         else:
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
         

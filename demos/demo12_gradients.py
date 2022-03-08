@@ -15,14 +15,14 @@ import cuqi
 TP = cuqi.testproblem.Deblur()
 model = TP.model #Deblur model
 data = TP.data #Data from deblur problem
-sigma2 = TP.likelihood.cov 
+sigma2 = TP.likelihood.distribution.cov 
 n = model.domain_geometry.dim
 m = model.range_geometry.dim
 x_true = TP.exactSolution
 
 # %%
 # Define Gaussian likelihood and prior
-likelihood = cuqi.distribution.GaussianCov(model, sigma2)
+likelihood = cuqi.distribution.GaussianCov(model, sigma2).to_likelihood(data)
 pr = 'cauchy'
 if (pr == 'gaussian'):
     var = 0.2
@@ -34,7 +34,7 @@ elif (pr == 'cauchy'):
 
 # %%
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
-posterior = cuqi.distribution.Posterior(likelihood, prior, data)
+posterior = cuqi.distribution.Posterior(likelihood, prior)
 def log_pdf_func(x):
     return -posterior.logpdf(x)
 

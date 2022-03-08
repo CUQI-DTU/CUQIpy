@@ -35,7 +35,7 @@ plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 
 #%% Set likelihood to be on GaussianCov form
-likelihood = cuqi.distribution.GaussianCov(mean = tp.model, cov = noise_std**2)
+likelihood = cuqi.distribution.GaussianCov(mean = tp.model, cov = noise_std**2).to_likelihood(tp.data)
 
 # %% Lets try with the Gaussian prior
 prior_mean = np.zeros(dim)
@@ -55,7 +55,7 @@ prior.logpdf(np.zeros(dim))
 Ns = 5000
 Nb = 1000
 x0 = np.zeros(dim)
-posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+posterior = cuqi.distribution.Posterior(likelihood, prior)
 sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
@@ -75,7 +75,7 @@ prior_samples.plot()
 prior.logpdf(np.zeros(dim))
 
 #%% sample posterior
-posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+posterior = cuqi.distribution.Posterior(likelihood, prior)
 sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
@@ -101,7 +101,7 @@ fig = plt.figure()
 prior_samples.plot()
 
 #%% sample posterior
-posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+posterior = cuqi.distribution.Posterior(likelihood, prior)
 sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
@@ -127,7 +127,7 @@ fig = plt.figure()
 prior_samples.plot()
 
 #%% sample posterior
-posterior = cuqi.distribution.Posterior(likelihood,prior,tp.data)
+posterior = cuqi.distribution.Posterior(likelihood, prior)
 sampler = cuqi.sampler.Linear_RTO(posterior, x0) 
 result = sampler.sample(N = Ns, Nb = Nb)
 
