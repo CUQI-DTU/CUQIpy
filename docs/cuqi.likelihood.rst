@@ -21,7 +21,7 @@ Given a conditional distribution :math:`\pi(b \mid x)` and a observed data :math
 
 .. math::
    
-   L(x \mid b^{obs}): \theta \to \pi(b^{obs} \mid x).
+   L(x \mid b^{obs}): x \to \pi(b^{obs} \mid x).
 
 The most commonly use-case of the likelihood function is to define the likelihood function for a Bayesian inverse problem with Gaussian measurement noise.
 
