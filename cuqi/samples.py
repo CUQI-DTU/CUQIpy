@@ -465,16 +465,38 @@ class Samples(object):
 
         return datadict
         
-    def compute_ess(self):
-        """ Compute essential sample size (ESS) of samples"""
-        ESS_xarray = arviz.ess(self.to_arviz_inferencedata())
+    def compute_ess(self, **kwargs):
+        """ Compute effective sample size (ESS) of samples.
+        
+        Any remaining keyword arguments will be passed to the arviz computing tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.ess.html.
+
+        Returns
+        -------
+        Numpy array with effective sample size for each variable.
+        """
+        ESS_xarray = arviz.ess(self.to_arviz_inferencedata(), **kwargs)
         ESS = np.empty(self.geometry.shape)
         for i, (key, value) in enumerate(ESS_xarray.items()):
             ESS[i] = value.to_numpy()
         return ESS
 
-    def compute_rhat(self, chains):
-        """ Compute rhat value given list of Samples (chains)"""
+    def compute_rhat(self, chains, **kwargs):
+        """ Compute rhat value given list of cuqi.samples.Samples objects (chains). Here rhat values close to 1 indicates the chains have converged to the same distribution.
+        
+        Parameters
+        ----------
+        chains : list
+            List of cuqi.samples.Samples objects each representing a single MCMC chian.
+            Each Samples object must have the same geometry.
+
+        Any remaining keyword arguments will be passed to the arviz computing tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.rhat.html.
+
+        Returns
+        -------
+        Numpy array with rhat values for each variable.
+        """
 
         if not isinstance(chains, list):
             raise TypeError("Chains needs to be a list")
@@ -485,7 +507,7 @@ class Samples(object):
                 raise TypeError(f"Chains {i} and {i+1} do not have the same geometry")
 
         if len(chains[0].samples.shape) != 2:
-            raise TypeError("raw samples within each chain must have len(shape)==2.")
+            raise TypeError("raw samples within each chain must have len(shape)==2, i.e. (variable, draws) structure.")
         
         # Get variable names from geometry of chain 0 
         variables = np.array(chains[0].geometry.variables) #Convert to np array for better slicing
@@ -501,7 +523,7 @@ class Samples(object):
         datadict =  dict(zip(variables,samples))
 
         # Compute rhat
-        RHAT_xarray = arviz.rhat(datadict)
+        RHAT_xarray = arviz.rhat(datadict, **kwargs)
 
         # Convert to numpy array
         RHAT = np.empty(self.geometry.shape)
