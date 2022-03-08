@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
@@ -471,3 +472,39 @@ class Samples(object):
         for i, (key, value) in enumerate(ESS_xarray.items()):
             ESS[i] = value.to_numpy()
         return ESS
+
+    def compute_rhat(self, chains):
+        """ Compute rhat value given list of Samples (chains)"""
+
+        if not isinstance(chains, list):
+            raise TypeError("Chains needs to be a list")
+
+        n_chains = len(chains)
+        for i in range(n_chains-1):
+            if chains[i].geometry != chains[i+1].geometry:
+                raise TypeError(f"Chains {i} and {i+1} do not have the same geometry")
+
+        if len(chains[0].samples.shape) != 2:
+            raise TypeError("raw samples within each chain must have len(shape)==2.")
+        
+        # Get variable names from geometry of chain 0 
+        variables = np.array(chains[0].geometry.variables) #Convert to np array for better slicing
+        variables = variables.flatten()
+
+        # Construct full samples for all chains
+        samples = np.empty((chains[0].samples.shape[0],n_chains,chains[0].samples.shape[1]))
+
+        for i, chain in enumerate(chains):
+            samples[:,i,:] = chain.samples
+
+        # Construct inference data structure
+        datadict =  dict(zip(variables,samples))
+
+        # Compute rhat
+        RHAT_xarray = arviz.rhat(datadict)
+
+        # Convert to numpy array
+        RHAT = np.empty(self.geometry.shape)
+        for i, (key, value) in enumerate(RHAT_xarray.items()):
+            RHAT[i] = value.to_numpy()
+        return RHAT
