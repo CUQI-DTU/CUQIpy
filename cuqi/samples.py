@@ -464,3 +464,10 @@ class Samples(object):
 
         return datadict
         
+    def compute_ess(self):
+        """ Compute essential sample size (ESS) of samples"""
+        ESS_xarray = arviz.ess(self.to_arviz_inferencedata())
+        ESS = np.empty(self.geometry.shape)
+        for i, (key, value) in enumerate(ESS_xarray.items()):
+            ESS[i] = value.to_numpy()
+        return ESS
