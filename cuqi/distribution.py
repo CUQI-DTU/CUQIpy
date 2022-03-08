@@ -611,8 +611,8 @@ class GaussianSqrtPrec(Distribution):
     def logpdf(self, x):
         # sqrtprec is scalar
         if (self.sqrtprec.shape[0] == 1): 
-            prec = self.sqrtprec[0][0]**2
-            sqrtprec = np.sqrt(prec)*identity(self.dim)
+            prec = ((self.sqrtprec[0][0]**2)*identity(self.dim)).diagonal()
+            sqrtprec = np.sqrt(prec)
             logdet = np.sum(np.log(prec))
             rank = self.dim
         # sqrtprec is vector
