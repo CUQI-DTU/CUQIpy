@@ -5,8 +5,11 @@ import scipy.sparse as sps
 from pytest import approx
 
 def test_likelihood_log_and_grad():
+    #Create likelihood
     model, data, probInfo = cuqi.testproblem.Deconvolution.get_components()
     likelihood = cuqi.distribution.GaussianCov(model,1).to_likelihood(data)
+
+    # Tests log and gradient calls do not cause errors
     likelihood.log(probInfo.exactSolution)
     likelihood.gradient(probInfo.exactSolution)
 
