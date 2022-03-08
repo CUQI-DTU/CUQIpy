@@ -17,4 +17,4 @@ samples2.geometry = cuqi.geometry.Discrete(["alpha","beta"])
 print(f"samples1: {samples1.compute_ess()}")
 print(f"samples2: {samples2.compute_ess()}")
 # %% RHAT
-print(samples1.compute_rhat([samples1,samples2]))
+print(f"rhat values: {samples1.compute_rhat(samples2)}")

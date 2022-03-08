@@ -482,13 +482,15 @@ class Samples(object):
         return ESS
 
     def compute_rhat(self, chains, **kwargs):
-        """ Compute rhat value given list of cuqi.samples.Samples objects (chains). Here rhat values close to 1 indicates the chains have converged to the same distribution.
+        """ Compute rhat value of samples given list of cuqi.samples.Samples objects (chains) to compare with.
+        
+        Here rhat values close to 1 indicates the chains have converged to the same distribution.
         
         Parameters
         ----------
-        chains : list
-            List of cuqi.samples.Samples objects each representing a single MCMC chian.
-            Each Samples object must have the same geometry.
+        chains : list (or a single Samples object)
+            List of cuqi.samples.Samples objects each representing a single MCMC chain to compare with.
+            Each Samples object must have the same geometry as the original Samples object.
 
         Any remaining keyword arguments will be passed to the arviz computing tool.
         See https://arviz-devs.github.io/arviz/api/generated/arviz.rhat.html.
@@ -498,26 +500,30 @@ class Samples(object):
         Numpy array with rhat values for each variable.
         """
 
+        # If single Samples object put into a list
+        if isinstance(chains, Samples):
+            chains = [chains]
+
         if not isinstance(chains, list):
             raise TypeError("Chains needs to be a list")
 
         n_chains = len(chains)
-        for i in range(n_chains-1):
-            if chains[i].geometry != chains[i+1].geometry:
-                raise TypeError(f"Chains {i} and {i+1} do not have the same geometry")
+        for i in range(n_chains):
+            if self.geometry != chains[i].geometry:
+                raise TypeError(f"Geometry of chain {i} does not match Samples geometry.")
 
-        if len(chains[0].samples.shape) != 2:
-            raise TypeError("raw samples within each chain must have len(shape)==2, i.e. (variable, draws) structure.")
+        if len(self.samples.shape) != 2:
+            raise TypeError("Raw samples within each chain must have len(shape)==2, i.e. (variable, draws) structure.")
         
-        # Get variable names from geometry of chain 0 
-        variables = np.array(chains[0].geometry.variables) #Convert to np array for better slicing
+        # Get variable names from geometry
+        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
         variables = variables.flatten()
 
         # Construct full samples for all chains
-        samples = np.empty((chains[0].samples.shape[0],n_chains,chains[0].samples.shape[1]))
-
+        samples = np.empty((self.samples.shape[0], n_chains+1, self.samples.shape[1]))
+        samples[:,0,:] = self.samples
         for i, chain in enumerate(chains):
-            samples[:,i,:] = chain.samples
+            samples[:,i+1,:] = chain.samples
 
         # Construct inference data structure
         datadict =  dict(zip(variables,samples))
