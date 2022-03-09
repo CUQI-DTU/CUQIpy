@@ -82,3 +82,15 @@ def test_geometry_plot(geom,val,is_par,plot_par):
 						])
 def test_geometry_plot(geom,lo_val,hi_val,is_par,plot_par):
 	geom.plot_envelope(lo_val,hi_val,is_par=is_par,plot_par=plot_par)
+
+def test_geometry_variables_generator_default():
+	g1 = cuqi.geometry._DefaultGeometry(5)
+	g2 = cuqi.geometry._DefaultGeometry(5)
+	g1.variables #Extract variables (they are generated in g1, but not in g2)
+	assert g1==g2 #g2 has no _variables yet, but during check its generated.
+
+def test_geometry_variables_generator_Geometry():
+	g1 = cuqi.geometry.Continuous1D(5)
+	g2 = cuqi.geometry.Continuous1D(5)
+	g1.variables #Extract variables (they are generated in g1, but not in g2)
+	assert g1==g2 #g2 has no _variables yet, but during check its generated.

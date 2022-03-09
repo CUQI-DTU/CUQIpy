@@ -144,6 +144,8 @@ class Geometry(ABC):
     def __eq__(self, obj):
         if not isinstance(obj, self.__class__): return False
         for key, value in vars(self).items():
+            # If _variables exist ensure it exists in both objects (by calling generator)
+            if key == "_variables": obj.variables
             if not np.all(value ==vars(obj)[key]): return False 
         return True
 
@@ -404,6 +406,8 @@ class _DefaultGeometry(Continuous1D):
     def __eq__(self, obj):
         if not isinstance(obj, (self.__class__,Continuous1D)): return False
         for key, value in vars(self).items():
+            # If _variables exist ensure it exists in both objects (by calling generator)
+            if key == "_variables": obj.variables
             if not np.all(value == vars(obj)[key]): return False 
         return True
 
