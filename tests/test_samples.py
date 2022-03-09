@@ -101,3 +101,26 @@ def test_samples_plot_pair(kwargs):
     if kwargs.get("marginals") == False:
         assert ax.get_xlabel() == "b"
         assert ax.get_ylabel() == "c"
+
+def test_rhat_values():
+    rng = np.random.RandomState(0)
+    mean = 0; var  = 1
+    samples1 = cuqi.distribution.Normal(mean,var).sample(20000,rng=rng)
+    samples2 = cuqi.distribution.Normal(mean,var).sample(20000,rng=rng) 
+    rhat_results = samples1.compute_rhat(samples2)
+    assert np.allclose(rhat_results[0], 1, rtol=1e-3)
+
+def test_rhat_geometry():
+    mean = 0; var  = 1
+    samples1 = cuqi.distribution.Normal(mean,var).sample(200)
+    samples2 = cuqi.distribution.Normal(mean,var).sample(200) 
+    samples1.geometry = cuqi.geometry.Discrete(["alpha","beta1"])
+    samples2.geometry = cuqi.geometry.Discrete(["alpha","beta2"])
+    with pytest.raises(TypeError): #Type error since geometry does not match.
+        samples1.compute_rhat(samples2)
+
+def test_ess():
+    dist = cuqi.distribution.DistributionGallery("CalSom91")
+    sampler = cuqi.sampler.MetropolisHastings(dist)
+    samples = sampler.sample_adapt(500)
+    assert samples.compute_ess().shape == samples.geometry.shape
