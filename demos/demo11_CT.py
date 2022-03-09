@@ -44,17 +44,21 @@ model.range_geometry.plot(b_exact); plt.title("Sinogram")
 model.domain_geometry.plot(model.adjoint(b_exact)); plt.title("Back projection");
 
 #%%
-# Define Gaussian prior and likelihood
+# Define Gaussian prior and data distribution
 prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5)
-likelihood = cuqi.distribution.GaussianCov(model,0.1)
+data_dist  = cuqi.distribution.GaussianCov(model,0.1)
 
 #%%
-# Generate noisy data using the likelihood from x_exact
-data=likelihood(x=x_exact).sample()
+# Generate noisy data using the data distribution from x_exact
+data=data_dist(x=x_exact).sample()
 model.range_geometry.plot(data); plt.title("noisy sinogram");
 
+#%%
+# Construct likelihood function
+likelihood = data_dist.to_likelihood(data)
+
 # %%
-posterior = cuqi.distribution.Posterior(likelihood,prior,data)
+posterior = cuqi.distribution.Posterior(likelihood, prior)
 sampler = cuqi.sampler.Linear_RTO(posterior)
 samples = sampler.sample(500,100)
 # %%
@@ -67,7 +71,7 @@ samples.plot_std(); plt.colorbar()
 
 # %%
 # Sample posterior
-IP=cuqi.problem.BayesianProblem(likelihood,prior,data)
+IP=cuqi.problem.BayesianProblem(likelihood, prior)
 results=IP.sample_posterior(500)
 #%%
 # Plot mean

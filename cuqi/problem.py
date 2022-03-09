@@ -16,14 +16,14 @@ class Generic(object):
 
 class BayesianProblem(object):
     """
-    Bayesian representation of inverse problem represented by likelihood and prior
+    Bayesian representation of inverse problem represented by likelihood and prior.
 
     Attributes
     ----------
-    `likelihood: cuqi.model.Distribution`:
-        summary: 'The likelihood distribution'
-        example: model = cuqi.model.LinearModel(A)
-        likelihood = cuqi.distribution.Gaussian(model, std, corrmat)
+    `likelihood: cuqi.likelihood.Likelihood`:
+        summary: 'The likelihood function'
+        example: model = cuqi.model.LinearModel(A);
+                 likelihood = cuqi.distribution.Gaussian(model, std).to_likelihood(data) 
     `prior: cuqi.model.Distribution`:
         summary: 'A cuqi distribution for the prior'
         example: cuqi.distribution.Gaussian(mean, std, corrmat)
@@ -59,10 +59,13 @@ class BayesianProblem(object):
 
         return problem.model, problem.data, problem_info
 
-    def __init__(self,likelihood,prior,data=None):
+    def __init__(self,likelihood,prior):
         self.likelihood = likelihood
         self.prior = prior
-        self.data = data
+
+    @property
+    def data(self):
+        return self.likelihood.data
 
     @property
     def likelihood(self):
@@ -72,9 +75,9 @@ class BayesianProblem(object):
     def likelihood(self, value):
         self._likelihood = value
         if value is not None:        
-            msg = f"{self.model.__class__} range_geometry and likelihood geometry are not consistent"
-            self.likelihood.geometry,self.model.range_geometry = \
-                self._check_geometries_consistency(self.likelihood.geometry,self.model.range_geometry,msg)
+            msg = f"{self.model.__class__} range_geometry and likelihood data distribution geometry are not consistent"
+            self.likelihood.distribution.geometry,self.model.range_geometry = \
+                self._check_geometries_consistency(self.likelihood.distribution.geometry,self.model.range_geometry,msg)
             if hasattr(self,'prior'):
                 self.prior=self.prior
 
@@ -93,24 +96,7 @@ class BayesianProblem(object):
     @property
     def model(self):
         """Extract the cuqi model from likelihood."""
-
-        model_value = None
-
-        for key, value in vars(self.likelihood).items():
-            if isinstance(value,Model):
-                if model_value is None:
-                    model_value = value
-                else:
-                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
-        
-        if model_value is None:
-            #If no model was found we also give error
-            raise TypeError("Cuqi model could not be extracted from likelihood distribution {}".format(self.likelihood))
-        else:
-            return model_value
-
-    def loglikelihood_function(self,x):
-        return self.likelihood(x=x).logpdf(self.data)
+        return self.likelihood.model
 
     def ML(self):
         """Maximum Likelihood (ML) estimate"""
@@ -120,16 +106,16 @@ class BayesianProblem(object):
         # optimization without gradients is attempted.
         try: 
             print("Attempting to use gradients")
-            gradfunc = lambda x: -self.likelihood.gradient(self.data,x=x)
+            gradfunc = lambda x: -self.likelihood.gradient(x)
             solver = cuqi.solver.minimize(
-                                     lambda x: -self.loglikelihood_function(x), 
+                                     lambda x: -self.likelihood.log(x), 
                                      x0, 
                                      gradfunc=gradfunc)
             x_BFGS, info_BFGS = solver.solve()
         except BaseException as err:
             print("Gradient not available, optimizing without.")
             solver = cuqi.solver.minimize(
-                                     lambda x: -self.loglikelihood_function(x), 
+                                     lambda x: -self.likelihood.log(x), 
                                      x0)
             x_BFGS, info_BFGS = solver.solve()
         return x_BFGS, info_BFGS
@@ -140,7 +126,7 @@ class BayesianProblem(object):
         if self._check(Gaussian,Gaussian,LinearModel):
             b  = self.data
             A  = self.model.get_matrix()
-            Ce = self.likelihood.Sigma
+            Ce = self.likelihood.distribution.Sigma
             x0 = self.prior.mean
             Cx = self.prior.Sigma
 
@@ -154,14 +140,14 @@ class BayesianProblem(object):
         else:
             x0 = np.random.randn(self.model.domain_dim)
             def posterior_logpdf(x):
-                logpdf = -self.prior.logpdf(x) - self.loglikelihood_function(x)
+                logpdf = -self.prior.logpdf(x) - self.likelihood.log(x)
                 return logpdf
             # Gradient should be used if available. We attempt to use gradients (in the
             # "try" part) and  if any error is encountered, it is caught and instead 
             # optimization without gradients is attempted.
             try: 
                 print("Attempting to use gradients")
-                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(self.data,x=x)
+                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(x)
                 solver = cuqi.solver.minimize(posterior_logpdf, 
                                               x0,
                                               gradfunc=gradfunc)
@@ -197,7 +183,7 @@ class BayesianProblem(object):
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
-        elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
+        elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
@@ -210,7 +196,7 @@ class BayesianProblem(object):
             return self._samplepCN(Ns)
 
         else:
-            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
     def UQ(self,exact=None):
         print("Computing 5000 samples")
@@ -225,7 +211,7 @@ class BayesianProblem(object):
             samples.plot_ci(95)
 
     def _check(self,distL,distP,typeModel=None):
-        L = isinstance(self.likelihood,distL)
+        L = isinstance(self.likelihood.distribution,distL)
         P = isinstance(self.prior,distP)
         if typeModel is None:
             M = True
@@ -233,7 +219,7 @@ class BayesianProblem(object):
             M = isinstance(self.model,typeModel)
         return L and P and M
     def _sampleLinearRTO(self,Ns):
-        posterior = Posterior(self.likelihood,self.prior,self.data)
+        posterior = Posterior(self.likelihood, self.prior)
         sampler = cuqi.sampler.Linear_RTO(posterior)
         return sampler.sample(Ns,0)
 
@@ -243,7 +229,7 @@ class BayesianProblem(object):
 
         b  = self.data
         A  = self.model.get_matrix()
-        Ce = self.likelihood.Sigma
+        Ce = self.likelihood.distribution.Sigma
         x0 = self.prior.mean
         Cx = self.prior.Sigma
 
@@ -270,7 +256,7 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood(x=x).logpdf(self.data) + self.prior.logpdf(x) #ToDo: Likelihood should only depend on x (not data)
+        def target(x): return self.likelihood.log(x) + self.prior.logpdf(x)
         def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 
         # Set up sampler
@@ -291,13 +277,13 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood(x=x).logpdf(self.data) #ToDo: Likelihood should only depend on x (not data)
+        def target(x): return self.likelihood.log(x)
         #def proposal(ns): return self.prior.sample(ns)
         
         scale = 0.02
         #x0 = np.zeros(n)
         
-        posterior = cuqi.distribution.Posterior(self.likelihood,self.prior,self.data)
+        posterior = cuqi.distribution.Posterior(self.likelihood, self.prior)
         MCMC = cuqi.sampler.pCN(posterior,scale)      
         
         #TODO: Select burn-in 

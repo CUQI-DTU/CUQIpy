@@ -112,12 +112,13 @@ def test_pCN_sample_regression():
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
     R = np.eye(d)
-    dist = Gaussian(mean= lambda x:x, std=sigma, corrmat = R)
-    def target(x): return dist.logpdf(x)
-    ref = Gaussian(mu, np.ones(d), R)
+    model = cuqi.model.Model(lambda x: x, range_geometry=d, domain_geometry=d)
+    L = Gaussian(mean=model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
+    def target(x): return L.log(x)
+    P = Gaussian(mu, np.ones(d), R)
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    posterior = cuqi.distribution.Posterior(dist,ref,np.zeros(d))
+    posterior = cuqi.distribution.Posterior(L, P)
     MCMC = pCN(posterior, scale, x0)
     results = MCMC.sample(10,2)
     assert np.allclose(results.samples, np.array([[0.44368817, 0.44368817, 0.56807601, 0.64133227, 0.64133227,
@@ -179,18 +180,22 @@ def test_sampler_UserDefined_tuple():
     """
     # This provides a way to give the logpdf
     P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
-    L = cuqi.distribution.GaussianCov(np.array([5,6]),np.array([[1,0.5],[0.5,3]]))
 
-    # Define userdefined distributions (e.g. like likelihood+prior)
-    distP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
-    distL = cuqi.distribution.UserDefinedDistribution(2, L.logpdf, L.gradient, L.sample)
+    #
+    model = cuqi.model.Model(lambda x: x, range_geometry=2, domain_geometry=2)
+    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]])).to_likelihood(np.array([5,6]))
+
+    # Define userdefined distribution + likelihood
+    userP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
+
+    userL = cuqi.likelihood.UserDefinedLikelihood(2, L.log, L.gradient)
 
     # Parameters
     Ns = 2000   # number of samples
     Nb = 200   # burn-in
 
     # Run samplers
-    s_pCN = cuqi.sampler.pCN((distL,distP)).sample_adapt(Ns)
+    s_pCN = cuqi.sampler.pCN((userL,userP)).sample_adapt(Ns)
 
     assert np.allclose(s_pCN.shape,(P.dim,Ns))
 
@@ -223,3 +228,125 @@ def test_sampler_CustomInput_Linear_RTO():
     s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
+
+
+def test_ULA_UserDefinedDistribution():
+    expected_samples = \
+        np.array([[0.1, 0.11763052, 0.12740614],
+                  [1.1, 1.10399157, 1.1263901 ]])
+    np.random.seed(0)
+    # Parameters
+    dim = 2 # Dimension of distribution
+    mu = np.arange(dim) # Mean of Gaussian
+    std = 1 # standard deviation of Gaussian
+
+    # Logpdf function
+    logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+    gradient_func = lambda x: -2/(std**2)*(x - mu)
+
+    # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+    target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+
+    # Set up sampler
+    sampler = cuqi.sampler.ULA(target, scale=.0001, x0=np.array([.1, 1.1]))
+
+    # Sample
+    samples = sampler.sample(3)
+
+    assert np.allclose(samples.samples, expected_samples) and np.isclose(samples.acc_rate, 1)
+
+
+def test_ULA_regression(copy_reference):
+    # This tests compares ULA class results with results 
+    # generate from original ULA code provided by Felipe Uribe.
+    # The original code is found in commit:
+    # c172442d8d7f34a33681b9c1d76889c99ac8dfcd
+
+    np.random.seed(0)
+    # %% Create CUQI test problem
+    test = cuqi.testproblem.Deblur()
+    n = test.model.domain_dim
+    h = test.meshsize
+    
+    # Extract data
+    data = test.data
+    
+    # Extract Likelihood
+    likelihood  = test.likelihood
+    
+    # Define Prior
+    loc = np.zeros(n)
+    delta = 1
+    scale = delta*h
+    prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+    
+    # %% Create the posterior and the sampler
+    posterior = cuqi.distribution.Posterior(likelihood, prior)
+    MCMC = cuqi.sampler.ULA(posterior, scale=0.0001)
+
+    # %% Sample
+    samples  = MCMC.sample(5)
+    samples_orig_file = copy_reference("data/ULA_felipe_original_code_results.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.allclose(samples.samples, samples_orig['arr_0']))
+
+
+def test_MALA_UserDefinedDistribution():
+    expected_samples = \
+        np.array([[0.1, 0.11763052, 0.09493548],
+                  [1.1, 1.10399157, 1.11731663]])
+    np.random.seed(0)
+
+    # Parameters
+    dim = 2  # Dimension of distribution
+    mu = np.arange(dim)  # Mean of Gaussian
+    std = 1  # standard deviation of Gaussian
+
+    # Logpdf function
+    logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+    gradient_func = lambda x: -2/(std**2)*(x - mu)
+
+    # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+    target = cuqi.distribution.UserDefinedDistribution(
+        dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+
+    # Set up sampler
+    sampler = cuqi.sampler.MALA(target, scale=.0001, x0=np.array([.1, 1.1]))
+
+    # Sample
+    samples = sampler.sample(3)
+
+    assert np.allclose(samples.samples, expected_samples)\
+                    and np.isclose(samples.acc_rate, 1)
+
+
+def test_MALA_regression(copy_reference):
+    #%% CUQI
+    dim = 5  # Dimension of distribution
+    mu = np.arange(dim)  # Mean of Gaussian
+    std = 1  # standard deviation of Gaussian
+    N = 2000
+    Nb = 500
+    eps = 1/dim
+
+    # Logpdf function
+    logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+    gradient_func = lambda x: -2/(std**2)*(x-mu)
+    
+    # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+    target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
+                                                       gradient_func=gradient_func)
+
+    # Set up sampler
+    x0 = np.zeros(dim)
+    np.random.seed(0)
+    sampler = cuqi.sampler.MALA(target, scale=eps**2, x0=x0)
+    # Sample
+    samples = sampler.sample(N, Nb)
+
+    samples_orig_file = copy_reference(
+        "data/MALA_felipe_original_code_results.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.allclose(samples.samples, samples_orig['arr_0']))

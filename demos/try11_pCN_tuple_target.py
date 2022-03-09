@@ -16,12 +16,13 @@ d= 2
 mu = np.zeros(d)
 sigma = np.linspace(0.5, 1, d)
 R = np.eye(d)
-dist = Gaussian(mean= lambda x:x, std=sigma, corrmat = R)
-def target(x): return dist.logpdf(x)
-ref = Gaussian(mu, np.ones(d), R)
+model = cuqi.model.Model(lambda x:x, range_geometry=d, domain_geometry=d)
+L = Gaussian(model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
+def target(x): return L.logpdf(x)
+P = Gaussian(mu, np.ones(d), R)
 scale = 0.1
 x0 = 0.5*np.ones(d)
-posterior = cuqi.distribution.Posterior(dist,ref,np.zeros(d))
+posterior = cuqi.distribution.Posterior(L, P)
 
 np.random.seed(0)
 MCMC = pCN(posterior, scale, x0)
@@ -29,7 +30,7 @@ results1 = MCMC.sample(10,2)
 
 #%%
 np.random.seed(0)
-likelihood = cuqi.distribution.UserDefinedDistribution(logpdf_func=posterior.loglikelihood_function)
+likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=d, logpdf_func=posterior.likelihood.log)
 prior = cuqi.distribution.UserDefinedDistribution(sample_func= posterior.prior.sample)
 
 MCMC = pCN((likelihood,prior), scale, x0)

@@ -40,17 +40,17 @@ model = cuqi.model.LinearModel(A)
 # %% To carry out UQ we need to assume distributions
 # for our random variables
 
-# Define likelihood as Gaussian with model as mean and i.i.d. noise with 0.05 std.
+# Define data distribution as Gaussian with model as mean and i.i.d. noise with 0.05 std.
 noise_std = 0.05
-likelihood = cuqi.distribution.Gaussian(model,noise_std,np.eye(m))
+data_dist = cuqi.distribution.Gaussian(model,noise_std,np.eye(m))
 
 # Plot samples of noise
-likelihood(x=np.zeros(n)).sample(5).plot()
+data_dist(x=np.zeros(n)).sample(5).plot()
 
 plt.title('Noise samples'); plt.show()
 
 # Plot samples of simulated data
-likelihood(x=phantom).sample(5).plot()
+data_dist(x=phantom).sample(5).plot()
 
 plt.title('Simulated data'); plt.show()
 
@@ -65,8 +65,11 @@ plt.title('Realizations from prior'); plt.show()
 
 # %% Define cuqi (inverse) problem
 
+# Likelihood
+likelihood = data_dist.to_likelihood(data)
+
 # Bayesian model
-IP = cuqi.problem.BayesianProblem(likelihood,prior,data)
+IP = cuqi.problem.BayesianProblem(likelihood, prior)
 
 # %% Compute MAP estimate.
 
@@ -183,7 +186,7 @@ scale = delta*1/dim
 prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
 
 # Target and proposal
-def target(x): return tp.likelihood(x=x).logpdf(tp.data)+prior.logpdf(x)
+def target(x): return tp.likelihood.log(x)+prior.logpdf(x)
 def proposal(x,scale): return np.random.normal(x,scale)
 
 # Parameters for sampler

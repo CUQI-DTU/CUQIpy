@@ -8,6 +8,7 @@ from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 from cuqi.model import Model
+from cuqi.likelihood import Likelihood
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -81,8 +82,16 @@ class Distribution(ABC):
     def pdf(self,x):
         return np.exp(self.logpdf(x))
 
-    def __call__(self,**kwargs):
+    def __call__(self, *args, **kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
+
+        # PARSE ARGS AND ADD TO KWARGS
+        if len(args)>0:
+            ordered_keys = self.get_conditioning_variables() # Args follow order of cond. vars
+            for index, arg in enumerate(args):
+                if ordered_keys[index] in kwargs:
+                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditional variable order: {self.get_conditioning_variables()}")
+                kwargs[ordered_keys[index]] = arg
 
         # KEYWORD ERROR CHECK
         for kw_key, kw_val in kwargs.items():
@@ -145,6 +154,11 @@ class Distribution(ABC):
             return False
         else:
             return True
+
+    def to_likelihood(self, data):
+        """Convert conditional distribution to a likelihood function given observed data"""
+        return Likelihood(self, data)
+
 
     def __repr__(self) -> str:
         if self.is_cond is True:
@@ -425,7 +439,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
 
-    def gradient(self, val, **kwargs):
+    def gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
@@ -434,7 +448,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             return -self.prec @ (val - self.mean)
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
-            dev = val - model.forward(**kwargs)
+            dev = val - model.forward(*args, **kwargs)
             return self.prec @ model.gradient(dev)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
@@ -583,7 +597,7 @@ class GaussianSqrtPrec(Distribution):
     @property
     def dim(self):
         #TODO: handle the case when self.mean or self.sqrtprec = None because len(None) = 1
-        return max(np.size(self.mean),np.shape(self.sqrtprec)[1])
+        return max(np.size(self.mean),np.shape(self.sqrtprec)[0])
 
     def _sample(self, N):
         if issparse(self.sqrtprec):        
@@ -595,8 +609,20 @@ class GaussianSqrtPrec(Distribution):
         return samples
 
     def logpdf(self, x):
+        # sqrtprec is scalar
+        if (self.sqrtprec.shape[0] == 1): 
+            prec = ((self.sqrtprec[0][0]**2)*identity(self.dim)).diagonal()
+            sqrtprec = np.sqrt(prec)
+            logdet = np.sum(np.log(prec))
+            rank = self.dim
+        # sqrtprec is vector
+        elif not issparse(self.sqrtprec) and self.sqrtprec.shape[0] == np.size(self.sqrtprec): 
+            prec = diags(self.sqrtprec**2)
+            sqrtprec = diags(self.sqrtprec)
+            logdet = np.sum(np.log(self.sqrtprec**2))
+            rank = self.dim
         # Sqrtprec diagonal
-        if (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
+        elif (issparse(self.sqrtprec) and self.sqrtprec.format == 'dia'): 
             sqrtprec = self.sqrtprec.diagonal()
             prec =sqrtprec**2
             logdet = np.sum(np.log(prec))
@@ -611,13 +637,15 @@ class GaussianSqrtPrec(Distribution):
                 #logdet = cholmodcov.logdet()
             else:
                 # Can we use cholesky factorization and somehow get the logdet also?
+                eps = np.finfo(float).eps
                 s = eigvals(self.sqrtprec.T@self.sqrtprec)
                 d = s[s > eps]
                 rank = len(d)
                 logdet = np.sum(np.log(d))
+                sqrtprec = self.sqrtprec
 
         dev = x - self.mean
-        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=0)
+        mahadist = np.sum(np.square(sqrtprec @ dev), axis=0)
         # rank(prec) = rank(sqrtprec.T*sqrtprec) = rank(sqrtprec)
         # logdet can also be pseudo-determinant, defined as the product of non-zero eigenvalues
         return -0.5*(rank*np.log(2*np.pi) - logdet + mahadist)
@@ -920,14 +948,14 @@ class Uniform(Distribution):
 # ========================================================================
 class Posterior(Distribution):
     """
-    Posterior probability distribution defined by likelihood and prior. The geometry is automatically determined from the model and prior.
+    Posterior probability distribution defined by likelihood and prior.
+    The geometry is automatically determined from the model and prior.
     Generates instance of cuqi.distribution.Posterior
     
     Parameters
     ------------
-    likelihood: Likelihood distribution, cuqi.distribution.Distribution.
+    likelihood: Likelihood function, cuqi.likelihood.Likelihood.
     prior: Prior distribution, cuqi.distribution.Distribution.
-    data: Data realization (optional).
 
     Attributes
     ------------
@@ -937,7 +965,6 @@ class Posterior(Distribution):
     dim
     geometry
     model
-    loglikelihood_function
     
     Methods
     -----------
@@ -946,14 +973,14 @@ class Posterior(Distribution):
     logpdf: evaluate log probability density function
     gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
     """
-    def __init__(self, likelihood, prior, data=None, **kwargs):
-        # Init from abstract distribution class
+    def __init__(self, likelihood, prior, **kwargs):
         self.likelihood = likelihood
         self.prior = prior 
-        self.data = data
-#        if 'geometry' not in kwargs.keys(): 
-#            kwargs["geometry"]=prior.geometry
         super().__init__(**kwargs)
+
+    @property
+    def data(self):
+        return self.likelihood.data
 
     @property
     def dim(self):
@@ -995,44 +1022,24 @@ class Posterior(Distribution):
         else:
             self._geometry = self.prior.geometry
             
-
-
-    def logpdf(self,x):
-
-        return self.likelihood(x=x).logpdf(self.data)+ self.prior.logpdf(x)
+    def logpdf(self, x):
+        """ Returns the logpdf of the posterior distribution"""
+        return self.likelihood.log(x)+ self.prior.logpdf(x)
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
             
-        return self.likelihood.gradient(self.data, x=x)+ self.prior.gradient(x)        
+        return self.likelihood.gradient(x)+ self.prior.gradient(x)        
 
     def _sample(self,N=1,rng=None):
         raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
 
-    def loglikelihood_function(self,x):
-        """The log-likelihood function defines the log probability density function of the observed data as a function of the parameters of the model."""
-        return self.likelihood(x=x).logpdf(self.data)
-
     @property
     def model(self):
         """Extract the cuqi model from likelihood."""
-
-        model_value = None
-
-        for key, value in vars(self.likelihood).items():
-            if isinstance(value,Model):
-                if model_value is None:
-                    model_value = value
-                else:
-                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
-        
-        if model_value is None:
-            #If no model was found we also give error
-            return None
-        else:
-            return model_value
+        return self.likelihood.model
 
 class UserDefinedDistribution(Distribution):
     """
@@ -1239,6 +1246,7 @@ class Lognormal(Distribution):
     Example
     -------
     .. code-block:: python
+    
         # Generate a lognormal distribution
         mean = np.array([1.5,1])
         cov = np.array([[3, 0],[0, 1]])

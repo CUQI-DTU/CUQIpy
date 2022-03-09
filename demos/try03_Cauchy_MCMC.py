@@ -31,7 +31,7 @@ norm_f = np.linalg.norm(test.exactSolution)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-def likelihood_logpdf(x): return test.likelihood(x=x).logpdf(b)
+def likelihood_logpdf(x): return test.likelihood.log(x)
 
 # =============================================================================
 # prior
@@ -96,3 +96,5 @@ plt.ylim(-0.5, 3.5)
 plt.tight_layout()
 # plt.savefig('fig.png', format='png', dpi=150, bbox_inches='tight')
 #plt.show()
+
+# %%

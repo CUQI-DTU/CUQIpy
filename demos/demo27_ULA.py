@@ -5,7 +5,7 @@ import numpy as np
 import cuqi
 import matplotlib.pyplot as plt
 
-# %%
+# %% Create CUQI test problem
 test = cuqi.testproblem.Deblur()
 n = test.model.domain_dim
 h = test.meshsize
@@ -13,28 +13,31 @@ h = test.meshsize
 # Extract data
 data = test.data
 
-#Likelihood
+# Extract Likelihood
 likelihood  = test.likelihood
 
-# Prior
+# Define Prior
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
 prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 
-# %%
-x0 = cuqi.distribution.Gaussian(np.zeros(n),1).sample()
+# %% Create the posterior and the sampler
 posterior = cuqi.distribution.Posterior(likelihood, prior)
-MCMC = cuqi.sampler.NUTS(posterior,x0, maxdepth = 12)
+MCMC = cuqi.sampler.ULA(posterior, scale=1/n**2)
 
-# %%
-samples,loglike_eval, accave  = MCMC.sample(1000,500)
+# %% Sample
+samples  = MCMC.sample(1000, 500)
 
-# %%
-x_mean = np.mean(samples.samples,axis=1)
-# %%
+# %% Compute mean
+x_mean = np.mean(samples.samples, axis=1)
+
+# %% Compare mean and exact solution by plotting
 plt.plot(x_mean)
 plt.plot(test.exactSolution)
-# %%
-samples.plot_ci(95,exact=test.exactSolution)
-# %%
+
+# %% Plot confidence interval
+samples.plot_ci(95, exact=test.exactSolution)
+
+# %% Plot autocorrelation
+samples.plot_autocorrelation(max_lag = 300)

@@ -1,6 +1,7 @@
 from . import diagnostics
 from . import distribution
 from . import geometry
+from . import likelihood
 from . import model
 from . import operator
 from . import pde
