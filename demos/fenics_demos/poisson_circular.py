@@ -167,4 +167,9 @@ plt.colorbar(ims[-1])
 # %%
 samplespCN.plot_trace()
 samplespCN.plot_autocorrelation(max_lag=300)
+
+# %%
+plt.figure()
+samples.plot_ci(plot_par = True)
+plt.title("Credable interval MH")
 # %%
