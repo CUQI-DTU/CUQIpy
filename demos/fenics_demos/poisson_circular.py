@@ -6,6 +6,7 @@ import numpy as np
 sys.path.append("../../")
 import cuqi
 from mshr import *
+import matplotlib.pyplot as plt
 
 #%%
 class matern():
@@ -107,7 +108,7 @@ likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.ones(range_geometry.
 
 posterior = cuqi.distribution.Posterior(likelihood, prior)
 
-#%%
+#%% MH Sampler
 MHSampler = cuqi.sampler.MetropolisHastings(
     posterior,
     proposal=None,
@@ -116,17 +117,54 @@ MHSampler = cuqi.sampler.MetropolisHastings(
     dim=None,
 )
 
-samples = MHSampler.sample_adapt(100)
+samples = MHSampler.sample_adapt(1000)
+
+
+
+#%%
+plt.figure()
+im = plot(domain_geometry.par2fun(exactSolution), title="exact solution")
+plt.colorbar(im)
+
+# %%
+prior_samples = prior.sample(5)
+ims = prior_samples.plot(title="prior")
+plt.colorbar(ims[-1])
+
+# %%
+ims = samples.plot([0, 100, 300, 600, 800, 900],title="posterior")
+plt.colorbar(ims[-1])
 
 # %%
 samples.plot_trace()
+samples.plot_autocorrelation(max_lag=300)
+
+
+# %% 
+pCNSampler = cuqi.sampler.pCN(
+    posterior,
+    scale=None,
+    x0=None,
+)
+
+samplespCN = pCNSampler.sample_adapt(1000)
+
+
+#%%
+plt.figure()
+im = plot(domain_geometry.par2fun(exactSolution), title="exact solution")
+plt.colorbar(im)
 
 # %%
-samples.plot(title="posterior")
-# %%
-
 prior_samples = prior.sample(5)
-prior_samples.plot(title="prior")
+ims = prior_samples.plot(title="prior")
+plt.colorbar(ims[-1])
 
+# %%
+ims = samplespCN.plot([0, 100, 300, 600, 800, 900],title="posterior")
+plt.colorbar(ims[-1])
 
-plot(domain_geometry.par2fun(exactSolution), title="exact solution")
+# %%
+samplespCN.plot_trace()
+samplespCN.plot_autocorrelation(max_lag=300)
+# %%
