@@ -131,3 +131,34 @@ class FEniCSMappedGeometry(MappedGeometry):
 #
 #    def par2fun(self):
 #        pass
+
+
+class FEniCSMatern(FEniCSContinuous):
+
+    def __init__(self, function_space, matern_obj, dim=128,  labels = ['x', 'y']):
+        super().__init__(function_space, labels = ['x', 'y'])
+
+        self.matern_obj = matern_obj
+        self._dim = dim 
+
+    @property
+    def shape(self):
+        return (self._dim,)
+
+    def par2fun(self,par):
+        """The parameter to function map used to map parameters to function values in e.g. plotting."""
+
+        par = self._process_values(par)
+        Ns = par.shape[-1]
+        fun_list = []
+        for idx in range(Ns):
+            fun = dl.Function(self.function_space)
+            fun.vector().zero()
+            param = self.matern_obj.assemble( par[...,idx])
+            fun.vector().set_local(param)
+            fun_list.append(fun)
+
+        if len(fun_list) == 1:
+            return fun_list[0]
+        else:
+            return fun_list
