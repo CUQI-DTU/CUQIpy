@@ -21,7 +21,7 @@ class matern():
         return self.c_minus*0.5*(1 + np.sign(x)) + self.c_plus*0.5*(1 - np.sign(x))
 
     def assemble(self, p):
-        return self.eig_vec@( self.eig_val*p )
+        return self.heavy(self.eig_vec@( self.eig_val*p ))
 
 class source(UserExpression):
     def eval(self,values,x):
@@ -44,45 +44,28 @@ V_space = FunctionSpace(mesh, V)
 FEM_el = parameter_space.ufl_element()
 source_term = source(element=FEM_el)
 
+matern_field = matern('basis.npz')
+matern_field.set_levels(1,10)
+#m_func = Function( parameter_space )
 def form(m,u,p):
     u_0 = u[0]
     c_0 = u[1]
 
     v_0 = p[0]
     d_0 = p[1]
+
     return m*inner( grad(u_0), grad(v_0) )*dx + c_0*v_0*ds + u_0*d_0*ds - source_term*v_0*dx
 
 bc_func = Expression("1", degree=1)
 dirichlet_bc = DirichletBC(solution_space.sub(0), bc_func, u_boundary)
 
-#m_fun = interpolate(Expression("1", degree=1), parameter_space)
-matern_field = matern('basis.npz')
-params = matern_field.assemble( np.random.standard_normal(128) )
-
-temp = Function( parameter_space )
-temp.vector().set_local( params )
-
-file = File('rand_field.pvd')
-file << temp 
-
-print('function created')
-exit()
-
 
 PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, parameter_space,dirichlet_bc, observation_operator=obs_func)
 
-# %%
-PDE.assemble(m_fun)
+#%%
+domain_geo = cuqi.fenics.geometry.FEniCSMatern(parameter_space, matern_field)
+
+m_input = cuqi.samples.CUQIarray( np.random.standard_normal(128), geometry= domain_geo)
+PDE.assemble(m_input)
 sol = PDE.solve()
 observed_sol = PDE.observe(sol)
-
-print( sol.vector().get_local().shape )
-print(observed_sol)
-
-V_temp = FunctionSpace(mesh, "CG", 1)
-temp = Function(V_temp)
-temp.vector().set_local( observed_sol[:-1] )
-
-#path = 'solution.pvd'
-#file = File(path)
-#file << temp
