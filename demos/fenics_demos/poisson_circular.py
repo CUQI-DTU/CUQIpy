@@ -1,4 +1,5 @@
 # %%
+from turtle import pos
 from dolfin import * 
 import sys
 import numpy as np
@@ -6,6 +7,7 @@ sys.path.append("../../")
 import cuqi
 from mshr import *
 
+#%%
 class matern():
     def __init__(self, path, num_terms=128):
         self.dim = num_terms
@@ -30,7 +32,8 @@ class source(UserExpression):
 def u_boundary(x, on_boundary):
     return False
 
-obs_func = lambda m,u : u.split()[0]
+#obs_func = lambda m,u : u.split()[0]
+obs_func = None
 
 domain = Circle(Point(0,0),1)
 mesh = generate_mesh(domain, 20)
@@ -63,9 +66,67 @@ dirichlet_bc = DirichletBC(solution_space.sub(0), bc_func, u_boundary)
 PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, parameter_space,dirichlet_bc, observation_operator=obs_func)
 
 #%%
-domain_geo = cuqi.fenics.geometry.FEniCSMatern(parameter_space, matern_field)
+domain_geometry = cuqi.fenics.geometry.FEniCSMatern(parameter_space, matern_field)
 
-m_input = cuqi.samples.CUQIarray( np.random.standard_normal(128), geometry= domain_geo)
+range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_space) 
+
+m_input = cuqi.samples.CUQIarray( np.random.standard_normal(128), geometry= domain_geometry)
+
+
 PDE.assemble(m_input)
-sol = PDE.solve()
+sol, _ = PDE.solve()
 observed_sol = PDE.observe(sol)
+
+plot(sol[0])
+
+#%%
+model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
+
+#%%
+# Create prior
+pr_mean = np.zeros(domain_geometry.dim)
+prior = cuqi.distribution.GaussianCov(pr_mean, cov=np.eye(domain_geometry.dim), geometry= domain_geometry)
+
+
+# Exact solution
+exactSolution = prior.sample()
+
+# Exact data
+b_exact = model.forward(domain_geometry.par2fun(exactSolution),is_par=False)
+
+# %%
+# Add noise to data
+SNR = 100
+sigma = np.linalg.norm(b_exact)/SNR
+sigma2 = sigma*sigma # variance of the observation Gaussian noise
+data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+
+# Create likelihood
+#likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.eye(range_geometry.dim)).to_likelihood(data)
+likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.ones(range_geometry.dim)).to_likelihood(data)
+
+posterior = cuqi.distribution.Posterior(likelihood, prior)
+
+#%%
+MHSampler = cuqi.sampler.MetropolisHastings(
+    posterior,
+    proposal=None,
+    scale=None,
+    x0=None,
+    dim=None,
+)
+
+samples = MHSampler.sample_adapt(100)
+
+# %%
+samples.plot_trace()
+
+# %%
+samples.plot(title="posterior")
+# %%
+
+prior_samples = prior.sample(5)
+prior_samples.plot(title="prior")
+
+
+plot(domain_geometry.par2fun(exactSolution), title="exact solution")
