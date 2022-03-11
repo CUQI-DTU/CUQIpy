@@ -61,4 +61,4 @@ class matern_cov():
 if __name__ == '__main__':
     problem = matern_cov()
     problem.compute_eigen_decomp(l=0.2,nu=2)
-    problem.save_basis('test_basis.npz')
+    problem.save_basis('basis.npz')
