@@ -1018,6 +1018,7 @@ class Deconv_2D(BayesianProblem):
 
         self.exactSolution = x_exact
         self.exactData = b_exact
+        self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
 
 #=========================================================================
 def _proj_forward_2D(X, P, BC):
