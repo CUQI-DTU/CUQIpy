@@ -956,7 +956,8 @@ class Deconv_2D(BayesianProblem):
         PSF_size=21,
         phantom="satellite",
         noise_type="gaussian",
-        noise_std=0.0036):
+        noise_std=0.0036,
+        prior = None):
         
         # setting up the geometry
         domain_geometry = Continuous2D((dim, dim))
@@ -976,15 +977,15 @@ class Deconv_2D(BayesianProblem):
 
         # Set PSF kernel model
         if kernel.lower() == "gauss":
-            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param)
+            P, _ = _GaussPSF(np.array([PSF_size, PSF_size]), kernel_param)
         elif kernel.lower() == "moffat":
-            P, _ = Moffat(np.array([PSF_size, PSF_size]), kernel_param, 1)
+            P, _ = _MoffatPSF(np.array([PSF_size, PSF_size]), kernel_param, 1)
         elif kernel.lower() == "defocus":
-            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param)
+            P, _ = _DefocusPSF(np.array([PSF_size, PSF_size]), kernel_param)
 
         # build forward model
-        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
-                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
+        model = cuqi.model.LinearModel(lambda x: _proj_forward_2D(x.reshape((dim, dim)), P, BC), 
+                                       lambda x: _proj_backward_2D(x.reshape((dim, dim)), P, BC), 
                                         range_geometry, 
                                         domain_geometry)
 
@@ -998,42 +999,33 @@ class Deconv_2D(BayesianProblem):
         # Generate exact data (blurred)
         b_exact = model @ x_exact
 
-        # Prior
-        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1, geometry=model.domain_geometry)
-
-        # add the noise
-        dim2 = int(dim**2)
-        
+        # Data distribution
         if noise_type.lower() == "gaussian":
-            #noise = cuqi.distribution.Normal(0, noise_std)
-            noise = cuqi.distribution.GaussianCov(np.zeros(dim2), noise_std, geometry=range_geometry)
+            data_dist = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry)
         elif noise_type.lower() == "scaledgaussian":
-            # bnorm = np.linalg.norm(b_exact)
-            # sigma_obs = err_lev * (bnorm/np.sqrt(dim2))
-            noise = cuqi.distribution.Gaussian(np.zeros(dim2), b_exact*noise_std)
+            data_dist = cuqi.distribution.Gaussian(model, b_exact*noise_std)
         else:
             raise NotImplementedError("This noise type is not implemented")
         
-        data = b_exact + noise.sample()
+        # Generate noisy data
+        data = data_dist(x_exact).sample()
 
-        likelihood = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry).to_likelihood(data)
+        # Create likelihood
+        likelihood = data_dist.to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood, prior)
-
-        # Initialize Deconvolution as Type1 problem
-        #super().__init__(data, model, noise, prior)
 
         self.exactSolution = x_exact
         self.exactData = b_exact
 
 #=========================================================================
-def proj_forward_2D(X, P, BC):
+def _proj_forward_2D(X, P, BC):
     Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
     return Ax.flatten()
 
 #=========================================================================
-def proj_backward_2D(B, P, BC):
+def _proj_backward_2D(B, P, BC):
     P = np.flipud(np.fliplr(P))
     ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
     return ATy.flatten()
@@ -1041,7 +1033,7 @@ def proj_backward_2D(B, P, BC):
 # ===================================================================
 # Array with PSF for Gaussian blur (astronomic turbulence)
 # ===================================================================
-def Gauss(dim, s):
+def _GaussPSF(dim, s):
     if hasattr(dim, "__len__"):
         m, n = dim[0], dim[1]
     else:
@@ -1065,7 +1057,7 @@ def Gauss(dim, s):
 # ===================================================================
 # Array with PSF for Moffat blur (astronomical telescope)
 # ===================================================================
-def Moffat(dim, s, beta):
+def _MoffatPSF(dim, s, beta):
     if hasattr(dim, "__len__"):
         m, n = dim[0], dim[1]
     else:
@@ -1089,7 +1081,7 @@ def Moffat(dim, s, beta):
 # ===================================================================
 # Array with PSF for out-of-focus blur
 # ===================================================================
-def Defocus(dim, R):
+def _DefocusPSF(dim, R):
     if hasattr(dim, "__len__"):
         m, n = dim[0], dim[1]
     else:
