@@ -883,10 +883,10 @@ class Deconv_2D(BayesianProblem):
         size of the (dim,dim) deconvolution problem
 
     kernel : string 
-        Determines type of the underlying kernel
-        'Gauss' - a Gaussian function
-        'sinc' or 'prolate' - a sinc function
-        'vonMises' - a periodic version of the Gauss function
+        Determines type of the underlying PSF
+        'Gauss' - a Gaussian blur
+        'moffat' - a Moffat blur blur
+        'defocus' - an out-of-focus blur
 
     kernel_param : scalar
         A parameter that determines the shape of the kernel;
@@ -916,15 +916,12 @@ class Deconv_2D(BayesianProblem):
     model : cuqi.model.Model
         Deconvolution forward model
 
-    noise : cuqi.distribution.Distribution
-        Distribution of the additive noise
-
     prior : cuqi.distribution.Distribution
         Distribution of the prior (Default = None)
 
-    likelihood : cuqi.distribution.Distribution
-        Distribution of the likelihood 
-        (automatically computed from noise distribution)
+    likelihood : cuqi.likelihood.Likelihood
+        The likelihood function
+        (automatically computed from data distribution)
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -938,7 +935,7 @@ class Deconv_2D(BayesianProblem):
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
-    Sample(Ns)
+    sample_posterior(Ns)
         Sample Ns samples of the posterior.
         NB: Requires prior to be defined.
     """
