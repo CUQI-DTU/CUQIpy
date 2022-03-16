@@ -1024,8 +1024,8 @@ class Deconv_2D(BayesianProblem):
         self.exactSolution = x_exact
         self.exactData = b_exact
         self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
-        self.Supplementary = {"PSF" : P, "BC": BC}
-        
+        self.Miscellaneous = {"PSF" : P, "BC": BC}
+
 #=========================================================================
 def _proj_forward_2D(X, P, BC):
     Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
