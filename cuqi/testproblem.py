@@ -390,35 +390,45 @@ class Deconvolution2D(Type1):
     Sample(Ns)
         Sample Ns samples of the posterior.
         NB: Requires prior to be defined.
-
-
     """
     def __init__(self,
         dim=128,
         kernel="gauss",
         kernel_param=2.56,
-        BC="constant",
+        BC="periodic",
         PSF_size=21,
         phantom="satellite",
         noise_type="gaussian",
-        noise_std=0.02,
+        noise_std=0.0036,
         prior=None,
         data=None,
         noise=None
         ):
-        
+
         # setting up the geometry
         domain_geometry = Continuous2D((dim, dim))
         range_geometry = Continuous2D((dim, dim))
-        
-        # Set up model
+
+        # set boundary conditions
+        if (BC.lower() == 'Neumann'):
+            BC = 'reflect'
+        elif (BC.lower() == 'zero'):
+            BC = 'constant' # cval = 0
+        elif (BC.lower() == 'nearest'):
+            pass # BC = 'nearest' # the input is extended by replicating the last pixel
+        elif (BC.lower() == 'mirror'):
+            pass # BC = 'mirror' # reflecting about the center of the last pixel
+        elif (BC.lower() == 'periodic'):
+            BC = 'wrap'
+
+        # Set PSF kernel model
         if kernel.lower() == "gauss":
-            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param) 
+            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param)
         elif kernel.lower() == "moffat":
             P, _ = Moffat(np.array([PSF_size, PSF_size]), kernel_param, 1)
         elif kernel.lower() == "defocus":
-            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param) 
-        
+            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param)
+
         # build forward model
         model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
                                        lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
@@ -438,6 +448,7 @@ class Deconvolution2D(Type1):
         dim2 = int(dim**2)
         if noise is None:
             if noise_type.lower() == "gaussian":
+                # noise = cuqi.distribution.Normal(0, 1)
                 noise = cuqi.distribution.Normal(0, noise_std)
                 # noise = cuqi.distribution.Gaussian(np.zeros(dim2), noise_std, np.eye(dim2))
             elif noise_type.lower() == "scaledgaussian":
@@ -448,7 +459,7 @@ class Deconvolution2D(Type1):
             #TODO elif noise_type.lower() == "logpoisson":
             else:
                 raise NotImplementedError("This noise type is not implemented")
-        
+
         if data is None:
             data = b_exact + noise.sample(dim2).samples.flatten()
 
