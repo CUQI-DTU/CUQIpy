@@ -1,33 +1,39 @@
 #%%
 import sys
-import time
-sys.path.append("../")
 
+sys.path.append("..")
 import numpy as np
 import matplotlib.pyplot as plt
-
 import cuqi
 
+#import skimage
+#from skimage import color
+#phantom = color.rgb2gray(skimage.data.astronaut())
+phantom = "satellite"
+
 #%% %Cuqi deblur test problem
-tp = cuqi.testproblem.Deconv_2D() #Default values
-tp.prior = cuqi.distribution.GaussianCov(np.zeros(tp.model.domain_dim), 1, geometry=tp.model.domain_geometry)
-#%%
-tp.data.plot()
+model, data, probInfo = cuqi.testproblem.Deconv_2D.get_components(dim=128, phantom=phantom)
+likelihood = cuqi.distribution.GaussianCov(model, 0.05**2).to_likelihood(data)
+prior = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry)
+BP = cuqi.problem.BayesianProblem(likelihood, prior)
 
 #%%
-tp.exactData.plot()
+data.plot()
 
 #%%
-(tp.data-tp.exactData).plot()
+probInfo.exactData.plot()
 
 #%%
-tp.exactSolution.plot()
+(data-probInfo.exactData).plot()
 
 #%%
-tp.prior.sample(5).plot()
+probInfo.exactSolution.plot()
 
 #%%
-post_samples = tp.sample_posterior(200)
+prior.sample(5).plot()
+
+#%%
+post_samples = BP.sample_posterior(200)
 
 #%%
 post_samples.plot_mean()
