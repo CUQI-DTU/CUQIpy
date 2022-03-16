@@ -934,31 +934,41 @@ class Deconv_2D(BayesianProblem):
     Sample(Ns)
         Sample Ns samples of the posterior.
         NB: Requires prior to be defined.
-
-
     """
     def __init__(self,
         dim=128,
         kernel="gauss",
         kernel_param=2.56,
-        BC="constant",
+        BC="periodic",
         PSF_size=21,
         phantom="satellite",
         noise_type="gaussian",
-        noise_std=0.02):
+        noise_std=0.0036):
         
         # setting up the geometry
         domain_geometry = Continuous2D((dim, dim))
         range_geometry = Continuous2D((dim, dim))
-        
-        # Set up model
+
+        # set boundary conditions
+        if (BC.lower() == 'Neumann'):
+            BC = 'reflect'
+        elif (BC.lower() == 'zero'):
+            BC = 'constant' # cval = 0
+        elif (BC.lower() == 'nearest'):
+            pass # BC = 'nearest' # the input is extended by replicating the last pixel
+        elif (BC.lower() == 'mirror'):
+            pass # BC = 'mirror' # reflecting about the center of the last pixel
+        elif (BC.lower() == 'periodic'):
+            BC = 'wrap'
+
+        # Set PSF kernel model
         if kernel.lower() == "gauss":
-            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param) 
+            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param)
         elif kernel.lower() == "moffat":
             P, _ = Moffat(np.array([PSF_size, PSF_size]), kernel_param, 1)
         elif kernel.lower() == "defocus":
-            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param) 
-        
+            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param)
+
         # build forward model
         model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
                                        lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
