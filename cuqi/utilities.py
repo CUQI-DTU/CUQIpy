@@ -58,6 +58,7 @@ class ProblemInfo:
     """Problem info dataclass. Gives a convenient way to store data defined in test-problems."""
     exactSolution: np.ndarray = None
     exactData: np.ndarray = None
+    Supplementary: dict = None
     infoString: str = None
 
     def __repr__(self) -> str:
