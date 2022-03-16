@@ -1010,10 +1010,10 @@ class Deconv_2D(BayesianProblem):
         
         data = b_exact + noise.sample()
 
-        likelihood = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry)
+        likelihood = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry).to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood,prior,data)
+        super().__init__(likelihood, prior)
 
         # Initialize Deconvolution as Type1 problem
         #super().__init__(data, model, noise, prior)
