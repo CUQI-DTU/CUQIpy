@@ -2,12 +2,14 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
+from scipy.ndimage import convolve
+import scipy.io as spio
 
 import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
-from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, Continuous2D
 from cuqi.samples import CUQIarray
 
 #=============================================================================
@@ -868,3 +870,237 @@ class Deconv_1D(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+
+
+#=============================================================================
+class Deconv_2D(BayesianProblem):
+    """
+    2D Deconvolution test problem
+
+    Parameters
+    ------------
+    dim : int
+        size of the (dim,dim) deconvolution problem
+
+    kernel : string 
+        Determines type of the underlying kernel
+        'Gauss' - a Gaussian function
+        'sinc' or 'prolate' - a sinc function
+        'vonMises' - a periodic version of the Gauss function
+
+    kernel_param : scalar
+        A parameter that determines the shape of the kernel;
+        the larger the parameter, the slower the initial
+        decay of the singular values of A
+
+    phantom : string
+        The phantom that is sampled to produce x
+        'satellite' - a satellite photo
+
+    noise_type : string
+        The type of noise
+        "Gaussian" - Gaussian white noise¨
+        "scaledGaussian" - Scaled (by data) Gaussian noise
+
+    noise_std : scalar
+        Standard deviation of the noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+
+    Attributes
+    ----------
+    data : ndarray
+        Generated (noisy) data
+
+    model : cuqi.model.Model
+        Deconvolution forward model
+
+    noise : cuqi.distribution.Distribution
+        Distribution of the additive noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior (Default = None)
+
+    likelihood : cuqi.distribution.Distribution
+        Distribution of the likelihood 
+        (automatically computed from noise distribution)
+
+    exactSolution : ndarray
+        Exact solution (ground truth)
+
+    exactData : ndarray
+        Noise free data
+
+    Methods
+    ----------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined.
+
+    Sample(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined.
+    """
+    def __init__(self,
+        dim=128,
+        kernel="gauss",
+        kernel_param=2.56,
+        BC="periodic",
+        PSF_size=21,
+        phantom="satellite",
+        noise_type="gaussian",
+        noise_std=0.0036):
+        
+        # setting up the geometry
+        domain_geometry = Continuous2D((dim, dim))
+        range_geometry = Continuous2D((dim, dim))
+
+        # set boundary conditions
+        if (BC.lower() == 'Neumann'):
+            BC = 'reflect'
+        elif (BC.lower() == 'zero'):
+            BC = 'constant' # cval = 0
+        elif (BC.lower() == 'nearest'):
+            pass # BC = 'nearest' # the input is extended by replicating the last pixel
+        elif (BC.lower() == 'mirror'):
+            pass # BC = 'mirror' # reflecting about the center of the last pixel
+        elif (BC.lower() == 'periodic'):
+            BC = 'wrap'
+
+        # Set PSF kernel model
+        if kernel.lower() == "gauss":
+            P, _ = Gauss(np.array([PSF_size, PSF_size]), kernel_param)
+        elif kernel.lower() == "moffat":
+            P, _ = Moffat(np.array([PSF_size, PSF_size]), kernel_param, 1)
+        elif kernel.lower() == "defocus":
+            P, _ = Defocus(np.array([PSF_size, PSF_size]), kernel_param)
+
+        # build forward model
+        model = cuqi.model.LinearModel(lambda x: proj_forward_2D(x.reshape((dim, dim)), P, BC), 
+                                       lambda x: proj_backward_2D(x.reshape((dim, dim)), P, BC), 
+                                        range_geometry, 
+                                        domain_geometry)
+
+        # choose truth
+        if phantom.lower() == "satellite":
+            phantom_data = spio.loadmat('../demos/data/satellite.mat')
+            x_exact2D = phantom_data['x_true']
+            x_exact = x_exact2D.flatten()
+            x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
+
+        # Generate exact data (blurred)
+        b_exact = model @ x_exact
+
+        # Prior
+        prior = cuqi.distribution.GaussianCov(np.zeros(domain_geometry.dim), 1, geometry=model.domain_geometry)
+
+        # add the noise
+        dim2 = int(dim**2)
+        
+        if noise_type.lower() == "gaussian":
+            #noise = cuqi.distribution.Normal(0, noise_std)
+            noise = cuqi.distribution.GaussianCov(np.zeros(dim2), noise_std, geometry=range_geometry)
+        elif noise_type.lower() == "scaledgaussian":
+            # bnorm = np.linalg.norm(b_exact)
+            # sigma_obs = err_lev * (bnorm/np.sqrt(dim2))
+            noise = cuqi.distribution.Gaussian(np.zeros(dim2), b_exact*noise_std)
+        else:
+            raise NotImplementedError("This noise type is not implemented")
+        
+        data = b_exact + noise.sample()
+
+        likelihood = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry)
+        
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood,prior,data)
+
+        # Initialize Deconvolution as Type1 problem
+        #super().__init__(data, model, noise, prior)
+
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+
+#=========================================================================
+def proj_forward_2D(X, P, BC):
+    Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
+    return Ax.flatten()
+
+#=========================================================================
+def proj_backward_2D(B, P, BC):
+    P = np.flipud(np.fliplr(P))
+    ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
+    return ATy.flatten()
+
+# ===================================================================
+# Array with PSF for Gaussian blur (astronomic turbulence)
+# ===================================================================
+def Gauss(dim, s):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    s1, s2 = s, s
+    
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(n/2), np.ceil(n/2))
+    y = np.arange(-np.fix(m/2), np.ceil(m/2))
+    X, Y = np.meshgrid(x, y)
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = np.exp( -0.5* ((X**2)/(s1**2) + (Y**2)/(s2**2)) )
+    PSF /= PSF.sum()
+
+    # find the center
+    mm, nn = np.where(PSF == PSF.max())
+    center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
+# ===================================================================
+# Array with PSF for Moffat blur (astronomical telescope)
+# ===================================================================
+def Moffat(dim, s, beta):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    s1, s2 = s, s
+    
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(n/2), np.ceil(n/2))
+    y = np.arange(-np.fix(m/2), np.ceil(m/2))
+    X, Y = np.meshgrid(x, y)
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = ( 1 + (X**2)/(s1**2) + (Y**2)/(s2**2) )**(-beta)
+    PSF = PSF / PSF.sum()
+
+    # find the center
+    mm, nn = np.where(PSF == PSF.max())
+    center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
+# ===================================================================
+# Array with PSF for out-of-focus blur
+# ===================================================================
+def Defocus(dim, R):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    
+    center = np.fix((np.array([m, n]))/2)
+    if (R == 0):    
+        # the PSF is a delta function and so the blurring matrix is I
+        PSF = np.zeros((m, n))
+        PSF[center[0], center[1]] = 1
+    else:
+        PSF = np.ones((m, n)) / (np.pi * R**2)
+        k = np.arange(1, max(m, n)+1)
+        aa, bb = (k-center[0])**2, (k-center[1])**2
+        A, B = np.meshgrid(aa, aa), np.meshgrid(bb, bb)
+        idx = np.array(((A[0].T + B[0]) > (R**2)))
+        PSF[idx] = 0
+    PSF = PSF / PSF.sum()
+
+    return PSF, center.astype(int)
