@@ -2,7 +2,7 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
-from scipy.ndimage import convolve
+from scipy.ndimage import convolve, zoom
 import scipy.io as spio
 
 import cuqi
@@ -993,6 +993,11 @@ class Deconv_2D(BayesianProblem):
         if phantom.lower() == "satellite":
             phantom_data = spio.loadmat('../demos/data/satellite.mat')
             x_exact2D = phantom_data['x_true']
+
+            # Resize image
+            zoom_factor = dim/np.array(x_exact2D.shape)
+            x_exact2D = zoom(x_exact2D, zoom_factor)
+
             x_exact = x_exact2D.flatten()
             x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
 
