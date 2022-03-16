@@ -893,6 +893,15 @@ class Deconv_2D(BayesianProblem):
         the larger the parameter, the slower the initial
         decay of the singular values of A
 
+    BC : string
+        Boundary conditions
+        'zero'
+        'periodic'
+        'Neumann'
+        
+    PSF_size : int
+        Defines a PSF of size (PSF_size, PSF_size)
+
     phantom : string
         The phantom that is sampled to produce x
         'satellite' - a satellite photo
