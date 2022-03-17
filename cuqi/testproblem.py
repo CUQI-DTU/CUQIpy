@@ -1010,8 +1010,9 @@ class Deconv_2D(BayesianProblem):
                 phantom = phantom.reshape(N,N)
             x_exact2D = phantom
         # If phantom is string its a specific case
-        elif isinstance(phantom, str) and phantom.lower() == "satellite":
-            x_exact2D = cuqi.data.satellite()
+        elif isinstance(phantom, str):
+            if phantom.lower() == "satellite":
+                x_exact2D = cuqi.data.satellite()
         else:
             raise TypeError("Unknown phantom type.")
 
