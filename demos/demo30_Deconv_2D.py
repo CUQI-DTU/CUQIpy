@@ -5,32 +5,37 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cuqi
 
-#%% %Cuqi Deconv 2D test problem
-model, data, probInfo = cuqi.testproblem.Deconv_2D.get_components()
-likelihood = cuqi.distribution.GaussianCov(model, 0.0036**2).to_likelihood(data)
-prior = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry)
-BP = cuqi.problem.BayesianProblem(likelihood, prior)
+#%% Load testproblem
+TP = cuqi.testproblem.Deconv_2D() #Default values
 
-#%%
-data.plot()
+# %% Add prior (using the geometry of the deconvolution model)
+TP.prior = cuqi.distribution.GaussianCov(mean=np.zeros(TP.model.domain_dim),
+                                         cov=1,
+                                         geometry=TP.model.domain_geometry)
 
-#%%
-probInfo.exactData.plot()
+#%% Plot data
+TP.data.plot()
 
-#%%
-(data-probInfo.exactData).plot()
+#%% Plot noise free data
+TP.exactData.plot()
 
-#%%
-probInfo.exactSolution.plot()
+#%% Plot noise relalization (only possible since we know noise free data for test case)
+(TP.data-TP.exactData).plot()
 
-#%%
-prior.sample(5).plot()
+#%% Plot exact solution (phantom)
+TP.exactSolution.plot()
 
-#%%
-post_samples = BP.sample_posterior(200)
+#%% Plot samples from prior
+TP.prior.sample(5).plot()
 
-#%%
+#%% Now sample posterior
+post_samples = TP.sample_posterior(200)
+
+#%% Plot mean of posterior
 post_samples.plot_mean()
 
-#%%
+# %% Plot samples from posterior
+post_samples.plot()
+
+#%% Plot "Credibility interval". Should create a number of plots for 2D
 post_samples.plot_ci(95)
