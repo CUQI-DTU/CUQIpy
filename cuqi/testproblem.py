@@ -882,26 +882,31 @@ class Deconv_2D(BayesianProblem):
     dim : int
         size of the (dim,dim) deconvolution problem
 
-    kernel : string 
+    PSF : string or ndarray
         Determines type of the underlying PSF
         'Gauss' - a Gaussian blur
         'Moffat' - a Moffat blur blur
         'Defocus' - an out-of-focus blur
+        ndarray - Custom user-specified PSF
 
-    kernel_param : scalar
-        A parameter that determines the shape of the kernel;
+    PSF_param : scalar
+        A parameter that determines the shape of the PSF;
         the larger the parameter, the slower the initial
         decay of the singular values of A
+        Ignored if PSF is given as ndarray
 
-    BC : string
-        Boundary conditions
-        'zero'
-        'periodic'
-        'Neumann'
-        
     PSF_size : int
         Defines a PSF of size (PSF_size, PSF_size)
+        Ignored if PSF is given as ndarray
 
+    BC : string
+        Boundary conditions of convolution
+        'zero' - Zero boundary
+        'periodic' - Periodic boundary
+        'Neumann' - Neumann (reflective) boundary
+        'Mirror' - Mirrored boundary
+        'Nearest' - Replicates last element of boundary
+        
     phantom : string
         The phantom that is sampled to produce x
         'satellite' - a satellite photo
@@ -950,10 +955,10 @@ class Deconv_2D(BayesianProblem):
     """
     def __init__(self,
         dim=128,
-        kernel="gauss",
-        kernel_param=2.56,
-        BC="periodic",
+        PSF="gauss",
+        PSF_param=2.56,
         PSF_size=21,
+        BC="periodic",
         phantom="satellite",
         noise_type="gaussian",
         noise_std=0.0036,
@@ -977,15 +982,18 @@ class Deconv_2D(BayesianProblem):
         else:
             raise TypeError("Unknown BC type")
 
-        # Set PSF kernel model
-        if kernel.lower() == "gauss":
-            P, _ = _GaussPSF(np.array([PSF_size, PSF_size]), kernel_param)
-        elif kernel.lower() == "moffat":
-            P, _ = _MoffatPSF(np.array([PSF_size, PSF_size]), kernel_param, 1)
-        elif kernel.lower() == "defocus":
-            P, _ = _DefocusPSF(np.array([PSF_size, PSF_size]), kernel_param)
+        # Set up PSF.
+        if isinstance(PSF, np.ndarray):
+            P = PSF
+        elif isinstance(PSF, str):
+            if PSF.lower() == "gauss":
+                P, _ = _GaussPSF(np.array([PSF_size, PSF_size]), PSF_param)
+            elif PSF.lower() == "moffat":
+                P, _ = _MoffatPSF(np.array([PSF_size, PSF_size]), PSF_param, 1)
+            elif PSF.lower() == "defocus":
+                P, _ = _DefocusPSF(np.array([PSF_size, PSF_size]), PSF_param)
         else:
-            raise TypeError("Unknown kernel type")
+            raise TypeError(f"Unknown PSF: {PSF}.")
 
         # build forward model
         model = cuqi.model.LinearModel(lambda x: _proj_forward_2D(x.reshape((dim, dim)), P, BC), 
