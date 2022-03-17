@@ -112,3 +112,25 @@ def test_Abel():
 
     assert np.linalg.norm(model.forward(true_image, is_par=False)) == approx(4.580752014966276)
     assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(9.37456136258068)
+
+#Deconv 2D tests
+#TODO. Make into regression tests + other samplers. Move some tests to BayesianProblem
+@pytest.mark.parametrize("prior",[
+    (cuqi.distribution.GaussianCov(np.zeros(128**2), 1)),
+    #(cuqi.distribution.Laplace_diff(np.zeros(128**2), 1, "zeros")),
+    #(cuqi.distribution.Cauchy_diff(np.zeros(128**2), 1, "zeros")),
+])
+def test_Deconv_2D_Sampling_prior(prior): 
+    tp = cuqi.testproblem.Deconv_2D(prior=prior)
+    tp.prior.geometry = tp.model.domain_geometry
+    tp.sample_posterior(10)
+
+@pytest.mark.parametrize("phantom",[
+    ( np.zeros((128,128)) ),    #Correct size
+    ( np.zeros(128**2) ),       #Correct size, but vector
+    ( np.zeros((64,64)) ),      #Different size. Should get reshaped
+    ( np.zeros(64**2) ),        #Different size. Should get reshaped
+    ( "satellite" ),            #String for specific cases
+])
+def test_Deconv_2D_phantom(phantom):
+    cuqi.testproblem.Deconv_2D(phantom=phantom)
