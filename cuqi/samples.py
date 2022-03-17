@@ -233,7 +233,13 @@ class Samples(object):
         return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
 
 
-    def plot_chain(self,variable_indices,*args,**kwargs):
+    def plot_chain(self, variable_indices=None, *args, **kwargs):
+        dim = self.geometry.dim
+        Nv = 5 # Max number of variables to plot if none are chosen
+        # If no variables are given we randomly select some at random
+        if variable_indices is None:
+            if Nv<dim: print("Selecting 5 randomly chosen variables")
+            variable_indices = self._select_random_indices(Nv, dim)
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
         variables = np.array(self.geometry.variables) #Convert to np array for better slicing
@@ -253,12 +259,12 @@ class Samples(object):
 
     def plot_ci(self,percent=95,exact=None,*args,plot_envelope_kwargs={},**kwargs):
         """
-        Plots the confidence interval for the samples according to the geometry.
+        Plots the credibility interval for the samples according to the geometry.
 
         Parameters
         ---------
         percent : int
-            The percent confidence to plot (i.e. 95, 99 etc.)
+            The percent credibility to plot (i.e. 95, 99 etc.)
         
         exact : ndarray, default None
             The exact value (for comparison)
@@ -295,14 +301,14 @@ class Samples(object):
             #fig.add_subplot(2,2,2)
             plt.figure()
             self.geometry.plot(up_conf-lo_conf)
-            plt.title("Confidence interval (Upper minus lower)")
+            plt.title("Credibility interval (Upper minus lower)")
             plt.figure()
             self.geometry.plot(up_conf)
-            plt.title("Upper confidence interval limit")
+            plt.title("Upper credibility interval limit")
             #fig.add_subplot(2,2,4)
             plt.figure()
             self.geometry.plot(lo_conf)
-            plt.title("Lower confidence interval limit")
+            plt.title("Lower credibility interval limit")
         else:
             lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',**pe_kwargs)
             
@@ -312,9 +318,9 @@ class Samples(object):
                     lex = exact.plot(*args,**kwargs)
                 else:
                     lex = self.geometry.plot(exact,*args,**kwargs)
-                plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Confidence Interval"])
+                plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Credibility Interval"])
             else:
-                plt.legend([lmn[0], lci],["Mean","Confidence Interval"])
+                plt.legend([lmn[0], lci],["Mean","Credibility Interval"])
 
     def diagnostics(self):
         # Geweke test
