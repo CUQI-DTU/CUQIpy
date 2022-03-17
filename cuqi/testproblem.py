@@ -373,6 +373,17 @@ def _getExactSolution(dim,phantom,phantom_param):
         if phantom_param is None: phantom_param = 5
         x = np.diff(_getExactSolution(dim+1,'gauss',phantom_param))
         return x/np.max(x)
+    
+    elif phantom.lower() == 'pc':
+        mesh = np.linspace(0,1,dim)
+        x_min, x_max = mesh[0], mesh[-1]
+        vals = np.array([0, 2, 3, 2, 0, 1, 0])
+        conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
+                (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
+                (0.6 <= x) & (x <= x_max)]
+        f_signal = lambda x: np.piecewise(x, conds(x), vals)
+        x = f_signal(mesh)
+        return x
 
     else:
         raise NotImplementedError("This phantom is not implemented")
