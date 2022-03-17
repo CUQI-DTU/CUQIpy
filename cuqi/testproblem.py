@@ -974,6 +974,8 @@ class Deconv_2D(BayesianProblem):
             pass # BC = 'mirror' # reflecting about the center of the last pixel
         elif (BC.lower() == 'periodic'):
             BC = 'wrap'
+        else:
+            raise TypeError("Unknown BC type")
 
         # Set PSF kernel model
         if kernel.lower() == "gauss":
@@ -982,6 +984,8 @@ class Deconv_2D(BayesianProblem):
             P, _ = _MoffatPSF(np.array([PSF_size, PSF_size]), kernel_param, 1)
         elif kernel.lower() == "defocus":
             P, _ = _DefocusPSF(np.array([PSF_size, PSF_size]), kernel_param)
+        else:
+            raise TypeError("Unknown kernel type")
 
         # build forward model
         model = cuqi.model.LinearModel(lambda x: _proj_forward_2D(x.reshape((dim, dim)), P, BC), 
