@@ -885,8 +885,8 @@ class Deconv_2D(BayesianProblem):
     kernel : string 
         Determines type of the underlying PSF
         'Gauss' - a Gaussian blur
-        'moffat' - a Moffat blur blur
-        'defocus' - an out-of-focus blur
+        'Moffat' - a Moffat blur blur
+        'Defocus' - an out-of-focus blur
 
     kernel_param : scalar
         A parameter that determines the shape of the kernel;
@@ -919,7 +919,7 @@ class Deconv_2D(BayesianProblem):
 
     Attributes
     ----------
-    data : ndarray
+    data : CUQIarray
         Generated (noisy) data
 
     model : cuqi.model.Model
@@ -932,10 +932,10 @@ class Deconv_2D(BayesianProblem):
         The likelihood function
         (automatically computed from data distribution)
 
-    exactSolution : ndarray
+    exactSolution : CUQIarray
         Exact solution (ground truth)
 
-    exactData : ndarray
+    exactData : CUQIarray
         Noise free data
 
     Methods
@@ -964,16 +964,16 @@ class Deconv_2D(BayesianProblem):
         range_geometry = Continuous2D((dim, dim))
 
         # set boundary conditions
-        if (BC.lower() == 'Neumann'):
-            BC = 'reflect'
-        elif (BC.lower() == 'zero'):
-            BC = 'constant' # cval = 0
-        elif (BC.lower() == 'nearest'):
-            pass # BC = 'nearest' # the input is extended by replicating the last pixel
-        elif (BC.lower() == 'mirror'):
-            pass # BC = 'mirror' # reflecting about the center of the last pixel
-        elif (BC.lower() == 'periodic'):
-            BC = 'wrap'
+        if (BC.lower() == "Neumann"):
+            BC = "reflect"
+        elif (BC.lower() == "zero"):
+            BC = "constant" # cval = 0
+        elif (BC.lower() == "nearest"):
+            pass # BC = "nearest" # the input is extended by replicating the last pixel
+        elif (BC.lower() == "mirror"):
+            pass # BC = "mirror" # reflecting about the center of the last pixel
+        elif (BC.lower() == "periodic"):
+            BC = "wrap"
         else:
             raise TypeError("Unknown BC type")
 
@@ -993,7 +993,7 @@ class Deconv_2D(BayesianProblem):
                                         range_geometry, 
                                         domain_geometry)
 
-        # choose truth
+        # User provided phantom as ndarray
         if isinstance(phantom, np.ndarray):
             if phantom.ndim > 2:
                 raise ValueError("Input phantom image must be an image (matrix) or vector")
@@ -1001,7 +1001,8 @@ class Deconv_2D(BayesianProblem):
                 N = int(round(np.sqrt(len(phantom))))
                 phantom = phantom.reshape(N,N)
             x_exact2D = phantom
-        elif phantom.lower() == "satellite":
+        # If phantom is string its a specific case
+        elif isinstance(phantom, str) and phantom.lower() == "satellite":
             x_exact2D = cuqi.data.satellite()
         else:
             raise TypeError("Unknown phantom type.")
