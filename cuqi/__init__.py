@@ -1,3 +1,4 @@
+from . import data
 from . import diagnostics
 from . import distribution
 from . import geometry

@@ -1,7 +1,6 @@
-class Samples(object):
-    def __init__(self):
-        raise NotImplementedError
-        
-class Statistics(object):
-    def __init__(self):
-        raise NotImplementedError        
+import pkg_resources
+import scipy.io as spio
+
+def satellite():
+    stream = pkg_resources.resource_stream(__name__, 'data/satellite.mat')
+    return spio.loadmat(stream)['x_true']

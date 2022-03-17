@@ -998,8 +998,7 @@ class Deconv_2D(BayesianProblem):
                 phantom = phantom.reshape(N,N)
             x_exact2D = phantom
         elif phantom.lower() == "satellite":
-            phantom_data = spio.loadmat('../demos/data/satellite.mat')
-            x_exact2D = phantom_data['x_true']
+            x_exact2D = cuqi.data.satellite()
         else:
             raise TypeError("Unknown phantom type.")
 
