@@ -875,7 +875,10 @@ class Deconv_1D(BayesianProblem):
 #=============================================================================
 class Deconvolution2D(BayesianProblem):
     """
-    2D Deconvolution test problem
+    2D Deconvolution test problem.
+
+    The matrix-free convolution is computed via scipy.ndimage.convolve.
+    For more details see https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html.
 
     Parameters
     ------------
