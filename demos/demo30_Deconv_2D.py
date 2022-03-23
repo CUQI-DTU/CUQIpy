@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import cuqi
 
 #%% Load testproblem
-TP = cuqi.testproblem.Deconv_2D() #Default values
+TP = cuqi.testproblem.Deconvolution2D() #Default values
 
 # %% Add prior (using the geometry of the deconvolution model)
 TP.prior = cuqi.distribution.GaussianCov(mean=np.zeros(TP.model.domain_dim),

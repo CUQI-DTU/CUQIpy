@@ -120,8 +120,8 @@ def test_Abel():
     #(cuqi.distribution.Laplace_diff(np.zeros(128**2), 1, "zeros")),
     #(cuqi.distribution.Cauchy_diff(np.zeros(128**2), 1, "zeros")),
 ])
-def test_Deconv_2D_Sampling_prior(prior): 
-    tp = cuqi.testproblem.Deconv_2D(prior=prior)
+def test_Deconvolution2D_Sampling_prior(prior): 
+    tp = cuqi.testproblem.Deconvolution2D(prior=prior)
     tp.prior.geometry = tp.model.domain_geometry
     tp.sample_posterior(10) # Tests that sampling at least runs withour error.
     #TODO. Make into regression tests + other samplers. Move some tests to BayesianProblem
@@ -133,6 +133,6 @@ def test_Deconv_2D_Sampling_prior(prior):
     ( np.zeros(64**2) ),        #Different size. Should get reshaped
     ( "satellite" ),            #String for specific cases
 ])
-def test_Deconv_2D_phantom(phantom):
-    TP= cuqi.testproblem.Deconv_2D(dim=128, phantom=phantom)
+def test_Deconvolution2D_phantom(phantom):
+    TP= cuqi.testproblem.Deconvolution2D(dim=128, phantom=phantom)
     assert TP.exactSolution.shape == (128**2,)

@@ -873,7 +873,7 @@ class Deconv_1D(BayesianProblem):
 
 
 #=============================================================================
-class Deconv_2D(BayesianProblem):
+class Deconvolution2D(BayesianProblem):
     """
     2D Deconvolution test problem
 
