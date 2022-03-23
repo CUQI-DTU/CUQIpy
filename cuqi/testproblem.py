@@ -883,7 +883,7 @@ class Deconv_2D(BayesianProblem):
         size of the (dim,dim) deconvolution problem
 
     PSF : string or ndarray
-        Determines type of the underlying PSF
+        Determines type of the underlying point spread function (PSF)
         'Gauss' - a Gaussian blur
         'Moffat' - a Moffat blur blur
         'Defocus' - an out-of-focus blur
