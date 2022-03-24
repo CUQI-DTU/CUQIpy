@@ -908,7 +908,7 @@ class Deconvolution2D(BayesianProblem):
         | Ignored if PSF is given as ndarray
 
     PSF_size : int
-        | Defines a PSF of size (PSF_size, PSF_size)
+        | Defines the size of the PSF. The size becomes (PSF_size, PSF_size).
         | Ignored if PSF is given as ndarray
 
     BC : string
