@@ -904,8 +904,7 @@ class Deconvolution2D(BayesianProblem):
 
     PSF_param : scalar
         | A parameter that determines the shape of the PSF;
-        | the larger the parameter, the slower the initial
-        | decay of the singular values of A.
+        | the larger the parameter, the larger blur on the image.
         | Ignored if PSF is given as ndarray
 
     PSF_size : int
