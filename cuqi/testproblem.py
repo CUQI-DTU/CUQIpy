@@ -1026,13 +1026,9 @@ class Deconvolution2D(BayesianProblem):
         # If phantom is string its a specific case
         elif isinstance(phantom, str):
             if phantom.lower() == "satellite":
-                x_exact2D = cuqi.data.satellite()
+                x_exact2D = cuqi.data.satellite(size=dim)
         else:
             raise TypeError("Unknown phantom type.")
-
-        # Resize image
-        zoom_factor = dim/np.array(x_exact2D.shape)
-        x_exact2D = zoom(x_exact2D, zoom_factor)
 
         x_exact = x_exact2D.flatten()
         x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
