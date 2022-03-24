@@ -1025,6 +1025,7 @@ class Deconvolution2D(BayesianProblem):
             if phantom.ndim == 1:
                 N = int(round(np.sqrt(len(phantom))))
                 phantom = phantom.reshape(N,N)
+            phantom = cuqi.data.imresize(phantom, dim) # Resize phantom (if wrong size)
             x_exact2D = phantom
         # If phantom is string its a specific case
         elif isinstance(phantom, str):
