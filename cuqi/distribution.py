@@ -490,6 +490,11 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        if self.dim > 5000:
+            raise NotImplementedError("Sigma: Full covariance matrix not implemented for dim > 5000.")
+        return np.linalg.inv(self.prec.toarray())       
 
 class JointGaussianSqrtPrec(Distribution):
     """

@@ -2,7 +2,7 @@ import numpy as np
 import time
 
 import cuqi
-from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF, Posterior
+from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
@@ -139,7 +139,7 @@ class BayesianProblem(object):
 
     def MAP(self):
         """MAP computed the MAP estimate of the posterior"""
-        if self._check_posterior_type(Gaussian,Gaussian,LinearModel):
+        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel):
             b  = self.data
             A  = self.model.get_matrix()
             Ce = self.likelihood.distribution.Sigma
@@ -179,7 +179,7 @@ class BayesianProblem(object):
         """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
         
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior_type(Gaussian, Gaussian, LinearModel, 5000) and not self._check_posterior_type(GMRF):
+        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, 5000) and not self._check_posterior_type(GMRF):
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
@@ -190,12 +190,23 @@ class BayesianProblem(object):
 
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior_type((Gaussian, GMRF), Gaussian):
-            print("Using preconditioned Crank-Nicolson sampler")
+            print("Using preconditioned Crank-Nicolson (pCN) sampler")
             return self._samplepCN(Ns)
 
+        # NUTS
+        elif self._check_posterior_type(Cauchy_diff, Gaussian):
+            print("Using No-U-Turn (NUTS) sampler")
+            return self._sampleNUTS(Ns)
+
         # For difference type priors we use CWMH
-        elif self._check_posterior_type((Cauchy_diff, Laplace_diff), Gaussian):
-            print("Using Component-wise Metropolis-Hastings sampler")
+        elif self._check_posterior_type((Laplace_diff, LMRF), Gaussian):
+            print("Using Component-wise Metropolis-Hastings (CWMH) sampler")
+            return self._sampleCWMH(Ns)
+
+        # Possibly bad choices!
+        elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal)):
+            print("!!!EXPERIMENTAL SAMPER CHOICE: Use at own risk!!!")
+            print("Using Component-wise Metropolis-Hastings (CWMH) sampler")
             return self._sampleCWMH(Ns)
 
         else:
@@ -292,6 +303,26 @@ class BayesianProblem(object):
         # Set geometry from prior
         #if hasattr(x_s,"geometry"):
         #    x_s.geometry = self.prior.geometry
+        
+        return x_s
+
+    def _sampleNUTS(self,Ns):
+
+        # MAP
+        #print("Computing MAP ESTIMATE")
+        #x_map, _ = self.MAP()
+        
+        # Set up target and proposal
+        target = Posterior(self.likelihood, self.prior)
+
+        MCMC = cuqi.sampler.NUTS(target)
+        
+        # Run sampler
+        Nb = int(0.2*Ns)   # burn-in
+        ti = time.time()
+        x_s = MCMC.sample_adapt(Ns+Nb); # TODO. FIX burn-in for NUTS!
+        x_s = x_s.burnthin(Nb)
+        print('Elapsed time:', time.time() - ti)
         
         return x_s
 
