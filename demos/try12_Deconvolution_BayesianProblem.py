@@ -20,9 +20,9 @@ n = TP.model.domain_dim
 #TP.prior = Gaussian(mean=np.zeros(n), std=0.05, geometry=TP.model.domain_geometry)
 #TP.prior = GaussianCov(mean=np.zeros(n), cov=0.05**2, geometry=TP.model.domain_geometry)
 
-# Needs a bit of tuning
-#TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry)
-TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess!
+# Needs some tuning
+TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry)
+#TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess!
 
 # Broken
 #TP.prior = GMRF(np.zeros(n), 50, n, 1, "zero") # Odd behavior (swingy?)

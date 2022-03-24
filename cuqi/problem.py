@@ -188,15 +188,16 @@ class BayesianProblem(object):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
+        # If we have gradients, use NUTS!
+        # TODO: Fix cases where we have gradients but NUTS fails (see checks)
+        elif self._check_posterior_type(require_gradient=True) and not self._check_posterior_type((Beta, InverseGamma)):
+            print("Using No-U-Turn (NUTS) sampler")
+            return self._sampleNUTS(Ns)
+
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior_type((Gaussian, GMRF), Gaussian):
             print("Using preconditioned Crank-Nicolson (pCN) sampler")
             return self._samplepCN(Ns)
-
-        # NUTS
-        elif self._check_posterior_type(Cauchy_diff, Gaussian):
-            print("Using No-U-Turn (NUTS) sampler")
-            return self._sampleNUTS(Ns)
 
         # For difference type priors we use CWMH
         elif self._check_posterior_type((Laplace_diff, LMRF), Gaussian):
@@ -342,10 +343,13 @@ class BayesianProblem(object):
                     return geom1,geom2
         raise Exception(fail_msg)
 
-    def _check_posterior_type(self, prior_type, likelihood_type=None, model_type=None, max_dim=None):
+    def _check_posterior_type(self, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, require_gradient=False):
         """Returns true if components of the posterior reflects the types (can be tuple of types) given as input."""
         # Prior check
-        P = isinstance(self.prior, prior_type)
+        if prior_type is None:
+            P = True
+        else:
+            P = isinstance(self.prior, prior_type)
 
         # Likelihood check
         if likelihood_type is None:
@@ -365,4 +369,15 @@ class BayesianProblem(object):
         else:
             D = self.model.domain_dim<=max_dim and self.model.range_dim<=max_dim
 
-        return L and P and M and D
+        # Require gradient?
+        if require_gradient:
+            try: 
+                self.prior.gradient(np.zeros(self.prior.dim))
+                self.likelihood.gradient(np.zeros(self.likelihood.dim))
+                G = True
+            except:
+                G = False
+        else:
+            G = True
+
+        return L and P and M and D and G
