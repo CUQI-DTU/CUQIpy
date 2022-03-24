@@ -1,4 +1,5 @@
 from . import pde
 from . import geometry
 from . import testproblem
-__all__ = [pde, geometry, testproblem]
+from . import field  
+__all__ = [pde, geometry, testproblem, field]
