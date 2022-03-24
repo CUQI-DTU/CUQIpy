@@ -69,6 +69,7 @@ class FEniCSContinuous(Geometry):
     def _process_values(self, values):
         if isinstance(values, dl.function.function.Function):
             return [values]
+
         elif len(values.shape) == 1:
             values = values[..., np.newaxis]
         
