@@ -921,6 +921,9 @@ class Deconvolution2D(BayesianProblem):
         
     phantom : string
         | The phantom (sharp image) that is convolved.
+        | 'astronaut' - a photo of an astronaut.
+        | 'camera' - a photo of a man with a camera.
+        | 'cat' - a photo of a cat.
         | 'satellite' - a photo of a satellite.
 
     noise_type : string
@@ -1027,6 +1030,12 @@ class Deconvolution2D(BayesianProblem):
         elif isinstance(phantom, str):
             if phantom.lower() == "satellite":
                 x_exact2D = cuqi.data.satellite(size=dim)
+            elif phantom.lower() == "cat":
+                x_exact2D = cuqi.data.cat(size=dim)
+            elif phantom.lower() == "camera":
+                x_exact2D = cuqi.data.camera(size=dim)
+            elif phantom.lower() == "astronaut":
+                x_exact2D = cuqi.data.astronaut(size=dim)
         else:
             raise TypeError("Unknown phantom type.")
 
