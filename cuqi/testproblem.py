@@ -158,6 +158,7 @@ class Deconvolution(BayesianProblem):
         'hat' - a triangular hat function
         'bumps' - two bumps
         'derivGauss' - the first derivative of Gauss function
+        'pc' - Piece-wise constant phantom
 
     phantom_param : scalar
         A parameter that determines the width of the central 

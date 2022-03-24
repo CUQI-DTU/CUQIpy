@@ -238,7 +238,7 @@ class Samples(object):
         Nv = 5 # Max number of variables to plot if none are chosen
         # If no variables are given we randomly select some at random
         if variable_indices is None:
-            if Nv<dim: print("Selecting 5 randomly chosen variables")
+            if Nv<dim: print(f"Selecting {Nv} randomly chosen variables")
             variable_indices = self._select_random_indices(Nv, dim)
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
