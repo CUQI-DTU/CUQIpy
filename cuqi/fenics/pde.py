@@ -37,7 +37,7 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
 
     def assemble(self,parameter):
         if isinstance(parameter, CUQIarray): 
-            PDE_parameter_fun = parameter.funvals.item()
+            PDE_parameter_fun = parameter.funvals
         elif isinstance(parameter, dl.function.function.Function): 
             PDE_parameter_fun = parameter
         else:
