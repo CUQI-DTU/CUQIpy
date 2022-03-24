@@ -58,14 +58,16 @@ class ProblemInfo:
     """Problem info dataclass. Gives a convenient way to store data defined in test-problems."""
     exactSolution: np.ndarray = None
     exactData: np.ndarray = None
+    Miscellaneous: dict = None
     infoString: str = None
 
     def __repr__(self) -> str:
         out_str = "ProblemInfo with the following set attributes:\n"+str(self.getSetAttributes())      
         if self.infoString is not None:
-            return out_str+"\n infoString: "+str(self.infoString)
-        else:
-            return out_str
+            out_str = out_str+"\n infoString: "+str(self.infoString)
+        if self.Miscellaneous is not None:
+            out_str = out_str+f"\n Miscellaneous: {self.Miscellaneous.keys()}"
+        return out_str
 
     def getSetAttributes(self):
         """Returns a list of all attributes that are not None."""
