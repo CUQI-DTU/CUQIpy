@@ -1,4 +1,12 @@
 # %% Here we test the automatic sampler selection for Deconvolution (1D and 2D).
+# TODO (Questions):
+# 1) In Laplace_diff we use CWMH. Here the scale is set to some specific value. Can we make a better choice?
+# 2) In Cauchy_diff+Laplace_Diff we do not support 2D yet.
+# 3) In GMRF, LMRF 2D is somewhat supported, but currently breaks in the code.
+# 4) Is Laplace_diff and LMRF the same thing?
+# 5) Add doc to Cauchy_diff and Laplace_diff.
+# 6) Add doc to GMRF, LMRF.
+
 import sys
 sys.path.append("..")
 import cuqi
@@ -12,14 +20,14 @@ from cuqi.sampler import NUTS, CWMH
 %load_ext autoreload
 %autoreload 2
 # %% Deconvolution 1D problem
-TP = cuqi.testproblem.Deconvolution()
+TP = cuqi.testproblem.Deconvolution(phantom="square")
 #TP = cuqi.testproblem.Deconvolution2D()
 n = TP.model.domain_dim
 N = TP.model.domain_geometry.shape[0]
 ndim = len(TP.model.domain_geometry.shape)
 
 # Prior par
-if ndim == 1: par = 0.05 #1d
+if ndim == 1: par = 0.02 #1d
 if ndim == 2: par = 1 #2d
 if ndim == 1: Ns = 1000
 if ndim == 2: Ns = 100
@@ -30,10 +38,8 @@ if ndim == 2: Ns = 100
 #TP.prior = GaussianCov(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
 
 # Seems ok? - (Needs fix in 2D)
-TP.prior = Cauchy_diff(location=np.zeros(n), scale=par, bc_type="zero", geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
-#TP.prior = Laplace_diff(location=np.zeros(n), scale=par, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
-
-# Need tuning - (Needs fix in 2D)
+#TP.prior = Cauchy_diff(location=np.zeros(n), scale=par, bc_type="zero", geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
+TP.prior = Laplace_diff(location=np.zeros(n), scale=par, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
 #TP.prior = GMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 #TP.prior = LMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Seems OK. Same as Laplace diff actually?
 
