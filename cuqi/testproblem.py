@@ -1050,7 +1050,7 @@ class Deconvolution2D(BayesianProblem):
         if noise_type.lower() == "gaussian":
             data_dist = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry)
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model, b_exact*noise_std)
+            data_dist = cuqi.distribution.GaussianCov(model, (b_exact*noise_std)**2, geometry=range_geometry)
         else:
             raise NotImplementedError("This noise type is not implemented")
         
