@@ -875,68 +875,80 @@ class Deconv_1D(BayesianProblem):
 #=============================================================================
 class Deconvolution2D(BayesianProblem):
     """
-    2D Deconvolution test problem.
+    
+    Create a 2D Deconvolution test problem defined by the inverse problem
 
-    The matrix-free convolution is computed via scipy.ndimage.convolve.
-    For more details see https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html.
+    .. math::
+
+        \mathbf{b} = \mathbf{A}\mathbf{x},
+
+    where :math:`\mathbf{b}` is a (noisy) blurred image,
+    :math:`\mathbf{x}` is a sharp image and
+    :math:`\mathbf{A}` is a convolution operator.
+
+    The convolution operator is defined by specifing a point spread function and
+    boundary conditions and is computed (matrix-free) via scipy.ndimage.convolve.
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html.
 
     Parameters
-    ------------
+    ----------
     dim : int
-        size of the (dim,dim) deconvolution problem
+        | size of the (dim,dim) deconvolution problem
 
     PSF : string or ndarray
-        Determines type of the underlying point spread function (PSF)
-        'Gauss' - a Gaussian blur
-        'Moffat' - a Moffat blur blur
-        'Defocus' - an out-of-focus blur
-        ndarray - Custom user-specified PSF
+        | Determines type of the underlying point spread function (PSF).
+        | 'Gauss' - a Gaussian blur
+        | 'Moffat' - a Moffat blur blur
+        | 'Defocus' - an out-of-focus blur
+        | ndarray - Custom user-specified PSF
 
     PSF_param : scalar
-        A parameter that determines the shape of the PSF;
-        the larger the parameter, the slower the initial
-        decay of the singular values of A
-        Ignored if PSF is given as ndarray
+        | A parameter that determines the shape of the PSF;
+        | the larger the parameter, the slower the initial
+        | decay of the singular values of A.
+        | Ignored if PSF is given as ndarray
 
     PSF_size : int
-        Defines a PSF of size (PSF_size, PSF_size)
-        Ignored if PSF is given as ndarray
+        | Defines a PSF of size (PSF_size, PSF_size)
+        | Ignored if PSF is given as ndarray
 
     BC : string
-        Boundary conditions of convolution
-        'zero' - Zero boundary
-        'periodic' - Periodic boundary
-        'Neumann' - Neumann (reflective) boundary
-        'Mirror' - Mirrored boundary
-        'Nearest' - Replicates last element of boundary
+        | Boundary conditions of convolution
+        | 'zero' - Zero boundary
+        | 'periodic' - Periodic boundary
+        | 'Neumann' - Neumann (reflective) boundary
+        | 'Mirror' - Mirrored boundary
+        | 'Nearest' - Replicates last element of boundary
         
     phantom : string
-        The phantom that is sampled to produce x
-        'satellite' - a satellite photo
+        | The phantom (shap image) that is convolved.
+        | 'satellite' - a photo of a satellite.
 
     noise_type : string
-        The type of noise
-        "Gaussian" - Gaussian white noise¨
-        "scaledGaussian" - Scaled (by data) Gaussian noise
+        | The type of noise
+        | "Gaussian" - Gaussian white noise¨
+        | "scaledGaussian" - Scaled (by data) Gaussian noise
 
     noise_std : scalar
-        Standard deviation of the noise
+        | Standard deviation of the noise
 
-    prior : cuqi.distribution.Distribution
-        Distribution of the prior
+    prior : Distribution
+        | Option to set the prior distribution.
+        | If set all components of the posterior
+        | are defined and sampling can be achieved.
 
     Attributes
     ----------
     data : CUQIarray
         Generated (noisy) data
 
-    model : cuqi.model.Model
+    model : Model
         Deconvolution forward model
 
-    prior : cuqi.distribution.Distribution
-        Distribution of the prior (Default = None)
+    prior : Distribution
+        Distribution of the prior
 
-    likelihood : cuqi.likelihood.Likelihood
+    likelihood : Likelihood
         The likelihood function
         (automatically computed from data distribution)
 
@@ -944,17 +956,17 @@ class Deconvolution2D(BayesianProblem):
         Exact solution (ground truth)
 
     exactData : CUQIarray
-        Noise free data
+        Noise free data.
 
     Methods
-    ----------
+    -------
     MAP()
         Compute MAP estimate of posterior.
-        NB: Requires prior to be defined.
+        NB: Requires prior to be defined
 
     sample_posterior(Ns)
         Sample Ns samples of the posterior.
-        NB: Requires prior to be defined.
+        NB: Requires prior to be defined
     """
     def __init__(self,
         dim=128,
