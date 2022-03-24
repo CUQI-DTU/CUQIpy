@@ -114,7 +114,7 @@ class Matern(Field):
             mesh = self.geometry.mesh
             V = dl.FunctionSpace(mesh, "CG", 1)
 	
-	else:
+        else:
             raise NotImplementedError
 
         #elif hasattr(self.geometry, 'grid') :
