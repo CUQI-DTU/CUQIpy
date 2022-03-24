@@ -139,7 +139,7 @@ class BayesianProblem(object):
 
     def MAP(self):
         """MAP computed the MAP estimate of the posterior"""
-        if self._check(Gaussian,Gaussian,LinearModel):
+        if self._check_posterior_type(Gaussian,Gaussian,LinearModel):
             b  = self.data
             A  = self.model.get_matrix()
             Ce = self.likelihood.distribution.Sigma
@@ -178,7 +178,7 @@ class BayesianProblem(object):
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
         
-        if self._check(Gaussian,Gaussian,LinearModel) and not self._check(Gaussian,GMRF) and self.model.domain_dim<=5000 and self.model.range_dim<=5000:
+        if self._check_posterior_type(Gaussian,Gaussian,LinearModel) and not self._check_posterior_type(Gaussian,GMRF) and self.model.domain_dim<=5000 and self.model.range_dim<=5000:
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
@@ -186,11 +186,11 @@ class BayesianProblem(object):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
-        elif self._check(Gaussian,Cauchy_diff) or self._check(Gaussian,Laplace_diff):
+        elif self._check_posterior_type(Gaussian,Cauchy_diff) or self._check_posterior_type(Gaussian,Laplace_diff):
             print("Using Component-wise Metropolis-Hastings sampler")
             return self._sampleCWMH(Ns)
             
-        elif self._check(Gaussian,Gaussian) or self._check(Gaussian,GMRF):
+        elif self._check_posterior_type(Gaussian,Gaussian) or self._check_posterior_type(Gaussian,GMRF):
             print("Using preconditioned Crank-Nicolson sampler")
             return self._samplepCN(Ns)
 
@@ -307,7 +307,7 @@ class BayesianProblem(object):
                     return geom1,geom2
         raise Exception(fail_msg)
 
-    def _check(self,distL,distP,typeModel=None):
+    def _check_posterior_type(self,distL,distP,typeModel=None):
         L = isinstance(self.likelihood.distribution,distL)
         P = isinstance(self.prior,distP)
         if typeModel is None:
