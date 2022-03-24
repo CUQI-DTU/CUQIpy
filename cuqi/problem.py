@@ -175,29 +175,33 @@ class BayesianProblem(object):
                 x_BFGS, info_BFGS = solver.solve()
             return x_BFGS, info_BFGS
 
-    def sample_posterior(self,Ns):
-        """Sample Ns samples of the posterior given data"""
+    def sample_posterior(self, Ns):
+        """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
         
-        if self._check_posterior_type(Gaussian,Gaussian,LinearModel) and not self._check_posterior_type(Gaussian,GMRF) and self.model.domain_dim<=5000 and self.model.range_dim<=5000:
+        # For Gaussian small-scale we can use direct sampling
+        if self._check_posterior_type(Gaussian, Gaussian, LinearModel, 5000) and not self._check_posterior_type(GMRF):
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
-        elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):#self._check(GaussianCov,GaussianCov,LinearModel):
+        # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
+        elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
             print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
-        elif self._check_posterior_type(Gaussian,Cauchy_diff) or self._check_posterior_type(Gaussian,Laplace_diff):
-            print("Using Component-wise Metropolis-Hastings sampler")
-            return self._sampleCWMH(Ns)
-            
-        elif self._check_posterior_type(Gaussian,Gaussian) or self._check_posterior_type(Gaussian,GMRF):
+        # For Gaussians with non-linear model we use pCN
+        elif self._check_posterior_type((Gaussian, GMRF), Gaussian):
             print("Using preconditioned Crank-Nicolson sampler")
             return self._samplepCN(Ns)
+
+        # For difference type priors we use CWMH
+        elif self._check_posterior_type((Cauchy_diff, Laplace_diff), Gaussian):
+            print("Using Component-wise Metropolis-Hastings sampler")
+            return self._sampleCWMH(Ns)
 
         else:
             raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)}. Check documentation for available combinations.')
 
-    def UQ(self,exact=None):
+    def UQ(self, exact=None):
         print("Computing 5000 samples")
         samples = self.sample_posterior(5000)
 
@@ -307,11 +311,27 @@ class BayesianProblem(object):
                     return geom1,geom2
         raise Exception(fail_msg)
 
-    def _check_posterior_type(self,distL,distP,typeModel=None):
-        L = isinstance(self.likelihood.distribution,distL)
-        P = isinstance(self.prior,distP)
-        if typeModel is None:
+    def _check_posterior_type(self, prior_type, likelihood_type=None, model_type=None, max_dim=None):
+        """Returns true if components of the posterior reflects the types (can be tuple of types) given as input."""
+        # Prior check
+        P = isinstance(self.prior, prior_type)
+
+        # Likelihood check
+        if likelihood_type is None:
+            L = True
+        else:
+            L = isinstance(self.likelihood.distribution, likelihood_type)
+
+        # Model check
+        if model_type is None:
             M = True
         else:
-            M = isinstance(self.model,typeModel)
-        return L and P and M
+            M = isinstance(self.model, model_type)
+
+        #Dimension check
+        if max_dim is None:
+            D = True
+        else:
+            D = self.model.domain_dim<=max_dim and self.model.range_dim<=max_dim
+
+        return L and P and M and D
