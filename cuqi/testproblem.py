@@ -926,10 +926,10 @@ class Deconvolution2D(BayesianProblem):
     noise_type : string
         | The type of noise
         | "Gaussian" - Gaussian white noise¨
-        | "scaledGaussian" - Scaled (by data) Gaussian noise
+        | "scaledGaussian" - Gaussian noise where standard deviation is scaled by by data.
 
     noise_std : scalar
-        | Standard deviation of the noise
+        | Standard deviation of the noise.
 
     prior : Distribution
         | Option to set the prior distribution.
