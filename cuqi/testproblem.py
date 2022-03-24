@@ -920,7 +920,7 @@ class Deconvolution2D(BayesianProblem):
         | 'Nearest' - Replicates last element of boundary
         
     phantom : string
-        | The phantom (shap image) that is convolved.
+        | The phantom (sharp image) that is convolved.
         | 'satellite' - a photo of a satellite.
 
     noise_type : string
