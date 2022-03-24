@@ -24,7 +24,7 @@ n = TP.model.domain_dim
 TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry)
 #TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess!
 
-# Broken
+# Broken (Would be nice to fix)
 #TP.prior = GMRF(np.zeros(n), 50, n, 1, "zero") # Odd behavior (swingy?)
 #TP.prior = LMRF(np.zeros(n), 50, n, 1, "zero") # Odd behavior prior samples
 
@@ -33,8 +33,10 @@ TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometr
 #TP.prior = Laplace(np.zeros(n), 10) #Might need tuning
 #TP.prior = InverseGamma(3*np.ones(n), np.zeros(n), 1*np.ones(n)) #Bad choice in general.. #Might need tuning
 #TP.prior = Lognormal(mean=np.zeros(n), cov=0.05) #NUTS ACTS out!
-# %% CI plot
+# %% Samples
 samples = TP.sample_posterior(1000)
+
+# %% CI plot
 samples.plot_ci(exact=TP.exactSolution)
 
 # %% plot
