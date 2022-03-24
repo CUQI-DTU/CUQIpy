@@ -1,44 +1,57 @@
-from warnings import WarningMessage
-import cuqi
 import numpy as np
 import time
 
-
+import cuqi
 from cuqi.distribution import Cauchy_diff, GaussianCov, Laplace_diff, Gaussian, GMRF, Posterior
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
 from cuqi.pde import SteadyStateLinearPDE
 
-class Generic(object):
-    def __init__(self):
-        raise NotImplementedError
-
 class BayesianProblem(object):
-    """
-    Bayesian representation of inverse problem represented by likelihood and prior.
+    """Representation of a Bayesian inverse problem (posterior) defined by a likelihood and prior.
+    
+    .. math::
+
+        \pi_\mathrm{posterior}(\mathbf{x} \mid \mathbf{b}) \propto \pi_\mathrm{likelihood}(\mathbf{b} \mid \mathbf{x}) \pi_\mathrm{prior}(\mathbf{x}),
+
+    where :math:`\pi_\mathrm{Likelihood}(\mathbf{b} \mid \mathbf{x})` is a :class:`cuqi.likelihood.Likelihood` function and :math:`\pi_\mathrm{prior}(\mathbf{x})` is a :class:`cuqi.distribution.Distribution`.
+
+    The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the posterior distribution.
+
+    Parameters
+    ----------
+    likelihood : Likelihood
+        The likelihood function.
+
+    prior : Distribution
+        The prior distribution.
 
     Attributes
     ----------
-    `likelihood: cuqi.likelihood.Likelihood`:
-        summary: 'The likelihood function'
-        example: model = cuqi.model.LinearModel(A);
-                 likelihood = cuqi.distribution.Gaussian(model, std).to_likelihood(data) 
-    `prior: cuqi.model.Distribution`:
-        summary: 'A cuqi distribution for the prior'
-        example: cuqi.distribution.Gaussian(mean, std, corrmat)
-    `model: cuqi.model.Model`:
-        summary: 'A cuqi forward model (optional)'
-        example: cuqi.model.LinearModel(A) #A is a matrix
+    likelihood: Likelihood
+        The likelihood function.
+
+    prior: Distribution
+        The prior distribution.
+
+    posterior: Distribution
+        The posterior distribution (inferred from likelihood and prior).
+
+    model: Model
+        The deterministic model for the inverse problem (inferred from likelihood).
+
+    data: CUQIarray
+        The observed data (inferred from likelihood).
 
     Methods
-    ----------
-    `MAP()`:
-        summary: 'Compute MAP estimate of the inverse problem.'
-        NB: 'Requires the prior to be defined.'
-    `Sample(Ns)`:
-        summary: 'Sample Ns samples of the inverse problem.'
-        NB: 'Requires the prior to be defined.'
+    -------
+    sample_posterior(Ns):
+        Sample Ns samples of the posterior.
+    MAP():
+        Compute Maximum a posteriori (MAP) estimate of the posterior.
+    ML():
+        Compute maximum likelihood estimate.
     """
     @classmethod
     def get_components(cls, **kwargs):
@@ -65,10 +78,12 @@ class BayesianProblem(object):
 
     @property
     def data(self):
+        """Extract the observed data from likelihood"""
         return self.likelihood.data
 
     @property
     def likelihood(self):
+        """The likelihood function."""
         return self._likelihood
     
     @likelihood.setter
@@ -83,6 +98,7 @@ class BayesianProblem(object):
 
     @property
     def prior(self):
+        """The prior distribution"""
         return self._prior
     
     @prior.setter
