@@ -7,25 +7,6 @@ sys.path.append("../../")
 import cuqi
 from mshr import *
 import matplotlib.pyplot as plt
-
-#%%
-class matern():
-    def __init__(self, path, num_terms=128):
-        self.dim = num_terms
-        matern_data = np.load(path)
-        self.eig_val = matern_data['l'][:num_terms]
-        self.eig_vec = matern_data['e'][:,:num_terms]
-
-    def set_levels(self, c_minus=0., c_plus=1.):
-        self.c_minus = c_minus
-        self.c_plus = c_plus
-
-    def heavy(self, x):
-        return self.c_minus*0.5*(1 + np.sign(x)) + self.c_plus*0.5*(1 - np.sign(x))
-
-    def assemble(self, p):
-        return self.heavy(self.eig_vec@( self.eig_val*p ))
-
 class source(UserExpression):
     def eval(self,values,x):
         values[0] = 10*np.exp(-(np.power(x[0]-0.5, 2) + np.power(x[1], 2)) )
@@ -48,8 +29,6 @@ V_space = FunctionSpace(mesh, V)
 FEM_el = parameter_space.ufl_element()
 source_term = source(element=FEM_el)
 
-matern_field = matern('basis.npz')
-matern_field.set_levels(1,10)
 #m_func = Function( parameter_space )
 def form(m,u,p):
     u_0 = u[0]
@@ -67,12 +46,14 @@ dirichlet_bc = DirichletBC(solution_space.sub(0), bc_func, u_boundary)
 PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, parameter_space,dirichlet_bc, observation_operator=obs_func)
 
 #%%
-domain_geometry = cuqi.fenics.geometry.FEniCSMatern(parameter_space, matern_field)
+geometry = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
+domain_geometry = cuqi.fenics.field.Matern(geometry, l = .2, nu = 2, num_terms=128)
 
 range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_space) 
 
 m_input = cuqi.samples.CUQIarray( np.random.standard_normal(128), geometry= domain_geometry)
 
+#m_input = np.random.standard_normal(128)
 
 PDE.assemble(m_input)
 sol, _ = PDE.solve()
