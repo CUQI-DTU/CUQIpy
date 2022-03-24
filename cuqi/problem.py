@@ -175,23 +175,6 @@ class BayesianProblem(object):
                 x_BFGS, info_BFGS = solver.solve()
             return x_BFGS, info_BFGS
 
-    def _check_geometries_consistency(self, geom1, geom2, fail_msg):
-        """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""
-        if isinstance(geom1,_DefaultGeometry):
-            if isinstance(geom2,_DefaultGeometry):
-                if geom1 == geom2:
-                    return geom1,geom2
-            else: 
-                return geom2, geom2
-        else:
-            if isinstance(geom2,_DefaultGeometry):
-                return geom1,geom1
-            else:
-                if geom1 == geom2:
-                    return geom1,geom2
-        raise Exception(fail_msg)
-
-
     def sample_posterior(self,Ns):
         """Sample Ns samples of the posterior given data"""
         
@@ -226,14 +209,6 @@ class BayesianProblem(object):
         else:
             samples.plot_ci(95)
 
-    def _check(self,distL,distP,typeModel=None):
-        L = isinstance(self.likelihood.distribution,distL)
-        P = isinstance(self.prior,distP)
-        if typeModel is None:
-            M = True
-        else:
-            M = isinstance(self.model,typeModel)
-        return L and P and M
     def _sampleLinearRTO(self,Ns):
         posterior = Posterior(self.likelihood, self.prior)
         sampler = cuqi.sampler.Linear_RTO(posterior)
@@ -315,3 +290,28 @@ class BayesianProblem(object):
         #    x_s.geometry = self.prior.geometry
         
         return x_s
+
+    def _check_geometries_consistency(self, geom1, geom2, fail_msg):
+        """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""
+        if isinstance(geom1,_DefaultGeometry):
+            if isinstance(geom2,_DefaultGeometry):
+                if geom1 == geom2:
+                    return geom1,geom2
+            else: 
+                return geom2, geom2
+        else:
+            if isinstance(geom2,_DefaultGeometry):
+                return geom1,geom1
+            else:
+                if geom1 == geom2:
+                    return geom1,geom2
+        raise Exception(fail_msg)
+
+    def _check(self,distL,distP,typeModel=None):
+        L = isinstance(self.likelihood.distribution,distL)
+        P = isinstance(self.prior,distP)
+        if typeModel is None:
+            M = True
+        else:
+            M = isinstance(self.model,typeModel)
+        return L and P and M
