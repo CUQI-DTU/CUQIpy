@@ -114,6 +114,11 @@ class BayesianProblem(object):
         """Extract the cuqi model from likelihood."""
         return self.likelihood.model
 
+    @property
+    def posterior(self):
+        """Create posterior distribution from likelihood and prior"""
+        return Posterior(self.likelihood, self.prior)
+
     def ML(self):
         """Maximum Likelihood (ML) estimate"""
         x0 = np.random.randn(self.model.domain_dim)
@@ -156,14 +161,14 @@ class BayesianProblem(object):
         else:
             x0 = np.random.randn(self.model.domain_dim)
             def posterior_logpdf(x):
-                logpdf = -self.prior.logpdf(x) - self.likelihood.log(x)
-                return logpdf
+                return -self.posterior.logpdf(x)
+
             # Gradient should be used if available. We attempt to use gradients (in the
             # "try" part) and  if any error is encountered, it is caught and instead 
             # optimization without gradients is attempted.
             try: 
                 print("Attempting to use gradients")
-                gradfunc = lambda x: -self.prior.gradient(x) - self.likelihood.gradient(x)
+                gradfunc = lambda x: -self.posterior.gradient(x)
                 solver = cuqi.solver.minimize(posterior_logpdf, 
                                               x0,
                                               gradfunc=gradfunc)
@@ -226,9 +231,9 @@ class BayesianProblem(object):
             samples.plot_ci(95)
 
     def _sampleLinearRTO(self,Ns):
-        posterior = Posterior(self.likelihood, self.prior)
-        sampler = cuqi.sampler.Linear_RTO(posterior)
-        return sampler.sample(Ns,0)
+        Nb = int(0.2*Ns)   # burn-in
+        sampler = cuqi.sampler.Linear_RTO(self.posterior, maxit=100)
+        return sampler.sample(Ns, Nb)
 
     def _sampleMapCholesky(self,Ns):
         # Start timing
@@ -263,7 +268,7 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.likelihood.log(x) + self.prior.logpdf(x)
+        def target(x): return self.posterior.logpdf(x)
         def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 
         # Set up sampler
@@ -280,31 +285,18 @@ class BayesianProblem(object):
         return x_s
 
     def _samplepCN(self,Ns):
-        # Dimension
-        n = self.prior.dim
-        
-        # Set up target and proposal
-        def target(x): return self.likelihood.log(x)
-        #def proposal(ns): return self.prior.sample(ns)
-        
+
         scale = 0.02
         #x0 = np.zeros(n)
         
-        posterior = cuqi.distribution.Posterior(self.likelihood, self.prior)
-        MCMC = cuqi.sampler.pCN(posterior,scale)      
+        MCMC = cuqi.sampler.pCN(self.posterior,scale)      
         
-        #TODO: Select burn-in 
-        #Nb = int(0.25*Ns)   # burn-in
-
         #Run sampler
+        Nb = int(0.2*Ns)
         ti = time.time()
-        x_s = MCMC.sample_adapt(Ns,0) #ToDo: fix sampler input
+        x_s = MCMC.sample_adapt(Ns, Nb)
         print('Elapsed time:', time.time() - ti)
-
-        # Set geometry from prior
-        #if hasattr(x_s,"geometry"):
-        #    x_s.geometry = self.prior.geometry
-        
+       
         return x_s
 
     def _sampleNUTS(self,Ns):
@@ -313,10 +305,7 @@ class BayesianProblem(object):
         #print("Computing MAP ESTIMATE")
         #x_map, _ = self.MAP()
         
-        # Set up target and proposal
-        target = Posterior(self.likelihood, self.prior)
-
-        MCMC = cuqi.sampler.NUTS(target)
+        MCMC = cuqi.sampler.NUTS(self.posterior)
         
         # Run sampler
         Nb = int(0.2*Ns)   # burn-in

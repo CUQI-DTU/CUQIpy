@@ -17,26 +17,28 @@ n = TP.model.domain_dim
 
 # %% Prior choices (Main ones of interest: Gaussian, GMR, Cauchy_diff, Laplace_diff:
 # Working choices
-#TP.prior = Gaussian(mean=np.zeros(n), std=0.05, geometry=TP.model.domain_geometry)
+TP.prior = Gaussian(mean=np.zeros(n), std=0.05, geometry=TP.model.domain_geometry)
 #TP.prior = GaussianCov(mean=np.zeros(n), cov=0.05**2, geometry=TP.model.domain_geometry)
 
-# Needs some tuning
-TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry)
-#TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess!
 
-# Broken (Would be nice to fix)
-#TP.prior = GMRF(np.zeros(n), 50, n, 1, "zero") # Odd behavior (swingy?)
-#TP.prior = LMRF(np.zeros(n), 50, n, 1, "zero") # Odd behavior prior samples
+# Needs some tuning
+#TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.1, bc_type="zero", geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
+#TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
+
+# Need tuning (Would be nice to fix)
+#TP.prior = GMRF(np.zeros(n), 500, n, 1, "zero") # Odd behavior (swingy?)
+#TP.prior = LMRF(np.zeros(n), 50, n, 1, "zero") # Seems OK. Same as Laplace diff actually?
 
 # Bad choices (ignore)
 #TP.prior = Beta(2*np.ones(n), 5*np.ones(n)) #Might need tuning
 #TP.prior = Laplace(np.zeros(n), 10) #Might need tuning
 #TP.prior = InverseGamma(3*np.ones(n), np.zeros(n), 1*np.ones(n)) #Bad choice in general.. #Might need tuning
 #TP.prior = Lognormal(mean=np.zeros(n), cov=0.05) #NUTS ACTS out!
-# %% Samples
+
+# Samples
 samples = TP.sample_posterior(1000)
 
-# %% CI plot
+# CI plot
 samples.plot_ci(exact=TP.exactSolution)
 
 # %% plot
