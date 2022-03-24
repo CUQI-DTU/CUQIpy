@@ -13,21 +13,29 @@ from cuqi.sampler import NUTS, CWMH
 %autoreload 2
 # %% Deconvolution 1D problem
 TP = cuqi.testproblem.Deconvolution()
+#TP = cuqi.testproblem.Deconvolution2D()
 n = TP.model.domain_dim
+N = TP.model.domain_geometry.shape[0]
+ndim = len(TP.model.domain_geometry.shape)
+
+# Prior par
+if ndim == 1: par = 0.05 #1d
+if ndim == 2: par = 1 #2d
+if ndim == 1: Ns = 1000
+if ndim == 2: Ns = 100
 
 # %% Prior choices (Main ones of interest: Gaussian, GMR, Cauchy_diff, Laplace_diff:
 # Working choices
-TP.prior = Gaussian(mean=np.zeros(n), std=0.05, geometry=TP.model.domain_geometry)
-#TP.prior = GaussianCov(mean=np.zeros(n), cov=0.05**2, geometry=TP.model.domain_geometry)
+#TP.prior = Gaussian(mean=np.zeros(n), std=par, geometry=TP.model.domain_geometry) #Not for 2D.
+#TP.prior = GaussianCov(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
 
+# Seems ok? - (Needs fix in 2D)
+TP.prior = Cauchy_diff(location=np.zeros(n), scale=par, bc_type="zero", geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
+#TP.prior = Laplace_diff(location=np.zeros(n), scale=par, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
 
-# Needs some tuning
-#TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.1, bc_type="zero", geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
-#TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
-
-# Need tuning (Would be nice to fix)
-#TP.prior = GMRF(np.zeros(n), 500, n, 1, "zero") # Odd behavior (swingy?)
-#TP.prior = LMRF(np.zeros(n), 50, n, 1, "zero") # Seems OK. Same as Laplace diff actually?
+# Need tuning - (Needs fix in 2D)
+#TP.prior = GMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
+#TP.prior = LMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Seems OK. Same as Laplace diff actually?
 
 # Bad choices (ignore)
 #TP.prior = Beta(2*np.ones(n), 5*np.ones(n)) #Might need tuning
@@ -35,10 +43,10 @@ TP.prior = Gaussian(mean=np.zeros(n), std=0.05, geometry=TP.model.domain_geometr
 #TP.prior = InverseGamma(3*np.ones(n), np.zeros(n), 1*np.ones(n)) #Bad choice in general.. #Might need tuning
 #TP.prior = Lognormal(mean=np.zeros(n), cov=0.05) #NUTS ACTS out!
 
-# Samples
-samples = TP.sample_posterior(1000)
+# %% Samples
+samples = TP.sample_posterior(Ns)
 
-# CI plot
+# %% CI plot
 samples.plot_ci(exact=TP.exactSolution)
 
 # %% plot
@@ -52,7 +60,7 @@ samples.plot_autocorrelation()
 
 # %% Prior samples
 try:
-    samples_prior = TP.prior.sample(100)
+    samples_prior = TP.prior.sample(3)
     print("Direct")
 except:
     try:
