@@ -702,6 +702,10 @@ class Gaussian(GaussianCov):
     """
     def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
         
+        dim = len(mean)
+        if dim > 5000:
+            raise NotImplementedError("Use GaussianCov for large-scale problems.")
+            
         #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
