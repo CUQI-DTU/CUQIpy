@@ -168,15 +168,26 @@ class Distribution(ABC):
 # ========================================================================
 class Cauchy_diff(Distribution):
 
-    def __init__(self, location, scale, bc_type,**kwargs):
+    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+        self._physical_dim = physical_dim
 
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+        if physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
+        elif physical_dim == 1:
+            num_nodes = self.dim
+        else:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
     @property
     def dim(self): 
@@ -865,16 +876,26 @@ class GMRF(Distribution):
 # ========================================================================
 class Laplace_diff(Distribution):
 
-    def __init__(self, location, scale, bc_type, **kwargs):
+    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
 
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+        self._physical_dim = physical_dim
 
-        # finite difference matrix
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+        if physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
+        elif physical_dim == 1:
+            num_nodes = self.dim
+        else:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
 
     @property
