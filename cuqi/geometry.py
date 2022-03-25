@@ -152,6 +152,56 @@ class Geometry(ABC):
     def __repr__(self) -> str:
         return "{}{}".format(self.__class__.__name__,self.shape)
 
+
+class _GeometryWrapper(Geometry):
+    """A class that wraps a given geometry.
+    
+    Parameters
+    -----------
+    geometry : cuqi.geometry.Geometry
+    """
+
+    def __init__(self,geometry):
+        self.geometry = geometry
+
+    @property
+    def shape(self):
+        return self.geometry.shape
+
+    @property
+    def grid(self):
+        return self.geometry.grid
+
+    @property
+    def axis_labels(self):
+        return self.geometry.axis_labels
+
+    @property
+    def variables(self):
+        return self.geometry.variables
+
+    @property
+    def mesh(self):
+        return self.geometry.mesh
+
+    def par2fun(self,p):
+        return self.geometry.par2fun(p)
+
+    def fun2par(self,f):
+        return self.geometry.fun2par(f)
+
+    def _plot(self, values, *args, **kwargs):
+        """Calls the underlying geometry plotting method."""
+        return self.geometry._plot(values, *args, **kwargs)
+
+    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
+        """Calls the underlying geometry plotting of envelope method."""
+        return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
+
+    def __repr__(self) -> str:
+        return "{} (wrapes {})".format(self.__class__.__name__,self.geometry.__repr__())
+
+
 class Continuous(Geometry, ABC):
 
     def __init__(self,grid=None, axis_labels=None):
