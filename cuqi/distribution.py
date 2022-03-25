@@ -756,6 +756,8 @@ class GMRF(Distribution):
             num_nodes = (partition_size,) 
         else:
             num_nodes = (partition_size,partition_size)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
 
         self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
         self._diff_op = self._prec_op._diff_op      
