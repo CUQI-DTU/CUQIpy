@@ -2,6 +2,7 @@
 # TODO (Questions):
 # 1) Add doc to Cauchy_diff and Laplace_diff.
 # 2) Add doc to GMRF, LMRF.
+# 3) Add LMRF_approx?
 
 import sys
 sys.path.append("..")
@@ -60,6 +61,9 @@ samples.plot_trace()
 
 # %% autocorr
 samples.plot_autocorrelation()
+
+# %% scatter
+samples.plot_pair()
 
 # %% Prior samples
 try:
