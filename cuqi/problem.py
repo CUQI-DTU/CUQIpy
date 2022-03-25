@@ -184,7 +184,7 @@ class BayesianProblem(object):
         """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
         
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, 5000) and not self._check_posterior_type(GMRF):
+        if self._check_posterior_type((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, 5000) and not self._check_posterior_type(GMRF):
             print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
@@ -200,23 +200,23 @@ class BayesianProblem(object):
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior_type((Gaussian, GMRF), Gaussian):
+        elif self._check_posterior_type((Gaussian, GMRF), (Gaussian, GaussianCov)):
             print("Using preconditioned Crank-Nicolson (pCN) sampler")
             return self._samplepCN(Ns)
 
         # For difference type priors we use CWMH
-        elif self._check_posterior_type((Laplace_diff, LMRF), Gaussian):
+        elif self._check_posterior_type((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=5000):
             print("Using Component-wise Metropolis-Hastings (CWMH) sampler")
             return self._sampleCWMH(Ns)
 
         # Possibly bad choices!
-        elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal)):
+        elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal), max_dim=5000):
             print("!!!EXPERIMENTAL SAMPER CHOICE: Use at own risk!!!")
             print("Using Component-wise Metropolis-Hastings (CWMH) sampler")
             return self._sampleCWMH(Ns)
 
         else:
-            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)}. Check documentation for available combinations.')
+            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Check documentation for available combinations.')
 
     def UQ(self, exact=None):
         print("Computing 5000 samples")
@@ -268,13 +268,12 @@ class BayesianProblem(object):
         n = self.prior.dim
         
         # Set up target and proposal
-        def target(x): return self.posterior.logpdf(x)
         def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 
         # Set up sampler
         scale = 0.05*np.ones(n)
         x0 = 0.5*np.ones(n)
-        MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
+        MCMC = cuqi.sampler.CWMH(self.posterior, proposal, scale, x0)
         
         # Run sampler
         Nb = int(0.2*Ns)   # burn-in
