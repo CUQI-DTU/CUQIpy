@@ -146,7 +146,7 @@ class Geometry(ABC):
         for key, value in vars(self).items():
             # If _variables exist ensure it exists in both objects (by calling generator)
             if key == "_variables": obj.variables
-            if not np.all(value ==vars(obj)[key]): return False 
+            if not np.array_equal(value, vars(obj)[key]): return False 
         return True
 
     def __repr__(self) -> str:

@@ -94,3 +94,10 @@ def test_geometry_variables_generator_Geometry():
 	g2 = cuqi.geometry.Continuous1D(5)
 	g1.variables #Extract variables (they are generated in g1, but not in g2)
 	assert g1==g2 #g2 has no _variables yet, but during check its generated.
+
+def test_geometry_equality():
+	"""Ensure geometry arrays compare correctly"""
+	dim=128
+	g1 = cuqi.geometry.Continuous2D((dim,dim))
+	g2 = cuqi.geometry.Continuous2D((dim,dim))
+	assert (g1==g2) == True
