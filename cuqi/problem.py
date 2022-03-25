@@ -232,7 +232,7 @@ class BayesianProblem(object):
 
     def _sampleLinearRTO(self,Ns):
         Nb = int(0.2*Ns)   # burn-in
-        sampler = cuqi.sampler.Linear_RTO(self.posterior, maxit=25)
+        sampler = cuqi.sampler.Linear_RTO(self.posterior)
         return sampler.sample(Ns, Nb)
 
     def _sampleMapCholesky(self,Ns):
