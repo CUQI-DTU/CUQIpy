@@ -56,7 +56,7 @@ PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, pa
 
 #%%
 geometry = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
-domain_geometry = cuqi.fenics.field.Matern(geometry, l = .2, nu = 2, num_terms=128)
+domain_geometry = cuqi.fenics.geometry.Matern(geometry, l = .2, nu = 2, num_terms=128)
 
 range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_space) 
 
