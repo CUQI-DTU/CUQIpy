@@ -197,9 +197,9 @@ class Cauchy_diff(Distribution):
 
     .. math::
 
-        \pi(\mathbf{x}) = \\frac{1}{\pi\gamma \left( 1+\left( \\frac{\mathbf{D}(\mathbf{x}-\mathbf{x}_0)}{\gamma} \\right)^2 \\right) },
+        \pi(\mathbf{x}) = \\frac{1}{(\pi\gamma)^n \left( 1+\left( \\frac{\mathbf{D}(\mathbf{x}-\mathbf{x}_0)}{\gamma} \\right)^2 \\right) },
 
-    where :math:`\gamma` is the scale and :math:`\mathbf{x}_0` is the location parameter.
+    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`\gamma` is the scale, :math:`\mathbf{D}` is the difference operator.
  
     """
     #  Dx = self._diff_op @ (x-self.location)
@@ -914,7 +914,41 @@ class GMRF(Distribution):
 
 # ========================================================================
 class Laplace_diff(Distribution):
+    """Laplace distribution on the difference between of neighboring nodes.
 
+    Parameters
+    ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
+    scale : scalar
+        The scale parameter of the distribution.
+
+    bc_type : string
+        The boundary conditions of the difference operator.
+
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+        prior = cuqi.distribution.Laplace_diff(location=np.zeros(128), scale=0.1)
+
+    Notes
+    -----
+    The pdf is given by
+
+    .. math::
+
+        \pi(\mathbf{x}) = \\frac{1}{(2b)^n} \exp \left(- \\frac{\|\mathbf{D}(\mathbf{x}-\mathbf{x}_0) \|_1 }{b} \\right),
+
+    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`b` is the scale, :math:`\mathbf{D}` is the difference operator.
+ 
+    """
     def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
