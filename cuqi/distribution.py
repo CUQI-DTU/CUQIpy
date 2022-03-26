@@ -167,7 +167,44 @@ class Distribution(ABC):
             return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
 class Cauchy_diff(Distribution):
+    """Cauchy distribution on the difference between of neighboring nodes.
 
+    Parameters
+    ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
+    scale : scalar
+        The scale parameter of the distribution.
+
+    bc_type : string
+        The boundary conditions of the difference operator.
+
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+        prior = cuqi.distribution.Cauchy_diff(location=np.zeros(128), scale=0.1)
+
+    Notes
+    -----
+    The pdf is given by
+
+    .. math::
+
+        \pi(\mathbf{x}) = \\frac{1}{\pi\gamma \left( 1+\left( \\frac{\mathbf{D}(\mathbf{x}-\mathbf{x}_0)}{\gamma} \\right)^2 \\right) },
+
+    where :math:`\gamma` is the scale and :math:`\mathbf{x}_0` is the location parameter.
+ 
+    """
+    #  Dx = self._diff_op @ (x-self.location)
+    #   # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
+    #    return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
     def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
