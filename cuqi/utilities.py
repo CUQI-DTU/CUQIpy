@@ -34,13 +34,17 @@ def get_direct_attributes(dist):
     keys = vars(dist).keys()
     return [key for key in keys]
 
-
 def get_indirect_attributes(dist):
     attributes = []
     for key, value in vars(dist).items():
         if callable(value):
             attributes.extend(getNonDefaultArgs(value))
     return attributes
+
+def get_writeable_properties(dist):
+    cls = type(dist) #Get class type
+    return [attr for attr, value in vars(cls).items()
+                 if isinstance(value, property) and value.fset is not None]
 
 def first_order_finite_difference_gradient(func, x, dim, epsilon= 0.000001):
     FD_gradient = np.empty(dim)
