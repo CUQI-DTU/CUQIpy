@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
-from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
+from cuqi.utilities import force_ndarray, get_writeable_properties, getNonDefaultArgs, get_indirect_attributes
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 import warnings
@@ -97,7 +97,7 @@ class Distribution(ABC):
         for kw_key, kw_val in kwargs.items():
             val_found = 0
             for attr_key, attr_val in vars(self).items():
-                if kw_key is attr_key:
+                if kw_key is attr_key or kw_key == attr_key[1:]:
                     val_found = 1
                 elif callable(attr_val) and kw_key in getNonDefaultArgs(attr_val):
                     val_found = 1
@@ -111,10 +111,13 @@ class Distribution(ABC):
 
         # Go through every attribute and assign values from kwargs accordingly
         for attr_key, attr_val in vars(self).items():
-            
             #If keyword directly specifies new value of attribute we simply reassign
             if attr_key in kwargs:
                 setattr(new_dist,attr_key,kwargs.get(attr_key))
+            
+            #If key fits with _key value, we add make sure to invoke setter method by assigning .key
+            if attr_key[1:] in kwargs:
+                setattr(new_dist,attr_key[1:],kwargs.get(attr_key[1:]))
 
             #If attribute is callable we check if any keyword arguments can be used as arguments
             if callable(attr_val):
@@ -131,7 +134,12 @@ class Distribution(ABC):
 
                 # If any keywords matched call with those and store output in the new dist
                 if len(attr_args)==len(accepted_keywords):  #All keywords found
-                    setattr(new_dist,attr_key,attr_val(**attr_args))
+                    # If key comes from _key (key w. setter method) we make sure to invoke setter
+                    if attr_key[0] == "_":
+                        setattr(new_dist,attr_key[1:],attr_val(**attr_args))
+                    else:
+                        setattr(new_dist,attr_key,attr_val(**attr_args))
+
                 elif len(attr_args)>0:                      #Some keywords found
                     # Define new function where the conditioned keywords are defined
                     func = partial(attr_val,**attr_args)
@@ -144,7 +152,10 @@ class Distribution(ABC):
         attributes = []
         ignore_attributes = ['name', 'is_symmetric']
         for key,value in vars(self).items():
-            if vars(self)[key] is None and key[0] != '_' and key not in ignore_attributes:
+            if vars(self)[key] is None and key not in ignore_attributes:
+                #If private attribute with writeable property (setter method) also add
+                if key[0] == "_" and key[1:] in get_writeable_properties(self): 
+                    key = key[1:]
                 attributes.append(key)
         return attributes + get_indirect_attributes(self) 
 
@@ -353,8 +364,16 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def __init__(self, mean=None, cov=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
-        self.cov = force_ndarray(cov)
+        self.mean = mean
+        self.cov = cov
+
+    @property
+    def mean(self):
+        return self._mean
+
+    @mean.setter
+    def mean(self, value):
+        self._mean = force_ndarray(value, flatten=True)
 
     @property
     def cov(self):
@@ -362,6 +381,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     @cov.setter
     def cov(self, value):
+        value = force_ndarray(value)
         self._cov = value
         if (value is not None) and (not callable(value)):
             prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
