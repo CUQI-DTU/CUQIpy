@@ -1,5 +1,5 @@
 # %%
-from turtle import pos
+from turtle import pos, update
 from dolfin import * 
 import sys
 import numpy as np
@@ -58,9 +58,16 @@ PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, pa
 fenics_continuous_geo = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
 matern_geo = cuqi.fenics.geometry.Matern(fenics_continuous_geo, l = .2, nu = 2, num_terms=128)
 
-heavy_map = lambda x: x
+c_minus = 1
+c_plus = 10
+
+def heavy_map(func):
+    dofs = func.vector().get_local()
+    updated_dofs = c_minus*0.5*(1 + np.sign(dofs)) + c_plus*0.5*(1 - np.sign(dofs))
+    func.vector().set_local(updated_dofs)
+    return func
+
 domain_geometry = cuqi.fenics.geometry.MappedGeometry(matern_geo, map = heavy_map)
-#domain_geometry = matern_geo 
 
 range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_space) 
 
