@@ -93,11 +93,13 @@ class Distribution(ABC):
                     raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditional variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
-        # KEYWORD ERROR CHECK
+        # KEYWORD ERROR CHECK TODO: use get_conditioning_variables for all this.
         for kw_key, kw_val in kwargs.items():
             val_found = 0
             for attr_key, attr_val in vars(self).items():
-                if kw_key is attr_key or kw_key == attr_key[1:]:
+                if kw_key is attr_key:
+                    val_found = 1
+                elif kw_key == attr_key[1:]:
                     val_found = 1
                 elif callable(attr_val) and kw_key in getNonDefaultArgs(attr_val):
                     val_found = 1
