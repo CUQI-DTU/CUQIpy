@@ -147,6 +147,9 @@ class Samples(object):
     shape : tuple
         Returns the shape of samples.
 
+    Ns : int
+        Returns the number of samples
+
     Methods
     ----------
     :meth:`plot`: Plots one or more samples.
@@ -165,6 +168,11 @@ class Samples(object):
     @property
     def shape(self):
         return self.samples.shape
+
+    @property
+    def Ns(self):
+        """Return number of samples"""
+        return self.samples.shape[-1]
 
     @property
     def geometry(self):
@@ -199,6 +207,8 @@ class Samples(object):
         # (the burn-in and thinned samples are lost)
         S = S.burnthin(100,2) 
         """
+        if Nb>=self.Ns:
+            raise ValueError(f"Number of burn-in {Nb} is greater than or equal number of samples {self.Ns}")
         new_samples = copy(self)
         new_samples.samples = self.samples[...,Nb::Nt]
         return new_samples
@@ -223,7 +233,7 @@ class Samples(object):
         return self.geometry.plot(std,*args,**kwargs)
 
     def plot(self,sample_indices=None,*args,**kwargs):
-        Ns = self.samples.shape[-1]
+        Ns = self.Ns
         Np = 5 # Number of samples to plot if Ns > 5
         
         if sample_indices is None:
