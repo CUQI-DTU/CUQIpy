@@ -9,7 +9,7 @@ from mshr import *
 import matplotlib.pyplot as plt
 class source(UserExpression):
     def eval(self,values,x):
-        values[0] = 10*np.exp(-(np.power(x[0]-0.5, 2) + np.power(x[1], 2)) )
+        values[0] = 10*np.exp(-(np.power(x[0]-0.5, 2) + np.power(x[1], 2)))
 
 def u_boundary(x, on_boundary):
     return False
@@ -55,8 +55,12 @@ dirichlet_bc = DirichletBC(solution_space.sub(0), bc_func, u_boundary)
 PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, parameter_space,dirichlet_bc, observation_operator=obs_func)
 
 #%%
-geometry = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
-domain_geometry = cuqi.fenics.geometry.Matern(geometry, l = .2, nu = 2, num_terms=128)
+fenics_continuous_geo = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
+matern_geo = cuqi.fenics.geometry.Matern(fenics_continuous_geo, l = .2, nu = 2, num_terms=128)
+
+heavy_map = lambda x: x
+domain_geometry = cuqi.fenics.geometry.MappedGeometry(matern_geo, map = heavy_map)
+#domain_geometry = matern_geo 
 
 range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_space) 
 
