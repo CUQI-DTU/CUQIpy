@@ -111,28 +111,6 @@ class FEniCSMappedGeometry(MappedGeometry):
     def fun2par(self,f):
         raise NotImplementedError
 
-#class CircularInclusion(Discrete, FenicsContinuous):
-#
-#    def __init__(self, function_space, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
-#        Discrete.__init__(self,inclusion_parameters)
-#        FenicsContinuous.__init__(self,function_space,labels)
-#        # assert len =3
-#        if self.physical_dim !=2:
-#            raise NotImplementedError("'CircularInclusion' object support 2D meshes only.")
-#
-#    @property
-#    def shape(self):
-#        #https://newbedev.com/calling-parent-class-init-with-multiple-inheritance-what-s-the-right-way
-#        # super(Discrete,self).shape calls second parent shape
-#        return super().shape #This calls first parent shape
-#
-#
-#    def plot(self):
-#        pass
-#
-#    def par2fun(self):
-#        pass
-
 
 class Matern(_GeometryWrapper):
 
@@ -147,8 +125,8 @@ class Matern(_GeometryWrapper):
         self._eig_vec = None
 
     @property
-    def dim(self):
-        return self.num_terms
+    def shape(self):
+        return (self.num_terms,)
 
     @property
     def l(self):
