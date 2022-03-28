@@ -1,4 +1,4 @@
-from cuqi.geometry import Discrete, Geometry, MappedGeometry, _WrappedGeometry
+from cuqi.geometry import Geometry, MappedGeometry, _WrappedGeometry
 import numpy as np
 import matplotlib.pyplot as plt
 import dolfin as dl
