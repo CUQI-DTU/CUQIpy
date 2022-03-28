@@ -131,6 +131,8 @@ class FirstOrderFiniteDifference(Operator):
             Dmat[0, 0] = 1
         elif (self.bc_type == 'none'):
             Dmat = eye(N)
+        else:
+            raise ValueError(f"Unknown boundary type {self.bc_type}")
 
         # structure matrix
         if (self.physical_dim == 1):

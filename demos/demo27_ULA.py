@@ -36,7 +36,7 @@ x_mean = np.mean(samples.samples, axis=1)
 plt.plot(x_mean)
 plt.plot(test.exactSolution)
 
-# %% Plot confidence interval
+# %% Plot credibility interval
 samples.plot_ci(95, exact=test.exactSolution)
 
 # %% Plot autocorrelation
