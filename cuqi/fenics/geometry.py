@@ -1,4 +1,4 @@
-from cuqi.geometry import Discrete, Geometry, MappedGeometry, _GeometryWrapper
+from cuqi.geometry import Discrete, Geometry, MappedGeometry, _WrappedGeometry
 import numpy as np
 import matplotlib.pyplot as plt
 import dolfin as dl
@@ -112,9 +112,30 @@ class FEniCSMappedGeometry(MappedGeometry):
         raise NotImplementedError
 
 
-class Matern(_GeometryWrapper):
+class Matern(_WrappedGeometry):
+    """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry.
+    
+    Parameters
+    -----------
+    geometry : cuqi.fenics.geometry.Geometry
+        An input geometry on which the Matern field representation is built (the geometry must have a mesh attribute)
 
-    def __init__(self, geometry, l, nu, num_terms):  # points can be mesh or grid
+    l : float
+        Length scale paramater (controls correlation length)
+
+    nu : int
+        Power of the covariance matrix (controls smoothness)
+
+    num_terms: int
+        Number of expantion terms to represent the Matern field realization
+
+    Example
+    _______
+    See demos/fenics_demos/demo02_Matern.py
+
+    """
+
+    def __init__(self, geometry, l, nu, num_terms): 
         super().__init__(geometry)
         if not hasattr(geometry, 'mesh'):
             raise NotImplementedError
@@ -163,9 +184,6 @@ class Matern(_GeometryWrapper):
         return self.geometry.par2fun(self.par2field(p))
 
     def par2field(self, p):
-        # is it mesh or grid
-        # construct basis and keep them in memory
-        # robust way to know when basis need to be updated
         if self._eig_vec is None and self._eig_val is None:
             self._build_basis() 
 	   
@@ -192,10 +210,8 @@ class Matern(_GeometryWrapper):
         A = dl.assemble(a)
         mat = A.array()
 
-        print('creating kernel ...')
         self.Ker = np.linalg.matrix_power(mat, -self.nu)
 
-        print('computing eigen decomposition ...')
         eig_val, eig_vec = np.linalg.eig(self.Ker)
         eig_val = np.real(eig_val)
         eig_vec = np.real(eig_vec)
@@ -211,7 +227,7 @@ class Matern(_GeometryWrapper):
         else:
             raise NotImplementedError
 
-        #elif hasattr(self.geometry, 'grid') :
+    #    elif hasattr(self.geometry, 'grid') :
 	#    X,Y = np.meshgrid(self.geometry.grid[0], self.geometry.grid[1])
 	#    self.grid_cooor = np.vstack(( Y.flatten(), X.flatten())).T
 	#    mesh = 
