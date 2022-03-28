@@ -153,7 +153,7 @@ class Geometry(ABC):
         return "{}{}".format(self.__class__.__name__,self.shape)
 
 
-class _GeometryWrapper(Geometry):
+class _WrappedGeometry(Geometry):
     """A class that wraps a given geometry.
     
     Parameters
@@ -199,7 +199,7 @@ class _GeometryWrapper(Geometry):
         return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
     def __repr__(self) -> str:
-        return "{} (wrapes {})".format(self.__class__.__name__,self.geometry.__repr__())
+        return "{} (wraps {})".format(self.__class__.__name__,self.geometry.__repr__())
 
 
 class Continuous(Geometry, ABC):
