@@ -10,16 +10,6 @@ import matplotlib.pyplot as plt
 
 #%% Define observation map 
 obs_func = None
-    #obs_func = lambda m,u : u.split()[0]
-    #------------------ Babak's code for boundary extraction
-    #boundary_elements = AutoSubDomain(lambda x, on_bnd: on_bnd)
-    #boundary_indicator = DirichletBC(self.V_space, 2, boundary_elements)
-    
-    #u = Function(self.V_space)
-    #boundary_indicator.apply( u.vector() )
-    #values = u.vector()
-    #self.bnd_idx = np.argwhere( values==2 ).reshape(-1)
-    #------------------ 
 
 #%% Define domain and mesh
 domain = Circle(Point(0,0),1)
