@@ -202,7 +202,7 @@ class BayesianProblem(object):
         print("Computing 5000 samples")
         samples = self.sample_posterior(5000)
 
-        print("Plotting 95 percent confidence interval")
+        print("Plotting 95 percent credibility interval")
         if exact is not None:
             samples.plot_ci(95,exact=exact)
         elif hasattr(self,"exactSolution"):

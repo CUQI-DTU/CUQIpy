@@ -153,7 +153,7 @@ class Samples(object):
     Methods
     ----------
     :meth:`plot`: Plots one or more samples.
-    :meth:`plot_ci`: Plots a confidence interval for the samples.
+    :meth:`plot_ci`: Plots a credibility interval for the samples.
     :meth:`plot_mean`: Plots the mean of the samples.
     :meth:`plot_std`: Plots the std of the samples.
     :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).

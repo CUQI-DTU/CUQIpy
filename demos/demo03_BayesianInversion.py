@@ -61,7 +61,7 @@ IP = cuqi.problem.BayesianProblem(likelihood=L, prior=P1)
 # Then we can simply sample the posterior
 results_prior1 = IP.sample_posterior(Ns) 
 
-# Plot 95% confidence interval
+# Plot 95% credibility interval
 results_prior1.plot_ci(95,exact=tp.exactSolution)
 
 #%% 2.  "Absolute non-expert level" -  just ask for UQ!
