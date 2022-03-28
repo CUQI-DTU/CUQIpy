@@ -227,8 +227,4 @@ class Matern(_WrappedGeometry):
         else:
             raise NotImplementedError
 
-    #    elif hasattr(self.geometry, 'grid') :
-	#    X,Y = np.meshgrid(self.geometry.grid[0], self.geometry.grid[1])
-	#    self.grid_cooor = np.vstack(( Y.flatten(), X.flatten())).T
-	#    mesh = 
         return V
