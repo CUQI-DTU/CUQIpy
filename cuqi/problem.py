@@ -121,20 +121,26 @@ class BayesianProblem(object):
 
     def ML(self):
         """Maximum Likelihood (ML) estimate"""
+        # Print warning to user about the automatic solver selection
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!! Automatic solver selection is experimental. !!!")
+        print("!!!    Always validate the computed results.    !!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("")
+        print("Using scipy.optimize.minimize on negative log-likelihood")
+        print("x0: random vector")
         x0 = np.random.randn(self.model.domain_dim)
-        # Gradient should be used if available. We attempt to use gradients (in the
-        # "try" part) and  if any error is encountered, it is caught and instead 
-        # optimization without gradients is attempted.
-        try: 
-            print("Attempting to use gradients")
+
+        if self._check_posterior_type(require_gradient=True):
+            print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.likelihood.gradient(x)
             solver = cuqi.solver.minimize(
                                      lambda x: -self.likelihood.log(x), 
                                      x0, 
                                      gradfunc=gradfunc)
             x_BFGS, info_BFGS = solver.solve()
-        except BaseException as err:
-            print("Gradient not available, optimizing without.")
+        else:
+            print("Optimizing with approximate gradients.")
             solver = cuqi.solver.minimize(
                                      lambda x: -self.likelihood.log(x), 
                                      x0)
@@ -143,8 +149,17 @@ class BayesianProblem(object):
 
 
     def MAP(self):
+
+        # Print warning to user about the automatic solver selection
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!! Automatic solver selection is experimental. !!!")
+        print("!!!    Always validate the computed results.    !!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("")
+
         """MAP computed the MAP estimate of the posterior"""
-        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel):
+        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=5000):
+            print("Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<=5000.")
             b  = self.data
             A  = self.model.get_matrix()
             Ce = self.likelihood.distribution.Sigma
@@ -158,61 +173,60 @@ class BayesianProblem(object):
             return cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
 
         # If no specific implementation exists, use numerical optimization.
-        else:
-            x0 = np.random.randn(self.model.domain_dim)
-            def posterior_logpdf(x):
-                return -self.posterior.logpdf(x)
+        print("Using scipy.optimize.minimize on negative logpdf of posterior")
+        print("x0: random vector")
+        x0 = np.random.randn(self.model.domain_dim)
+        def posterior_logpdf(x):
+            return -self.posterior.logpdf(x)
 
-            # Gradient should be used if available. We attempt to use gradients (in the
-            # "try" part) and  if any error is encountered, it is caught and instead 
-            # optimization without gradients is attempted.
-            try: 
-                print("Attempting to use gradients")
-                gradfunc = lambda x: -self.posterior.gradient(x)
-                solver = cuqi.solver.minimize(posterior_logpdf, 
-                                              x0,
-                                              gradfunc=gradfunc)
-                x_BFGS, info_BFGS = solver.solve()
-            except BaseException as err:
-                print("Gradient not available, optimizing without.")        
-                solver = cuqi.solver.minimize(posterior_logpdf, 
-                                              x0)
-                x_BFGS, info_BFGS = solver.solve()
-            return x_BFGS, info_BFGS
+        if self._check_posterior_type(require_gradient=True):
+            print("Optimizing with exact gradients")
+            gradfunc = lambda x: -self.posterior.gradient(x)
+            solver = cuqi.solver.minimize(posterior_logpdf, 
+                                            x0,
+                                            gradfunc=gradfunc)
+            x_BFGS, info_BFGS = solver.solve()
+        else:
+            print("Optimizing with approximate gradients.")      
+            solver = cuqi.solver.minimize(posterior_logpdf, 
+                                            x0)
+            x_BFGS, info_BFGS = solver.solve()
+        return x_BFGS, info_BFGS
 
     def sample_posterior(self, Ns):
         """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
-        
+
+        # Print warning to user about the automatic sampler selection
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!! Automatic sampler selection is experimental. !!!")
+        print("!!!    Always validate the computed results.     !!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("")
+
         # For Gaussian small-scale we can use direct sampling
         if self._check_posterior_type((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, 5000) and not self._check_posterior_type(GMRF):
-            print("Using direct sampling by Cholesky factor of inverse covariance. Only works for small-scale problems with dim<=5000.")
             return self._sampleMapCholesky(Ns)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
-            print("Using Linear_RTO sampler")
             return self._sampleLinearRTO(Ns)
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
         elif self._check_posterior_type(require_gradient=True) and not self._check_posterior_type((Beta, InverseGamma)):
-            print("Using No-U-Turn (NUTS) sampler")
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior_type((Gaussian, GMRF), (Gaussian, GaussianCov)):
-            print("Using preconditioned Crank-Nicolson (pCN) sampler")
             return self._samplepCN(Ns)
 
         # For difference type priors we use CWMH
         elif self._check_posterior_type((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=5000):
-            print("Using Component-wise Metropolis-Hastings (CWMH) sampler")
             return self._sampleCWMH(Ns)
 
         # Possibly bad choices!
         elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal), max_dim=5000):
             print("!!!EXPERIMENTAL SAMPER CHOICE: Use at own risk!!!")
-            print("Using Component-wise Metropolis-Hastings (CWMH) sampler")
             return self._sampleCWMH(Ns)
 
         else:
@@ -231,11 +245,14 @@ class BayesianProblem(object):
             samples.plot_ci(95)
 
     def _sampleLinearRTO(self,Ns):
+        print("Using Linear_RTO sampler.")
+        print("burn-in: 20%")
         Nb = int(0.2*Ns)   # burn-in
         sampler = cuqi.sampler.Linear_RTO(self.posterior)
         return sampler.sample(Ns, Nb)
 
     def _sampleMapCholesky(self,Ns):
+        print("Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<=5000.")
         # Start timing
         ti = time.time()
 
@@ -264,6 +281,9 @@ class BayesianProblem(object):
         return cuqi.samples.Samples(x_s,self.model.domain_geometry)
     
     def _sampleCWMH(self,Ns):
+        print("Using Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
+        print("burn-in: 20%, scale: 0.05, x0: 0.5 (vector)")
+
         # Dimension
         n = self.prior.dim
         
@@ -284,6 +304,8 @@ class BayesianProblem(object):
         return x_s
 
     def _samplepCN(self,Ns):
+        print("Using preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
+        print("burn-in: 20%, scale: 0.02")
 
         scale = 0.02
         #x0 = np.zeros(n)
@@ -299,6 +321,8 @@ class BayesianProblem(object):
         return x_s
 
     def _sampleNUTS(self,Ns):
+        print("Using No-U-Turn (NUTS) sampler")
+        print("burn-in: 20%")
 
         # MAP
         #print("Computing MAP ESTIMATE")
