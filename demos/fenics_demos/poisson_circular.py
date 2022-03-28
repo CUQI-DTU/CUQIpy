@@ -67,7 +67,7 @@ def heavy_map(func):
     func.vector().set_local(updated_dofs)
     return func
 
-domain_geometry = cuqi.fenics.geometry.MappedGeometry(matern_geo, map = heavy_map)
+domain_geometry = cuqi.fenics.geometry.FEniCSMappedGeometry(matern_geo, map = heavy_map)
 
 range_geometry = cuqi.fenics.geometry.FEniCSContinuous(solution_space) 
 
