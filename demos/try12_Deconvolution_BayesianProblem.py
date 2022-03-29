@@ -1,8 +1,6 @@
 # %% Here we test the automatic sampler selection for Deconvolution (1D and 2D).
-# TODO (Questions):
-# 1) Add doc to Cauchy_diff and Laplace_diff.
-# 2) Add doc to GMRF, LMRF.
-# 3) Add LMRF_approx?
+# TODO:
+# 1) Add LMRF_approx?
 
 import sys
 sys.path.append("..")
@@ -18,8 +16,8 @@ from cuqi.sampler import NUTS, CWMH
 %autoreload 2
 # %% Deconvolution 1D problem
 dim = 128
-TP = cuqi.testproblem.Deconvolution(dim=dim, phantom="square")
-#TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom="satellite")
+#TP = cuqi.testproblem.Deconvolution(dim=dim, phantom="square")
+TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom="satellite")
 n = TP.model.domain_dim
 N = TP.model.domain_geometry.shape[0]
 ndim = len(TP.model.domain_geometry.shape)
