@@ -85,25 +85,20 @@ class Distribution(ABC):
     def __call__(self, *args, **kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
 
+        # Store conditional variables
+        cond_vars = self.get_conditioning_variables()
+
         # PARSE ARGS AND ADD TO KWARGS
         if len(args)>0:
-            ordered_keys = self.get_conditioning_variables() # Args follow order of cond. vars
+            ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
                 if ordered_keys[index] in kwargs:
                     raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditional variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
-        # KEYWORD ERROR CHECK TODO: use get_conditioning_variables for all this.
-        for kw_key, kw_val in kwargs.items():
-            val_found = 0
-            for attr_key, attr_val in vars(self).items():
-                if kw_key is attr_key:
-                    val_found = 1
-                elif kw_key == attr_key[1:]:
-                    val_found = 1
-                elif callable(attr_val) and kw_key in getNonDefaultArgs(attr_val):
-                    val_found = 1
-            if val_found == 0:
+        # KEYWORD ERROR CHECK
+        for kw_key in kwargs.keys():
+            if kw_key not in cond_vars:
                 raise ValueError("The keyword {} is not part of any attribute or non-default argument to any function of this distribution.".format(kw_key))
 
 
