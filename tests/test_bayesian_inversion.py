@@ -39,7 +39,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     ref = np.load(ref_file)
 
     # Check results with reference data
-    assert med_xpos == pytest.approx(ref["median"])
-    assert sigma_xpos == pytest.approx(ref["sigma"])
-    assert lo95 == pytest.approx(ref["lo95"])
-    assert up95 == pytest.approx(ref["up95"])
+    assert med_xpos == pytest.approx(ref["median"], rel=1e-4)
+    assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-4)
+    assert lo95 == pytest.approx(ref["lo95"], rel=1e-4)
+    assert up95 == pytest.approx(ref["up95"], rel=1e-4)
