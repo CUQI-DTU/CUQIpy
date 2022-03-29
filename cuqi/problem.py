@@ -148,18 +148,27 @@ class BayesianProblem(object):
         return x_BFGS, info_BFGS
 
 
-    def MAP(self):
+    def MAP(self, disp=True):
+        """Compute the MAP estimate of the posterior.
+        
+        Parameters
+        ----------
 
-        # Print warning to user about the automatic solver selection
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!! Automatic solver selection is experimental. !!!")
-        print("!!!    Always validate the computed results.    !!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("")
+        disp : bool
+            display info messages? (True or False).
+        
+        """
 
-        """MAP computed the MAP estimate of the posterior"""
+        if disp:
+            # Print warning to user about the automatic solver selection
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!! Automatic solver selection is experimental. !!!")
+            print("!!!    Always validate the computed results.    !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("")
+
         if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=5000):
-            print("Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<=5000.")
+            if disp: print("Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<=5000.")
             b  = self.data
             A  = self.model.get_matrix()
             Ce = self.likelihood.distribution.Sigma
@@ -173,21 +182,21 @@ class BayesianProblem(object):
             return cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
 
         # If no specific implementation exists, use numerical optimization.
-        print("Using scipy.optimize.minimize on negative logpdf of posterior")
-        print("x0: random vector")
+        if disp: print("Using scipy.optimize.minimize on negative logpdf of posterior")
+        if disp: print("x0: random vector")
         x0 = np.random.randn(self.model.domain_dim)
         def posterior_logpdf(x):
             return -self.posterior.logpdf(x)
 
         if self._check_posterior_type(require_gradient=True):
-            print("Optimizing with exact gradients")
+            if disp: print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.posterior.gradient(x)
             solver = cuqi.solver.minimize(posterior_logpdf, 
                                             x0,
                                             gradfunc=gradfunc)
             x_BFGS, info_BFGS = solver.solve()
         else:
-            print("Optimizing with approximate gradients.")      
+            if disp: print("Optimizing with approximate gradients.")      
             solver = cuqi.solver.minimize(posterior_logpdf, 
                                             x0)
             x_BFGS, info_BFGS = solver.solve()
@@ -266,7 +275,7 @@ class BayesianProblem(object):
         n = self.prior.dim 
         x_s = np.zeros((n,Ns))
 
-        x_map = self.MAP() #Compute MAP estimate
+        x_map = self.MAP(disp=False) #Compute MAP estimate
         C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
         L = np.linalg.cholesky(C)
         for s in range(Ns):
