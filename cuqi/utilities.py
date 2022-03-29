@@ -3,6 +3,7 @@ import inspect
 from scipy.sparse import issparse
 from cuqi.geometry import _DefaultGeometry
 from dataclasses import dataclass
+from abc import ABCMeta
 
 def force_ndarray(value,flatten=False):
     if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
@@ -18,7 +19,7 @@ def force_ndarray(value,flatten=False):
     return value
 
 
-def getNonDefaultArgs(func):
+def get_non_default_args(func):
     """ Returns the non-default arguments and kwargs from a callable function"""
     sig = inspect.signature(func)
     para = sig.parameters
@@ -34,17 +35,43 @@ def get_direct_attributes(dist):
     keys = vars(dist).keys()
     return [key for key in keys]
 
-def get_indirect_attributes(dist):
+def get_indirect_variables(dist):
     attributes = []
-    for key, value in vars(dist).items():
+    for _, value in vars(dist).items():
         if callable(value):
-            attributes.extend(getNonDefaultArgs(value))
+            keys = get_non_default_args(value)
+            for key in keys:
+                if key not in attributes: #Ensure we did not already find this key
+                    attributes.append(key)
     return attributes
 
-def get_writeable_properties(dist):
-    cls = type(dist) #Get class type
-    return [attr for attr, value in vars(cls).items()
+def get_writeable_attributes(dist):
+    """ Get writeable attributes of object instance. """
+    attributes = []
+    for key in vars(dist).keys():
+        if key[0] != "_":
+            attributes.append(key)
+    return attributes
+
+def get_writeable_properties(cls, stop_at_class=object):
+    """ Get writeable properties of class type."""
+
+    # Potentially convert object instance to class type.
+    if isinstance(cls, stop_at_class) and isinstance(type(cls), ABCMeta):
+        cls = type(cls)
+
+    # Compute writeable properties of this class
+    writeable_properties = [attr for attr, value in vars(cls).items()
                  if isinstance(value, property) and value.fset is not None]
+
+    # Stop recursion at stop_at_class
+    if cls == stop_at_class:
+        return writeable_properties
+
+    # Recursively get writeable properties of parents
+    for base in cls.__bases__:
+        writeable_properties += get_writeable_properties(base)
+    return writeable_properties
 
 def first_order_finite_difference_gradient(func, x, dim, epsilon= 0.000001):
     FD_gradient = np.empty(dim)

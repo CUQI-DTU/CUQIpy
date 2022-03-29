@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
-from cuqi.utilities import force_ndarray, get_writeable_properties, getNonDefaultArgs, get_indirect_attributes
+from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 import warnings
@@ -99,62 +99,73 @@ class Distribution(ABC):
         # KEYWORD ERROR CHECK
         for kw_key in kwargs.keys():
             if kw_key not in cond_vars:
-                raise ValueError("The keyword {} is not part of any attribute or non-default argument to any function of this distribution.".format(kw_key))
-
+                raise ValueError("The keyword \"{}\" is not one of the conditional variables of this distribution.".format(kw_key))
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
         new_dist.name = None  #Reset name to None
 
-        # Go through every attribute and assign values from kwargs accordingly
-        for attr_key, attr_val in vars(self).items():
-            #If keyword directly specifies new value of attribute we simply reassign
-            if attr_key in kwargs:
-                setattr(new_dist,attr_key,kwargs.get(attr_key))
-            
-            #If key fits with _key value, we add make sure to invoke setter method by assigning .key
-            if attr_key[1:] in kwargs:
-                setattr(new_dist,attr_key[1:],kwargs.get(attr_key[1:]))
+        # Go through every mutable variable and assign value from kwargs if present
+        for var_key in self.get_mutable_variables():
 
-            #If attribute is callable we check if any keyword arguments can be used as arguments
-            if callable(attr_val):
+            #If keyword directly specifies new value of variable we simply reassign
+            if var_key in kwargs:
+                setattr(new_dist, var_key, kwargs.get(var_key))
 
-                accepted_keywords = getNonDefaultArgs(attr_val)
+            # If variable is callable we check if any keyword arguments
+            # can be used as arguments to the callable method.
+            var_val = getattr(self, var_key) # Get current value of variable
+            if callable(var_val):
+
+                accepted_keywords = get_non_default_args(var_val)
                 remaining_keywords = copy(accepted_keywords)
 
-                # Builds dict with arguments to call attribute with
-                attr_args = {}
+                # Builds dict with arguments to call variable with
+                var_args = {}
                 for kw_key, kw_val in kwargs.items():
                     if kw_key in accepted_keywords:
-                        attr_args[kw_key] = kw_val
+                        var_args[kw_key] = kw_val
                         remaining_keywords.remove(kw_key)
 
-                # If any keywords matched call with those and store output in the new dist
-                if len(attr_args)==len(accepted_keywords):  #All keywords found
-                    # If key comes from _key (key w. setter method) we make sure to invoke setter
-                    if attr_key[0] == "_":
-                        setattr(new_dist,attr_key[1:],attr_val(**attr_args))
-                    else:
-                        setattr(new_dist,attr_key,attr_val(**attr_args))
+                # If any keywords matched we evaluate callable variable
+                if len(var_args)==len(accepted_keywords):  #All keywords found
+                    # Define variable as the output of callable function
+                    setattr(new_dist, var_key, var_val(**var_args))
 
-                elif len(attr_args)>0:                      #Some keywords found
-                    # Define new function where the conditioned keywords are defined
-                    func = partial(attr_val,**attr_args)
-                    setattr(new_dist,attr_key,func)
+                elif len(var_args)>0:                      #Some keywords found
+                    # Define new partial function with partially defined args
+                    func = partial(var_val, **var_args)
+                    setattr(new_dist, var_key, func)
 
         return new_dist
 
 
     def get_conditioning_variables(self):
-        attributes = []
-        ignore_attributes = ['name', 'is_symmetric']
-        for key,value in vars(self).items():
-            if vars(self)[key] is None and key not in ignore_attributes:
-                #If private attribute with writeable property (setter method) also add
-                if key[0] == "_" and key[1:] in get_writeable_properties(self): 
-                    key = key[1:]
-                attributes.append(key)
-        return attributes + get_indirect_attributes(self) 
+        """Return the conditional variables of this distribution (if any)"""
+        
+        # Get all mutable variables
+        mutable_vars = self.get_mutable_variables()
+
+        # Loop over mutable variables and if None they are conditional
+        cond_vars = [key for key in mutable_vars if getattr(self, key) is None]
+
+        # Add any variables defined through callable functions
+        cond_vars += get_indirect_variables(self)
+        
+        return cond_vars
+
+    def get_mutable_variables(self):
+        """Return any public variable that is mutable (attribute or property) except those in the ignore_vars list"""
+        # Define list of ignored attributes and properties
+        ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
+        
+        # Get public attributes
+        attributes = get_writeable_attributes(self)
+
+        # Get "public" properties (getter+setter)
+        properties = get_writeable_properties(self)
+
+        return [var for var in (attributes+properties) if var not in ignore_vars]
 
     @property
     def is_cond(self):
