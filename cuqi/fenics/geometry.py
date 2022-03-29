@@ -135,12 +135,12 @@ class Matern(_WrappedGeometry):
 
     """
 
-    def __init__(self, geometry, l, nu, num_terms): 
+    def __init__(self, geometry, l, num_terms): 
         super().__init__(geometry)
         if not hasattr(geometry, 'mesh'):
             raise NotImplementedError
         self._l = l
-        self._nu = nu
+        self._nu = 1
         self._num_terms = num_terms
         self._eig_val = None
         self._eig_vec = None
@@ -205,15 +205,13 @@ class Matern(_WrappedGeometry):
         v = dl.TestFunction(V)
 
         tau2 = 1/self.l/self.l
-        a = tau2*u*v*dl.dx - dl.inner(dl.grad(u), dl.grad(v))*dl.dx
+        a = tau2*u*v*dl.dx + dl.inner(dl.grad(u), dl.grad(v))*dl.dx
 
         A = dl.assemble(a)
         mat = A.array()
 
-        self.Ker = np.linalg.matrix_power(mat, -self.nu)
-
-        eig_val, eig_vec = np.linalg.eig(self.Ker)
-        eig_val = np.real(eig_val)
+        eig_val, eig_vec = np.linalg.eig(mat)
+        eig_val = np.reciprocal(np.real(eig_val))
         eig_vec = np.real(eig_vec)
         self._eig_val = eig_val[:self.num_terms]
         self._eig_vec = eig_vec[:,:self.num_terms]
