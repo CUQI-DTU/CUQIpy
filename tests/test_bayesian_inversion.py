@@ -1,81 +1,45 @@
 import pytest
 import numpy as np
 
-import cuqi
+from cuqi.testproblem import Deconvolution
+from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF
 
-
-@pytest.mark.parametrize("Ns,prior",
+#All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
+@pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
                          [
-                             (500, cuqi.distribution.GMRF(np.zeros(128), 25, 128, 1, "zero"))
+                             (Deconvolution, "gauss", Gaussian(np.zeros(128), 0.071), 20),
+                             (Deconvolution, "gauss", GaussianCov(np.zeros(128), 0.005), 20),
+                             (Deconvolution, "gauss", GMRF(np.zeros(128), 100, 128, 1, "zero"), 20),
+                             (Deconvolution, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
+                             (Deconvolution, "square", Laplace_diff(np.zeros(128), 0.005), 100),
+                             (Deconvolution, "square", Cauchy_diff(np.zeros(128), 0.01), 50),
                          ])
-def test_deblur_bayesian_inversion(copy_reference, Ns, prior):
+def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     np.random.seed(19937)
 
-    deblur = cuqi.testproblem.Deblur()
+    # Generate TP using this seed (for data consistency)
+    TP = TP_type(dim=prior.dim, phantom=phantom)
 
-    norm_f = np.linalg.norm(deblur.exactSolution)
+    # set the prior of testproblem
+    TP.prior = prior
 
-    # set the prior
-    deblur.prior = prior
+    # Sample posterior
+    samples = TP.sample_posterior(Ns=Ns)
 
-    res = deblur.sample_posterior(Ns=Ns).samples
-
+    # Extract samples and compute properties
+    res = samples.samples    
     med_xpos = np.median(res, axis=1)
     sigma_xpos = res.std(axis=1)
     lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
 
-    ref_fname = "deblur_bayesian_inversion"
-    # save/update reference data
-    #np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95)
-    # copy refence file to temporary folder
+    # Load reference file into temp folder and load
+    ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
+    #np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
     ref_file = copy_reference(f"data/{ref_fname}.npz")
-    # load reference data from file
     ref = np.load(ref_file)
 
+    # Check results with reference data
     assert med_xpos == pytest.approx(ref["median"])
     assert sigma_xpos == pytest.approx(ref["sigma"])
     assert lo95 == pytest.approx(ref["lo95"])
     assert up95 == pytest.approx(ref["up95"])
-
-    relerr = round(np.linalg.norm(med_xpos - deblur.exactSolution)/norm_f*100, 2)
-
-
-@pytest.mark.parametrize("Ns,prior",
-                         [
-                             (500, cuqi.distribution.GMRF(np.zeros(128), 25, 128, 1, "zero"))
-                         ])
-def test_type1_bayesian_inversion(copy_reference, Ns, prior):
-    np.random.seed(19937)
-
-    deblur = cuqi.testproblem.Deblur()
-
-    norm_f = np.linalg.norm(deblur.exactSolution)
-
-    # RHS: measured data
-    b = deblur.data
-    # model
-    A = deblur.model
-    # likelihood
-    L = deblur.likelihood
-
-    type1 = cuqi.problem.BayesianProblem(L, prior)
-
-    res = type1.sample_posterior(Ns=Ns).samples
-    med_xpos = np.median(res, axis=1)
-    sigma_xpos = res.std(axis=1)
-    lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
-
-    ref_fname = "type1_bayesian_inversion"
-    # uncomment to save/update reference data
-    #np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95)
-    # copy refence file to temporary folder
-    ref_file = copy_reference(f"data/{ref_fname}.npz")
-    # load reference data from file
-    ref = np.load(ref_file)
-
-    assert med_xpos == pytest.approx(ref["median"])
-    assert sigma_xpos == pytest.approx(ref["sigma"])
-    assert lo95 == pytest.approx(ref["lo95"])
-    assert up95 == pytest.approx(ref["up95"])
-
-    relerr = round(np.linalg.norm(med_xpos - deblur.exactSolution)/norm_f*100, 2)
