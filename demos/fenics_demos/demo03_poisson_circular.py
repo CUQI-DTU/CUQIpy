@@ -50,7 +50,7 @@ PDE = cuqi.fenics.pde.SteadyStateLinearFEniCSPDE( form, mesh, solution_space, pa
 
 #%% Create the domain geometry 
 fenics_continuous_geo = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
-matern_geo = cuqi.fenics.geometry.Matern(fenics_continuous_geo, l = .2, nu = 2, num_terms=128)
+matern_geo = cuqi.fenics.geometry.Matern(fenics_continuous_geo, l = .2, num_terms=128)
 
 c_minus = 1
 c_plus = 10
