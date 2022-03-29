@@ -5,7 +5,7 @@ import cuqi
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cuqi.testproblem import Deconvolution
+from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
 
@@ -13,7 +13,7 @@ from cuqi.problem import BayesianProblem
 n = 128
 
 # %% Five line example (likelihood + prior)
-model, data, probInfo = Deconvolution.get_components(dim=n, phantom="Square")
+model, data, probInfo = Deconvolution1D.get_components(dim=n, phantom="Square")
 likelihood = Gaussian(mean=model, std=0.05).to_likelihood(data)
 prior = Gaussian(mean=np.zeros(n), std=0.2)
 IP = BayesianProblem(likelihood, prior)

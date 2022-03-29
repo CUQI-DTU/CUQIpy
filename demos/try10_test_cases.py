@@ -8,7 +8,7 @@ import cuqi
 
 
 #%% Deconvolution Test problem
-model_deconv, data_deconv, problem_info_deconv = cuqi.testproblem.Deconvolution.get_components()
+model_deconv, data_deconv, problem_info_deconv = cuqi.testproblem.Deconvolution1D.get_components()
 
 #%% Deblur Test problem 
 model_deblur, data_deblur, problem_info_deblur = cuqi.testproblem.Deblur.get_components()

@@ -1,18 +1,18 @@
 import pytest
 import numpy as np
 
-from cuqi.testproblem import Deconvolution
+from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF
 
 #All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
                          [
-                             (Deconvolution, "gauss", Gaussian(np.zeros(128), 0.071), 20),
-                             (Deconvolution, "gauss", GaussianCov(np.zeros(128), 0.005), 20),
-                             (Deconvolution, "gauss", GMRF(np.zeros(128), 100, 128, 1, "zero"), 20),
-                             (Deconvolution, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
-                             (Deconvolution, "square", Laplace_diff(np.zeros(128), 0.005), 100),
-                             #(Deconvolution, "square", Cauchy_diff(np.zeros(128), 0.01), 50), TODO: NUTS sampler seems to give slightly different results for other systems.
+                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071), 20),
+                             (Deconvolution1D, "gauss", GaussianCov(np.zeros(128), 0.005), 20),
+                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 128, 1, "zero"), 20),
+                             (Deconvolution1D, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
+                             (Deconvolution1D, "square", Laplace_diff(np.zeros(128), 0.005), 100),
+                             #(Deconvolution1D, "square", Cauchy_diff(np.zeros(128), 0.01), 50), TODO: NUTS sampler seems to give slightly different results for other systems.
                          ])
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     np.random.seed(19937)

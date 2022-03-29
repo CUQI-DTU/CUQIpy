@@ -60,7 +60,7 @@ class BayesianProblem(object):
         
         Parameters:
         -----------
-        Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution` constructor. 
+        Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution1D.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution1D` constructor. 
         """
 
         problem_info = ProblemInfo() #Instead of a dict, we use our ProblemInfo dataclass.

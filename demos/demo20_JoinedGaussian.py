@@ -19,11 +19,11 @@ plt.figure(); X2.sample(5).plot(); plt.title("X2 (GMRF)")
 
 # %%
 # First solve using only X1 "zero tails" prior
-results_X1 = cuqi.testproblem.Deconvolution(prior=X1).sample_posterior(5000)
+results_X1 = cuqi.testproblem.Deconvolution1D(prior=X1).sample_posterior(5000)
 
 # %%
 # Second solve using only GMRF prior
-results_X2 = cuqi.testproblem.Deconvolution(prior=X2).sample_posterior(5000)
+results_X2 = cuqi.testproblem.Deconvolution1D(prior=X2).sample_posterior(5000)
 
 # %%
 # Third, define joined Gaussian that incorporates high probability of zero in both ends.
@@ -32,7 +32,7 @@ sqrtprecs = [X1.sqrtprec,X2.sqrtprec.toarray()] #Either all sparse or all non-sp
 X = cuqi.distribution.JointGaussianSqrtPrec(means,sqrtprecs)
 
 # and solve using joined prior
-TP = cuqi.testproblem.Deconvolution(prior=X)
+TP = cuqi.testproblem.Deconvolution1D(prior=X)
 results_X = TP.sample_posterior(5000)
 
 # %%
