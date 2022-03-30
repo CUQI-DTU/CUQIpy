@@ -85,7 +85,7 @@ class Distribution(ABC):
     def __call__(self, *args, **kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
 
-        # Store conditional variables and mutable variables
+        # Store conditioning variables and mutable variables
         cond_vars = self.get_conditioning_variables()
         mutable_vars = self.get_mutable_variables()
 
@@ -97,7 +97,7 @@ class Distribution(ABC):
             ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
                 if ordered_keys[index] in kwargs:
-                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditional variable order: {self.get_conditioning_variables()}")
+                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
         # KEYWORD ERROR CHECK
@@ -145,12 +145,12 @@ class Distribution(ABC):
 
 
     def get_conditioning_variables(self):
-        """Return the conditional variables of this distribution (if any)"""
+        """Return the conditioning variables of this distribution (if any)."""
         
         # Get all mutable variables
         mutable_vars = self.get_mutable_variables()
 
-        # Loop over mutable variables and if None they are conditional
+        # Loop over mutable variables and if None they are conditioning variables
         cond_vars = [key for key in mutable_vars if getattr(self, key) is None]
 
         # Add any variables defined through callable functions
@@ -185,7 +185,7 @@ class Distribution(ABC):
 
     def __repr__(self) -> str:
         if self.is_cond is True:
-            return "CUQI {}. Conditional parameters {}.".format(self.__class__.__name__,self.get_conditioning_variables())
+            return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
@@ -1405,7 +1405,7 @@ class InverseGamma(Distribution):
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
         #Computing the gradient for conditional InverseGamma distribution is not supported yet    
-        elif len(self.get_conditioning_variables()) > 0:
+        elif self.is_cond:
             raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
         
         #Compute the gradient

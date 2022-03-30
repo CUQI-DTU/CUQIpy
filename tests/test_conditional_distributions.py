@@ -10,7 +10,7 @@ import pytest
     (cuqi.distribution.GaussianCov(mean=1, cov=lambda c:c), ["c"]),
     (cuqi.distribution.GaussianCov(mean=lambda m:m, cov=1), ["m"]),
 ])
-def test_conditional_parameters(dist, expected):
+def test_conditioning_variables(dist, expected):
     assert dist.get_conditioning_variables() == expected
 
 def test_conditioning_through_likelihood(): #TODO. Add more dists to test here!
@@ -24,36 +24,36 @@ def test_conditioning_through_likelihood(): #TODO. Add more dists to test here!
     likelihood.log(10, 5)
     assert(likelihood.get_parameter_names() == ['cov', 'x'])
 
-def test_conditional_wrong_keyword():
-    """ This checks if we raise error if keyword is not a conditional variable. """
+def test_conditioning_wrong_keyword():
+    """ This checks if we raise error if keyword is not a conditioning variable. """
     x = cuqi.distribution.GaussianCov(mean=1)
     with pytest.raises(ValueError):
-        x(name="hey") #Should expect value-error since name not conditional variable.
+        x(name="hey") #Should expect value-error since name not conditioning variable.
 
-def test_conditional_arg_as_mutable_var():
+def test_conditioning_arg_as_mutable_var():
     """ This checks if we raise error if arg is given for a distribution that has no conditioning variables. """
     x = cuqi.distribution.GaussianCov(mean=1, cov=1)
     with pytest.raises(ValueError):
         x(5) #Should expect value-error since no cond vars
 
-def test_conditional_kwarg_as_mutable_var():
+def test_conditioning_kwarg_as_mutable_var():
     """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
     x = cuqi.distribution.GaussianCov(mean=1, cov=1)
     x = x(cov=2) #This should be ok and not throw an error
     assert x.cov == 2
 
-def test_conditional_both_args_kwargs():
+def test_conditioning_both_args_kwargs():
     """ This tests that we throw error if we accidentally provide arg and kwarg for same variable. """
     x = cuqi.distribution.GaussianCov(mean=1)
     with pytest.raises(ValueError):
         x(1, cov=1) #Should expect value-error since cov is given as arg and kwarg.
 
-def test_conditional_multiple_args():
+def test_conditioning_multiple_args():
     """ This tests if conditional variables are printed correctly if they appear in multiple mutable variables"""
     dist = cuqi.distribution.GaussianCov(mean=lambda x,y: x+y, cov=lambda y,z: y+z)
     assert dist.get_conditioning_variables() == ["x","y","z"]
 
-def test_conditional_partial_function():
+def test_conditioning_partial_function():
     """ This tests the partial functions we define if only part of a callable is given. """
     dist = cuqi.distribution.GaussianCov(mean=lambda x,y: x+y, cov=lambda y,z: y+z)
     dist2 = dist(x=1, y=2)
