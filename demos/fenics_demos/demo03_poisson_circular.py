@@ -118,9 +118,7 @@ posterior = cuqi.distribution.Posterior(likelihood, prior)
 #%% 3 Third, we define a pCN sampler, sample, and inspect the prior and the posterior samples. 
 
 #%% 3.1 Plot the exact solution
-plt.figure()
-im = dl.plot(domain_geometry.par2fun(exactSolution), title="exact solution")
-plt.colorbar(im)
+exactSolution.plot()
 
 #%% 3.2 Plot prior samples
 prior_samples = prior.sample(5)
