@@ -1,5 +1,4 @@
 #%% Imports
-from turtle import pos, update
 import dolfin as dl
 import sys
 import numpy as np
