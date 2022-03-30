@@ -397,7 +397,7 @@ class BayesianProblem(object):
                 self.prior.gradient(np.zeros(self.prior.dim))
                 self.likelihood.gradient(np.zeros(self.likelihood.dim))
                 G = True
-            except:
+            except (NotImplementedError, AttributeError):
                 G = False
         else:
             G = True
