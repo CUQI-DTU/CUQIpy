@@ -168,7 +168,7 @@ class Distribution(ABC):
             return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
 class Cauchy_diff(Distribution):
-    """Cauchy distribution on the difference between of neighboring nodes.
+    """Cauchy distribution on the difference between neighboring nodes.
 
     Parameters
     ----------
@@ -914,7 +914,7 @@ class GMRF(Distribution):
 
 # ========================================================================
 class Laplace_diff(Distribution):
-    """Laplace distribution on the difference between of neighboring nodes.
+    """Laplace distribution on the difference between neighboring nodes.
 
     Parameters
     ----------

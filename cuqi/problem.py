@@ -236,7 +236,7 @@ class BayesianProblem(object):
 
         # Possibly bad choices!
         elif self._check_posterior((Laplace, Beta, InverseGamma, Lognormal), max_dim=config.MAX_DIM_INV):
-            print("!!!EXPERIMENTAL SAMPER CHOICE: Use at own risk!!!")
+            print("!!!EXPERIMENTAL SAMPLER CHOICE: Use at own risk!!!")
             return self._sampleCWMH(Ns)
 
         else:
