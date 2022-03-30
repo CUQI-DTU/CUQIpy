@@ -2,6 +2,7 @@ import numpy as np
 import scipy as sp
 import cuqi
 import pytest
+from cuqi.geometry import Continuous2D, Continuous1D
 
 @pytest.mark.parametrize("geomClass,grid,expected_grid,expected_shape,expected_dim",
                          [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),1),
@@ -109,3 +110,23 @@ def test_mapped_geometry(geom, map, imap):
     mapped_val = mapped_geom.par2fun(val)
     imapped_mapped_val = mapped_geom.fun2par(mapped_val)
     assert(np.allclose(val, imapped_mapped_val) and geom.shape == mapped_geom.shape)
+    
+@pytest.mark.parametrize("g1, g2, truth_value",[
+						(Continuous2D((128,128)), Continuous2D((128,128)), True),
+						(Continuous2D((1,2)), Continuous2D((1,2)), True),
+						(Continuous2D((3,2)), Continuous2D((3,2)), True),
+						(Continuous2D(), Continuous2D(), True),
+						(Continuous1D(5), Continuous1D(5), True),
+						(Continuous1D(), Continuous1D(), True),
+						(Continuous2D((128,128)), Continuous2D((128,127)), False),
+						(Continuous2D((1,2)), Continuous2D((1,3)), False),
+						(Continuous2D((3,2)), Continuous2D((3,3)), False),
+						(Continuous2D(), Continuous2D((1,2)), False),
+						(Continuous2D((1,2)), Continuous2D(), False),
+						(Continuous1D(5), Continuous1D(6), False),
+						(Continuous1D(), Continuous1D(1), False),
+						(Continuous1D(1), Continuous1D(), False),
+						])
+def test_geometry_equality(g1, g2, truth_value):
+	"""Ensure geometry arrays compare correctly"""
+	assert (g1==g2) == truth_value

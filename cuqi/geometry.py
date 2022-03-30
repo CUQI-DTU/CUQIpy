@@ -143,14 +143,29 @@ class Geometry(ABC):
 
     def __eq__(self, obj):
         if not isinstance(obj, self.__class__): return False
-        for key, value in vars(self).items():
-            # If _variables exist ensure it exists in both objects (by calling generator)
-            if key == "_variables": obj.variables
-            if not np.all(value ==vars(obj)[key]): return False 
-        return True
+        return self._all_values_equal(obj)
 
     def __repr__(self) -> str:
         return "{}{}".format(self.__class__.__name__,self.shape)
+
+    def _all_values_equal(self, obj):
+        """Returns true of all values of the object and self are equal"""
+        for key, value in vars(self).items():
+            # If _variables exist ensure it exists in both objects (by calling generator)
+            if key == "_variables": obj.variables
+
+            # Store value to compare
+            obj_value = vars(obj)[key]
+
+            # If list/tuple we compare each element
+            if isinstance(value, (tuple,list)) and isinstance(obj_value, (tuple,list)):
+                for i in range(max(len(value),len(obj_value))):
+                    if not np.array_equiv(value[i],obj_value[i]):
+                        return False
+            # Else we check single element
+            elif not np.array_equiv(value, obj_value):
+                return False 
+        return True
 
 
 class _WrappedGeometry(Geometry):
@@ -438,11 +453,7 @@ class _DefaultGeometry(Continuous1D):
 
     def __eq__(self, obj):
         if not isinstance(obj, (self.__class__,Continuous1D)): return False
-        for key, value in vars(self).items():
-            # If _variables exist ensure it exists in both objects (by calling generator)
-            if key == "_variables": obj.variables
-            if not np.all(value == vars(obj)[key]): return False 
-        return True
+        return self._all_values_equal(obj)
 
 # class DiscreteField(Discrete):
 #     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=['x']):

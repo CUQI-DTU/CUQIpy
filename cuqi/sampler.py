@@ -12,6 +12,8 @@ from cuqi.solver import CGLS
 from cuqi.samples import Samples
 from abc import ABC, abstractmethod
 
+import sys
+
 #===================================================================
 class Sampler(ABC):
 
@@ -113,10 +115,9 @@ class Sampler(ABC):
 
     def _print_progress(self,s,Ns):
         """Prints sampling progress"""
-        if (s % (max(Ns//100,1))) == 0:
-            print("\r",'Sample', s, '/', Ns, end="")
-        elif s == Ns:
-            print("\r",'Sample', s, '/', Ns)
+        if (s % (max(Ns//100,1))) == 0 or s==Ns:
+            msg = f'Sample {s} / {Ns}'
+            sys.stdout.write('\r'+msg)
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):

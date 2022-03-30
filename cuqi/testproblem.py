@@ -2,12 +2,14 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
+from scipy.ndimage import convolve, zoom
+import scipy.io as spio
 
 import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
-from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, _DefaultGeometry
+from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, Continuous2D
 from cuqi.samples import CUQIarray
 
 #=============================================================================
@@ -158,6 +160,7 @@ class Deconvolution(BayesianProblem):
         'hat' - a triangular hat function
         'bumps' - two bumps
         'derivGauss' - the first derivative of Gauss function
+        'pc' - Piece-wise constant phantom
 
     phantom_param : scalar
         A parameter that determines the width of the central 
@@ -373,6 +376,17 @@ def _getExactSolution(dim,phantom,phantom_param):
         if phantom_param is None: phantom_param = 5
         x = np.diff(_getExactSolution(dim+1,'gauss',phantom_param))
         return x/np.max(x)
+    
+    elif phantom.lower() == 'pc':
+        mesh = np.linspace(0,1,dim)
+        x_min, x_max = mesh[0], mesh[-1]
+        vals = np.array([0, 2, 3, 2, 0, 1, 0])
+        conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
+                (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
+                (0.6 <= x) & (x <= x_max)]
+        f_signal = lambda x: np.piecewise(x, conds(x), vals)
+        x = f_signal(mesh)
+        return x
 
     else:
         raise NotImplementedError("This phantom is not implemented")
@@ -868,3 +882,284 @@ class Deconv_1D(BayesianProblem):
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = b_exact
+
+
+#=============================================================================
+class Deconvolution2D(BayesianProblem):
+    """
+    
+    Create a 2D Deconvolution test problem defined by the inverse problem
+
+    .. math::
+
+        \mathbf{b} = \mathbf{A}\mathbf{x},
+
+    where :math:`\mathbf{b}` is a (noisy) blurred image,
+    :math:`\mathbf{x}` is a sharp image and
+    :math:`\mathbf{A}` is a convolution operator.
+
+    The convolution operator is defined by specifing a point spread function and
+    boundary conditions and is computed (matrix-free) via scipy.ndimage.convolve.
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html.
+
+    Parameters
+    ----------
+    dim : int
+        | size of the (dim,dim) deconvolution problem
+
+    PSF : string or ndarray
+        | Determines type of the underlying point spread function (PSF).
+        | 'Gauss' - a Gaussian blur
+        | 'Moffat' - a Moffat blur blur
+        | 'Defocus' - an out-of-focus blur
+        | ndarray - Custom user-specified PSF
+
+    PSF_param : scalar
+        | A parameter that determines the shape of the PSF;
+        | the larger the parameter, the larger blur on the image.
+        | Ignored if PSF is given as ndarray
+
+    PSF_size : int
+        | Defines the size of the PSF. The size becomes (PSF_size, PSF_size).
+        | Ignored if PSF is given as ndarray
+
+    BC : string
+        | Boundary conditions of convolution
+        | 'zero' - Zero boundary
+        | 'periodic' - Periodic boundary
+        | 'Neumann' - Neumann (reflective) boundary
+        | 'Mirror' - Mirrored boundary
+        | 'Nearest' - Replicates last element of boundary
+        
+    phantom : string
+        | The phantom (sharp image) that is convolved.
+        | 'astronaut' - a photo of an astronaut.
+        | 'camera' - a photo of a man with a camera.
+        | 'cat' - a photo of a cat.
+        | 'satellite' - a photo of a satellite.
+
+    noise_type : string
+        | The type of noise
+        | "Gaussian" - Gaussian white noise¨
+        | "scaledGaussian" - Gaussian noise where standard deviation is scaled by by data.
+
+    noise_std : scalar
+        | Standard deviation of the noise.
+
+    prior : Distribution
+        | Option to set the prior distribution.
+        | If set all components of the posterior
+        | are defined and sampling can be achieved.
+
+    Attributes
+    ----------
+    data : CUQIarray
+        Generated (noisy) data
+
+    model : Model
+        Deconvolution forward model
+
+    prior : Distribution
+        Distribution of the prior
+
+    likelihood : Likelihood
+        The likelihood function
+        (automatically computed from data distribution)
+
+    exactSolution : CUQIarray
+        Exact solution (ground truth)
+
+    exactData : CUQIarray
+        Noise free data.
+
+    Methods
+    -------
+    MAP()
+        Compute MAP estimate of posterior.
+        NB: Requires prior to be defined
+
+    sample_posterior(Ns)
+        Sample Ns samples of the posterior.
+        NB: Requires prior to be defined
+    """
+    def __init__(self,
+        dim=128,
+        PSF="gauss",
+        PSF_param=2.56,
+        PSF_size=21,
+        BC="periodic",
+        phantom="satellite",
+        noise_type="gaussian",
+        noise_std=0.0036,
+        prior = None):
+        
+        # setting up the geometry
+        domain_geometry = Continuous2D((dim, dim))
+        range_geometry = Continuous2D((dim, dim))
+
+        # set boundary conditions
+        if (BC.lower() == "Neumann"):
+            BC = "reflect"
+        elif (BC.lower() == "zero"):
+            BC = "constant" # cval = 0
+        elif (BC.lower() == "nearest"):
+            pass # BC = "nearest" # the input is extended by replicating the last pixel
+        elif (BC.lower() == "mirror"):
+            pass # BC = "mirror" # reflecting about the center of the last pixel
+        elif (BC.lower() == "periodic"):
+            BC = "wrap"
+        else:
+            raise TypeError("Unknown BC type")
+
+        # Set up PSF.
+        if isinstance(PSF, np.ndarray):
+            P = PSF
+        elif isinstance(PSF, str):
+            if PSF.lower() == "gauss":
+                P, _ = _GaussPSF(np.array([PSF_size, PSF_size]), PSF_param)
+            elif PSF.lower() == "moffat":
+                P, _ = _MoffatPSF(np.array([PSF_size, PSF_size]), PSF_param, 1)
+            elif PSF.lower() == "defocus":
+                P, _ = _DefocusPSF(np.array([PSF_size, PSF_size]), PSF_param)
+        else:
+            raise TypeError(f"Unknown PSF: {PSF}.")
+
+        # build forward model
+        model = cuqi.model.LinearModel(lambda x: _proj_forward_2D(x.reshape((dim, dim)), P, BC), 
+                                       lambda x: _proj_backward_2D(x.reshape((dim, dim)), P, BC), 
+                                        range_geometry, 
+                                        domain_geometry)
+
+        # User provided phantom as ndarray
+        if isinstance(phantom, np.ndarray):
+            if phantom.ndim > 2:
+                raise ValueError("Input phantom image must be an image (matrix) or vector")
+            if phantom.ndim == 1:
+                N = int(round(np.sqrt(len(phantom))))
+                phantom = phantom.reshape(N,N)
+            phantom = cuqi.data.imresize(phantom, dim) # Resize phantom (if wrong size)
+            x_exact2D = phantom
+        # If phantom is string its a specific case
+        elif isinstance(phantom, str):
+            if phantom.lower() == "satellite":
+                x_exact2D = cuqi.data.satellite(size=dim)
+            elif phantom.lower() == "cat":
+                x_exact2D = cuqi.data.cat(size=dim)
+            elif phantom.lower() == "camera":
+                x_exact2D = cuqi.data.camera(size=dim)
+            elif phantom.lower() == "astronaut":
+                x_exact2D = cuqi.data.astronaut(size=dim)
+        else:
+            raise TypeError("Unknown phantom type.")
+
+        x_exact = x_exact2D.flatten()
+        x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
+
+        # Generate exact data (blurred)
+        b_exact = model @ x_exact
+
+        # Data distribution
+        if noise_type.lower() == "gaussian":
+            data_dist = cuqi.distribution.GaussianCov(model, noise_std**2, geometry=range_geometry)
+        elif noise_type.lower() == "scaledgaussian":
+            data_dist = cuqi.distribution.GaussianCov(model, (b_exact*noise_std)**2, geometry=range_geometry)
+        else:
+            raise NotImplementedError("This noise type is not implemented")
+        
+        # Generate noisy data
+        data = data_dist(x_exact).sample()
+
+        # Create likelihood
+        likelihood = data_dist.to_likelihood(data)
+        
+        # Initialize Deconvolution as BayesianProblem problem
+        super().__init__(likelihood, prior)
+
+        self.exactSolution = x_exact
+        self.exactData = b_exact
+        self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
+        self.Miscellaneous = {"PSF" : P, "BC": BC}
+
+#=========================================================================
+def _proj_forward_2D(X, P, BC):
+    Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
+    return Ax.flatten()
+
+#=========================================================================
+def _proj_backward_2D(B, P, BC):
+    P = np.flipud(np.fliplr(P))
+    ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
+    return ATy.flatten()
+
+# ===================================================================
+# Array with PSF for Gaussian blur (astronomic turbulence)
+# ===================================================================
+def _GaussPSF(dim, s):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    s1, s2 = s, s
+    
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(n/2), np.ceil(n/2))
+    y = np.arange(-np.fix(m/2), np.ceil(m/2))
+    X, Y = np.meshgrid(x, y)
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = np.exp( -0.5* ((X**2)/(s1**2) + (Y**2)/(s2**2)) )
+    PSF /= PSF.sum()
+
+    # find the center
+    mm, nn = np.where(PSF == PSF.max())
+    center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
+# ===================================================================
+# Array with PSF for Moffat blur (astronomical telescope)
+# ===================================================================
+def _MoffatPSF(dim, s, beta):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    s1, s2 = s, s
+    
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(n/2), np.ceil(n/2))
+    y = np.arange(-np.fix(m/2), np.ceil(m/2))
+    X, Y = np.meshgrid(x, y)
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = ( 1 + (X**2)/(s1**2) + (Y**2)/(s2**2) )**(-beta)
+    PSF = PSF / PSF.sum()
+
+    # find the center
+    mm, nn = np.where(PSF == PSF.max())
+    center = np.array([mm[0], nn[0]])
+
+    return PSF, center.astype(int)
+# ===================================================================
+# Array with PSF for out-of-focus blur
+# ===================================================================
+def _DefocusPSF(dim, R):
+    if hasattr(dim, "__len__"):
+        m, n = dim[0], dim[1]
+    else:
+        m, n = dim, dim
+    
+    center = np.fix((np.array([m, n]))/2)
+    if (R == 0):    
+        # the PSF is a delta function and so the blurring matrix is I
+        PSF = np.zeros((m, n))
+        PSF[center[0], center[1]] = 1
+    else:
+        PSF = np.ones((m, n)) / (np.pi * R**2)
+        k = np.arange(1, max(m, n)+1)
+        aa, bb = (k-center[0])**2, (k-center[1])**2
+        A, B = np.meshgrid(aa, aa), np.meshgrid(bb, bb)
+        idx = np.array(((A[0].T + B[0]) > (R**2)))
+        PSF[idx] = 0
+    PSF = PSF / PSF.sum()
+
+    return PSF, center.astype(int)
