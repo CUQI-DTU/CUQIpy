@@ -2,6 +2,7 @@ import numpy as np
 import time
 
 import cuqi
+from cuqi import config
 from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
@@ -167,8 +168,8 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=5000):
-            if disp: print("Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<=5000.")
+        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
+            if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
             Ce = self.likelihood.distribution.Sigma
@@ -213,7 +214,7 @@ class BayesianProblem(object):
         print("")
 
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior_type((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, 5000) and not self._check_posterior_type(GMRF):
+        if self._check_posterior_type((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior_type(GMRF):
             return self._sampleMapCholesky(Ns)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
@@ -230,11 +231,11 @@ class BayesianProblem(object):
             return self._samplepCN(Ns)
 
         # For difference type priors we use CWMH
-        elif self._check_posterior_type((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=5000):
+        elif self._check_posterior_type((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=config.MAX_DIM_INV):
             return self._sampleCWMH(Ns)
 
         # Possibly bad choices!
-        elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal), max_dim=5000):
+        elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal), max_dim=config.MAX_DIM_INV):
             print("!!!EXPERIMENTAL SAMPER CHOICE: Use at own risk!!!")
             return self._sampleCWMH(Ns)
 
@@ -261,7 +262,7 @@ class BayesianProblem(object):
         return sampler.sample(Ns, Nb)
 
     def _sampleMapCholesky(self,Ns):
-        print("Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<=5000.")
+        print(f"Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
         # Start timing
         ti = time.time()
 

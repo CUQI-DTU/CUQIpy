@@ -9,6 +9,7 @@ from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D
 from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
+from cuqi import config
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -541,8 +542,8 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     @property 
     def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
-        if self.dim > 5000:
-            raise NotImplementedError("Sigma: Full covariance matrix not implemented for dim > 5000.")
+        if self.dim > config.MAX_DIM_INV:
+            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
         return np.linalg.inv(self.prec.toarray())       
 
 class JointGaussianSqrtPrec(Distribution):
@@ -752,7 +753,7 @@ class Gaussian(GaussianCov):
     def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
         
         dim = len(mean)
-        if dim > 5000:
+        if dim > config.MAX_DIM_INV:
             raise NotImplementedError("Use GaussianCov for large-scale problems.")
             
         #Compute cov from pre-computations below.
@@ -825,7 +826,7 @@ class GMRF(Distribution):
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
             self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
-            if (self.dim > 5000):  # approximate to avoid 'excesive' time
+            if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excesive' time
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
