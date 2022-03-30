@@ -69,7 +69,7 @@ x_map, info = TP.MAP()
 
 if ndim == 1:
     plt.plot(x_map, label="MAP")
-    plt.plot(TP.exactSolution, label="exact")
+    TP.exactSolution.plot(label="exact")
     plt.legend()
 elif ndim == 2:
     plt.figure()
