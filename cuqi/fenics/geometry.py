@@ -113,33 +113,47 @@ class FEniCSMappedGeometry(MappedGeometry):
 
 
 class Matern(_WrappedGeometry):
-    """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry.
-    
+    """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry. We create the representation using the stochastic partial differential operator, equation (15) in (Roininen, Huttunen and Lasanen, 2014). Zero Neumann boundary conditions are assumed for the stochastic partial differential equation and the smoothness parameter :math:`\\nu` is set to 1.
+
+
+    For more details see: Roininen, L., Huttunen, J. M., & Lasanen, S. (2014). Whittle-Matérn priors for Bayesian statistical inversion with applications in electrical impedance tomography. Inverse Problems & Imaging, 8(2), 561.
+
     Parameters
     -----------
     geometry : cuqi.fenics.geometry.Geometry
         An input geometry on which the Matern field representation is built (the geometry must have a mesh attribute)
 
-    l : float
+    length_scale : float
         Length scale paramater (controls correlation length)
-
-    nu : int
-        Power of the covariance matrix (controls smoothness)
 
     num_terms: int
         Number of expantion terms to represent the Matern field realization
 
+
     Example
-    _______
-    See demos/fenics_demos/demo02_Matern.py
+    -------
+    .. code-block:: python
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import cuqi
+        import dolfin as dl
+        
+        mesh = dl.UnitSquareMesh(20,20)
+        V = dl.FunctionSpace(mesh, 'CG', 1)
+        geometry = cuqi.fenics.geometry.FEniCSContinuous(V)
+        matern = cuqi.fenics.geometry.Matern(geometry, l = .2, num_terms=128)
+        
+        x = cuqi.samples.CUQIarray(np.random.randn(128), geometry=matern)
+        x.plot()
 
     """
 
-    def __init__(self, geometry, l, num_terms): 
+    def __init__(self, geometry, length_scale, num_terms): 
         super().__init__(geometry)
         if not hasattr(geometry, 'mesh'):
             raise NotImplementedError
-        self._l = l
+        self._length_scale = length_scale
         self._nu = 1
         self._num_terms = num_terms
         self._eig_val = None
@@ -150,8 +164,8 @@ class Matern(_WrappedGeometry):
         return (self.num_terms,)
 
     @property
-    def l(self):
-        return self._l
+    def length_scale(self):
+        return self._length_scale
 
     @property
     def nu(self):
@@ -172,18 +186,18 @@ class Matern(_WrappedGeometry):
     def __call__(self, p):
         return self.par2field(p)
 
-    def _process_values(self,values):
-        if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== self.dim):  
-            pass
-        else:
-            values = values[..., np.newaxis]
-        return values
+    def __repr__(self) -> str:
+        return "{} on {}".format(self.__class__.__name__,self.geometry.__repr__())
 
     def par2fun(self,p):
         return self.geometry.par2fun(self.par2field(p))
 
     def par2field(self, p):
+        """Applies linear transformation of the parameters p to
+        generate a realization of the Matern field (given that p is a
+        sample of `n=dim` i.i.d random variables that follow a normal
+        distribution)"""
+
         if self._eig_vec is None and self._eig_val is None:
             self._build_basis() 
 	   
@@ -200,11 +214,12 @@ class Matern(_WrappedGeometry):
             return field_list
 
     def _build_basis(self):
+        """Builds the basis of expantion in the Matern field"""
         V = self._build_space()
         u = dl.TrialFunction(V)
         v = dl.TestFunction(V)
 
-        tau2 = 1/self.l/self.l
+        tau2 = 1/self.length_scale/self.length_scale
         a = tau2*u*v*dl.dx + dl.inner(dl.grad(u), dl.grad(v))*dl.dx
 
         A = dl.assemble(a)
@@ -217,6 +232,7 @@ class Matern(_WrappedGeometry):
         self._eig_vec = eig_vec[:,:self.num_terms]
 
     def _build_space(self):
+        """Create the function space on which the Matern kernel is discretized"""
 
         if hasattr(self.geometry, 'mesh'): 
             mesh = self.geometry.mesh
