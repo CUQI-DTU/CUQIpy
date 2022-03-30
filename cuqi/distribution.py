@@ -85,8 +85,9 @@ class Distribution(ABC):
     def __call__(self, *args, **kwargs):
         """ Generate new distribution with new attributes given in by keyword arguments """
 
-        # Store conditional variables
+        # Store conditional variables and mutable variables
         cond_vars = self.get_conditioning_variables()
+        mutable_vars = self.get_mutable_variables()
 
         # PARSE ARGS AND ADD TO KWARGS
         if len(args)>0:
@@ -98,15 +99,15 @@ class Distribution(ABC):
 
         # KEYWORD ERROR CHECK
         for kw_key in kwargs.keys():
-            if kw_key not in cond_vars:
-                raise ValueError("The keyword \"{}\" is not one of the conditional variables of this distribution.".format(kw_key))
+            if kw_key not in (mutable_vars+cond_vars):
+                raise ValueError("The keyword \"{}\" is not a mutable or conditioning variable of this distribution.".format(kw_key))
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
         new_dist.name = None  #Reset name to None
 
         # Go through every mutable variable and assign value from kwargs if present
-        for var_key in self.get_mutable_variables():
+        for var_key in mutable_vars:
 
             #If keyword directly specifies new value of variable we simply reassign
             if var_key in kwargs:
