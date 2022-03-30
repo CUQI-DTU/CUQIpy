@@ -45,7 +45,7 @@ class Distribution(ABC):
     geometry : Geometry or None
         Geometry of distribution.
 
-    is_cond : Bool
+    is_cond : bool
         Indicator if distribution is conditional.
 
     Methods
