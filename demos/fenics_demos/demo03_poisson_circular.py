@@ -8,7 +8,7 @@ import cuqi
 import mshr
 import matplotlib.pyplot as plt
 
-#%% 1. First, we create a poisson PDE using FEniCS. We specify the domain,
+#%% 1. First, we create a Poisson PDE using FEniCS. We specify the domain,
 # the PDE form, the boundary conditions and the source term (the following
 # 6 steps).
 
@@ -58,14 +58,14 @@ obs_func = None
 
 #%% 2.1 Create the domain geometry 
 
-# The space on which the Bayesian parameters are defined
+# 2.1.1 The space on which the Bayesian parameters are defined
 fenics_continuous_geo = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
 
-# The matern filed (maps i.i.d normal random vector of dimention `num_terms`
-# to maren field realization on `fenics_continuous_geo`)
+# 2.1.2 The Matern fieled (maps i.i.d normal random vector of dimension `num_terms`
+# to Matern field realization on `fenics_continuous_geo`)
 matern_geo = cuqi.fenics.geometry.Matern(fenics_continuous_geo, length_scale = .2, num_terms=128)
 
-# We create a map `heavy_map` to map the matern field realization to two levels
+# 2.1.3 We create a map `heavy_map` to map the Matern field realization to two levels
 # c_minus and c_plus 
 c_minus = 1
 c_plus = 10
@@ -75,8 +75,8 @@ def heavy_map(func):
     func.vector().set_local(updated_dofs)
     return func
 
-# finally, we create the domain geometry which applies the
-# map `heavy_map` on matern realizations.
+# 2.1.4 Finally, we create the domain geometry which applies the
+# map `heavy_map` on Matern realizations.
 domain_geometry = cuqi.fenics.geometry.FEniCSMappedGeometry(matern_geo, map = heavy_map)
 
 #%% 2.2 Create the range geomtry 
@@ -112,7 +112,7 @@ likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.ones(range_geometry.
 posterior = cuqi.distribution.Posterior(likelihood, prior)
 
 
-#%% 3 Third, we define a pCN sampler, sample, and inspect the results 
+#%% 3 Third, we define a pCN sampler, sample, and inspect the prior and the posterior samples. 
 
 #%% 3.1 Plot the exact solution
 plt.figure()
@@ -133,7 +133,7 @@ pCNSampler = cuqi.sampler.pCN(
 )
 
 #%% 3.4 Sample using the pCN sampler
-samplespCN = pCNSampler.sample_adapt(1000)
+samplespCN = pCNSampler.sample_adapt(10000)
 
 #%% 3.5 Plot posterior pCN samples 
 ims = samplespCN.plot([0, 100, 300, 600, 800, 900],title="posterior")
@@ -143,7 +143,7 @@ plt.colorbar(ims[-1])
 samplespCN.plot_trace()
 samplespCN.plot_autocorrelation(max_lag=300)
 
-#%% 3.7 Plot credible interval (MH)
+#%% 3.7 Plot credible interval (pCN)
 plt.figure()
 samplespCN.plot_ci(plot_par = True, exact=exactSolution)
 plt.xticks(range(128)[::20], range(128)[::20])
