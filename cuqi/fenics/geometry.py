@@ -113,7 +113,7 @@ class FEniCSMappedGeometry(MappedGeometry):
 
 
 class Matern(_WrappedGeometry):
-    """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry. We create the representation using the stochastic partial differential operator, equation (15) in (Roininen, Huttunen and Lasanen, 2014). Zero Neumann boundary conditions are assumed for the stochastic partial differential equation and the smoothness parameter :math:`\\nu` is set to 1.
+    """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry. We create the representation using the stochastic partial differential operator, equation (15) in (Roininen, Huttunen and Lasanen, 2014). Zero Neumann boundary conditions are assumed for the stochastic partial differential equation and the smoothness parameter :math:`\\nu` is set to 1. To generate Matern field realizations, the method :meth:`par2field` is used, the input `p` of this method need to be an `n=dim` i.i.d random variables that follow a normal distribution. 
 
 
     For more details see: Roininen, L., Huttunen, J. M., & Lasanen, S. (2014). Whittle-Matérn priors for Bayesian statistical inversion with applications in electrical impedance tomography. Inverse Problems & Imaging, 8(2), 561.
@@ -214,7 +214,7 @@ class Matern(_WrappedGeometry):
             return field_list
 
     def _build_basis(self):
-        """Builds the basis of expantion in the Matern field"""
+        """Builds the basis of expansion of the Matern covariance operator"""
         V = self._build_space()
         u = dl.TrialFunction(V)
         v = dl.TestFunction(V)
@@ -232,7 +232,7 @@ class Matern(_WrappedGeometry):
         self._eig_vec = eig_vec[:,:self.num_terms]
 
     def _build_space(self):
-        """Create the function space on which the Matern kernel is discretized"""
+        """Create the function space on which the Matern covariance is discretized"""
 
         if hasattr(self.geometry, 'mesh'): 
             mesh = self.geometry.mesh
