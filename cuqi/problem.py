@@ -132,7 +132,7 @@ class BayesianProblem(object):
         print("x0: random vector")
         x0 = np.random.randn(self.model.domain_dim)
 
-        if self._check_posterior(require_gradient=True):
+        if self._check_posterior(must_have_gradient=True):
             print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.likelihood.gradient(x)
             solver = cuqi.solver.minimize(
@@ -189,7 +189,7 @@ class BayesianProblem(object):
         def posterior_logpdf(x):
             return -self.posterior.logpdf(x)
 
-        if self._check_posterior(require_gradient=True):
+        if self._check_posterior(must_have_gradient=True):
             if disp: print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.posterior.gradient(x)
             solver = cuqi.solver.minimize(posterior_logpdf, 
@@ -223,7 +223,7 @@ class BayesianProblem(object):
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
-        elif self._check_posterior(require_gradient=True) and not self._check_posterior((Beta, InverseGamma)):
+        elif self._check_posterior(must_have_gradient=True) and not self._check_posterior((Beta, InverseGamma)):
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
@@ -365,7 +365,7 @@ class BayesianProblem(object):
                     return geom1,geom2
         raise Exception(fail_msg)
 
-    def _check_posterior(self, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, require_gradient=False):
+    def _check_posterior(self, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, must_have_gradient=False):
         """Returns true if components of the posterior reflects the types (can be tuple of types) given as input."""
         # Prior check
         if prior_type is None:
@@ -392,7 +392,7 @@ class BayesianProblem(object):
             D = self.model.domain_dim<=max_dim and self.model.range_dim<=max_dim
 
         # Require gradient?
-        if require_gradient:
+        if must_have_gradient:
             try: 
                 self.prior.gradient(np.zeros(self.prior.dim))
                 self.likelihood.gradient(np.zeros(self.likelihood.dim))
