@@ -63,7 +63,7 @@ fenics_continuous_geo = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
 
 # 2.1.2 The Matern fieled (maps i.i.d normal random vector of dimension `num_terms`
 # to Matern field realization on `fenics_continuous_geo`)
-matern_geo = cuqi.fenics.geometry.Matern(fenics_continuous_geo, length_scale = .2, num_terms=128)
+matern_geo = cuqi.fenics.geometry.MaternExpansion(fenics_continuous_geo, length_scale = .2, num_terms=128)
 
 # 2.1.3 We create a map `heavy_map` to map the Matern field realization to two levels
 # c_minus and c_plus 

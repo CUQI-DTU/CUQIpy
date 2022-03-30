@@ -112,7 +112,7 @@ class FEniCSMappedGeometry(MappedGeometry):
         raise NotImplementedError
 
 
-class Matern(_WrappedGeometry):
+class MaternExpansion(_WrappedGeometry):
     """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry. We create the representation using the stochastic partial differential operator, equation (15) in (Roininen, Huttunen and Lasanen, 2014). Zero Neumann boundary conditions are assumed for the stochastic partial differential equation and the smoothness parameter :math:`\\nu` is set to 1. To generate Matern field realizations, the method :meth:`par2field` is used, the input `p` of this method need to be an `n=dim` i.i.d random variables that follow a normal distribution. 
 
 
@@ -136,16 +136,23 @@ class Matern(_WrappedGeometry):
 
         import numpy as np
         import matplotlib.pyplot as plt
-        import cuqi
+        from cuqi.fenics.geometry import MaternExpansion, FEniCSContinuous
+        from cuqi.distribution import GaussianCov
         import dolfin as dl
         
         mesh = dl.UnitSquareMesh(20,20)
         V = dl.FunctionSpace(mesh, 'CG', 1)
-        geometry = cuqi.fenics.geometry.FEniCSContinuous(V)
-        matern = cuqi.fenics.geometry.Matern(geometry, l = .2, num_terms=128)
+        geometry = FEniCSContinuous(V)
+        MaternGeometry = MaternExpansion(geometry, 
+                                        length_scale = .2,
+                                        num_terms=128)
         
-        x = cuqi.samples.CUQIarray(np.random.randn(128), geometry=matern)
-        x.plot()
+        MaternField = GaussianCov(np.zeros(MaternGeometry.dim),
+                        cov=np.eye(MaternGeometry.dim),
+                        geometry= MaternGeometry)
+        
+        samples = MaternField.sample()
+        samples.plot()
 
     """
 
