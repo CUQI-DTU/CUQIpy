@@ -223,7 +223,7 @@ class BayesianProblem(object):
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
-        elif self._check_posterior(must_have_gradient=True) and not self._check_posterior((Beta, InverseGamma)):
+        elif self._check_posterior(must_have_gradient=True) and not self._check_posterior((Beta, InverseGamma, Lognormal)):
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
@@ -240,7 +240,7 @@ class BayesianProblem(object):
             return self._sampleCWMH(Ns)
 
         else:
-            raise NotImplementedError(f'Sampler is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Check documentation for available combinations.')
+            raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
 
     def UQ(self, exact=None):
         print("Computing 5000 samples")
