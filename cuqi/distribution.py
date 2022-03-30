@@ -19,7 +19,64 @@ import warnings
 
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
+    """ Abstract Base Class for Distributions.
 
+    Handles functionality for pdf evaluation, sampling, geometries and conditioning.
+    
+    Parameters
+    ----------
+    name : str, default None
+        Name of distribution.
+    
+    geometry : Geometry, default _DefaultGeometry (or None)
+        Geometry of distribution.
+
+    is_symmetric : bool, default None
+        Indicator if distribution is symmetric.
+
+    Attributes
+    ----------
+    dim : int or None
+        Dimension of distribution.
+
+    name : str or None
+        Name of distribution.
+    
+    geometry : Geometry or None
+        Geometry of distribution.
+
+    is_cond : Bool
+        Indicator if distribution is conditional.
+
+    Methods
+    -------
+    pdf():
+        Evaluate the probability density function.
+
+    logpdf():
+        Evaluate the log probability density function.
+
+    sample():
+        Generate one or more random samples.
+
+    get_conditioning_variables():
+        Return the conditioning variables of distribution.
+
+    get_mutable_variables():
+        Return the mutable variables (attributes and properties) of distribution.
+
+    Notes
+    -----
+    A distribution can be conditional if one or more mutable variables are unspecified.
+    A mutable variable can be unspecified in one of two ways:
+
+    1. The variable is set to None.
+    2. The variable is set to a callable function with non-default arguments.
+
+    The conditioning variables of a conditional distribution are then defined to be the
+    mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
+
+    """
     def __init__(self,name=None, geometry=None, is_symmetric=None):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
@@ -83,7 +140,7 @@ class Distribution(ABC):
         return np.exp(self.logpdf(x))
 
     def __call__(self, *args, **kwargs):
-        """ Generate new distribution with new attributes given in by keyword arguments """
+        """ Generate new distribution conditioned on the input arguments. """
 
         # Store conditioning variables and mutable variables
         cond_vars = self.get_conditioning_variables()
@@ -173,6 +230,7 @@ class Distribution(ABC):
 
     @property
     def is_cond(self):
+        """ Returns True if instance (self) is a conditional distribution. """
         if len(self.get_conditioning_variables()) == 0:
             return False
         else:
