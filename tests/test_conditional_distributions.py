@@ -30,6 +30,18 @@ def test_conditional_wrong_keyword():
     with pytest.raises(ValueError):
         x(name="hey") #Should expect value-error since name not conditional variable.
 
+def test_conditional_arg_as_mutable_var():
+    """ This checks if we raise error if arg is given for a distribution that has no conditioning variables. """
+    x = cuqi.distribution.GaussianCov(mean=1, cov=1)
+    with pytest.raises(ValueError):
+        x(5) #Should expect value-error since no cond vars
+
+def test_conditional_kwarg_as_mutable_var():
+    """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
+    x = cuqi.distribution.GaussianCov(mean=1, cov=1)
+    x = x(cov=2) #This should be ok and not throw an error
+    assert x.cov == 2
+
 def test_conditional_both_args_kwargs():
     """ This tests that we throw error if we accidentally provide arg and kwarg for same variable. """
     x = cuqi.distribution.GaussianCov(mean=1)
