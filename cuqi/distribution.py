@@ -203,9 +203,7 @@ class Cauchy_diff(Distribution):
     where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`\gamma` is the scale, :math:`\mathbf{D}` is the difference operator.
  
     """
-    #  Dx = self._diff_op @ (x-self.location)
-    #   # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
-    #    return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
+   
     def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
