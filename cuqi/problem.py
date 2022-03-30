@@ -132,7 +132,7 @@ class BayesianProblem(object):
         print("x0: random vector")
         x0 = np.random.randn(self.model.domain_dim)
 
-        if self._check_posterior_type(require_gradient=True):
+        if self._check_posterior(require_gradient=True):
             print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.likelihood.gradient(x)
             solver = cuqi.solver.minimize(
@@ -168,7 +168,7 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        if self._check_posterior_type((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
+        if self._check_posterior((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
             if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
@@ -189,7 +189,7 @@ class BayesianProblem(object):
         def posterior_logpdf(x):
             return -self.posterior.logpdf(x)
 
-        if self._check_posterior_type(require_gradient=True):
+        if self._check_posterior(require_gradient=True):
             if disp: print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.posterior.gradient(x)
             solver = cuqi.solver.minimize(posterior_logpdf, 
@@ -214,7 +214,7 @@ class BayesianProblem(object):
         print("")
 
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior_type((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior_type(GMRF):
+        if self._check_posterior((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
             return self._sampleMapCholesky(Ns)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
@@ -223,19 +223,19 @@ class BayesianProblem(object):
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
-        elif self._check_posterior_type(require_gradient=True) and not self._check_posterior_type((Beta, InverseGamma)):
+        elif self._check_posterior(require_gradient=True) and not self._check_posterior((Beta, InverseGamma)):
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior_type((Gaussian, GMRF), (Gaussian, GaussianCov)):
+        elif self._check_posterior((Gaussian, GMRF), (Gaussian, GaussianCov)):
             return self._samplepCN(Ns)
 
         # For difference type priors we use CWMH
-        elif self._check_posterior_type((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=config.MAX_DIM_INV):
+        elif self._check_posterior((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=config.MAX_DIM_INV):
             return self._sampleCWMH(Ns)
 
         # Possibly bad choices!
-        elif self._check_posterior_type((Laplace, Beta, InverseGamma, Lognormal), max_dim=config.MAX_DIM_INV):
+        elif self._check_posterior((Laplace, Beta, InverseGamma, Lognormal), max_dim=config.MAX_DIM_INV):
             print("!!!EXPERIMENTAL SAMPER CHOICE: Use at own risk!!!")
             return self._sampleCWMH(Ns)
 
@@ -365,7 +365,7 @@ class BayesianProblem(object):
                     return geom1,geom2
         raise Exception(fail_msg)
 
-    def _check_posterior_type(self, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, require_gradient=False):
+    def _check_posterior(self, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, require_gradient=False):
         """Returns true if components of the posterior reflects the types (can be tuple of types) given as input."""
         # Prior check
         if prior_type is None:
