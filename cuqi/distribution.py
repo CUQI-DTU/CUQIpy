@@ -91,6 +91,9 @@ class Distribution(ABC):
 
         # PARSE ARGS AND ADD TO KWARGS
         if len(args)>0:
+            # If no cond_vars we throw error since we cant get order.
+            if len(cond_vars)==0:
+                raise ValueError("Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
             ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
                 if ordered_keys[index] in kwargs:
