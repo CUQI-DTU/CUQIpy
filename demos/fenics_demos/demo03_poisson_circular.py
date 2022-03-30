@@ -53,7 +53,7 @@ obs_func = None
 #%% 2.Second, we define the Bayesian Inverse probelem using CUQI. We 
 # create the geometries for the model domain and range, the forward
 # model, the prior, the likelihood and the posterior (the following
-# 10 steps).
+# 11 steps).
 
 
 #%% 2.1 Create the domain geometry 
@@ -96,19 +96,22 @@ prior = cuqi.distribution.GaussianCov(pr_mean, cov=np.eye(domain_geometry.dim), 
 #%% 2.6 Define the exact solution
 exactSolution = prior.sample()
 
-#%% 2.7 Generate exact data
-b_exact = model.forward(domain_geometry.par2fun(exactSolution),is_par=False)
+#%% 2.7 Generate exact data 
+b_exact = model(exactSolution)
 
-#%% 2.8 Add noise to data
+#%% 2.8 Create the data distribution
 SNR = 100
 sigma = np.linalg.norm(b_exact)/SNR
 sigma2 = sigma*sigma # variance of the observation Gaussian noise
-data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+data_distribution = cuqi.distribution.GaussianCov(model, sigma2*np.ones(range_geometry.dim), geometry=range_geometry)
 
-#%% 2.9 Create the likelihood
-likelihood = cuqi.distribution.GaussianCov(model, sigma2*np.ones(range_geometry.dim)).to_likelihood(data)
+#%% 2.9 Generate noisy data
+data = data_distribution(x=exactSolution).sample()
 
-#%% 2.10 Create posterior
+#%% 2.10 Create the data distribution and the likelihood
+likelihood = data_distribution.to_likelihood(data)
+
+#%% 2.11 Create posterior
 posterior = cuqi.distribution.Posterior(likelihood, prior)
 
 
