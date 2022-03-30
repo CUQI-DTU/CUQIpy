@@ -1,16 +1,22 @@
 #%%
-
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append("../../")
-import cuqi
+from cuqi.fenics.geometry import MaternExpansion, FEniCSContinuous
+from cuqi.distribution import GaussianCov
 import dolfin as dl
 
 mesh = dl.UnitSquareMesh(20,20)
 V = dl.FunctionSpace(mesh, 'CG', 1)
-geometry = cuqi.fenics.geometry.FEniCSContinuous(V)
-matern = cuqi.fenics.geometry.Matern(geometry, length_scale = .2, num_terms=128)
+geometry = FEniCSContinuous(V)
+MaternGeometry = MaternExpansion(geometry, 
+                                length_scale = .2,
+                                num_terms=128)
 
-x = cuqi.samples.CUQIarray(np.random.randn(128), geometry=matern)
-x.plot()
+MaternField = GaussianCov(np.zeros(MaternGeometry.dim),
+                cov=np.eye(MaternGeometry.dim),
+                geometry= MaternGeometry)
+
+samples = MaternField.sample()
+samples.plot()
