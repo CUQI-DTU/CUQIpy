@@ -62,7 +62,7 @@ fenics_continuous_geo = cuqi.fenics.geometry.FEniCSContinuous(parameter_space)
 
 # 2.1.2 The Matern fieled (maps i.i.d normal random vector of dimension `num_terms`
 # to Matern field realization on `fenics_continuous_geo`)
-matern_geo = cuqi.fenics.geometry.MaternExpansion(fenics_continuous_geo, length_scale = .2, num_terms=128)
+matern_geo = cuqi.fenics.geometry.MaternExpansion(fenics_continuous_geo, length_scale = .8, num_terms=128)
 
 # 2.1.3 We create a map `heavy_map` to map the Matern field realization to two levels
 # c_minus and c_plus 
@@ -136,7 +136,7 @@ pCNSampler = cuqi.sampler.pCN(
 samplespCN = pCNSampler.sample_adapt(10000)
 
 #%% 3.5 Plot posterior pCN samples 
-ims = samplespCN.plot([0, 100, 300, 600, 800, 900],title="posterior")
+ims = samplespCN.plot([0, 1000, 3000, 6000, 8000, 9000],title="posterior")
 plt.colorbar(ims[-1])
 
 # %% 3.6 Plot trace and autocorrelation (pCN)
