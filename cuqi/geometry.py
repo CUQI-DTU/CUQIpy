@@ -167,6 +167,60 @@ class Geometry(ABC):
                 return False 
         return True
 
+
+class _WrappedGeometry(Geometry):
+    """A class that wraps a given geometry (emulates dynamic
+    inheritance from the given geometry).
+    
+    Parameters
+    -----------
+    geometry : cuqi.geometry.Geometry
+    """
+
+    def __init__(self,geometry):
+        self.geometry = geometry
+
+    @property
+    def shape(self):
+        return self.geometry.shape
+
+    @property
+    def grid(self):
+        return self.geometry.grid
+
+    @property
+    def axis_labels(self):
+        return self.geometry.axis_labels
+
+    @property
+    def variables(self):
+        return self.geometry.variables
+
+    @property
+    def mesh(self):
+        return self.geometry.mesh
+
+    def par2fun(self,p):
+        return self.geometry.par2fun(p)
+
+    def fun2par(self,f):
+        return self.geometry.fun2par(f)
+
+    def _plot(self, values, *args, **kwargs):
+        """Calls the underlying geometry plotting method."""
+        return self.geometry._plot(values, *args, **kwargs)
+
+    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
+        """Calls the underlying geometry plotting of envelope method."""
+        return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
+
+    def _process_values(self,values):
+        return self.geometry._process_values(values) 
+
+    def __repr__(self) -> str:
+        return "{} wraps {}".format(self.__class__.__name__,self.geometry.__repr__())
+
+
 class Continuous(Geometry, ABC):
 
     def __init__(self,grid=None, axis_labels=None):
@@ -356,7 +410,10 @@ class Discrete(Geometry):
     def _plot_config(self):
         plt.xticks(self._ids, self.variables)
 
-class MappedGeometry(Geometry):
+    def fun2par(self,funvals):
+        return funvals
+
+class MappedGeometry(_WrappedGeometry):
     """A class that represents a mapped geometry.
     
     This applies a map (callable function) to any cuqi geometry. This will change the par2fun map.
@@ -374,25 +431,9 @@ class MappedGeometry(Geometry):
     """
 
     def __init__(self,geometry,map,imap=None):
-        self.geometry = geometry
+        super().__init__(geometry)
         self.map = map
         self.imap = imap
-
-    @property
-    def shape(self):
-        return self.geometry.shape
-
-    @property
-    def grid(self):
-        return self.geometry.grid
-
-    @property
-    def axis_labels(self):
-        return self.geometry.axis_labels
-
-    @property
-    def variables(self):
-        return self.geometry.variables
 
     def par2fun(self,p):
         return self.map(self.geometry.par2fun(p))
@@ -401,14 +442,6 @@ class MappedGeometry(Geometry):
         if self.imap is None:
             raise ValueError("imap is not defined. This is needed for fun2par.")
         return self.geometry.fun2par(self.imap(f))
-
-    def _plot(self, values, *args, **kwargs):
-        """Calls the underlying geometry plotting method."""
-        return self.geometry._plot(values, *args, **kwargs)
-
-    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
-        """Calls the underlying geometry plotting of envelope method."""
-        return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
 
     def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())

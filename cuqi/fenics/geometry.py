@@ -1,4 +1,4 @@
-from cuqi.geometry import Discrete, Geometry, MappedGeometry
+from cuqi.geometry import Geometry, MappedGeometry, _WrappedGeometry
 import numpy as np
 import matplotlib.pyplot as plt
 import dolfin as dl
@@ -69,6 +69,7 @@ class FEniCSContinuous(Geometry):
     def _process_values(self, values):
         if isinstance(values, dl.function.function.Function):
             return [values]
+
         elif len(values.shape) == 1:
             values = values[..., np.newaxis]
         
@@ -110,24 +111,143 @@ class FEniCSMappedGeometry(MappedGeometry):
     def fun2par(self,f):
         raise NotImplementedError
 
-#class CircularInclusion(Discrete, FenicsContinuous):
-#
-#    def __init__(self, function_space, inclusion_parameters=['radius','x','y'], labels = ['x', 'y']):
-#        Discrete.__init__(self,inclusion_parameters)
-#        FenicsContinuous.__init__(self,function_space,labels)
-#        # assert len =3
-#        if self.physical_dim !=2:
-#            raise NotImplementedError("'CircularInclusion' object support 2D meshes only.")
-#
-#    @property
-#    def shape(self):
-#        #https://newbedev.com/calling-parent-class-init-with-multiple-inheritance-what-s-the-right-way
-#        # super(Discrete,self).shape calls second parent shape
-#        return super().shape #This calls first parent shape
-#
-#
-#    def plot(self):
-#        pass
-#
-#    def par2fun(self):
-#        pass
+
+class MaternExpansion(_WrappedGeometry):
+    """A geometry class that builds spectral representation of Matern covariance operator on the given input geometry. We create the representation using the stochastic partial differential operator, equation (15) in (Roininen, Huttunen and Lasanen, 2014). Zero Neumann boundary conditions are assumed for the stochastic partial differential equation (SPDE) and the smoothness parameter :math:`\\nu` is set to 1. To generate Matern field realizations, the method :meth:`par2field` is used. The input `p` of this method need to be an `n=dim` i.i.d random variables that follow a normal distribution. 
+
+    For more details about the formulation of the SPDE see: Roininen, L., Huttunen, J. M., & Lasanen, S. (2014). Whittle-Matérn priors for Bayesian statistical inversion with applications in electrical impedance tomography. Inverse Problems & Imaging, 8(2), 561.
+
+    Parameters
+    -----------
+    geometry : cuqi.fenics.geometry.Geometry
+        An input geometry on which the Matern field representation is built (the geometry must have a mesh attribute)
+
+    length_scale : float
+        Length scale paramater (controls correlation length)
+
+    num_terms: int
+        Number of expantion terms to represent the Matern field realization
+
+
+    Example
+    -------
+    .. code-block:: python
+
+        import numpy as np
+        import matplotlib.pyplot as plt
+        from cuqi.fenics.geometry import MaternExpansion, FEniCSContinuous
+        from cuqi.distribution import GaussianCov
+        import dolfin as dl
+        
+        mesh = dl.UnitSquareMesh(20,20)
+        V = dl.FunctionSpace(mesh, 'CG', 1)
+        geometry = FEniCSContinuous(V)
+        MaternGeometry = MaternExpansion(geometry, 
+                                        length_scale = .2,
+                                        num_terms=128)
+        
+        MaternField = GaussianCov(np.zeros(MaternGeometry.dim),
+                        cov=np.eye(MaternGeometry.dim),
+                        geometry= MaternGeometry)
+        
+        samples = MaternField.sample()
+        samples.plot()
+
+    """
+
+    def __init__(self, geometry, length_scale, num_terms): 
+        super().__init__(geometry)
+        if not hasattr(geometry, 'mesh'):
+            raise NotImplementedError
+        self._length_scale = length_scale
+        self._nu = 1
+        self._num_terms = num_terms
+        self._eig_val = None
+        self._eig_vec = None
+
+    @property
+    def shape(self):
+        return (self.num_terms,)
+
+    @property
+    def length_scale(self):
+        return self._length_scale
+
+    @property
+    def nu(self):
+        return self._nu
+
+    @property
+    def num_terms(self):
+        return self._num_terms
+
+    @property
+    def eig_val(self):
+        return self._eig_val
+
+    @property
+    def eig_vec(self):
+        return self._eig_vec
+
+    def __call__(self, p):
+        return self.par2field(p)
+
+    def __repr__(self) -> str:
+        return "{} on {}".format(self.__class__.__name__,self.geometry.__repr__())
+
+    def par2fun(self,p):
+        return self.geometry.par2fun(self.par2field(p))
+
+    def par2field(self, p):
+        """Applies linear transformation of the parameters p to
+        generate a realization of the Matern field (given that p is a
+        sample of `n=dim` i.i.d random variables that follow a normal
+        distribution)"""
+
+        if self._eig_vec is None and self._eig_val is None:
+            self._build_basis() 
+	   
+        p = self._process_values(p)
+        Ns = p.shape[-1]
+        field_list = np.empty((self.geometry.dim,Ns))
+
+        for idx in range(Ns):
+            field_list[:,idx] = self.eig_vec@( np.sqrt(self.eig_val)*p[...,idx] )
+
+        if len(field_list) == 1:
+            return field_list[0]
+        else:
+            return field_list
+
+    def _build_basis(self):
+        """Builds the basis of expansion of the Matern covariance operator"""
+        V = self._build_space()
+        u = dl.TrialFunction(V)
+        v = dl.TestFunction(V)
+
+        tau2 = 1/self.length_scale/self.length_scale
+        a = tau2*u*v*dl.dx + dl.inner(dl.grad(u), dl.grad(v))*dl.dx
+
+        A = dl.assemble(a)
+        mat = A.array()
+
+        eig_val, eig_vec = np.linalg.eig(mat)
+        eig_val = np.reciprocal(np.real(eig_val))
+        eig_vec = np.real(eig_vec)
+        indices = np.argsort(eig_val)[::-1]
+        eig_val = eig_val[indices]
+        eig_vec = eig_vec[:,indices]
+        self._eig_val = eig_val[:self.num_terms]
+        self._eig_vec = eig_vec[:,:self.num_terms]
+
+    def _build_space(self):
+        """Create the function space on which the Matern covariance is discretized"""
+
+        if hasattr(self.geometry, 'mesh'): 
+            mesh = self.geometry.mesh
+            V = dl.FunctionSpace(mesh, "CG", 1)
+	
+        else:
+            raise NotImplementedError
+
+        return V

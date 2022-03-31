@@ -96,6 +96,21 @@ def test_geometry_variables_generator_Geometry():
 	g1.variables #Extract variables (they are generated in g1, but not in g2)
 	assert g1==g2 #g2 has no _variables yet, but during check its generated.
 
+
+@pytest.mark.parametrize("geom, map, imap",
+                         [(cuqi.geometry.Discrete(4), lambda x:x**2, lambda x:np.sqrt(x)),
+			  (cuqi.geometry.Continuous1D(15),lambda x:x+12, lambda x:x-12),
+			  (cuqi.geometry.Continuous2D((4,5)), lambda x:x**2+1, lambda x:np.sqrt(x-1))
+			  ])
+def test_mapped_geometry(geom, map, imap):
+    np.random.seed(0)
+
+    mapped_geom = cuqi.geometry.MappedGeometry(geom, map, imap)
+    val = np.random.rand(mapped_geom.dim)
+    mapped_val = mapped_geom.par2fun(val)
+    imapped_mapped_val = mapped_geom.fun2par(mapped_val)
+    assert(np.allclose(val, imapped_mapped_val) and geom.shape == mapped_geom.shape)
+    
 @pytest.mark.parametrize("g1, g2, truth_value",[
 						(Continuous2D((128,128)), Continuous2D((128,128)), True),
 						(Continuous2D((1,2)), Continuous2D((1,2)), True),
