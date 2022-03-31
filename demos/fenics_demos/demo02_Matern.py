@@ -20,3 +20,10 @@ MaternField = GaussianCov(np.zeros(MaternGeometry.dim),
 
 samples = MaternField.sample()
 samples.plot()
+
+# View the first 10 eigenvectors
+for i in range(10):
+    plt.figure()
+    geometry.plot(MaternGeometry.eig_vec[:,i]) 
+    plt.show()
+    plt.close('all')
