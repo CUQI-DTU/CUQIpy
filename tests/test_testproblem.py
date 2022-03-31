@@ -16,7 +16,7 @@ from pytest import approx
     (36,"vonmises",37,7.7606),
 ])
 def test_Deconvolution_MatrixNorm_regression(dim,kernel,kernel_param,expected):
-    tp = cuqi.testproblem.Deconvolution(dim=dim,kernel=kernel,kernel_param=kernel_param)
+    tp = cuqi.testproblem.Deconvolution1D(dim=dim,kernel=kernel,kernel_param=kernel_param)
     assert np.linalg.norm(tp.model.get_matrix()) == approx(expected,rel=1e-4)
 
 @pytest.mark.parametrize("dim,phantom,phantom_param,expected",[
@@ -31,7 +31,7 @@ def test_Deconvolution_MatrixNorm_regression(dim,kernel,kernel_param,expected):
     (36,"derivgauss",None,2.4858),                            
 ])
 def test_Deconvolution_PhantomNorm_regression(dim,phantom,phantom_param,expected):
-    tp = cuqi.testproblem.Deconvolution(dim=dim,phantom=phantom,phantom_param=phantom_param)
+    tp = cuqi.testproblem.Deconvolution1D(dim=dim,phantom=phantom,phantom_param=phantom_param)
     assert np.linalg.norm(tp.exactSolution) == approx(expected,rel=1e-4)
 
 @pytest.mark.parametrize("dim,phantom,phantom_param,expected",[
@@ -55,7 +55,7 @@ def test_Deconvolution_PhantomNorm2_regression(dim,phantom,phantom_param,expecte
 ])
 def test_Deconvolution_noise_regression(noise_type,noise_std,expected):
     np.random.seed(1337)
-    tp = cuqi.testproblem.Deconvolution(noise_type=noise_type,noise_std=noise_std)
+    tp = cuqi.testproblem.Deconvolution1D(noise_type=noise_type,noise_std=noise_std)
     assert np.linalg.norm(tp.data) == approx(expected)
 
 # Test the observation operator working on grids or not

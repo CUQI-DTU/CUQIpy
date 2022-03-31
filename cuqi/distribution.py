@@ -9,6 +9,7 @@ from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D
 from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
+from cuqi import config
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -248,16 +249,63 @@ class Distribution(ABC):
             return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
 class Cauchy_diff(Distribution):
+    """Cauchy distribution on the difference between neighboring nodes.
 
-    def __init__(self, location, scale, bc_type,**kwargs):
+    Parameters
+    ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
+    scale : scalar
+        The scale parameter of the distribution.
+
+    bc_type : string
+        The boundary conditions of the difference operator.
+
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+        prior = cuqi.distribution.Cauchy_diff(location=np.zeros(128), scale=0.1)
+
+    Notes
+    -----
+    The pdf is given by
+
+    .. math::
+
+        \pi(\mathbf{x}) = \\frac{1}{(\pi\gamma)^n \left( 1+\left( \\frac{\mathbf{D}(\mathbf{x}-\mathbf{x}_0)}{\gamma} \\right)^2 \\right) },
+
+    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`\gamma` is the scale, :math:`\mathbf{D}` is the difference operator.
+ 
+    """
+   
+    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+        self._physical_dim = physical_dim
 
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+        if physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
+            print("Warning: 2D Cauchy_diff is still experimental. Use at own risk.")
+        elif physical_dim == 1:
+            num_nodes = self.dim
+        else:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
     @property
     def dim(self): 
@@ -580,6 +628,11 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        if self.dim > config.MAX_DIM_INV:
+            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
+        return np.linalg.inv(self.prec.toarray())       
 
 class JointGaussianSqrtPrec(Distribution):
     """
@@ -787,6 +840,10 @@ class Gaussian(GaussianCov):
     """
     def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
         
+        dim = len(mean)
+        if dim > config.MAX_DIM_INV:
+            raise NotImplementedError("Use GaussianCov for large-scale problems.")
+            
         #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
@@ -826,6 +883,8 @@ class GMRF(Distribution):
             num_nodes = (partition_size,) 
         else:
             num_nodes = (partition_size,partition_size)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
 
         self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
         self._diff_op = self._prec_op._diff_op      
@@ -855,7 +914,7 @@ class GMRF(Distribution):
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
             self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
-            if (self.dim > 5000):  # approximate to avoid 'excesive' time
+            if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excesive' time
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
@@ -945,17 +1004,62 @@ class GMRF(Distribution):
 
 # ========================================================================
 class Laplace_diff(Distribution):
+    """Laplace distribution on the difference between neighboring nodes.
 
-    def __init__(self, location, scale, bc_type, **kwargs):
+    Parameters
+    ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
+    scale : scalar
+        The scale parameter of the distribution.
+
+    bc_type : string
+        The boundary conditions of the difference operator.
+
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+        prior = cuqi.distribution.Laplace_diff(location=np.zeros(128), scale=0.1)
+
+    Notes
+    -----
+    The pdf is given by
+
+    .. math::
+
+        \pi(\mathbf{x}) = \\frac{1}{(2b)^n} \exp \left(- \\frac{\|\mathbf{D}(\mathbf{x}-\mathbf{x}_0) \|_1 }{b} \\right),
+
+    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`b` is the scale, :math:`\mathbf{D}` is the difference operator.
+ 
+    """
+    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
 
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+        self._physical_dim = physical_dim
 
-        # finite difference matrix
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+        if physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
+            print("Warning: 2D Laplace_diff is still experimental. Use at own risk.")
+        elif physical_dim == 1:
+            num_nodes = self.dim
+        else:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
 
     @property

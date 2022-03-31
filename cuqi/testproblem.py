@@ -131,7 +131,7 @@ class Deblur(BayesianProblem):
         return data, f_true, g_true
 
 #=============================================================================
-class Deconvolution(BayesianProblem):
+class Deconvolution1D(BayesianProblem):
     """
     1D periodic deconvolution test problem
 

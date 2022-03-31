@@ -20,7 +20,7 @@ noise_type = ["Gaussian","ScaledGaussian"]
 noise_std = 0.05
 
 # Test problem
-tp = cuqi.testproblem.Deconvolution(
+tp = cuqi.testproblem.Deconvolution1D(
     dim = dim,
     kernel=kernel[0],
     phantom=phantom[3],

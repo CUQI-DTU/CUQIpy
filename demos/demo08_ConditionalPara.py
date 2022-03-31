@@ -61,7 +61,7 @@ alpha = 1
 beta = 1e-4
 
 # Load deconvolution test problem
-tp = cuqi.testproblem.Deconvolution()
+tp = cuqi.testproblem.Deconvolution1D()
 m = tp.model.range_dim
 n = tp.model.domain_dim
 
