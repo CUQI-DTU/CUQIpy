@@ -212,7 +212,7 @@ class MaternExpansion(_WrappedGeometry):
         field_list = np.empty((self.geometry.dim,Ns))
 
         for idx in range(Ns):
-            field_list[:,idx] = self.eig_vec@( self.eig_val*p[...,idx] )
+            field_list[:,idx] = self.eig_vec@( np.sqrt(self.eig_val)*p[...,idx] )
 
         if len(field_list) == 1:
             return field_list[0]
