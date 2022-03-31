@@ -12,7 +12,7 @@ np.random.seed(0)
 
 #%%
 import cuqi
-from cuqi.testproblem import Deconvolution
+from cuqi.testproblem import Deconvolution1D
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
 from cuqi.sampler import CWMH
@@ -28,7 +28,7 @@ noise_type = ["Gaussian","ScaledGaussian"]
 noise_std = 0.05
 
 # Test problem
-prob = Deconvolution(
+prob = Deconvolution1D(
     dim = dim,
     kernel=kernel[0],
     phantom=phantom[3],

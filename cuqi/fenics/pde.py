@@ -37,7 +37,7 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
 
     def assemble(self,parameter):
         if isinstance(parameter, CUQIarray): 
-            PDE_parameter_fun = parameter.funvals.item()
+            PDE_parameter_fun = parameter.funvals
         elif isinstance(parameter, dl.function.function.Function): 
             PDE_parameter_fun = parameter
         else:
@@ -53,7 +53,7 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
     def solve(self):
         PDE_solution_fun = dl.Function(self.solution_function_space)
         dl.solve(self.diff_op ==  self.rhs, PDE_solution_fun, self.dirichlet_bc)
-        return PDE_solution_fun 
+        return PDE_solution_fun, None 
 
     def observe(self,PDE_solution_fun):
         if self.observation_operator == None: 

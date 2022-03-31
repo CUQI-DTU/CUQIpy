@@ -12,6 +12,8 @@ from cuqi.solver import CGLS
 from cuqi.samples import Samples
 from abc import ABC, abstractmethod
 
+import sys
+
 #===================================================================
 class Sampler(ABC):
 
@@ -113,10 +115,9 @@ class Sampler(ABC):
 
     def _print_progress(self,s,Ns):
         """Prints sampling progress"""
-        if (s % (max(Ns//100,1))) == 0:
-            print("\r",'Sample', s, '/', Ns, end="")
-        elif s == Ns:
-            print("\r",'Sample', s, '/', Ns)
+        if (s % (max(Ns//100,1))) == 0 or s==Ns:
+            msg = f'Sample {s} / {Ns}'
+            sys.stdout.write('\r'+msg)
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
@@ -144,10 +145,9 @@ class ProposalBasedSampler(Sampler,ABC):
             geom1=  self.proposal.geometry
         if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.dim is not None:
             geom2 = self.target.geometry
-
-        if not isinstance(geom1,cuqi.geometry._DefaultGeometry):
+        if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
             return geom1
-        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry): 
+        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry) and geom2 is not None: 
             return geom2
         else:
             return cuqi.geometry._DefaultGeometry(self.dim)

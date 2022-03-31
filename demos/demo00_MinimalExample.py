@@ -15,8 +15,8 @@ b      = np.load("data/Deconvolution.npz")["data"]       #Vector (numpy)
 m,n    = A.shape
 
 # Data from square function
-b = cuqi.testproblem.Deconvolution(phantom="square").data
-x_exact = cuqi.testproblem.Deconvolution(phantom="square").exactSolution
+b = cuqi.testproblem.Deconvolution1D(phantom="square").data
+x_exact = cuqi.testproblem.Deconvolution1D(phantom="square").exactSolution
 
 # Set up Bayesian model for inverse problem
 model      = LinearModel(A)                           #Model for inverse problem
@@ -27,7 +27,7 @@ IP.UQ(exact=x_exact)                                  #Perform UQ on inverse pro
 
 # %%
 # Wrap into CUQI "testproblem".
-TP = cuqi.testproblem.Deconvolution(prior=prior)
+TP = cuqi.testproblem.Deconvolution1D(prior=prior)
 TP.UQ()
 
 # %%

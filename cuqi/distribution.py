@@ -6,9 +6,10 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
-from cuqi.utilities import force_ndarray, getNonDefaultArgs, get_indirect_attributes
+from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
+from cuqi import config
 import warnings
 from cuqi.operator import FirstOrderFiniteDifference, PrecisionFiniteDifference
 from abc import ABC, abstractmethod
@@ -19,7 +20,64 @@ import warnings
 
 # ========== Abstract distribution class ===========
 class Distribution(ABC):
+    """ Abstract Base Class for Distributions.
 
+    Handles functionality for pdf evaluation, sampling, geometries and conditioning.
+    
+    Parameters
+    ----------
+    name : str, default None
+        Name of distribution.
+    
+    geometry : Geometry, default _DefaultGeometry (or None)
+        Geometry of distribution.
+
+    is_symmetric : bool, default None
+        Indicator if distribution is symmetric.
+
+    Attributes
+    ----------
+    dim : int or None
+        Dimension of distribution.
+
+    name : str or None
+        Name of distribution.
+    
+    geometry : Geometry or None
+        Geometry of distribution.
+
+    is_cond : bool
+        Indicator if distribution is conditional.
+
+    Methods
+    -------
+    pdf():
+        Evaluate the probability density function.
+
+    logpdf():
+        Evaluate the log probability density function.
+
+    sample():
+        Generate one or more random samples.
+
+    get_conditioning_variables():
+        Return the conditioning variables of distribution.
+
+    get_mutable_variables():
+        Return the mutable variables (attributes and properties) of distribution.
+
+    Notes
+    -----
+    A distribution can be conditional if one or more mutable variables are unspecified.
+    A mutable variable can be unspecified in one of two ways:
+
+    1. The variable is set to None.
+    2. The variable is set to a callable function with non-default arguments.
+
+    The conditioning variables of a conditional distribution are then defined to be the
+    mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
+
+    """
     def __init__(self,name=None, geometry=None, is_symmetric=None):
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
@@ -83,73 +141,97 @@ class Distribution(ABC):
         return np.exp(self.logpdf(x))
 
     def __call__(self, *args, **kwargs):
-        """ Generate new distribution with new attributes given in by keyword arguments """
+        """ Generate new distribution conditioned on the input arguments. """
+
+        # Store conditioning variables and mutable variables
+        cond_vars = self.get_conditioning_variables()
+        mutable_vars = self.get_mutable_variables()
 
         # PARSE ARGS AND ADD TO KWARGS
         if len(args)>0:
-            ordered_keys = self.get_conditioning_variables() # Args follow order of cond. vars
+            # If no cond_vars we throw error since we cant get order.
+            if len(cond_vars)==0:
+                raise ValueError("Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
+            ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
                 if ordered_keys[index] in kwargs:
-                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditional variable order: {self.get_conditioning_variables()}")
+                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
         # KEYWORD ERROR CHECK
-        for kw_key, kw_val in kwargs.items():
-            val_found = 0
-            for attr_key, attr_val in vars(self).items():
-                if kw_key is attr_key:
-                    val_found = 1
-                elif callable(attr_val) and kw_key in getNonDefaultArgs(attr_val):
-                    val_found = 1
-            if val_found == 0:
-                raise ValueError("The keyword {} is not part of any attribute or non-default argument to any function of this distribution.".format(kw_key))
-
+        for kw_key in kwargs.keys():
+            if kw_key not in (mutable_vars+cond_vars):
+                raise ValueError("The keyword \"{}\" is not a mutable or conditioning variable of this distribution.".format(kw_key))
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
         new_dist.name = None  #Reset name to None
 
-        # Go through every attribute and assign values from kwargs accordingly
-        for attr_key, attr_val in vars(self).items():
-            
-            #If keyword directly specifies new value of attribute we simply reassign
-            if attr_key in kwargs:
-                setattr(new_dist,attr_key,kwargs.get(attr_key))
+        # Go through every mutable variable and assign value from kwargs if present
+        for var_key in mutable_vars:
 
-            #If attribute is callable we check if any keyword arguments can be used as arguments
-            if callable(attr_val):
+            #If keyword directly specifies new value of variable we simply reassign
+            if var_key in kwargs:
+                setattr(new_dist, var_key, kwargs.get(var_key))
 
-                accepted_keywords = getNonDefaultArgs(attr_val)
+            # If variable is callable we check if any keyword arguments
+            # can be used as arguments to the callable method.
+            var_val = getattr(self, var_key) # Get current value of variable
+            if callable(var_val):
+
+                accepted_keywords = get_non_default_args(var_val)
                 remaining_keywords = copy(accepted_keywords)
 
-                # Builds dict with arguments to call attribute with
-                attr_args = {}
+                # Builds dict with arguments to call variable with
+                var_args = {}
                 for kw_key, kw_val in kwargs.items():
                     if kw_key in accepted_keywords:
-                        attr_args[kw_key] = kw_val
+                        var_args[kw_key] = kw_val
                         remaining_keywords.remove(kw_key)
 
-                # If any keywords matched call with those and store output in the new dist
-                if len(attr_args)==len(accepted_keywords):  #All keywords found
-                    setattr(new_dist,attr_key,attr_val(**attr_args))
-                elif len(attr_args)>0:                      #Some keywords found
-                    # Define new function where the conditioned keywords are defined
-                    func = partial(attr_val,**attr_args)
-                    setattr(new_dist,attr_key,func)
+                # If any keywords matched we evaluate callable variable
+                if len(var_args)==len(accepted_keywords):  #All keywords found
+                    # Define variable as the output of callable function
+                    setattr(new_dist, var_key, var_val(**var_args))
+
+                elif len(var_args)>0:                      #Some keywords found
+                    # Define new partial function with partially defined args
+                    func = partial(var_val, **var_args)
+                    setattr(new_dist, var_key, func)
 
         return new_dist
 
 
     def get_conditioning_variables(self):
-        attributes = []
-        ignore_attributes = ['name', 'is_symmetric']
-        for key,value in vars(self).items():
-            if vars(self)[key] is None and key[0] != '_' and key not in ignore_attributes:
-                attributes.append(key)
-        return attributes + get_indirect_attributes(self) 
+        """Return the conditioning variables of this distribution (if any)."""
+        
+        # Get all mutable variables
+        mutable_vars = self.get_mutable_variables()
+
+        # Loop over mutable variables and if None they are conditioning variables
+        cond_vars = [key for key in mutable_vars if getattr(self, key) is None]
+
+        # Add any variables defined through callable functions
+        cond_vars += get_indirect_variables(self)
+        
+        return cond_vars
+
+    def get_mutable_variables(self):
+        """Return any public variable that is mutable (attribute or property) except those in the ignore_vars list"""
+        # Define list of ignored attributes and properties
+        ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
+        
+        # Get public attributes
+        attributes = get_writeable_attributes(self)
+
+        # Get "public" properties (getter+setter)
+        properties = get_writeable_properties(self)
+
+        return [var for var in (attributes+properties) if var not in ignore_vars]
 
     @property
     def is_cond(self):
+        """ Returns True if instance (self) is a conditional distribution. """
         if len(self.get_conditioning_variables()) == 0:
             return False
         else:
@@ -162,21 +244,68 @@ class Distribution(ABC):
 
     def __repr__(self) -> str:
         if self.is_cond is True:
-            return "CUQI {}. Conditional parameters {}.".format(self.__class__.__name__,self.get_conditioning_variables())
+            return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
 # ========================================================================
 class Cauchy_diff(Distribution):
+    """Cauchy distribution on the difference between neighboring nodes.
 
-    def __init__(self, location, scale, bc_type,**kwargs):
+    Parameters
+    ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
+    scale : scalar
+        The scale parameter of the distribution.
+
+    bc_type : string
+        The boundary conditions of the difference operator.
+
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+        prior = cuqi.distribution.Cauchy_diff(location=np.zeros(128), scale=0.1)
+
+    Notes
+    -----
+    The pdf is given by
+
+    .. math::
+
+        \pi(\mathbf{x}) = \\frac{1}{(\pi\gamma)^n \left( 1+\left( \\frac{\mathbf{D}(\mathbf{x}-\mathbf{x}_0)}{\gamma} \\right)^2 \\right) },
+
+    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`\gamma` is the scale, :math:`\mathbf{D}` is the difference operator.
+ 
+    """
+   
+    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+        self._physical_dim = physical_dim
 
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+        if physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
+            print("Warning: 2D Cauchy_diff is still experimental. Use at own risk.")
+        elif physical_dim == 1:
+            num_nodes = self.dim
+        else:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
     @property
     def dim(self): 
@@ -353,8 +482,16 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def __init__(self, mean=None, cov=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
-        self.cov = force_ndarray(cov)
+        self.mean = mean
+        self.cov = cov
+
+    @property
+    def mean(self):
+        return self._mean
+
+    @mean.setter
+    def mean(self, value):
+        self._mean = force_ndarray(value, flatten=True)
 
     @property
     def cov(self):
@@ -362,6 +499,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     @cov.setter
     def cov(self, value):
+        value = force_ndarray(value)
         self._cov = value
         if (value is not None) and (not callable(value)):
             prec, sqrtprec, logdet, rank = self.get_prec_from_cov(value)
@@ -490,6 +628,11 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        if self.dim > config.MAX_DIM_INV:
+            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
+        return np.linalg.inv(self.prec.toarray())       
 
 class JointGaussianSqrtPrec(Distribution):
     """
@@ -697,6 +840,10 @@ class Gaussian(GaussianCov):
     """
     def __init__(self, mean=None, std=None, corrmat=None, is_symmetric=True, **kwargs):
         
+        dim = len(mean)
+        if dim > config.MAX_DIM_INV:
+            raise NotImplementedError("Use GaussianCov for large-scale problems.")
+            
         #Compute cov from pre-computations below.
         if corrmat is None:
             corrmat = np.eye(len(mean))
@@ -736,6 +883,8 @@ class GMRF(Distribution):
             num_nodes = (partition_size,) 
         else:
             num_nodes = (partition_size,partition_size)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
 
         self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
         self._diff_op = self._prec_op._diff_op      
@@ -765,7 +914,7 @@ class GMRF(Distribution):
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
             self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
-            if (self.dim > 5000):  # approximate to avoid 'excesive' time
+            if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excesive' time
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
@@ -855,17 +1004,62 @@ class GMRF(Distribution):
 
 # ========================================================================
 class Laplace_diff(Distribution):
+    """Laplace distribution on the difference between neighboring nodes.
 
-    def __init__(self, location, scale, bc_type, **kwargs):
+    Parameters
+    ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
+    scale : scalar
+        The scale parameter of the distribution.
+
+    bc_type : string
+        The boundary conditions of the difference operator.
+
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+        prior = cuqi.distribution.Laplace_diff(location=np.zeros(128), scale=0.1)
+
+    Notes
+    -----
+    The pdf is given by
+
+    .. math::
+
+        \pi(\mathbf{x}) = \\frac{1}{(2b)^n} \exp \left(- \\frac{\|\mathbf{D}(\mathbf{x}-\mathbf{x}_0) \|_1 }{b} \\right),
+
+    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`b` is the scale, :math:`\mathbf{D}` is the difference operator.
+ 
+    """
+    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
 
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+        self._physical_dim = physical_dim
 
-        # finite difference matrix
-        self._diff_op = FirstOrderFiniteDifference(self.dim, bc_type=bc_type)
+        if physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+            if isinstance(self.geometry, _DefaultGeometry):
+                self.geometry = Continuous2D(num_nodes)
+            print("Warning: 2D Laplace_diff is still experimental. Use at own risk.")
+        elif physical_dim == 1:
+            num_nodes = self.dim
+        else:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
 
     @property
@@ -1373,7 +1567,7 @@ class InverseGamma(Distribution):
         if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
         #Computing the gradient for conditional InverseGamma distribution is not supported yet    
-        elif len(self.get_conditioning_variables()) > 0:
+        elif self.is_cond:
             raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
         
         #Compute the gradient

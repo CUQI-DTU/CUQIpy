@@ -16,7 +16,7 @@ from pytest import approx
     (36,"vonmises",37,7.7606),
 ])
 def test_Deconvolution_MatrixNorm_regression(dim,kernel,kernel_param,expected):
-    tp = cuqi.testproblem.Deconvolution(dim=dim,kernel=kernel,kernel_param=kernel_param)
+    tp = cuqi.testproblem.Deconvolution1D(dim=dim,kernel=kernel,kernel_param=kernel_param)
     assert np.linalg.norm(tp.model.get_matrix()) == approx(expected,rel=1e-4)
 
 @pytest.mark.parametrize("dim,phantom,phantom_param,expected",[
@@ -31,7 +31,7 @@ def test_Deconvolution_MatrixNorm_regression(dim,kernel,kernel_param,expected):
     (36,"derivgauss",None,2.4858),                            
 ])
 def test_Deconvolution_PhantomNorm_regression(dim,phantom,phantom_param,expected):
-    tp = cuqi.testproblem.Deconvolution(dim=dim,phantom=phantom,phantom_param=phantom_param)
+    tp = cuqi.testproblem.Deconvolution1D(dim=dim,phantom=phantom,phantom_param=phantom_param)
     assert np.linalg.norm(tp.exactSolution) == approx(expected,rel=1e-4)
 
 @pytest.mark.parametrize("dim,phantom,phantom_param,expected",[
@@ -55,7 +55,7 @@ def test_Deconvolution_PhantomNorm2_regression(dim,phantom,phantom_param,expecte
 ])
 def test_Deconvolution_noise_regression(noise_type,noise_std,expected):
     np.random.seed(1337)
-    tp = cuqi.testproblem.Deconvolution(noise_type=noise_type,noise_std=noise_std)
+    tp = cuqi.testproblem.Deconvolution1D(noise_type=noise_type,noise_std=noise_std)
     assert np.linalg.norm(tp.data) == approx(expected)
 
 # Test the observation operator working on grids or not
@@ -112,3 +112,27 @@ def test_Abel():
 
     assert np.linalg.norm(model.forward(true_image, is_par=False)) == approx(4.580752014966276)
     assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(9.37456136258068)
+
+#Deconv 2D tests
+#TODO. Add tests for custom PSF
+@pytest.mark.parametrize("prior",[
+    (cuqi.distribution.GaussianCov(np.zeros(128**2), 1)),
+    #(cuqi.distribution.Laplace_diff(np.zeros(128**2), 1, "zeros")),
+    #(cuqi.distribution.Cauchy_diff(np.zeros(128**2), 1, "zeros")),
+])
+def test_Deconvolution2D_Sampling_prior(prior): 
+    tp = cuqi.testproblem.Deconvolution2D(prior=prior)
+    tp.prior.geometry = tp.model.domain_geometry
+    tp.sample_posterior(10) # Tests that sampling at least runs withour error.
+    #TODO. Make into regression tests + other samplers. Move some tests to BayesianProblem
+
+@pytest.mark.parametrize("phantom",[
+    ( np.zeros((128,128)) ),    #Correct size
+    ( np.zeros(128**2) ),       #Correct size, but vector
+    ( np.zeros((64,64)) ),      #Different size. Should get reshaped
+    ( np.zeros(64**2) ),        #Different size. Should get reshaped
+    ( "satellite" ),            #String for specific cases
+])
+def test_Deconvolution2D_phantom(phantom):
+    TP= cuqi.testproblem.Deconvolution2D(dim=128, phantom=phantom)
+    assert TP.exactSolution.shape == (128**2,)

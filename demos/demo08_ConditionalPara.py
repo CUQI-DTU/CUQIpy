@@ -22,7 +22,7 @@ y3 = cuqi.distribution.Normal(mean=5)
 
 # %%
 # A conditional distribution can NOT be sampled. We must first specify
-# a value for the conditional parameter
+# a value for the conditioning variable.
 
 #  y3.sample()   # This gives an error
 y3(std=10).sample()
@@ -61,7 +61,7 @@ alpha = 1
 beta = 1e-4
 
 # Load deconvolution test problem
-tp = cuqi.testproblem.Deconvolution()
+tp = cuqi.testproblem.Deconvolution1D()
 m = tp.model.range_dim
 n = tp.model.domain_dim
 
