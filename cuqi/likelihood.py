@@ -1,5 +1,5 @@
 from cuqi.model import Model
-from cuqi.utilities import getNonDefaultArgs
+from cuqi.utilities import get_non_default_args
 import warnings
 
 class Likelihood(object):
@@ -135,7 +135,7 @@ class UserDefinedLikelihood(object):
 
     def get_parameter_names(self):
         """Return parameter names of likelihood"""
-        return getNonDefaultArgs(self.logpdf_func)
+        return get_non_default_args(self.logpdf_func)
 
     def __repr__(self) -> str:
         return "CUQI {} function. Parameters {}.".format(self.__class__.__name__,self.get_parameter_names())

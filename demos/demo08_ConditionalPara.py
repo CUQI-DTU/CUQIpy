@@ -22,7 +22,7 @@ y3 = cuqi.distribution.Normal(mean=5)
 
 # %%
 # A conditional distribution can NOT be sampled. We must first specify
-# a value for the conditional parameter
+# a value for the conditioning variable.
 
 #  y3.sample()   # This gives an error
 y3(std=10).sample()
