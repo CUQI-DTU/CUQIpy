@@ -234,6 +234,9 @@ class MaternExpansion(_WrappedGeometry):
         eig_val, eig_vec = np.linalg.eig(mat)
         eig_val = np.reciprocal(np.real(eig_val))
         eig_vec = np.real(eig_vec)
+        indices = np.argsort(eig_val)[::-1]
+        eig_val = eig_val[indices]
+        eig_vec = eig_vec[:,indices]
         self._eig_val = eig_val[:self.num_terms]
         self._eig_vec = eig_vec[:,:self.num_terms]
 
