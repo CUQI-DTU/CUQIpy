@@ -10,14 +10,14 @@ from scipy.interpolate import interp2d
 import scipy.sparse as sps
 
 #Specifically load the CT library (not loaded by default in cuqi)
-from cuqi.astra import CT2D_basic, CT2D_shifted
+from cuqi.astra.model import CT2D_parallel, CT2D_fanbeam
 
 %load_ext autoreload
 %autoreload 2
 # %%
 # Define CT model conveniently with cuqi
-model = CT2D_basic() #CT model with default values
-#model= CT2D_shifted() #Shifted detector/source CT model with default values
+model = CT2D_parallel() #CT model with parallel-beam and default values
+#model= CT2D_fanbeam() #CT model with fan-beam and default values
 
 # %%
 # Extract parameters from model
@@ -27,31 +27,40 @@ n   = model.domain_geometry.dim #N*N
 m   = model.range_geometry.dim  #p*q
 
 # Get exact phantom
-x_exact = io.loadmat("data/phantom512.mat")["X"]
+phantom = io.loadmat("data/phantom512.mat")["X"]
 
-#Resize phantom and make into vector
-x_exact_f = interp2d(np.linspace(0,1,x_exact.shape[0]),np.linspace(0,1,x_exact.shape[1]), x_exact)
+#Resize phantom 
+x_exact_f = interp2d(np.linspace(0,1,phantom.shape[0]),np.linspace(0,1,phantom.shape[1]), phantom)
 x_exact = x_exact_f(np.linspace(0,1,N),np.linspace(0,1,N))
-x_exact = x_exact.ravel()
-model.domain_geometry.plot(x_exact); plt.title("Phantom")
+
+# Phantom in cuqi array with geometry
+x_exact = cuqi.samples.CUQIarray(x_exact, is_par=True, geometry=model.domain_geometry)
+
+# Plot phantom
+plt.figure()
+x_exact.plot()
+plt.title("Phantom")
 # %%
 # Generate exact data and plot it
-b_exact = model@x_exact 
-model.range_geometry.plot(b_exact); plt.title("Sinogram")
+b_exact = model.forward(x_exact)
+b_exact.plot()
+plt.title("Sinogram")
 
 # %%
 # Plot back projection
-model.domain_geometry.plot(model.adjoint(b_exact)); plt.title("Back projection");
+model.adjoint(b_exact).plot()
+plt.title("Back projection")
 
 #%%
 # Define Gaussian prior and data distribution
 prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5)
-data_dist  = cuqi.distribution.GaussianCov(model,0.1)
+data_dist  = cuqi.distribution.Gaussian(model,0.1)
 
 #%%
 # Generate noisy data using the data distribution from x_exact
 data=data_dist(x=x_exact).sample()
-model.range_geometry.plot(data); plt.title("noisy sinogram");
+data.plot()
+plt.title("noisy sinogram")
 
 #%%
 # Construct likelihood function
