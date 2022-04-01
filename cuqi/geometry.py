@@ -389,7 +389,7 @@ class Image2D(Geometry):
         return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
     
     def _plot(self, funvals, **kwargs):
-        kwargs.set('cmap', kwargs.get('cmap', "gray")) # Hmm. Must be a smarter way..
+        kwargs.setdefault('cmap', kwargs.get('cmap', "gray"))
         return plt.imshow(funvals, **kwargs)
 
 class Discrete(Geometry):
