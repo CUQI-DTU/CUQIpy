@@ -368,6 +368,29 @@ class Continuous2D(Continuous):
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
 
+class Image2D(Geometry):
+
+    def __init__(self, shape, order="C"):
+        self.shape = shape
+        self.order = order
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        self._shape = value
+
+    def par2fun(self, pars):
+        return pars.reshape(self.shape, order=self.order)
+
+    def fun2par(self, funvals):
+        return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
+    
+    def _plot(self, funvals, **kwargs):
+        kwargs.set('cmap', kwargs.get('cmap', "gray")) # Hmm. Must be a smarter way..
+        return plt.imshow(funvals, **kwargs)
 
 class Discrete(Geometry):
 
