@@ -250,7 +250,7 @@ class Continuous(Geometry, ABC):
         return self._grid
     
     def fun2par(self,funvals):
-        return funvals.ravel()
+        return funvals
 
 class Continuous1D(Continuous):
     """A class that represents a continuous 1D geometry.
