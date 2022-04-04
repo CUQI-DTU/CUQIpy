@@ -115,6 +115,7 @@ def grains(size=128, num_grains=34, seed=1):
     
     return img
 
+# Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. 
 def shepp_logan(size=128):
     """Modified Shepp-Logan phantom.
     
@@ -184,6 +185,65 @@ def shepp_logan(size=128):
     X[idx] = 0
 
     return X
+
+# Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. 
+def threephases(size, p=70):
+    """Three-phase phantom.
+    
+    Creates an image with three different phases.
+
+    Parameters
+    ----------
+    size : int
+        Size of the image to generate. Image is square with sides of length size.
+
+    p : int
+        Number of blobs in each phase (blobs can overlap).
+
+    Returns
+    -------
+    img : ndarray
+        Image of the phantom.
+
+    Notes
+    -----
+    Python translation from phantomgallery code in AIRToolsII
+    https://github.com/jakobsj/AIRToolsII.
+    
+    """
+
+    # image is N x N
+    N = size
+
+    # 1st
+    xx     = np.arange(1,N+1)-1
+    I, J   = np.meshgrid(xx,xx, indexing='xy')
+    sigma1 = 0.025*N
+    c1     = np.random.rand(p,2)*N
+    x1     = np.zeros((N,N))
+    for i in range(p):
+        x1 += np.exp(-abs(I-c1[i,0])**3/(2.5*sigma1)**3 - abs(J-c1[i,1])**3/sigma1**3)
+    t1 = 0.35
+    x1[x1 < t1]  = 0
+    x1[x1 >= t1] = 2
+
+    # 2nd
+    sigma2 = 0.03*N
+    c2     = np.random.rand(p,2)*N
+    x2     = np.zeros((N,N))
+    for i in range(p):
+        x2 += np.exp(-(I-c2[i,0])**2/(2*sigma2)**2 - (J-c2[i,1])**2/sigma2**2)
+    t2 = 0.55
+    x2[x2 < t2]  = 0
+    x2[x2 >= t2] = 1
+
+    # combine the two images
+    x = x1 + x2
+    x[x == 3] = 1
+    x = x/x.max()
+    
+    return x
+
 
 
 def rgb2gray(img):
