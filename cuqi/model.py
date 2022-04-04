@@ -73,15 +73,35 @@ class Model(object):
         return self.range_geometry.dim
     
     def forward(self, x, is_par=True):
-        # If input is samples then compute forward for each sample 
-        # TODO: Check if this can be done all-at-once for computational speed-up
+        """ Forward function of the model.
+        
+        Forward converts the input to function values (if needed) using the geometry of the model.
+        Forward converts the output function values to parameters using the geometry of the model.
 
+        Parameters
+        ----------
+        x : ndarray or cuqi.samples.CUQIarray
+            The model input.
+
+        is_par : bool
+            If True the input is assumed to be parameters.
+            If False the input is assumed to be function values.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The model output. Always returned as parameters.
+        """
+
+        # Convert input to function values
         if type(x) is CUQIarray:
             x = x.funvals
         else:
             if is_par:
                 x = self.domain_geometry.par2fun(x)
 
+        # Compute foward (if Samples we compute for each sample)
+        # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
             data_samples = np.zeros((self.range_dim,Ns))
@@ -90,8 +110,9 @@ class Model(object):
             return Samples(data_samples,geometry=self.range_geometry)
         else:
             out = self._forward_func(x)
+            out = self.range_geometry.fun2par(out) #Convert to parameters
             if type(x) is CUQIarray:
-                out = CUQIarray(out, geometry=self.range_geometry)
+                out = CUQIarray(out, is_par=True, geometry=self.range_geometry)
             return out
 
     def __call__(self,x):
