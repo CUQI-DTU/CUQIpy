@@ -115,6 +115,77 @@ def grains(size=128, num_grains=34, seed=1):
     
     return img
 
+def shepp_logan(size=128):
+    """Modified Shepp-Logan phantom.
+    
+    This head phantom is the same as the Shepp-Logan except the intensities
+    are changed to yield higher contrast in the image.
+
+    Parameters
+    ----------
+    size : int
+        Size of the image to generate. Image is square with sides of length size.
+
+    Returns
+    -------
+    img : ndarray
+        Image of the phantom.
+
+    Notes
+    -----
+    Python translation from phantomgallery code in AIRToolsII
+    https://github.com/jakobsj/AIRToolsII.
+
+    Original paper:
+    L. A. Shepp and B. F. Logan, “The Fourier reconstruction of a head section,”
+    in IEEE Transactions on Nuclear Science, vol. 21, no. 3, pp. 21-43, June 1974.
+    DOI:10.1109/TNS.1974.6499235
+        
+    """
+    # image is N x N
+    N = size
+
+    #                  A      a      b     x0      y0    phi
+    e = np.array( [ [  1,    .69,   .92,    0,       0,   0 ], 
+                    [-.8,  .6624, .8740,    0,  -.0184,   0 ],
+                    [-.2,  .1100, .3100,  .22,       0,  -18],
+                    [-.2,  .1600, .4100, -.22,       0,   18],
+                    [ .1,  .2100, .2500,    0,     .35,   0 ],
+                    [ .1,  .0460, .0460,    0,      .1,   0 ],
+                    [ .1,  .0460, .0460,    0,     -.1,   0 ],
+                    [ .1,  .0460, .0230, -.08,   -.605,   0 ],
+                    [ .1,  .0230, .0230,    0,   -.606,   0 ],
+                    [ .1,  .0230, .0460,  .06,   -.605,   0 ] ] )
+    
+    xn = ((np.arange(0,N)-(N-1)/2) / ((N-1)/2))
+    Xn = np.tile(xn, (N,1))
+    Yn = np.rot90(Xn)
+    X  = np.zeros((N,N))
+
+    # for each ellipse to be added     
+    nn = len(e)
+    for i in range(nn):
+        A   = e[i,0]
+        a2  = e[i,1]**2
+        b2  = e[i,2]**2
+        x0  = e[i,3]
+        y0  = e[i,4]
+        phi = e[i,5]*np.pi/180        
+        #
+        x   = Xn-x0
+        y   = Yn-y0
+        idd = ((x*np.cos(phi) + y*np.sin(phi))**2)/a2 + ((y*np.cos(phi) - x*np.sin(phi))**2)/b2
+        idx = np.where( idd <= 1 )
+
+        # add the amplitude of the ellipse
+        X[idx] += A
+    
+    idx    = np.where( X < 0 )
+    X[idx] = 0
+
+    return X
+
+
 def rgb2gray(img):
     return img @ np.array([0.2125, 0.7154, 0.0721])
 
