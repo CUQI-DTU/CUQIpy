@@ -53,8 +53,8 @@ plt.title("Back projection")
 
 #%%
 # Define Gaussian prior and data distribution
-prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5)
-data_dist  = cuqi.distribution.Gaussian(model,0.1)
+prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5, geometry = model.domain_geometry)
+data_dist  = cuqi.distribution.GaussianCov(model,0.1, geometry = model.range_geometry)
 
 #%%
 # Generate noisy data using the data distribution from x_exact
@@ -78,16 +78,3 @@ samples.plot_mean(); plt.colorbar()
 # Plot std
 samples.plot_std(); plt.colorbar()
 
-# %%
-# Sample posterior
-IP=cuqi.problem.BayesianProblem(likelihood, prior)
-results=IP.sample_posterior(500)
-#%%
-# Plot mean
-x_mean = np.mean(results.samples,axis=-1)
-model.domain_geometry.plot(x_mean); plt.title("Posterior mean")
-#%%
-# Plot standard deviation
-x_mean = np.std(results.samples,axis=-1)
-model.domain_geometry.plot(x_mean); plt.title("Posterior std")
-# %%
