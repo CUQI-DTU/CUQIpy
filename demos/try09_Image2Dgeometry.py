@@ -32,8 +32,9 @@ b_exact = model.forward(x_exact_par)
 b_exact.plot()
 
 # %% Setup data distribution
-data_distb = cuqi.distribution.GaussianCov(mean = model, cov = 0.1)
+data_distb = cuqi.distribution.GaussianCov(mean = model, cov = 0.1, geometry=range_geometry) #Geometry is not automatically inferred yet
 
 # %% Sample from data distribution to obtain noisy data
-data = data_distb(x = x_exact_par).sample() # breaks
+data = data_distb(x = x_exact_par).sample()
+data.plot()
 # %%
