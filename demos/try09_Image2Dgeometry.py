@@ -10,29 +10,30 @@ from scipy.interpolate import interp2d
 import scipy.sparse as sps
 
 #%%
-# Forward matrix
+# Forward matrix, picks out the first 5 rows of a 10x... matrix
 A = np.zeros((5,10))
 for i in range(0,5):
     A[i,i] = 1
 
 # Use Image geometries
-range_geometry = cuqi.geometry.Image2D((5,10))
-domain_geometry = cuqi.geometry.Image2D((10,10))
+range_geometry = cuqi.geometry.Image2D((5,10), order = "C")
+domain_geometry = cuqi.geometry.Image2D((10,10), order = "C")
 
 # Linear cuqi model
 model = cuqi.model.LinearModel(A,range_geometry=range_geometry,domain_geometry=domain_geometry)
 
-#%% Setup exact parameters x
-x_exact = cuqi.samples.CUQIarray(np.ones((10,10)), is_par=True, geometry=domain_geometry)
-x_exact.plot()
+# %% Setup exact parameters x
+x_exact_im = np.ones((10,10))
+x_exact_par = cuqi.samples.CUQIarray(domain_geometry.fun2par(x_exact_im), is_par=True, geometry=domain_geometry)
+x_exact_par.plot()
 
 # %% Compute exact data
-b_exact = model.forward(x_exact)
+b_exact = model.forward(x_exact_par)
 b_exact.plot()
 
 # %% Setup data distribution
 data_distb = cuqi.distribution.GaussianCov(mean = model, cov = 0.1)
 
 # %% Sample from data distribution to obtain noisy data
-data = data_distb(x = x_exact).sample() # breaks
+data = data_distb(x = x_exact_par).sample() # breaks
 # %%
