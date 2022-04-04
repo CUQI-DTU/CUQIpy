@@ -244,6 +244,77 @@ def threephases(size, p=70):
     
     return x
 
+# Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. 
+def p_power(size, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
+    """ p-power class phantom.
+    
+    Create an image generated from a random pattern of nonzero pixels
+    with correlation between pixels controlled by p and sparsity by relnz.
+
+    Note: image will change when varying size. To avoid this change image
+    size using :meth:`cuqi.data.imresize` after generating the image.
+
+    Parameters
+    ----------
+    size : int
+        Size of the image to generate. Image is square with sides of length size.
+    
+    relnz : float
+        Relative number of nonzero pixels.
+
+    p : int
+        Power of the pattern. Structure (correlation) increases with larger p.
+
+    seed : int
+        Seed for the random number generator.
+
+    Returns
+    -------
+    ndarray
+        Image of the phantom.   
+
+    Notes
+    -----
+    Python translation from phantomgallery code in AIRToolsII
+    https://github.com/jakobsj/AIRToolsII.
+
+    Original paper:
+    Jorgensen, Jakob S., et al. "Empirical average-case relation between undersampling
+    and sparsity in x-ray CT." Inverse problems and imaging (Springfield, Mo.) 9.2 (2015): 431.
+
+    """
+
+    # Set random seed
+    rng = np.random.RandomState(seed)
+
+    # image is N x N
+    N = size
+
+    # check if image size is odd
+    if N/2 == round(N/2):
+        Nodd = False
+    else: 
+        Nodd = True
+        N += 1
+    
+    # Random pixels
+    P   = rng.randn(N,N)
+
+    # Create the pattern
+    xx   = np.arange(1,N+1)
+    I, J = np.meshgrid(xx,xx, indexing='xy')
+    U = ( ( (2*I-1)/N - 1)**2 + ( (2*J-1)/N - 1)**2 )**(-p/2)
+    F = U*np.exp(2*np.pi*np.sqrt(-1+0j)*P)
+    F = abs(np.fft.ifft2(F))
+    f = -np.sort(-F.flatten(order='F'))   # 'descend'
+    k = round(relnz*N**2)-1
+    F[F < f[k]] = 0
+    x = F/f[0]
+    if Nodd:
+        x = F[1:-1,1:-1]
+    
+    return x
+
 
 
 def rgb2gray(img):
