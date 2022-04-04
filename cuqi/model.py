@@ -75,8 +75,8 @@ class Model(object):
     def forward(self, x, is_par=True):
         """ Forward function of the model.
         
-        Forward converts the input to function values (if needed) using the geometry of the model.
-        Forward converts the output function values to parameters using the geometry of the model.
+        Forward converts the input to function values (if needed) using the domain geometry of the model.
+        Forward converts the output function values to parameters using the domain geometry of the model.
 
         Parameters
         ----------
@@ -211,10 +211,36 @@ class LinearModel(Model):
         #     assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
         #     assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
-    def adjoint(self,y):
-        out = self._adjoint_func(y)
+    def adjoint(self, y, is_par=True):
+        """ Adjoint of the model.
+        
+        Adjoint converts the input to function values (if needed) using the range geometry of the model.
+        Adjoint converts the output function values to parameters using the range geometry of the model.
+
+        Parameters
+        ----------
+        y : ndarray or cuqi.samples.CUQIarray
+            The adjoint model input.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The adjoint model output. Always returned as parameters.
+        """
+        # Convert input to function values
         if type(y) is CUQIarray:
-            out = CUQIarray(out, is_par=False, geometry=self.domain_geometry)
+            y = y.funvals
+        else:
+            if is_par:
+                y = self.range_geometry.par2fun(y) #Convert to function values
+
+        # Compute adjoint
+        out = self._adjoint_func(y)
+
+        # Convert output to parameters
+        out = self.domain_geometry.fun2par(out) #Convert to parameters
+        if type(y) is CUQIarray:
+            out = CUQIarray(out, is_par=True, geometry=self.domain_geometry)
         return out
 
 
