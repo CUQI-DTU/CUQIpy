@@ -369,7 +369,24 @@ class Continuous2D(Continuous):
             axis.set_aspect('equal')
 
 class Image2D(Geometry):
+    """ A class that represents a 2D image.
 
+    The par2fun method converts the parameter vector into an image (matrix).
+    The fun2par method converts the image (matrix) into a parameter vector.
+
+    Plotting is handled via matplotlib.pyplot.imshow.
+    Colormap is defaulted to grayscale.
+
+    Parameters
+    -----------
+    shape : tuple
+        shape of the image (rows, columns)
+
+    order : str
+        If order = 'C', the image is represented in row-major order.
+        if order = 'F', the image is represented column-major order.
+
+    """
     def __init__(self, shape, order="C"):
         self.shape = shape
         self.order = order
