@@ -4,10 +4,6 @@ import sys
 sys.path.append("..") 
 import cuqi
 import numpy as np
-import scipy.io as io
-import matplotlib.pyplot as plt
-from scipy.interpolate import interp2d
-import scipy.sparse as sps
 
 #%%
 # Forward matrix, picks out the first 5 rows of a 10x... matrix
