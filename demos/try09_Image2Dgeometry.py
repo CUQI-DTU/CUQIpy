@@ -11,14 +11,13 @@ import matplotlib.pyplot as plt
 # Forward problem. Convolution with kernel k
 k = np.array([[1,1,1],[1,1,0],[1,0,0]])
 forward_func = lambda x: ndimage.convolve(x, k, mode='constant', cval=0.0)
-adjoint_func = lambda x: x
 
 # Use Image geometries
 range_geometry = cuqi.geometry.Image2D((4,4), order = "C")
 domain_geometry = cuqi.geometry.Image2D((4,4), order = "C")
 
 # Linear cuqi model
-model = cuqi.model.LinearModel(forward_func,adjoint=adjoint_func,range_geometry=range_geometry,domain_geometry=domain_geometry)
+model = cuqi.model.Model(forward_func,range_geometry=range_geometry,domain_geometry=domain_geometry)
 
 # %% Setup exact parameters x
 x_exact_im = np.array([[1, 2, 0, 0],
