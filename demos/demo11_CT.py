@@ -11,6 +11,7 @@ import scipy.sparse as sps
 
 #Specifically load the CT library (not loaded by default in cuqi)
 from cuqi.astra.model import CT2D_parallel, CT2D_fanbeam
+from cuqi.astra.testproblem import ParBeamCT_2D
 
 %load_ext autoreload
 %autoreload 2
@@ -77,4 +78,16 @@ samples.plot_mean(); plt.colorbar()
 # %%
 # Plot std
 samples.plot_std(); plt.colorbar()
+
+
+#%% High level test problem
+BP = ParBeamCT_2D(prior=prior,
+        data=data, 
+        noise_cov=0.1)
+
+samples_BP = BP._sampleLinearRTO(500) # sample_posterior uses _sampleMapCholesky. That is too slow for this problem.
+
+samples_BP.plot_mean(); plt.colorbar()
+plt.figure()
+samples_BP.plot_std(); plt.colorbar()
 
