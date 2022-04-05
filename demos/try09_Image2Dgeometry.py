@@ -24,17 +24,17 @@ model = cuqi.model.LinearModel(A,range_geometry=range_geometry,domain_geometry=d
 
 # %% Setup exact parameters x
 x_exact_im = np.ones((10,10))
-x_exact_par = cuqi.samples.CUQIarray(domain_geometry.fun2par(x_exact_im), is_par=True, geometry=domain_geometry)
-x_exact_par.plot()
+x_exact = cuqi.samples.CUQIarray(x_exact_im, is_par=False, geometry=domain_geometry) # CUQIarray to represent both vector and image
+x_exact.plot()
 
 # %% Compute exact data
-b_exact = model.forward(x_exact_par)
+b_exact = model.forward(x_exact)
 b_exact.plot()
 
 # %% Setup data distribution
 data_distb = cuqi.distribution.GaussianCov(mean = model, cov = 0.1, geometry=range_geometry) #Geometry is not automatically inferred yet
 
 # %% Sample from data distribution to obtain noisy data
-data = data_distb(x = x_exact_par).sample()
+data = data_distb(x = x_exact).sample()
 data.plot()
 # %%
