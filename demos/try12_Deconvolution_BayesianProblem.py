@@ -1,8 +1,5 @@
 # %% Here we test the automatic sampler selection for Deconvolution (1D and 2D).
 # This script can be explored by commenting out various priors for either the 1D or 2D deconvolution problem.
-# TODO:
-# 1) Add LMRF_approx?
-
 import sys
 sys.path.append("..")
 import cuqi
@@ -18,7 +15,7 @@ from cuqi.sampler import NUTS, CWMH
 # %% Deconvolution 1D problem
 dim = 128
 TP = cuqi.testproblem.Deconvolution1D(dim=dim, phantom="square")
-#TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom="satellite")
+#TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom=cuqi.data.grains(size=dim))
 n = TP.model.domain_dim
 N = TP.model.domain_geometry.shape[0]
 ndim = len(TP.model.domain_geometry.shape)
@@ -37,7 +34,7 @@ if ndim == 2: Ns = 500
 
 # Seems ok in 1D - (Not really seem feasible in 2D it seems)
 #TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
-TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
+TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", physical_dim=ndim, geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
 #TP.prior = LMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Seems OK. Same as Laplace diff actually?
 
 # Bad choices (ignore) both 1D and 2D
@@ -47,7 +44,12 @@ TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physic
 #TP.prior = Lognormal(mean=np.zeros(n), cov=0.05) #NUTS ACTS out!
 
 # %% Samples
-samples = TP.sample_posterior(Ns)
+if isinstance(TP.prior, Laplace_diff):
+    # Use approximate sampler (for both 1D and 2D). TODO. Add to BayesianProblem.
+    from cuqi.sampler import Unadjusted_Laplace_approx
+    samples = Unadjusted_Laplace_approx(TP.posterior).sample(Ns, int(0.2*Ns))
+else:
+    samples = TP.sample_posterior(Ns)
 
 # %% CI plot
 samples.plot_ci(exact=TP.exactSolution)

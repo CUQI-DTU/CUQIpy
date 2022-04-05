@@ -1345,3 +1345,150 @@ class MALA(ULA):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
+
+class Unadjusted_Laplace_approx(Sampler):
+    """ Unadjusted Laplace approximation sampler
+    
+    Samples an approximate posterior where the prior is approximated
+    by a Gaussian distribution. The likelihood must be Gaussian.
+
+    Currently only works for Laplace_diff priors.
+
+    For more details see: Uribe, Felipe, et al. "A hybrid Gibbs sampler for edge-preserving 
+    tomographic reconstruction with uncertain view angles." arXiv preprint arXiv:2104.06919 (2021).
+
+    Parameters
+    ----------
+    target : `cuqi.distribution.Posterior`
+        The target posterior distribution to sample.
+
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    Returns
+    -------
+    cuqi.samples.Samples
+        Samples from the posterior distribution.
+
+    """
+
+    def __init__(self, target, x0=None):
+        
+        super().__init__(target, x0=x0)
+
+        # Check target type
+        if not isinstance(self.target, cuqi.distribution.Posterior):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
+
+        # Check Linear model
+        if not isinstance(self.target.likelihood.model, cuqi.model.LinearModel):
+            raise TypeError("Model needs to be linear")
+
+        # Check Gaussian likelihood
+        if not hasattr(self.target.likelihood.distribution, "sqrtprec"):
+            raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
+
+        # Check that prior is Laplace_diff
+        if not isinstance(self.target.prior, cuqi.distribution.Laplace_diff):
+            raise ValueError('Unadjusted Laplace approximation requires Laplace_diff prior')
+
+        # Modify initial guess        
+        if x0 is not None:
+            self.x0 = x0
+        else:
+            self.x0 = np.zeros(self.target.prior.dim)
+
+    def _sample_adapt(self, Ns, Nb):
+        return self._sample(Ns, Nb)
+
+    def _sample(self, Ns, Nb):
+        """ Sample from the approximate posterior.
+
+        Parameters
+        ----------
+        Ns : int
+            Number of samples to draw.
+
+        Nb : int
+            Number of burn-in samples to discard.
+
+        Returns
+        -------
+        samples : ndarray
+            Samples from the approximate posterior.
+
+        target_eval : ndarray
+            Log-likelihood of each sample.
+
+        acc : ndarray
+            Acceptance rate of each sample.
+
+        """
+
+        # Extract diff_op from target prior
+        D = self.target.prior._diff_op
+        n = D.shape[0]
+
+        # Gaussian approximation of Laplace_diff prior as function of x_k
+        beta = 1e-5
+        betavec = beta*np.ones(n)
+        def Lk_fun(x_k):
+            dd =  1/np.sqrt((D @ x_k)**2 + betavec)
+            W = sp.sparse.diags(dd)
+            return W.sqrt() @ D
+
+        # Now prepare "Linear_RTO" type sampler. TODO: Use Linear_RTO for this instead
+        self.maxit = 200
+        self.tol = 1e-5   
+        self.shift = 0
+
+        # Pre-computations
+        self.model = self.target.likelihood.model   
+        self.data = self.target.likelihood.data
+        self.m = len(self.data)
+        self.L1 = self.target.likelihood.distribution.sqrtprec
+
+        # Initial Laplace approx
+        self.L2 = Lk_fun(self.x0)
+        self.L2mu = self.L2@self.target.prior.location
+        self.b_tild = np.hstack([self.L1@self.data, self.L2mu]) 
+        
+        #self.n = len(self.x0)
+        
+        # Least squares form
+        def M(x, flag):
+            if flag == 1:
+                out1 = self.L1 @ self.model.forward(x)
+                out2 = np.sqrt(1/self.target.prior.scale)*(self.L2 @ x)
+                out  = np.hstack([out1, out2])
+            elif flag == 2:
+                idx = int(self.m)
+                out1 = self.model.adjoint(self.L1.T@x[:idx])
+                out2 = np.sqrt(1/self.target.prior.scale)*(self.L2.T @ x[idx:])
+                out  = out1 + out2                
+            return out 
+        
+        # Initialize samples
+        N = Ns+Nb   # number of simulations        
+        samples = np.empty((self.target.dim, N))
+                     
+        # initial state   
+        samples[:, 0] = self.x0
+        for s in range(N-1):
+
+            # Update Laplace approximation
+            self.L2 = Lk_fun(samples[:, s])
+            self.L2mu = self.L2@self.target.prior.location
+            self.b_tild = np.hstack([self.L1@self.data, self.L2mu]) 
+        
+            # Sample from approximate posterior
+            y = self.b_tild + np.random.randn(len(self.b_tild))
+            sim = CGLS(M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+            samples[:, s+1], _ = sim.solve()
+
+            self._print_progress(s+2,N) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+        
+        # remove burn-in
+        samples = samples[:, Nb:]
+        
+        return samples, None, None
