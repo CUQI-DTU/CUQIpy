@@ -610,12 +610,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             return self._sample_using_sqrtprec(N, rng)
 
         else:
-            if rng is not None:
-                s = rng.multivariate_normal(self.mean, self.cov, N).T
-            else:
-                s = np.random.multivariate_normal(self.mean, self.cov, N).T
-            return s
-
+            return self._sample_using_sqrtprec(N, rng)
      
     def _sample_using_sqrtprec(self, N=1, rng=None):
         """ Generate samples of the Gaussian distribution using
