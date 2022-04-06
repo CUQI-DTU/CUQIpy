@@ -528,6 +528,16 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def rank(self):        
         return self._rank
 
+    @property
+    def sqrtprecTimesMean(self):
+        return (self.sqrtprec@self.mean).flatten()
+
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        if self.dim > config.MAX_DIM_INV:
+            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
+        return np.linalg.inv(self.prec.toarray())  
+
     def get_prec_from_cov(self, cov, eps = 1e-5):
         # if cov is scalar, corrmat is identity or 1D
         if (cov.shape[0] == 1): 
@@ -594,29 +604,11 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     def _sample(self, N=1, rng=None):
         # If scalar or vector cov use numpy normal
         if (self.cov.shape[0] == 1) or (not issparse(self.cov) and self.cov.shape[0] == np.size(self.cov)): 
-            if rng is not None:
-                s = rng.normal(self.mean, self.cov, (N,self.dim)).T
-            else:
-                s = np.random.normal(self.mean, self.cov, (N,self.dim)).T
-            return s    
+            return self._sample_using_sqrtprec(N, rng)  
+
         elif issparse(self.cov) and issparse(self.sqrtprec):        
-            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
+            return self._sample_using_sqrtprec(N, rng)
 
-            #Sample N(0,I)
-            if rng is not None:
-                e = rng.random.randn(np.shape(self.sqrtprec)[0],N)
-            else:
-                e = np.random.randn(np.shape(self.sqrtprec)[0],N)
-
-            #Compute permutation
-            if N==1: #Ensures we add (dim,1) with (dim,1) and not with (dim,)
-                permutation = splinalg.spsolve(self.sqrtprec,e)[:,None]
-            else:
-                permutation = splinalg.spsolve(self.sqrtprec,e)
-                
-            # Add to mean
-            s = self.mean[:,None] + permutation
-            return s
         else:
             if rng is not None:
                 s = rng.multivariate_normal(self.mean, self.cov, N).T
@@ -624,15 +616,28 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s = np.random.multivariate_normal(self.mean, self.cov, N).T
             return s
 
-    @property
-    def sqrtprecTimesMean(self):
-        return (self.sqrtprec@self.mean).flatten()
+     
+    def _sample_using_sqrtprec(self, N=1, rng=None):
+        """ Generate samples of the Gaussian distribution using
+        `s = mean + pseudoinverse(sqrtprec)*eps`,
+        where `eps` is a standard normal noise and `s`is the desired sample 
+        """
+        #Sample N(0,I)
+        if rng is not None:
+            e = rng.randn(np.shape(self.sqrtprec)[0],N)
+        else:
+            e = np.random.randn(np.shape(self.sqrtprec)[0],N)
 
-    @property 
-    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
-        if self.dim > config.MAX_DIM_INV:
-            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
-        return np.linalg.inv(self.prec.toarray())       
+        #Compute permutation
+        if N==1: #Ensures we add (dim,1) with (dim,1) and not with (dim,)
+            permutation = splinalg.spsolve(self.sqrtprec,e)[:,None]
+        else:
+            permutation = splinalg.spsolve(self.sqrtprec,e)
+            
+        # Add to mean
+        s = self.mean[:,None] + permutation
+        return s
+
 
 class JointGaussianSqrtPrec(Distribution):
     """
