@@ -5,9 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cuqi
 
-%load_ext autoreload
-%autoreload 2
-
 #%% Load testproblem
 TP = cuqi.testproblem.Deconvolution2D() #Default values
 
@@ -42,3 +39,5 @@ post_samples.plot()
 
 #%% Plot "Credibility interval". Should create a number of plots for 2D
 post_samples.plot_ci(95)
+
+# %%
