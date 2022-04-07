@@ -115,9 +115,12 @@ class Sampler(ABC):
 
     def _print_progress(self,s,Ns):
         """Prints sampling progress"""
-        if (s % (max(Ns//100,1))) == 0 or s==Ns:
+        if (s % (max(Ns//100,1))) == 0:
             msg = f'Sample {s} / {Ns}'
             sys.stdout.write('\r'+msg)
+        if s==Ns:
+            msg = f'Sample {s} / {Ns}'
+            sys.stdout.write('\r'+msg+'\n')
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
@@ -539,8 +542,6 @@ class Linear_RTO(Sampler):
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-        
-        print("") # To print a new line
 
         # remove burn-in
         samples = samples[:, Nb:]
