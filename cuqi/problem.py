@@ -268,7 +268,7 @@ class BayesianProblem(object):
 
         # Print timing
         print('Elapsed time:', time.time() - ti)
-        
+
         return samples
 
     def _sampleMapCholesky(self,Ns):
@@ -358,6 +358,23 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
         
         return x_s
+
+    def _sampleUnadjustedLaplaceApproximation(self,Ns):
+        print("Using Unadjusted Laplace approximation sampler")
+        print("burn-in: 20%")
+
+        # Start timing
+        ti = time.time()
+
+        # Sample
+        Nb = int(0.2*Ns)
+        sampler = cuqi.sampler.Unadjusted_Laplace_approximation(self.posterior)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+
+        return samples
 
     def _check_geometries_consistency(self, geom1, geom2, fail_msg):
         """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""
