@@ -13,9 +13,9 @@ from cuqi.sampler import NUTS, CWMH
 %load_ext autoreload
 %autoreload 2
 # %% Deconvolution 1D problem
-dim = 128
-TP = cuqi.testproblem.Deconvolution1D(dim=dim, phantom="square")
-#TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom=cuqi.data.grains(size=dim))
+dim = 64
+#TP = cuqi.testproblem.Deconvolution1D(dim=dim, phantom="square")
+TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom=cuqi.data.grains(size=dim))
 n = TP.model.domain_dim
 N = TP.model.domain_geometry.shape[0]
 ndim = len(TP.model.domain_geometry.shape)
@@ -46,8 +46,8 @@ TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", phy
 # %% Samples
 if isinstance(TP.prior, Laplace_diff):
     # Use approximate sampler (for both 1D and 2D). TODO. Add to BayesianProblem.
-    from cuqi.sampler import Unadjusted_Laplace_approx
-    samples = Unadjusted_Laplace_approx(TP.posterior).sample(Ns, int(0.2*Ns))
+    from cuqi.sampler import Unadjusted_Laplace_approximation
+    samples = Unadjusted_Laplace_approximation(TP.posterior).sample(Ns, int(0.2*Ns))
 else:
     samples = TP.sample_posterior(Ns)
 
