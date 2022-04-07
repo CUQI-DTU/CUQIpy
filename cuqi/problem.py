@@ -221,22 +221,21 @@ class BayesianProblem(object):
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
             return self._sampleLinearRTO(Ns)
 
+        # For Laplace_diff we use our awesome unadjusted Laplace approximation!
+        elif self._check_posterior(Laplace_diff, (Gaussian, GaussianCov)):
+            return self._sampleUnadjustedLaplaceApproximation(Ns)
+
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
         elif self._check_posterior(must_have_gradient=True) and not self._check_posterior((Beta, InverseGamma, Lognormal)):
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior((Gaussian, GMRF), (Gaussian, GaussianCov)):
+        elif self._check_posterior((Gaussian, GMRF, GaussianCov), (Gaussian, GaussianCov)):
             return self._samplepCN(Ns)
 
-        # For difference type priors we use CWMH
-        elif self._check_posterior((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=config.MAX_DIM_INV):
-            return self._sampleCWMH(Ns)
-
-        # Possibly bad choices!
-        elif self._check_posterior((Laplace, Beta, InverseGamma, Lognormal), max_dim=config.MAX_DIM_INV):
-            print("!!!EXPERIMENTAL SAMPLER CHOICE: Use at own risk!!!")
+        # For the remainder of valid cases we use CWMH
+        elif self._check_posterior(LMRF):
             return self._sampleCWMH(Ns)
 
         else:

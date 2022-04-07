@@ -1053,7 +1053,6 @@ class Laplace_diff(Distribution):
             num_nodes = (N, N)
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Continuous2D(num_nodes)
-            print("Warning: 2D Laplace_diff is still experimental. Use at own risk.")
         elif physical_dim == 1:
             num_nodes = self.dim
         else:

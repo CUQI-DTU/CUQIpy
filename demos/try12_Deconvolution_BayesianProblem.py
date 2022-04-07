@@ -13,7 +13,7 @@ from cuqi.sampler import NUTS, CWMH
 %load_ext autoreload
 %autoreload 2
 # %% Deconvolution 1D problem
-dim = 64
+dim = 128
 #TP = cuqi.testproblem.Deconvolution1D(dim=dim, phantom="square")
 TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom=cuqi.data.grains(size=dim))
 n = TP.model.domain_dim
@@ -44,12 +44,7 @@ TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", phy
 #TP.prior = Lognormal(mean=np.zeros(n), cov=0.05) #NUTS ACTS out!
 
 # %% Samples
-if isinstance(TP.prior, Laplace_diff):
-    # Use approximate sampler (for both 1D and 2D). TODO. Add to BayesianProblem.
-    from cuqi.sampler import Unadjusted_Laplace_approximation
-    samples = Unadjusted_Laplace_approximation(TP.posterior).sample(Ns, int(0.2*Ns))
-else:
-    samples = TP.sample_posterior(Ns)
+samples = TP.sample_posterior(Ns)
 
 # %% CI plot
 samples.plot_ci(exact=TP.exactSolution)
