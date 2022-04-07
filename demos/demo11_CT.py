@@ -85,7 +85,8 @@ BP = ParBeamCT_2D(prior=prior,
         data=data, 
         noise_cov=0.1)
 
-samples_BP = BP._sampleLinearRTO(500) # sample_posterior uses _sampleMapCholesky. That is too slow for this problem.
+cuqi.config.MAX_DIM_INV = 1000 # Change max dim to a lower number such that the problem will be sampled using LinearRTO
+samples_BP = BP.sample_posterior(500)
 
 samples_BP.plot_mean(); plt.colorbar()
 plt.figure()
