@@ -257,9 +257,19 @@ class BayesianProblem(object):
     def _sampleLinearRTO(self,Ns):
         print("Using Linear_RTO sampler.")
         print("burn-in: 20%")
+
+        # Start timing
+        ti = time.time()
+
+        # Sample
         Nb = int(0.2*Ns)   # burn-in
         sampler = cuqi.sampler.Linear_RTO(self.posterior)
-        return sampler.sample(Ns, Nb)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+        
+        return samples
 
     def _sampleMapCholesky(self,Ns):
         print(f"Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
