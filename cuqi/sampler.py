@@ -1365,6 +1365,15 @@ class Unadjusted_Laplace_approx(Sampler):
     x0 : ndarray
         Initial parameters. *Optional*
 
+    maxit : int
+        Maximum number of inner iterations for solver when generating one sample.
+
+    tol : float
+        Tolerance for inner solver.
+
+    beta : float
+        Parameter for the Laplace approximation. Larger beta is easier to sample but is a worse approximation.
+
     Returns
     -------
     cuqi.samples.Samples
@@ -1372,7 +1381,7 @@ class Unadjusted_Laplace_approx(Sampler):
 
     """
 
-    def __init__(self, target, x0=None):
+    def __init__(self, target, x0=None, maxit=50, tol=1e-4, beta=1e-5):
         
         super().__init__(target, x0=x0)
 
@@ -1397,6 +1406,11 @@ class Unadjusted_Laplace_approx(Sampler):
             self.x0 = x0
         else:
             self.x0 = np.zeros(self.target.prior.dim)
+        
+        # Store internal parameters
+        self.maxit = maxit
+        self.tol = tol
+        self.beta = beta
 
     def _sample_adapt(self, Ns, Nb):
         return self._sample(Ns, Nb)
@@ -1430,16 +1444,13 @@ class Unadjusted_Laplace_approx(Sampler):
         n = D.shape[0]
 
         # Gaussian approximation of Laplace_diff prior as function of x_k
-        beta = 1e-5
-        betavec = beta*np.ones(n)
+        betavec = self.beta*np.ones(n)
         def Lk_fun(x_k):
             dd =  1/np.sqrt((D @ x_k)**2 + betavec)
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
 
         # Now prepare "Linear_RTO" type sampler. TODO: Use Linear_RTO for this instead
-        self.maxit = 200
-        self.tol = 1e-5   
         self.shift = 0
 
         # Pre-computations
