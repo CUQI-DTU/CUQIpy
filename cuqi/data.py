@@ -187,7 +187,7 @@ def shepp_logan(size=128):
     return X
 
 # Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. 
-def threephases(size, p=70):
+def threephases(size=128, p=70):
     """Three-phase phantom.
     
     Creates an image with three different phases.
@@ -245,7 +245,7 @@ def threephases(size, p=70):
     return x
 
 # Python translation of matlab code by Felipe Uribe @ DTU Compute 2020. 
-def p_power(size, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
+def p_power(size=128, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
     """ p-power class phantom.
     
     Create an image generated from a random pattern of nonzero pixels
