@@ -9,7 +9,7 @@ import cuqi
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
-from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, Continuous2D
+from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, Continuous2D, Image2D
 from cuqi.samples import CUQIarray
 
 #=============================================================================
@@ -994,8 +994,8 @@ class Deconvolution2D(BayesianProblem):
         prior = None):
         
         # setting up the geometry
-        domain_geometry = Continuous2D((dim, dim))
-        range_geometry = Continuous2D((dim, dim))
+        domain_geometry = Image2D((dim, dim))
+        range_geometry = Image2D((dim, dim))
 
         # set boundary conditions
         if (BC.lower() == "Neumann"):
@@ -1025,10 +1025,10 @@ class Deconvolution2D(BayesianProblem):
             raise TypeError(f"Unknown PSF: {PSF}.")
 
         # build forward model
-        model = cuqi.model.LinearModel(lambda x: _proj_forward_2D(x.reshape((dim, dim)), P, BC), 
-                                       lambda x: _proj_backward_2D(x.reshape((dim, dim)), P, BC), 
-                                        range_geometry, 
-                                        domain_geometry)
+        model = cuqi.model.LinearModel(lambda x: _proj_forward_2D(x, P, BC), 
+                                       lambda x: _proj_backward_2D(x, P, BC), 
+                                       range_geometry, 
+                                       domain_geometry)
 
         # User provided phantom as ndarray
         if isinstance(phantom, np.ndarray):
@@ -1083,13 +1083,13 @@ class Deconvolution2D(BayesianProblem):
 #=========================================================================
 def _proj_forward_2D(X, P, BC):
     Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
-    return Ax.flatten()
+    return Ax
 
 #=========================================================================
 def _proj_backward_2D(B, P, BC):
     P = np.flipud(np.fliplr(P))
     ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
-    return ATy.flatten()
+    return ATy
 
 # ===================================================================
 # Array with PSF for Gaussian blur (astronomic turbulence)

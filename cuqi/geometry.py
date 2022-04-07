@@ -400,14 +400,33 @@ class Image2D(Geometry):
         self._shape = value
 
     def par2fun(self, pars):
-        return pars.reshape(self.shape, order=self.order)
+        # Reshape to image (also for multiple parameter vectors). TODO: #327
+        funvals = pars.reshape(self.shape+(-1,), order=self.order) 
+        #Squeeze to return single image if only one parameter vector was given
+        funvals = funvals.squeeze()
+        return funvals 
 
     def fun2par(self, funvals):
         return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
     
-    def _plot(self, funvals, **kwargs):
+    def _plot(self, values, **kwargs):
         kwargs.setdefault('cmap', kwargs.get('cmap', "gray"))
-        return plt.imshow(funvals, **kwargs)
+
+        values = self._process_values(values)
+        subplot_ids = self._create_subplot_list(values.shape[-1])
+        ims = []
+        for rows, cols, subplot_id in subplot_ids:
+            plt.subplot(rows, cols, subplot_id)
+            ims.append(plt.imshow(values[...,subplot_id-1], **kwargs))
+        return ims
+
+    def _process_values(self,values):
+        if len(values.shape) == 3 or\
+             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+            pass
+        else:
+            values = values[..., np.newaxis]
+        return values
 
 class Discrete(Geometry):
 
