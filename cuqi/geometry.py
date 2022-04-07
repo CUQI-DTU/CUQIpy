@@ -250,7 +250,7 @@ class Continuous(Geometry, ABC):
         return self._grid
     
     def fun2par(self,funvals):
-        return funvals.ravel()
+        return funvals
 
 class Continuous1D(Continuous):
     """A class that represents a continuous 1D geometry.
@@ -368,6 +368,46 @@ class Continuous2D(Continuous):
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
 
+class Image2D(Geometry):
+    """ A class that represents a 2D image.
+
+    The par2fun method converts the parameter vector into an image (matrix).
+    The fun2par method converts the image (matrix) into a parameter vector.
+
+    Plotting is handled via matplotlib.pyplot.imshow.
+    Colormap is defaulted to grayscale.
+
+    Parameters
+    -----------
+    shape : tuple
+        shape of the image (rows, columns)
+
+    order : str
+        If order = 'C', the image is represented in row-major order.
+        if order = 'F', the image is represented column-major order.
+
+    """
+    def __init__(self, shape, order="C"):
+        self.shape = shape
+        self.order = order
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        self._shape = value
+
+    def par2fun(self, pars):
+        return pars.reshape(self.shape, order=self.order)
+
+    def fun2par(self, funvals):
+        return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
+    
+    def _plot(self, funvals, **kwargs):
+        kwargs.setdefault('cmap', kwargs.get('cmap', "gray"))
+        return plt.imshow(funvals, **kwargs)
 
 class Discrete(Geometry):
 
