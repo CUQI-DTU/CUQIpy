@@ -6,6 +6,12 @@ import math
 from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
 
+def _get_identity_geometries():
+    """Return the geometries that have identity par2fun and fun2par methods (can still reshape).
+    These geometries do not alter the gradient computations.
+    """
+    return [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]
+
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
     """
