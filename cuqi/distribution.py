@@ -570,10 +570,10 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             else:
                 # Can we use cholesky factorization and somehow get the logdet also?
                 s, u = eigh(cov, lower=True, check_finite=True)
-                u = u@diags(np.sign(u[0,:])) #ensure sign is deterministic (scipy gives non-deterministic result)
                 d = s[s > eps]
                 s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
                 sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
+                sqrtprec = sqrtprec@diags(np.sign(np.diag(sqrtprec))) #ensure sign is deterministic (scipy gives non-deterministic result)
                 rank = len(d)
                 logdet = np.sum(np.log(d))
                 prec = sqrtprec @ sqrtprec.T
