@@ -1357,6 +1357,8 @@ class UnadjustedLaplaceApproximation(Sampler):
 
     Currently only works for Laplace_diff priors.
 
+    The inner solver is Conjugate Gradient Least Squares (CGLS) solver.
+
     For more details see: Uribe, Felipe, et al. "A hybrid Gibbs sampler for edge-preserving 
     tomographic reconstruction with uncertain view angles." arXiv preprint arXiv:2104.06919 (2021).
 
@@ -1372,7 +1374,7 @@ class UnadjustedLaplaceApproximation(Sampler):
         Maximum number of inner iterations for solver when generating one sample.
 
     tol : float
-        Tolerance for inner solver.
+        Tolerance for inner solver. Will stop before maxit if the inner solvers convergence check reaches tol.
 
     beta : float
         Parameter for the Laplace approximation. Larger beta is easier to sample but is a worse approximation.
