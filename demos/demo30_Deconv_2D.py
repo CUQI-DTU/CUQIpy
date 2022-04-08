@@ -39,3 +39,5 @@ post_samples.plot()
 
 #%% Plot "Credibility interval". Should create a number of plots for 2D
 post_samples.plot_ci(95)
+
+# %%

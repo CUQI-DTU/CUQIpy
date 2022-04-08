@@ -5,7 +5,7 @@ from scipy.sparse import diags, eye, identity, issparse, vstack
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
 from cuqi.samples import Samples, CUQIarray
-from cuqi.geometry import _DefaultGeometry, Geometry, Continuous1D, Continuous2D, Discrete
+from cuqi.geometry import _DefaultGeometry, Geometry, Image2D, _get_identity_geometries
 from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
@@ -298,7 +298,7 @@ class Cauchy_diff(Distribution):
             N = int(np.sqrt(self.dim))
             num_nodes = (N, N)
             if isinstance(self.geometry, _DefaultGeometry):
-                self.geometry = Continuous2D(num_nodes)
+                self.geometry = Image2D(num_nodes)
             print("Warning: 2D Cauchy_diff is still experimental. Use at own risk.")
         elif physical_dim == 1:
             num_nodes = self.dim
@@ -319,7 +319,7 @@ class Cauchy_diff(Distribution):
     
     def gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.location): # for prior
@@ -590,7 +590,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     def gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
@@ -885,7 +885,7 @@ class GMRF(Distribution):
         else:
             num_nodes = (partition_size,partition_size)
             if isinstance(self.geometry, _DefaultGeometry):
-                self.geometry = Continuous2D(num_nodes)
+                self.geometry = Image2D(num_nodes)
 
         self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
         self._diff_op = self._prec_op._diff_op      
@@ -944,7 +944,7 @@ class GMRF(Distribution):
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean):
@@ -1053,7 +1053,8 @@ class Laplace_diff(Distribution):
             N = int(np.sqrt(self.dim))
             num_nodes = (N, N)
             if isinstance(self.geometry, _DefaultGeometry):
-                self.geometry = Continuous2D(num_nodes)
+                self.geometry = Image2D(num_nodes)
+
         elif physical_dim == 1:
             num_nodes = self.dim
         else:
@@ -1222,7 +1223,7 @@ class Posterior(Distribution):
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
             
         return self.likelihood.gradient(x)+ self.prior.gradient(x)        
@@ -1482,7 +1483,7 @@ class Lognormal(Distribution):
 
     def gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} "
                                       "with geometry {}".format(self,self.geometry))
 
@@ -1564,7 +1565,7 @@ class InverseGamma(Distribution):
 
     def gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
         #Computing the gradient for conditional InverseGamma distribution is not supported yet    
         elif self.is_cond:
@@ -1653,7 +1654,7 @@ class Beta(Distribution):
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
         
         #Computing the gradient for conditional InverseGamma distribution is not supported yet    

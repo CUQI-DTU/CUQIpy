@@ -203,7 +203,7 @@ class BayesianProblem(object):
             x_BFGS, info_BFGS = solver.solve()
         return x_BFGS, info_BFGS
 
-    def sample_posterior(self, Ns):
+    def sample_posterior(self, Ns) -> cuqi.samples.Samples:
         """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
 
         # Print warning to user about the automatic sampler selection

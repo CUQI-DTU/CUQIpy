@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
-from cuqi.geometry import _DefaultGeometry, Continuous2D
+from cuqi.geometry import _DefaultGeometry, Continuous2D, Image2D
 from copy import copy
 import arviz # Plotting tool
 
@@ -302,7 +302,7 @@ class Samples(object):
         if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
         if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"]=kwargs.get("plot_par")   
 
-        if type(self.geometry) is Continuous2D:
+        if type(self.geometry) is Continuous2D or type(self.geometry) is Image2D:
             plt.figure()
             #fig.add_subplot(2,2,1)
             self.geometry.plot(mean, *args, **kwargs)
