@@ -2,7 +2,7 @@ import scipy as sp
 import scipy.stats as sps
 import numpy as np
 
-from cuqi.distribution import Laplace_diff
+from cuqi.distribution import Normal
 # import matplotlib
 # import matplotlib.pyplot as plt
 eps = np.finfo(float).eps
@@ -1379,6 +1379,9 @@ class UnadjustedLaplaceApproximation(Sampler):
     beta : float
         Smoothing parameter for the Gaussian approximation of the Laplace distribution. Larger beta is easier to sample but is a worse approximation.
 
+    rng : np.random.RandomState
+        Random number generator used for sampling. *Optional*
+
     Returns
     -------
     cuqi.samples.Samples
@@ -1386,7 +1389,7 @@ class UnadjustedLaplaceApproximation(Sampler):
 
     """
 
-    def __init__(self, target, x0=None, maxit=50, tol=1e-4, beta=1e-5):
+    def __init__(self, target, x0=None, maxit=50, tol=1e-4, beta=1e-5, rng=None):
         
         super().__init__(target, x0=x0)
 
@@ -1416,6 +1419,7 @@ class UnadjustedLaplaceApproximation(Sampler):
         self.maxit = maxit
         self.tol = tol
         self.beta = beta
+        self.rng = rng
 
     def _sample_adapt(self, Ns, Nb):
         return self._sample(Ns, Nb)
@@ -1497,7 +1501,8 @@ class UnadjustedLaplaceApproximation(Sampler):
             self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
             # Sample from approximate posterior
-            y = self._b_tild + np.random.randn(len(self._b_tild))
+            e = Normal(mean=np.zeros(len(self._b_tild)), std=1).sample(rng=self.rng)
+            y = self._b_tild + e # Perturb data
             sim = CGLS(M, y, samples[:, s], self.maxit, self.tol, self._shift)            
             samples[:, s+1], _ = sim.solve()
 
