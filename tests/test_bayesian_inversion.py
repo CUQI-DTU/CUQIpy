@@ -34,12 +34,13 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
 
     # Load reference file into temp folder and load
     ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
-    #np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
+    #if isinstance(prior, Laplace_diff): #Put the case you want to update for here.
+    #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
     ref_file = copy_reference(f"data/{ref_fname}.npz")
     ref = np.load(ref_file)
 
     # Check results with reference data
-    assert med_xpos == pytest.approx(ref["median"])
-    assert sigma_xpos == pytest.approx(ref["sigma"])
-    assert lo95 == pytest.approx(ref["lo95"])
-    assert up95 == pytest.approx(ref["up95"])
+    assert med_xpos == pytest.approx(ref["median"], rel=1e-3)
+    assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3)
+    assert lo95 == pytest.approx(ref["lo95"], rel=1e-3)
+    assert up95 == pytest.approx(ref["up95"], rel=1e-3)
