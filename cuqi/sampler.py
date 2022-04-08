@@ -1449,9 +1449,8 @@ class UnadjustedLaplaceApproximation(Sampler):
         n = D.shape[0]
 
         # Gaussian approximation of Laplace_diff prior as function of x_k
-        betavec = self.beta*np.ones(n)
         def Lk_fun(x_k):
-            dd =  1/np.sqrt((D @ x_k)**2 + betavec)
+            dd =  1/np.sqrt((D @ x_k)**2 + self.beta*np.ones(n))
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
 
