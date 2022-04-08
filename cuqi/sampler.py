@@ -1406,7 +1406,7 @@ class UnadjustedLaplaceApproximation(Sampler):
         if not isinstance(self.target.prior, cuqi.distribution.Laplace_diff):
             raise ValueError('Unadjusted Laplace approximation requires Laplace_diff prior')
 
-        # Modify initial guess        
+        # Modify initial guess since Sampler sets it to ones.       
         if x0 is not None:
             self.x0 = x0
         else:
