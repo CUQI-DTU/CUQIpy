@@ -1349,7 +1349,7 @@ class MALA(ULA):
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
 
-class Unadjusted_Laplace_approximation(Sampler):
+class UnadjustedLaplaceApproximation(Sampler):
     """ Unadjusted Laplace approximation sampler
     
     Samples an approximate posterior where the prior is approximated

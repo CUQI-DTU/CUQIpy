@@ -367,7 +367,7 @@ class BayesianProblem(object):
 
         # Sample
         Nb = int(0.2*Ns)
-        sampler = cuqi.sampler.Unadjusted_Laplace_approximation(self.posterior)
+        sampler = cuqi.sampler.UnadjustedLaplaceApproximation(self.posterior)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing
