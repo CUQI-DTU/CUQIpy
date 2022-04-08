@@ -47,16 +47,14 @@ def test_Gaussian_cov():
                         ([1, 1]),
                         ([[ 1. , -0.7],
                           [-0.7,  1. ]]),
-                        ([[-0.30471644, -0.52294788, -0.3204432,  -0.82791771, -0.88232622],
-                          [-2.52738159,  0.50701152, -1.04189629, -2.16116453, -1.34325028]])),
-
+                        ([[ 0.30471644,  0.52294788,  0.3204432 ,  0.82791771,  0.88232622],
+                          [ 2.52738159, -0.50701152,  1.04189629,  2.16116453,  1.34325028]])),
                         (([-3.14159265,  2.23606798]),
                         ([ 3.14159265, 50.        ]),
                         ([[ 1.   ,  0.001],
                           [-0.001,  1.   ]]),
-                        ([[ -8.68333007,  -4.39891124,  -6.21635716, -10.18154225,  -9.00877752],
-                          [-46.63338991,  49.73922674,  -5.33487942,  -2.93194249,  22.76010272]])),
-
+                        ([[  2.40014477,  -1.88427406,  -0.06682814,   3.89835695, 2.72559222],
+                          [ 51.10552587, -45.26709078,   9.80701538,   7.40407845, -18.28796676]])),
                         (([23.        ,  0.        ,  3.14159265]),
                         ([3.        , 1.41421356, 3.14159265]),
                         ([[ 1. ,  0.9,  0.3],
@@ -243,8 +241,8 @@ def test_lognormal_sample():
     R = np.array([[1, -0.7], [-0.7, 1]])
     LND = cuqi.distribution.Lognormal(mean, std**2*R)
     cuqi_samples = LND.sample(3,rng=rng)
-    result = np.array([[1.68690871e-01, 6.47288107e-01, 9.09278670e-01],
-                       [7.82563924e-14, 3.68757304e-04, 1.26980745e-04]])
+    result = np.array([[5.92800307e+00, 1.54490711e+00, 1.09977286e+00],
+                       [4.28671215e+09, 9.09711141e-01, 2.64183856e+00]])
     assert(np.all(np.isclose(cuqi_samples.samples, result)))
 
 @pytest.mark.parametrize("mean,std",[
@@ -410,3 +408,11 @@ def test_beta(): #TODO. Make more tests
     # GRADIENT
     FD_gradient = cuqi.utilities.first_order_finite_difference_gradient(BD.logpdf, x, BD.dim, epsilon=0.000000001)
     assert np.allclose(BD.gradient(x),FD_gradient,rtol=1e-3) or (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(BD.gradient(x))))
+
+
+@pytest.mark.parametrize("C",[1, np.ones(5), np.eye(5), sps.eye(5), sps.diags(np.ones(5))])
+def test_GaussianCov_sample(C):
+    x = cuqi.distribution.GaussianCov(np.zeros(5), np.pi*C)
+    rng = np.random.RandomState(0)
+    samples = x.sample(rng=rng)
+    assert np.allclose(samples, np.array([3.12670137, 0.70926018, 1.73476791, 3.97187978, 3.31016035]))
