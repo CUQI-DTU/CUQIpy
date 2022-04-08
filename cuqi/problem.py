@@ -359,7 +359,7 @@ class BayesianProblem(object):
         return x_s
 
     def _sampleUnadjustedLaplaceApproximation(self,Ns):
-        print("Using Unadjusted Laplace approximation sampler")
+        print("Using Unadjusted Laplace Approximation sampler")
         print("burn-in: 20%")
 
         # Start timing
