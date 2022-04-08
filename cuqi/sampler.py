@@ -1377,7 +1377,7 @@ class UnadjustedLaplaceApproximation(Sampler):
         Tolerance for inner solver. Will stop before maxit if the inner solvers convergence check reaches tol.
 
     beta : float
-        Parameter for the Laplace approximation. Larger beta is easier to sample but is a worse approximation.
+        Smoothing parameter for the Gaussian approximation of the Laplace distribution. Larger beta is easier to sample but is a worse approximation.
 
     Returns
     -------
