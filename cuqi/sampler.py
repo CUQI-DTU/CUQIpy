@@ -1455,31 +1455,31 @@ class UnadjustedLaplaceApproximation(Sampler):
             return W.sqrt() @ D
 
         # Now prepare "Linear_RTO" type sampler. TODO: Use Linear_RTO for this instead
-        self.shift = 0
+        self._shift = 0
 
         # Pre-computations
-        self.model = self.target.likelihood.model   
-        self.data = self.target.likelihood.data
-        self.m = len(self.data)
-        self.L1 = self.target.likelihood.distribution.sqrtprec
+        self._model = self.target.likelihood.model   
+        self._data = self.target.likelihood.data
+        self._m = len(self._data)
+        self._L1 = self.target.likelihood.distribution.sqrtprec
 
         # Initial Laplace approx
-        self.L2 = Lk_fun(self.x0)
-        self.L2mu = self.L2@self.target.prior.location
-        self.b_tild = np.hstack([self.L1@self.data, self.L2mu]) 
+        self._L2 = Lk_fun(self.x0)
+        self._L2mu = self._L2@self.target.prior.location
+        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
         #self.n = len(self.x0)
         
         # Least squares form
         def M(x, flag):
             if flag == 1:
-                out1 = self.L1 @ self.model.forward(x)
-                out2 = np.sqrt(1/self.target.prior.scale)*(self.L2 @ x)
+                out1 = self._L1 @ self._model.forward(x)
+                out2 = np.sqrt(1/self.target.prior.scale)*(self._L2 @ x)
                 out  = np.hstack([out1, out2])
             elif flag == 2:
-                idx = int(self.m)
-                out1 = self.model.adjoint(self.L1.T@x[:idx])
-                out2 = np.sqrt(1/self.target.prior.scale)*(self.L2.T @ x[idx:])
+                idx = int(self._m)
+                out1 = self._model.adjoint(self._L1.T@x[:idx])
+                out2 = np.sqrt(1/self.target.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out 
         
@@ -1492,13 +1492,13 @@ class UnadjustedLaplaceApproximation(Sampler):
         for s in range(N-1):
 
             # Update Laplace approximation
-            self.L2 = Lk_fun(samples[:, s])
-            self.L2mu = self.L2@self.target.prior.location
-            self.b_tild = np.hstack([self.L1@self.data, self.L2mu]) 
+            self._L2 = Lk_fun(samples[:, s])
+            self._L2mu = self._L2@self.target.prior.location
+            self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
             # Sample from approximate posterior
-            y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = CGLS(M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+            y = self._b_tild + np.random.randn(len(self._b_tild))
+            sim = CGLS(M, y, samples[:, s], self.maxit, self.tol, self._shift)            
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,N) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
