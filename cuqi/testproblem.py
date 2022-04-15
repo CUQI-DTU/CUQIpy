@@ -2,8 +2,7 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
-from scipy.ndimage import convolve, zoom
-import scipy.io as spio
+from scipy.signal import fftconvolve
 
 import cuqi
 from cuqi.model import LinearModel
@@ -999,13 +998,13 @@ class Deconvolution2D(BayesianProblem):
 
         # set boundary conditions
         if (BC.lower() == "neumann"):
-            BC = "reflect"
+            BC = "symmetric"
         elif (BC.lower() == "zero"):
             BC = "constant" # cval = 0
         elif (BC.lower() == "nearest"):
-            pass # BC = "nearest" # the input is extended by replicating the last pixel
+            BC = "edge" # the input is extended by replicating the last pixel
         elif (BC.lower() == "mirror"):
-            pass # BC = "mirror" # reflecting about the center of the last pixel
+            BC = "reflect" # reflecting about the center of the last pixel
         elif (BC.lower() == "periodic"):
             BC = "wrap"
         else:
@@ -1082,13 +1081,19 @@ class Deconvolution2D(BayesianProblem):
 
 #=========================================================================
 def _proj_forward_2D(X, P, BC):
-    Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
+    PSF_size = max(P.shape)
+    X_padded = np.pad(X, PSF_size//2, mode=BC)
+    Ax = fftconvolve(X_padded, P, mode='valid')
+    if not PSF_size & 0x1: Ax = Ax[1:, 1:] #PSF_size even, remove first row and column to fit convolve math
     return Ax
 
 #=========================================================================
 def _proj_backward_2D(B, P, BC):
+    PSF_size = max(P.shape)
     P = np.flipud(np.fliplr(P))
-    ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
+    B_padded = np.pad(B, PSF_size//2, mode=BC)
+    ATy = fftconvolve(B_padded, P, mode='valid')
+    if not PSF_size & 0x1: ATy = ATy[1:, 1:] #PSF_size even, remove first row and column to fit convolve math
     return ATy
 
 # ===================================================================

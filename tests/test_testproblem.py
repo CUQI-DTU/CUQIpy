@@ -138,6 +138,8 @@ def test_Deconvolution2D_phantom(phantom):
     TP= cuqi.testproblem.Deconvolution2D(dim=128, phantom=phantom)
     assert TP.exactSolution.shape == (128**2,)
 
+@pytest.mark.parametrize("PSF_size",[20, 21])
+@pytest.mark.parametrize("PSF",["Gauss", "Moffat", "Defocus"])
 @pytest.mark.parametrize("BC_MAP",[ 
     ["periodic", "wrap"],
     ["zero", "constant"],
@@ -145,17 +147,17 @@ def test_Deconvolution2D_phantom(phantom):
     ["Neumann", "reflect"],
     ["nearest", "nearest"],
     ])
-def test_Deconvolution2D_convolve(BC_MAP):
+def test_Deconvolution2D_convolve(BC_MAP, PSF, PSF_size):
     """ Compare Convolve with ndimage slow convolve"""
     # Define testproblem
-    TP = cuqi.testproblem.Deconvolution2D(BC=BC_MAP[0])
+    TP = cuqi.testproblem.Deconvolution2D(BC=BC_MAP[0], PSF=PSF, PSF_size=PSF_size)
 
     # Extract kernel + image + data
     P = TP.Miscellaneous["PSF"]
     x = TP.exactSolution.funvals # Image
     y = TP.exactData.funvals # Data
 
-    # ndimage convolve forward and adjoint
+    # ndimage convolve forward and adjoint (non-FFT)
     forward = lambda x: convolve(x, P, mode=BC_MAP[1])
     adjoint = lambda y: convolve(y, np.flipud(np.fliplr(P)), mode=BC_MAP[1])
 
