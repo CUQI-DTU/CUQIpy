@@ -998,7 +998,7 @@ class Deconvolution2D(BayesianProblem):
         range_geometry = Image2D((dim, dim))
 
         # set boundary conditions
-        if (BC.lower() == "Neumann"):
+        if (BC.lower() == "neumann"):
             BC = "reflect"
         elif (BC.lower() == "zero"):
             BC = "constant" # cval = 0
