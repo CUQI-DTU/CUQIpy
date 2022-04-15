@@ -898,8 +898,9 @@ class Deconvolution2D(BayesianProblem):
     :math:`\mathbf{A}` is a convolution operator.
 
     The convolution operator is defined by specifing a point spread function and
-    boundary conditions and is computed (matrix-free) via scipy.ndimage.convolve.
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html.
+    boundary conditions and is computed (matrix-free) via scipy.signal.fftconvolve.
+    The inputs are padded to fit the boundary conditions.
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html.
 
     Parameters
     ----------
