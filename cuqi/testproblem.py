@@ -1085,17 +1085,14 @@ def _proj_forward_2D(X, P, BC):
     PSF_size = max(P.shape)
     X_padded = np.pad(X, PSF_size//2, mode=BC)
     Ax = fftconvolve(X_padded, P, mode='valid')
-    if not PSF_size & 0x1: Ax = Ax[1:, 1:] #PSF_size even, remove first row and column to fit convolve math
+    if not PSF_size & 0x1: # If PSF_size is even
+        Ax = Ax[1:, 1:] # Remove first row and column to fit convolve math
     return Ax
 
 #=========================================================================
 def _proj_backward_2D(B, P, BC):
-    PSF_size = max(P.shape)
-    P = np.flipud(np.fliplr(P))
-    B_padded = np.pad(B, PSF_size//2, mode=BC)
-    ATy = fftconvolve(B_padded, P, mode='valid')
-    if not PSF_size & 0x1: ATy = ATy[1:, 1:] #PSF_size even, remove first row and column to fit convolve math
-    return ATy
+    P = np.flipud(np.fliplr(P)) # Flip PSF
+    return _proj_forward_2D(B, P, BC)
 
 # ===================================================================
 # Array with PSF for Gaussian blur (astronomic turbulence)
