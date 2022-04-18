@@ -295,7 +295,8 @@ class BayesianProblem(object):
                 print("\r",'Sample', s, '/', Ns, end="")
             
             # Callback function
-            callback(x_s[:,s], s)
+            if callback:
+                callback(x_s[:,s], s)
 
         print("\r",'Sample', s+1, '/', Ns)
         print('Elapsed time:', time.time() - ti)
