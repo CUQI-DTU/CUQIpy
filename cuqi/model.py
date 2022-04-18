@@ -94,7 +94,7 @@ class Model(object):
         """
 
         # Convert input to function values
-        if type(x) is CUQIarray:
+        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
             x = x.funvals
         else:
             if is_par:
@@ -228,7 +228,7 @@ class LinearModel(Model):
             The adjoint model output. Always returned as parameters.
         """
         # Convert input to function values
-        if type(y) is CUQIarray:
+        if type(y) is CUQIarray and not isinstance(y.geometry, _DefaultGeometry):
             y = y.funvals
         else:
             if is_par:
