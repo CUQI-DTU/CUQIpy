@@ -2,8 +2,7 @@ import numpy as np
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
-from scipy.ndimage import convolve, zoom
-import scipy.io as spio
+from scipy.signal import fftconvolve
 
 import cuqi
 from cuqi.model import LinearModel
@@ -899,8 +898,9 @@ class Deconvolution2D(BayesianProblem):
     :math:`\mathbf{A}` is a convolution operator.
 
     The convolution operator is defined by specifing a point spread function and
-    boundary conditions and is computed (matrix-free) via scipy.ndimage.convolve.
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve.html.
+    boundary conditions and is computed (matrix-free) via scipy.signal.fftconvolve.
+    The inputs are padded to fit the boundary conditions.
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html.
 
     Parameters
     ----------
@@ -998,14 +998,14 @@ class Deconvolution2D(BayesianProblem):
         range_geometry = Image2D((dim, dim))
 
         # set boundary conditions
-        if (BC.lower() == "Neumann"):
-            BC = "reflect"
+        if (BC.lower() == "neumann"):
+            BC = "symmetric"
         elif (BC.lower() == "zero"):
             BC = "constant" # cval = 0
         elif (BC.lower() == "nearest"):
-            pass # BC = "nearest" # the input is extended by replicating the last pixel
+            BC = "edge" # the input is extended by replicating the last pixel
         elif (BC.lower() == "mirror"):
-            pass # BC = "mirror" # reflecting about the center of the last pixel
+            BC = "reflect" # reflecting about the center of the last pixel
         elif (BC.lower() == "periodic"):
             BC = "wrap"
         else:
@@ -1082,14 +1082,17 @@ class Deconvolution2D(BayesianProblem):
 
 #=========================================================================
 def _proj_forward_2D(X, P, BC):
-    Ax = convolve(X, P, mode=BC) # sp.signal.convolve2d(X_ext, P)
+    PSF_size = max(P.shape)
+    X_padded = np.pad(X, PSF_size//2, mode=BC)
+    Ax = fftconvolve(X_padded, P, mode='valid')
+    if not PSF_size & 0x1: # If PSF_size is even
+        Ax = Ax[1:, 1:] # Remove first row and column to fit convolve math
     return Ax
 
 #=========================================================================
 def _proj_backward_2D(B, P, BC):
-    P = np.flipud(np.fliplr(P))
-    ATy = convolve(B, P, mode=BC) # sp.signal.convolve2d(B_ext, P)
-    return ATy
+    P = np.flipud(np.fliplr(P)) # Flip PSF
+    return _proj_forward_2D(B, P, BC)
 
 # ===================================================================
 # Array with PSF for Gaussian blur (astronomic turbulence)
