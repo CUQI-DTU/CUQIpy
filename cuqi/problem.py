@@ -1,8 +1,6 @@
 import numpy as np
 import time
 
-import matplotlib.pyplot as plt
-
 import cuqi
 from cuqi import config
 from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
