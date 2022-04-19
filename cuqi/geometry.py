@@ -6,6 +6,12 @@ import math
 from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
 
+def _get_identity_geometries():
+    """Return the geometries that have identity par2fun and fun2par methods (can still reshape).
+    These geometries do not alter the gradient computations.
+    """
+    return [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]
+
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
     """
@@ -250,7 +256,7 @@ class Continuous(Geometry, ABC):
         return self._grid
     
     def fun2par(self,funvals):
-        return funvals.ravel()
+        return funvals
 
 class Continuous1D(Continuous):
     """A class that represents a continuous 1D geometry.
@@ -368,6 +374,65 @@ class Continuous2D(Continuous):
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
 
+class Image2D(Geometry):
+    """ A class that represents a 2D image.
+
+    The par2fun method converts the parameter vector into an image (matrix).
+    The fun2par method converts the image (matrix) into a parameter vector.
+
+    Plotting is handled via matplotlib.pyplot.imshow.
+    Colormap is defaulted to grayscale.
+
+    Parameters
+    -----------
+    shape : tuple
+        shape of the image (rows, columns)
+
+    order : str
+        If order = 'C', the image is represented in row-major order.
+        if order = 'F', the image is represented column-major order.
+
+    """
+    def __init__(self, shape, order="C"):
+        self.shape = shape
+        self.order = order
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @shape.setter
+    def shape(self, value):
+        self._shape = value
+
+    def par2fun(self, pars):
+        # Reshape to image (also for multiple parameter vectors). TODO: #327
+        funvals = pars.reshape(self.shape+(-1,), order=self.order) 
+        #Squeeze to return single image if only one parameter vector was given
+        funvals = funvals.squeeze()
+        return funvals 
+
+    def fun2par(self, funvals):
+        return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
+    
+    def _plot(self, values, **kwargs):
+        kwargs.setdefault('cmap', kwargs.get('cmap', "gray"))
+
+        values = self._process_values(values)
+        subplot_ids = self._create_subplot_list(values.shape[-1])
+        ims = []
+        for rows, cols, subplot_id in subplot_ids:
+            plt.subplot(rows, cols, subplot_id)
+            ims.append(plt.imshow(values[...,subplot_id-1], **kwargs))
+        return ims
+
+    def _process_values(self,values):
+        if len(values.shape) == 3 or\
+             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+            pass
+        else:
+            values = values[..., np.newaxis]
+        return values
 
 class Discrete(Geometry):
 

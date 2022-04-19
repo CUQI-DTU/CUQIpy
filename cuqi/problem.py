@@ -203,7 +203,7 @@ class BayesianProblem(object):
             x_BFGS, info_BFGS = solver.solve()
         return x_BFGS, info_BFGS
 
-    def sample_posterior(self, Ns):
+    def sample_posterior(self, Ns) -> cuqi.samples.Samples:
         """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
 
         # Print warning to user about the automatic sampler selection
@@ -221,22 +221,21 @@ class BayesianProblem(object):
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
             return self._sampleLinearRTO(Ns)
 
+        # For Laplace_diff we use our awesome unadjusted Laplace approximation!
+        elif self._check_posterior(Laplace_diff, (Gaussian, GaussianCov)):
+            return self._sampleUnadjustedLaplaceApproximation(Ns)
+
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
         elif self._check_posterior(must_have_gradient=True) and not self._check_posterior((Beta, InverseGamma, Lognormal)):
             return self._sampleNUTS(Ns)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior((Gaussian, GMRF), (Gaussian, GaussianCov)):
+        elif self._check_posterior((Gaussian, GMRF, GaussianCov), (Gaussian, GaussianCov)):
             return self._samplepCN(Ns)
 
-        # For difference type priors we use CWMH
-        elif self._check_posterior((Laplace_diff, LMRF), (Gaussian, GaussianCov), max_dim=config.MAX_DIM_INV):
-            return self._sampleCWMH(Ns)
-
-        # Possibly bad choices!
-        elif self._check_posterior((Laplace, Beta, InverseGamma, Lognormal), max_dim=config.MAX_DIM_INV):
-            print("!!!EXPERIMENTAL SAMPLER CHOICE: Use at own risk!!!")
+        # For the remainder of valid cases we use CWMH
+        elif self._check_posterior(LMRF):
             return self._sampleCWMH(Ns)
 
         else:
@@ -257,9 +256,19 @@ class BayesianProblem(object):
     def _sampleLinearRTO(self,Ns):
         print("Using Linear_RTO sampler.")
         print("burn-in: 20%")
+
+        # Start timing
+        ti = time.time()
+
+        # Sample
         Nb = int(0.2*Ns)   # burn-in
         sampler = cuqi.sampler.Linear_RTO(self.posterior)
-        return sampler.sample(Ns, Nb)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+
+        return samples
 
     def _sampleMapCholesky(self,Ns):
         print(f"Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
@@ -348,6 +357,23 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
         
         return x_s
+
+    def _sampleUnadjustedLaplaceApproximation(self,Ns):
+        print("Using Unadjusted Laplace Approximation sampler")
+        print("burn-in: 20%")
+
+        # Start timing
+        ti = time.time()
+
+        # Sample
+        Nb = int(0.2*Ns)
+        sampler = cuqi.sampler.UnadjustedLaplaceApproximation(self.posterior)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+
+        return samples
 
     def _check_geometries_consistency(self, geom1, geom2, fail_msg):
         """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""

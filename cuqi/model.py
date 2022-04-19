@@ -3,7 +3,7 @@ from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples, CUQIarray
-from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry, Continuous2D, Discrete
+from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry, Continuous2D, Discrete, Image2D
 import cuqi
 import matplotlib.pyplot as plt
 
@@ -73,15 +73,35 @@ class Model(object):
         return self.range_geometry.dim
     
     def forward(self, x, is_par=True):
-        # If input is samples then compute forward for each sample 
-        # TODO: Check if this can be done all-at-once for computational speed-up
+        """ Forward function of the model.
+        
+        Forward converts the input to function values (if needed) using the domain geometry of the model.
+        Forward converts the output function values to parameters using the domain geometry of the model.
 
-        if type(x) is CUQIarray:
+        Parameters
+        ----------
+        x : ndarray or cuqi.samples.CUQIarray
+            The model input.
+
+        is_par : bool
+            If True the input is assumed to be parameters.
+            If False the input is assumed to be function values.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The model output. Always returned as parameters.
+        """
+
+        # Convert input to function values
+        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
             x = x.funvals
         else:
             if is_par:
                 x = self.domain_geometry.par2fun(x)
 
+        # Compute foward (if Samples we compute for each sample)
+        # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             Ns = x.samples.shape[-1]
             data_samples = np.zeros((self.range_dim,Ns))
@@ -90,8 +110,9 @@ class Model(object):
             return Samples(data_samples,geometry=self.range_geometry)
         else:
             out = self._forward_func(x)
+            out = self.range_geometry.fun2par(out) #Convert to parameters
             if type(x) is CUQIarray:
-                out = CUQIarray(out, geometry=self.range_geometry)
+                out = CUQIarray(out, is_par=True, geometry=self.range_geometry)
             return out
 
     def __call__(self,x):
@@ -190,10 +211,36 @@ class LinearModel(Model):
         #     assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
         #     assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
 
-    def adjoint(self,y):
+    def adjoint(self, y, is_par=True):
+        """ Adjoint of the model.
+        
+        Adjoint converts the input to function values (if needed) using the range geometry of the model.
+        Adjoint converts the output function values to parameters using the range geometry of the model.
+
+        Parameters
+        ----------
+        y : ndarray or cuqi.samples.CUQIarray
+            The adjoint model input.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The adjoint model output. Always returned as parameters.
+        """
+        # Convert input to function values
+        if type(y) is CUQIarray and not isinstance(y.geometry, _DefaultGeometry):
+            y = y.funvals
+        else:
+            if is_par:
+                y = self.range_geometry.par2fun(y) #Convert to function values
+
+        # Compute adjoint
         out = self._adjoint_func(y)
+
+        # Convert output to parameters
+        out = self.domain_geometry.fun2par(out) #Convert to parameters
         if type(y) is CUQIarray:
-            out = CUQIarray(out, is_par=False, geometry=self.domain_geometry)
+            out = CUQIarray(out, is_par=True, geometry=self.domain_geometry)
         return out
 
 
@@ -220,7 +267,7 @@ class LinearModel(Model):
     def gradient(self,x):
         """Evaluate the gradient of the forward map with respect to the model input."""
         #Avoid complicated geometries that change the gradient.
-        if not type(self.domain_geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete]:
+        if not type(self.domain_geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]:
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return self.adjoint(x)
