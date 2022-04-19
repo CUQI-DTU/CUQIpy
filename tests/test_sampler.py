@@ -1,10 +1,10 @@
 import cuqi
 import numpy as np
 
-from cuqi.distribution import Gaussian
+from cuqi.distribution import Gaussian, Cauchy_diff, GaussianCov, Laplace_diff, GMRF, LMRF
 from cuqi.sampler import pCN
 
-from pytest import approx
+import pytest
 
 
 def test_CWMH_modify_proposal():
@@ -350,3 +350,31 @@ def test_MALA_regression(copy_reference):
     samples_orig = np.load(samples_orig_file)
 
     assert(np.allclose(samples.samples, samples_orig['arr_0']))
+
+@pytest.mark.parametrize("prior, sample_method, expected", [
+    (GaussianCov(np.zeros(128), 0.1), "_sampleMapCholesky", np.arange(10)), # Direct (no burn-in, no initial guess)
+    (GaussianCov(np.zeros(128), 0.1), "_sampleLinearRTO", np.arange(1,12)), # 20% burn-in + initial guess
+    (GaussianCov(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
+    (GaussianCov(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
+    (GaussianCov(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
+    (Laplace_diff(np.zeros(128), 0.1),"_sampleUnadjustedLaplaceApproximation", np.arange(1,12)), # 20% burn-in + initial guess
+    ])
+def test_TP_callback(prior, sample_method, expected):
+    """ Test that the callback function is called with the correct sample index by comparing to the expected output.
+    
+    This tests the pipeline from testproblem all the way to the sampler.
+    """
+
+    TP = cuqi.testproblem.Deconvolution1D(dim=prior.dim)
+    TP.prior = prior
+
+    # Define callback that stores a list of sample indices
+    Ns_list = []
+    def callback(_, n):
+        Ns_list.append(n)
+
+    # Sampler
+    sample_method = getattr(TP, sample_method)
+    sample_method(10, callback=callback)
+
+    assert np.array_equal(Ns_list, expected)

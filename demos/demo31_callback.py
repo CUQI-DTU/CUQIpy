@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Interactive plot in popup window (tk, qt4, qt5, etc.)
-%matplotlib tk
+%matplotlib qt
 
 # %% Define testproblem
 TP = cuqi.testproblem.Deconvolution2D(phantom=cuqi.data.grains())
@@ -22,15 +22,16 @@ TP.prior = cuqi.distribution.Laplace_diff(location=np.zeros(TP.model.domain_dim)
 fig, ax = plt.subplots()
 fig.canvas.draw()
 fig.canvas.flush_events()
-def callback(sample, n):
+# %%
+def callback(sample, sample_index):
 
-    if n % 10 == 0: #Only plot every 50th sample
+    if sample_index % 10 == 0: #Only plot every n'th sample
         # Clear axis
         ax.cla() 
 
         # Plot samples
         ax.imshow(sample.reshape(TP.model.domain_geometry.shape), cmap="gray")
-        ax.set_title(f'Sample {n}')
+        ax.set_title(f'Sample index {sample_index}')
 
         # Update figure
         fig.canvas.draw() 

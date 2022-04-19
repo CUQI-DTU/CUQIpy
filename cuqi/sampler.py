@@ -124,9 +124,10 @@ class Sampler(ABC):
             msg = f'Sample {s} / {Ns}'
             sys.stdout.write('\r'+msg+'\n')
 
-    def _call_callback(self, *args, **kwargs):
+    def _call_callback(self, sample, sample_index):
+        """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
-            self.callback(*args, **kwargs)
+            self.callback(sample, sample_index)
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
@@ -294,7 +295,7 @@ class NUTS(Sampler):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
                 
             self._print_progress(k+1,Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
-            self._call_callback(theta[:, k], k+1)
+            self._call_callback(theta[:, k], k)
 
             # msg
             if (np.mod(k, 25) == 0):
@@ -549,7 +550,7 @@ class Linear_RTO(Sampler):
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+2)
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -650,7 +651,7 @@ class CWMH(ProposalBasedSampler):
             samples[:, s+1], target_eval[s+1], acc[:, s+1] = self.single_update(samples[:, s], target_eval[s])
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+2)
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -706,7 +707,8 @@ class CWMH(ProposalBasedSampler):
 
             # display iterations 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-
+            self._call_callback(samples[:, s+1], s+1)
+            
         # remove burn-in
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
@@ -838,7 +840,7 @@ class MetropolisHastings(ProposalBasedSampler):
             # run component by component
             samples[:, s+1], target_eval[s+1], acc[s+1] = self.single_update(samples[:, s], target_eval[s])
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+2)
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -1072,7 +1074,7 @@ class pCN(Sampler):
             samples[:, s+1], loglike_eval[s+1], acc[s+1] = self.single_update(samples[:, s], loglike_eval[s])
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+2)
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -1130,6 +1132,8 @@ class pCN(Sampler):
             # display iterations
             if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
                 print("\r",'Sample', s+1, '/', Ns, end="")
+
+            self._call_callback(samples[:, s+1], s+1)
 
         print("\r",'Sample', s+2, '/', Ns)
 
@@ -1251,7 +1255,7 @@ class ULA(Sampler):
             samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], acc[s+1] = \
                 self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+2)
+            self._call_callback(samples[:, s+1], s+1)
     
         # apply burn-in 
         samples = samples[:, Nb:]
@@ -1519,7 +1523,7 @@ class UnadjustedLaplaceApproximation(Sampler):
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,N) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+2)
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
