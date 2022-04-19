@@ -41,3 +41,10 @@ def test_initialize_model_matr():
     model1 = cuqi.model.LinearModel(np.eye(5))
     assert( (model1.range_dim, model1.domain_dim) == (5,5) and model1.domain_geometry.shape == (5,) and
             len(model1.range_geometry.grid) == 5)
+
+def test_model_allow_DefaultGeometry():
+    """ Tests that model can have specific geometry (Image2D) and x can be _Defaultgeometry"""
+    model = cuqi.testproblem.Deconvolution2D(dim=5).model
+    x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1).sample()
+    model(x)   #Forward
+    model.T(x) #Adjoint
