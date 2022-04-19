@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Interactive plot in popup window (tk, qt4, qt5, etc.)
-%matplotlib qt 
+%matplotlib tk
 
 # %% Define testproblem
 TP = cuqi.testproblem.Deconvolution2D(phantom=cuqi.data.grains())
