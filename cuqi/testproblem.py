@@ -139,16 +139,18 @@ class Deconvolution1D(BayesianProblem):
     dim : int
         size of the (dim,dim) deconvolution problem
 
-    kernel : string 
+    kernel : string or ndarray
         Determines type of the underlying kernel
         'Gauss' - a Gaussian function
         'sinc' or 'prolate' - a sinc function
         'vonMises' - a periodic version of the Gauss function
+        ndarray - a custom kernel.
 
     kernel_param : scalar
         A parameter that determines the shape of the kernel;
         the larger the parameter, the slower the initial
-        decay of the singular values of A
+        decay of the singular values of A.
+        Ignored if kernel is a ndarray.
 
     phantom : string or ndarray
         The phantom that is sampled to produce x
@@ -228,7 +230,12 @@ class Deconvolution1D(BayesianProblem):
         ):
         
         # Set up model
-        A = _getCirculantMatrix(dim,kernel,kernel_param)
+        if isinstance(kernel, np.ndarray):
+            if kernel.ndim != 1 or kernel.shape[0] != dim:
+                raise ValueError("kernel must be a 1D array of length dim")
+            A = toeplitz(kernel)
+        else:
+            A = _getCirculantMatrix(dim,kernel,kernel_param)
         model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution
