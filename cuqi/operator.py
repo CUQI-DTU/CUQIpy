@@ -182,11 +182,13 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
             locs = [-1, 0, 1]
             Dmat = spdiags(diags, locs, N+2, N)
         elif (self.bc_type == 'periodic'):
+            print("Warning. Non-zero boundary conditions are experimental for the second order finite difference operator.")
             locs = [-1, 0, 1]
             Dmat = spdiags(diags, locs, N+2, N).tocsr()
             Dmat[-1, 0] = 1
             Dmat[0, -1] = -1
         elif (self.bc_type == 'neumann'):
+            print("Warning. Non-zero boundary conditions are experimental for the second order finite difference operator.")
             locs = [0, 1, 2]
             Dmat = spdiags(diags, locs, N-1, N)
         else:
