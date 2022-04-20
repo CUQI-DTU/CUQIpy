@@ -280,6 +280,7 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
                     'Gauss' - a Gaussian function
                     'sinc' or 'prolate' - a sinc function
                     'vonMises' - a periodic version of the Gauss function
+                    ndarray - a custom kernel.
             kernel_param = a parameter that determines the shape of the kernel;
                     the larger the parameter, to slower the initial decay
                     of the singular values of A
