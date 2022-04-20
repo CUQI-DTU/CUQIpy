@@ -150,7 +150,7 @@ class Deconvolution1D(BayesianProblem):
         the larger the parameter, the slower the initial
         decay of the singular values of A
 
-    phantom : string
+    phantom : string or ndarray
         The phantom that is sampled to produce x
         'Gauss' - a Gaussian function
         'sinc' - a sinc function
@@ -160,12 +160,13 @@ class Deconvolution1D(BayesianProblem):
         'bumps' - two bumps
         'derivGauss' - the first derivative of Gauss function
         'pc' - Piece-wise constant phantom
+        ndarray - a custom phantom
 
     phantom_param : scalar
         A parameter that determines the width of the central 
         "bump" of the function; the larger the parameter,
         the narrower the "bump."  
-        Does not apply to phantom = 'bumps'
+        Does not apply to phantom = 'bumps' or ndarray.
 
     noise_type : string
         The type of noise
@@ -231,7 +232,15 @@ class Deconvolution1D(BayesianProblem):
         model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution
-        x_exact = _getExactSolution(dim,phantom,phantom_param)
+        if isinstance(phantom, np.ndarray):
+            if phantom.ndim != 1 or phantom.shape[0] != dim:
+                raise ValueError("phantom must be a 1D array of length dim")
+            x_exact = phantom
+        elif isinstance(phantom, str):
+            x_exact = _getExactSolution(dim, phantom, phantom_param)
+        else:
+            raise ValueError(f"Unknown phantom type {phantom}")
+
         x_exact = CUQIarray(x_exact, geometry=model.domain_geometry)
 
         # Generate exact data
