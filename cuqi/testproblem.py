@@ -229,13 +229,8 @@ class Deconvolution1D(BayesianProblem):
         data=None,
         ):
         
-        # Set up model
-        if isinstance(kernel, np.ndarray):
-            if kernel.ndim != 1 or kernel.shape[0] != dim:
-                raise ValueError("kernel must be a 1D array of length dim")
-            A = toeplitz(kernel)
-        else:
-            A = _getCirculantMatrix(dim,kernel,kernel_param)
+
+        A = _getCirculantMatrix(dim,kernel,kernel_param)
         model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution
@@ -296,6 +291,14 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
 
     if not (dim % 2) == 0:
         raise NotImplementedError("Circulant matrix not implemented for odd numbers")
+
+    if isinstance(kernel, np.ndarray):
+        if kernel.ndim != 1 or kernel.shape[0] != dim:
+            raise ValueError("kernel must be a 1D array of length dim")
+        h = np.roll(kernel, -int(dim/2))
+        #h = h/np.linalg.norm(h)**2 # TODO: Normalize
+        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        return toeplitz(hflip,h) 
 
     dim_half = dim/2
     grid = np.arange(dim_half+1)/dim
