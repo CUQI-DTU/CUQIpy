@@ -1010,7 +1010,7 @@ class GMRF(Distribution):
     
     @property
     def sqrtprec(self):
-        return np.sqrt(self.prec)*self._prec_op._matrix
+        return np.sqrt(self.prec)*self._chol
 
     @property
     def sqrtprecTimesMean(self):
