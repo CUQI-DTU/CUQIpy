@@ -180,17 +180,16 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
         diags = np.vstack([-one_vec, 2*one_vec, -one_vec])
         if (self.bc_type == 'zero'):
             locs = [-1, 0, 1]
-            Dmat = spdiags(diags, locs, N+2, N)
+            Dmat = spdiags(diags, locs, N+1, N)
         elif (self.bc_type == 'periodic'):
-            print("Warning. Non-zero boundary conditions are experimental for the second order finite difference operator.")
             locs = [-1, 0, 1]
-            Dmat = spdiags(diags, locs, N+2, N).tocsr()
-            Dmat[-1, 0] = 1
+            Dmat = spdiags(diags, locs, N+1, N).tocsr()
             Dmat[0, -1] = -1
+            Dmat[-2, 0] = -1
+            Dmat[-1, 0:2] = [2, -1]
         elif (self.bc_type == 'neumann'):
-            print("Warning. Non-zero boundary conditions are experimental for the second order finite difference operator.")
             locs = [0, 1, 2]
-            Dmat = spdiags(diags, locs, N-1, N)
+            Dmat = spdiags(diags, locs, N-2, N).tocsr()
         else:
             raise ValueError(f"Unknown boundary type {self.bc_type}")
 
