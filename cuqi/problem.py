@@ -295,7 +295,7 @@ class BayesianProblem(object):
                 print("\r",'Sample', s, '/', Ns, end="")
             
             # Callback function
-            if callback:
+            if callback is not None:
                 callback(x_s[:,s], s)
 
         print("\r",'Sample', s+1, '/', Ns)
