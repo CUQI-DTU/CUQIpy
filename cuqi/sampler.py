@@ -184,6 +184,12 @@ class NUTS(Sampler):
     dim : int
         Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Example
     -------
     .. code-block:: python
@@ -432,6 +438,12 @@ class Linear_RTO(Sampler):
 
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
         
     """
     def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0, **kwargs):
@@ -586,6 +598,12 @@ class CWMH(ProposalBasedSampler):
 
     dim : int
         Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
 
     Example
     -------
@@ -776,6 +794,12 @@ class MetropolisHastings(ProposalBasedSampler):
     dim : int
         Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Example
     -------
     .. code-block:: python
@@ -953,6 +977,12 @@ class pCN(Sampler):
 
     x0 : `np.ndarray` 
       Initial point for the sampler
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
 
     Example 
     -------
@@ -1203,6 +1233,12 @@ class ULA(Sampler):
         Dimension of parameter space. Required if target logpdf and gradient are callable 
         functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
 
     Example
     -------
@@ -1308,6 +1344,12 @@ class MALA(ULA):
         Dimension of parameter space. Required if target logpdf and gradient are callable 
         functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
 
     Example
     -------
@@ -1397,6 +1439,12 @@ class UnadjustedLaplaceApproximation(Sampler):
 
     rng : np.random.RandomState
         Random number generator used for sampling. *Optional*
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
 
     Returns
     -------
