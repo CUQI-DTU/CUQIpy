@@ -179,12 +179,13 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
         one_vec = np.ones(N)
         diags = np.vstack([-one_vec, 2*one_vec, -one_vec])
         if (self.bc_type == 'zero'):
-            locs = [-1, 0, 1]
-            Dmat = spdiags(diags, locs, N+1, N)
+            locs = [-2, -1, 0]
+            Dmat = spdiags(diags, locs, N+2, N)
         elif (self.bc_type == 'periodic'):
-            locs = [-1, 0, 1]
-            Dmat = spdiags(diags, locs, N+1, N).tocsr()
-            Dmat[0, -1] = -1
+            locs = [-2, -1, 0]
+            Dmat = spdiags(diags, locs, N+2, N).tocsr()
+            Dmat[0, -2] = -1
+            Dmat[0:2, -1] = [2, -1]
             Dmat[-2, 0] = -1
             Dmat[-1, 0:2] = [2, -1]
         elif (self.bc_type == 'neumann'):
