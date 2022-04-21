@@ -204,7 +204,25 @@ class BayesianProblem(object):
         return x_BFGS, info_BFGS
 
     def sample_posterior(self, Ns, callback=None) -> cuqi.samples.Samples:
-        """Sample Ns samples of the posterior. Sampler choice and tuning is handled automatically."""
+        """Sample the posterior. Sampler choice and tuning is handled automatically.
+        
+        Parameters
+        ----------
+        Ns : int
+            Number of samples to draw.
+
+        callback : callable, *Optional*
+            If set this function will be called after every sample.
+            The signature of the callback function is `callback(sample, sample_index)`,
+            where `sample` is the current sample and `sample_index` is the index of the sample.
+            An example is shown in demos/demo31_callback.py.
+
+        Returns
+        -------
+        samples : cuqi.samples.Samples
+            Samples from the posterior.
+        
+        """
 
         # Print warning to user about the automatic sampler selection
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
