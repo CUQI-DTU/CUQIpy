@@ -59,6 +59,43 @@ def test_Deconvolution_noise_regression(noise_type,noise_std,expected):
     tp = cuqi.testproblem.Deconvolution1D(noise_type=noise_type,noise_std=noise_std)
     assert np.linalg.norm(tp.data) == approx(expected)
 
+def test_Deconvolution_custom_kernel():
+    """ Tests using a custom kernel. """
+    grid = np.linspace(-1, 1, 128)
+    kernel = np.exp(-(15*grid)**2)
+
+    TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=kernel, phantom="pc")
+
+    # Test expected value
+    assert np.linalg.norm(TP.exactData) == 83.40353338231859
+
+    # Test raising of error if kernel is not 1D
+    with pytest.raises(ValueError, match=r"kernel must be a 1D array"):
+        TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=np.ones((128, 128)))
+
+    # Test raising of error if kernel is not same length as dim
+    with pytest.raises(ValueError, match=r"kernel must be a 1D array of length dim"):
+        TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=np.ones(125))
+
+def test_Deconvolution_custom_phantom():
+    """ Tests using a custom phantom. """
+    grid = np.linspace(-1, 1, 128)
+    phantom = np.sin(grid)
+
+    TP = cuqi.testproblem.Deconvolution1D(dim=128, phantom=phantom)
+
+    # Test expected value
+    assert np.linalg.norm(TP.exactSolution) == approx(5.94476801594791)
+
+    # Test raising of error if phantom is not 1D
+    with pytest.raises(ValueError, match=r"phantom must be a 1D array"):
+        TP = cuqi.testproblem.Deconvolution1D(dim=128, phantom=np.ones((128, 128)))
+
+    # Test raising of error if phantom is not same length as dim
+    with pytest.raises(ValueError, match=r"phantom must be a 1D array of length dim"):
+        TP = cuqi.testproblem.Deconvolution1D(dim=128, phantom=np.ones(125))
+
+
 # Test the observation operator working on grids or not
 def test_testproblem_pde_grid_obs():
     N = 128

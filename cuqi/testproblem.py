@@ -139,18 +139,20 @@ class Deconvolution1D(BayesianProblem):
     dim : int
         size of the (dim,dim) deconvolution problem
 
-    kernel : string 
+    kernel : string or ndarray
         Determines type of the underlying kernel
         'Gauss' - a Gaussian function
         'sinc' or 'prolate' - a sinc function
         'vonMises' - a periodic version of the Gauss function
+        ndarray - a custom kernel.
 
     kernel_param : scalar
         A parameter that determines the shape of the kernel;
         the larger the parameter, the slower the initial
-        decay of the singular values of A
+        decay of the singular values of A.
+        Ignored if kernel is a ndarray.
 
-    phantom : string
+    phantom : string or ndarray
         The phantom that is sampled to produce x
         'Gauss' - a Gaussian function
         'sinc' - a sinc function
@@ -160,12 +162,13 @@ class Deconvolution1D(BayesianProblem):
         'bumps' - two bumps
         'derivGauss' - the first derivative of Gauss function
         'pc' - Piece-wise constant phantom
+        ndarray - a custom phantom
 
     phantom_param : scalar
         A parameter that determines the width of the central 
         "bump" of the function; the larger the parameter,
         the narrower the "bump."  
-        Does not apply to phantom = 'bumps'
+        Does not apply to phantom = 'bumps' or ndarray.
 
     noise_type : string
         The type of noise
@@ -226,12 +229,20 @@ class Deconvolution1D(BayesianProblem):
         data=None,
         ):
         
-        # Set up model
+
         A = _getCirculantMatrix(dim,kernel,kernel_param)
         model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution
-        x_exact = _getExactSolution(dim,phantom,phantom_param)
+        if isinstance(phantom, np.ndarray):
+            if phantom.ndim != 1 or phantom.shape[0] != dim:
+                raise ValueError("phantom must be a 1D array of length dim")
+            x_exact = phantom
+        elif isinstance(phantom, str):
+            x_exact = _getExactSolution(dim, phantom, phantom_param)
+        else:
+            raise ValueError(f"Unknown phantom type {phantom}")
+
         x_exact = CUQIarray(x_exact, geometry=model.domain_geometry)
 
         # Generate exact data
@@ -269,6 +280,7 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
                     'Gauss' - a Gaussian function
                     'sinc' or 'prolate' - a sinc function
                     'vonMises' - a periodic version of the Gauss function
+                    ndarray - a custom kernel.
             kernel_param = a parameter that determines the shape of the kernel;
                     the larger the parameter, to slower the initial decay
                     of the singular values of A
@@ -280,6 +292,14 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
 
     if not (dim % 2) == 0:
         raise NotImplementedError("Circulant matrix not implemented for odd numbers")
+
+    if isinstance(kernel, np.ndarray):
+        if kernel.ndim != 1 or kernel.shape[0] != dim:
+            raise ValueError("kernel must be a 1D array of length dim")
+        h = np.roll(kernel, -int(dim/2))
+        #h = h/np.linalg.norm(h)**2 # TODO: Normalize
+        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        return toeplitz(hflip,h) 
 
     dim_half = dim/2
     grid = np.arange(dim_half+1)/dim
