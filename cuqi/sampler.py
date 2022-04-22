@@ -17,7 +17,7 @@ import sys
 #===================================================================
 class Sampler(ABC):
 
-    def __init__(self, target, x0=None, dim=None):
+    def __init__(self, target, x0=None, dim=None, callback=None):
 
         self._dim = dim
         if hasattr(target,'dim'): 
@@ -33,6 +33,8 @@ class Sampler(ABC):
         if x0 is None:
             x0 = np.ones(self.dim)
         self.x0 = x0
+
+        self.callback = callback
 
     @property
     def geometry(self):
@@ -122,12 +124,17 @@ class Sampler(ABC):
             msg = f'Sample {s} / {Ns}'
             sys.stdout.write('\r'+msg+'\n')
 
+    def _call_callback(self, sample, sample_index):
+        """ Calls the callback function. Assumes input is sample and sample index"""
+        if self.callback is not None:
+            self.callback(sample, sample_index)
+
 class ProposalBasedSampler(Sampler,ABC):
-    def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None):
+    def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
         #TODO: after fixing None dim
         #if dim is None and hasattr(proposal,'dim'):
         #    dim = proposal.dim
-        super().__init__(target, x0=x0, dim=dim)
+        super().__init__(target, x0=x0, dim=dim, **kwargs)
 
         self.proposal =proposal
         self.scale = scale
@@ -177,6 +184,12 @@ class NUTS(Sampler):
     dim : int
         Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Example
     -------
     .. code-block:: python
@@ -200,8 +213,8 @@ class NUTS(Sampler):
         samples = sampler.sample(2000)
 
     """
-    def __init__(self, target, x0=None, dim=None, maxdepth=20):
-        super().__init__(target, x0=x0, dim=dim)
+    def __init__(self, target, x0=None, dim=None, maxdepth=20, **kwargs):
+        super().__init__(target, x0=x0, dim=dim, **kwargs)
         self.maxdepth = maxdepth
 
 
@@ -288,6 +301,7 @@ class NUTS(Sampler):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
                 
             self._print_progress(k+1,Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
+            self._call_callback(theta[:, k], k)
 
             # msg
             if (np.mod(k, 25) == 0):
@@ -424,9 +438,15 @@ class Linear_RTO(Sampler):
 
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0):
+    def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0, **kwargs):
         
         # Accept tuple of inputs and construct posterior
         if isinstance(target, tuple) and len(target) == 5:
@@ -458,7 +478,7 @@ class Linear_RTO(Sampler):
             # Construct posterior
             target = cuqi.distribution.Posterior(L, P)
 
-        super().__init__(target, x0=x0)
+        super().__init__(target, x0=x0, **kwargs)
 
         # Check target type
         if not isinstance(target, cuqi.distribution.Posterior):
@@ -542,6 +562,7 @@ class Linear_RTO(Sampler):
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -578,6 +599,12 @@ class CWMH(ProposalBasedSampler):
     dim : int
         Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Example
     -------
     .. code-block:: python
@@ -600,8 +627,8 @@ class CWMH(ProposalBasedSampler):
         samples = sampler.sample(2000)
 
     """
-    def __init__(self, target,  proposal=None, scale=1, x0=None, dim = None):
-        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
+    def __init__(self, target,  proposal=None, scale=1, x0=None, dim = None, **kwargs):
+        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
         
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
@@ -642,6 +669,7 @@ class CWMH(ProposalBasedSampler):
             samples[:, s+1], target_eval[s+1], acc[:, s+1] = self.single_update(samples[:, s], target_eval[s])
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -697,7 +725,8 @@ class CWMH(ProposalBasedSampler):
 
             # display iterations 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-
+            self._call_callback(samples[:, s+1], s+1)
+            
         # remove burn-in
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
@@ -765,6 +794,12 @@ class MetropolisHastings(ProposalBasedSampler):
     dim : int
         Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Example
     -------
     .. code-block:: python
@@ -789,9 +824,9 @@ class MetropolisHastings(ProposalBasedSampler):
     """
     #target,  proposal=None, scale=1, x0=None, dim=None
     #    super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
-    def __init__(self, target, proposal=None, scale=None, x0=None, dim=None):
+    def __init__(self, target, proposal=None, scale=None, x0=None, dim=None, **kwargs):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
-        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
+        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
 
 
     @ProposalBasedSampler.proposal.setter 
@@ -829,6 +864,7 @@ class MetropolisHastings(ProposalBasedSampler):
             # run component by component
             samples[:, s+1], target_eval[s+1], acc[s+1] = self.single_update(samples[:, s], target_eval[s])
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -942,6 +978,12 @@ class pCN(Sampler):
     x0 : `np.ndarray` 
       Initial point for the sampler
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Example 
     -------
 
@@ -996,8 +1038,8 @@ class pCN(Sampler):
         samples = sampler.sample(5000)
         
     """
-    def __init__(self, target, scale=None, x0=None):
-        super().__init__(target, x0=x0, dim=None) 
+    def __init__(self, target, scale=None, x0=None, **kwargs):
+        super().__init__(target, x0=x0, dim=None, **kwargs) 
         self.scale = scale
     
     @property
@@ -1062,6 +1104,7 @@ class pCN(Sampler):
             samples[:, s+1], loglike_eval[s+1], acc[s+1] = self.single_update(samples[:, s], loglike_eval[s])
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            self._call_callback(samples[:, s+1], s+1)
 
         # remove burn-in
         samples = samples[:, Nb:]
@@ -1119,6 +1162,8 @@ class pCN(Sampler):
             # display iterations
             if ((s+1) % (max(Ns//100,1))) == 0 or (s+1) == Ns-1:
                 print("\r",'Sample', s+1, '/', Ns, end="")
+
+            self._call_callback(samples[:, s+1], s+1)
 
         print("\r",'Sample', s+2, '/', Ns)
 
@@ -1188,6 +1233,12 @@ class ULA(Sampler):
         Dimension of parameter space. Required if target logpdf and gradient are callable 
         functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
 
     Example
     -------
@@ -1214,8 +1265,8 @@ class ULA(Sampler):
 
     A Deblur example can be found in demos/demo27_ULA.py
     """
-    def __init__(self, target, scale, x0=None, dim=None, rng=None):
-        super().__init__(target, x0=x0, dim=dim)
+    def __init__(self, target, scale, x0=None, dim=None, rng=None, **kwargs):
+        super().__init__(target, x0=x0, dim=dim, **kwargs)
         self.scale = scale
         self.rng = rng
 
@@ -1240,6 +1291,7 @@ class ULA(Sampler):
             samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], acc[s+1] = \
                 self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            self._call_callback(samples[:, s+1], s+1)
     
         # apply burn-in 
         samples = samples[:, Nb:]
@@ -1292,6 +1344,12 @@ class MALA(ULA):
         Dimension of parameter space. Required if target logpdf and gradient are callable 
         functions. *Optional*.
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
 
     Example
     -------
@@ -1318,8 +1376,8 @@ class MALA(ULA):
 
     A Deblur example can be found in demos/demo28_MALA.py
     """
-    def __init__(self, target, scale, x0=None, dim=None, rng=None):
-        super().__init__(target, scale, x0=x0, dim=dim, rng=rng)
+    def __init__(self, target, scale, x0=None, dim=None, rng=None, **kwargs):
+        super().__init__(target, scale, x0=x0, dim=dim, rng=rng, **kwargs)
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
 
@@ -1382,6 +1440,12 @@ class UnadjustedLaplaceApproximation(Sampler):
     rng : np.random.RandomState
         Random number generator used for sampling. *Optional*
 
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
     Returns
     -------
     cuqi.samples.Samples
@@ -1389,9 +1453,9 @@ class UnadjustedLaplaceApproximation(Sampler):
 
     """
 
-    def __init__(self, target, x0=None, maxit=50, tol=1e-4, beta=1e-5, rng=None):
+    def __init__(self, target, x0=None, maxit=50, tol=1e-4, beta=1e-5, rng=None, **kwargs):
         
-        super().__init__(target, x0=x0)
+        super().__init__(target, x0=x0, **kwargs)
 
         # Check target type
         if not isinstance(self.target, cuqi.distribution.Posterior):
@@ -1507,7 +1571,8 @@ class UnadjustedLaplaceApproximation(Sampler):
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,N) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-        
+            self._call_callback(samples[:, s+1], s+1)
+
         # remove burn-in
         samples = samples[:, Nb:]
         
