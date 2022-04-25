@@ -218,23 +218,74 @@ class Samples(object):
         return new_samples
 
     def plot_mean(self,*args,**kwargs):
+        """Plot mean of the samples
+
+        Parameters
+        ----------
+        args : arguments passed to the underlying `self.geometry.plot` method.
+        See documentation of the underlying `self.geometry`
+        
+        kwargs : keyword arguments passed to the underlying 
+        `self.geometry.plot` method. See documentation of the underlying
+        `self.geometry`
+        """
         # Compute mean assuming samples are index in last dimension of nparray
         mean = np.mean(self.samples,axis=-1)
 
         # Plot mean according to geometry
-        return self.geometry.plot(mean,*args,**kwargs)
+        ax =  self.geometry.plot(mean, *args, **kwargs)
+        plt.title('Sample mean')
+        return ax
+
+    def plot_variance(self,*args,**kwargs):
+        """Plot pointwise variance of the samples
+
+        Parameters
+        ----------
+        args : arguments passed to the underlying `self.geometry.plot` method.
+        See documentation of the underlying `self.geometry`
+        
+        kwargs : keyword arguments passed to the underlying 
+        `self.geometry.plot` method. See documentation of the underlying
+        `self.geometry`
+        """
+        # Compute variance assuming samples are index in last dimension of nparray
+        variance = self.variance()
+
+        # Plot variance according to geometry
+        ax = self.geometry.plot(variance, *args, **kwargs)
+        plt.title('Sample variance')
+        return ax
 
     def mean(self):
+        """Compute mean of the samples"""
         #TODO: use this method in plot_mean 
         return np.mean(self.samples,axis=-1)
 
+    def variance(self):
+        """Compute pointwise variance of the samples"""
+        return np.var(self.samples,axis=-1)
 
     def plot_std(self,*args,**kwargs):
+        """Plot pointwise standard deviation of the samples
+
+        Parameters
+        ----------
+        args : arguments passed to the underlying `self.geometry.plot` method.
+        See documentation of the underlying `self.geometry`
+        
+        kwargs : keyword arguments passed to the underlying 
+        `self.geometry.plot` method. See documentation of the underlying
+        `self.geometry`
+        """
+
         # Compute std assuming samples are index in last dimension of nparray
         std = np.std(self.samples,axis=-1)
 
         # Plot mean according to geometry
-        return self.geometry.plot(std,*args,**kwargs)
+        ax = self.geometry.plot(std, *args, **kwargs)
+        plt.title('Sample standard deviation')
+        return ax
 
     def plot(self,sample_indices=None,*args,**kwargs):
         Ns = self.Ns
