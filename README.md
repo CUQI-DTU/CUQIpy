@@ -7,6 +7,7 @@
  This software package is funded by [the Villum Foundation](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning) as part of the [CUQI project.](https://www.compute.dtu.dk/english/cuqi)
 
 ## Quick Example
+A two dimensional deconvolution example
 ```python
 #%% Imports
 import cuqi
@@ -38,6 +39,14 @@ post_samples.plot_mean()
 #%% plot the samples standard deviation
 post_samples.plot_std()
 ```
+<img src="/uploads/1c7b4adf09f6a71405f37cdd44016bec/deconv2D_exact_sol.png"  width="360">
+
+<img src="/uploads/d7a041ae89afdfe0f4a31723305813fc/deconv2D_data.png"  width="360">
+
+<img src="/uploads/6e919bca40ab8136b064d76128d9f0ac/deconv2D_mean.png"  width="360">
+
+<img src="/uploads/712861b89cda91fd06fa7e364116ebe5/deconv2D_std.png"  width="360">
+
 ## Getting Started
 To run `cuqipy` on your local machine, clone the `cuqipy` repository:
 
