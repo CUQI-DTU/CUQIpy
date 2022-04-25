@@ -7,7 +7,37 @@
  This software package is funded by [the Villum Foundation](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning) as part of the [CUQI project.](https://www.compute.dtu.dk/english/cuqi)
 
 ## Quick Example
+```python
+#%% Imports
+import cuqi
+import matplotlib.pyplot as plt
 
+#%% Load testproblem
+TP = cuqi.testproblem.Deconvolution2D(phantom=cuqi.data.grains(256))
+
+#%% Plot the exact solution we want to infer
+TP.exactSolution.plot()
+plt.title("Exact solution")
+
+#%% Plot the data we use in the Bayesain inversion
+TP.data.plot()
+plt.title("Data")
+
+#%% Add prior
+TP.prior = cuqi.distribution.Laplace_diff(location=np.zeros(TP.model.domain_dim),
+                                          scale=0.01,
+                                          bc_type='neumann',
+                                          physical_dim=2)
+
+#%% Now sample the posterior
+post_samples = TP.sample_posterior(200)
+
+#%% Plot the samples mean
+post_samples.plot_mean()
+
+#%% plot the samples standard deviation
+post_samples.plot_std()
+```
 ## Getting Started
 To run `cuqipy` on your local machine, clone the `cuqipy` repository:
 
