@@ -744,12 +744,15 @@ class GaussianSqrtPrec(Distribution):
         return max(np.size(self.mean),np.shape(self.sqrtprec)[0])
 
     def _sample(self, N):
-        if issparse(self.sqrtprec):        
-            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
-            samples = self.mean[:, None] + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        
+        if N == 1:
+            mean = self.mean
         else:
-            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
-            samples = self.mean[:, None] + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0]
+            mean = self.mean[:,None]
+
+        samples = mean + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        #samples = mean + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0] #Non-sparse
+        
         return samples
 
     def logpdf(self, x):
@@ -865,14 +868,26 @@ class GMRF(Distribution):
     """
         Parameters
         ----------
+        mean : array_like
+            Mean of the GMRF.
+
+        prec : float
+            Precision of the GMRF.
+
         partition_size : int
             The dimension of the distribution in one physical dimension. 
 
         physical_dim : int
             The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+        bc_type : str
+            The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
+
+        order : int
+            The order of the GMRF. Can be 1 or 2.
     """
         
-    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, is_symmetric=True, **kwargs): 
+    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 
         super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
@@ -887,7 +902,7 @@ class GMRF(Distribution):
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
 
-        self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
+        self._prec_op = PrecisionFiniteDifference(num_nodes, bc_type=bc_type, order=order) 
         self._diff_op = self._prec_op._diff_op      
             
         # work-around to compute sparse Cholesky
@@ -995,7 +1010,7 @@ class GMRF(Distribution):
     
     @property
     def sqrtprec(self):
-        return np.sqrt(self.prec)*self._prec_op._matrix
+        return np.sqrt(self.prec)*self._chol
 
     @property
     def sqrtprecTimesMean(self):
