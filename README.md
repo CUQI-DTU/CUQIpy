@@ -102,5 +102,12 @@ sphinx-build -b html . _build
 ```
 
 Then open docs/_build/index.html using your preferred web browser to browse
-cuqipy documentation. 
+cuqipy documentation.
+
+## Authors
+
+See the list of
+[contributors](https://lab.compute.dtu.dk/cuqi/cuqipy/-/graphs/master)
+who participated in this project.
+
 
