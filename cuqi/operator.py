@@ -196,7 +196,7 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
 
         # structure matrix
         if (self.physical_dim == 1):
-            self._matrix = Dmat/self._dx
+            self._matrix = Dmat/self._dx**2
 
         elif (self.physical_dim == 2):            
             I = eye(N, dtype=int)
