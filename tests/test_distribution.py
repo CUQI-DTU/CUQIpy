@@ -233,6 +233,8 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     # its not the same as np.round().
     assert np.allclose(np.round(s_cov, 1), np.round(s_GMRF, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec, 1) , rtol=0.1)
+
+    #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
     
 def test_InverseGamma_sample():
     a = [1,2]
