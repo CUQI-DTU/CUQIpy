@@ -381,13 +381,13 @@ class Normal(Distribution):
             return max(np.size(self.mean),np.size(self.std))
 
     def pdf(self, x):
-        return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
+        return np.sum(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))
 
     def logpdf(self, x):
-        return -np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2
+        return np.sum(-np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2)
 
     def cdf(self, x):
-        return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
+        return np.sum(0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2)))))
 
     def _sample(self,N=1, rng=None):
 
