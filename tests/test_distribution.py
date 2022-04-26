@@ -177,6 +177,35 @@ def test_GaussianCov(mean,cov,mean_full,cov_full):
 
     assert np.allclose(gradeval1,gradeval2)
 
+@pytest.mark.parametrize("prec, GMRF_order",[
+    (sps.diags([-1, 2, -1], [-1, 0, 1], shape=(5, 5)), 1),
+    (sps.diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(5, 5)), 2),
+])
+def test_Gaussians_vs_GMRF_logpdf_gradient(prec, GMRF_order):
+    """ Tests the various Gaussians given some common precision matricies related to GMRFs"""
+    # Compute covariance from precision
+    cov = sp.linalg.inv(prec.toarray()) #TODO: check GaussianCov for sparse cov also. NotImplementedError
+
+    # Compute lower triangular cholesky decomposition of precision
+    sqrtprec = sp.linalg.cholesky(prec.toarray())
+
+    # Define Gaussians from all combinations
+    X_prec = cuqi.distribution.GaussianPrec(np.zeros(5), prec)
+    X_cov = cuqi.distribution.GaussianCov(np.zeros(5), cov)
+    X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(5), sqrtprec)
+    X_GMRF = cuqi.distribution.GMRF(np.zeros(5), 1, 5, 1, 'zero', order=GMRF_order)
+
+    # logpdfs
+    x0 = np.random.randn(5)
+    assert np.allclose(X_cov.logpdf(x0), X_GMRF.logpdf(x0))
+    assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0)) #TODO: Returns complex number
+    #assert np.allclose(X_cov.logpdf(x0), X_prec.logpdf(x0)) #TODO: NotImplementedError
+
+    # gradients
+    assert np.allclose(X_cov.gradient(x0), X_GMRF.gradient(x0))
+    #assert np.allclose(X_cov.gradient(x0), X_sqrtprec.gradient(x0)) #TODO: NotImplementedError
+    #assert np.allclose(X_cov.gradient(x0), X_prec.gradient(x0)) #TODO: NotImplementedError
+
 def test_InverseGamma_sample():
     a = [1,2]
     location = 0

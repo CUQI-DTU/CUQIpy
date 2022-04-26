@@ -947,9 +947,9 @@ class GMRF(Distribution):
         raise ValueError("attribute dom can be either 1 or 2")
 
     def logpdf(self, x):
+        mean = self.mean.flatten()
         const = 0.5*(self._rank*(np.log(self.prec)-np.log(2*np.pi)) + self._logdet)
-        y = const - 0.5*( self.prec*((x-self.mean).T @ (self._prec_op @ (x-self.mean))) )
-        y = np.diag(y)
+        y = const - 0.5*( self.prec*((x-mean).T @ (self._prec_op @ (x-mean))) )
         # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return y
 
@@ -963,7 +963,8 @@ class GMRF(Distribution):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean):
-            return (self.prec*self._prec_op) @ (x-self.mean)
+            mean = self.mean.flatten()
+            return -(self.prec*self._prec_op) @ (x-mean)
 
     def _sample(self, N=1, rng=None):
         if (self._bc_type == 'zero'):
