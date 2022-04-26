@@ -6,6 +6,8 @@
 
 The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
 
+You can find the full CUQIpy documentation [here](https://cuqi.gitlab.io/cuqipy/). 
+
  This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
 
 ## Quick Example - UQ in 5 lines
@@ -92,11 +94,9 @@ directory `cuqipy`, run:
 python -m pytest 
 ```
 
-## Documentation
+## Building documentation
 
-You can find CUQIpy documentation [here](https://cuqi.gitlab.io/cuqipy/). 
-
-Alternatively, to generate sphinx html documentation in your local machine, 
+To generate sphinx html documentation in your local machine, 
 make sure you have working installation of sphinx and sphinx-rtd-theme. 
 Then run the following commands in cuqipy directory:  
 
