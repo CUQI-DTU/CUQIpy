@@ -574,15 +574,16 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
                 sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
                 sqrtprec = sqrtprec@diags(np.sign(np.diag(sqrtprec))) #ensure sign is deterministic (scipy gives non-deterministic result)
+                sqrtprec = sqrtprec.T # We want to have the columns as the eigenvectors
                 rank = len(d)
                 logdet = np.sum(np.log(d))
-                prec = sqrtprec @ sqrtprec.T
+                prec = sqrtprec.T @ sqrtprec
 
         return prec, sqrtprec, logdet, rank     
 
     def logpdf(self, x):
         dev = x - self.mean
-        mahadist = np.sum(np.square(dev @ self.sqrtprec), axis=-1)
+        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=-1)
         return -0.5*(self.rank*np.log(2*np.pi) + self.logdet + mahadist)
 
     def cdf(self, x1):   # TODO
