@@ -2,42 +2,42 @@
 
 [![pipeline status](https://lab.compute.dtu.dk/cuqi/cuqipy/badges/master/pipeline.svg)](https://lab.compute.dtu.dk/cuqi/cuqipy/commits/master)
 
- Computational Uncertainty Quantification for Inverse Problems python package (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy is an easy-to-use tool that allows non-experts in UQ and Bayesian inversion to perform UQ analysis of inverse problems. At the same time, it allows expert users full control of the models and methods. The package is equipped with a number of predefined 1D and 2D test problem.
+ Computational Uncertainty Quantification for Inverse Problems in python (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy provides a simple high-level interface to perform UQ analysis of inverse problems, while still allowing full control of the models and methods.
 
- This software package is funded by [the Villum Foundation](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning) as part of the [CUQI project.](https://www.compute.dtu.dk/english/cuqi)
+The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
 
-## Quick Example
+ This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
+
+## Quick Example - UQ in 5 lines
 A two dimensional deconvolution example
 ```python
-#%% Imports
-import cuqi
+# Imports
+import numpy as np
 import matplotlib.pyplot as plt
+from cuqi.testproblem import Deconvolution2D
+from cuqi.distribution import Laplace_diff, GaussianCov 
+from cuqi.problem import BayesianProblem
 
-#%% Load testproblem
-TP = cuqi.testproblem.Deconvolution2D(phantom=cuqi.data.grains(256))
+# Step 1: Model and data
+model, data, probInfo = Deconvolution2D.get_components(dim=128, phantom=cuqi.data.grains())
 
-#%% Plot the exact solution we want to infer
-TP.exactSolution.plot()
-plt.title("Exact solution")
+# Step 2: Prior
+prior = Laplace_diff(location=np.zeros(model.domain_dim),
+                     scale=0.01,
+                     bc_type='neumann',
+                     physical_dim=2)
 
-#%% Plot the data we use in the Bayesain inversion
-TP.data.plot()
-plt.title("Data")
+# Step 3: Likelihood
+likelihood = GaussianCov(mean=model, cov=0.0036**2).to_likelihood(data)
 
-#%% Add prior
-TP.prior = cuqi.distribution.Laplace_diff(location=np.zeros(TP.model.domain_dim),
-                                          scale=0.01,
-                                          bc_type='neumann',
-                                          physical_dim=2)
+# Step 4: Posterior samples
+samples = BayesianProblem(likelihood, prior).sample_posterior(200)
 
-#%% Now sample the posterior
-post_samples = TP.sample_posterior(200)
-
-#%% Plot the samples mean
-post_samples.plot_mean()
-
-#%% plot the samples standard deviation
-post_samples.plot_std()
+# Step 5: Analysis
+probInfo.exactSolution.plot(); plt.title("Exact solution")
+data.plot(); plt.title("Data")
+samples.plot_mean(); plt.title("Posterior mean")
+samples.plot_std(); plt.title("Posterior standard deviation")
 ```
 <img src="/uploads/1c7b4adf09f6a71405f37cdd44016bec/deconv2D_exact_sol.png"  width="360">
 
@@ -65,8 +65,12 @@ cd demos
 python demo00_MinimalExample.py 
 ```
 
-### Requirements
-Requirements of cuqipy are listed in `requirements.txt` and can be installed by
+### Required Dependencies
+Requirements of cuqipy are listed in `requirements.txt` and can be installed via conda by
+```{r, engine='bash', count_lines}
+conda install --file requirements.txt
+```
+or using pip by
 ```{r, engine='bash', count_lines}
 pip install -r requirements.txt 
 ```
@@ -80,12 +84,12 @@ pip install -r requirements.txt
 
 ## Running the Tests
 
-To make sure that cuqipy runs on your machine and that all requirements
+To make sure that cuqipy runs as expected on your machine and that all requirements
 are met, you can run the tests. While in the project
 directory `cuqipy`, run:
 
 ```{r, engine='bash', count_lines}
-python -m pytest -s -v tests/test_distribution.py 
+python -m pytest 
 ```
 
 ## Documentation
@@ -104,7 +108,7 @@ sphinx-build -b html . _build
 Then open docs/_build/index.html using your preferred web browser to browse
 cuqipy documentation.
 
-## Authors
+## Contributors
 
 See the list of
 [contributors](https://lab.compute.dtu.dk/cuqi/cuqipy/-/graphs/master)
