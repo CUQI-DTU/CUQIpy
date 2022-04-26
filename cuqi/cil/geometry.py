@@ -3,32 +3,27 @@ from cil.utilities.display import show2D
 from cil.framework import ImageData
 from cil.framework import AcquisitionData
 
-class cilAcquisitionGeometry(Geometry):
+from cuqi.samples import CUQIarray
 
-    def __init__(self,cilag):
+class cilGeometry(Geometry):
 
-        self.cilag = cilag
+    def __init__(self,cil_data):
+
+        self.cil_data = cil_data
+        self.is_par = True
     
     @property
     def shape(self):
-        return self.cilag.shape
+        return self.cil_data.shape
+
+    def par2fun(self, pars):
+        out = pars.reshape(self.shape+(-1,)).squeeze().astype('float32')
+        return out
+
+    def fun2par(self, funvals):
+        return funvals.ravel() #Maybe use reshape((self.dim,), order=self.order)
     
-    def _plot(self,values):
+    def _plot(self,values, **kwargs):
         # Visualise data
-        values_cil = AcquisitionData(array = values.reshape(self.cilag.shape).__array__(), geometry = self.cilag)
-        show2D(values_cil)#, 'simulated sinogram', cmap=cmap, size=(10,10), origin='upper-left')
-
-class cilImageGeometry(Geometry):
-
-    def __init__(self,cilig):
-
-        self.cilig = cilig
-    
-    @property
-    def shape(self):
-        return self.cilig.shape
-    
-    def _plot(self,values):
-        # Visualise data
-        values_cil = ImageData(array = values.reshape(self.cilig.shape).__array__(), geometry = self.cilig)
-        show2D(values_cil)#, 'simulated sinogram', cmap=cmap, size=(10,10), origin='upper-left')
+        self.cil_data.fill(values)
+        show2D(self.cil_data, **kwargs)#, 'simulated sinogram', cmap=cmap, size=(10,10), origin='upper-left')
