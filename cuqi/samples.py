@@ -218,19 +218,12 @@ class Samples(object):
         return new_samples
 
     def plot_mean(self,*args,**kwargs):
-        """Plot mean of the samples
+        """Plot pointwise mean of the samples
 
-        Parameters
-        ----------
-        args : arguments passed to the underlying `self.geometry.plot` method.
-        See documentation of the underlying `self.geometry`
-        
-        kwargs : keyword arguments passed to the underlying 
-        `self.geometry.plot` method. See documentation of the underlying
-        `self.geometry`
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
         """
-        # Compute mean assuming samples are index in last dimension of nparray
-        mean = np.mean(self.samples,axis=-1)
+        mean = self.mean()
 
         # Plot mean according to geometry
         ax =  self.geometry.plot(mean, *args, **kwargs)
@@ -240,16 +233,9 @@ class Samples(object):
     def plot_variance(self,*args,**kwargs):
         """Plot pointwise variance of the samples
 
-        Parameters
-        ----------
-        args : arguments passed to the underlying `self.geometry.plot` method.
-        See documentation of the underlying `self.geometry`
-        
-        kwargs : keyword arguments passed to the underlying 
-        `self.geometry.plot` method. See documentation of the underlying
-        `self.geometry`
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
         """
-        # Compute variance assuming samples are index in last dimension of nparray
         variance = self.variance()
 
         # Plot variance according to geometry
@@ -259,24 +245,17 @@ class Samples(object):
 
     def mean(self):
         """Compute mean of the samples"""
-        #TODO: use this method in plot_mean 
-        return np.mean(self.samples,axis=-1)
+        return np.mean(self.samples, axis=-1)
 
     def variance(self):
         """Compute pointwise variance of the samples"""
-        return np.var(self.samples,axis=-1)
+        return np.var(self.samples, axis=-1)
 
     def plot_std(self,*args,**kwargs):
         """Plot pointwise standard deviation of the samples
 
-        Parameters
-        ----------
-        args : arguments passed to the underlying `self.geometry.plot` method.
-        See documentation of the underlying `self.geometry`
-        
-        kwargs : keyword arguments passed to the underlying 
-        `self.geometry.plot` method. See documentation of the underlying
-        `self.geometry`
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
         """
 
         # Compute std assuming samples are index in last dimension of nparray
