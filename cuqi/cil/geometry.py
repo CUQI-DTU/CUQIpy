@@ -8,6 +8,23 @@ from cuqi.samples import CUQIarray
 import numpy as np
 
 class cilGeometry(Geometry):
+    """ A geometry used with cil models.
+
+    The par2fun method converts the parameter vector into an image (matrix) and ensures it is float32 required in cil.
+    The fun2par method converts the image (matrix) into a parameter vector.
+
+    Plotting is handled via cil's plotting functionality.
+
+    Parameters
+    -----------
+    cil_data : cil DataContainer
+        See cil documentation
+    
+    Attributes
+    -----------
+    shape : tuple
+        shape of the image (rows, columns)
+    """
 
     def __init__(self,cil_data):
 
@@ -26,9 +43,9 @@ class cilGeometry(Geometry):
         return out
 
     def fun2par(self, funvals):
-        return funvals.ravel() #Maybe use reshape((self.dim,), order=self.order)
+        return funvals.ravel() 
     
     def _plot(self,values, **kwargs):
         # Visualise data
         self.cil_data.fill(values)
-        show2D(self.cil_data, **kwargs)#, 'simulated sinogram', cmap=cmap, size=(10,10), origin='upper-left')
+        show2D(self.cil_data, **kwargs)
