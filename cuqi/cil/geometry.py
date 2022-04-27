@@ -4,6 +4,7 @@ from cil.framework import ImageData
 from cil.framework import AcquisitionData
 
 from cuqi.samples import CUQIarray
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -46,6 +47,29 @@ class cilGeometry(Geometry):
         return funvals.ravel() 
     
     def _plot(self,values, **kwargs):
-        # Visualise data
-        self.cil_data.fill(values)
-        show2D(self.cil_data, **kwargs)
+        # Visualise data with cil's plotting functionality
+
+        values = self._process_values(values)
+        subplot_ids = self._create_subplot_list(values.shape[-1])
+
+        plots = []
+        if len(subplot_ids)==1:
+            num_cols = 1
+        elif len(subplot_ids)==2:
+            num_cols = 2
+        else:
+            num_cols = 3
+
+        for rows, cols, subplot_id in subplot_ids:
+            self.cil_data.fill(values[...,subplot_id-1])
+            plots.append(self.cil_data)
+        ims = show2D(plots, num_cols = num_cols, **kwargs)
+        return ims
+
+    def _process_values(self,values):
+        if len(values.shape) == 3 or\
+             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+            pass
+        else:
+            values = values[..., np.newaxis]
+        return values
