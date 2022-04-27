@@ -1,5 +1,7 @@
+import numpy as np
 import cuqi
 from cil.plugins.tigre import ProjectionOperator
+from cil.framework import ImageGeometry, AcquisitionGeometry
 from .geometry import cilGeometry
 
 
@@ -63,4 +65,90 @@ class cilBase(cuqi.model.LinearModel):
         adj_cil = self.ProjOp.adjoint(self.acqu_data)
         out = cuqi.samples.CUQIarray(adj_cil.as_array(), geometry=self.domain_geometry, is_par = True)
         return out
+
+class CT2D_parallel(cilBase):
+    """2D CT model with parallel beam"""
+    
+    def __init__(self,
+        im_size = (45,45),
+        det_count = 50,
+        det_spacing = 1,
+        angles = np.linspace(0,np.pi,60),
+        domain = None
+        ):
+
+        if domain == None:
+            domain = im_size
+
+        # Setup cil geometries for parallel beam CT
+        acqu_geom = AcquisitionGeometry.create_Parallel2D()\
+                            .set_angles(angles, angle_unit ='radian')\
+                            .set_panel(det_count, pixel_size=det_spacing)
+        
+        # Setup image geometry
+        im_geom = ImageGeometry(voxel_num_x=im_size[0], 
+                        voxel_num_y=im_size[1], 
+                        voxel_size_x=domain[0]/im_size[0], 
+                        voxel_size_y=domain[1]/im_size[1])
+
+        super().__init__(acqu_geom, im_geom)
+
+class CT2D_fanbeam(cilBase):
+    """2D CT model with fanbeam"""
+    
+    def __init__(self,
+        im_size = (45,45),
+        det_count = 50,
+        det_spacing = 1,
+        angles = np.linspace(0,np.pi,60),
+        source_object_dist = 200,
+        object_detector_dist = 30,
+        domain = None
+        ):
+
+        if domain == None:
+            domain = im_size
+
+        # Setup cil geometries for parallel beam CT 
+        acqu_geom = AcquisitionGeometry.create_Cone2D(\
+            source_position=[0.0, -source_object_dist],\
+            detector_position=[0.0, object_detector_dist])
+        acqu_geom.set_angles(angles, angle_unit ='radian')
+        acqu_geom.set_panel(det_count, pixel_size=det_spacing)
+
+        # Setup image geometry
+        im_geom = ImageGeometry(voxel_num_x=im_size[0], 
+                        voxel_num_y=im_size[1], 
+                        voxel_size_x=domain[0]/im_size[0], 
+                        voxel_size_y=domain[1]/im_size[1])
+
+        super().__init__(acqu_geom, im_geom)
+
+class CT2D_shiftedfanbeam(cilBase):
+    """2D CT model with fanbeam and source+detector shift"""
+
+    def __init__(self,
+        im_size = (45,45),
+        det_count = 50,
+        det_spacing = 1,
+        angles = np.linspace(0,2*np.pi,60),
+        source_y = -600,
+        detector_y = 500,
+        beamshift_x = -125.3,
+        domain = (550,550)):
+
+        # Setup cil geometries for parallel beam CT with shifted source and detector
+        acqu_geom = AcquisitionGeometry.create_Cone2D(\
+            source_position = [beamshift_x, source_y],\
+            detector_position = [beamshift_x, detector_y])
+        acqu_geom.set_angles(angles, angle_unit ='radian')
+        acqu_geom.set_panel(det_count, pixel_size=det_spacing)
+
+        # Setup image geometry
+        im_geom = ImageGeometry(voxel_num_x=im_size[0], 
+                        voxel_num_y=im_size[1], 
+                        voxel_size_x=domain[0]/im_size[0], 
+                        voxel_size_y=domain[1]/im_size[1])
+
+        super().__init__(acqu_geom, im_geom) 
 
