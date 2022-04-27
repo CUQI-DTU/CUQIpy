@@ -825,16 +825,16 @@ class GaussianPrec(Distribution):
     @prec.setter
     def prec(self, prec):
         self._prec = force_ndarray(prec)
-
         # Compute cholesky factorization of precision
-        if issparse(self._prec):
-            self._sqrtprec = sparse_cholesky(self._prec).T
-            self._rank = self.dim
-            self._logdet = 2*sum(np.log(self._sqrtprec.diagonal()))
-        else:
-            self._sqrtprec = cholesky(self._prec)
-            self._rank = self.dim
-            self._logdet = 2*sum(np.log(np.diag(self._sqrtprec)))
+        if (prec is not None) and (not callable(prec)):
+            if issparse(self._prec):
+                self._sqrtprec = sparse_cholesky(self._prec).T
+                self._rank = self.dim
+                self._logdet = 2*sum(np.log(self._sqrtprec.diagonal()))
+            else:
+                self._sqrtprec = cholesky(self._prec)
+                self._rank = self.dim
+                self._logdet = 2*sum(np.log(np.diag(self._sqrtprec)))
 
     def _sample(self, N):
         
