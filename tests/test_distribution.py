@@ -211,19 +211,19 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     x0 = np.random.randn(dim)
     assert np.allclose(X_cov.logpdf(x0), X_GMRF.logpdf(x0))
     assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0)) #TODO: Returns complex number
-    #assert np.allclose(X_cov.logpdf(x0), X_prec.logpdf(x0)) #TODO: NotImplementedError
+    assert np.allclose(X_cov.logpdf(x0), X_prec.logpdf(x0))
 
     # gradients
     assert np.allclose(X_cov.gradient(x0), X_GMRF.gradient(x0))
     #assert np.allclose(X_cov.gradient(x0), X_sqrtprec.gradient(x0)) #TODO: NotImplementedError
-    #assert np.allclose(X_cov.gradient(x0), X_prec.gradient(x0)) #TODO: NotImplementedError
+    assert np.allclose(X_cov.gradient(x0), X_prec.gradient(x0))
 
     # samples (compare statistics)
     Ns = 10000
     s_cov = _stats(X_cov.sample(Ns).samples)
     s_GMRF = _stats(X_GMRF.sample(Ns).samples)
     s_sqrtprec = _stats(X_sqrtprec.sample(Ns).samples)
-    #s_prec = _stats(X_prec.sample(Ns).samples) #TODO: cho_factor bug
+    s_prec = _stats(X_prec.sample(Ns).samples)
 
     # We round to one decimal and allow 10% error in sample statistics.
     # TODO. Better comparrison here..
@@ -233,6 +233,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     # its not the same as np.round().
     assert np.allclose(np.round(s_cov, 1), np.round(s_GMRF, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_prec, 1) , rtol=0.1)
 
     #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
     # %% CUQI test problem
