@@ -80,7 +80,6 @@ P = alpha*diags([-1, 2, -1], [-1, 0, 1], shape=(N, N)) # Maximum flatness
 #P = alpha*diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(N, N)) # Minimum roughness
 
 # We now extend the precision matrix to match the 2D problem using kronecker products.
-# We will provide some notes on this later.
 I = eye(N, dtype=int)
 Ds = kron(I, P)
 Dt = kron(P, I)
@@ -97,6 +96,28 @@ samples = TP.sample_posterior(200)
 
 # %% And compute e.g. the mean
 samples.plot_mean()
+
+# %% More options for structures Gaussians can be found by using the GMRF-type priors
+TP.prior = cuqi.distribution.GMRF(
+    mean=np.zeros(TP.model.domain_dim),
+    prec=100,
+    partition_size=N,
+    physical_dim=2,
+    bc_type="zero", # Try e.g. zero, neumann or periodic.
+    order=2 # Try e.g. order 1 or 2 (higher order is more smooth)
+)
+
+# We can plot some samples of this prior
+TP.prior.sample(5).plot()
+
+# %% Finally we can sample the posterior using this prior
+samples = TP.sample_posterior(200)
+
+# %% And compute e.g. the mean
+samples.plot_mean()
+
+# %% and standard deviation
+samples.plot_std()
 
 #%% Test problem with options explained
 
