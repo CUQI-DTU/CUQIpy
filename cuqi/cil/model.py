@@ -67,7 +67,28 @@ class cilBase(cuqi.model.LinearModel):
         return out
 
 class CT2D_parallel(cilBase):
-    """2D CT model with parallel beam"""
+    """
+    2D CT model with parallel beam
+
+    Parameters
+    ------------    
+    im_size : tuple
+        Dimensions of image in pixels, default (45,45).
+    
+    det_count : int
+        Number of detector elements, default 50.
+    
+    det_spacing : int
+        detector element size/spacing, default 1.
+    
+    angles : ndarray
+        Angles of projections, in radians, 
+        default np.linspace(0,np.pi,60).
+
+    domain : tuple
+        Size of image domain, default domain = im_size
+
+    """
     
     def __init__(self,
         im_size = (45,45),
@@ -94,7 +115,34 @@ class CT2D_parallel(cilBase):
         super().__init__(acqu_geom, im_geom)
 
 class CT2D_fanbeam(cilBase):
-    """2D CT model with fanbeam"""
+    """
+    2D CT model with fan beam, assuming centered beam
+
+    Parameters
+    ------------    
+    im_size : tuple
+        Dimensions of image in pixels, default (45,45).
+    
+    det_count : int
+        Number of detector elements, default 50.
+    
+    det_spacing : int
+        detector element size/spacing, default 1.
+    
+    angles : ndarray
+        Angles of projections, in radians, 
+        default np.linspace(0,np.pi,60).
+
+    source_object_dist : scalar
+        Distance between source and object, default 200.
+
+    object_detector_dist : scalar
+        Distance between detector and object, default 30.
+
+    domain : tuple
+        Size of image domain, default domain = im_size
+
+    """
     
     def __init__(self,
         im_size = (45,45),
@@ -125,7 +173,37 @@ class CT2D_fanbeam(cilBase):
         super().__init__(acqu_geom, im_geom)
 
 class CT2D_shiftedfanbeam(cilBase):
-    """2D CT model with fanbeam and source+detector shift"""
+    """
+    2D CT model with fanbeam and source+detector shift, assuming object is at position (0,0)
+
+    Parameters
+    ------------    
+    im_size : tuple
+        Dimensions of image in pixels, default (45,45).
+    
+    det_count : int
+        Number of detector elements, default 50.
+    
+    det_spacing : int
+        detector element size/spacing, default 1.
+    
+    angles : ndarray
+        Angles of projections, in radians, 
+        default np.linspace(0,np.pi,60).
+
+    source_y : scalar
+        Source position on y-axis, default -600.
+
+    detector_y : scalar
+        Detector position on y-axis, default 500.
+
+    beamshift_x : scalar
+        Source and detector position on x-axis, default -125.3.
+
+    domain : tuple
+        Size of image domain, default (550,550).
+
+    """
 
     def __init__(self,
         im_size = (45,45),
