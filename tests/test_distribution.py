@@ -198,7 +198,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     # Compute covariance from precision
     cov = sp.linalg.inv(prec.toarray()) #TODO: check GaussianCov for sparse cov also. NotImplementedError
 
-    # Compute lower triangular cholesky decomposition of precision
+    # Compute upper triangular cholesky decomposition of precision
     sqrtprec = sp.linalg.cholesky(prec.toarray())
 
     # Define Gaussians from all combinations
