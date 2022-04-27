@@ -928,6 +928,9 @@ class GMRF(Distribution):
             # 
             # np.log(np.linalg.det(self.L.todense()))
         elif (bc_type == 'periodic') or (bc_type == 'neumann'):
+            # Print warning that periodic and Neumann boundary conditions are experimental
+            print("Warning: Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO will not produce fully accurate results.")
+
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
             self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
@@ -937,6 +940,8 @@ class GMRF(Distribution):
                 # eigval = eigvalsh(self.L.todense())
                 self._L_eigval = splinalg.eigsh(self._prec_op.get_matrix(), self._rank, which='LM', return_eigenvectors=False)
                 self._logdet = sum(np.log(self._L_eigval))
+        else:
+            raise ValueError('bc_type must be "zero", "periodic" or "neumann"')
 
 
     @property 
@@ -982,6 +987,9 @@ class GMRF(Distribution):
             # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
         elif (self._bc_type == 'periodic'):
+            
+            if self._physical_dim == 2:
+                raise NotImplementedError("Sampling not implemented for periodic boundary conditions in 2D")
 
             if rng is not None:
                 xi = rng.standard_normal((self.dim, N)) + 1j*rng.standard_normal((self.dim, N))
@@ -1012,7 +1020,7 @@ class GMRF(Distribution):
     
     @property
     def sqrtprec(self):
-        return np.sqrt(self.prec)*self._chol
+        return np.sqrt(self.prec)*self._chol.T
 
     @property
     def sqrtprecTimesMean(self):
