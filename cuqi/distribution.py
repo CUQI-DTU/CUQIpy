@@ -3,10 +3,10 @@ import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, eye, identity, issparse, vstack
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
+from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq, cholesky
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Image2D, _get_identity_geometries
-from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
+from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 from cuqi import config
@@ -804,26 +804,68 @@ class GaussianSqrtPrec(Distribution):
 
 class GaussianPrec(Distribution):
 
-    def __init__(self,mean,prec,is_symmetric=True,**kwargs):
+    def __init__(self, mean, prec, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
-        self.prec = force_ndarray(prec)
+        self.mean = mean
+        self.prec = prec
 
-    def _sample(self,N=1):
-        # Pre-allocate
-        s = np.zeros((self.dim,N))
-        
-        # Cholesky factor of precision
-        R,low = cho_factor(self.prec)
-        
-        # Sample
-        for i in range(N):
-            s[:,i] = self.mean+cho_solve((R,low),np.random.randn(self.dim))
-        return s
+    @property
+    def mean(self):
+        return self._mean
+    
+    @mean.setter
+    def mean(self, mean):
+        self._mean = force_ndarray(mean,flatten=True)
 
-    def logpdf(self,x):
-        raise NotImplementedError("Logpdf of GaussianPrec is not yet implemented.")
+    @property
+    def prec(self):
+        return self._prec
+
+    @prec.setter
+    def prec(self, prec):
+        self._prec = force_ndarray(prec)
+
+        # Compute cholesky factorization of precision
+        if issparse(self._prec):
+            self._sqrtprec = sparse_cholesky(self._prec).T
+            self._rank = self.dim
+            self._logdet = 2*sum(np.log(self._sqrtprec.diagonal()))
+        else:
+            self._sqrtprec = cholesky(self._prec)
+            self._rank = self.dim
+            self._logdet = 2*sum(np.log(np.diag(self._sqrtprec)))
+
+    def _sample(self, N):
+        
+        if N == 1:
+            mean = self.mean
+        else:
+            mean = self.mean[:,None]
+
+        samples = mean + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        #samples = mean + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0] #Non-sparse
+        
+        return samples
+
+    def logpdf(self, x):
+        dev = x - self.mean
+        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=0)
+        return -0.5*(self._rank*np.log(2*np.pi) - self._logdet + mahadist)
+
+    def gradient(self, val, *args, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in _get_identity_geometries():
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+
+        if not callable(self.mean): # for prior
+            return -self.prec @ (val - self.mean)
+        elif hasattr(self.mean,"gradient"): # for likelihood
+            model = self.mean
+            dev = val - model.forward(*args, **kwargs)
+            return self.prec @ model.gradient(dev)
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
     @property
     def dim(self):
@@ -831,7 +873,7 @@ class GaussianPrec(Distribution):
 
     @property
     def sqrtprec(self):
-        return cho_factor(self.prec)[0]
+        return self._sqrtprec
 
     @property
     def sqrtprecTimesMean(self):
