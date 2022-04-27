@@ -5,13 +5,18 @@ from cil.framework import AcquisitionData
 
 from cuqi.samples import CUQIarray
 
+import numpy as np
+
 class cilGeometry(Geometry):
 
     def __init__(self,cil_data):
 
         self.cil_data = cil_data
         self.is_par = True
-    
+
+    def __eq__(self, other):
+        return np.all(self.cil_data == other.cil_data)
+
     @property
     def shape(self):
         return self.cil_data.shape
