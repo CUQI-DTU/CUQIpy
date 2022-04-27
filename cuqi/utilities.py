@@ -114,6 +114,6 @@ def sparse_cholesky(A):
 
     # check the matrix A is positive definite
     if (LU.perm_r == np.arange(A.shape[0])).all() and (LU.U.diagonal() > 0).all(): 
-        return LU.L @ (diags(LU.U.diagonal()**0.5))
+        return (LU.L @ (diags(LU.U.diagonal()**0.5))).T
     else:
         raise TypeError('The matrix is not positive semi-definite')

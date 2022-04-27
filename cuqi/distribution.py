@@ -828,7 +828,7 @@ class GaussianPrec(Distribution):
         # Compute cholesky factorization of precision
         if (prec is not None) and (not callable(prec)):
             if issparse(self._prec):
-                self._sqrtprec = sparse_cholesky(self._prec).T
+                self._sqrtprec = sparse_cholesky(self._prec)
                 self._rank = self.dim
                 self._logdet = 2*sum(np.log(self._sqrtprec.diagonal()))
             else:
@@ -947,22 +947,11 @@ class GMRF(Distribution):
 
         self._prec_op = PrecisionFiniteDifference(num_nodes, bc_type=bc_type, order=order) 
         self._diff_op = self._prec_op._diff_op      
-            
-        # work-around to compute sparse Cholesky
-        def sparse_cholesky(A):
-            # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
-            LU = splinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
-  
-            # check the matrix A is positive definite
-            if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
-                return LU.L @ (diags(LU.U.diagonal()**0.5))
-            else:
-                raise TypeError('The matrix is not positive semi-definite')
-        
+                   
         # compute Cholesky and det
         if (bc_type == 'zero'):    # only for PSD matrices
             self._rank = self.dim
-            self._chol = sparse_cholesky(self._prec_op.get_matrix())
+            self._chol = sparse_cholesky(self._prec_op.get_matrix()).T
             self._logdet = 2*sum(np.log(self._chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
             # self.chol = L_cholmod
@@ -975,7 +964,7 @@ class GMRF(Distribution):
 
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
-            self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
+            self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int)).T
             if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excesive' time
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
