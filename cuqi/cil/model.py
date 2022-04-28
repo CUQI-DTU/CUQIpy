@@ -1,19 +1,17 @@
 import numpy as np
 import cuqi
 from cil.plugins.tigre import ProjectionOperator
-from cil.framework import ImageGeometry, AcquisitionGeometry
-#from .geometry import cilGeometry
-
+from cil.framework import ImageGeometry, AcquisitionGeometry, DataContainer
 
 class cilBase(cuqi.model.LinearModel):
     """ Base cuqi model using CIL for CT projectors.
 
     Parameters
     -----------
-    acqu_geom : CIL acquisition geometry.
+    acquisition_geometry : CIL acquisition geometry.
         See CIL documentation.
 
-    im_geom : CIL image geometry.
+    image_geometry : CIL image geometry.
         See CIL documentation.
 
     Attributes
@@ -24,6 +22,9 @@ class cilBase(cuqi.model.LinearModel):
     domain_geometry : cuqi.geometry.Geometry
         The geometry representing the domain associated with reconstructed image.
 
+    ProjectionOperator : CIL ProjectionOperator
+        The projection operator handling forwad and adjoint operations.
+
     Methods
     -----------
     :meth:`forward` the forward operator.
@@ -31,38 +32,53 @@ class cilBase(cuqi.model.LinearModel):
 
     """
     
-    def __init__(self, acqu_geom, im_geom) -> None:
-        self._acqu_geom = acqu_geom
-        self._im_geom = im_geom
-        self.acqu_data = acqu_geom.allocate()
-        self.im_data = im_geom.allocate()
-        self.range_geometry = cuqi.geometry.Image2D(self.acqu_data.shape)# cilGeometry(self.acqu_data)
-        self.domain_geometry = cuqi.geometry.Image2D(self.im_data.shape)#cilGeometry(self.im_data)
-        super().__init__(self._forward_func, self._adjoint_func, domain_geometry = self.domain_geometry, range_geometry = self.range_geometry)
+    def __init__(self, acquisition_geometry : AcquisitionGeometry, image_geometry : ImageGeometry) -> None:
+
+        # Define image geometries
+        range_geometry = cuqi.geometry.Image2D(acquisition_geometry.shape)
+        domain_geometry = cuqi.geometry.Image2D(image_geometry.shape)
+        super().__init__(self._forward_func, self._adjoint_func, domain_geometry=domain_geometry, range_geometry=range_geometry)
 
         # Create projection operator using Tigre.
-        self._ProjOp = ProjectionOperator(im_geom, acqu_geom)
+        self._ProjectionOperator = ProjectionOperator(image_geometry, acquisition_geometry)
+        
+        # Allocate data containers for efficiency
+        self._acquisition_data = acquisition_geometry.allocate()
+        self._image_data = image_geometry.allocate()
 
-    # Getter methods for private variables
+    
     @property
-    def acqu_geom(self):
-        return self._acqu_geom
-    @property
-    def im_geom(self):
-        return self._im_geom
-    @property
-    def ProjOp(self):
-        return self._ProjOp
+    def acquisition_geometry(self):
+        """ The CIL acquisition geometry. """
+        return self.ProjectionOperator.range_geometry()
 
-    def _forward_func(self,x):
-        self.im_data.fill(x)
-        proj_cil = self.ProjOp.direct(self.im_data)
-        return proj_cil.as_array()
+    @property
+    def image_geometry(self):
+        """ The CIL image geometry. """
+        return self.ProjectionOperator.domain_geometry()
 
-    def _adjoint_func(self,x):
-        self.acqu_data.fill(x)
-        adj_cil = self.ProjOp.adjoint(self.acqu_data)
-        return adj_cil.as_array()
+    @property
+    def ProjectionOperator(self):
+        """ The CIL projection operator. """
+        return self._ProjectionOperator
+
+    def _forward_func(self, x: np.ndarray) -> np.ndarray:
+        self._fill_from_numpy(x, self._image_data)
+        self.ProjectionOperator.direct(self._image_data, out=self._acquisition_data)
+        return self._acquisition_data.as_array()
+
+    def _adjoint_func(self, x: np.ndarray) -> np.ndarray:
+        self._fill_from_numpy(x, self._acquisition_data)
+        self.ProjectionOperator.adjoint(self._acquisition_data, out=self._image_data)
+        return self._image_data.as_array()
+
+    def _fill_from_numpy(self, x: np.ndarray, data_container: DataContainer):
+        """ Fill a numpy array into a CIL data container without creating a copy. """
+        # Convert to dtype of container only if necessary (this is the main potential cost)
+        if x.dtype != np.float32: x = x.astype(data_container.dtype) 
+
+        # Storing directly in .array avoids copying
+        data_container.array = x 
 
 class CT2D_parallel(cilBase):
     """
@@ -100,17 +116,17 @@ class CT2D_parallel(cilBase):
             domain = im_size
 
         # Setup cil geometries for parallel beam CT
-        acqu_geom = AcquisitionGeometry.create_Parallel2D()\
+        acquisition_geometry = AcquisitionGeometry.create_Parallel2D()\
                             .set_angles(angles, angle_unit ='radian')\
                             .set_panel(det_count, pixel_size=det_spacing)
         
         # Setup image geometry
-        im_geom = ImageGeometry(voxel_num_x=im_size[0], 
+        image_geometry = ImageGeometry(voxel_num_x=im_size[0], 
                         voxel_num_y=im_size[1], 
                         voxel_size_x=domain[0]/im_size[0], 
                         voxel_size_y=domain[1]/im_size[1])
 
-        super().__init__(acqu_geom, im_geom)
+        super().__init__(acquisition_geometry, image_geometry)
 
 class CT2D_fanbeam(cilBase):
     """
@@ -156,19 +172,19 @@ class CT2D_fanbeam(cilBase):
             domain = im_size
 
         # Setup cil geometries for parallel beam CT 
-        acqu_geom = AcquisitionGeometry.create_Cone2D(\
+        acquisition_geometry = AcquisitionGeometry.create_Cone2D(\
             source_position=[0.0, -source_object_dist],\
             detector_position=[0.0, object_detector_dist])
-        acqu_geom.set_angles(angles, angle_unit ='radian')
-        acqu_geom.set_panel(det_count, pixel_size=det_spacing)
+        acquisition_geometry.set_angles(angles, angle_unit ='radian')
+        acquisition_geometry.set_panel(det_count, pixel_size=det_spacing)
 
         # Setup image geometry
-        im_geom = ImageGeometry(voxel_num_x=im_size[0], 
+        image_geometry = ImageGeometry(voxel_num_x=im_size[0], 
                         voxel_num_y=im_size[1], 
                         voxel_size_x=domain[0]/im_size[0], 
                         voxel_size_y=domain[1]/im_size[1])
 
-        super().__init__(acqu_geom, im_geom)
+        super().__init__(acquisition_geometry, image_geometry)
 
 class CT2D_shiftedfanbeam(cilBase):
     """
@@ -214,17 +230,17 @@ class CT2D_shiftedfanbeam(cilBase):
         domain = (550,550)):
 
         # Setup cil geometries for parallel beam CT with shifted source and detector
-        acqu_geom = AcquisitionGeometry.create_Cone2D(\
+        acquisition_geometry = AcquisitionGeometry.create_Cone2D(\
             source_position = [beamshift_x, source_y],\
             detector_position = [beamshift_x, detector_y])
-        acqu_geom.set_angles(angles, angle_unit ='radian')
-        acqu_geom.set_panel(det_count, pixel_size=det_spacing)
+        acquisition_geometry.set_angles(angles, angle_unit ='radian')
+        acquisition_geometry.set_panel(det_count, pixel_size=det_spacing)
 
         # Setup image geometry
-        im_geom = ImageGeometry(voxel_num_x=im_size[0], 
+        image_geometry = ImageGeometry(voxel_num_x=im_size[0], 
                         voxel_num_y=im_size[1], 
                         voxel_size_x=domain[0]/im_size[0], 
                         voxel_size_y=domain[1]/im_size[1])
 
-        super().__init__(acqu_geom, im_geom) 
+        super().__init__(acquisition_geometry, image_geometry) 
 
