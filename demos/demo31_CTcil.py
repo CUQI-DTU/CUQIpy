@@ -32,16 +32,18 @@ x_exact = cuqi.samples.CUQIarray(x_exact, is_par=True, geometry=model.domain_geo
 
 # Plot phantom
 plt.figure()
-x_exact.plot(title = "Phantom", origin = "upper-left")
+x_exact.plot()
+plt.colorbar()
 #%% Generate exact data and plot it
 b_exact = model.forward(x_exact)
 plt.figure()
-b_exact.plot(title = "Exact Sinogram", origin = "upper-left")
-
+b_exact.plot()
+plt.colorbar()
 #%% Plot back projection
 b_exact = model.forward(x_exact)
 plt.figure()
-model.adjoint(b_exact).plot(title = "Back projection", origin = "upper-left")
+model.adjoint(b_exact).plot()
+plt.colorbar()
 
 #%% Define Gaussian prior and data distribution
 prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5, geometry = model.domain_geometry)
@@ -50,7 +52,8 @@ data_dist  = cuqi.distribution.GaussianCov(model,0.1, geometry = model.range_geo
 #%% Generate noisy data using the data distribution from x_exact
 data=data_dist(x=x_exact).sample()
 plt.figure()
-data.plot(title = "Noisy Sinogram", origin = "upper-left")
+data.plot()
+plt.colorbar()
 
 #%% Construct likelihood function
 likelihood = data_dist.to_likelihood(data)
@@ -63,12 +66,17 @@ sampler = cuqi.sampler.Linear_RTO(posterior)
 samples = sampler.sample(500,100)
 #%% Plot mean
 plt.figure()
-samples.plot_mean(title = "Posterior mean", origin = "upper-left")
-
+samples.plot_mean()
+plt.colorbar()
 #%% Plot std
 plt.figure()
-samples.plot_std(title = "Posterior std", origin = "upper-left")
+samples.plot_std()
+plt.colorbar()
 
+#%% Plot posterior samples
+plt.figure()
+samples.plot()
+plt.colorbar()
 
 #%% High level test problem
 BP = ParBeamCT_2D(prior=prior,
@@ -79,9 +87,11 @@ cuqi.config.MAX_DIM_INV = 1000 # Change max dim to a lower number such that the 
 samples_BP = BP.sample_posterior(500)
 
 plt.figure()
-samples_BP.plot_mean(title = "Posterior mean", origin = "upper-left")
-plt.figure()
-samples_BP.plot_std(title = "Posterior std", origin = "upper-left")
+samples_BP.plot_mean()
+plt.colorbar()
 
+plt.figure()
+samples_BP.plot_std()
+plt.colorbar()
 
 # %%

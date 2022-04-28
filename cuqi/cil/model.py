@@ -2,7 +2,7 @@ import numpy as np
 import cuqi
 from cil.plugins.tigre import ProjectionOperator
 from cil.framework import ImageGeometry, AcquisitionGeometry
-from .geometry import cilGeometry
+#from .geometry import cilGeometry
 
 
 class cilBase(cuqi.model.LinearModel):
@@ -36,8 +36,8 @@ class cilBase(cuqi.model.LinearModel):
         self._im_geom = im_geom
         self.acqu_data = acqu_geom.allocate()
         self.im_data = im_geom.allocate()
-        self.range_geometry = cilGeometry(self.acqu_data)
-        self.domain_geometry = cilGeometry(self.im_data)
+        self.range_geometry = cuqi.geometry.Image2D(self.acqu_data.shape)# cilGeometry(self.acqu_data)
+        self.domain_geometry = cuqi.geometry.Image2D(self.im_data.shape)#cilGeometry(self.im_data)
         super().__init__(self._forward_func, self._adjoint_func, domain_geometry = self.domain_geometry, range_geometry = self.range_geometry)
 
         # Create projection operator using Tigre.
@@ -55,16 +55,14 @@ class cilBase(cuqi.model.LinearModel):
         return self._ProjOp
 
     def _forward_func(self,x):
-        self.im_data.fill(x)
+        self.im_data.fill(x.astype('float32'))
         proj_cil = self.ProjOp.direct(self.im_data)
-        out = cuqi.samples.CUQIarray(proj_cil.as_array(), geometry = self.range_geometry, is_par = True)
-        return out
+        return proj_cil.as_array()
 
     def _adjoint_func(self,x):
-        self.acqu_data.fill(x)
+        self.acqu_data.fill(x.astype('float32'))
         adj_cil = self.ProjOp.adjoint(self.acqu_data)
-        out = cuqi.samples.CUQIarray(adj_cil.as_array(), geometry=self.domain_geometry, is_par = True)
-        return out
+        return adj_cil.as_array()
 
 class CT2D_parallel(cilBase):
     """
