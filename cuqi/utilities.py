@@ -108,6 +108,7 @@ class ProblemInfo:
 
 # work-around to compute sparse Cholesky
 def sparse_cholesky(A):
+    """Computes Cholesky factorization for sparse matrix `A` and returns the upper triangular factor `U`, where `A=U^T@U`"""
     # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
     LU = spslinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
 
