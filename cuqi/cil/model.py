@@ -55,12 +55,12 @@ class cilBase(cuqi.model.LinearModel):
         return self._ProjOp
 
     def _forward_func(self,x):
-        self.im_data.fill(x.astype('float32'))
+        self.im_data.fill(x)
         proj_cil = self.ProjOp.direct(self.im_data)
         return proj_cil.as_array()
 
     def _adjoint_func(self,x):
-        self.acqu_data.fill(x.astype('float32'))
+        self.acqu_data.fill(x)
         adj_cil = self.ProjOp.adjoint(self.acqu_data)
         return adj_cil.as_array()
 
