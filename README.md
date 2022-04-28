@@ -2,9 +2,7 @@
 
 [![pipeline status](https://lab.compute.dtu.dk/cuqi/cuqipy/badges/master/pipeline.svg)](https://lab.compute.dtu.dk/cuqi/cuqipy/commits/master)
 
- Computational Uncertainty Quantification for Inverse Problems in python (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy provides a simple high-level interface to perform UQ analysis of inverse problems, while still allowing full control of the models and methods.
-
-The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
+ Computational Uncertainty Quantification for Inverse Problems in python (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy provides a simple high-level interface to perform UQ analysis of inverse problems, while still allowing full control of the models and methods. The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
 
 You can find the full CUQIpy documentation [here](https://cuqi.gitlab.io/cuqipy/). 
 
