@@ -41,13 +41,13 @@ data.plot(); plt.title("Data")
 samples.plot_mean(); plt.title("Posterior mean")
 samples.plot_std(); plt.title("Posterior standard deviation")
 ```
-<img src="/uploads/1c7b4adf09f6a71405f37cdd44016bec/deconv2D_exact_sol.png"  width="360">
+<img src="docs/_static/deconv2D_exact_sol.png" alt="Exact solution" width="360">
 
-<img src="/uploads/d7a041ae89afdfe0f4a31723305813fc/deconv2D_data.png"  width="360">
+<img src="docs/_static/deconv2D_data.png" alt="Data" width="360">
 
-<img src="/uploads/6e919bca40ab8136b064d76128d9f0ac/deconv2D_mean.png"  width="360">
+<img src="docs/_static/deconv2D_post_mean.png" alt="Posterior mean" width="360">
 
-<img src="/uploads/712861b89cda91fd06fa7e364116ebe5/deconv2D_std.png"  width="360">
+<img src="docs/_static/deconv2D_post_std.png" alt="Posterior standard deviation" width="360">
 
 ## Getting Started
 To run `cuqipy` on your local machine, clone the `cuqipy` repository:
