@@ -39,8 +39,8 @@ b_exact = model.forward(x_exact)
 plt.figure()
 b_exact.plot()
 plt.colorbar()
+
 #%% Plot back projection
-b_exact = model.forward(x_exact)
 plt.figure()
 model.adjoint(b_exact).plot()
 plt.colorbar()
