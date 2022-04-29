@@ -66,7 +66,7 @@ python demo00_MinimalExample.py
 ```
 
 ### Required Dependencies
-Requirements of cuqipy are listed in `requirements.txt` and can be installed via conda by
+Requirements of cuqipy are listed in `cuqipy/requirements.txt` and can be installed via conda by (while in `cuqipy` directory)
 ```{r, engine='bash', count_lines}
 conda install --file requirements.txt
 ```
@@ -92,7 +92,7 @@ directory `cuqipy`, run:
 python -m pytest 
 ```
 
-## Building documentation
+## Building Documentation
 
 To generate sphinx html documentation in your local machine, 
 make sure you have working installation of sphinx and sphinx-rtd-theme. 
