@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Specifically load the CT library (not loaded by default in cuqi)
-from cuqi.cil.model import cilBase, CT2D_parallel, CT2D_fanbeam
+from cuqi.cil.model import CT2D_parallel, CT2D_fanbeam
 from cuqi.cil.testproblem import ParBeamCT_2D
 
 %load_ext autoreload
@@ -79,9 +79,7 @@ samples.plot()
 plt.colorbar()
 
 #%% High level test problem
-BP = ParBeamCT_2D(prior=prior,
-        data=data, 
-        noise_cov=0.1)
+BP = ParBeamCT_2D(prior=prior, noise_std=0.01, phantom="grains")
 
 cuqi.config.MAX_DIM_INV = 1000 # Change max dim to a lower number such that the problem will be sampled using LinearRTO
 samples_BP = BP.sample_posterior(500)
@@ -93,5 +91,3 @@ plt.colorbar()
 plt.figure()
 samples_BP.plot_std()
 plt.colorbar()
-
-# %%
