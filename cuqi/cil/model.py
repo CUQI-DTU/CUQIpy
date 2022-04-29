@@ -63,22 +63,23 @@ class cilBase(cuqi.model.LinearModel):
         return self._ProjectionOperator
 
     def _forward_func(self, x: np.ndarray) -> np.ndarray:
-        self._fill_from_numpy(x, self._image_data)
+        self._fill_container_from_numpy(x, self._image_data)
         self.ProjectionOperator.direct(self._image_data, out=self._acquisition_data)
         return self._acquisition_data.as_array()
 
     def _adjoint_func(self, x: np.ndarray) -> np.ndarray:
-        self._fill_from_numpy(x, self._acquisition_data)
+        self._fill_container_from_numpy(x, self._acquisition_data)
         self.ProjectionOperator.adjoint(self._acquisition_data, out=self._image_data)
         return self._image_data.as_array()
 
-    def _fill_from_numpy(self, array: np.ndarray, data_container: DataContainer):
+    @staticmethod
+    def _fill_container_from_numpy(array: np.ndarray, container: DataContainer):
         """ Fill a numpy array into a CIL data container without creating a copy. """
         # Convert to dtype of container only if necessary (this is the main cost)
-        if array.dtype != data_container.dtype: array = array.astype(data_container.dtype) 
+        if array.dtype != container.dtype: array = array.astype(container.dtype) 
 
         # Storing directly in .array avoids copying
-        data_container.array = array
+        container.array = array
 
 class CT2D_parallel(cilBase):
     """
