@@ -34,11 +34,11 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 .. panels::
     :card: + intro-card text-center
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
+    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex
 
     ---
-    .. image:: _static/img/get_start.png
-       :width: 120px
+    :img-top: _static/img/get_start.png
+
 
 
     Getting Started
