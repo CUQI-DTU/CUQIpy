@@ -87,50 +87,59 @@ class cilBase(cuqi.model.LinearModel):
         container.array = array
 
 class CT2D_parallel(cilBase):
-    """
-    2D CT model with parallel beam
+    """ 2D CT model with parallel beam.
 
     Parameters
-    ------------    
-    im_size : tuple
-        Dimensions of image in pixels, default (45,45).
+    ----------    
+    im_size : tuple of ints
+        Dimensions of image in pixels.
     
     det_count : int
-        Number of detector elements, default 50.
+        Number of detector elements.
     
-    det_spacing : int
-        detector element size/spacing, default 1.
+    det_spacing : float, default 1
+        detector element size/spacing.
     
     angles : ndarray
-        Angles of projections, in radians, 
-        default np.linspace(0,np.pi,60).
+        Angles of projections, in radians.
 
-    domain : tuple
-        Size of image domain, default domain = im_size
+    domain : tuple, default im_size
+        Size of image domain.
 
     """
     
     def __init__(self,
         im_size = (45,45),
         det_count = 50,
-        det_spacing = 1,
         angles = np.linspace(0,np.pi,60),
+        det_spacing = None,
         domain = None
         ):
 
         if domain == None:
             domain = im_size
 
+        if det_spacing is None:
+            det_spacing = 1
+            # TODO. Use default det_spacing that ensures whole domain is covered.
+            # This allows changing im_size or det_count while keeping the same default scan area.
+            # Current implementation with tigre causes some severe artifacts if we modify det_spacing.
+            # det_spacing = np.sqrt(2) * np.max(domain) / det_count
+
         # Setup cil geometries for parallel beam CT
-        acquisition_geometry = AcquisitionGeometry.create_Parallel2D()\
-                            .set_angles(angles, angle_unit ='radian')\
-                            .set_panel(det_count, pixel_size=det_spacing)
+        acquisition_geometry = (
+            AcquisitionGeometry.create_Parallel2D()
+            .set_angles(angles, angle_unit="radian")
+            .set_panel(det_count, pixel_size=det_spacing)
+        )
         
         # Setup image geometry
-        image_geometry = ImageGeometry(voxel_num_x=im_size[0], 
-                        voxel_num_y=im_size[1], 
-                        voxel_size_x=domain[0]/im_size[0], 
-                        voxel_size_y=domain[1]/im_size[1])
+        image_geometry = ImageGeometry(
+            voxel_num_x=im_size[0],
+            voxel_num_y=im_size[1],
+            voxel_size_x=domain[0] / im_size[0],
+            voxel_size_y=domain[1] / im_size[1],
+        )
 
         super().__init__(acquisition_geometry, image_geometry)
 
