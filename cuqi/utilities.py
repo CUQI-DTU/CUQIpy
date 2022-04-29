@@ -1,6 +1,7 @@
 import numpy as np
 import inspect
-from scipy.sparse import issparse
+from scipy.sparse import issparse, diags
+from scipy.sparse import linalg as spslinalg
 from cuqi.geometry import _DefaultGeometry
 from dataclasses import dataclass
 from abc import ABCMeta
@@ -104,3 +105,16 @@ class ProblemInfo:
         """Returns a list of all attributes that are not None."""
         dict = vars(self)
         return list({key for key in dict if dict[key] is not None})
+
+# work-around to compute sparse Cholesky
+def sparse_cholesky(A):
+    """Computes Cholesky factorization for sparse matrix `A` and returns the upper triangular factor `U`, where `A=U^T@U`"""
+    # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
+    LU = spslinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
+
+
+    # check the matrix A is positive definite
+    if (LU.perm_r == np.arange(A.shape[0])).all() and (LU.U.diagonal() > 0).all(): 
+        return (LU.L @ (diags(LU.U.diagonal()**0.5))).T
+    else:
+        raise TypeError('The matrix is not positive semi-definite')
