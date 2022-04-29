@@ -26,8 +26,9 @@ author = 'CUQI'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.mathjax','sphinx.ext.autodoc','sphinx.ext.napoleon']
+extensions = ['sphinx.ext.mathjax','sphinx.ext.autodoc','sphinx.ext.napoleon','sphinx_panels','sphinx.ext.todo']
 autodoc_member_order = 'bysource'
+todo_include_todos=True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
