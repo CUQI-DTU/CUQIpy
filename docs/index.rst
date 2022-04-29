@@ -114,5 +114,3 @@ See the list of
 `contributors <https://lab.compute.dtu.dk/cuqi/cuqipy/-/graphs/master>`__
 who participated in this project.
 
-.. |pipeline status| image:: https://lab.compute.dtu.dk/cuqi/cuqipy/badges/master/pipeline.svg
-   :target: https://lab.compute.dtu.dk/cuqi/cuqipy/commits/master
