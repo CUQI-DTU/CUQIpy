@@ -25,7 +25,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 
 **Quick Links**:
-:ref:`Install <install>` |
+:ref:`Installation <install>` |
 `Tutorials <user/tutorials_index.html>`_ |
 `How Tos <user/howtos_index.html>`_ |
 `Source Repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_ 
@@ -34,67 +34,76 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 .. panels::
     :card: + intro-card text-center
-    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 d-flex
+    :column: col-lg-6 col-md-6 col-sm-6 col-xs-12 p-2
 
     ---
-    :img-top: _static/img/get_start.png
+   
+    .. image:: _static/img/get_start.png
+       :width: 100px
+   
+
+    
+
+    **Getting Started**
+    ^^^^^^^^^^^^^^^^^^^
 
 
-
-    Getting Started
-    ^^^^^^^^^^^^^^^
     Get CUQIpy up and running in your machine and learn the basics.
 
-    .. link-button:: user/getting_started
-        :type: ref
-        :text:
-        :classes: stretched-link
+    +++
 
+    .. link-button:: user/getting_started
+            :type: ref
+            :text: 
+            :classes: stretched-link btn-link
     ---
     .. image:: _static/img/user_guide.png
-       :width: 120px
+       :width: 100px
+    
 
-    User Guide
+    **User Guide**
     ^^^^^^^^^^
     Step by step tutorials for beginners and how-to guide to help you accomplish the tasks you use CUQIpy for.
+
+    +++
 
     .. link-button:: user/index
         :type: ref
         :text:
-        :classes: stretched-link
+        :classes: stretched-link btn-link
 
     ---
     .. image:: _static/img/api.png
-       :width: 120px
+       :width: 100px
+    
 
-
-    API Reference
+    **API Reference**
     ^^^^^^^^^^^^^
-    Reference of CUQIpy library components (modules, classes, methods, etc.) that includes descriptions of these entities and the parameters that can be used for classes and methods.
+    API reference of CUQIpy library components (modules, classes, methods, etc.) that includes descriptions of these entities and their parameters.
+
+    +++
 
     .. link-button:: reference/index
         :type: ref
         :text:
-        :classes: stretched-link
+        :classes: stretched-link btn-link
 
     ---
-    .. image:: _static/img/api.png
-       :width: 120px
+    .. image:: _static/img/contributor.png
+       :width: 100px
+    
 
+    **Contributor's Guide**
     ^^^^^^^^^^^^^^^^^^^
-    Contributor's Guide
-    ^^^^^^^^^^^^^^^^^^^
 
-
-
-    Do you want to help CUQIpy achieves its goals? here you find information on how to contribute to CUQIpy. All contributions are welcomed, big and small!
+    Do you want to help CUQIpy achieves its goals? here you find information on how to contribute to CUQIpy. All contributions are welcome, small and big!
 
     +++
 
     .. link-button:: dev/index
         :type: ref
         :text:
-        :classes: btn-block btn-secondary stretched-link
+        :classes: stretched-link btn-link
 
 
 
