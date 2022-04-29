@@ -1,5 +1,5 @@
-cuqi
-==============
+API reference
+=============
 
 .. automodule:: cuqi
    :members:
@@ -8,7 +8,6 @@ cuqi
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    cuqi.astra.rst
    cuqi.data.rst
