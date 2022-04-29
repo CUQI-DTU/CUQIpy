@@ -16,11 +16,11 @@ class cilBase(cuqi.model.LinearModel):
 
     Attributes
     -----------
-    range_geometry : cuqi.geometry.Geometry
+    range_geometry : cuqi.geometry.Image2D
         The geometry representing the range associated with sinogram.
 
-    domain_geometry : cuqi.geometry.Geometry
-        The geometry representing the domain associated with reconstructed image.
+    domain_geometry : cuqi.geometry.Image2D
+        The geometry representing the domain associated with input image.
 
     ProjectionOperator : CIL ProjectionOperator
         The projection operator handling forwad and adjoint operations.
@@ -32,7 +32,7 @@ class cilBase(cuqi.model.LinearModel):
 
     """
     
-    def __init__(self, acquisition_geometry : AcquisitionGeometry, image_geometry : ImageGeometry) -> None:
+    def __init__(self, acquisition_geometry: AcquisitionGeometry, image_geometry: ImageGeometry) -> None:
 
         # Define image geometries
         range_geometry = cuqi.geometry.Image2D(acquisition_geometry.shape)
@@ -72,13 +72,13 @@ class cilBase(cuqi.model.LinearModel):
         self.ProjectionOperator.adjoint(self._acquisition_data, out=self._image_data)
         return self._image_data.as_array()
 
-    def _fill_from_numpy(self, x: np.ndarray, data_container: DataContainer):
+    def _fill_from_numpy(self, array: np.ndarray, data_container: DataContainer):
         """ Fill a numpy array into a CIL data container without creating a copy. """
-        # Convert to dtype of container only if necessary (this is the main potential cost)
-        if x.dtype != np.float32: x = x.astype(data_container.dtype) 
+        # Convert to dtype of container only if necessary (this is the main cost)
+        if array.dtype != data_container.dtype: array = array.astype(data_container.dtype) 
 
         # Storing directly in .array avoids copying
-        data_container.array = x 
+        data_container.array = array
 
 class CT2D_parallel(cilBase):
     """
