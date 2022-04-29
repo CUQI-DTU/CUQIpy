@@ -40,6 +40,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
    
     .. image:: _static/img/get_start.png
        :width: 100px
+       :alt: Getting started, image credit: https://freeicons.io.
    
 
     
@@ -59,6 +60,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
     ---
     .. image:: _static/img/user_guide.png
        :width: 100px
+       :alt: User guide, image credit: https://freeicons.io, CC BY-NC 3.0.
     
 
     **User Guide**
@@ -75,6 +77,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
     ---
     .. image:: _static/img/api.png
        :width: 100px
+       :alt: API, image credit: https://freeicons.io.
     
 
     **API Reference**
@@ -91,6 +94,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
     ---
     .. image:: _static/img/contributor.png
        :width: 100px
+       :alt: Contributor, image credit: https://freeicons.io, CC BY 3.0.
     
 
     **Contributor's Guide**
