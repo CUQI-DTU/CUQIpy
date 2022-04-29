@@ -96,12 +96,12 @@ class CT2D_parallel(cilBase):
     
     det_count : int
         Number of detector elements.
-    
-    det_spacing : float, default 1
-        detector element size/spacing.
-    
+       
     angles : ndarray
         Angles of projections, in radians.
+
+    det_spacing : float, default 1
+        Detector element size/spacing.
 
     domain : tuple, default im_size
         Size of image domain.
@@ -127,11 +127,9 @@ class CT2D_parallel(cilBase):
             # det_spacing = np.sqrt(2) * np.max(domain) / det_count
 
         # Setup cil geometries for parallel beam CT
-        acquisition_geometry = (
-            AcquisitionGeometry.create_Parallel2D()
-            .set_angles(angles, angle_unit="radian")
-            .set_panel(det_count, pixel_size=det_spacing)
-        )
+        acquisition_geometry = AcquisitionGeometry.create_Parallel2D()
+        acquisition_geometry.set_angles(angles, angle_unit="radian")
+        acquisition_geometry.set_panel(det_count, pixel_size=det_spacing)
         
         # Setup image geometry
         image_geometry = ImageGeometry(
@@ -144,60 +142,66 @@ class CT2D_parallel(cilBase):
         super().__init__(acquisition_geometry, image_geometry)
 
 class CT2D_fanbeam(cilBase):
-    """
-    2D CT model with fan beam, assuming centered beam
+    """ 2D CT model with fan beam.
+    
+    Assumes a centered beam.
 
     Parameters
     ------------    
-    im_size : tuple
-        Dimensions of image in pixels, default (45,45).
+    im_size : tuple of ints
+        Dimensions of image in pixels.
     
     det_count : int
-        Number of detector elements, default 50.
-    
-    det_spacing : int
-        detector element size/spacing, default 1.
+        Number of detector elements.
     
     angles : ndarray
-        Angles of projections, in radians, 
-        default np.linspace(0,np.pi,60).
+        Angles of projections, in radians.
 
     source_object_dist : scalar
-        Distance between source and object, default 200.
+        Distance between source and object.
 
     object_detector_dist : scalar
-        Distance between detector and object, default 30.
+        Distance between detector and object.
 
-    domain : tuple
-        Size of image domain, default domain = im_size
+    det_spacing : int, default 1
+        Detector element size/spacing.
+
+    domain : tuple, default im_size
+        Size of image domain.
 
     """
     
     def __init__(self,
         im_size = (45,45),
         det_count = 50,
-        det_spacing = 1,
         angles = np.linspace(0,np.pi,60),
         source_object_dist = 200,
         object_detector_dist = 30,
+        det_spacing = None,
         domain = None
         ):
 
         if domain == None:
             domain = im_size
 
+        if det_spacing is None:
+            det_spacing = 1
+
         # Setup cil geometries for parallel beam CT 
-        acquisition_geometry = AcquisitionGeometry.create_Cone2D(\
-            source_position=[0.0, -source_object_dist],\
-            detector_position=[0.0, object_detector_dist])
-        acquisition_geometry.set_angles(angles, angle_unit ='radian')
+        acquisition_geometry = AcquisitionGeometry.create_Cone2D(
+            source_position=[0.0, -source_object_dist],
+            detector_position=[0.0, object_detector_dist],
+        )
+        acquisition_geometry.set_angles(angles, angle_unit="radian")
         acquisition_geometry.set_panel(det_count, pixel_size=det_spacing)
 
         # Setup image geometry
-        image_geometry = ImageGeometry(voxel_num_x=im_size[0], 
-                        voxel_num_y=im_size[1], 
-                        voxel_size_x=domain[0]/im_size[0], 
-                        voxel_size_y=domain[1]/im_size[1])
+        image_geometry = ImageGeometry(
+            voxel_num_x=im_size[0],
+            voxel_num_y=im_size[1],
+            voxel_size_x=domain[0] / im_size[0],
+            voxel_size_y=domain[1] / im_size[1],
+        )
 
         super().__init__(acquisition_geometry, image_geometry)
 
@@ -207,27 +211,26 @@ class CT2D_shiftedfanbeam(cilBase):
 
     Parameters
     ------------    
-    im_size : tuple
-        Dimensions of image in pixels, default (45,45).
+    im_size : tuple of ints
+        Dimensions of image in pixels.
     
     det_count : int
-        Number of detector elements, default 50.
-    
-    det_spacing : int
-        detector element size/spacing, default 1.
-    
+        Number of detector elements.
+       
     angles : ndarray
-        Angles of projections, in radians, 
-        default np.linspace(0,np.pi,60).
+        Angles of projections, in radians.
 
     source_y : scalar
-        Source position on y-axis, default -600.
+        Source position on y-axis.
 
     detector_y : scalar
-        Detector position on y-axis, default 500.
+        Detector position on y-axis.
 
     beamshift_x : scalar
-        Source and detector position on x-axis, default -125.3.
+        Source and detector position on x-axis.
+
+    det_spacing : int, default 1
+        Detector element size/spacing.
 
     domain : tuple
         Size of image domain, default (550,550).
@@ -237,25 +240,32 @@ class CT2D_shiftedfanbeam(cilBase):
     def __init__(self,
         im_size = (45,45),
         det_count = 50,
-        det_spacing = 1,
         angles = np.linspace(0,2*np.pi,60),
         source_y = -600,
         detector_y = 500,
         beamshift_x = -125.3,
-        domain = (550,550)):
+        domain = (550,550),
+        det_spacing = None
+        ):
+
+        if det_spacing is None:
+            det_spacing = 1
 
         # Setup cil geometries for parallel beam CT with shifted source and detector
-        acquisition_geometry = AcquisitionGeometry.create_Cone2D(\
-            source_position = [beamshift_x, source_y],\
-            detector_position = [beamshift_x, detector_y])
-        acquisition_geometry.set_angles(angles, angle_unit ='radian')
+        acquisition_geometry = AcquisitionGeometry.create_Cone2D(
+            source_position=[beamshift_x, source_y],
+            detector_position=[beamshift_x, detector_y]
+        )
+        acquisition_geometry.set_angles(angles, angle_unit="radian")
         acquisition_geometry.set_panel(det_count, pixel_size=det_spacing)
 
         # Setup image geometry
-        image_geometry = ImageGeometry(voxel_num_x=im_size[0], 
-                        voxel_num_y=im_size[1], 
-                        voxel_size_x=domain[0]/im_size[0], 
-                        voxel_size_y=domain[1]/im_size[1])
+        image_geometry = ImageGeometry(
+            voxel_num_x=im_size[0],
+            voxel_num_y=im_size[1],
+            voxel_size_x=domain[0] / im_size[0],
+            voxel_size_y=domain[1] / im_size[1],
+        )
 
         super().__init__(acquisition_geometry, image_geometry) 
 
