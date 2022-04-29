@@ -75,6 +75,11 @@ class cilBase(cuqi.model.LinearModel):
     @staticmethod
     def _fill_container_from_numpy(array: np.ndarray, container: DataContainer):
         """ Fill a numpy array into a CIL data container without creating a copy. """
+
+        # Check shape
+        if array.shape != container.shape:
+            raise ValueError("Array shape does not match container shape.")
+            
         # Convert to dtype of container only if necessary (this is the main cost)
         if array.dtype != container.dtype: array = array.astype(container.dtype) 
 
