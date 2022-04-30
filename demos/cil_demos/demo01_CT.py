@@ -14,7 +14,7 @@ from cuqi.cil.testproblem import ParBeamCT_2D
 %autoreload 2
 
 #%% Define CT model conveniently with cuqi
-model = CT2D_parallel() #CT model with parallel-beam and default values
+model = CT2D_parallelbeam() #CT model with parallel-beam and default values
 #model= CT2D_fanbeam() #CT model with fan-beam and default values
 
 # Extract parameters from model
