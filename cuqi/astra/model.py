@@ -46,7 +46,11 @@ class astraBase2D(cuqi.model.LinearModel): # 2D because of DetectorCount and Ima
         domain_geometry = cuqi.geometry.Image2D(shape = (vol_geom["GridRowCount"],vol_geom["GridColCount"]), order = "F")
        
         # Range geometry
-        range_geometry = cuqi.geometry.Image2D(shape = (len(proj_geom["ProjectionAngles"]),proj_geom["DetectorCount"]), order = "F")
+        if "Vectors" in proj_geom:
+            num_angles = proj_geom["Vectors"].shape[0]
+        else:
+            num_angles = proj_geom["ProjectionAngles"].shape[0]
+        range_geometry = cuqi.geometry.Image2D(shape = (num_angles, proj_geom["DetectorCount"]), order = "F")
         
         super().__init__(self._forward_func,self._adjoint_func,range_geometry,domain_geometry)
 
