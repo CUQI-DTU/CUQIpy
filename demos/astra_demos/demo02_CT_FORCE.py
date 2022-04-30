@@ -1,11 +1,11 @@
 #%% 
 import sys
-sys.path.append("..") 
+sys.path.append("../../") 
 import numpy as np
 import scipy.io as spio
 import matplotlib.pyplot as plt
 import cuqi
-from cuqi.astra import CT2D_shifted
+from cuqi.astra.model import CT2D_shiftedfanbeam
 
 #%%
 # ===============================
@@ -30,7 +30,7 @@ beamshift_x=-125.3
 source_y=-600
 detector_y=500 
 dl=411 
-domain=550
+domain=(550, 550)
 
 #%%
 # ===============================
@@ -39,7 +39,7 @@ domain=550
 
 # CT geometry for creating synthetic data from high resolution phantom
 N = int(np.shape(phantom)[0])
-A_fine = CT2D_shifted(beam_type=beam_type, 
+A_fine = CT2D_shiftedfanbeam(beam_type=beam_type, 
                     proj_type=proj_type, 
                     im_size=(N, N), 
                     det_count=det_count, 
@@ -71,7 +71,7 @@ A_fine.range_geometry.plot(b_data); plt.colorbar(); plt.title("noisy sinogram")
 
 # Reconstruction geometry
 N = 100
-A = CT2D_shifted(beam_type=beam_type, 
+A = CT2D_shiftedfanbeam(beam_type=beam_type, 
                     proj_type=proj_type, 
                     im_size=(N, N), 
                     det_count=det_count, 
