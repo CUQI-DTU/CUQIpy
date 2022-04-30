@@ -1,7 +1,7 @@
 # %%
 # Load cuqi and other packages
 import sys
-sys.path.append("..") 
+sys.path.append("../../") 
 import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
