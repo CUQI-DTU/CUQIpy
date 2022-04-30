@@ -7,8 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Specifically load the CT library (not loaded by default in cuqi)
-from cuqi.cil.model import CT2D_parallel, CT2D_fanbeam
-from cuqi.cil.testproblem import ParBeamCT_2D
+from cuqi.astra.model import CT2D_parallel, CT2D_fanbeam
+from cuqi.astra.testproblem import ParBeamCT_2D
 
 %load_ext autoreload
 %autoreload 2
