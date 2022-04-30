@@ -86,7 +86,7 @@ class cilBase(cuqi.model.LinearModel):
         # Storing directly in .array avoids copying
         container.array = array
 
-class CT2D_parallel(cilBase):
+class CT2D_parallelbeam(cilBase):
     """ 2D CT model with parallel beam.
 
     Parameters
@@ -205,7 +205,7 @@ class CT2D_fanbeam(cilBase):
 
         super().__init__(acquisition_geometry, image_geometry)
 
-class CT2D_shiftedfanbeam(cilBase):
+class CT2D_fanbeam_shifted(cilBase):
     """
     2D CT model with fanbeam and source+detector shift, assuming object is at position (0,0)
 
