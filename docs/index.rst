@@ -82,7 +82,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
     **API Reference**
     ^^^^^^^^^^^^^
-    API reference of CUQIpy library components (modules, classes, methods, etc.) that includes descriptions of these entities and their parameters.
+    Detailed descriptions of CUQIpy library components (modules, classes, methods, etc.).
 
     +++
 
@@ -100,7 +100,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
     **Contributor's Guide**
     ^^^^^^^^^^^^^^^^^^^
 
-    Do you want to help CUQIpy achieves its goals? here you find information on how to contribute to CUQIpy. All contributions are welcome, small and big!
+    Here you find information on how to contribute to CUQIpy. All contributions are welcome, small and big!
 
     +++
 
