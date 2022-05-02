@@ -3,10 +3,7 @@ import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry, Continuous2D, Image2D
 from copy import copy
-try:
-    import arviz # Plotting tool
-except:
-    print("Failed to import arviz")
+import arviz # Plotting tool
 
 class CUQIarray(np.ndarray):
     """
