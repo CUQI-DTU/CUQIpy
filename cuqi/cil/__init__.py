@@ -1,2 +1,3 @@
 from . import model
-__all__ = [model]
+from . import testproblem
+__all__ = [model, testproblem]
