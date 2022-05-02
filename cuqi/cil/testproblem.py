@@ -18,11 +18,11 @@ class ParBeam2DProblem(cuqi.problem.BayesianProblem):
 
     det_spacing : int, optional
         detector element size/spacing.
-        Default is handled by the CT2D_parallel model.
+        Default is handled by the CT model.
 
     domain : tuple of ints, optional
         Domain of the image.
-        Default is handled by the CT2D_parallel model.
+        Default is handled by the CT model.
 
     phantom : str or ndarray
         Phantom image to generate data from.
@@ -47,26 +47,23 @@ class ParBeam2DProblem(cuqi.problem.BayesianProblem):
 
     Attributes
     ----------
-    data : ndarray
+    data : CUQIarray
         Generated (noisy) data
 
-    model : cuqi.model.Model
-        Deconvolution forward model
+    model : cuqi.cil.model.CILModel
+        CT Model.
 
-    noise : cuqi.distribution.Distribution
-        Distribution of the additive noise
-
-    prior : cuqi.distribution.Distribution
-        Distribution of the prior (Default = None)
+    prior : cuqi.distribution.Distribution, Default None
+        Distribution of the prior.
 
     likelihood : cuqi.likelihood.Likelihood
         Likelihood function. 
-        (automatically computed from data distribution)
+        (automatically computed from noise distribution)
 
-    exactSolution : ndarray
+    exactSolution : CUQIarray
         Exact solution (ground truth)
 
-    exactData : ndarray
+    exactData : CUQIarray
         Noise free data
 
     Methods
@@ -75,7 +72,7 @@ class ParBeam2DProblem(cuqi.problem.BayesianProblem):
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
-    Sample(Ns)
+    sample_posterior(Ns)
         Sample Ns samples of the posterior.
         NB: Requires prior to be defined.
 
@@ -95,7 +92,7 @@ class ParBeam2DProblem(cuqi.problem.BayesianProblem):
         ):
         
         # CT model with default values
-        model = cuqi.cil.model.CT2D_parallel(
+        model = cuqi.cil.model.ParBeam2DModel(
             im_size=im_size,
             det_count=det_count,
             angles=angles,

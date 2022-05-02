@@ -174,7 +174,7 @@ class FanBeam2DModel(CILModel):
     def __init__(self,
         im_size = (45,45),
         det_count = 50,
-        angles = np.linspace(0,np.pi,60),
+        angles = np.linspace(0,2*np.pi,60),
         source_object_dist = 200,
         object_detector_dist = 30,
         det_spacing = None,

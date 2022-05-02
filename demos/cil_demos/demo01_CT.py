@@ -25,7 +25,7 @@ m   = model.range_geometry.dim  #p*q
 x_exact = cuqi.data.shepp_logan(size = N)
 
 # Phantom in cuqi array with geometry
-x_exact = cuqi.samples.CUQIarray(x_exact, is_par=True, geometry=model.domain_geometry)
+x_exact = cuqi.samples.CUQIarray(x_exact, is_par=False, geometry=model.domain_geometry)
 
 # Plot phantom
 plt.figure()
@@ -43,8 +43,8 @@ model.adjoint(b_exact).plot()
 plt.colorbar()
 
 #%% Define Gaussian prior and data distribution
-prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5, geometry = model.domain_geometry)
-data_dist  = cuqi.distribution.GaussianCov(model,0.1, geometry = model.range_geometry)
+prior      = cuqi.distribution.GaussianCov(np.zeros(n), 0.5, geometry=model.domain_geometry)
+data_dist  = cuqi.distribution.GaussianCov(model, 0.1, geometry=model.range_geometry)
 
 #%% Generate noisy data using the data distribution from x_exact
 data=data_dist(x=x_exact).sample()
