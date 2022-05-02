@@ -165,13 +165,13 @@ class FanBeam2DModel(ASTRAModel):
     proj_type : string
         String indication projection type.
         Can be "line_fanflat", "strip_fanflat", "cuda" etc.
-        
+
     """
     
     def __init__(self,
         im_size=(45,45),
         det_count=50,
-        angles=np.linspace(0, np.pi, 60),
+        angles=np.linspace(0, 2*np.pi, 60),
         source_object_dist=200,
         object_detector_dist=30,
         det_spacing=None,
@@ -190,18 +190,61 @@ class FanBeam2DModel(ASTRAModel):
 
         super().__init__(proj_type, proj_geom, vol_geom)
 
-class CT2D_shiftedfanbeam(ASTRAModel):
-    """2D CT model with source+detector shift"""
+class ShiftedFanBeam2DModel(ASTRAModel):
+    """ 2D CT model with fanbeam and source+detector shift, assuming object is at position (0,0).
 
-    def __init__(self,beam_type="fanflat_vec",
-                      proj_type='line_fanflat',
-                      im_size=(45,45),
-                      det_count=50,
-                      angles=np.linspace(0,2*np.pi,60),
-                      beamshift_x = -125.3, source_y = -600, detector_y = 500, dl = 411, domain=(550,550)):
+    Parameters
+    ------------    
+    im_size : tuple of ints
+        Dimensions of image in pixels.
+    
+    det_count : int
+        Number of detector elements.
+       
+    angles : ndarray
+        Angles of projections, in radians.
+
+    source_y : scalar
+        Source position on y-axis.
+
+    detector_y : scalar
+        Detector position on y-axis.
+
+    beamshift_x : scalar
+        Source and detector position on x-axis.
+
+    det_length : scalar
+        Detector length.
+
+    domain : tuple
+        Size of image domain, default (550,550).
+
+    proj_type : string
+        String indication projection type.
+        Can be "line_fanflat", "strip_fanflat", "cuda" etc.
+    
+    beam_type : string
+        String indication beam type.
+        Must be of _vec type.
+        For example "fanflat_vec".
+    """
+
+    def __init__(
+        self,
+        im_size=(45,45),
+        det_count=50,
+        angles=np.linspace(0, 2*np.pi, 60),
+        source_y=-600,
+        detector_y=500,
+        beamshift_x=-125.3,
+        det_length=411,
+        domain=(550,550),
+        proj_type='line_fanflat',
+        beam_type="fanflat_vec"
+        ):
         
         # Detector spacing
-        det_spacing = dl/det_count
+        det_spacing = det_length/det_count
 
         #Define scan vectors
         s0 = np.array([beamshift_x, source_y])
@@ -218,8 +261,8 @@ class CT2D_shiftedfanbeam(ASTRAModel):
             vectors[i, 4:6] = u
 
         # Astra geometries
-        proj_geom = astra.create_proj_geom(beam_type,det_count,vectors)
-        vol_geom = astra.create_vol_geom(im_size[0],im_size[1],-domain[0]/2,domain[0]/2,-domain[1]/2,domain[1]/2)
+        proj_geom = astra.create_proj_geom(beam_type, det_count, vectors)
+        vol_geom = astra.create_vol_geom(im_size[0], im_size[1], -domain[0]/2, domain[0]/2, -domain[1]/2, domain[1]/2)
 
         super().__init__(proj_type, proj_geom, vol_geom)        
 
