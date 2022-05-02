@@ -95,7 +95,7 @@ class ParBeamCT_2D(cuqi.problem.BayesianProblem):
         ):
         
         #######
-        model = cuqi.astra.model.CT2D_parallel(proj_type = proj_type,
+        model = cuqi.astra.model.ParBeam2DModel(proj_type = proj_type,
                                 im_size = im_size,
                                 det_count = det_count,
                                 det_spacing = det_spacing,

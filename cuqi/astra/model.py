@@ -13,7 +13,9 @@ class ASTRAModel(cuqi.model.LinearModel):
     Parameters
     -----------
     proj_type : string
-        String indication projection type. Could be "line", "strip", "linear", "line_fanflat", "strip_fanflat" etc.
+        String indication projection type. 
+        Could be "line", "strip", "linear", 
+        "cuda", "line_fanflat", "strip_fanflat" etc.
 
     proj_geom : dict
         ASTRA projection geometry.
@@ -85,24 +87,50 @@ class ASTRAModel(cuqi.model.LinearModel):
         astra.data2d.delete(id)
         return volume
 
-class CT2D_parallel(ASTRAModel):
-    """2D CT model with parallel beam"""
+class ParBeam2DModel(ASTRAModel):
+    """2D CT model with parallel beam
+    
+    Parameters
+    ----------
+
+    im_size : tuple of ints
+        Dimensions of image in pixels.
+    
+    det_count : int
+        Number of detector elements.
+       
+    angles : ndarray
+        Angles of projections, in radians.
+
+    det_spacing : float, default 1
+        Detector element size/spacing.
+
+    domain : tuple, default im_size
+        Size of image domain.
+
+    proj_type : string
+        String indication projection type.
+        Can be "line", "strip", "linear", "cuda" etc.
+
+    """
     
     def __init__(self,
-        proj_type = "linear",
         im_size=(45,45),
         det_count=50,
-        det_spacing=1,
-        angles=np.linspace(0,np.pi,60),
-        domain = None
+        angles=np.linspace(0, np.pi, 60),
+        det_spacing=None,
+        domain = None,
+        proj_type="linear",
         ):
 
         if domain == None:
             domain = im_size
 
-        """Setup astra geometries for parallel beam CT"""
-        proj_geom = astra.create_proj_geom("parallel",det_spacing,det_count,angles)
-        vol_geom = astra.create_vol_geom(im_size[0],im_size[1],-domain[0]/2,domain[0]/2,-domain[1]/2,domain[1]/2)
+        if det_spacing is None:
+            det_spacing = 1
+
+        proj_geom = astra.create_proj_geom("parallel", det_spacing, det_count, angles)
+        vol_geom = astra.create_vol_geom(im_size[0], im_size[1], -domain[0]/2, domain[0]/2, -domain[1]/2, domain[1]/2)
 
         super().__init__(proj_type, proj_geom, vol_geom)
 
