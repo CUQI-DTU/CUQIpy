@@ -50,5 +50,4 @@ pages:
     expire_in: never
   only:
   - dev
-  - sprint7_readme
 
