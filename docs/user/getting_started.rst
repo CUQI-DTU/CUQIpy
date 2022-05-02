@@ -59,6 +59,11 @@ Optional Dependencies
 -  `findiff <https://github.com/maroba/findiff>`__: For some if the PDE
    based demos
 
+
+.. todo::
+   CUQIpy basic example
+
+
 Running the Tests
 -----------------
 
@@ -83,7 +88,3 @@ the following commands in cuqipy directory:
 
 Then open docs/_build/index.html using your preferred web browser to
 browse cuqipy documentation.
-
-
-.. todo::
-   CUQIpy basics
