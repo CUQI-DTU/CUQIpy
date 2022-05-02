@@ -1,9 +1,5 @@
 import cuqi
 import numpy as np
-import warnings
-from scipy.interpolate import interp2d
-import scipy.io as io
-
 import astra
 
 
