@@ -3,7 +3,7 @@ import cuqi
 from cil.plugins.tigre import ProjectionOperator
 from cil.framework import ImageGeometry, AcquisitionGeometry, DataContainer
 
-class cilBase(cuqi.model.LinearModel):
+class CILModel(cuqi.model.LinearModel):
     """ Base cuqi model using CIL for CT projectors.
 
     Parameters
@@ -86,7 +86,7 @@ class cilBase(cuqi.model.LinearModel):
         # Storing directly in .array avoids copying
         container.array = array
 
-class CT2D_parallelbeam(cilBase):
+class ParBeam2DModel(CILModel):
     """ 2D CT model with parallel beam.
 
     Parameters
@@ -141,7 +141,7 @@ class CT2D_parallelbeam(cilBase):
 
         super().__init__(acquisition_geometry, image_geometry)
 
-class CT2D_fanbeam(cilBase):
+class FanBeam2DModel(CILModel):
     """ 2D CT model with fan beam.
     
     Assumes a centered beam.
@@ -205,7 +205,7 @@ class CT2D_fanbeam(cilBase):
 
         super().__init__(acquisition_geometry, image_geometry)
 
-class CT2D_fanbeam_shifted(cilBase):
+class ShiftedFanBeam2DModel(CILModel):
     """
     2D CT model with fanbeam and source+detector shift, assuming object is at position (0,0)
 
