@@ -1,5 +1,5 @@
-CUQIpy Tutorials
-================
+Tutorials
+==========
 
 .. todo::
    Add Tutorials 
