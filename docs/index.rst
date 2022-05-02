@@ -3,7 +3,7 @@
    :hidden:
 
    User Guide <user/index>
-   API reference <reference/index>
+   API reference <api/index>
    Contributor's Guide <dev/index>
 
 CUQIpy's Documentation
@@ -65,7 +65,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
     **User Guide**
     ^^^^^^^^^^
-    Step by step tutorials for beginners and how-to guide to help you accomplish the tasks you use CUQIpy for.
+    Step-by-step tutorials, how-to guide to help you accomplish various tasks with CUQIpy, and in-depth explanations of background theory. 
 
     +++
 
@@ -86,7 +86,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
     +++
 
-    .. link-button:: reference/index
+    .. link-button:: api/index
         :type: ref
         :text:
         :classes: stretched-link btn-link
