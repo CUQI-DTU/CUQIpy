@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Specifically load the CT library (not loaded by default in cuqi)
-from cuqi.astra.model import ParBeam2DModel, CT2D_fanbeam
+from cuqi.astra.model import ParBeam2DModel, FanBeam2DModel
 from cuqi.astra.testproblem import ParBeamCT_2D
 
 %load_ext autoreload
@@ -15,7 +15,7 @@ from cuqi.astra.testproblem import ParBeamCT_2D
 
 #%% Define CT model conveniently with cuqi
 model = ParBeam2DModel() #CT model with parallel-beam and default values
-#model= CT2D_fanbeam() #CT model with fan-beam and default values
+#model= FanBeam2DModel() #CT model with fan-beam and default values
 
 # Extract parameters from model
 N   = model.domain_geometry.shape[0]
