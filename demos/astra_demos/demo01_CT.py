@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 #Specifically load the CT library (not loaded by default in cuqi)
 from cuqi.astra.model import ParBeam2DModel, FanBeam2DModel
-from cuqi.astra.testproblem import ParBeamCT_2D
+from cuqi.astra.testproblem import ParBeam2DProblem
 
 %load_ext autoreload
 %autoreload 2
@@ -28,7 +28,7 @@ m   = model.range_geometry.dim  #p*q
 x_exact = cuqi.data.shepp_logan(size = N)
 
 # Phantom in cuqi array with geometry
-x_exact = cuqi.samples.CUQIarray(x_exact, is_par=True, geometry=model.domain_geometry)
+x_exact = cuqi.samples.CUQIarray(x_exact, is_par=False, geometry=model.domain_geometry)
 
 # Plot phantom
 plt.figure()
@@ -46,8 +46,8 @@ model.adjoint(b_exact).plot()
 plt.colorbar()
 
 #%% Define Gaussian prior and data distribution
-prior      = cuqi.distribution.GaussianCov(np.zeros(n),0.5, geometry = model.domain_geometry)
-data_dist  = cuqi.distribution.GaussianCov(model,0.1, geometry = model.range_geometry)
+prior      = cuqi.distribution.GaussianCov(np.zeros(n), 0.5, geometry=model.domain_geometry)
+data_dist  = cuqi.distribution.GaussianCov(model, 0.1, geometry=model.range_geometry)
 
 #%% Generate noisy data using the data distribution from x_exact
 data=data_dist(x=x_exact).sample()
@@ -79,7 +79,7 @@ samples.plot()
 plt.colorbar()
 
 #%% High level test problem
-BP = ParBeamCT_2D(prior=prior, noise_std=0.01, phantom="grains")
+BP = ParBeam2DProblem(prior=prior, noise_std=0.01, phantom="grains")
 
 cuqi.config.MAX_DIM_INV = 1000 # Change max dim to a lower number such that the problem will be sampled using LinearRTO
 samples_BP = BP.sample_posterior(500)

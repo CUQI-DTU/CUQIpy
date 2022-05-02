@@ -5,7 +5,7 @@ import numpy as np
 import scipy.io as spio
 import matplotlib.pyplot as plt
 import cuqi
-from cuqi.astra.model import CT2D_shiftedfanbeam
+from cuqi.astra.model import ShiftedFanBeam2DModel
 
 #%%
 # ===============================
@@ -29,7 +29,7 @@ angles=np.linspace(0, 2 * np.pi, 60)
 beamshift_x=-125.3
 source_y=-600
 detector_y=500 
-dl=411 
+det_length=411 
 domain=(550, 550)
 
 #%%
@@ -39,7 +39,7 @@ domain=(550, 550)
 
 # CT geometry for creating synthetic data from high resolution phantom
 N = int(np.shape(phantom)[0])
-A_fine = CT2D_shiftedfanbeam(beam_type=beam_type, 
+A_fine = ShiftedFanBeam2DModel(beam_type=beam_type, 
                     proj_type=proj_type, 
                     im_size=(N, N), 
                     det_count=det_count, 
@@ -47,7 +47,7 @@ A_fine = CT2D_shiftedfanbeam(beam_type=beam_type,
                     beamshift_x=beamshift_x, 
                     source_y=source_y, 
                     detector_y=detector_y, 
-                    dl=dl, 
+                    det_length=det_length, 
                     domain=domain)
 m = det_count * len(angles)
 
@@ -71,7 +71,7 @@ A_fine.range_geometry.plot(b_data); plt.colorbar(); plt.title("noisy sinogram")
 
 # Reconstruction geometry
 N = 100
-A = CT2D_shiftedfanbeam(beam_type=beam_type, 
+A = ShiftedFanBeam2DModel(beam_type=beam_type, 
                     proj_type=proj_type, 
                     im_size=(N, N), 
                     det_count=det_count, 
@@ -79,7 +79,7 @@ A = CT2D_shiftedfanbeam(beam_type=beam_type,
                     beamshift_x=beamshift_x, 
                     source_y=source_y, 
                     detector_y=detector_y, 
-                    dl=dl, 
+                    det_length=det_length, 
                     domain=domain)
 m = det_count * len(angles)
 
