@@ -40,7 +40,7 @@ cache:
 pages:
   stage: deploy
   script:
-  - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon sphinx-panels
+  - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon sphinx-panels sphinx-copybutton
   - mkdir -p public/
   - sphinx-build -b html ./docs public/
   artifacts:
