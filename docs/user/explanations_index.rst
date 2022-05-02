@@ -1,5 +1,5 @@
-CUQIpy Explanations
-====================
+Background
+==========
 
 .. todo::
-   Add explanations
+   Add background material
