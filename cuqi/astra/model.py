@@ -2,20 +2,24 @@ import cuqi
 import numpy as np
 import astra
 
+class ASTRAModel(cuqi.model.LinearModel):
+    """ Base cuqi model using ASTRA Toolbox for CT projectors.
 
-class astraBase2D(cuqi.model.LinearModel): # 2D because of DetectorCount and Image2D geometries
-    """ Base cuqi model using ASTRA for CT projectors.
+    Currently only supports 2D CT.
+
+    For more details on the projectors, see:
+    https://www.astra-toolbox.com
 
     Parameters
     -----------
-    proj_type : string.
-        String indication astra projection type. Could be "linear", "cuda" ect. See astra documentation. 
+    proj_type : string
+        String indication projection type. Could be "line", "strip", "linear", "line_fanflat", "strip_fanflat" etc.
 
-    proj_geom : astra projection geometry.
-        See astra documentation.
+    proj_geom : dict
+        ASTRA projection geometry.
 
-    vol_geom : astra volume geometry.
-        See astra documentation.
+    vol_geom : dict
+        ASTRA volume geometry.
 
     Attributes
     -----------
@@ -23,7 +27,10 @@ class astraBase2D(cuqi.model.LinearModel): # 2D because of DetectorCount and Ima
         The geometry representing the range associated with sinogram.
 
     domain_geometry : cuqi.geometry.Geometry
-        The geometry representing the domain associated with reconstructed image.
+        The geometry representing the domain associated with input image.
+
+    proj_id : int
+        The ID of the ASTRA projector handling the forward and adjoint operations.
 
     Methods
     -----------
@@ -33,53 +40,52 @@ class astraBase2D(cuqi.model.LinearModel): # 2D because of DetectorCount and Ima
     """
     def __init__(self, proj_type, proj_geom, vol_geom):
 
-        # Astra projection id
-        proj_id = astra.create_projector(proj_type,proj_geom,vol_geom)
 
-        # Domain geometry
-        #xgrid = np.linspace(vol_geom["option"]["WindowMinX"],vol_geom["option"]["WindowMaxX"],vol_geom["GridRowCount"])
-        #ygrid = np.linspace(vol_geom["option"]["WindowMinY"],vol_geom["option"]["WindowMaxY"],vol_geom["GridColCount"])
-        domain_geometry = cuqi.geometry.Image2D(shape = (vol_geom["GridRowCount"],vol_geom["GridColCount"]), order = "F")
-       
-        # Range geometry
-        if "Vectors" in proj_geom:
-            num_angles = proj_geom["Vectors"].shape[0]
-        else:
-            num_angles = proj_geom["ProjectionAngles"].shape[0]
-        range_geometry = cuqi.geometry.Image2D(shape = (num_angles, proj_geom["DetectorCount"]), order = "F")
+        # Define image (domain) geometry
+        domain_geometry = cuqi.geometry.Image2D(shape=(vol_geom["GridRowCount"], vol_geom["GridColCount"]), order = "F")
+
+        # Define sinogram (range) geometry
+        num_angles = proj_geom["Vectors"].shape[0] if "Vectors" in proj_geom else proj_geom["ProjectionAngles"].shape[0]
+        range_geometry = cuqi.geometry.Image2D(shape=(num_angles, proj_geom["DetectorCount"]), order = "F")
         
-        super().__init__(self._forward_func,self._adjoint_func,range_geometry,domain_geometry)
+        # Define linear model
+        super().__init__(self._forward_func, self._adjoint_func, range_geometry=range_geometry, domain_geometry=domain_geometry)
 
-        # Store other CT related variables privately
+        # Create ASTRA projector
+        self._proj_id = astra.create_projector(proj_type, proj_geom, vol_geom)
+
+        # Store other ASTRA related variables privately
         self._proj_geom = proj_geom
         self._vol_geom = vol_geom
-        self._proj_id = proj_id
 
-    # Getter methods for private variables
     @property
     def proj_geom(self):
+        """ ASTRA projection geometry. """
         return self._proj_geom
+
     @property
     def vol_geom(self):
+        """ ASTRA volume geometry. """
         return self._vol_geom
+
     @property
     def proj_id(self):
+        """ ASTRA projector ID. """
         return self._proj_id
 
     # CT forward projection
-    def _forward_func(self,x):
+    def _forward_func(self, x: np.ndarray) -> np.ndarray:
         id, sinogram =  astra.create_sino(x, self.proj_id)
         astra.data2d.delete(id)
         return sinogram
 
     # CT back projection
-    def _adjoint_func(self,y):
-        id, volume = astra.create_backprojection(y,self.proj_id)
+    def _adjoint_func(self, y: np.ndarray) -> np.ndarray:
+        id, volume = astra.create_backprojection(y, self.proj_id)
         astra.data2d.delete(id)
         return volume
 
-
-class CT2D_parallel(astraBase2D):
+class CT2D_parallel(ASTRAModel):
     """2D CT model with parallel beam"""
     
     def __init__(self,
@@ -100,7 +106,7 @@ class CT2D_parallel(astraBase2D):
 
         super().__init__(proj_type, proj_geom, vol_geom)
 
-class CT2D_fanbeam(astraBase2D):
+class CT2D_fanbeam(ASTRAModel):
     """2D CT model with parallel beam"""
     
     def __init__(self,
@@ -123,7 +129,7 @@ class CT2D_fanbeam(astraBase2D):
 
         super().__init__(proj_type, proj_geom, vol_geom)
 
-class CT2D_shiftedfanbeam(astraBase2D):
+class CT2D_shiftedfanbeam(ASTRAModel):
     """2D CT model with source+detector shift"""
 
     def __init__(self,beam_type="fanflat_vec",
