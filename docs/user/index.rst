@@ -11,6 +11,6 @@ User Guide
 
 
    Getting Started <getting_started>
-   CUQIpy Tutorials <tutorials_index>
-   CUQIpy How Tos <howtos_index>
-   CUQIpy Explanations <explanations_index>
+   Tutorials <tutorials_index>
+   How-To Guide <howtos_index>
+   Background <background_index>
