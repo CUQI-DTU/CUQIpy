@@ -1,6 +1,6 @@
-<p align="center">
+<div align="center">
 <img src="./logo.png" alt="CUQIpy logo" width="250"/>
-</p>
+</div>
 
 # CUQIpy: Computational Uncertainty Quantification for Inverse Problems in python
 
