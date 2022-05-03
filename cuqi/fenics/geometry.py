@@ -41,7 +41,7 @@ class FEniCSContinuous(Geometry):
             return fun_list
 
     def fun2par(self,fun):
-        """Map the function values to the corresponding parameters."""
+        """ Map the function values (FEniCS object) to the corresponding parameters (ndarray)."""
         return fun.vector().get_local()
 
     def _plot(self,values,subplots=True,**kwargs):
