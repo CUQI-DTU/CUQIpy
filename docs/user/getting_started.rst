@@ -84,7 +84,8 @@ the following commands in cuqipy directory:
 
 .. code-block:: sh
 
-   cd docs sphinx-build -b html . _build
+   cd docs
+   sphinx-build -b html . _build
 
 Then open docs/_build/index.html using your preferred web browser to
 browse cuqipy documentation.
