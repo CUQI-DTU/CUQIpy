@@ -1,4 +1,5 @@
-# CUQIpy
+![CUQIpy logo](./logo.png)
+# CUQIpy: Computational Uncertainty Quantification for Inverse Problems in python
 
 [![pipeline status](https://lab.compute.dtu.dk/cuqi/cuqipy/badges/master/pipeline.svg)](https://lab.compute.dtu.dk/cuqi/cuqipy/commits/master)
 
