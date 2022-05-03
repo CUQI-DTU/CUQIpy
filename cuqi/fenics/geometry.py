@@ -40,6 +40,10 @@ class FEniCSContinuous(Geometry):
         else:
             return fun_list
 
+    def fun2par(self,fun):
+        """ Map the function values (FEniCS object) to the corresponding parameters (ndarray)."""
+        return fun.vector().get_local()
+
     def _plot(self,values,subplots=True,**kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
