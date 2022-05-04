@@ -2,7 +2,7 @@ import cuqi
 import numpy as np
 
 #=============================================================================
-class ParBeam2DProblem(cuqi.problem.BayesianProblem):
+class ParallelBeam2DProblem(cuqi.problem.BayesianProblem):
     """ 2D parallel-beam Computed Tomography test problem using ASTRA
 
     Parameters
@@ -98,7 +98,7 @@ class ParBeam2DProblem(cuqi.problem.BayesianProblem):
         ):
         
         # CT model
-        model = cuqi.astra.model.ParBeam2DModel(
+        model = cuqi.astra.model.ParallelBeam2DModel(
             im_size=im_size,
             det_count=det_count,
             angles=angles,

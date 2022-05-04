@@ -87,7 +87,7 @@ class ASTRAModel(cuqi.model.LinearModel):
         astra.data2d.delete(id)
         return volume
 
-class ParBeam2DModel(ASTRAModel):
+class ParallelBeam2DModel(ASTRAModel):
     """2D CT model with parallel beam
     
     Parameters

@@ -7,14 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Specifically load the CT library (not loaded by default in cuqi)
-from cuqi.astra.model import ParBeam2DModel, FanBeam2DModel
-from cuqi.astra.testproblem import ParBeam2DProblem
+from cuqi.astra.model import ParallelBeam2DModel, FanBeam2DModel
+from cuqi.astra.testproblem import ParallelBeam2DProblem
 
 %load_ext autoreload
 %autoreload 2
 
 #%% Define CT model conveniently with cuqi
-model = ParBeam2DModel() #CT model with parallel-beam and default values
+model = ParallelBeam2DModel() #CT model with parallel-beam and default values
 #model= FanBeam2DModel() #CT model with fan-beam and default values
 
 # Extract parameters from model
@@ -79,7 +79,7 @@ samples.plot()
 plt.colorbar()
 
 #%% High level test problem
-BP = ParBeam2DProblem(prior=prior, noise_std=0.01, phantom="grains")
+BP = ParallelBeam2DProblem(prior=prior, noise_std=0.01, phantom="grains")
 
 cuqi.config.MAX_DIM_INV = 1000 # Change max dim to a lower number such that the problem will be sampled using LinearRTO
 samples_BP = BP.sample_posterior(500)
