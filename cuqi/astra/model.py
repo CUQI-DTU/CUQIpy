@@ -3,7 +3,7 @@ import numpy as np
 import astra
 
 class ASTRAModel(cuqi.model.LinearModel):
-    """ Base cuqi model using ASTRA Toolbox for CT projectors.
+    """ Base class of cuqi model using ASTRA Toolbox for CT projectors.
 
     Currently only supports 2D CT.
 
