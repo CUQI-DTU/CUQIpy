@@ -86,7 +86,7 @@ class CILModel(cuqi.model.LinearModel):
         # Storing directly in .array avoids copying
         container.array = array
 
-class ParBeam2DModel(CILModel):
+class ParallelBeam2DModel(CILModel):
     """ 2D CT model with parallel beam.
 
     Parameters

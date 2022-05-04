@@ -2,7 +2,7 @@ import cuqi
 import numpy as np
 
 #=============================================================================
-class ParBeam2DProblem(cuqi.problem.BayesianProblem):
+class ParallelBeam2DProblem(cuqi.problem.BayesianProblem):
     """ 2D parallel-beam Computed Tomography test problem using CIL.
 
     Parameters
@@ -92,7 +92,7 @@ class ParBeam2DProblem(cuqi.problem.BayesianProblem):
         ):
         
         # CT model with default values
-        model = cuqi.cil.model.ParBeam2DModel(
+        model = cuqi.cil.model.ParallelBeam2DModel(
             im_size=im_size,
             det_count=det_count,
             angles=angles,
