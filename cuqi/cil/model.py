@@ -4,7 +4,7 @@ from cil.plugins.tigre import ProjectionOperator
 from cil.framework import ImageGeometry, AcquisitionGeometry, DataContainer
 
 class CILModel(cuqi.model.LinearModel):
-    """ Base cuqi model using CIL for CT projectors.
+    """ Base class of cuqi model using CIL for CT projectors.
 
     Parameters
     -----------
