@@ -218,23 +218,53 @@ class Samples(object):
         return new_samples
 
     def plot_mean(self,*args,**kwargs):
-        # Compute mean assuming samples are index in last dimension of nparray
-        mean = np.mean(self.samples,axis=-1)
+        """Plot pointwise mean of the samples
+
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
+        """
+        mean = self.mean()
 
         # Plot mean according to geometry
-        return self.geometry.plot(mean,*args,**kwargs)
+        ax =  self.geometry.plot(mean, *args, **kwargs)
+        plt.title('Sample mean')
+        return ax
+
+    def plot_variance(self,*args,**kwargs):
+        """Plot pointwise variance of the samples
+
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
+        """
+        variance = self.variance()
+
+        # Plot variance according to geometry
+        ax = self.geometry.plot(variance, *args, **kwargs)
+        plt.title('Sample variance')
+        return ax
 
     def mean(self):
-        #TODO: use this method in plot_mean 
-        return np.mean(self.samples,axis=-1)
+        """Compute mean of the samples"""
+        return np.mean(self.samples, axis=-1)
 
+    def variance(self):
+        """Compute pointwise variance of the samples"""
+        return np.var(self.samples, axis=-1)
 
     def plot_std(self,*args,**kwargs):
+        """Plot pointwise standard deviation of the samples
+
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
+        """
+
         # Compute std assuming samples are index in last dimension of nparray
         std = np.std(self.samples,axis=-1)
 
         # Plot mean according to geometry
-        return self.geometry.plot(std,*args,**kwargs)
+        ax = self.geometry.plot(std, *args, **kwargs)
+        plt.title('Sample standard deviation')
+        return ax
 
     def plot(self,sample_indices=None,*args,**kwargs):
         Ns = self.Ns

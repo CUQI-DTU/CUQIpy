@@ -24,6 +24,7 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
   - pip install -r requirements.txt
+  - pip install pytest
 
 
 test:
@@ -39,7 +40,7 @@ cache:
 pages:
   stage: deploy
   script:
-  - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon
+  - pip install -U sphinx sphinx-rtd-theme sphinxcontrib-napoleon sphinx-panels sphinx-copybutton pydata-sphinx-theme
   - mkdir -p public/
   - sphinx-build -b html ./docs public/
   artifacts:

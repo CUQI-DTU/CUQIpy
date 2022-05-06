@@ -57,16 +57,16 @@ class SteadyStateLinearFEniCSPDE(FEniCSPDE):
 
     def observe(self,PDE_solution_fun):
         if self.observation_operator == None: 
-            return PDE_solution_fun.vector().get_local()
+            return PDE_solution_fun
         else:
             return self._apply_obs_op(self.PDE_parameter_fun, PDE_solution_fun)
 
     def _apply_obs_op(self, PDE_parameter_fun, PDE_solution_fun,):
         obs = self.observation_operator(PDE_parameter_fun, PDE_solution_fun)
         if isinstance(obs, ufl.algebra.Operator):
-            return dl.project(obs, self.solution_function_space).vector().get_local()
+            return dl.project(obs, self.solution_function_space)
         elif isinstance(obs, dl.function.function.Function):
-            return obs.vector().get_local()
+            return obs
         elif isinstance(obs, (np.ndarray, int, float)):
             return obs
         else:

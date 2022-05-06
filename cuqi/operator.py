@@ -144,6 +144,65 @@ class FirstOrderFiniteDifference(Operator):
             Dt = kron(Dmat, I)
             self._matrix = vstack([Ds, Dt])
         
+class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
+    """
+    Second order finite difference differential operator for 1D and 2D grids. 
+
+    Attributes:
+    -----------
+        num_nodes: int or tuple
+            For a 1D operator, num_nodes is a one dimensional tuple or an integer representing
+            the number of discretization nodes in a 1D grid. For a 2D operator, num_nodes is a
+            two dimensional tuple of integers representing the number of discretization nodes
+            in the 2D grid in the x axis and the y axis, respectively.
+
+        bc_type: str
+            The boundary condition type for the operator. 
+
+        physical_dim: int
+            Either 1 or 2 for 1D and 2D operators, respectively.
+
+        dx : int or float
+            The grid spacing (length between two consecutive nodes). 
+    """
+
+    def _create_diff_matrix(self):
+        if self.physical_dim == 2:
+            assert(self.num_nodes[0] == self.num_nodes[1]), "The case in which self.num_nodes[0] != self.num_nodes[1] is not handled."
+            N = self.num_nodes[0]
+        elif self.physical_dim == 1:
+            N = self.num_nodes[0]
+        else:
+            raise Exception("Cannot define N")
+
+        # finite difference matrix
+        one_vec = np.ones(N)
+        diags = np.vstack([-one_vec, 2*one_vec, -one_vec])
+        if (self.bc_type == 'zero'):
+            locs = [-2, -1, 0]
+            Dmat = spdiags(diags, locs, N+2, N)
+        elif (self.bc_type == 'periodic'):
+            locs = [-2, -1, 0]
+            Dmat = spdiags(diags, locs, N+2, N).tocsr()
+            Dmat[0, -2] = -1
+            Dmat[0:2, -1] = [2, -1]
+            Dmat[-2, 0] = -1
+            Dmat[-1, 0:2] = [2, -1]
+        elif (self.bc_type == 'neumann'):
+            locs = [0, 1, 2]
+            Dmat = spdiags(diags, locs, N-2, N).tocsr()
+        else:
+            raise ValueError(f"Unknown boundary type {self.bc_type}")
+
+        # structure matrix
+        if (self.physical_dim == 1):
+            self._matrix = Dmat/self._dx**2
+
+        elif (self.physical_dim == 2):            
+            I = eye(N, dtype=int)
+            Ds = kron(I, Dmat)
+            Dt = kron(Dmat, I)
+            self._matrix = vstack([Ds, Dt])
 
 
 class PrecisionFiniteDifference(Operator):
@@ -164,6 +223,8 @@ class PrecisionFiniteDifference(Operator):
     def __init__(self, num_nodes , bc_type= 'periodic', order =1):
         if order == 1:
             self._diff_op = FirstOrderFiniteDifference(num_nodes, bc_type=bc_type)
+        elif order == 2:
+            self._diff_op = SecondOrderFiniteDifference(num_nodes, bc_type=bc_type)
         else:
             raise NotImplementedError
         self._create_prec_matrix()

@@ -33,6 +33,13 @@ try:
 except ModuleNotFoundError:
     pass
 
+# cil
+try:
+    from . import cil
+    engines.append("cil")
+except ModuleNotFoundError:
+    pass
+
 #Print extra modules
 
 if len(engines)>0:

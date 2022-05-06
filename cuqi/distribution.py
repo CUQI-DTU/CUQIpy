@@ -3,10 +3,10 @@ import scipy.stats as sps
 from scipy.special import erf, loggamma, gammainc
 from scipy.sparse import diags, eye, identity, issparse, vstack
 from scipy.sparse import linalg as splinalg
-from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq
+from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq, cholesky
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Image2D, _get_identity_geometries
-from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
+from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 from cuqi import config
@@ -381,13 +381,13 @@ class Normal(Distribution):
             return max(np.size(self.mean),np.size(self.std))
 
     def pdf(self, x):
-        return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
+        return np.prod(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))
 
     def logpdf(self, x):
-        return -np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2
+        return np.sum(-np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2)
 
     def cdf(self, x):
-        return 0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2))))
+        return np.prod(0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2)))))
 
     def _sample(self,N=1, rng=None):
 
@@ -574,15 +574,16 @@ class GaussianCov(Distribution): # TODO: super general with precisions
                 s_pinv = np.array([0 if abs(x) <= eps else 1/x for x in s], dtype=float)
                 sqrtprec = np.multiply(u, np.sqrt(s_pinv)) 
                 sqrtprec = sqrtprec@diags(np.sign(np.diag(sqrtprec))) #ensure sign is deterministic (scipy gives non-deterministic result)
+                sqrtprec = sqrtprec.T # We want to have the columns as the eigenvectors
                 rank = len(d)
                 logdet = np.sum(np.log(d))
-                prec = sqrtprec @ sqrtprec.T
+                prec = sqrtprec.T @ sqrtprec
 
         return prec, sqrtprec, logdet, rank     
 
     def logpdf(self, x):
         dev = x - self.mean
-        mahadist = np.sum(np.square(dev @ self.sqrtprec), axis=-1)
+        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=-1)
         return -0.5*(self.rank*np.log(2*np.pi) + self.logdet + mahadist)
 
     def cdf(self, x1):   # TODO
@@ -744,12 +745,15 @@ class GaussianSqrtPrec(Distribution):
         return max(np.size(self.mean),np.shape(self.sqrtprec)[0])
 
     def _sample(self, N):
-        if issparse(self.sqrtprec):        
-            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
-            samples = self.mean[:, None] + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        
+        if N == 1:
+            mean = self.mean
         else:
-            # sample using x = mean + pseudoinverse(sqrtprec)*eps, where eps is N(0,1)
-            samples = self.mean[:, None] + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0]
+            mean = self.mean[:,None]
+
+        samples = mean + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        #samples = mean + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0] #Non-sparse
+        
         return samples
 
     def logpdf(self, x):
@@ -800,26 +804,68 @@ class GaussianSqrtPrec(Distribution):
 
 class GaussianPrec(Distribution):
 
-    def __init__(self,mean,prec,is_symmetric=True,**kwargs):
+    def __init__(self, mean, prec, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self.mean = force_ndarray(mean,flatten=True) #Enforce vector shape
-        self.prec = force_ndarray(prec)
+        self.mean = mean
+        self.prec = prec
 
-    def _sample(self,N=1):
-        # Pre-allocate
-        s = np.zeros((self.dim,N))
-        
-        # Cholesky factor of precision
-        R,low = cho_factor(self.prec)
-        
-        # Sample
-        for i in range(N):
-            s[:,i] = self.mean+cho_solve((R,low),np.random.randn(self.dim))
-        return s
+    @property
+    def mean(self):
+        return self._mean
+    
+    @mean.setter
+    def mean(self, mean):
+        self._mean = force_ndarray(mean,flatten=True)
 
-    def logpdf(self,x):
-        raise NotImplementedError("Logpdf of GaussianPrec is not yet implemented.")
+    @property
+    def prec(self):
+        return self._prec
+
+    @prec.setter
+    def prec(self, prec):
+        self._prec = force_ndarray(prec)
+        # Compute cholesky factorization of precision
+        if (prec is not None) and (not callable(prec)):
+            if issparse(self._prec):
+                self._sqrtprec = sparse_cholesky(self._prec)
+                self._rank = self.dim
+                self._logdet = 2*sum(np.log(self._sqrtprec.diagonal()))
+            else:
+                self._sqrtprec = cholesky(self._prec)
+                self._rank = self.dim
+                self._logdet = 2*sum(np.log(np.diag(self._sqrtprec)))
+
+    def _sample(self, N):
+        
+        if N == 1:
+            mean = self.mean
+        else:
+            mean = self.mean[:,None]
+
+        samples = mean + splinalg.spsolve(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N))
+        #samples = mean + lstsq(self.sqrtprec, np.random.randn(np.shape(self.sqrtprec)[0], N), cond = 1e-14)[0] #Non-sparse
+        
+        return samples
+
+    def logpdf(self, x):
+        dev = x - self.mean
+        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=0)
+        return -0.5*(self._rank*np.log(2*np.pi) - self._logdet + mahadist)
+
+    def gradient(self, val, *args, **kwargs):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in _get_identity_geometries():
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+
+        if not callable(self.mean): # for prior
+            return -self.prec @ (val - self.mean)
+        elif hasattr(self.mean,"gradient"): # for likelihood
+            model = self.mean
+            dev = val - model.forward(*args, **kwargs)
+            return self.prec @ model.gradient(dev)
+        else:
+            warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
     @property
     def dim(self):
@@ -827,7 +873,7 @@ class GaussianPrec(Distribution):
 
     @property
     def sqrtprec(self):
-        return cho_factor(self.prec)[0]
+        return self._sqrtprec
 
     @property
     def sqrtprecTimesMean(self):
@@ -865,14 +911,26 @@ class GMRF(Distribution):
     """
         Parameters
         ----------
+        mean : array_like
+            Mean of the GMRF.
+
+        prec : float
+            Precision of the GMRF.
+
         partition_size : int
             The dimension of the distribution in one physical dimension. 
 
         physical_dim : int
             The physical dimension of what the distribution represents (can take the values 1 or 2).
+
+        bc_type : str
+            The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
+
+        order : int
+            The order of the GMRF. Can be 1 or 2.
     """
         
-    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, is_symmetric=True, **kwargs): 
+    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 
         super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
@@ -887,24 +945,13 @@ class GMRF(Distribution):
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
 
-        self._prec_op = PrecisionFiniteDifference( num_nodes, bc_type= bc_type, order =1) 
+        self._prec_op = PrecisionFiniteDifference(num_nodes, bc_type=bc_type, order=order) 
         self._diff_op = self._prec_op._diff_op      
-            
-        # work-around to compute sparse Cholesky
-        def sparse_cholesky(A):
-            # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
-            LU = splinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
-  
-            # check the matrix A is positive definite
-            if (LU.perm_r == np.arange(self.dim)).all() and (LU.U.diagonal() > 0).all(): 
-                return LU.L @ (diags(LU.U.diagonal()**0.5))
-            else:
-                raise TypeError('The matrix is not positive semi-definite')
-        
+                   
         # compute Cholesky and det
         if (bc_type == 'zero'):    # only for PSD matrices
             self._rank = self.dim
-            self._chol = sparse_cholesky(self._prec_op.get_matrix())
+            self._chol = sparse_cholesky(self._prec_op.get_matrix()).T
             self._logdet = 2*sum(np.log(self._chol.diagonal()))
             # L_cholmod = cholesky(self.L, ordering_method='natural')
             # self.chol = L_cholmod
@@ -912,15 +959,20 @@ class GMRF(Distribution):
             # 
             # np.log(np.linalg.det(self.L.todense()))
         elif (bc_type == 'periodic') or (bc_type == 'neumann'):
+            # Print warning that periodic and Neumann boundary conditions are experimental
+            print("Warning: Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO will not produce fully accurate results.")
+
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
-            self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int))
+            self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int)).T
             if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excesive' time
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
                 # eigval = eigvalsh(self.L.todense())
                 self._L_eigval = splinalg.eigsh(self._prec_op.get_matrix(), self._rank, which='LM', return_eigenvectors=False)
                 self._logdet = sum(np.log(self._L_eigval))
+        else:
+            raise ValueError('bc_type must be "zero", "periodic" or "neumann"')
 
 
     @property 
@@ -932,9 +984,9 @@ class GMRF(Distribution):
         raise ValueError("attribute dom can be either 1 or 2")
 
     def logpdf(self, x):
+        mean = self.mean.flatten()
         const = 0.5*(self._rank*(np.log(self.prec)-np.log(2*np.pi)) + self._logdet)
-        y = const - 0.5*( self.prec*((x-self.mean).T @ (self._prec_op @ (x-self.mean))) )
-        y = np.diag(y)
+        y = const - 0.5*( self.prec*((x-mean).T @ (self._prec_op @ (x-mean))) )
         # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
         return y
 
@@ -948,7 +1000,8 @@ class GMRF(Distribution):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean):
-            return (self.prec*self._prec_op) @ (x-self.mean)
+            mean = self.mean.flatten()
+            return -(self.prec*self._prec_op) @ (x-mean)
 
     def _sample(self, N=1, rng=None):
         if (self._bc_type == 'zero'):
@@ -965,6 +1018,9 @@ class GMRF(Distribution):
             # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
         elif (self._bc_type == 'periodic'):
+            
+            if self._physical_dim == 2:
+                raise NotImplementedError("Sampling not implemented for periodic boundary conditions in 2D")
 
             if rng is not None:
                 xi = rng.standard_normal((self.dim, N)) + 1j*rng.standard_normal((self.dim, N))
@@ -995,7 +1051,7 @@ class GMRF(Distribution):
     
     @property
     def sqrtprec(self):
-        return np.sqrt(self.prec)*self._prec_op._matrix
+        return np.sqrt(self.prec)*self._chol.T
 
     @property
     def sqrtprecTimesMean(self):

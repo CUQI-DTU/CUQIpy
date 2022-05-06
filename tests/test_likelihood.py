@@ -43,12 +43,12 @@ def test_likelihood_attributes():
                         # ------------ Diagonal matrix --------------
                         cuqi.distribution.Gaussian(np.zeros(128), std=np.pi*np.ones(128), corrmat=np.eye(128)),
                         cuqi.distribution.GaussianCov(np.zeros(128), cov=(np.pi**2)*np.eye(128)),
-                        #cuqi.distribution.GaussianPrec(np.zeros(128), prec=np.eye(128)),
+                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/(np.pi**2)*np.eye(128)),
                         cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi*np.eye(128)),
                         # ------------ Sparse diagonal matrix --------------
                         #cuqi.distribution.Gaussian(np.zeros(128), std=np.ones(128), corrmat=sps.eye(128)),
                         cuqi.distribution.GaussianCov(np.zeros(128), cov=(np.pi**2)*sps.eye(128)),
-                        #cuqi.distribution.GaussianPrec(np.zeros(128), prec=np.eye(128)),
+                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/(np.pi**2)*sps.eye(128)),
                         cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi*sps.eye(128)),
                         ])
 def test_likelihood_Gaussian_log_IID(dist):
