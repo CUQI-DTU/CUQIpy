@@ -19,3 +19,4 @@ desktop.ini
 
 # Ignore build docs
 /docs/_build
+/docs/user/auto_tutorials

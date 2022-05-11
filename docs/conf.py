@@ -26,7 +26,15 @@ author = 'CUQI'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.mathjax','sphinx.ext.autodoc','sphinx.ext.napoleon','sphinx_panels','sphinx.ext.todo','sphinx_copybutton']
+extensions = [
+    'sphinx.ext.mathjax',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
+    'sphinx_panels',
+    'sphinx.ext.todo',
+    'sphinx_copybutton',
+    'sphinx_gallery.gen_gallery',
+    ]
 autodoc_member_order = 'bysource'
 todo_include_todos=True
 # Add any paths that contain templates here, relative to this directory.
@@ -62,3 +70,11 @@ html_theme_options = {
 
 def setup(app):
     app.add_css_file('custom.css')
+
+# Sphinx-gallery configuration
+sphinx_gallery_conf = {
+    'filename_pattern': '/*',
+    'examples_dirs': '../tutorials',
+    'gallery_dirs': 'user/auto_tutorials',
+    'run_stale_examples': True,
+}

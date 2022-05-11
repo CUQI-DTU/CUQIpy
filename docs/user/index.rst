@@ -11,6 +11,6 @@ User Guide
 
 
    Getting Started <getting_started>
-   Tutorials <tutorials/index>
+   Tutorials <auto_tutorials/index>
    How-To Guide <howtos/index>
    Background <background/index>
