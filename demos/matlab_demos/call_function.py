@@ -31,7 +31,7 @@ assert np.allclose(Y_scipy, Y_matlab) # Same result is produced by both methods
 
 
 # %% Timing wise the matlab version is actually faster!
-%timeit signal.convolve2d(X, PSF, mode='same')
+%timeit sp.signal.convolve2d(X, PSF, mode='same')
 %timeit matlab_instance("conv2", X, PSF, 'same')
 
 # %% Custom functions are also supported
