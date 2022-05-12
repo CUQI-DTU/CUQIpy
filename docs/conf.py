@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../'))
 # -- Project information -----------------------------------------------------
 
 project = 'cuqipy'
-copyright = '2021, CUQI Project, Technical University of Denmark (DTU)'
+copyright = '2022, CUQI Project, Technical University of Denmark (DTU)'
 author = 'CUQI'
 
 
@@ -34,9 +34,23 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_copybutton',
     'sphinx_gallery.gen_gallery',
+    'sphinx.ext.autosummary',
     ]
-autodoc_member_order = 'bysource'
+
+# Options for extensions
+autodoc_member_order = 'groupwise'
+autodoc_default_flags = ['members']
 todo_include_todos=True
+autosummary_generate = True
+
+# Sphinx-gallery configuration
+sphinx_gallery_conf = {
+    'filename_pattern': '/*',
+    'examples_dirs': '../tutorials',
+    'gallery_dirs': 'user/_auto_tutorials',
+}
+
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -46,7 +60,7 @@ root_doc = 'index'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_templates']
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -66,15 +80,9 @@ html_logo = "../logo.png"
 html_theme_options = {
     'collapse_navigation': False,
     'navigation_depth': 3,
+    "show_prev_next": False
 }
 
 def setup(app):
     app.add_css_file('custom.css')
 
-# Sphinx-gallery configuration
-sphinx_gallery_conf = {
-    'filename_pattern': '/*',
-    'examples_dirs': '../tutorials',
-    'gallery_dirs': 'user/auto_tutorials',
-    'run_stale_examples': True,
-}
