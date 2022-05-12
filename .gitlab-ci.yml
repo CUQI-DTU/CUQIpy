@@ -50,4 +50,5 @@ pages:
     expire_in: never
   only:
   - dev
+  - sprint8_tutorial_howto
 
