@@ -26,9 +26,9 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 **Quick Links**:
 :ref:`Installation <install>` |
-`Tutorials <user/tutorials/index.html>`_ |
-`How Tos <user/howtos/index.html>`_ |
-`Source Repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_ 
+:doc:`Tutorials <user/_auto_tutorials/index>` |
+:doc:`How Tos <user/_auto_howtos/index>` |
+`Source Repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_
 
 
 

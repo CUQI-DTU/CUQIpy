@@ -19,5 +19,6 @@ desktop.ini
 
 # Ignore build docs
 /docs/_build
-/docs/user/_auto_tutorials
-/docs/api/_autosummary
+
+# auto-generated doc files
+_auto*

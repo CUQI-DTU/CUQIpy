@@ -46,8 +46,9 @@ autosummary_generate = True
 # Sphinx-gallery configuration
 sphinx_gallery_conf = {
     'filename_pattern': '/*',
-    'examples_dirs': '../tutorials',
-    'gallery_dirs': 'user/_auto_tutorials',
+    'examples_dirs': ['../demos/tutorials', '../demos/howtos'],
+    'gallery_dirs': ['user/_auto_tutorials', 'user/_auto_howtos'],
+    'download_all_examples': False,
 }
 
 
