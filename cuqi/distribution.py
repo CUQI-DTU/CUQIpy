@@ -78,7 +78,21 @@ class Distribution(ABC):
     mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
 
     """
-    def __init__(self,name=None, geometry=None, is_symmetric=None):
+    def __init__(self, name=None, geometry=None, is_symmetric=None):
+        """ Initialize the core properties of the distribution.
+        
+        Parameters
+        ----------
+        name : str, default None
+            Name of distribution.
+
+        geometry : Geometry, default _DefaultGeometry (or None)
+            Geometry of distribution.
+
+        is_symmetric : bool, default None
+            Indicator if distribution is symmetric.
+                        
+        """
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
