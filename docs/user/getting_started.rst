@@ -156,7 +156,7 @@ Start using CUQIpy
 You are now ready to start using CUQIpy. Please see following resources to continue.
 
 - :doc:`Tutorials <_auto_tutorials/index>`: To learn about the features of CUQIpy.
-- :doc:`How-To guides <_auto_howtos/index>`: To solve specific tasks/problems.
+- :doc:`How-To guides <_auto_howtos/index>`: To solve a specific task/problem using CUQIpy.
 - :doc:`Background <background/index>`: To understand how CUQIpy works.
 - :doc:`API Reference <../api/index>`: To see documentation of the CUQIpy API.
 
