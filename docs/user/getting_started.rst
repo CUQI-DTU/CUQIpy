@@ -132,6 +132,14 @@ then enter the following code
 
 If the import succeeds cuqipy is most likely working correctly.
 
+.. tip:: 
+
+   In VS Code, you can get tab-completion for CUQIpy by adding the following line to your ``.vscode/settings.json`` file of your current project.:
+
+   .. code-block:: json
+
+      "python.analysis.extraPaths": ["/path/to/cuqipy/"]
+
 If the import fails, you can check the error message. 
 Most likely cause of failure is that CUQIpy is not in the interpreter path.
 You can add to the current path of the interpreter using (``sys.path``) as shown below.
@@ -143,17 +151,19 @@ You can add to the current path of the interpreter using (``sys.path``) as shown
 
 This is also useful if you are writing scripts in another directory and want to import CUQIpy as a part of those scripts.
 
-.. tip:: 
+Start using CUQIpy
+------------------
+You are now ready to start using CUQIpy. Please see following resources to continue.
 
-   In VS Code, you can get tab-completion for CUQIpy by adding the following line to your ``.vscode/settings.json`` file of your current project.:
+- :doc:`Tutorials <_auto_tutorials/index>`: To learn about the features of CUQIpy.
+- :doc:`How-To guides <_auto_howtos/index>`: To solve specific tasks/problems.
+- :doc:`Background <background/index>`: Understand how CUQIpy works.
+- :doc:`API Reference <../api/index>`: Documentation of the CUQIpy API.
 
-   .. code-block:: json
+There are also a large number of demos and examples in the ``cuqipy/demos`` directory.
 
-      "python.analysis.extraPaths": ["/path/to/cuqipy/"]
-
-
-Running the Tests
------------------
+Running the Tests*
+------------------
 
 To fully make sure that cuqipy runs as expected on your machine you should run the automatic tests.
 While in the project directory ``cuqipy``, run (requires pytest):
@@ -162,8 +172,8 @@ While in the project directory ``cuqipy``, run (requires pytest):
 
    python -m pytest
 
-Building Documentation
-----------------------
+Building Documentation*
+-----------------------
 
 To generate sphinx html documentation in your local machine, make sure
 you have working installation of sphinx and all the extensions listed 
