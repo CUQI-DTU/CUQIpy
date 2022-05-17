@@ -13,7 +13,7 @@ You can find the full CUQIpy documentation [here](https://cuqi.gitlab.io/cuqipy/
  This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
 
 ## Quick Example - UQ in 5 steps
-A two dimensional deconvolution example
+Image deconvolution with uncertainty quantification
 ```python
 # Imports
 import numpy as np

@@ -111,7 +111,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 Quick Example - UQ in five steps
 --------------------------------
-A two dimensional deconvolution example
+Image deconvolution with uncertainty quantification
 
 .. code-block:: python
 
