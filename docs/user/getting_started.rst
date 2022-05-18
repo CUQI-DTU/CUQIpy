@@ -153,14 +153,9 @@ This is also useful if you are writing scripts in another directory and want to 
 
 Start using CUQIpy
 ------------------
-You are now ready to start using CUQIpy. Please see following resources to continue.
+You are now ready to start using CUQIpy!
 
-- :doc:`Tutorials <_auto_tutorials/index>`: To learn about the features of CUQIpy.
-- :doc:`How-To guides <_auto_howtos/index>`: To solve a specific task/problem using CUQIpy.
-- :doc:`Background <background/index>`: To understand how CUQIpy works.
-- :doc:`API Reference <../api/index>`: To see documentation of the CUQIpy API.
-
-There are also a large number of demos and examples in the ``cuqipy/demos`` directory.
+Follow the resources linked in the :doc:`User Guide <index>` to learn more.
 
 Running the Tests*
 ------------------
