@@ -40,6 +40,13 @@ try:
 except ModuleNotFoundError:
     pass
 
+# matlab
+try:
+    from . import matlab
+    engines.append("matlab")
+except ModuleNotFoundError:
+    pass
+
 #Print extra modules
 
 if len(engines)>0:
