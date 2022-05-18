@@ -2,6 +2,10 @@
 Getting Started
 ===============
 
+.. todo::
+   
+   Provide a brief overview of CUQIpy and its features.
+
 Prerequisites
 -------------
 
