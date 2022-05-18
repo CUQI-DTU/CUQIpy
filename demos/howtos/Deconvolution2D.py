@@ -1,9 +1,8 @@
 """
-1. UQ in five steps!
-==========================
-In this example we show how to quantify the uncertainty of a solution to an
-inverse problem in just 5 steps. The example is based on a 2D deconvolution
-problem.
+2D Deconvolution
+================
+
+In this example we show how to quantify the uncertainty of a solution to a 2D deconvolution problem.
 """
 # %% 
 # First we import the modules needed.

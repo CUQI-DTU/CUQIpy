@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from sphinx_gallery.sorting import FileNameSortKey
 sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
@@ -42,6 +43,10 @@ autodoc_member_order = 'groupwise'
 autodoc_default_flags = ['members']
 todo_include_todos=True
 autosummary_generate = True
+autodoc_typehints = "none"
+
+# Mock modules for optional dependencies
+autodoc_mock_imports = ["dolfin", "ufl", "astra", "cil", "matlab"]
 
 # Sphinx-gallery configuration
 sphinx_gallery_conf = {
@@ -49,6 +54,7 @@ sphinx_gallery_conf = {
     'examples_dirs': ['../demos/tutorials', '../demos/howtos'],
     'gallery_dirs': ['user/_auto_tutorials', 'user/_auto_howtos'],
     'download_all_examples': False,
+    'within_subsection_order': FileNameSortKey,
 }
 
 
