@@ -49,5 +49,4 @@ pages:
       - public
   only:
   - dev
-  - sprint8_tutorial_howto
 

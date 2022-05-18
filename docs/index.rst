@@ -27,7 +27,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 **Quick Links**:
 :ref:`Installation <install>` |
 :doc:`Tutorials <user/_auto_tutorials/index>` |
-:doc:`How Tos <user/_auto_howtos/index>` |
+:doc:`How-To Guides <user/_auto_howtos/index>` |
 `Source Repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_
 
 
@@ -109,7 +109,57 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
         :text:
         :classes: stretched-link btn-link
 
+Quick Example - UQ in five steps
+--------------------------------
+Image deconvolution with uncertainty quantification
 
+.. code-block:: python
+
+   # Imports
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from cuqi.testproblem import Deconvolution2D
+   from cuqi.data import grains
+   from cuqi.distribution import Laplace_diff, GaussianCov 
+   from cuqi.problem import BayesianProblem
+   
+
+   # Step 1: Model and data
+   model, data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
+
+   # Step 2: Prior
+   prior = Laplace_diff(location=np.zeros(model.domain_dim),
+                        scale=0.01,
+                        bc_type='neumann',
+                        physical_dim=2)
+
+   # Step 3: Likelihood
+   likelihood = GaussianCov(mean=model, cov=0.0036**2).to_likelihood(data)
+
+   # Step 4: Posterior samples
+   samples = BayesianProblem(likelihood, prior).sample_posterior(200)
+
+   # Step 5: Analysis
+   info.exactSolution.plot(); plt.title("Exact solution")
+   data.plot(); plt.title("Data")
+   samples.plot_mean(); plt.title("Posterior mean")
+   samples.plot_std(); plt.title("Posterior standard deviation")
+
+.. image:: _static/img/deconv2D_exact_sol.png
+   :width: 49.5%
+   :alt: Exact solution
+
+.. image:: _static/img/deconv2D_data.png
+   :width: 49.5%
+   :alt: Data
+
+.. image:: _static/img/deconv2D_post_mean.png
+   :width: 49.5%
+   :alt: Posterior mean
+
+.. image:: _static/img/deconv2D_post_std.png
+   :width: 49.5%
+   :alt: Posterior standard deviation
 
 Contributors
 ------------

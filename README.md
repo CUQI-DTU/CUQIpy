@@ -12,18 +12,19 @@ You can find the full CUQIpy documentation [here](https://cuqi.gitlab.io/cuqipy/
 
  This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
 
-## Quick Example - UQ in 5 lines
-A two dimensional deconvolution example
+## Quick Example - UQ in 5 steps
+Image deconvolution with uncertainty quantification
 ```python
 # Imports
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution2D
+from cuqi.data import grains
 from cuqi.distribution import Laplace_diff, GaussianCov 
 from cuqi.problem import BayesianProblem
 
 # Step 1: Model and data
-model, data, probInfo = Deconvolution2D.get_components(dim=128, phantom=cuqi.data.grains())
+model, data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
 
 # Step 2: Prior
 prior = Laplace_diff(location=np.zeros(model.domain_dim),
@@ -38,7 +39,7 @@ likelihood = GaussianCov(mean=model, cov=0.0036**2).to_likelihood(data)
 samples = BayesianProblem(likelihood, prior).sample_posterior(200)
 
 # Step 5: Analysis
-probInfo.exactSolution.plot(); plt.title("Exact solution")
+info.exactSolution.plot(); plt.title("Exact solution")
 data.plot(); plt.title("Data")
 samples.plot_mean(); plt.title("Posterior mean")
 samples.plot_std(); plt.title("Posterior standard deviation")
