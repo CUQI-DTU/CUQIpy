@@ -42,6 +42,10 @@ autodoc_member_order = 'groupwise'
 autodoc_default_flags = ['members']
 todo_include_todos=True
 autosummary_generate = True
+autodoc_typehints = "none"
+
+# Mock modules for optional dependencies
+autodoc_mock_imports = ["dolfin", "ufl", "astra", "cil", "matlab"]
 
 # Sphinx-gallery configuration
 sphinx_gallery_conf = {
