@@ -12,6 +12,7 @@
 #
 import os
 import sys
+from sphinx_gallery.sorting import FileNameSortKey
 sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
@@ -53,6 +54,7 @@ sphinx_gallery_conf = {
     'examples_dirs': ['../demos/tutorials', '../demos/howtos'],
     'gallery_dirs': ['user/_auto_tutorials', 'user/_auto_howtos'],
     'download_all_examples': False,
+    'within_subsection_order': FileNameSortKey,
 }
 
 
