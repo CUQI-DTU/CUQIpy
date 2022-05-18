@@ -87,13 +87,16 @@ Step-by-step instructions
    After pushing your changes to the repository, it is time to submit a merge request.
 
    .. tip::
-      A merge request is a request to *merge* your code into the main code-base.
+      A merge request is a request to *merge* your code into the main code-base. After pushing your changes they still live in a separate branch and need to be reviewed before they are merged into the main code-base.
 
-   You can submit a merge request by logging into the `Source repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_.
+   The easiest way to submit a merge request is to use the link provided by git after you have pushed your changes. The message looks like this
 
-   If you have just pushed some changes, a button should appear in the top right corner of the page. Click it.
+   .. code-block:: verbatim
 
-   Alternatively navigate to the merge requests tab and create a merge request from the interface.
+      remote: To create a merge request for 'my-changes', visit:
+      remote:   https://lab.compute.dtu.dk/cuqi/cuqipy/merge_requests/new?merge_request[source_branch]=my-changes
+     
+   Alternatively you can submit a merge request by logging into the `Source repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_. If you have just pushed some changes, a button should appear in the top right corner of the page. Click it. You can also navigate to the merge requests tab and create a merge request from the interface.
 
 8. Add reviewer to the merge request.
 
