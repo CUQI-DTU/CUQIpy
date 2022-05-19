@@ -922,26 +922,29 @@ class Gaussian(GaussianCov):
 
 # ========================================================================
 class GMRF(Distribution):
-    """
-        Parameters
-        ----------
-        mean : array_like
-            Mean of the GMRF.
+    """ Gaussian Markov random field.
+    
+    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
+    
+    Parameters
+    ----------
+    mean : array_like
+        Mean of the GMRF. 
+        
+    prec : float
+        Precision of the GMRF.
 
-        prec : float
-            Precision of the GMRF.
+    partition_size : int
+        The dimension of the distribution in one physical dimension. 
 
-        partition_size : int
-            The dimension of the distribution in one physical dimension. 
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
 
-        physical_dim : int
-            The physical dimension of what the distribution represents (can take the values 1 or 2).
+    bc_type : str
+        The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
 
-        bc_type : str
-            The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
-
-        order : int
-            The order of the GMRF. Can be 1 or 2.
+    order : int
+        The order of the GMRF. Can be 1 or 2.
     """
         
     def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 
