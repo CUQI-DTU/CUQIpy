@@ -525,8 +525,9 @@ class Samples(object):
         Numpy array with effective sample size for each variable.
         """
         ESS_xarray = arviz.ess(self.to_arviz_inferencedata(), **kwargs)
-        ESS = np.empty(self.geometry.shape)
-        for i, (key, value) in enumerate(ESS_xarray.items()):
+        ESS_items = ESS_xarray.items()
+        ESS = np.empty(len(ESS_items))
+        for i, (key, value) in enumerate(ESS_items):
             ESS[i] = value.to_numpy()
         return ESS
 
