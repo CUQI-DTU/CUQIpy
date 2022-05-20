@@ -602,7 +602,8 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     def gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in _get_identity_geometries():
+        if not type(self.geometry) in _get_identity_geometries() and \
+           not hasattr(self.geometry, 'gradient'):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
@@ -1275,7 +1276,8 @@ class Posterior(Distribution):
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in _get_identity_geometries():
+        if not type(self.geometry) in _get_identity_geometries() and\
+           not hasattr(self.geometry, 'gradient'):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
             
         return self.likelihood.gradient(x)+ self.prior.gradient(x)        
