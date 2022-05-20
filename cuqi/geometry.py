@@ -23,7 +23,7 @@ class Geometry(ABC):
     @property
     def dim(self):
         if self.shape is None: return None
-        return np.prod(self.shape)
+        return math.prod(self.shape)
 
     @property
     def variables(self):
