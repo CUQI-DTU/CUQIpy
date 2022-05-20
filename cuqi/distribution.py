@@ -884,7 +884,7 @@ class GaussianPrec(Distribution):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
-            return -self.prec @ (val - self.mean)
+            return -( self.prec @ (val - self.mean) )
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
