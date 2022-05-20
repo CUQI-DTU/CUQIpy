@@ -616,7 +616,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             dev = val - model.forward(*args, **kwargs)
             if isinstance(dev, numbers.Number):
                 dev = np.array([dev])
-            return (self.prec @ dev) @ model.gradient(*args, **kwargs).reshape((1, model.domain_dim))
+            return model.gradient(self.prec @ dev, *args, **kwargs)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 

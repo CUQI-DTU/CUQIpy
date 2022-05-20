@@ -3,7 +3,11 @@
 # Felipe Uribe @ DTU
 # =================================================================
 # Version 2022
-# =================================================================
+# %%=================================================================
+
+%load_ext autoreload
+%autoreload 2
+
 import sys
 sys.path.append("..") 
 import numpy as np
@@ -13,14 +17,16 @@ import scipy.stats as sps
 import cuqi
 import matplotlib.pyplot as plt
 
+
 # =================================================================
 tp = cuqi.testproblem.WangCubic()
 forward = tp.model.forward
+gradient = tp.model.gradient
 y_data = tp.data
 
 # Bayes
 pi_pr = tp.prior.pdf
-logpi_like = tp.likelihood.log
+loglike = tp.likelihood.log
 pi_pos = tp.posterior.pdf
 
 # =================================================================
@@ -47,26 +53,33 @@ fig.gca().set_aspect("equal")
 plt.tight_layout()
 plt.show()
 
-# ADD TEST: likelihood gradient checks
+# %%ADD TEST: likelihood gradient checks
+
+m = 1 # number of data points
+y_data = 1 # measured data
+sigma_obs = 1
+prec_obs = 1
+x0 = np.random.randn(2)
+
+# %%
+tp.likelihood.gradient(x0)
+
+# %%
+def logpi_like(x, grad=False):
+    forward_eval = forward(x)
+    misfit = y_data - forward_eval
+    if grad:
+        direction = np.array([prec_obs * misfit])
+        grad_eval = gradient(direction=direction, wrt=x)
+        return -0.5*(prec_obs * misfit**2 + np.log(2*np.pi) + np.log(sigma_obs)), grad_eval
+    else:
+        return -0.5*(prec_obs * misfit**2 + np.log(2*np.pi) + np.log(sigma_obs))#sps.norm.logpdf(y_data, forward_eval, sigma_obs)
+
+
+eval1, gradeval1 = logpi_like(x0, True)
 #
-# m = 1 # number of data points
-# y_data = 1 # measured data
-# sigma_obs = 1
-# prec_obs = 1
-# def logpi_like(x, grad=False):
-#     forward_eval = forward(x)
-#     misfit = y_data - forward_eval
-#     if grad:
-#         grad_eval = gradient(x)
-#         return -0.5*(prec_obs * misfit**2 + np.log(2*np.pi) + np.log(sigma_obs)), prec_obs * misfit * grad_eval
-#     else:
-#         return -0.5*(prec_obs * misfit**2 + np.log(2*np.pi) + np.log(sigma_obs))#sps.norm.logpdf(y_data, forward_eval, sigma_obs)
+eval2 = loglike(x0)
+gradeval2 = tp.likelihood.gradient(x0)
 #
-# x0 = np.random.randn(2)
-# eval1, gradeval1 = logpi_like(x0, True)
-# #
-# eval2 = loglike(x0)
-# gradeval2 = tp.likelihood.gradient(x0)
-# #
-# loglike = lambda x: logpi_like(x)
-# gradevalu3 = sp.optimize.approx_fprime(x0, loglike, 1e-5)
+loglike = lambda x: logpi_like(x)
+gradevalu3 = sp.optimize.approx_fprime(x0, loglike, 1e-5)
