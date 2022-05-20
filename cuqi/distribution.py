@@ -880,7 +880,9 @@ class GaussianPrec(Distribution):
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
-            return self.prec @ model.gradient(dev)
+            if isinstance(dev, numbers.Number):
+                dev = np.array([dev])
+            return model.gradient(self.prec @ dev, *args, **kwargs)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
