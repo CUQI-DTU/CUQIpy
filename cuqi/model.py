@@ -35,14 +35,19 @@ class Model(object):
     :meth:`range_dim` the dimension of the range.
     :meth:`domain_dim` the dimension of the domain.
     """
-    def __init__(self, forward, range_geometry, domain_geometry):
+    def __init__(self, forward, range_geometry, domain_geometry, gradient=None):
 
         #Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function of some kind")
-            
+        
+        #Check if input is callable
+        if (gradient is not None) and (callable(gradient) is not True):
+            raise TypeError("Gradient needs to be callable function of some kind")
+ 
         #Store forward func
         self._forward_func = forward
+        self._gradient_func = gradient
          
         #Store range_geometry
         if isinstance(range_geometry, int):
@@ -118,9 +123,11 @@ class Model(object):
     def __call__(self,x):
         return self.forward(x)
 
-    def gradient(self,x):
-        raise NotImplementedError("Gradient is not implemented for this model.")
-    
+    def gradient(self, x):
+        if self._gradient_func is None:
+            raise NotImplementedError("Gradient is not implemented for this model.")
+        return self._gradient_func(x)
+
     # approximate the Jacobian matrix of callable function func
     def approx_jacobian(self, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
         # x       - The state vector
