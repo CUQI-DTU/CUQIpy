@@ -1186,3 +1186,54 @@ def _DefocusPSF(dim, R):
     PSF = PSF / PSF.sum()
 
     return PSF, center.astype(int)
+
+
+#=============================================================================
+class WangCubic(BayesianProblem):
+    """ Two parameters and one observation cubic test problem.
+    
+    Parameters
+    ------------
+    noise_std : scalar
+        Standard deviation of the noise
+
+    prior : cuqi.distribution.Distribution
+        Distribution of the prior
+    
+    data : scalar
+        Observed data
+    
+    Notes
+    -----
+    Based on Section 3.3.2 in Wang (2015):
+    Z. Wang, "An Optimization Based Algorithm for Bayesian Inference". Master thesis. MIT. 2015  
+    https://dspace.mit.edu/bitstream/handle/1721.1/98815/921147308-MIT.pdf?sequence=1&isAllowed=y
+
+    """
+    def __init__(self, noise_std=1, prior=None, data=None):
+        # forward model and gradient
+        def forward(x):
+            return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
+        def gradient(x):
+            return np.hstack([-30*x[0]**2 + 10*x[0] + 6, 10])
+        model = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, gradient=gradient)
+
+        # define prior
+        if prior is None:
+            prior = cuqi.distribution.Gaussian(np.array([1, 0]), 1)
+
+        # data
+        if data is None:
+            data = 1
+
+        # data distribution is Gaussian
+        data_dist = cuqi.distribution.Gaussian(model, noise_std)
+
+        # Define Gaussian likelihood
+        likelihood = data_dist.to_likelihood(data)
+        super().__init__(likelihood, prior)
+
+        # Store exact values
+        self.exactSolution = None
+        self.exactData = None
+        self.infoString = "Noise type: Additive {} with std: {}".format('Gaussian', noise_std)
