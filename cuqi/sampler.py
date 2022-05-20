@@ -165,7 +165,7 @@ class ProposalBasedSampler(Sampler,ABC):
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
-class NUTS(Sampler):
+class NUTS():
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
     Samples a distribution given its logpdf and gradient using a Hamiltonian Monte Carlo (HMC) algorithm with automatic parameter tuning.
@@ -213,201 +213,199 @@ class NUTS(Sampler):
         samples = sampler.sample(2000)
 
     """
-    def __init__(self, target, x0=None, dim=None, maxdepth=20, **kwargs):
-        super().__init__(target, x0=x0, dim=dim, **kwargs)
+    def __init__(self, target, x0=None, dim=None, adapt=True, maxdepth=15, **kwargs):
+        # super().__init__(target, x0=x0, dim=dim, **kwargs)
         self.maxdepth = maxdepth
+        self.target = target
+        self.x0 = x0
+        self.dim = len(x0)
+        self.adapt = adapt
 
-
-    def potential(self,x):
-        """Potential of likelihood+prior. Also returns the gradient"""
-        logpdf = -self.target.logpdf(x)
-        grad = -self.target.gradient(x)
-        return logpdf, grad
-
-    def _sample_adapt(self, N, Nb):
-        return self._sample(N,Nb)
-
-    def _sample(self, N, Nb):
-
+    def sample(self, N, Nb):
         # Allocation
-        Ns = Nb+N               # total number of chains
+        Ns = Nb+N     # total number of chains
         theta = np.empty((self.dim, Ns))
-        pot_eval = np.empty(Ns)
+        joint_eval = np.empty(Ns)
+        step_sizes = np.empty(Ns)
 
         # Initial state
         theta[:, 0] = self.x0
-        pot_eval[0], grad_pot = self.potential(self.x0)
-        
-        # Init parameters with dual averaging
-        epsilon = self._FindGoodEpsilon(theta[:, 0], pot_eval[0], grad_pot)
-        mu = np.log(10*epsilon)
-        gamma, t_0, kappa = 0.05, 10, 0.75
-        epsilon_bar, H_bar = 1, 0
-        delta = 0.65  # per stan: https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+        joint_eval[0], grad = self.target(self.x0)
+
+        # parameters dual averaging
+        if (self.adapt == True):
+            epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
+            mu = np.log(10*epsilon)
+            gamma, t_0, kappa = 0.05, 10, 0.75     # kappa in (0.5, 1]
+            epsilon_bar, H_bar = 1, 0
+            delta = 0.6  # per stan 0.8: https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+            #
+            step_sizes[0] = epsilon
+            print('\nInitial epsilon:', epsilon)
+        else:
+            epsilon = self.adapt # user specifies the step size
+
+        # optimal accrate: stan suggest 0.8, the paper 0.6
+        # see https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+        delta = 0.65
 
         # run NUTS
-        for k in range(1, Ns):        
-            q_k = theta[:, k-1]                            # initial position (parameters)
-            p_k = self._Kfun(1, 'sample')                  # resample momentum vector
-            H = -pot_eval[k-1] - self._Kfun(p_k, 'eval')   # Hamiltonian
+        for k in range(1, Ns):
+            theta_k, joint_k = theta[:, k-1], joint_eval[k-1]     # initial position (parameters)
+            r_k = self._Kfun(1, 'sample')     # resample momentum vector
+            Ham = joint_k - self._Kfun(r_k, 'eval')     # Hamiltonian
 
             # slice variable
-            log_u = H - np.random.exponential(1)
-            # u = np.random.uniform(0, np.exp(H))
+            log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
 
-            # if NUTS does not move, the next sample will be the previous one
-            theta[:, k] = q_k
-            pot_eval[k] = pot_eval[k-1]
+            # initialization
+            j, s, n = 0, 1, 1
+            theta[:, k], joint_eval[k] = theta_k, joint_k
+            theta_minus, theta_plus = np.copy(theta_k), np.copy(theta_k)
+            grad_minus, grad_plus = np.copy(grad), np.copy(grad)
+            r_minus, r_plus = np.copy(r_k), np.copy(r_k)
 
             # run NUTS
-            j, s, n = 0, 1, 1
-            q_minus, q_plus = np.copy(q_k), np.copy(q_k)
-            p_minus, p_plus = np.copy(p_k), np.copy(p_k)
-            grad_pot_minus, grad_pot_plus = np.copy(grad_pot), np.copy(grad_pot)
             while (s == 1) and (j <= self.maxdepth):
                 # sample a direction
                 v = int(2*(np.random.rand() < 0.5)-1)
 
                 # build tree: doubling procedure
                 if (v == -1):
-                    q_minus, p_minus, grad_pot_minus, _, _, _, q_p, pot_p, grad_pot_p, n_p, s_p, alpha, n_alpha = \
-                        self._BuildTree(q_minus, p_minus, grad_pot_minus, H, log_u, v, j, epsilon)
+                    theta_minus, r_minus, grad_minus, _, _, _, \
+                    theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
+                        self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j, epsilon)
                 else:
-                    _, _, _, q_plus, p_plus, grad_pot_plus, q_p, pot_p, grad_pot_p, n_p, s_p, alpha, n_alpha = \
-                        self._BuildTree(q_plus, p_plus, grad_pot_plus, H, log_u, v, j, epsilon)
+                    _, _, _, theta_plus, r_plus, grad_plus, \
+                    theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
+                        self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j, epsilon)
 
                 # Metropolis step
-                alpha = min(1,n_p/n) #min(0, np.log(n_p) - np.log(n)) TODO...
-                if (s_p == 1) and ((np.random.rand()) <= alpha) and (np.isnan(pot_p) == False): #TODO. Removed np.log
-                    theta[:, k] = q_p
-                    pot_eval[k] = pot_p
-                    grad_pot = np.copy(grad_pot_p)
+                alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
+                if (s_prime == 1) and (np.random.rand() <= alpha2):
+                    theta[:, k] = theta_prime
+                    joint_eval[k] = joint_prime
+                    grad = np.copy(grad_prime)
 
                 # update number of particles, tree level, and stopping criterion
-                n += n_p
+                n += n_prime
+                dtheta = theta_plus - theta_minus
+                s = s_prime * int((dtheta @ r_minus.T) >= 0) * int((dtheta @ r_plus.T) >= 0)
                 j += 1
-                s = s_p*int(((q_plus-q_minus)@p_minus)>=0)*int(((q_plus-q_minus)@p_plus)>=0)
 
             # adapt epsilon during burn-in using dual averaging
-            if (k < Nb):
+            if (k <= Nb) and (self.adapt == True):
                 eta1 = 1/(k + t_0)
                 H_bar = (1-eta1)*H_bar + eta1*(delta - (alpha/n_alpha))
-                #
                 epsilon = np.exp(mu - (np.sqrt(k)/gamma)*H_bar)
-                # print('\n', k, '\t', epsilon)
                 eta = k**(-kappa)
-                epsilon_bar = np.exp((1-eta)*np.log(epsilon_bar) + eta*np.log(epsilon))
-            elif (k == Nb):
+                epsilon_bar = np.exp(eta*np.log(epsilon) + (1-eta)*np.log(epsilon_bar))
+            elif (k == Nb+1) and (self.adapt == True):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
-                
-            self._print_progress(k+1,Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
-            self._call_callback(theta[:, k], k)
-
+                print('\nFinal epsilon:', epsilon)
+            step_sizes[k] = epsilon
+            
             # msg
-            if (np.mod(k, 25) == 0):
-                if np.isnan(pot_eval[k]):
-                    raise NameError('NaN potential func')
+            # self._print_progress(k+1, Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
+            # self._call_callback(theta[:, k], k)
+            if np.isnan(joint_eval[k]):
+                raise NameError('NaN potential func')
 
         # apply burn-in 
         theta = theta[:, Nb:]
-        pot_eval = pot_eval[Nb:]
+        joint_eval = joint_eval[Nb:]
+        return theta, joint_eval, step_sizes
 
-        return theta, pot_eval, epsilon
-
+    #=========================================================================
     # auxiliary standard Gaussian PDF: kinetic energy function
     # d_log_2pi = d*np.log(2*np.pi)
-    def _Kfun(self,p, flag):
+    def _Kfun(self, r, flag):
         if flag == 'eval': # evaluate
-            return 0.5*( (p.T @ p) ) #+ d_log_2pi 
+            return 0.5*(r.T @ r) #+ d_log_2pi 
         if flag == 'sample': # sample
-            return np.random.normal(size=self.dim)
+            return np.random.standard_normal(size=self.dim)
 
-    def _FindGoodEpsilon(self,theta, pot, grad_pot):
-        epsilon = 1
-        r = self._Kfun(1, 'sample')
-        H = -pot - self._Kfun(r, 'eval')
-        _, r_p, pot_p, grad_pot_p = self._Leapfrog(theta, r, grad_pot, epsilon)
+    #=========================================================================
+    def _FindGoodEpsilon(self, theta, joint, grad, epsilon=1):
+        r = self._Kfun(1, 'sample')    # resample a momentum
+        Ham = joint - self._Kfun(r, 'eval')     # initial Hamiltonian
+        _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon)
 
-        # additional step to correct in case of inf values
+        # trick to make sure the step is not huge, leading to infinite values of the likelihood
         k = 1
-        while np.isinf(pot_p) or np.isinf(grad_pot_p).any():
+        while np.isinf(joint_prime) or np.isinf(grad_prime).any():
             k *= 0.5
-            _, r_p, pot_p, _ = self._Leapfrog(theta, r, grad_pot, epsilon*k)
+            _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon*k)
         epsilon = 0.5*k*epsilon
 
         # doubles/halves the value of epsilon until the accprob of the Langevin proposal crosses 0.5
-        H_p = -pot_p - self._Kfun(r_p, 'eval')
-        log_ratio = H_p - H
+        Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
+        log_ratio = Ham_prime - Ham
         a = 1 if log_ratio > np.log(0.5) else -1
         while (a*log_ratio > -a*np.log(2)):
             epsilon = (2**a)*epsilon
-            _, r_p, pot_p, _ = self._Leapfrog(theta, r, grad_pot, epsilon)
-            H_p = -pot_p - self._Kfun(r_p, 'eval')
-            log_ratio = H_p - H
-
+            _, r_prime, joint_prime, _ = self._Leapfrog(theta, r, grad, epsilon)
+            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
+            log_ratio = Ham_prime - Ham
         return epsilon
 
     #=========================================================================
-    def _Leapfrog(self,theta_old, r_old, grad_pot_old, epsilon):
+    def _Leapfrog(self, theta_old, r_old, grad_old, epsilon):
         # symplectic integrator: trajectories preserve phase space volumen
-        r_new = r_old - (epsilon/2)*grad_pot_old       # half-step
-        theta_new = theta_old + epsilon*r_new          # full-step
-        pot_new, grad_pot_new = self.potential(theta_new)   # new gradient
-        r_new -= (epsilon/2)*grad_pot_new              # half-step
-
-        return theta_new, r_new, pot_new, grad_pot_new
-
+        r_new = r_old + 0.5*epsilon*grad_old     # half-step
+        theta_new = theta_old + epsilon*r_new     # full-step
+        joint_new, grad_new = self.target(theta_new)     # new gradient
+        r_new += 0.5*epsilon*grad_new     # half-step
+        return theta_new, r_new, joint_new, grad_new
 
     #=========================================================================
     # @functools.lru_cache(maxsize=128)
-    def _BuildTree(self, theta, r, grad_pot, H, log_u, v, j, epsilon, Delta_max=1000):
-        if (j == 0): 
+    def _BuildTree(self, theta, r, grad, Ham, log_u, v, j, epsilon, Delta_max=1000):
+        if (j == 0):     # base case
             # single leapfrog step in the direction v
-            theta_p, r_p, pot_p, grad_pot_p = self._Leapfrog(theta, r, grad_pot, v*epsilon)
+            theta_prime, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, v*epsilon)
+            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')     # Hamiltonian eval
+            n_prime = int(log_u <= Ham_prime)     # if particle is in the slice
+            s_prime = int(log_u < Delta_max + Ham_prime)     # check U-turn
             #
-            H_p = -pot_p - self._Kfun(r_p, 'eval')     # Hamiltonian eval
-            n_p = int(log_u <= H_p)              # if particle is in the slice
-            s_p = int((log_u-Delta_max) < H_p)   # check U-turn
-
-            #TODO: Quick fix to avoid overflow
-            diff_H = H_p-H
-            if diff_H>100:
-                alpha_p = 1
-            else:
-                alpha_p = min(1, np.exp(diff_H))    # logalpha_p = min(0, H_p - H)
-
-            return theta_p, r_p, grad_pot_p, theta_p, r_p, grad_pot_p, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, 1
-            
+            diff_Ham = Ham_prime - Ham
+            alpha_prime = min(1, np.exp(diff_Ham))     # logalpha_p = min(0, H_p - H)
+            n_alpha_prime = 1
+            #
+            theta_minus, theta_plus = theta_prime, theta_prime
+            r_minus, r_plus = r_prime, r_prime
+            grad_minus, grad_plus = grad_prime, grad_prime
         else: 
             # recursion: build the left/right subtrees
-            theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, \
-            theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p = \
-                self._BuildTree(theta, r, grad_pot, H, log_u, v, j-1, epsilon)
-            if (s_p == 1): # do only if the stopping criteria does not verify at the first subtree
+            theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
+            theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime = \
+                self._BuildTree(theta, r, grad, Ham, log_u, v, j-1, epsilon)
+            if (s_prime == 1): # do only if the stopping criteria does not verify at the first subtree
                 if (v == -1):
-                    theta_minus, r_minus, grad_pot_minus, _, _, _, \
-                    theta_pp, pot_pp, grad_pot_pp, n_pp, s_pp, alpha_pp, n_alpha_pp = \
-                        self._BuildTree(theta_minus, r_minus, grad_pot_minus, H, log_u, v, j-1, epsilon)
+                    theta_minus, r_minus, grad_minus, _, _, _, \
+                    theta_2prime, joint_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
+                        self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j-1, epsilon)
                 else:
-                    _, _, _, theta_plus, r_plus, grad_pot_plus, \
-                    theta_pp, pot_pp, grad_pot_pp, n_pp, s_pp, alpha_pp, n_alpha_pp = \
-                        self._BuildTree(theta_plus, r_plus, grad_pot_plus, H, log_u, v, j-1, epsilon)
+                    _, _, _, theta_plus, r_plus, grad_plus, \
+                    theta_2prime, joint_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
+                        self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j-1, epsilon)
 
                 # Metropolis step
-                #TODO: Check this update. Use log instead?
-                alpha2 = n_pp/max(1, n_p+n_pp) #np.log(n_pp) - np.log(n_p+n_pp)
-                if ((np.random.rand()) <= alpha2):
-                    theta_p = np.copy(theta_pp)
-                    pot_p = np.copy(pot_pp)
-                    grad_pot_p = np.copy(grad_pot_pp)
+                alpha2 = n_2prime / max(1, (n_prime + n_2prime))
+                if (np.random.rand() <= alpha2):
+                    theta_prime = np.copy(theta_2prime)
+                    joint_prime = np.copy(joint_2prime)
+                    grad_prime = np.copy(grad_2prime)
 
                 # update number of particles and stopping criterion
-                alpha_p += alpha_pp
-                n_alpha_p += n_alpha_pp
-                n_p += n_pp   
-                s_p = s_pp*(((theta_plus-theta_minus)@r_minus)>=0)*(((theta_plus-theta_minus)@r_plus)>=0)
+                alpha_prime += alpha_2prime
+                n_alpha_prime += n_alpha_2prime
+                dtheta = theta_plus - theta_minus
+                s_prime = s_2prime * int((dtheta@r_minus.T)>=0) * int((dtheta@r_plus.T)>=0)
+                n_prime += n_2prime
+        return theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
+                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
 
-            return theta_minus, r_minus, grad_pot_minus, theta_plus, r_plus, grad_pot_plus, theta_p, pot_p, grad_pot_p, n_p, s_p, alpha_p, n_alpha_p
 
 
 class Linear_RTO(Sampler):
@@ -1280,12 +1278,12 @@ class ULA(Sampler):
         target_eval = np.empty(Ns)
         g_target_eval = np.empty((self.dim, Ns))
         acc = np.zeros(Ns)
-    
+
         # initial state
         samples[:, 0] = self.x0
         target_eval[0], g_target_eval[:,0] = self.target.logpdf(self.x0), self.target.gradient(self.x0)
         acc[0] = 1
-    
+
         # ULA
         for s in range(Ns-1):
             samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], acc[s+1] = \
@@ -1299,20 +1297,16 @@ class ULA(Sampler):
         acc = acc[Nb:]
         return samples, target_eval, np.mean(acc)
 
-
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
-
         # approximate Langevin diffusion
-        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim),
-            std=np.sqrt(self.scale)).sample(rng=self.rng)
-     
-        x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
+        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        x_star = x_t + 0.5*self.scale*g_target_eval_t + xi
         logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
 
         # msg
         if np.isnan(logpi_eval_star):
             raise NameError('NaN potential func. Consider using smaller scale parameter')
-        
+
         return x_star, logpi_eval_star, g_logpi_star, 1 # sample always accepted without Metropolis correction
 
 
@@ -1380,14 +1374,10 @@ class MALA(ULA):
         super().__init__(target, scale, x0=x0, dim=dim, rng=rng, **kwargs)
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
-
         # approximate Langevin diffusion
-        w_i = cuqi.distribution.Normal(mean=np.zeros(self.dim),
-            std=np.sqrt(self.scale)).sample(rng=self.rng)
-
-        x_star = x_t + (self.scale/2)*g_target_eval_t + w_i
-        logpi_eval_star, g_logpi_star = self.target.logpdf(
-            x_star), self.target.gradient(x_star)
+        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        x_star = x_t + (self.scale/2)*g_target_eval_t + xi
+        logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
 
         # Metropolis step
         log_target_ratio = logpi_eval_star - target_eval_t
