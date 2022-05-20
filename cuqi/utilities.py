@@ -22,6 +22,11 @@ def force_ndarray(value,flatten=False):
 
 def get_non_default_args(func):
     """ Returns the non-default arguments and kwargs from a callable function"""
+    # If the function has variable _non_default_args, use that for speed.
+    if hasattr(func, '_non_default_args'):
+        return func._non_default_args
+
+    # Otherwise, get the arguments from the function signature.
     sig = inspect.signature(func)
     para = sig.parameters
 
