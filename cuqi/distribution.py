@@ -233,6 +233,11 @@ class Distribution(ABC):
 
     def get_mutable_variables(self):
         """Return any public variable that is mutable (attribute or property) except those in the ignore_vars list"""
+
+        # If mutable variables are already cached, return them
+        if hasattr(self, '_mutable_vars'):
+            return self._mutable_vars
+        
         # Define list of ignored attributes and properties
         ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
         
@@ -242,7 +247,10 @@ class Distribution(ABC):
         # Get "public" properties (getter+setter)
         properties = get_writeable_properties(self)
 
-        return [var for var in (attributes+properties) if var not in ignore_vars]
+        # Cache the mutable variables
+        self._mutable_vars = [var for var in (attributes+properties) if var not in ignore_vars]
+
+        return self._mutable_vars
 
     @property
     def is_cond(self):
@@ -610,7 +618,7 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
-            return -self.prec @ (val - self.mean)
+            return -( self.prec @ (val - self.mean) )
         elif hasattr(self.mean, "gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
