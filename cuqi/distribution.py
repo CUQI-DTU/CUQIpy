@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
 import warnings
+import numbers
 
 
 # ========== Abstract distribution class ===========
@@ -610,10 +611,12 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
         if not callable(self.mean): # for prior
             return -self.prec @ (val - self.mean)
-        elif hasattr(self.mean,"gradient"): # for likelihood
+        elif hasattr(self.mean, "gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
-            return self.prec @ model.gradient(dev)
+            if isinstance(dev, numbers.Number):
+                dev = np.array([dev])
+            return (self.prec @ dev) @ model.gradient(*args, **kwargs).reshape((1, model.domain_dim))
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
