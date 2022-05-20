@@ -21,8 +21,6 @@ y_data = tp.data
 # Bayes
 pi_pr = tp.prior.pdf
 pi_pos = tp.posterior.pdf
-def logpi_pos(x):
-    return tp.posterior.logpdf(x), tp.posterior.gradient(x)
 
 # =================================================================
 # sample
@@ -31,10 +29,10 @@ np.random.seed(1)
 x0 = np.ones(tp.model.domain_dim)
 Ns = int(1e4)
 Nb = int(0.5*Ns)
-MCMC = cuqi.sampler.NUTS(logpi_pos, x0, maxdepth = 12)
-samples = MCMC.sample(Ns, Nb)
-x_chain = samples[0].T
-steps = samples[2]
+MCMC = cuqi.sampler.NUTS(tp.posterior, x0, maxdepth = 12)
+solution = MCMC.sample(Ns, Nb)
+x_chain = solution.samples.T
+steps = solution.acc_rate
 mu = np.mean(x_chain, axis=0)
 print(mu)
 

@@ -165,7 +165,7 @@ class ProposalBasedSampler(Sampler,ABC):
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
-class NUTS():
+class NUTS(Sampler):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
     Samples a distribution given its logpdf and gradient using a Hamiltonian Monte Carlo (HMC) algorithm with automatic parameter tuning.
@@ -214,14 +214,17 @@ class NUTS():
 
     """
     def __init__(self, target, x0=None, dim=None, adapt=True, maxdepth=15, **kwargs):
-        # super().__init__(target, x0=x0, dim=dim, **kwargs)
+        super().__init__(target, x0=x0, dim=dim, **kwargs)
         self.maxdepth = maxdepth
-        self.target = target
-        self.x0 = x0
-        self.dim = len(x0)
         self.adapt = adapt
+    
+    def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
+        return self.target.logpdf(x), self.target.gradient(x)
 
-    def sample(self, N, Nb):
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N, Nb)
+        
+    def _sample(self, N, Nb):
         # Allocation
         Ns = Nb+N     # total number of chains
         theta = np.empty((self.dim, Ns))
@@ -230,7 +233,7 @@ class NUTS():
 
         # Initial state
         theta[:, 0] = self.x0
-        joint_eval[0], grad = self.target(self.x0)
+        joint_eval[0], grad = self._nuts_target(self.x0)
 
         # parameters dual averaging
         if (self.adapt == True):
@@ -247,7 +250,7 @@ class NUTS():
 
         # optimal accrate: stan suggest 0.8, the paper 0.6
         # see https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
-        delta = 0.65
+        delta = 0.6
 
         # run NUTS
         for k in range(1, Ns):
@@ -354,7 +357,7 @@ class NUTS():
         # symplectic integrator: trajectories preserve phase space volumen
         r_new = r_old + 0.5*epsilon*grad_old     # half-step
         theta_new = theta_old + epsilon*r_new     # full-step
-        joint_new, grad_new = self.target(theta_new)     # new gradient
+        joint_new, grad_new = self._nuts_target(theta_new)     # new gradient
         r_new += 0.5*epsilon*grad_new     # half-step
         return theta_new, r_new, joint_new, grad_new
 
@@ -454,7 +457,6 @@ class Linear_RTO(Sampler):
             L_sqrtprec = target[2]
             P_mean = target[3]
             P_sqrtprec = target[4]
-
 
             # If numpy matrix convert to CUQI model
             if isinstance(model, np.ndarray) and len(model.shape) == 2:
