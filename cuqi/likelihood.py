@@ -79,9 +79,6 @@ class Likelihood(object):
         self.distribution = distribution
         self.data = data
 
-        # Check if a CUQI model is inside distribution
-        self.model # returns error if distribution does not have model
-
     def log(self, *args, **kwargs):
         """Return the log-likelihood function at given value"""
         return self.distribution(*args, **kwargs).logpdf(self.data)
