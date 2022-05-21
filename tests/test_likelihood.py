@@ -76,3 +76,36 @@ def test_likelihood_UserDefined():
 
     # geometry
     assert likelihood.geometry == model.domain_geometry
+
+@pytest.mark.parametrize("dist",[
+    cuqi.distribution.GaussianCov(),
+    cuqi.distribution.GaussianCov(lambda x: x, lambda s: s),
+    cuqi.distribution.GaussianCov(cuqi.model.Model(lambda x: x, 2, 2), lambda s:s)
+])
+@pytest.mark.parametrize("mean, cov, data",[
+    (np.zeros(2), np.eye(2), np.ones(2)),
+    (np.zeros(3), np.eye(3), np.random.rand(3)),
+])
+def test_likelihood_conditioning(dist, mean, cov, data):
+    """ Test conditioning on parameters of likelihood for GaussianCov """
+
+    # Create likelihood
+    likelihood = dist.to_likelihood(data)
+
+    # Get parameter names
+    param_names = likelihood.get_parameter_names()
+
+    # Create dict for mean and cov (assumes mean is first parameter, which is not always true)
+    mean_dict = {param_names[0]: mean}
+    cov_dict = {param_names[1]: cov}
+
+    # Full param dict
+    param_dict = {**mean_dict, **cov_dict}
+
+    # Evaluate log from full params
+    log_val = likelihood.log(**param_dict)
+
+    # Now compare log when conditioning on 3 cases: mean, cov, both
+    assert likelihood(**mean_dict).log(**cov_dict) == log_val
+    assert likelihood(**cov_dict).log(**mean_dict) == log_val
+    assert likelihood(**param_dict).log() == log_val
