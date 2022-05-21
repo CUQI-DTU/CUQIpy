@@ -50,6 +50,7 @@ Assuming Gaussian measurement noise :math:`E\sim\mathcal{N}(0, \sigma^2 I)` the 
 from cuqi.model import Model
 from cuqi.utilities import get_non_default_args
 import warnings
+from copy import copy
 
 class Likelihood(object):
     """Likelihood function defined from a conditional distribution and some observed data.
@@ -145,6 +146,12 @@ class Likelihood(object):
                     raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
         
         return model_value
+
+    def __call__(self, *args, **kwargs):
+        """ Fix some parameters of the likelihood function by conditioning on the underlying distribution. """
+        new_likelihood = copy(self)
+        new_likelihood.distribution = self.distribution(*args, **kwargs)
+        return new_likelihood
 
 class UserDefinedLikelihood(object):
     """ Class to wrap user-defined likelihood functions.
