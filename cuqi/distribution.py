@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq, cholesky
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Image2D, _get_identity_geometries
-from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
+from cuqi.utilities import force_ndarray, infer_range_dim, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 from cuqi import config
@@ -101,9 +101,23 @@ class Distribution(ABC):
         self.geometry = geometry
 
     @property
-    @abstractmethod
     def dim(self):
-        pass
+        """ Return the dimension of the distribution.
+        
+        The dimension is automatically inferred from the mutable variables of the distribution.
+
+        If the dimension can not be inferred, None is returned.
+
+        Subclassing distributions can choose to overwrite this property if different behavior is desired.
+        """
+
+        # Get all mutable variables
+        mutable_vars = self.get_mutable_variables()
+
+        # Loop over mutable variables and get range dimension of each and get the maximum
+        max_len = max([infer_range_dim(getattr(self, var)) for var in mutable_vars])
+
+        return max_len if max_len > 0 else None
 
     @property
     def geometry(self):
@@ -322,11 +336,6 @@ class Cauchy_diff(Distribution):
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
-    @property
-    def dim(self): 
-        #TODO: handle the case when self.loc = None because len(None) = 1
-        return len(self.location)
-
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
@@ -386,15 +395,6 @@ class Normal(Distribution):
         self.mean = mean
         self.std = std
 
-
-    @property
-    def dim(self): 
-        #TODO: handle the case when self.mean or self.std = None because len(None) = 1
-        if self.mean is None and self.std is None:
-            return None
-        else:
-            return max(np.size(self.mean),np.size(self.std))
-
     def pdf(self, x):
         return np.prod(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))
 
@@ -439,11 +439,6 @@ class Gamma(Distribution):
         # Init specific to this distribution
         self.shape = shape
         self.rate = rate     
-
-    @property
-    def dim(self):
-        #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-        return max(np.size(self.shape),np.size(self.rate))
 
     @property
     def scale(self):
@@ -522,13 +517,6 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
-
-    @property
-    def dim(self):
-        if not hasattr(self.mean,"__len__"): #TODO: this need to be generalized for all dim properties.
-            return self.cov.shape[0] 
-        else:
-            return max(len(self.mean),self.cov.shape[0])
 
     @property
     def sqrtprec(self):        
@@ -756,11 +744,6 @@ class GaussianSqrtPrec(Distribution):
         self.mean = force_ndarray(mean, flatten=True)
         self.sqrtprec = force_ndarray(sqrtprec)
 
-    @property
-    def dim(self):
-        #TODO: handle the case when self.mean or self.sqrtprec = None because len(None) = 1
-        return max(np.size(self.mean),np.shape(self.sqrtprec)[0])
-
     def _sample(self, N):
         
         if N == 1:
@@ -885,10 +868,6 @@ class GaussianPrec(Distribution):
             return model.gradient(self.prec @ dev, *args, **kwargs)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
-
-    @property
-    def dim(self):
-        return max(len(self.mean),self.prec.shape[0])
 
     @property
     def sqrtprec(self):
@@ -1140,12 +1119,6 @@ class Laplace_diff(Distribution):
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
-
-    @property
-    def dim(self):
-        #TODO: handle the case when self.loc is None 
-        return len(self.location)
-
     def pdf(self, x):
         Dx = self._diff_op @ (x-self.location)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
@@ -1183,13 +1156,6 @@ class Uniform(Distribution):
         # Init specific to this distribution
         self.low = low
         self.high = high      
-
-
-    @property 
-    def dim(self):
-        #TODO: hanlde the case when high and low are None
-        return max(np.size(self.low),np.size(self.high)) 
-
 
     def logpdf(self, x):
         # First check whether x is outside bounds.
@@ -1438,10 +1404,6 @@ class Laplace(Distribution):
         self.location = location
         self.prec = prec
   
-    @property
-    def dim(self):
-        return np.size(self.location)
-
     def logpdf(self, x):
         if isinstance(x, (float,int)):
             x = np.array([x])
@@ -1629,12 +1591,6 @@ class InverseGamma(Distribution):
         self.location = force_ndarray(location, flatten=True)
         self.scale = force_ndarray(scale, flatten=True)
     
-    @property
-    def dim(self):
-        lens = [ (np.size(item) if item is not None else 0) 
-                 for item in [self.shape, self.location, self.scale]]
-        return np.max(lens) if np.max(lens)>0 else None
-
     def logpdf(self, x):
         return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
@@ -1702,12 +1658,6 @@ class Beta(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs)
         self.alpha = force_ndarray(alpha, flatten=True)
         self.beta = force_ndarray(beta, flatten=True)
-
-    @property
-    def dim(self):
-        lens = [ (np.size(item) if item is not None else 0) 
-                 for item in [self.alpha, self.beta]]
-        return np.max(lens) if np.max(lens)>0 else None
 
     def logpdf(self, x):
 
