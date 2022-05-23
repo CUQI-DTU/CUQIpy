@@ -234,6 +234,10 @@ class NUTS(Sampler):
         return self._sample(N, Nb)
         
     def _sample(self, N, Nb):
+        
+        if self.adapt_step_size is True and Nb == 0:
+            raise ValueError("Adaptive step size is True but number of burn-in steps is 0. Please set Nb > 0.")
+
         # Allocation
         Ns = Nb+N # total number of chains
         theta = np.empty((self.dim, Ns))
