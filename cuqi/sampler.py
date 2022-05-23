@@ -188,11 +188,11 @@ class NUTS(Sampler):
         Whether to adapt the step size.
         If True, the step size is adapted automatically.
         If False, the step size is fixed to the initially estimated value.
-        If set to a scalar, the step size will be fixed to this value and not adapted.
+        If set to a scalar, the step size will be given by user and not adapted.
 
     opt_acc_rate : float
         The optimal acceptance rate to reach if using adaptive step size.
-        Suggested values are 0.6 (default) or 0.8.
+        Suggested values are 0.6 (default) or 0.8 (as in stan).
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -256,8 +256,10 @@ class NUTS(Sampler):
             epsilon_bar, H_bar = 1, 0
             delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
             step_sizes[0] = epsilon
+        elif (self.adapt_step_size == False):
+            epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
         else:
-            epsilon = self.adapt_step_size # user specifies the step size
+            epsilon = self.adapt_step_size # if scalar then user specifies the step size
 
         # run NUTS
         for k in range(1, Ns):
