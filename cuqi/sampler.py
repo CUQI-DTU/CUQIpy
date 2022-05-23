@@ -181,8 +181,18 @@ class NUTS(Sampler):
     x0 : ndarray
         Initial parameters. *Optional*
 
-    dim : int
-        Dimension of parameter space. Required if target logpdf and gradient are callable functions. *Optional*.
+    max_depth : int
+        Maximum depth of the tree.
+
+    adapt_step_size : Bool or float
+        Whether to adapt the step size.
+        If True, the step size is adapted automatically.
+        If False, the step size is fixed to the initially estimated value.
+        If set to a scalar, the step size will be fixed to this value and not adapted.
+
+    opt_acc_rate : float
+        The optimal acceptance rate to reach if using adaptive step size.
+        Suggested values are 0.6 (default) or 0.8.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -194,29 +204,28 @@ class NUTS(Sampler):
     -------
     .. code-block:: python
 
-        # Parameters
-        dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
-        std = 1 # standard deviation of Gaussian
+        # Import cuqi
+        import cuqi
 
-        # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
-        gradient_func = lambda x: -1/(std**2)*(x - mu)
-
-        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
-        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
+        # Define a target distribution
+        tp = cuqi.testproblem.WangCubic()
+        target = tp.posterior
 
         # Set up sampler
         sampler = cuqi.sampler.NUTS(target)
 
         # Sample
-        samples = sampler.sample(2000)
+        samples = sampler.sample(10000, 5000)
+
+        # Plot samples
+        samples.plot_pair()
 
     """
-    def __init__(self, target, x0=None, dim=None, adapt=True, maxdepth=15, **kwargs):
-        super().__init__(target, x0=x0, dim=dim, **kwargs)
-        self.maxdepth = maxdepth
-        self.adapt = adapt
+    def __init__(self, target, x0=None, max_depth=15, adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
+        super().__init__(target, x0=x0, **kwargs)
+        self.max_depth = max_depth
+        self.adapt_step_size = adapt_step_size
+        self.opt_acc_rate = opt_acc_rate
     
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
         return self.target.logpdf(x), self.target.gradient(x)
@@ -226,7 +235,7 @@ class NUTS(Sampler):
         
     def _sample(self, N, Nb):
         # Allocation
-        Ns = Nb+N     # total number of chains
+        Ns = Nb+N # total number of chains
         theta = np.empty((self.dim, Ns))
         joint_eval = np.empty(Ns)
         step_sizes = np.empty(Ns)
@@ -236,27 +245,21 @@ class NUTS(Sampler):
         joint_eval[0], grad = self._nuts_target(self.x0)
 
         # parameters dual averaging
-        if (self.adapt == True):
+        if (self.adapt_step_size == True):
             epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
             mu = np.log(10*epsilon)
-            gamma, t_0, kappa = 0.05, 10, 0.75     # kappa in (0.5, 1]
+            gamma, t_0, kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
             epsilon_bar, H_bar = 1, 0
-            delta = 0.6  # per stan 0.8: https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
-            #
+            delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
             step_sizes[0] = epsilon
-            print('\nInitial epsilon:', epsilon)
         else:
-            epsilon = self.adapt # user specifies the step size
-
-        # optimal accrate: stan suggest 0.8, the paper 0.6
-        # see https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
-        delta = 0.6
+            epsilon = self.adapt_step_size # user specifies the step size
 
         # run NUTS
         for k in range(1, Ns):
-            theta_k, joint_k = theta[:, k-1], joint_eval[k-1]     # initial position (parameters)
-            r_k = self._Kfun(1, 'sample')     # resample momentum vector
-            Ham = joint_k - self._Kfun(r_k, 'eval')     # Hamiltonian
+            theta_k, joint_k = theta[:, k-1], joint_eval[k-1] # initial position (parameters)
+            r_k = self._Kfun(1, 'sample') # resample momentum vector
+            Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
 
             # slice variable
             log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
@@ -269,7 +272,7 @@ class NUTS(Sampler):
             r_minus, r_plus = np.copy(r_k), np.copy(r_k)
 
             # run NUTS
-            while (s == 1) and (j <= self.maxdepth):
+            while (s == 1) and (j <= self.max_depth):
                 # sample a direction
                 v = int(2*(np.random.rand() < 0.5)-1)
 
@@ -297,20 +300,20 @@ class NUTS(Sampler):
                 j += 1
 
             # adapt epsilon during burn-in using dual averaging
-            if (k <= Nb) and (self.adapt == True):
+            if (k <= Nb) and (self.adapt_step_size == True):
                 eta1 = 1/(k + t_0)
                 H_bar = (1-eta1)*H_bar + eta1*(delta - (alpha/n_alpha))
                 epsilon = np.exp(mu - (np.sqrt(k)/gamma)*H_bar)
                 eta = k**(-kappa)
                 epsilon_bar = np.exp(eta*np.log(epsilon) + (1-eta)*np.log(epsilon_bar))
-            elif (k == Nb+1) and (self.adapt == True):
+            elif (k == Nb+1) and (self.adapt_step_size == True):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
-                print('\nFinal epsilon:', epsilon)
             step_sizes[k] = epsilon
             
             # msg
-            # self._print_progress(k+1, Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
-            # self._call_callback(theta[:, k], k)
+            self._print_progress(k+1, Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
+            self._call_callback(theta[:, k], k)
+            
             if np.isnan(joint_eval[k]):
                 raise NameError('NaN potential func')
 

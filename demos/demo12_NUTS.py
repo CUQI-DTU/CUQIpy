@@ -25,7 +25,7 @@ prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
 # %%
 x0 = cuqi.distribution.Gaussian(np.zeros(n),1).sample()
 posterior = cuqi.distribution.Posterior(likelihood, prior)
-MCMC = cuqi.sampler.NUTS(posterior,x0, maxdepth = 12)
+MCMC = cuqi.sampler.NUTS(posterior,x0, max_depth = 12)
 
 # %%
 samples,loglike_eval, accave  = MCMC.sample(1000,500)

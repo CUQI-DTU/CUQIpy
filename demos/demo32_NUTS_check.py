@@ -29,7 +29,7 @@ np.random.seed(1)
 x0 = np.ones(tp.model.domain_dim)
 Ns = int(1e4)
 Nb = int(0.5*Ns)
-MCMC = cuqi.sampler.NUTS(tp.posterior, x0, maxdepth = 12)
+MCMC = cuqi.sampler.NUTS(tp.posterior, x0, max_depth = 12)
 solution = MCMC.sample(Ns, Nb)
 x_chain = solution.samples.T
 steps = solution.acc_rate
