@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq, cholesky
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Image2D, _get_identity_geometries
-from cuqi.utilities import force_ndarray, infer_range_dim, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
+from cuqi.utilities import force_ndarray, infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 from cuqi import config
@@ -115,7 +115,7 @@ class Distribution(ABC):
         mutable_vars = self.get_mutable_variables()
 
         # Loop over mutable variables and get range dimension of each and get the maximum
-        max_len = max([infer_range_dim(getattr(self, var)) for var in mutable_vars])
+        max_len = max([infer_len(getattr(self, var)) for var in mutable_vars])
 
         return max_len if max_len > 0 else None
 

@@ -19,11 +19,10 @@ def force_ndarray(value,flatten=False):
         value = value.A
     return value
 
-def infer_range_dim(value):
-    """ Infer the dimension of the range of a given input value.
+def infer_len(value):
+    """ Infer the length of the given input value.
 
-    If the object has a length attribute, the range dimension is the length of the object.
-    Matrices are assumed to have range dimension equal to the number of rows.
+    Matrices are assumed to have length equal to the number of rows.
     Numbers are considered to have length 1.
     Other objects with no length are considered to have length 0.
     """
