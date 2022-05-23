@@ -374,8 +374,7 @@ class BayesianProblem(object):
         # Run sampler
         Nb = int(0.2*Ns)   # burn-in
         ti = time.time()
-        x_s = MCMC.sample_adapt(Ns+Nb); # TODO. FIX burn-in for NUTS!
-        x_s = x_s.burnthin(Nb)
+        x_s = MCMC.sample_adapt(Ns,Nb)
         print('Elapsed time:', time.time() - ti)
         
         return x_s

@@ -32,10 +32,8 @@ if ndim == 2: Ns = 500
 #TP.prior = GaussianCov(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
 #TP.prior = GMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 
-# Seems ok in 1D - (Not really seem feasible in 2D it seems)
-#TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry) #NUTS is not adapting parameters fully. (Not using sample(n,nb) atm.)
-TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", physical_dim=ndim, geometry=TP.model.domain_geometry) #Does not veer away from initial guess very much in prior samples
-#TP.prior = LMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Seems OK. Same as Laplace diff actually?
+TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry)
+#TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", physical_dim=ndim, geometry=TP.model.domain_geometry)
 
 # Bad choices (ignore) both 1D and 2D
 #TP.prior = Beta(2*np.ones(n), 5*np.ones(n)) #Might need tuning

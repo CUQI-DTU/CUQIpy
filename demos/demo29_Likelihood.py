@@ -21,7 +21,7 @@ IP.UQ(exact=probInfo.exactSolution)
 
 # %% Posterior
 posterior = cuqi.distribution.Posterior(likelihood, prior)
-cuqi.sampler.NUTS(posterior).sample(10); 
+cuqi.sampler.NUTS(posterior).sample(10,5); 
 
 # %% Evaluations of likelihood and gradients are clear.
 gt = probInfo.exactSolution
