@@ -167,7 +167,7 @@ def test_sampler_UserDefined_basic():
 
     s_MH = cuqi.sampler.MetropolisHastings(distX).sample_adapt(Ns,Nb)
     s_CWMH = cuqi.sampler.CWMH(distX).sample_adapt(Ns,Nb)
-    s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns) #TODO. Add burn-in here when fixed #219
+    s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_MH.shape,(X.dim,Ns))
     assert np.allclose(s_CWMH.shape,(X.dim,Ns))
