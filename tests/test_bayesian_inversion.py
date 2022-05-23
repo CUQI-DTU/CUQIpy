@@ -1,5 +1,6 @@
 import pytest
 import numpy as np
+import sys
 
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF
@@ -12,9 +13,13 @@ from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 128, 1, "zero"), 20),
                              (Deconvolution1D, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
                              (Deconvolution1D, "square", Laplace_diff(np.zeros(128), 0.005), 100),
-                             #(Deconvolution1D, "square", Cauchy_diff(np.zeros(128), 0.01), 50), TODO: NUTS sampler seems to give slightly different results for other systems.
+                             (Deconvolution1D, "square", Cauchy_diff(np.zeros(128), 0.01), 50),
                          ])
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
+    # SKIP NUTS test if not windows (for now)
+    if isinstance(prior, Cauchy_diff) and not sys.platform.startswith('win'):
+        pytest.skip("NUTS(Cauchy_diff) regression test is not implemented for this platform")
+
     np.random.seed(19937)
 
     # Generate TP using this seed (for data consistency)
