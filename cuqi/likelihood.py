@@ -49,6 +49,7 @@ Assuming Gaussian measurement noise :math:`E\sim\mathcal{N}(0, \sigma^2 I)` the 
 
 from cuqi.model import Model
 from cuqi.utilities import get_non_default_args
+from cuqi.geometry import _DefaultGeometry
 import warnings
 
 class Likelihood(object):
@@ -92,26 +93,18 @@ class Likelihood(object):
     @property
     def dim(self):
         """ Return dimension of likelihood """
-        if self.model is None:
-            return None
-        if len(self.get_parameter_names()) > 1:
-            warnings.warn("returned dim is only w.r.t. parameter of model input, but likelihood has more parameters!")
-        return self.model.domain_dim
+        return self.geometry.dim
 
     @property
     def shape(self):
         """ Return shape of likelihood """
-        if self.model is None:
-            return None
-        if len(self.get_parameter_names()) > 1:
-            warnings.warn("returned shape is only w.r.t. parameter of model input, but likelihood has more parameters!")
-        return self.model.domain_geometry.shape
+        return self.geometry.shape
 
     @property
     def geometry(self):
         """ Return geometry of likelihood """
         if self.model is None:
-            return None
+            return _DefaultGeometry()
         if len(self.get_parameter_names()) > 1:
             warnings.warn("returned geometry is only w.r.t. parameter of model input, but likelihood has more parameters!")
         return self.model.domain_geometry
