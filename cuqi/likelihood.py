@@ -123,7 +123,7 @@ class Likelihood(object):
         Returns
         -------
         model: cuqi.model.Model or None
-            Model of data distribution or None if no model is found.
+            Forward model used in defining the data distribution or None if no model is found.
 
         """
 
