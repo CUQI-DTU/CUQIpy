@@ -106,7 +106,10 @@ class Likelihood(object):
         if self.model is None:
             return _DefaultGeometry()
         if len(self.get_parameter_names()) > 1:
-            warnings.warn("returned geometry is only w.r.t. parameter of model input, but likelihood has more parameters!")
+            warnings.warn(
+                f"Likelihood depends on multiple parameters {self.get_parameter_names()}.\n"
+                f"Returned geometry is only with respect to the model parameter {get_non_default_args(self.model)}."
+            )
         return self.model.domain_geometry
 
     def get_parameter_names(self):
