@@ -1,8 +1,8 @@
 import numpy as np
 import inspect
+from numbers import Number
 from scipy.sparse import issparse, diags
 from scipy.sparse import linalg as spslinalg
-from cuqi.geometry import _DefaultGeometry
 from dataclasses import dataclass
 from abc import ABCMeta
 
@@ -19,6 +19,22 @@ def force_ndarray(value,flatten=False):
         value = value.A
     return value
 
+def infer_len(value):
+    """ Infer the length of the given input value.
+
+    Matrices are assumed to have length equal to the number of rows.
+    Numbers are considered to have length 1.
+    Other objects with no length are considered to have length 0.
+    """
+    if hasattr(value,'__len__'):
+        try:
+            return len(value)
+        except TypeError: #Special-case for scipy sparse matrices, which have len but return an error
+            return value.shape[0]
+    elif isinstance(value, Number):
+        return 1
+    else:
+        return 0
 
 def get_non_default_args(func):
     """ Returns the non-default arguments and kwargs from a callable function"""
