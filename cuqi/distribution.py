@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
 import warnings
+import numbers
 
 
 # ========== Abstract distribution class ===========
@@ -78,7 +79,21 @@ class Distribution(ABC):
     mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
 
     """
-    def __init__(self,name=None, geometry=None, is_symmetric=None):
+    def __init__(self, name=None, geometry=None, is_symmetric=None):
+        """ Initialize the core properties of the distribution.
+        
+        Parameters
+        ----------
+        name : str, default None
+            Name of distribution.
+
+        geometry : Geometry, default _DefaultGeometry (or None)
+            Geometry of distribution.
+
+        is_symmetric : bool, default None
+            Indicator if distribution is symmetric.
+                        
+        """
         if not isinstance(name,str) and name is not None:
             raise ValueError("Name must be a string or None")
         self.name = name
@@ -596,10 +611,12 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
         if not callable(self.mean): # for prior
             return -self.prec @ (val - self.mean)
-        elif hasattr(self.mean,"gradient"): # for likelihood
+        elif hasattr(self.mean, "gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
-            return self.prec @ model.gradient(dev)
+            if isinstance(dev, numbers.Number):
+                dev = np.array([dev])
+            return model.gradient(self.prec @ dev, *args, **kwargs)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
@@ -863,7 +880,9 @@ class GaussianPrec(Distribution):
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
-            return self.prec @ model.gradient(dev)
+            if isinstance(dev, numbers.Number):
+                dev = np.array([dev])
+            return model.gradient(self.prec @ dev, *args, **kwargs)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
 
@@ -908,26 +927,29 @@ class Gaussian(GaussianCov):
 
 # ========================================================================
 class GMRF(Distribution):
-    """
-        Parameters
-        ----------
-        mean : array_like
-            Mean of the GMRF.
+    """ Gaussian Markov random field.
+    
+    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
+    
+    Parameters
+    ----------
+    mean : array_like
+        Mean of the GMRF. 
+        
+    prec : float
+        Precision of the GMRF.
 
-        prec : float
-            Precision of the GMRF.
+    partition_size : int
+        The dimension of the distribution in one physical dimension. 
 
-        partition_size : int
-            The dimension of the distribution in one physical dimension. 
+    physical_dim : int
+        The physical dimension of what the distribution represents (can take the values 1 or 2).
 
-        physical_dim : int
-            The physical dimension of what the distribution represents (can take the values 1 or 2).
+    bc_type : str
+        The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
 
-        bc_type : str
-            The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
-
-        order : int
-            The order of the GMRF. Can be 1 or 2.
+    order : int
+        The order of the GMRF. Can be 1 or 2.
     """
         
     def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 

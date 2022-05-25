@@ -21,6 +21,9 @@ class Model(object):
     domain_geometry : integer or cuqi.geometry.Geometry
         If integer is given a _DefaultGeometry is created with dimension of the integer.
 
+    gradient : callable function
+        Jacobian of the forward operator at a given point and direction.
+
     Attributes
     -----------
     range_geometry : cuqi.geometry.Geometry
@@ -35,14 +38,19 @@ class Model(object):
     :meth:`range_dim` the dimension of the range.
     :meth:`domain_dim` the dimension of the domain.
     """
-    def __init__(self, forward, range_geometry, domain_geometry):
+    def __init__(self, forward, range_geometry, domain_geometry, gradient=None):
 
         #Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function of some kind")
-            
+        
+        #Check if input is callable
+        if (gradient is not None) and (callable(gradient) is not True):
+            raise TypeError("Gradient needs to be callable function of some kind")
+ 
         #Store forward func
         self._forward_func = forward
+        self._gradient_func = gradient
          
         #Store range_geometry
         if isinstance(range_geometry, int):
@@ -118,9 +126,25 @@ class Model(object):
     def __call__(self,x):
         return self.forward(x)
 
-    def gradient(self,x):
-        raise NotImplementedError("Gradient is not implemented for this model.")
-    
+    def gradient(self, direction, wrt):
+        """ Gradient of the forward operator.
+
+        For non-linear models the gradient is computed using the
+        forward operator and the Jacobian of the forward operator.
+
+        Parameters
+        ----------
+        direction : ndarray
+            The direction to compute the gradient. The Jacobian is applied to this direction.
+
+        wrt : ndarray
+            The point to compute the Jacobian at. This is only used for non-linear models.
+        
+        """
+        if self._gradient_func is None:
+            raise NotImplementedError("Gradient is not implemented for this model.")
+        return self._gradient_func(direction, wrt)
+
     # approximate the Jacobian matrix of callable function func
     def approx_jacobian(self, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
         # x       - The state vector
@@ -264,13 +288,25 @@ class LinearModel(Model):
 
             return self._matrix
 
-    def gradient(self,x):
-        """Evaluate the gradient of the forward map with respect to the model input."""
+    def gradient(self, direction, wrt=None):
+        """ Gradient of the model.
+
+        In the case of a linear model, the gradient is computed using the adjoint.
+
+        Parameters
+        ----------
+        direction : ndarray
+            The direction to compute the gradient. The Jacobian is applied to this direction.
+
+        wrt : ndarray
+            The point to compute Jacobian at. This is only used for non-linear models.
+        
+        """
         #Avoid complicated geometries that change the gradient.
         if not type(self.domain_geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]:
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
-        return self.adjoint(x)
+        return self.adjoint(direction)
     
     def __matmul__(self, x):
         return self.forward(x)

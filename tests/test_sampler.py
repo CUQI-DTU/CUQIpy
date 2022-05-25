@@ -1,6 +1,8 @@
 import cuqi
 import numpy as np
 
+import sys
+
 from cuqi.distribution import Gaussian, Cauchy_diff, GaussianCov, Laplace_diff, GMRF, LMRF
 from cuqi.sampler import pCN
 
@@ -167,7 +169,7 @@ def test_sampler_UserDefined_basic():
 
     s_MH = cuqi.sampler.MetropolisHastings(distX).sample_adapt(Ns,Nb)
     s_CWMH = cuqi.sampler.CWMH(distX).sample_adapt(Ns,Nb)
-    s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns) #TODO. Add burn-in here when fixed #219
+    s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_MH.shape,(X.dim,Ns))
     assert np.allclose(s_CWMH.shape,(X.dim,Ns))
@@ -378,3 +380,22 @@ def test_TP_callback(prior, sample_method, expected):
     sample_method(10, callback=callback)
 
     assert np.array_equal(Ns_list, expected)
+
+def test_NUTS_regression(copy_reference):
+    # SKIP NUTS test if not windows (for now) #TODO.
+    if  not sys.platform.startswith('win'):
+        pytest.skip("NUTS regression test is not implemented for this platform")
+
+    np.random.seed(0)
+    tp = cuqi.testproblem.WangCubic()
+    x0 = np.ones(tp.model.domain_dim)
+    Ns = int(1e3)
+    Nb = int(0.5*Ns)
+    MCMC = cuqi.sampler.NUTS(tp.posterior, x0, max_depth = 12)
+    samples = MCMC.sample(Ns, Nb)
+
+    samples_orig_file = copy_reference(
+        "data/NUTS_felipe_original_code_results.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.allclose(samples.samples, samples_orig["arr_0"]))
