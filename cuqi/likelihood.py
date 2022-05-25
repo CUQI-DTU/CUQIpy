@@ -135,7 +135,7 @@ class Likelihood(object):
                 if model_value is None:
                     model_value = value
                 else:
-                    raise ValueError("Multiple cuqi models found in dist. This is not supported at the moment.")
+                    raise ValueError(f"Multiple models found in data distribution {self.distribution} of {self}. Extracting model is ambiguous and not supported.")
         
         return model_value
 
