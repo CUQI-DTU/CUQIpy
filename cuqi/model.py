@@ -72,6 +72,9 @@ class Model(object):
         else:
             raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
+        # Store non_default_args of the forward operator for faster caching when checking for those arguments.
+        self._non_default_args = cuqi.utilities.get_non_default_args(self)
+
     @property
     def domain_dim(self): 
         return self.domain_geometry.dim
