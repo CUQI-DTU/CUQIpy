@@ -82,12 +82,106 @@ class Model(object):
     @property
     def range_dim(self): 
         return self.range_geometry.dim
-    
-    def forward(self, x, is_par=True):
+
+    def _process_input(self, x, geometry, is_par):
+        """ Process input for cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func). Converts the input to the operator to function values (if needed) using the appropriate geometry.
+
+        Parameters
+        ----------
+        x : ndarray or cuqi.samples.CUQIarray
+            The input value to be processed.
+
+        geometry : cuqi.geometry.Geometry
+            The geometry that represents the input `x`.
+
+        is_par : bool
+            If True the input is assumed to be parameters.
+            If False the input is assumed to be function values.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The input value processed.
+        """
+        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
+            return x.funvals
+        elif is_par:
+            return geometry.par2fun(x)
+        else:
+            return x
+
+    def _process_output(self, x, out, geometry):
+        """ Process output of cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func). Converts the output of the operator to parameters using the appropriate geometry.
+
+        Parameters
+        ----------
+        x : ndarray or cuqi.samples.CUQIarray
+            The input value to the operator.
+
+        out : ndarray or cuqi.samples.CUQIarray
+            The output value to be processed.
+
+        geometry : cuqi.geometry.Geometry
+            The geometry representing the argument `out`.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The output value processed.
+        """ 
+        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
+            return CUQIarray(out, is_par=True, geometry=geometry)
+        else:
+            return out
+
+    def _apply_func(self, func, func_range_geometry, func_domain_geometry, x, is_par, **kwargs):
+        """ Private function that applies the given function `func` to the input value `x`. It processes the input and the output of `func` according to the given domain and range geometries. It additionally handles the case of applying the function `func` to the cuqi.samples.Samples object.
+
+        kwargs are keyword arguments passed to the functions `func`.
+        
+        Parameters
+        ----------
+        func: function handler 
+            The function to be applied
+
+        func_range_geometry : cuqi.geometry.Geometry
+            The geometry representing the function `func` range.
+
+        func_domain_geometry : cuqi.geometry.Geometry
+            The geometry representing the function `func` domain.
+
+        x : ndarray or cuqi.samples.CUQIarray
+            The input value to the operator.
+
+        is_par : bool
+            If True the input is assumed to be parameters.
+            If False the input is assumed to be function values.
+
+        Returns
+        -------
+        ndarray or cuqi.samples.CUQIarray
+            The output of the function `func` after being processed.
+        """ 
+
+        if isinstance(x,Samples):
+            out = np.zeros((func_range_geometry.dim, x.Ns))
+            for idx, item in enumerate(x):
+                out[:,idx] = self._apply_func(func,
+                                              func_range_geometry,
+                                              func_domain_geometry,
+                                              item, is_par=True,
+                                              **kwargs)
+            return Samples(out, geometry=func_range_geometry)
+
+        x = self._process_input(x, func_domain_geometry, is_par)
+        out = func_range_geometry.fun2par(func(x, **kwargs))
+        return self._process_output(x, out, func_range_geometry) 
+        
+    def forward(self, x, is_par=True ):
         """ Forward function of the model.
         
         Forward converts the input to function values (if needed) using the domain geometry of the model.
-        Forward converts the output function values to parameters using the domain geometry of the model.
+        Forward converts the output function values to parameters using the range geometry of the model.
 
         Parameters
         ----------
@@ -103,33 +197,15 @@ class Model(object):
         ndarray or cuqi.samples.CUQIarray
             The model output. Always returned as parameters.
         """
-
-        # Convert input to function values
-        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
-            x = x.funvals
-        else:
-            if is_par:
-                x = self.domain_geometry.par2fun(x)
-
-        # Compute foward (if Samples we compute for each sample)
-        # TODO: Check if this can be done all-at-once for computational speed-up
-        if isinstance(x,Samples):
-            Ns = x.samples.shape[-1]
-            data_samples = np.zeros((self.range_dim,Ns))
-            for s in range(Ns):
-                data_samples[:,s] = self._forward_func(x.samples[:,s])
-            return Samples(data_samples,geometry=self.range_geometry)
-        else:
-            out = self._forward_func(x)
-            out = self.range_geometry.fun2par(out) #Convert to parameters
-            if type(x) is CUQIarray:
-                out = CUQIarray(out, is_par=True, geometry=self.range_geometry)
-            return out
+        return self._apply_func(self._forward_func,
+                                self.range_geometry,
+                                self.domain_geometry,
+                                x, is_par)
 
     def __call__(self,x):
         return self.forward(x)
 
-    def gradient(self, direction, wrt):
+    def gradient(self, direction, wrt, is_direction_par=True, is_wrt_par=True):
         """ Gradient of the forward operator.
 
         For non-linear models the gradient is computed using the
@@ -142,11 +218,34 @@ class Model(object):
 
         wrt : ndarray
             The point to compute the Jacobian at. This is only used for non-linear models.
+
+        is_direction_par : bool
+            If True, `direction` is assumed to be parameters.
+            If False, `direction` is assumed to be function values.
+
+        is_wrt_par : bool
+            If True, `wrt` is assumed to be parameters.
+            If False, `wrt` is assumed to be function values.
         
         """
         if self._gradient_func is None:
             raise NotImplementedError("Gradient is not implemented for this model.")
-        return self._gradient_func(direction, wrt)
+        
+        if isinstance(direction, Samples) or isinstance(wrt, Samples):
+            raise ValueError("cuqi.samples.Samples input values for arguments `direction` and `wrt` are not supported")
+            
+        wrt = self._process_input(wrt, self.domain_geometry, is_wrt_par)
+
+        grad = self._apply_func(self._gradient_func,
+                                self.domain_geometry,
+                                self.range_geometry,
+                                direction, is_direction_par,
+                                wrt=wrt)
+
+        if hasattr(self.domain_geometry, 'gradient'):
+            grad = self.domain_geometry.gradient(grad)
+
+        return grad
 
     # approximate the Jacobian matrix of callable function func
     def approx_jacobian(self, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
@@ -254,21 +353,10 @@ class LinearModel(Model):
         ndarray or cuqi.samples.CUQIarray
             The adjoint model output. Always returned as parameters.
         """
-        # Convert input to function values
-        if type(y) is CUQIarray and not isinstance(y.geometry, _DefaultGeometry):
-            y = y.funvals
-        else:
-            if is_par:
-                y = self.range_geometry.par2fun(y) #Convert to function values
-
-        # Compute adjoint
-        out = self._adjoint_func(y)
-
-        # Convert output to parameters
-        out = self.domain_geometry.fun2par(out) #Convert to parameters
-        if type(y) is CUQIarray:
-            out = CUQIarray(out, is_par=True, geometry=self.domain_geometry)
-        return out
+        return self._apply_func(self._adjoint_func,
+                                self.domain_geometry,
+                                self.range_geometry,
+                                y, is_par)
 
 
     def get_matrix(self):
