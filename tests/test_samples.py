@@ -130,7 +130,7 @@ def test_compute_ci(percent):
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MetropolisHastings(dist)
     samples = sampler.sample_adapt(500)
-    ci = samples.compute_ci(95)
+    ci = samples.compute_ci(percent)
 
     # manually compute ci
     lb = (100-percent)/2
