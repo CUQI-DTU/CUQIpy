@@ -230,6 +230,19 @@ class Samples(object):
         plt.title('Sample mean')
         return ax
 
+    def plot_median(self,*args,**kwargs):
+        """Plot pointwise median of the samples
+
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
+        """
+        median = self.median()
+
+        # Plot mean according to geometry
+        ax =  self.geometry.plot(median, *args, **kwargs)
+        plt.title('Sample median')
+        return ax
+
     def plot_variance(self,*args,**kwargs):
         """Plot pointwise variance of the samples
 
@@ -246,6 +259,10 @@ class Samples(object):
     def mean(self):
         """Compute mean of the samples"""
         return np.mean(self.samples, axis=-1)
+
+    def median(self):
+        """Compute pointwise mean of the samples"""
+        return np.median(self.samples, axis=-1)
 
     def variance(self):
         """Compute pointwise variance of the samples"""
