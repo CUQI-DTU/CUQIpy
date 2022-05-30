@@ -238,9 +238,9 @@ class Samples(object):
         """
         median = self.median()
 
-        # Plot mean according to geometry
+        # Plot median according to geometry
         ax =  self.geometry.plot(median, *args, **kwargs)
-        plt.title('Sample median')
+        plt.title('Pointwise sample median')
         return ax
 
     def plot_variance(self,*args,**kwargs):
@@ -257,16 +257,16 @@ class Samples(object):
         return ax
 
     def plot_ci_width(self,percent=95,*args,**kwargs):
-        """Plot pointwise credibility interval width of the samples
+        """Plot width of the pointwise credibility intervals of the samples
 
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        ci_width = self.ci_width(percent = percent)
+        ci_width = self.ci_width(percent)
 
-        # Plot variance according to geometry
+        # Plot width of credibility intervals according to geometry
         ax = self.geometry.plot(ci_width, *args, **kwargs)
-        plt.title('Sample credibility interval width')
+        plt.title('Width of sample credibility intervals')
         return ax
 
     def mean(self):
@@ -274,18 +274,22 @@ class Samples(object):
         return np.mean(self.samples, axis=-1)
 
     def median(self):
-        """Compute pointwise mean of the samples"""
+        """Compute pointwise median of the samples"""
         return np.median(self.samples, axis=-1)
 
     def variance(self):
         """Compute pointwise variance of the samples"""
         return np.var(self.samples, axis=-1)
 
-    def ci_width(self, percent = 95):
-        """Compute pointwise credibility interval width of the samples"""
+    def compute_ci(self, percent = 95):
+        """Compute pointwise credibility intervals of the samples"""
         lb = (100-percent)/2
         up = 100-lb
-        lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
+        return np.percentile(self.samples, [lb, up], axis=-1)
+
+    def ci_width(self, percent = 95):
+        """Compute width of the pointwise credibility intervals of the samples"""
+        lo_conf, up_conf = self.compute_ci(percent)
         return up_conf-lo_conf
 
     def plot_std(self,*args,**kwargs):
@@ -357,9 +361,7 @@ class Samples(object):
         
         # Compute statistics
         mean = np.mean(self.samples,axis=-1)
-        lb = (100-percent)/2
-        up = 100-lb
-        lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
+        lo_conf, up_conf = self.compute_ci(percent)
 
         #Extract plotting keywords and put into plot_envelope
         if len(plot_envelope_kwargs)==0:
@@ -382,7 +384,7 @@ class Samples(object):
             #fig.add_subplot(2,2,2)
             plt.figure()
             self.geometry.plot(up_conf-lo_conf)
-            plt.title("Credibility interval (Upper minus lower)")
+            plt.title("Width of credibility interval")
             plt.figure()
             self.geometry.plot(up_conf)
             plt.title("Upper credibility interval limit")

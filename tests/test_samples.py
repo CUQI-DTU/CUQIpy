@@ -124,3 +124,19 @@ def test_ess():
     sampler = cuqi.sampler.MetropolisHastings(dist)
     samples = sampler.sample_adapt(500)
     assert samples.compute_ess().shape == samples.geometry.shape
+
+@pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
+def test_compute_ci(percent):
+    dist = cuqi.distribution.DistributionGallery("CalSom91")
+    sampler = cuqi.sampler.MetropolisHastings(dist)
+    samples = sampler.sample_adapt(500)
+    ci = samples.compute_ci(95)
+
+    # manually compute ci
+    lb = (100-percent)/2
+    up = 100-lb
+    lo_conf, up_conf = np.percentile(samples.samples, [lb, up], axis=-1)
+
+    assert np.allclose(ci[0], lo_conf)
+    assert np.allclose(ci[1], up_conf)
+
