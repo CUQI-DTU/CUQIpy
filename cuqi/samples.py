@@ -256,6 +256,19 @@ class Samples(object):
         plt.title('Sample variance')
         return ax
 
+    def plot_ci_width(self,percent=95,*args,**kwargs):
+        """Plot pointwise credibility interval width of the samples
+
+        Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
+        See documentation of `self.geometry` for options.
+        """
+        ci_width = self.ci_width(percent = percent)
+
+        # Plot variance according to geometry
+        ax = self.geometry.plot(ci_width, *args, **kwargs)
+        plt.title('Sample credibility interval width')
+        return ax
+
     def mean(self):
         """Compute mean of the samples"""
         return np.mean(self.samples, axis=-1)
@@ -267,6 +280,13 @@ class Samples(object):
     def variance(self):
         """Compute pointwise variance of the samples"""
         return np.var(self.samples, axis=-1)
+
+    def ci_width(self, percent = 95):
+        """Compute pointwise credibility interval width of the samples"""
+        lb = (100-percent)/2
+        up = 100-lb
+        lo_conf, up_conf = np.percentile(self.samples, [lb, up], axis=-1)
+        return up_conf-lo_conf
 
     def plot_std(self,*args,**kwargs):
         """Plot pointwise standard deviation of the samples
