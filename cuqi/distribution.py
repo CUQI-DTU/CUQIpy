@@ -955,6 +955,7 @@ class GMRF(Distribution):
     the GMRF distribution can be represented by a Gaussian with zero mean and the following precision matrices depending on the order:
 
     * Order 0:
+    
     .. math::
 
         \mathbf{P} = \delta \mathbf{I}.
@@ -984,7 +985,7 @@ class GMRF(Distribution):
                  &          & \ddots    & \ddots    & \ddots    & \ddots    \\newline
                  &          &           & 1         & -4        &  6        \\newline
         \end{bmatrix}.
-    
+
     **General representation**
 
     In general we can define the GMRF distribution on each point by
