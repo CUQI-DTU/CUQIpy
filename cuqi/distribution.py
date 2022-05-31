@@ -997,7 +997,7 @@ class GMRF(Distribution):
     where :math:`\kappa_i` is the precision of each Gaussian and :math:`\\beta_{ij}` are coefficients defining the structure of the GMRF.
 
     For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
-    ...
+
     """
         
     def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, is_symmetric=True, **kwargs): 
