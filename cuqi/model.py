@@ -122,7 +122,7 @@ class Model(object):
             The geometry representing the argument `out`.
 
         to_CUQIarray : bool
-            If True, the output is wrapped as a cuqi.samples.CUQIarray
+            If True, the output is wrapped as a cuqi.samples.CUQIarray.
 
         Returns
         -------
@@ -143,7 +143,7 @@ class Model(object):
         Parameters
         ----------
         func: function handler 
-            The function to be applied
+            The function to be applied.
 
         func_range_geometry : cuqi.geometry.Geometry
             The geometry representing the function `func` range.
