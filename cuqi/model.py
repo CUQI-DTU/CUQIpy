@@ -110,26 +110,27 @@ class Model(object):
         else:
             return x
 
-    def _process_output(self, x, out, geometry):
+    def _process_output(self, out, geometry, to_CUQIarray=False):
         """ Process output of cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func). Converts the output of the operator to parameters using the appropriate geometry.
 
         Parameters
         ----------
-        x : ndarray or cuqi.samples.CUQIarray
-            The input value to the operator.
-
         out : ndarray or cuqi.samples.CUQIarray
             The output value to be processed.
 
         geometry : cuqi.geometry.Geometry
             The geometry representing the argument `out`.
 
+        to_CUQIarray : bool
+            If True, the output is converted to cuqi.samples.CUQIarray
+
         Returns
         -------
         ndarray or cuqi.samples.CUQIarray
             The output value processed.
         """ 
-        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
+        geometry.fun2par(out)
+        if to_CUQIarray:
             return CUQIarray(out, is_par=True, geometry=geometry)
         else:
             return out
@@ -174,8 +175,9 @@ class Model(object):
             return Samples(out, geometry=func_range_geometry)
 
         x = self._process_input(x, func_domain_geometry, is_par)
-        out = func_range_geometry.fun2par(func(x, **kwargs))
-        return self._process_output(x, out, func_range_geometry) 
+        out = func(x, **kwargs)
+        return self._process_output(out, func_range_geometry, 
+                                    to_CUQIarray= type(x) is CUQIarray) 
         
     def forward(self, x, is_par=True ):
         """ Forward function of the model.
