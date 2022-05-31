@@ -188,6 +188,7 @@ def _stats(samples):
     #(sps.diags([-1, 2, -1], [-1, 0, 1], shape=(128, 128)), 1),
     (sps.diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(5, 5)), 2),
     #(sps.diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(128, 128)), 2),
+    (sps.eye(5), 0),
 ])
 def test_Gaussians_vs_GMRF(prec, GMRF_order):
     """ Tests the various Gaussians given some common precision matricies related to GMRFs"""
