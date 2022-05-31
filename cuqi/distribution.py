@@ -970,7 +970,7 @@ class GMRF(Distribution):
             # np.log(np.linalg.det(self.L.todense()))
         elif (bc_type == 'periodic') or (bc_type == 'neumann'):
             # Print warning that periodic and Neumann boundary conditions are experimental
-            print("Warning: Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO will not produce fully accurate results.")
+            print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO may not produce fully accurate results.")
 
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
