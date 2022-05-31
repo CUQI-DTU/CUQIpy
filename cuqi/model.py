@@ -129,7 +129,7 @@ class Model(object):
         ndarray or cuqi.samples.CUQIarray
             The output value processed.
         """ 
-        geometry.fun2par(out)
+        out = geometry.fun2par(out)
         if to_CUQIarray:
             return CUQIarray(out, is_par=True, geometry=geometry)
         else:
@@ -177,7 +177,7 @@ class Model(object):
         x = self._process_input(x, func_domain_geometry, is_par)
         out = func(x, **kwargs)
         return self._process_output(out, func_range_geometry, 
-                                    to_CUQIarray= type(x) is CUQIarray) 
+                                    to_CUQIarray= (type(x) is CUQIarray)) 
         
     def forward(self, x, is_par=True ):
         """ Forward function of the model.
