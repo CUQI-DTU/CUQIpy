@@ -101,7 +101,7 @@ class Model(object):
         Returns
         -------
         ndarray or cuqi.samples.CUQIarray
-            The input value processed.
+            The input value represented as a function.
         """
         if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
             return x.funvals
@@ -122,12 +122,12 @@ class Model(object):
             The geometry representing the argument `out`.
 
         to_CUQIarray : bool
-            If True, the output is converted to cuqi.samples.CUQIarray
+            If True, the output is wrapped as a cuqi.samples.CUQIarray
 
         Returns
         -------
         ndarray or cuqi.samples.CUQIarray
-            The output value processed.
+            The output value represented as parameters.
         """ 
         out = geometry.fun2par(out)
         if to_CUQIarray:
