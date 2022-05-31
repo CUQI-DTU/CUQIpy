@@ -10,7 +10,7 @@ from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_
                          [
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071), 20),
                              (Deconvolution1D, "gauss", GaussianCov(np.zeros(128), 0.005), 20),
-                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 128, 1, "zero"), 20),
+                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
                              (Deconvolution1D, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
                              (Deconvolution1D, "square", Laplace_diff(np.zeros(128), 0.005), 100),
                              (Deconvolution1D, "square", Cauchy_diff(np.zeros(128), 0.01), 50),

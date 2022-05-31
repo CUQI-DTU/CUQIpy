@@ -35,7 +35,7 @@ norm_f = np.linalg.norm(test.exactSolution)
 # =============================================================================
 mu_pr = np.zeros(n)
 delta = 25             # prior precision parameter
-prior = cuqi.distribution.GMRF(mu_pr, delta, n, 1, 'zero')
+prior = cuqi.distribution.GMRF(mu_pr, delta, 1, 'zero')
 
 # =============================================================================
 # posterior sampling

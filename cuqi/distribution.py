@@ -926,9 +926,6 @@ class GMRF(Distribution):
     prec : float
         Precision of the GMRF.
 
-    partition_size : int
-        The dimension of the distribution in one physical dimension. 
-
     physical_dim : int
         The physical dimension of what the distribution represents (can take the values 1 or 2).
 
@@ -936,21 +933,25 @@ class GMRF(Distribution):
         The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
 
     order : int
-        The order of the GMRF. Can be 1 or 2.
+        The order of the GMRF. Can be 0, 1 or 2.
+
+    Notes
+    -----
+    ...
     """
         
-    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 
+    def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, is_symmetric=True, **kwargs): 
         super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self._partition_size = partition_size          # partition size
+        self._partition_size = len(mean) if physical_dim == 1 else int(np.sqrt(len(mean)))
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim
         if physical_dim == 1: 
-            num_nodes = (partition_size,) 
+            num_nodes = (self._partition_size,) 
         else:
-            num_nodes = (partition_size,partition_size)
+            num_nodes = (self._partition_size, self._partition_size)
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
 

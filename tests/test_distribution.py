@@ -96,7 +96,7 @@ def test_Gaussian_rng(mean,std,R):
     rng = np.random.RandomState(3)
     assert np.allclose(cuqi.distribution.Gaussian(mean,std,R).sample(10).samples,cuqi.distribution.Gaussian(mean,std,R).sample(10,rng=rng).samples)
 
-@pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,128,1,'zero'),cuqi.distribution.GMRF(np.ones(128),35,128,1,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,128,1,'neumann')])
+@pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,1,'zero'),cuqi.distribution.GMRF(np.ones(128),35,1,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,1,'neumann')])
 def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
@@ -205,7 +205,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec)
     X_cov = cuqi.distribution.GaussianCov(np.zeros(dim), cov)
     X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(dim), sqrtprec)
-    X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, dim, 1, 'zero', order=GMRF_order)
+    X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
 
     # logpdfs
     x0 = np.random.randn(dim)
