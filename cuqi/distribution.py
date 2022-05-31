@@ -915,9 +915,7 @@ class Gaussian(GaussianCov):
 # ========================================================================
 class GMRF(Distribution):
     """ Gaussian Markov random field.
-    
-    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
-    
+       
     Parameters
     ----------
     mean : array_like
@@ -937,6 +935,67 @@ class GMRF(Distribution):
 
     Notes
     -----
+    The GMRF defines a distribution over a set of points where each point conditioned on the others follow a Gaussian distribution.
+
+    For 1D `(physical_dim=1)`, the current implementation provides three different cases:
+
+    * Order 0: :math:`x_i \sim \mathcal{N}(x_i, \delta^{-1})`,
+    * Order 1: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}((x_{i-1}+x_{i+1})/2, (2\delta)^{-1}))`,
+    * Order 2: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}((-x_{i-1}+2x_i-x_{i+1})/4, (4\delta)^{-1}))`,
+
+    where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean of :math:`x_i` for each :math:`i`.
+
+    For 2D `(physical_dim=2)`, the Gaussians are defined in both horizontal and vertical directions.
+
+    It is possible to define boundary conditions for the GMRF using the `bc_type` parameter.
+
+    **Illustration as a Gaussian distribution**
+
+    It may be benefitial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero boundary conditions,
+    the GMRF distribution can be represented by a Gaussian with zero mean and the following precision matrices depending on the order:
+
+    * Order 0:
+    .. math::
+
+        \mathbf{P} = \delta \mathbf{I}.
+
+    * Order 1: 
+
+    .. math::
+    
+        \mathbf{P} = \delta 
+        \\begin{bmatrix} 
+             2  & -1        &           &           \\newline
+            -1  &  2        & -1        &           \\newline
+                & \ddots    & \ddots    & \ddots    \\newline
+                &           & -1        & 2         
+        \end{bmatrix}.
+
+    * Order 2:
+
+    .. math::
+
+        \mathbf{P} = \delta
+        \\begin{bmatrix}
+             6   & -4       &  1        &           &           &           \\newline
+            -4   &  6       & -4        & 1         &           &           \\newline
+            1    & -4       &  6        & -4        & 1         &           \\newline
+                 & \ddots   & \ddots    & \ddots    & \ddots    & \ddots    \\newline
+                 &          & \ddots    & \ddots    & \ddots    & \ddots    \\newline
+                 &          &           & 1         & -4        &  6        \\newline
+        \end{bmatrix}.
+    
+    **General representation**
+
+    In general we can define the GMRF distribution on each point by
+
+    .. math::
+
+        x_i \mid \mathbf{x}_{\partial_i} \sim \mathcal{N}\left(\sum_{j \in \partial_i} \\beta_{ij} x_j, \kappa_i^{-1}\\right),
+
+    where :math:`\kappa_i` is the precision of each Gaussian and :math:`\\beta_{ij}` are coefficients defining the structure of the GMRF.
+
+    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
     ...
     """
         
