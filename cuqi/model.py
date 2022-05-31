@@ -83,16 +83,16 @@ class Model(object):
     def range_dim(self): 
         return self.range_geometry.dim
 
-    def _process_input(self, x, geometry, is_par):
-        """ Process input for cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func). Converts the input to the operator to function values (if needed) using the appropriate geometry.
+    def _input2fun(self, x, geometry, is_par):
+        """ Converts input to cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func) to function values (if needed) using the appropriate geometry.
 
         Parameters
         ----------
         x : ndarray or cuqi.samples.CUQIarray
-            The input value to be processed.
+            The input value to be converted.
 
         geometry : cuqi.geometry.Geometry
-            The geometry that represents the input `x`.
+            The geometry representing the input `x`.
 
         is_par : bool
             If True the input is assumed to be parameters.
@@ -110,13 +110,13 @@ class Model(object):
         else:
             return x
 
-    def _process_output(self, out, geometry, to_CUQIarray=False):
-        """ Process output of cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func). Converts the output of the operator to parameters using the appropriate geometry.
+    def _output2par(self, out, geometry, to_CUQIarray=False):
+        """ Converts output of cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func) to parameters using the appropriate geometry.
 
         Parameters
         ----------
         out : ndarray or cuqi.samples.CUQIarray
-            The output value to be processed.
+            The output value to be converted.
 
         geometry : cuqi.geometry.Geometry
             The geometry representing the argument `out`.
@@ -136,7 +136,7 @@ class Model(object):
             return out
 
     def _apply_func(self, func, func_range_geometry, func_domain_geometry, x, is_par, **kwargs):
-        """ Private function that applies the given function `func` to the input value `x`. It processes the input and the output of `func` according to the given domain and range geometries. It additionally handles the case of applying the function `func` to the cuqi.samples.Samples object.
+        """ Private function that applies the given function `func` to the input value `x`. It converts the input to function values (if needed) using the given `func_domain_geometry` and converts the output function values to parameters using the given `func_range_geometry`. It additionally handles the case of applying the function `func` to the cuqi.samples.Samples object.
 
         kwargs are keyword arguments passed to the functions `func`.
         
@@ -161,9 +161,10 @@ class Model(object):
         Returns
         -------
         ndarray or cuqi.samples.CUQIarray
-            The output of the function `func` after being processed.
+            The output of the function `func` converted to parameters.
         """ 
-
+        # If input x is Samples we apply func for each sample
+        # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             out = np.zeros((func_range_geometry.dim, x.Ns))
             for idx, item in enumerate(x):
@@ -174,9 +175,9 @@ class Model(object):
                                               **kwargs)
             return Samples(out, geometry=func_range_geometry)
 
-        x = self._process_input(x, func_domain_geometry, is_par)
+        x = self._input2fun(x, func_domain_geometry, is_par)
         out = func(x, **kwargs)
-        return self._process_output(out, func_range_geometry, 
+        return self._output2par(out, func_range_geometry, 
                                     to_CUQIarray= (type(x) is CUQIarray)) 
         
     def forward(self, x, is_par=True ):
@@ -236,7 +237,7 @@ class Model(object):
         if isinstance(direction, Samples) or isinstance(wrt, Samples):
             raise ValueError("cuqi.samples.Samples input values for arguments `direction` and `wrt` are not supported")
             
-        wrt = self._process_input(wrt, self.domain_geometry, is_wrt_par)
+        wrt = self._input2fun(wrt, self.domain_geometry, is_wrt_par)
 
         grad = self._apply_func(self._gradient_func,
                                 self.domain_geometry,
