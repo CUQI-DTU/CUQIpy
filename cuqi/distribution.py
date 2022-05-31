@@ -951,11 +951,11 @@ class GMRF(Distribution):
 
     **Illustration as a Gaussian distribution**
 
-    It may be benefitial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero boundary conditions,
+    It may be benefitial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero mean and zero boundary conditions,
     the GMRF distribution can be represented by a Gaussian with zero mean and the following precision matrices depending on the order:
 
     * Order 0:
-    
+
     .. math::
 
         \mathbf{P} = \delta \mathbf{I}.
