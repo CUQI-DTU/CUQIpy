@@ -361,18 +361,17 @@ class Cauchy_diff(Distribution):
             warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
 
     def _sample(self,N=1,rng=None):
-        if rng is not None:
-            raise NotImplementedError("Sampling not implemented for Cauchy_diff with given random number generator.")
-
-        if self._bc_type.lower() == "neumann" and self._physical_dim == 1:
-            warnings.warn("Cauchy_diff direct sampling assumes leftmost starting point is zero.")
-            d = sps.cauchy.rvs(scale=self.scale, size=(self.dim,N))
-            x = np.zeros((self.dim,N))
-            for i in range(x.shape[0]-1):
-                x[i+1,:] = x[i,:]+d[i,:]
-            return x
-        else:
-            raise NotImplementedError(f"'Cauchy_diff.sample' is not implemented for bc_type {self._bc_type} and physical dimension {self._physical_dim}. Sampling can be performed with the 'sampler' module.")
+        #if rng is not None:
+        #    raise NotImplementedError("Sampling not implemented for Cauchy_diff with given random number generator.")
+        #if self._bc_type.lower() == "neumann" and self._physical_dim == 1:
+        #    warnings.warn("Cauchy_diff direct sampling assumes leftmost starting point is zero.")
+        #    d = sps.cauchy.rvs(scale=self.scale, size=(self.dim,N))
+        #    x = np.zeros((self.dim,N))
+        #    for i in range(x.shape[0]-1):
+        #        x[i+1,:] = x[i,:]+d[i,:]
+        #    return x
+        #else:
+        raise NotImplementedError(f"'Cauchy_diff.sample' is not implemented for bc_type {self._bc_type} and physical dimension {self._physical_dim}. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
     #     return 1/np.pi * np.atan((x-self.loc)/self.scale)
@@ -1147,18 +1146,19 @@ class Laplace_diff(Distribution):
         return len(Dx)*(-(np.log(2)+np.log(self.scale))) - np.linalg.norm(Dx, ord=1, axis=0)/self.scale
 
     def _sample(self,N=1,rng=None):
-        if rng is not None:
-            raise NotImplementedError("Sampling not implemented for Laplace_diff with given random number generator.")
+        #if rng is not None:
+        #    raise NotImplementedError("Sampling not implemented for Laplace_diff with given random number generator.")
+        #if self._bc_type.lower() == "neumann" and self._physical_dim == 1:
+        #    warnings.warn("Laplace_diff direct sampling assumes starting node is zero.")
+        #    d = sps.laplace.rvs(scale=self.scale, size=(self.dim,N))
+        #    x = np.zeros((self.dim,N))
+        #    for i in range(x.shape[0]-1):
+        #        x[i+1,:] = x[i,:]+d[i,:]
+        #    return x
+        #else:
 
-        if self._bc_type.lower() == "neumann" and self._physical_dim == 1:
-            warnings.warn("Laplace_diff direct sampling assumes starting node is zero.")
-            d = sps.laplace.rvs(scale=self.scale, size=(self.dim,N))
-            x = np.zeros((self.dim,N))
-            for i in range(x.shape[0]-1):
-                x[i+1,:] = x[i,:]+d[i,:]
-            return x
-        else:
-            raise NotImplementedError(f"'Laplace_diff.sample' is not implemented for bc_type {self._bc_type} and physical dimension {self._physical_dim}. Sampling can be performed with the 'sampler' module.")
+        raise NotImplementedError(f"'Laplace_diff.sample' is not implemented for bc_type {self._bc_type} and physical dimension {self._physical_dim}. Sampling can be performed with the 'sampler' module.")
+    
     # def cdf(self, x):   # TODO
     #     return 1/2 + 1/2*np.sign(x-self.loc)*(1-np.exp(-np.linalg.norm(x, ord=1, axis=0)/self.scale))
 
