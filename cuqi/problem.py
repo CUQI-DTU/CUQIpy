@@ -157,6 +157,11 @@ class BayesianProblem(object):
 
         disp : bool
             display info messages? (True or False).
+
+        Returns
+        -------
+        x_MAP : CUQIarray
+            MAP estimate of the posterior. Solver info is stored in `.info` attribute.
         
         """
 
@@ -180,28 +185,30 @@ class BayesianProblem(object):
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
             map_estimate = x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
-            return cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
+            map_estimate = cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
+            map_estimate.info = {"solver": "direct"}
+            return map_estimate
 
         # If no specific implementation exists, use numerical optimization.
-        if disp: print("Using scipy.optimize.minimize on negative logpdf of posterior")
-        if disp: print("x0: random vector")
-        x0 = np.random.randn(self.model.domain_dim)
+        if disp: print("Using scipy.optimize.fmin_l_bfgs_b on negative logpdf of posterior")
+        if disp: print("x0: ones vector")
+        x0 = np.ones(self.model.domain_dim)
         def posterior_logpdf(x):
             return -self.posterior.logpdf(x)
 
         if self._check_posterior(must_have_gradient=True):
             if disp: print("Optimizing with exact gradients")
             gradfunc = lambda x: -self.posterior.gradient(x)
-            solver = cuqi.solver.minimize(posterior_logpdf, 
-                                            x0,
-                                            gradfunc=gradfunc)
+            solver = cuqi.solver.L_BFGS_B(posterior_logpdf, x0, gradfunc=gradfunc)
             x_BFGS, info_BFGS = solver.solve()
         else:
             if disp: print("Optimizing with approximate gradients.")      
-            solver = cuqi.solver.minimize(posterior_logpdf, 
-                                            x0)
+            solver = cuqi.solver.L_BFGS_B(posterior_logpdf, x0)
             x_BFGS, info_BFGS = solver.solve()
-        return x_BFGS, info_BFGS
+        x_MAP = cuqi.samples.CUQIarray(x_BFGS, geometry=self.model.domain_geometry)
+        x_MAP.info = info_BFGS
+        x_MAP.info["solver"] = "L-BFGS-B"
+        return x_MAP
 
     def sample_posterior(self, Ns, callback=None) -> cuqi.samples.Samples:
         """Sample the posterior. Sampler choice and tuning is handled automatically.
