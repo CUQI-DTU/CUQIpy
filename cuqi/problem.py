@@ -9,6 +9,8 @@ from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
 from cuqi.pde import SteadyStateLinearPDE
 
+from copy import copy
+
 class BayesianProblem(object):
     """Representation of a Bayesian inverse problem (posterior) defined by a likelihood and prior.
     
@@ -258,6 +260,31 @@ class BayesianProblem(object):
 
         else:
             raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
+
+    def sample_prior(self, Ns, callback=None) -> cuqi.samples.Samples:
+        """ Sample the prior distribution. Sampler choice and tuning is handled automatically. """
+
+        # Try sampling prior directly
+        try:
+            return self.prior.sample(Ns)
+        except NotImplementedError:
+            pass
+
+        # If no direct method exists redefine posterior to one with a constant likelihood and sample from posterior
+        print("Using sampler module to sample prior.")
+        print("Make sure enough samples are drawn for convergence.")
+        print("")
+
+        # Create a copy of self
+        prior_problem = copy(self)
+
+        # Set likelihood to constant
+        model = cuqi.model.LinearModel(lambda x: 0*x, lambda y: 0*y, self.model.range_geometry, self.model.domain_geometry)
+        likelihood = cuqi.distribution.GaussianCov(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
+        prior_problem.likelihood = likelihood
+
+        # Now sample prior problem
+        return prior_problem.sample_posterior(Ns, callback)
 
     def UQ(self, exact=None):
         print("Computing 5000 samples")
