@@ -361,7 +361,17 @@ class Cauchy_diff(Distribution):
             warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
 
     def _sample(self,N=1,rng=None):
-        raise NotImplementedError("'Cauchy_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
+        if rng is not None:
+            raise NotImplementedError("Sampling not implemented for Cauchy_diff with given random number generator.")
+
+        if self._bc_type.lower() == "neumann":
+            d = sps.cauchy.rvs(scale=self.scale, size=(self.dim,N))
+            x = np.zeros((self.dim,N))
+            for i in range(x.shape[0]-1):
+                x[i+1,:] = x[i,:]+d[i,:]
+            return x
+        else:
+            raise NotImplementedError(f"'Cauchy_diff.sample' is not implemented for bc_type {self._bc_type}. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
     #     return 1/np.pi * np.atan((x-self.loc)/self.scale)
