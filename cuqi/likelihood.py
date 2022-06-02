@@ -51,6 +51,7 @@ from cuqi.model import Model
 from cuqi.utilities import get_non_default_args
 from cuqi.geometry import _DefaultGeometry
 import warnings
+from copy import copy
 
 class Likelihood(object):
     """Likelihood function defined from a conditional distribution and some observed data.
@@ -78,9 +79,6 @@ class Likelihood(object):
         
         self.distribution = distribution
         self.data = data
-
-        # Check if a CUQI model is inside distribution
-        self.model # returns error if distribution does not have model
 
     def log(self, *args, **kwargs):
         """Return the log-likelihood function at given value"""
@@ -141,6 +139,12 @@ class Likelihood(object):
                     raise ValueError(f"Multiple models found in data distribution {self.distribution} of {self}. Extracting model is ambiguous and not supported.")
         
         return model_value
+
+    def __call__(self, *args, **kwargs):
+        """ Fix some parameters of the likelihood function by conditioning on the underlying distribution. """
+        new_likelihood = copy(self)
+        new_likelihood.distribution = self.distribution(*args, **kwargs)
+        return new_likelihood
 
 class UserDefinedLikelihood(object):
     """ Class to wrap user-defined likelihood functions.

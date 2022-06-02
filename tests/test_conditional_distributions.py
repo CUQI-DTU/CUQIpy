@@ -60,3 +60,15 @@ def test_conditioning_partial_function():
     assert dist2.get_conditioning_variables() == ["z"]
     assert dist2.mean == 3
     assert cuqi.utilities.get_non_default_args(dist2.cov) == ["z"]
+
+def test_conditioning_keeps_name():
+    """ This tests if the name of the distribution is kept when conditioning. """
+    y = cuqi.distribution.GaussianCov(lambda x:x, name="y")
+    
+    assert y(x=1, cov=1).name == y.name
+    assert y(x=1)(cov=1).name == y.name
+    assert y(x=1)(cov=1)().name == y.name
+
+    assert y(x=1).name == y.name
+    assert y(cov=1).name == y.name
+    assert y().name == y.name
