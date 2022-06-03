@@ -128,25 +128,14 @@ class BayesianProblem(object):
         print("!!!    Always validate the computed results.    !!!")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print("")
-        print("Using scipy.optimize.minimize on negative log-likelihood")
-        print("x0: random vector")
-        x0 = np.random.randn(self.model.domain_dim)
 
-        if self._check_posterior(must_have_gradient=True):
-            print("Optimizing with exact gradients")
-            gradfunc = lambda x: -self.likelihood.gradient(x)
-            solver = cuqi.solver.minimize(
-                                     lambda x: -self.likelihood.log(x), 
-                                     x0, 
-                                     gradfunc=gradfunc)
-            x_BFGS, info_BFGS = solver.solve()
-        else:
-            print("Optimizing with approximate gradients.")
-            solver = cuqi.solver.minimize(
-                                     lambda x: -self.likelihood.log(x), 
-                                     x0)
-            x_BFGS, info_BFGS = solver.solve()
-        return x_BFGS, info_BFGS
+        x_ML, solver_info = self._solve_max_point(self.likelihood)
+
+        # Wrap the result in a CUQIarray and add solver info
+        x_ML = cuqi.samples.CUQIarray(x_ML, geometry=self.likelihood.geometry)
+        x_ML.info = solver_info
+
+        return x_ML
 
 
     def MAP(self, disp=True):
@@ -184,30 +173,15 @@ class BayesianProblem(object):
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
-            map_estimate = x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
-            map_estimate = cuqi.samples.CUQIarray(map_estimate, geometry=self.model.domain_geometry)
-            map_estimate.info = {"solver": "direct"}
-            return map_estimate
+            x_MAP = x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+            solver_info = {"solver": "direct"}
 
-        # If no specific implementation exists, use numerical optimization.
-        if disp: print("Using scipy.optimize.fmin_l_bfgs_b on negative logpdf of posterior")
-        if disp: print("x0: ones vector")
-        x0 = np.ones(self.model.domain_dim)
-        def posterior_logpdf(x):
-            return -self.posterior.logpdf(x)
+        else: # If no specific implementation exists, use numerical optimization.
+            x_MAP, solver_info = self._solve_max_point(self.posterior, disp=disp)
 
-        if self._check_posterior(must_have_gradient=True):
-            if disp: print("Optimizing with exact gradients")
-            gradfunc = lambda x: -self.posterior.gradient(x)
-            solver = cuqi.solver.L_BFGS_B(posterior_logpdf, x0, gradfunc=gradfunc)
-            x_BFGS, info_BFGS = solver.solve()
-        else:
-            if disp: print("Optimizing with approximate gradients.")      
-            solver = cuqi.solver.L_BFGS_B(posterior_logpdf, x0)
-            x_BFGS, info_BFGS = solver.solve()
-        x_MAP = cuqi.samples.CUQIarray(x_BFGS, geometry=self.model.domain_geometry)
-        x_MAP.info = info_BFGS
-        x_MAP.info["solver"] = "L-BFGS-B"
+        # Wrap the result in a CUQIarray and add solver info
+        x_MAP = cuqi.samples.CUQIarray(x_MAP, geometry=self.posterior.geometry)
+        x_MAP.info = solver_info
         return x_MAP
 
     def sample_posterior(self, Ns, callback=None) -> cuqi.samples.Samples:
@@ -402,6 +376,50 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
 
         return samples
+
+    def _solve_max_point(self, density, disp=True, **kwargs):
+        """ This is a helper function for point estimation of the maximum of a density (e.g. posterior or likelihood) using solver module.
+        
+        Parameters
+        ----------
+        density : Density (Distribution or Likelihood)
+            The density or likelihood to compute the maximum point of the negative log.
+
+        disp : bool
+            display info messages? (True or False).
+        """
+
+        if disp: print(f"Using scipy.optimize.fmin_l_bfgs_b on negative log of {density.__class__.__name__}")
+        if disp: print("x0: ones vector")
+        
+        # Get the function to minimize (negative log-likelihood or negative log-posterior)
+        if hasattr(density, 'logpdf'):
+            def func(x): return -density.logpdf(x)
+        elif hasattr(density, 'log'):
+            def func(x): return -density.log(x)
+        else:
+            raise ValueError("Density must have logpdf or log method to be maximized.")
+
+        # Initial value
+        x0 = np.ones(self.model.domain_dim)
+
+        # Get the gradient (if available)
+        try: 
+            density.gradient(x0)
+            def gradfunc(x): return -density.gradient(x)
+            if disp: print("Optimizing with exact gradients")
+        except (NotImplementedError, AttributeError):
+            gradfunc = None
+            if disp: print("Optimizing with approximate gradients.") 
+
+        # Compute point estimate
+        solver = cuqi.solver.L_BFGS_B(func, x0, gradfunc=gradfunc)
+        x_MAP, solver_info = solver.solve(**kwargs)
+
+        # Add info on solver choice
+        solver_info["solver"] = "L-BFGS-B"
+
+        return x_MAP, solver_info
 
     def _check_geometries_consistency(self, geom1, geom2, fail_msg):
         """checks geom1 and geom2 consistency . If both are of type `_DefaultGeometry` they need to be equal. If one of them is of `_DefaultGeometry` type, it will take the value of the other one. If both of them are user defined, they need to be consistent"""
