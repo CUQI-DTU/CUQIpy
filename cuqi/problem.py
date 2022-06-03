@@ -271,7 +271,7 @@ class BayesianProblem(object):
             pass
 
         # If no direct method exists redefine posterior to one with a constant likelihood and sample from posterior
-        print("Using sampler module to sample prior.")
+        print("Using MCMC methods from sampler module to sample prior.")
         print("Make sure enough samples are drawn for convergence.")
         print("")
 
