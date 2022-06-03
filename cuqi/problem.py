@@ -160,8 +160,8 @@ class BayesianProblem(object):
 
         Returns
         -------
-        x_MAP : CUQIarray
-            MAP estimate of the posterior. Solver info is stored in `.info` attribute.
+        CUQIarray
+            MAP estimate of the posterior. Solver info is stored in the returned CUQIarray `info` attribute.
         
         """
 
