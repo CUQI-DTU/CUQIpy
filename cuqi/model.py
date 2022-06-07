@@ -3,7 +3,7 @@ from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples, CUQIarray
-from cuqi.geometry import Geometry, StepExpansion, KLExpansion, CustomKL, Continuous1D, _DefaultGeometry, Continuous2D, Discrete, Image2D
+from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
 import cuqi
 import matplotlib.pyplot as plt
 
@@ -249,6 +249,9 @@ class Model(object):
         if hasattr(self.domain_geometry, 'gradient'):
             grad = self.domain_geometry.gradient(grad)
 
+        elif not type(self.domain_geometry) in _get_identity_geometries():
+            raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
+
         return grad
 
     # approximate the Jacobian matrix of callable function func
@@ -398,7 +401,7 @@ class LinearModel(Model):
         
         """
         #Avoid complicated geometries that change the gradient.
-        if not type(self.domain_geometry) in [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]:
+        if not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return self.adjoint(direction)
