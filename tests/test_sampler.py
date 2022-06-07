@@ -382,6 +382,11 @@ def test_TP_callback(prior, sample_method, expected):
     assert np.array_equal(Ns_list, expected)
 
 def test_NUTS_regression(copy_reference):
+    # SKIP NUTS test if not windows (for now) #TODO.
+    if  not sys.platform.startswith('win') and \
+       not sys.platform.startswith('darwin'):
+        pytest.skip("NUTS regression test is not implemented for this platform")
+
     np.random.seed(0)
     tp = cuqi.testproblem.WangCubic()
     x0 = np.ones(tp.model.domain_dim)
@@ -393,9 +398,9 @@ def test_NUTS_regression(copy_reference):
     if sys.platform.startswith('win'):
         samples_orig_file = copy_reference(
             "data/NUTS_felipe_original_code_results_win.npz")
-    else:
+    elif sys.platform.startswith('darwin'):
         samples_orig_file = copy_reference(
-            "data/NUTS_felipe_original_code_results.npz")
+            "data/NUTS_felipe_original_code_results_darwin.npz")
     
     samples_orig = np.load(samples_orig_file)
 
