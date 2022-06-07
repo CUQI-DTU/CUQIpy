@@ -237,6 +237,10 @@ class Model(object):
         
         if isinstance(direction, Samples) or isinstance(wrt, Samples):
             raise ValueError("cuqi.samples.Samples input values for arguments `direction` and `wrt` are not supported")
+
+        #TODO: Add range geometry gradient to the chain rule 
+        if not type(self.range_geometry) in _get_identity_geometries():
+            raise NotImplementedError("Gradient not implemented for model {} with range geometry {}".format(self,self.range_geometry)) 
             
         wrt = self._input2fun(wrt, self.domain_geometry, is_wrt_par)
 
@@ -247,8 +251,9 @@ class Model(object):
                                 wrt=wrt)
 
         if hasattr(self.domain_geometry, 'gradient'):
-            grad = self.domain_geometry.gradient(grad, wrt)
-
+            grad = self.domain_geometry.gradient(grad,\
+                   self._output2par(wrt, self.domain_geometry, to_CUQIarray=False))
+        
         elif not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
