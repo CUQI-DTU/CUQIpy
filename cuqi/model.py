@@ -84,7 +84,7 @@ class Model(object):
         return self.range_geometry.dim
 
     def _input2fun(self, x, geometry, is_par):
-        """ Converts input to cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func) to function values (if needed) using the appropriate geometry.
+        """ Converts input to function values (if needed) using the appropriate geometry. The input can then be passed to :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func).
 
         Parameters
         ----------
@@ -111,7 +111,7 @@ class Model(object):
             return x
 
     def _output2par(self, out, geometry, to_CUQIarray=False):
-        """ Converts output of cuqi.model.Model operators (e.g. _forward_func, _adjoint_func, _gradient_func) to parameters using the appropriate geometry.
+        """ Converts output of :class:~`cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func) to parameters using the appropriate geometry.
 
         Parameters
         ----------
@@ -167,6 +167,7 @@ class Model(object):
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
             out = np.zeros((func_range_geometry.dim, x.Ns))
+            # Recursively apply func to each sample
             for idx, item in enumerate(x):
                 out[:,idx] = self._apply_func(func,
                                               func_range_geometry,
