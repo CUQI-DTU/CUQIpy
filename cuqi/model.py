@@ -247,7 +247,7 @@ class Model(object):
                                 wrt=wrt)
 
         if hasattr(self.domain_geometry, 'gradient'):
-            grad = self.domain_geometry.gradient(grad)
+            grad = self.domain_geometry.gradient(grad, wrt)
 
         elif not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
