@@ -232,16 +232,34 @@ class Model(object):
             If False, `wrt` is assumed to be function values.
         
         """
+        # Raise an error if _gradient_func function is not set
         if self._gradient_func is None:
             raise NotImplementedError("Gradient is not implemented for this model.")
         
+        # Raise error if either the direction or wrt are Samples object
         if isinstance(direction, Samples) or isinstance(wrt, Samples):
             raise ValueError("cuqi.samples.Samples input values for arguments `direction` and `wrt` are not supported")
-
+        
+        # Raise an error if range_geometry is not in the list returned by
+        # `_get_identity_geometries()`. i.e. The Jacobian of its 
+        # par2fun map is not identity.  
         #TODO: Add range geometry gradient to the chain rule 
         if not type(self.range_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with range geometry {}".format(self,self.range_geometry)) 
-            
+        
+        # Raise an error if wrt is passed as function value and the domain_geometry 
+        # does not have fun2par method
+        if is_wrt_par:
+            wrt_par = wrt
+        else:
+            try:
+                wrt_par = self.domain_geometry.fun2par(wrt)
+            except NotImplementedError:
+                raise NotImplementedError("For the gradient to be computed, is_wrt_par"+
+                 "needs to be True and wrt needs to be parameter value, not function"+
+                 f"value. Alternatively, the model domain_geometry: {self.domain_geometry}"+
+                 "should have an implementation of the method fun2par")
+
         wrt = self._input2fun(wrt, self.domain_geometry, is_wrt_par)
 
         grad = self._apply_func(self._gradient_func,
@@ -251,9 +269,11 @@ class Model(object):
                                 wrt=wrt)
 
         if hasattr(self.domain_geometry, 'gradient'):
-            grad = self.domain_geometry.gradient(grad,\
-                   self._output2par(wrt, self.domain_geometry, to_CUQIarray=False))
+            grad = self.domain_geometry.gradient(grad, wrt_par)
         
+        # Raise an error if domain_geometry does not have gradient attribute and
+        # is not in the list returned by `_get_identity_geometries()`. i.e. The
+        # Jacobian of its par2fun map is not identity.  
         elif not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
