@@ -48,3 +48,81 @@ def test_model_allow_DefaultGeometry():
     x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1).sample()
     model(x)   #Forward
     model.T(x) #Adjoint
+
+@pytest.mark.parametrize("x, expected_type",
+                         [(np.array([1, 3, 4]),
+                           np.ndarray),
+
+                          (cuqi.samples.Samples(
+                              samples=np.array([[1, 3, 4],
+                                               [5, 2, 6]]).T),
+                           cuqi.samples.Samples),
+
+                          (cuqi.samples.CUQIarray(np.array([1, 3, 4]),
+                            geometry=cuqi.geometry.Continuous1D(3)),
+                           cuqi.samples.CUQIarray)])
+def test_forward(x, expected_type):
+    """For different types of input to the model forward method, assert we are optaining the correct output type"""
+    A = np.array(([1, 0, 0],[0, 3, .1]))
+
+    model = cuqi.model.Model(forward=lambda x:A@x,
+                            gradient=lambda direction,
+                            wrt: A.T@direction,
+                            domain_geometry=cuqi.geometry.Continuous1D(3),
+                            range_geometry=cuqi.geometry.Continuous1D(2))
+
+    fwd = model.forward(x)
+    assert(isinstance(fwd, expected_type))
+
+@pytest.mark.parametrize("x, expected_type",
+                         [(np.array([1, 3]),
+                           np.ndarray),
+
+                          (cuqi.samples.Samples(
+                              samples=np.array([[1, 3],
+                                               [5, 2]])),                
+                           cuqi.samples.Samples),
+
+                          (cuqi.samples.CUQIarray(np.array([1, 3]),
+                            geometry=cuqi.geometry.Continuous1D(2)),
+                           cuqi.samples.CUQIarray)])
+def test_adjoint(x, expected_type):
+    """For different types of input to the model adjoint method, assert we are optaining the correct output type"""
+    A = np.array(([1, 0, 0],[0, 3, .1]))
+
+    model = cuqi.model.LinearModel(forward=A,
+                                   domain_geometry=cuqi.geometry.Continuous1D(3),
+                                   range_geometry=cuqi.geometry.Continuous1D(2))
+
+    ad = model.adjoint(x)
+    assert(isinstance(ad, expected_type))
+    pass
+
+@pytest.mark.parametrize("direction, expected_type",
+                         [(np.array([1, 4]),
+                           np.ndarray),
+
+                          (cuqi.samples.Samples(
+                              samples=np.array([[3, 4],
+                                               [2, 6]]).T),
+                           cuqi.samples.Samples),
+
+                          (cuqi.samples.CUQIarray(np.array([3, 4]),
+                            geometry=cuqi.geometry.Continuous1D(2)),
+                           cuqi.samples.CUQIarray)])
+def test_gradient(direction, expected_type):
+    """For different types of input to the model gradient method, assert we are optaining the correct output type"""
+    A = np.array(([1, 0, 0],[0, 3, .1]))
+
+    model = cuqi.model.Model(forward=lambda x:A@x,
+                            gradient=lambda direction,
+                            wrt: A.T@direction,
+                            domain_geometry=cuqi.geometry.Continuous1D(3),
+                            range_geometry=cuqi.geometry.Continuous1D(2))
+
+    if isinstance(direction, cuqi.samples.Samples):
+        with pytest.raises(ValueError):
+           grad = model.gradient(direction, None)
+    else:            
+        grad = model.gradient(direction, None)
+        assert(isinstance(grad, expected_type))
