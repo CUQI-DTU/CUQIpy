@@ -126,3 +126,72 @@ def test_gradient(direction, expected_type):
     else:            
         grad = model.gradient(direction, None)
         assert(isinstance(grad, expected_type))
+
+
+@pytest.mark.parametrize("wrt, is_wrt_par, case_id",
+                         [(np.array([1, 4]), False, 1),
+                          (np.array([1, 4]), True, 2),
+                          (np.array([1, 4]), False, 3),
+                          (np.array([1, 4]), True, 4)])
+def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
+    """ Test different types of wrt input"""
+    range_geometry = cuqi.geometry.Continuous1D(2)
+    if case_id == 1:
+        domain_geometry = \
+         cuqi.geometry.MappedGeometry(
+             cuqi.geometry.Continuous1D(2), map=lambda x:x)
+    if case_id == 2:
+        domain_geometry = \
+         cuqi.geometry.MappedGeometry(
+             cuqi.geometry.Continuous1D(2), map=lambda x:2*x,
+             imap= lambda x:x/2)
+
+    if case_id == 3:
+        domain_geometry = \
+         cuqi.geometry.Continuous1D(2)
+        def my_fun2par(p):
+            raise NotImplementedError 
+        domain_geometry.fun2par = my_fun2par
+
+    if case_id == 4:
+        domain_geometry = \
+         cuqi.geometry.Continuous1D(2)
+        range_geometry = \
+         cuqi.geometry.MappedGeometry(
+             cuqi.geometry.Continuous1D(2), map=lambda x:2*x,
+             imap= lambda x:x/2)
+
+    A = np.array(([1, 0],[0, 3]))
+    direction = np.array([1, 4])
+
+    model = cuqi.model.Model(forward=lambda x:x@A@x,
+                            gradient=lambda direction,
+                            wrt: 2*wrt@A@direction,
+                            domain_geometry=domain_geometry,
+                            range_geometry=range_geometry)
+
+    if case_id ==1:
+        # Raises and error because imap is not implemented for
+        # the domain_geometry and hence can't compute fun2par 
+        # (and wrt is passed as function).
+        with pytest.raises(ValueError):
+            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+
+    if case_id ==2:
+        # Raises an error because gradient is not implemented for
+        # the domain_geometry and the domain geometry is not in
+        # the list cuqi.geometry._get_identity_geometries()
+        with pytest.raises(NotImplementedError):
+            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+
+    if case_id ==3:
+        # Raises an error because domain_geometry does not have an
+        # implementation of fun2par and wrt is passed as function.
+        with pytest.raises(NotImplementedError):
+            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+
+    if case_id == 4:
+        # Raises an error because the range_geometry is not in the
+        # cuqi.geometry._get_identity_geometries() list
+        with pytest.raises(NotImplementedError):
+            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
