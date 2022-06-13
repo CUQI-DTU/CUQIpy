@@ -377,7 +377,7 @@ class BayesianProblem(object):
 
         return samples
 
-    def _solve_max_point(self, density, disp=True, **kwargs):
+    def _solve_max_point(self, density, disp=True):
         """ This is a helper function for point estimation of the maximum of a density (e.g. posterior or likelihood) using solver module.
         
         Parameters
@@ -414,7 +414,7 @@ class BayesianProblem(object):
 
         # Compute point estimate
         solver = cuqi.solver.L_BFGS_B(func, x0, gradfunc=gradfunc)
-        x_MAP, solver_info = solver.solve(**kwargs)
+        x_MAP, solver_info = solver.solve()
 
         # Add info on solver choice
         solver_info["solver"] = "L-BFGS-B"
