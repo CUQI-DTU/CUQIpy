@@ -249,16 +249,24 @@ class Model(object):
         
         # Raise an error if wrt is passed as function value and the domain_geometry 
         # does not have fun2par method
+        error_message = \
+         "For the gradient to be computed, is_wrt_par "+\
+         "needs to be True and wrt needs to be parameter value, not function "+\
+         f"value. Alternatively, the model domain_geometry: {self.domain_geometry} "+\
+         "should have an implementation of the method fun2par"
         if is_wrt_par:
             wrt_par = wrt
         else:
             try:
                 wrt_par = self.domain_geometry.fun2par(wrt)
+            # NotImplementedError will be raised if fun2par is not
+            # implemented and ValueError will be raised when imap
+            # is not set in MappedGeometry
             except NotImplementedError:
-                raise NotImplementedError("For the gradient to be computed, is_wrt_par"+
-                 "needs to be True and wrt needs to be parameter value, not function"+
-                 f"value. Alternatively, the model domain_geometry: {self.domain_geometry}"+
-                 "should have an implementation of the method fun2par")
+                raise NotImplementedError(error_message)
+            except ValueError:
+                raise ValueError(error_message + " ,including an implementation of imap for MappedGeometry")
+
 
         wrt = self._input2fun(wrt, self.domain_geometry, is_wrt_par)
 
