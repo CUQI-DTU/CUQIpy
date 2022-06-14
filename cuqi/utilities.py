@@ -140,18 +140,38 @@ def sparse_cholesky(A):
     else:
         raise TypeError('The matrix is not positive semi-definite')
 
-# approximate the Jacobian matrix of callable function func
-def approx_jacobian(func, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
-    # x       - The state vector
-    # func    - A vector-valued function of the form f(x,*args)
-    # epsilon - The peturbation used to determine the partial derivatives
-    # The approximation is done using forward differences
-    x0 = x#np.asfarray(x)
+def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.float).eps)):
+    """Approximates the derivative of callable (possibly vector-valued) function `func` evaluated at point `wrt`. If `direction` is provided, the direction-Jacobian product will be computed and returned, otherwise, the Jacobian matrix (or the gradient in case of a scalar function `func`) will be returned. The approximation is done using forward differences.
+
+    Parameters
+    ----------
+    func: function handler
+        A vector-valued function of the form func(x).
+
+    wrt : ndarray
+        The point at which the derivative to be evaluated.
+
+    direction : ndarray
+        The direction used to compute direction-Jacobian product. 
+        If None, the Jacobian matrix is returned.
+
+    epsilon: float
+        The spacing in the finite difference approximation.
+
+    Returns
+    -------
+    ndarray
+        The approximate Jacobina matrix.
+    """
+    x0 = np.asfarray(wrt)
     f0 = func(x0)
-    jac = np.zeros([len(x0), len(f0)])
+    Matr = np.zeros([len(x0), len(f0)])
     dx = np.zeros(len(x0))
     for i in range(len(x0)):
         dx[i] = epsilon
-        jac[i] = (func(x0+dx) - f0)/epsilon
+        Matr[i] = (func(x0+dx) - f0)/epsilon
         dx[i] = 0.0
-    return jac.T
+    if direction is None:
+        return Matr.T
+    else:
+        return Matr@direction

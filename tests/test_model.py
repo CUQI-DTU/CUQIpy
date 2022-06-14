@@ -227,5 +227,5 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
       
     grad = model.gradient(direction, wrt)
 
-    findiff_grad = cuqi.utilities.approx_jacobian(model.forward, wrt, 1e-7).T@direction
+    findiff_grad = cuqi.utilities.approx_derivative(model.forward, wrt, direction)
     assert(np.allclose(grad, findiff_grad))

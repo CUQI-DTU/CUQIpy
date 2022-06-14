@@ -290,22 +290,6 @@ class Model(object):
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return grad
-
-    # approximate the Jacobian matrix of callable function func
-    def approx_jacobian(self, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
-        # x       - The state vector
-        # func    - A vector-valued function of the form f(x,*args)
-        # epsilon - The peturbation used to determine the partial derivatives
-        # The approximation is done using forward differences
-        x0 = np.asfarray(x)
-        f0 = self.forward(x0)
-        jac = np.zeros([len(x0), len(f0)])
-        dx = np.zeros(len(x0))
-        for i in range(len(x0)):
-            dx[i] = epsilon
-            jac[i] = (self.forward(x0+dx) - f0)/epsilon
-            dx[i] = 0.0
-        return jac.T
     
     def __len__(self):
         return self.range_dim
