@@ -945,7 +945,7 @@ class GMRF(Distribution):
 
     where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean :math:`\mu_i` for each :math:`i`.
 
-    For 2D `(physical_dim=2)`, the Gaussians are defined in both horizontal and vertical directions.
+    For 2D `(physical_dim=2)`, the differences are defined in both horizontal and vertical directions.
 
     It is possible to define boundary conditions for the GMRF using the `bc_type` parameter.
 
