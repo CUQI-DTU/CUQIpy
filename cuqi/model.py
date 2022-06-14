@@ -267,22 +267,26 @@ class Model(object):
             except ValueError:
                 raise ValueError(error_message + " ,including an implementation of imap for MappedGeometry")
 
-
         wrt = self._input2fun(wrt, self.domain_geometry, is_wrt_par)
 
-        grad = self._apply_func(self._gradient_func,
-                                self.domain_geometry,
-                                self.range_geometry,
-                                direction, is_direction_par,
-                                wrt=wrt)
+        x = self._input2fun(direction,
+                            self.range_geometry,
+                            is_direction_par)
+
+        grad = self._gradient_func(x, wrt)
 
         if hasattr(self.domain_geometry, 'gradient'):
             grad = self.domain_geometry.gradient(grad, wrt_par)
-        
+
+        elif type(self.domain_geometry) in _get_identity_geometries():
+            self._output2par(grad,
+                             self.domain_geometry,
+                             to_CUQIarray= (type(direction) is CUQIarray)) 
+
         # Raise an error if domain_geometry does not have gradient attribute and
         # is not in the list returned by `_get_identity_geometries()`. i.e. The
         # Jacobian of its par2fun map is not identity.  
-        elif not type(self.domain_geometry) in _get_identity_geometries():
+        else:
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return grad
