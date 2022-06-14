@@ -914,7 +914,7 @@ class Gaussian(GaussianCov):
 
 # ========================================================================
 class GMRF(Distribution):
-    """ Gaussian Markov random field.
+    """ Gaussian Markov random field (GMRF).
        
     Parameters
     ----------
@@ -935,15 +935,15 @@ class GMRF(Distribution):
 
     Notes
     -----
-    The GMRF defines a distribution over a set of points where each point conditioned on the others follow a Gaussian distribution.
+    The GMRF defines a distribution over a set of points where each point conditioned on all the others follow a Gaussian distribution.
 
     For 1D `(physical_dim=1)`, the current implementation provides three different cases:
 
-    * Order 0: :math:`x_i \sim \mathcal{N}(x_i, \delta^{-1})`,
-    * Order 1: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}((x_{i-1}+x_{i+1})/2, (2\delta)^{-1}))`,
-    * Order 2: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}((-x_{i-1}+2x_i-x_{i+1})/4, (4\delta)^{-1}))`,
+    * Order 0: :math:`x_i \sim \mathcal{N}(\mu_i, \delta^{-1})`,
+    * Order 1: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}(\mu_i+(x_{i-1}+x_{i+1})/2, (2\delta)^{-1}))`,
+    * Order 2: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}(\mu_i+(-x_{i-1}+2x_i-x_{i+1})/4, (4\delta)^{-1}))`,
 
-    where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean of :math:`x_i` for each :math:`i`.
+    where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean :math:`\mu_i` for each :math:`i`.
 
     For 2D `(physical_dim=2)`, the Gaussians are defined in both horizontal and vertical directions.
 
@@ -951,8 +951,8 @@ class GMRF(Distribution):
 
     **Illustration as a Gaussian distribution**
 
-    It may be benefitial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero mean and zero boundary conditions,
-    the GMRF distribution can be represented by a Gaussian with zero mean and the following precision matrices depending on the order:
+    It may be beneficial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero boundary conditions,
+    the GMRF distribution can be represented by a Gaussian, :math:`\mathcal{N}(\mu, \mathbf{P}^{-1}), with mean :math:`\mu` and the following precision matrices depending on the order:
 
     * Order 0:
 
