@@ -1,7 +1,9 @@
+from cuqi.geometry import Continuous1D
 import numpy as np
 import scipy as sp
 import cuqi
 import pytest
+from scipy import optimize
 
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
@@ -63,7 +65,7 @@ def test_model_allow_DefaultGeometry():
                            cuqi.samples.CUQIarray)])
 def test_forward(x, expected_type):
     """For different types of input to the model forward method, assert we are optaining the correct output type"""
-    A = np.array(([1, 0, 0],[0, 3, .1]))
+    A = np.array([[1, 0, 0],[0, 3, .1]])
 
     model = cuqi.model.Model(forward=lambda x:A@x,
                             gradient=lambda direction,
@@ -88,7 +90,7 @@ def test_forward(x, expected_type):
                            cuqi.samples.CUQIarray)])
 def test_adjoint(x, expected_type):
     """For different types of input to the model adjoint method, assert we are optaining the correct output type"""
-    A = np.array(([1, 0, 0],[0, 3, .1]))
+    A = np.array([[1, 0, 0],[0, 3, .1]])
 
     model = cuqi.model.LinearModel(forward=A,
                                    domain_geometry=cuqi.geometry.Continuous1D(3),
@@ -112,7 +114,7 @@ def test_adjoint(x, expected_type):
                            cuqi.samples.CUQIarray)])
 def test_gradient(direction, expected_type):
     """For different types of input to the model gradient method, assert we are optaining the correct output type"""
-    A = np.array(([1, 0, 0],[0, 3, .1]))
+    A = np.array([[1, 0, 0],[0, 3, .1]])
 
     model = cuqi.model.Model(forward=lambda x:A@x,
                             gradient=lambda direction,
@@ -161,7 +163,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
              cuqi.geometry.Continuous1D(2), map=lambda x:2*x,
              imap= lambda x:x/2)
 
-    A = np.array(([1, 0],[0, 3]))
+    A = np.array([[1, 0],[0, 3]])
     direction = np.array([1, 4])
 
     model = cuqi.model.Model(forward=lambda x:x@A@x,
@@ -195,3 +197,35 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
         # cuqi.geometry._get_identity_geometries() list
         with pytest.raises(NotImplementedError):
             grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+
+@pytest.mark.parametrize("forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry",
+                        [
+                        (lambda x: np.array([[1, 0, 0],[0, 3, .1]])@x,
+                         lambda direction, wrt: np.array([[1, 0, 0],[0, 3, .1]]).T@direction,
+                         np.array([1, 12]),
+                         np.array([1, 12, 8]),
+                         cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:2*x, imap=lambda x:x/2),
+                         lambda direction, wrt:2*np.eye(3)@direction,
+                         cuqi.geometry.Continuous1D(2)),
+                        (lambda x: np.array([[1, 2, 8],[1, 3, .1]])@x,
+                         lambda direction, wrt: np.array([[1, 2, 8],[1, 3, .1]]).T@direction,
+                         np.array([1, 12]),
+                         np.array([1, 12, 8]),
+                         cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                         lambda direction, wrt:2*np.diag(wrt)@direction,
+                         cuqi.geometry.Continuous1D(2)),
+                        ])
+
+def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry):
+    """Test applying chain rule when computing the gradient"""
+    model = cuqi.model.Model(forward=forward,
+                            gradient=gradient,
+                            domain_geometry=domain_geometry,
+                            range_geometry=range_geometry)
+    model.domain_geometry.gradient=domain_gradient
+
+      
+    grad = model.gradient(direction, wrt)
+
+    findiff_grad = cuqi.utilities.approx_jacobian(model.forward, wrt, 1e-7).T@direction
+    assert(np.allclose(grad, findiff_grad))
