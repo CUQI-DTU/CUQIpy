@@ -139,3 +139,19 @@ def sparse_cholesky(A):
         return (LU.L @ (diags(LU.U.diagonal()**0.5))).T
     else:
         raise TypeError('The matrix is not positive semi-definite')
+
+# approximate the Jacobian matrix of callable function func
+def approx_jacobian(func, x, epsilon=np.sqrt(np.finfo(np.float).eps)):
+    # x       - The state vector
+    # func    - A vector-valued function of the form f(x,*args)
+    # epsilon - The peturbation used to determine the partial derivatives
+    # The approximation is done using forward differences
+    x0 = x#np.asfarray(x)
+    f0 = func(x0)
+    jac = np.zeros([len(x0), len(f0)])
+    dx = np.zeros(len(x0))
+    for i in range(len(x0)):
+        dx[i] = epsilon
+        jac[i] = (func(x0+dx) - f0)/epsilon
+        dx[i] = 0.0
+    return jac.T
