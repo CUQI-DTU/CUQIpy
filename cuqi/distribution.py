@@ -945,14 +945,14 @@ class GMRF(Distribution):
 
     where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean :math:`\mu_i` for each :math:`i`.
 
-    For 2D `(physical_dim=2)`, the differences are defined in both horizontal and vertical directions.
+    For 2D `(physical_dim=2)`, order 0, 1, and 2 are also supported in which the differences are defined in both horizontal and vertical directions.
 
     It is possible to define boundary conditions for the GMRF using the `bc_type` parameter.
 
     **Illustration as a Gaussian distribution**
 
     It may be beneficial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero boundary conditions,
-    the GMRF distribution can be represented by a Gaussian, :math:`\mathcal{N}(\mu, \mathbf{P}^{-1}), with mean :math:`\mu` and the following precision matrices depending on the order:
+    the GMRF distribution can be represented by a Gaussian, :math:`\mathcal{N}(\mu, \mathbf{P}^{-1})`, with mean :math:`\mu` and the following precision matrices depending on the order:
 
     * Order 0:
 
