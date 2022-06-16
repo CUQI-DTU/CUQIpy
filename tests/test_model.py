@@ -65,7 +65,7 @@ def test_model_allow_DefaultGeometry():
                             geometry=cuqi.geometry.Continuous1D(3)),
                            cuqi.samples.CUQIarray)])
 def test_forward(x, expected_type):
-    """For different types of input to the model forward method, assert we are optaining the correct output type"""
+    """For different types of input to the model forward method, assert we are obtaining the correct output type"""
     A = np.array([[1, 0, 0],[0, 3, .1]])
 
     model = cuqi.model.Model(forward=lambda x:A@x,
@@ -113,7 +113,7 @@ def test_adjoint(x, expected_type):
                             geometry=cuqi.geometry.Continuous1D(2)),
                            cuqi.samples.CUQIarray)])
 def test_gradient(direction, expected_type):
-    """For different types of input to the model gradient method, assert we are optaining the correct output type"""
+    """For different types of input to the model gradient method, assert we are obtaining the correct output type"""
     A = np.array([[1, 0, 0],[0, 3, .1]])
 
     model = cuqi.model.Model(forward=lambda x:A@x,
