@@ -98,7 +98,6 @@ def test_adjoint(x, expected_type):
 
     ad = model.adjoint(x)
     assert(isinstance(ad, expected_type))
-    pass
 
 @pytest.mark.parametrize("direction, expected_type",
                          [(np.array([1, 4]),
@@ -199,30 +198,36 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
             grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
 
 @pytest.mark.parametrize("forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry",
-                        [
-                        (lambda x: np.array([[1, 0, 0],[0, 3, .1]])@x,
-                         lambda direction, wrt: np.array([[1, 0, 0],[0, 3, .1]]).T@direction,
-                         np.array([1, 12]),
-                         np.array([1, 12, 8]),
-                         cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:2*x, imap=lambda x:x/2),
-                         lambda direction, wrt:2*np.eye(3)@direction,
-                         cuqi.geometry.Continuous1D(2)),
-                        (lambda x: np.array([[1, 2, 8],[1, 3, .1]])@x,
-                         lambda direction, wrt: np.array([[1, 2, 8],[1, 3, .1]]).T@direction,
-                         np.array([1, 12]),
-                         np.array([1, 12, 8]),
-                         cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
-                         lambda direction, wrt:2*np.diag(wrt)@direction,
-                         cuqi.geometry.Continuous1D(2)),
-                        (lambda x: np.sin(x),
-                         lambda direction, wrt: np.diag(np.cos(wrt))@direction,
-                         np.array([1, 1, 4]),
-                         np.array([1, 12, 8]),
-                         cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
-                         lambda direction, wrt:2*np.diag(wrt)@direction,
-                         cuqi.geometry.Continuous1D(3)),
-                        ])
-
+    [
+        (
+            lambda x: np.array([[1, 0, 0],[0, 3, .1]])@x,
+            lambda direction, wrt: np.array([[1, 0, 0],[0, 3, .1]]).T@direction,
+            np.array([1, 12]),
+            np.array([1, 12, 8]),
+            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:2*x, imap=lambda x:x/2),
+            lambda direction, wrt:2*np.eye(3)@direction,
+            cuqi.geometry.Continuous1D(2)
+        ),
+        (
+            lambda x: np.array([[1, 2, 8],[1, 3, .1]])@x,
+            lambda direction, wrt: np.array([[1, 2, 8],[1, 3, .1]]).T@direction,
+            np.array([1, 12]),
+            np.array([1, 12, 8]),
+            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+            lambda direction, wrt:2*np.diag(wrt)@direction,
+            cuqi.geometry.Continuous1D(2)
+        ),
+        (
+            lambda x: np.sin(x),
+            lambda direction, wrt: np.diag(np.cos(wrt))@direction,
+            np.array([1, 1, 4]),
+            np.array([1, 12, 8]),
+            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+            lambda direction, wrt:2*np.diag(wrt)@direction,
+            cuqi.geometry.Continuous1D(3)
+        ),
+    ]
+)
 def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry):
     """Test applying chain rule when computing the gradient"""
     model = cuqi.model.Model(forward=forward,
