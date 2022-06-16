@@ -198,72 +198,133 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
         with pytest.raises(NotImplementedError):
             grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
 
-@pytest.mark.parametrize("forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry, is_wrt_par",
-    [
-        (
-            lambda x: np.array([[1, 0, 0],[0, 3, .1]])@x,
-            lambda direction, wrt: np.array([[1, 0, 0],[0, 3, .1]]).T@direction,
-            np.array([1, 12]),
-            np.array([1, 12, 8]),
-            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:2*x, imap=lambda x:x/2),
-            lambda direction, wrt:2*np.eye(3)@direction,
-            cuqi.geometry.Continuous1D(2),
-            True
-        ),
-        (
-            lambda x: np.array([[1, 2, 8],[1, 3, .1]])@x,
-            lambda direction, wrt: np.array([[1, 2, 8],[1, 3, .1]]).T@direction,
-            np.array([1, 12]),
-            np.array([1, 12, 8]),
-            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
-            lambda direction, wrt:2*np.diag(wrt)@direction,
-            cuqi.geometry.Continuous1D(2),
-            True
-        ),
-        (
-            lambda x: np.sin(x),
-            lambda direction, x: np.diag(np.cos(x))@direction,
-            np.array([1, 1, 4]),
-            np.array([1, 12, 8]),
-            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
-            lambda direction, x:2*np.diag(x)@direction,
-            cuqi.geometry.Continuous1D(3),
-            True
-        ),
-        (
-            lambda x: np.sin(x),
-            lambda direction, x: np.diag(np.cos(x))@direction,
-            np.array([1, 1, 4]),
-            cuqi.samples.CUQIarray(np.array([1, 12**2, 8**2]), is_par=False,
-            geometry =cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x))),
-            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
-            lambda direction, x:2*np.diag(x)@direction,
-            cuqi.geometry.Continuous1D(3),
-            True
-        ),
-        (
-            lambda x: np.sin(x),
-            lambda direction, x: np.diag(np.cos(x))@direction,
-            np.array([1, 1, 4]),
-            np.array([1, 12**2, 8**2]),
-            cuqi.geometry.MappedGeometry(Continuous1D(3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
-            lambda direction, x:2*np.diag(x)@direction,
-            cuqi.geometry.Continuous1D(3),
-            False
-        )
-    ]
-)
-def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry, is_wrt_par):
+
+@pytest.mark.parametrize("forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par",
+                         [
+                             (
+                                 lambda x: np.array([[1, 0, 0], [0, 3, .1]])@x,
+                                 lambda direction, wrt: np.array(
+                                     [[1, 0, 0], [0, 3, .1]]).T@direction,
+                                 np.array([1, 12]),
+                                 np.array([1, 12, 8]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:2*x, imap=lambda x:x/2),
+                                 lambda direction, wrt:2*np.eye(3)@direction,
+                                 cuqi.geometry.Continuous1D(2),
+                                 True,
+                                 True
+                             ),
+                             (
+                                 lambda x: np.array([[1, 2, 8], [1, 3, .1]])@x,
+                                 lambda direction, wrt: np.array(
+                                     [[1, 2, 8], [1, 3, .1]]).T@direction,
+                                 np.array([1, 12]),
+                                 np.array([1, 12, 8]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, wrt:2 *
+                                 np.diag(wrt)@direction,
+                                 cuqi.geometry.Continuous1D(2),
+                                 True,
+                                 True
+                             ),
+                             (
+                                 lambda x: np.sin(x),
+                                 lambda direction, x: np.diag(
+                                     np.cos(x))@direction,
+                                 np.array([1, 1, 4]),
+                                 np.array([1, 12, 8]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, x:2*np.diag(x)@direction,
+                                 cuqi.geometry.Continuous1D(3),
+                                 True,
+                                 True
+                             ),
+                             (
+                                 lambda x: np.sin(x),
+                                 lambda direction, x: np.diag(
+                                     np.cos(x))@direction,
+                                 np.array([1, 1, 4]),
+                                 cuqi.samples.CUQIarray(
+                                     np.array([1, 12**2, 8**2]), is_par=False),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, x:2*np.diag(x)@direction,
+                                 cuqi.geometry.Continuous1D(3),
+                                 True,
+                                 True
+                             ),
+                             (
+                                 lambda x: np.sin(x),
+                                 lambda direction, x: np.diag(
+                                     np.cos(x))@direction,
+                                 np.array([1, 1, 4]),
+                                 np.array([1, 12**2, 8**2]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, x:2*np.diag(x)@direction,
+                                 cuqi.geometry.Continuous1D(3),
+                                 True,
+                                 False
+                             ),
+                             (
+                                 lambda x: np.sin(x),
+                                 lambda direction, x: np.diag(
+                                     np.cos(x))@direction,
+                                 cuqi.samples.CUQIarray(
+                                     np.array([1, 1, 4]), is_par=False),
+                                 np.array([1, 12, 8]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, x:2*np.diag(x)@direction,
+                                 cuqi.geometry.Continuous1D(3),
+                                 True,
+                                 True
+                             ),
+                             (
+                                 lambda x: np.sin(x),
+                                 lambda direction, x: np.diag(
+                                     np.cos(x))@direction,
+                                 np.array([1, 1, 4]),
+                                 np.array([1, 12, 8]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, x:2*np.diag(x)@direction,
+                                 cuqi.geometry.Continuous1D(3),
+                                 False,
+                                 True
+                             ),
+                             (
+                                 lambda x: np.sin(x),
+                                 lambda direction, x: np.diag(
+                                     np.cos(x))@direction,
+                                 np.array([1, 1, 4]),
+                                 np.array([1, 12**2, 8**2]),
+                                 cuqi.geometry.MappedGeometry(Continuous1D(
+                                     3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
+                                 lambda direction, x:2*np.diag(x)@direction,
+                                 cuqi.geometry.Continuous1D(3),
+                                 False,
+                                 False
+                             ),
+                         ]
+                         )
+def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par):
     """Test applying chain rule when computing the gradient"""
     model = cuqi.model.Model(forward=forward,
-                            gradient=gradient,
-                            domain_geometry=domain_geometry,
-                            range_geometry=range_geometry)
-    model.domain_geometry.gradient=domain_gradient
+                             gradient=gradient,
+                             domain_geometry=domain_geometry,
+                             range_geometry=range_geometry)
+    model.domain_geometry.gradient = domain_gradient
 
-      
+    # Set CUQIarray geometries
+    if isinstance(wrt, CUQIarray):
+        wrt.geometry = domain_geometry
+    if isinstance(direction, CUQIarray):
+        direction.geometry = range_geometry
     grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
-    
+
     # If wrt is function value, convert wrt to parameters to
     # be passed as an input for to cuqi.utilities.approx_derivative
     if isinstance(wrt, CUQIarray):
@@ -272,5 +333,13 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
         wrt = wrt_ndarray
     if not is_wrt_par:
         wrt = domain_geometry.fun2par(wrt)
-    findiff_grad = cuqi.utilities.approx_derivative(model.forward, wrt, direction)
+
+    if isinstance(direction, CUQIarray):
+        direction_ndarray = np.zeros(len(direction.parameters))
+        direction_ndarray[:] = direction.parameters
+        direction = direction_ndarray
+    if not is_direction_par:
+        direction = range_geometry.fun2par(direction)
+    findiff_grad = cuqi.utilities.approx_derivative(
+        model.forward, wrt, direction)
     assert(np.allclose(grad, findiff_grad))
