@@ -323,6 +323,7 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
         wrt.geometry = domain_geometry
     if isinstance(direction, CUQIarray):
         direction.geometry = range_geometry
+    # Compute cuqi model gradient 
     grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
 
     # If wrt is function value, convert wrt to parameters to
@@ -340,6 +341,9 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
         direction = direction_ndarray
     if not is_direction_par:
         direction = range_geometry.fun2par(direction)
+    # Compute a finite difference approximation of cuqi model gradient 
     findiff_grad = cuqi.utilities.approx_derivative(
         model.forward, wrt, direction)
+
+    # Compare the two gradients
     assert(np.allclose(grad, findiff_grad))
