@@ -1,3 +1,4 @@
+from cuqi.samples import CUQIarray
 import numpy as np
 import inspect
 from numbers import Number
@@ -163,13 +164,24 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
     ndarray
         The approximate Jacobina matrix.
     """
-    x0 = np.asfarray(wrt)
-    f0 = func(x0)
-    Matr = np.zeros([len(x0), len(f0)])
-    dx = np.zeros(len(x0))
-    for i in range(len(x0)):
+    # Raise an error if wrt or direction is a CUQIarray.
+    # Example of scenario where this is needed: 
+    # the line Matr[i] = (func(wrt+dx) - f0)/epsilon
+    # does not give correct results if for example
+    # wrt is a CUQIarray with is_par=False and its 
+    # corresponding geometry par2fun map is not identity
+    # (e.g. funvalues=paramters**2), because wrt entries 
+    # are interpreted as function value.
+    if isinstance(wrt, CUQIarray) or isinstance(direction, CUQIarray):
+        raise NotImplementedError("approx_derivative is not implemented"+
+                                  "for inputs of type CUQIarray")
+    wrt = np.asfarray(wrt)
+    f0 = func(wrt)
+    Matr = np.zeros([len(wrt), len(f0)])
+    dx = np.zeros(len(wrt))
+    for i in range(len(wrt)):
         dx[i] = epsilon
-        Matr[i] = (func(x0+dx) - f0)/epsilon
+        Matr[i] = (func(wrt+dx) - f0)/epsilon
         dx[i] = 0.0
     if direction is None:
         return Matr.T
