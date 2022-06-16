@@ -258,7 +258,9 @@ class Model(object):
          "needs to be True and wrt needs to be parameter value, not function "+\
          f"value. Alternatively, the model domain_geometry: {self.domain_geometry} "+\
          "should have an implementation of the method fun2par"
-        if is_wrt_par:
+        if isinstance(wrt, CUQIarray):
+            wrt_par = wrt.parameters
+        elif is_wrt_par:
             wrt_par = wrt
         else:
             try:
