@@ -367,6 +367,9 @@ class LinearModel(Model):
         #Store matrix privately
         self._matrix = matrix
 
+        #Add gradient
+        self._gradient_func = lambda direction, wrt: self._adjoint_func(direction)
+
         # if matrix is not None: 
         #     assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
         #     assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
@@ -413,26 +416,6 @@ class LinearModel(Model):
 
             return self._matrix
 
-    def gradient(self, direction, wrt=None):
-        """ Gradient of the model.
-
-        In the case of a linear model, the gradient is computed using the adjoint.
-
-        Parameters
-        ----------
-        direction : ndarray
-            The direction to compute the gradient. The Jacobian is applied to this direction.
-
-        wrt : ndarray
-            The point to compute Jacobian at. This is only used for non-linear models.
-        
-        """
-        #Avoid complicated geometries that change the gradient.
-        if not type(self.domain_geometry) in _get_identity_geometries():
-            raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
-
-        return self.adjoint(direction)
-    
     def __matmul__(self, x):
         return self.forward(x)
 
