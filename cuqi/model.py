@@ -22,7 +22,11 @@ class Model(object):
         If integer is given a _DefaultGeometry is created with dimension of the integer.
 
     gradient : callable function
-        Jacobian of the forward operator at a given point and direction.
+        The direction-Jacobian product of the forward operator Jacobian with 
+        respect to the forward operator input, evaluated at a point (`wrt`).
+        The signature of the gradient function should be (`direction`, `wrt`),
+        where `direction` is the direction by which the Jacobian matrix is
+        multiplied and `wrt` is the point at which the Jacobian is computed.
 
     Attributes
     -----------
