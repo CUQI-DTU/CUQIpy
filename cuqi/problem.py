@@ -120,7 +120,7 @@ class BayesianProblem(object):
         """Create posterior distribution from likelihood and prior"""
         return Posterior(self.likelihood, self.prior)
 
-    def ML(self, disp=True):
+    def ML(self, disp=True, x0=None):
         """ Compute the Maximum Likelihood (ML) estimate of the posterior.
         
         Parameters
@@ -128,6 +128,9 @@ class BayesianProblem(object):
 
         disp : bool
             display info messages? (True or False).
+
+        x0 : CUQIarray or ndarray
+            User-specified initial guess for the solver. Defaults to a ones vector.
 
         Returns
         -------
@@ -143,7 +146,7 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        x_ML, solver_info = self._solve_max_point(self.likelihood, disp=disp)
+        x_ML, solver_info = self._solve_max_point(self.likelihood, disp=disp, x0=x0)
 
         # Wrap the result in a CUQIarray and add solver info
         x_ML = cuqi.samples.CUQIarray(x_ML, geometry=self.likelihood.geometry)
@@ -152,7 +155,7 @@ class BayesianProblem(object):
         return x_ML
 
 
-    def MAP(self, disp=True):
+    def MAP(self, disp=True, x0=None):
         """ Compute the Maximum A Posteriori (MAP) estimate of the posterior.
         
         Parameters
@@ -160,6 +163,9 @@ class BayesianProblem(object):
 
         disp : bool
             display info messages? (True or False).
+
+        x0 : CUQIarray or ndarray
+            User-specified initial guess for the solver. Defaults to a ones vector.
 
         Returns
         -------
@@ -191,7 +197,7 @@ class BayesianProblem(object):
             solver_info = {"solver": "direct"}
 
         else: # If no specific implementation exists, use numerical optimization.
-            x_MAP, solver_info = self._solve_max_point(self.posterior, disp=disp)
+            x_MAP, solver_info = self._solve_max_point(self.posterior, disp=disp, x0=x0)
 
         # Wrap the result in a CUQIarray and add solver info
         x_MAP = cuqi.samples.CUQIarray(x_MAP, geometry=self.posterior.geometry)
@@ -391,7 +397,7 @@ class BayesianProblem(object):
 
         return samples
 
-    def _solve_max_point(self, density, disp=True):
+    def _solve_max_point(self, density, disp=True, x0=None):
         """ This is a helper function for point estimation of the maximum of a density (e.g. posterior or likelihood) using solver module.
         
         Parameters
@@ -414,8 +420,9 @@ class BayesianProblem(object):
         else:
             raise ValueError("Density must have logpdf or log method to be maximized.")
 
-        # Initial value
-        x0 = np.ones(self.model.domain_dim)
+        # Initial value if not given
+        if x0 is None:
+            x0 = np.ones(self.model.domain_dim)
 
         # Get the gradient (if available)
         try: 
