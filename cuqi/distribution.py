@@ -1005,7 +1005,7 @@ class GMRF(Distribution):
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self._partition_size = len(mean) if physical_dim == 1 else int(np.sqrt(len(mean)))
+        self._partition_size = int(len(mean)**(1/physical_dim))
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim
         if physical_dim == 1: 
