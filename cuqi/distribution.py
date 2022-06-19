@@ -1008,10 +1008,9 @@ class GMRF(Distribution):
         self._partition_size = int(len(mean)**(1/physical_dim))
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim
-        if physical_dim == 1: 
-            num_nodes = (self._partition_size,) 
-        else:
-            num_nodes = (self._partition_size, self._partition_size)
+        
+        num_nodes = tuple(self._partition_size for _ in range(physical_dim))
+        if physical_dim == 2: #TODO. Remove once _DefaultGeometry is implemented for 2D.
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
 
