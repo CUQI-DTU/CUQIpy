@@ -120,16 +120,30 @@ class BayesianProblem(object):
         """Create posterior distribution from likelihood and prior"""
         return Posterior(self.likelihood, self.prior)
 
-    def ML(self):
-        """Maximum Likelihood (ML) estimate"""
-        # Print warning to user about the automatic solver selection
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!! Automatic solver selection is experimental. !!!")
-        print("!!!    Always validate the computed results.    !!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("")
+    def ML(self, disp=True):
+        """ Compute the Maximum Likelihood (ML) estimate of the posterior.
+        
+        Parameters
+        ----------
 
-        x_ML, solver_info = self._solve_max_point(self.likelihood)
+        disp : bool
+            display info messages? (True or False).
+
+        Returns
+        -------
+        CUQIarray
+            ML estimate of the posterior. Solver info is stored in the returned CUQIarray `info` attribute.
+        
+        """
+        if disp:
+            # Print warning to user about the automatic solver selection
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!! Automatic solver selection is experimental. !!!")
+            print("!!!    Always validate the computed results.    !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("")
+
+        x_ML, solver_info = self._solve_max_point(self.likelihood, disp=disp)
 
         # Wrap the result in a CUQIarray and add solver info
         x_ML = cuqi.samples.CUQIarray(x_ML, geometry=self.likelihood.geometry)
@@ -139,7 +153,7 @@ class BayesianProblem(object):
 
 
     def MAP(self, disp=True):
-        """Compute the MAP estimate of the posterior.
+        """ Compute the Maximum A Posteriori (MAP) estimate of the posterior.
         
         Parameters
         ----------
