@@ -162,7 +162,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
     Returns
     -------
     ndarray
-        The approximate Jacobina matrix.
+        The approximate Jacobian matrix.
     """
     # Raise an error if wrt or direction is a CUQIarray.
     # Example of scenario where this is needed: 
