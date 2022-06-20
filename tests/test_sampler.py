@@ -383,7 +383,8 @@ def test_TP_callback(prior, sample_method, expected):
 
 def test_NUTS_regression(copy_reference):
     # SKIP NUTS test if not windows (for now) #TODO.
-    if  not sys.platform.startswith('win'):
+    if  not sys.platform.startswith('win') and \
+       not sys.platform.startswith('darwin'):
         pytest.skip("NUTS regression test is not implemented for this platform")
 
     np.random.seed(0)
@@ -394,8 +395,13 @@ def test_NUTS_regression(copy_reference):
     MCMC = cuqi.sampler.NUTS(tp.posterior, x0, max_depth = 12)
     samples = MCMC.sample(Ns, Nb)
 
-    samples_orig_file = copy_reference(
-        "data/NUTS_felipe_original_code_results.npz")
+    if sys.platform.startswith('win'):
+        samples_orig_file = copy_reference(
+            "data/NUTS_felipe_original_code_results_win.npz")
+    elif sys.platform.startswith('darwin'):
+        samples_orig_file = copy_reference(
+            "data/NUTS_felipe_original_code_results_darwin.npz")
+    
     samples_orig = np.load(samples_orig_file)
 
     assert(np.allclose(samples.samples, samples_orig["arr_0"]))

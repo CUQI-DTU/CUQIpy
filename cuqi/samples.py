@@ -169,6 +169,11 @@ class Samples(object):
         self.samples = samples
         self.geometry = geometry
 
+    def __iter__(self):
+        """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
+        if hasattr(self.samples.T, "__iter__"):
+            return self.samples.T.__iter__()
+
     @property
     def shape(self):
         return self.samples.shape
