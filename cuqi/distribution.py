@@ -6,7 +6,7 @@ from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, dft, cho_solve, cho_factor, eigvals, lstsq, cholesky
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry, Image2D, _get_identity_geometries
-from cuqi.utilities import force_ndarray, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
+from cuqi.utilities import force_ndarray, infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables, sparse_cholesky
 from cuqi.model import Model
 from cuqi.likelihood import Likelihood
 from cuqi import config
@@ -101,9 +101,23 @@ class Distribution(ABC):
         self.geometry = geometry
 
     @property
-    @abstractmethod
     def dim(self):
-        pass
+        """ Return the dimension of the distribution.
+        
+        The dimension is automatically inferred from the mutable variables of the distribution.
+
+        If the dimension can not be inferred, None is returned.
+
+        Subclassing distributions can choose to overwrite this property if different behavior is desired.
+        """
+
+        # Get all mutable variables
+        mutable_vars = self.get_mutable_variables()
+
+        # Loop over mutable variables and get range dimension of each and get the maximum
+        max_len = max([infer_len(getattr(self, var)) for var in mutable_vars])
+
+        return max_len if max_len > 0 else None
 
     @property
     def geometry(self):
@@ -180,7 +194,6 @@ class Distribution(ABC):
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
-        new_dist.name = None  #Reset name to None
 
         # Go through every mutable variable and assign value from kwargs if present
         for var_key in mutable_vars:
@@ -233,6 +246,11 @@ class Distribution(ABC):
 
     def get_mutable_variables(self):
         """Return any public variable that is mutable (attribute or property) except those in the ignore_vars list"""
+
+        # If mutable variables are already cached, return them
+        if hasattr(self, '_mutable_vars'):
+            return self._mutable_vars
+        
         # Define list of ignored attributes and properties
         ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
         
@@ -242,7 +260,10 @@ class Distribution(ABC):
         # Get "public" properties (getter+setter)
         properties = get_writeable_properties(self)
 
-        return [var for var in (attributes+properties) if var not in ignore_vars]
+        # Cache the mutable variables
+        self._mutable_vars = [var for var in (attributes+properties) if var not in ignore_vars]
+
+        return self._mutable_vars
 
     @property
     def is_cond(self):
@@ -322,11 +343,6 @@ class Cauchy_diff(Distribution):
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
-    @property
-    def dim(self): 
-        #TODO: handle the case when self.loc = None because len(None) = 1
-        return len(self.location)
-
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
@@ -386,15 +402,6 @@ class Normal(Distribution):
         self.mean = mean
         self.std = std
 
-
-    @property
-    def dim(self): 
-        #TODO: handle the case when self.mean or self.std = None because len(None) = 1
-        if self.mean is None and self.std is None:
-            return None
-        else:
-            return max(np.size(self.mean),np.size(self.std))
-
     def pdf(self, x):
         return np.prod(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))
 
@@ -439,11 +446,6 @@ class Gamma(Distribution):
         # Init specific to this distribution
         self.shape = shape
         self.rate = rate     
-
-    @property
-    def dim(self):
-        #TODO: handle the case when self.shape or self.rate = None because len(None) = 1
-        return max(np.size(self.shape),np.size(self.rate))
 
     @property
     def scale(self):
@@ -524,13 +526,6 @@ class GaussianCov(Distribution): # TODO: super general with precisions
             self._rank = rank
 
     @property
-    def dim(self):
-        if not hasattr(self.mean,"__len__"): #TODO: this need to be generalized for all dim properties.
-            return self.cov.shape[0] 
-        else:
-            return max(len(self.mean),self.cov.shape[0])
-
-    @property
     def sqrtprec(self):        
         return self._sqrtprec
     @property
@@ -606,11 +601,12 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     def gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in _get_identity_geometries():
+        if not type(self.geometry) in _get_identity_geometries() and \
+           not hasattr(self.geometry, 'gradient'):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
-            return -self.prec @ (val - self.mean)
+            return -( self.prec @ (val - self.mean) )
         elif hasattr(self.mean, "gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
@@ -756,11 +752,6 @@ class GaussianSqrtPrec(Distribution):
         self.mean = force_ndarray(mean, flatten=True)
         self.sqrtprec = force_ndarray(sqrtprec)
 
-    @property
-    def dim(self):
-        #TODO: handle the case when self.mean or self.sqrtprec = None because len(None) = 1
-        return max(np.size(self.mean),np.shape(self.sqrtprec)[0])
-
     def _sample(self, N):
         
         if N == 1:
@@ -876,7 +867,7 @@ class GaussianPrec(Distribution):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
-            return -self.prec @ (val - self.mean)
+            return -( self.prec @ (val - self.mean) )
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
@@ -885,10 +876,6 @@ class GaussianPrec(Distribution):
             return model.gradient(self.prec @ dev, *args, **kwargs)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self.mean)))
-
-    @property
-    def dim(self):
-        return max(len(self.mean),self.prec.shape[0])
 
     @property
     def sqrtprec(self):
@@ -927,10 +914,8 @@ class Gaussian(GaussianCov):
 
 # ========================================================================
 class GMRF(Distribution):
-    """ Gaussian Markov random field.
-    
-    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
-    
+    """ Gaussian Markov random field (GMRF).
+       
     Parameters
     ----------
     mean : array_like
@@ -939,9 +924,6 @@ class GMRF(Distribution):
     prec : float
         Precision of the GMRF.
 
-    partition_size : int
-        The dimension of the distribution in one physical dimension. 
-
     physical_dim : int
         The physical dimension of what the distribution represents (can take the values 1 or 2).
 
@@ -949,21 +931,86 @@ class GMRF(Distribution):
         The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
 
     order : int
-        The order of the GMRF. Can be 1 or 2.
+        The order of the GMRF. Can be 0, 1 or 2.
+
+    Notes
+    -----
+    The GMRF defines a distribution over a set of points where each point conditioned on all the others follow a Gaussian distribution.
+
+    For 1D `(physical_dim=1)`, the current implementation provides three different cases:
+
+    * Order 0: :math:`x_i \sim \mathcal{N}(\mu_i, \delta^{-1})`,
+    * Order 1: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}(\mu_i+(x_{i-1}+x_{i+1})/2, (2\delta)^{-1}))`,
+    * Order 2: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}(\mu_i+(-x_{i-1}+2x_i-x_{i+1})/4, (4\delta)^{-1}))`,
+
+    where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean :math:`\mu_i` for each :math:`i`.
+
+    For 2D `(physical_dim=2)`, order 0, 1, and 2 are also supported in which the differences are defined in both horizontal and vertical directions.
+
+    It is possible to define boundary conditions for the GMRF using the `bc_type` parameter.
+
+    **Illustration as a Gaussian distribution**
+
+    It may be beneficial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero boundary conditions,
+    the GMRF distribution can be represented by a Gaussian, :math:`\mathcal{N}(\mu, \mathbf{P}^{-1})`, with mean :math:`\mu` and the following precision matrices depending on the order:
+
+    * Order 0:
+
+    .. math::
+
+        \mathbf{P} = \delta \mathbf{I}.
+
+    * Order 1: 
+
+    .. math::
+    
+        \mathbf{P} = \delta 
+        \\begin{bmatrix} 
+             2  & -1        &           &           \\newline
+            -1  &  2        & -1        &           \\newline
+                & \ddots    & \ddots    & \ddots    \\newline
+                &           & -1        & 2         
+        \end{bmatrix}.
+
+    * Order 2:
+
+    .. math::
+
+        \mathbf{P} = \delta
+        \\begin{bmatrix}
+             6   & -4       &  1        &           &           &           \\newline
+            -4   &  6       & -4        & 1         &           &           \\newline
+            1    & -4       &  6        & -4        & 1         &           \\newline
+                 & \ddots   & \ddots    & \ddots    & \ddots    & \ddots    \\newline
+                 &          & \ddots    & \ddots    & \ddots    & \ddots    \\newline
+                 &          &           & 1         & -4        &  6        \\newline
+        \end{bmatrix}.
+
+    **General representation**
+
+    In general we can define the GMRF distribution on each point by
+
+    .. math::
+
+        x_i \mid \mathbf{x}_{\partial_i} \sim \mathcal{N}\left(\sum_{j \in \partial_i} \\beta_{ij} x_j, \kappa_i^{-1}\\right),
+
+    where :math:`\kappa_i` is the precision of each Gaussian and :math:`\\beta_{ij}` are coefficients defining the structure of the GMRF.
+
+    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
+
     """
         
-    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 
+    def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, is_symmetric=True, **kwargs): 
         super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self._partition_size = partition_size          # partition size
+        self._partition_size = int(len(mean)**(1/physical_dim))
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim
-        if physical_dim == 1: 
-            num_nodes = (partition_size,) 
-        else:
-            num_nodes = (partition_size,partition_size)
+        
+        num_nodes = tuple(self._partition_size for _ in range(physical_dim))
+        if physical_dim == 2: #TODO. Remove once _DefaultGeometry is implemented for 2D.
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
 
@@ -982,7 +1029,7 @@ class GMRF(Distribution):
             # np.log(np.linalg.det(self.L.todense()))
         elif (bc_type == 'periodic') or (bc_type == 'neumann'):
             # Print warning that periodic and Neumann boundary conditions are experimental
-            print("Warning: Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO will not produce fully accurate results.")
+            print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO may not produce fully accurate results.")
 
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
@@ -1140,12 +1187,6 @@ class Laplace_diff(Distribution):
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
-
-    @property
-    def dim(self):
-        #TODO: handle the case when self.loc is None 
-        return len(self.location)
-
     def pdf(self, x):
         Dx = self._diff_op @ (x-self.location)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
@@ -1183,13 +1224,6 @@ class Uniform(Distribution):
         # Init specific to this distribution
         self.low = low
         self.high = high      
-
-
-    @property 
-    def dim(self):
-        #TODO: hanlde the case when high and low are None
-        return max(np.size(self.low),np.size(self.high)) 
-
 
     def logpdf(self, x):
         # First check whether x is outside bounds.
@@ -1301,7 +1335,8 @@ class Posterior(Distribution):
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
-        if not type(self.geometry) in _get_identity_geometries():
+        if not type(self.geometry) in _get_identity_geometries() and\
+           not hasattr(self.geometry, 'gradient'):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
             
         return self.likelihood.gradient(x)+ self.prior.gradient(x)        
@@ -1438,10 +1473,6 @@ class Laplace(Distribution):
         self.location = location
         self.prec = prec
   
-    @property
-    def dim(self):
-        return np.size(self.location)
-
     def logpdf(self, x):
         if isinstance(x, (float,int)):
             x = np.array([x])
@@ -1629,12 +1660,6 @@ class InverseGamma(Distribution):
         self.location = force_ndarray(location, flatten=True)
         self.scale = force_ndarray(scale, flatten=True)
     
-    @property
-    def dim(self):
-        lens = [ (np.size(item) if item is not None else 0) 
-                 for item in [self.shape, self.location, self.scale]]
-        return np.max(lens) if np.max(lens)>0 else None
-
     def logpdf(self, x):
         return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
@@ -1702,12 +1727,6 @@ class Beta(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs)
         self.alpha = force_ndarray(alpha, flatten=True)
         self.beta = force_ndarray(beta, flatten=True)
-
-    @property
-    def dim(self):
-        lens = [ (np.size(item) if item is not None else 0) 
-                 for item in [self.alpha, self.beta]]
-        return np.max(lens) if np.max(lens)>0 else None
 
     def logpdf(self, x):
 

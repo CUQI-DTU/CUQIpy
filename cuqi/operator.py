@@ -219,9 +219,17 @@ class PrecisionFiniteDifference(Operator):
 
         physical_dim: int
             Either 1 or 2 for 1D and 2D operators, respectively. 
+        
+        order: int
+            | The order of the finite difference operator.
+            | Order 0: Identity operator.
+            | Order 1: First order finite difference operator. 1D precision has a banded diagonal structure with [-1, 2, -1].
+            | Order 2: Second order finite difference operator. 1D precision has a banded diagonal structure with [1, -4,  6, -4, 1].
     """
     def __init__(self, num_nodes , bc_type= 'periodic', order =1):
-        if order == 1:
+        if order == 0:
+            self._diff_op = FirstOrderFiniteDifference(num_nodes, "none") # Special case that is idendity operator
+        elif order == 1:
             self._diff_op = FirstOrderFiniteDifference(num_nodes, bc_type=bc_type)
         elif order == 2:
             self._diff_op = SecondOrderFiniteDifference(num_nodes, bc_type=bc_type)

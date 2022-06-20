@@ -1,8 +1,9 @@
+from cuqi.samples import CUQIarray
 import numpy as np
 import inspect
+from numbers import Number
 from scipy.sparse import issparse, diags
 from scipy.sparse import linalg as spslinalg
-from cuqi.geometry import _DefaultGeometry
 from dataclasses import dataclass
 from abc import ABCMeta
 
@@ -19,9 +20,30 @@ def force_ndarray(value,flatten=False):
         value = value.A
     return value
 
+def infer_len(value):
+    """ Infer the length of the given input value.
+
+    Matrices are assumed to have length equal to the number of rows.
+    Numbers are considered to have length 1.
+    Other objects with no length are considered to have length 0.
+    """
+    if hasattr(value,'__len__'):
+        try:
+            return len(value)
+        except TypeError: #Special-case for scipy sparse matrices, which have len but return an error
+            return value.shape[0]
+    elif isinstance(value, Number):
+        return 1
+    else:
+        return 0
 
 def get_non_default_args(func):
     """ Returns the non-default arguments and kwargs from a callable function"""
+    # If the function has variable _non_default_args, use that for speed.
+    if hasattr(func, '_non_default_args'):
+        return func._non_default_args
+
+    # Otherwise, get the arguments from the function signature.
     sig = inspect.signature(func)
     para = sig.parameters
 
@@ -118,3 +140,50 @@ def sparse_cholesky(A):
         return (LU.L @ (diags(LU.U.diagonal()**0.5))).T
     else:
         raise TypeError('The matrix is not positive semi-definite')
+
+def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.float).eps)):
+    """Approximates the derivative of callable (possibly vector-valued) function `func` evaluated at point `wrt`. If `direction` is provided, the direction-Jacobian product will be computed and returned, otherwise, the Jacobian matrix (or the gradient in case of a scalar function `func`) will be returned. The approximation is done using forward differences.
+
+    Parameters
+    ----------
+    func: function handler
+        A vector-valued function of the form func(x).
+
+    wrt : ndarray
+        The point at which the derivative to be evaluated.
+
+    direction : ndarray
+        The direction used to compute direction-Jacobian product. 
+        If None, the Jacobian matrix is returned.
+
+    epsilon: float
+        The spacing in the finite difference approximation.
+
+    Returns
+    -------
+    ndarray
+        The approximate Jacobian matrix.
+    """
+    # Raise an error if wrt or direction is a CUQIarray.
+    # Example of scenario where this is needed: 
+    # the line Matr[i] = (func(wrt+dx) - f0)/epsilon
+    # does not give correct results if for example
+    # wrt is a CUQIarray with is_par=False and its 
+    # corresponding geometry par2fun map is not identity
+    # (e.g. funvalues=paramters**2), because wrt entries 
+    # are interpreted as function value.
+    if isinstance(wrt, CUQIarray) or isinstance(direction, CUQIarray):
+        raise NotImplementedError("approx_derivative is not implemented"+
+                                  "for inputs of type CUQIarray")
+    wrt = np.asfarray(wrt)
+    f0 = func(wrt)
+    Matr = np.zeros([len(wrt), len(f0)])
+    dx = np.zeros(len(wrt))
+    for i in range(len(wrt)):
+        dx[i] = epsilon
+        Matr[i] = (func(wrt+dx) - f0)/epsilon
+        dx[i] = 0.0
+    if direction is None:
+        return Matr.T
+    else:
+        return Matr@direction

@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import math
 from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
+import operator
+from functools import reduce
 
 def _get_identity_geometries():
     """Return the geometries that have identity par2fun and fun2par methods (can still reshape).
@@ -23,7 +25,7 @@ class Geometry(ABC):
     @property
     def dim(self):
         if self.shape is None: return None
-        return np.prod(self.shape)
+        return reduce(operator.mul, self.shape) # math.prod(self.shape) for Python 3.8+
 
     @property
     def variables(self):

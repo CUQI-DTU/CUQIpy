@@ -30,7 +30,7 @@ if ndim == 2: Ns = 500
 # Working choices
 #TP.prior = Gaussian(mean=np.zeros(n), std=par, geometry=TP.model.domain_geometry) #Not for 2D.
 #TP.prior = GaussianCov(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
-#TP.prior = GMRF(np.zeros(n), 1/par**2, N, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
+#TP.prior = GMRF(np.zeros(n), 1/par**2, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 
 TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry)
 #TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", physical_dim=ndim, geometry=TP.model.domain_geometry)
