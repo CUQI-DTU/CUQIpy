@@ -20,7 +20,6 @@ prior = cuqi.distribution.GMRF(
     order=1,  # Higher order mean more correlated structures. Can be 1 or 2.
     bc_type="zero", # Boundary conditions for GMRF. Non-zero are experimental.
     physical_dim=ndim,
-    partition_size=N,
 )
 
 # Plot samples of prior

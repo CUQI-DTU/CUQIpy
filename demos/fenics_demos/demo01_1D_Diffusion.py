@@ -23,7 +23,7 @@ plt.title('Data')
 
 
 # %%
-prior = cuqi.distribution.GMRF(np.zeros(model.domain_dim),25,model.domain_dim,1,'zero', geometry= model.domain_geometry) 
+prior = cuqi.distribution.GMRF(np.zeros(model.domain_dim),25,1,'zero', geometry= model.domain_geometry) 
 
 
 sigma = np.linalg.norm(problemInfo.exactData)/SNR 

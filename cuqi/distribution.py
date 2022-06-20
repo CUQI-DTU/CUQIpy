@@ -914,10 +914,8 @@ class Gaussian(GaussianCov):
 
 # ========================================================================
 class GMRF(Distribution):
-    """ Gaussian Markov random field.
-    
-    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
-    
+    """ Gaussian Markov random field (GMRF).
+       
     Parameters
     ----------
     mean : array_like
@@ -926,9 +924,6 @@ class GMRF(Distribution):
     prec : float
         Precision of the GMRF.
 
-    partition_size : int
-        The dimension of the distribution in one physical dimension. 
-
     physical_dim : int
         The physical dimension of what the distribution represents (can take the values 1 or 2).
 
@@ -936,21 +931,86 @@ class GMRF(Distribution):
         The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
 
     order : int
-        The order of the GMRF. Can be 1 or 2.
+        The order of the GMRF. Can be 0, 1 or 2.
+
+    Notes
+    -----
+    The GMRF defines a distribution over a set of points where each point conditioned on all the others follow a Gaussian distribution.
+
+    For 1D `(physical_dim=1)`, the current implementation provides three different cases:
+
+    * Order 0: :math:`x_i \sim \mathcal{N}(\mu_i, \delta^{-1})`,
+    * Order 1: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}(\mu_i+(x_{i-1}+x_{i+1})/2, (2\delta)^{-1}))`,
+    * Order 2: :math:`x_i \mid x_{i-1},x_{i+1} \sim \mathcal{N}(\mu_i+(-x_{i-1}+2x_i-x_{i+1})/4, (4\delta)^{-1}))`,
+
+    where :math:`\delta` is the `prec` parameter and the `mean` parameter is the mean :math:`\mu_i` for each :math:`i`.
+
+    For 2D `(physical_dim=2)`, order 0, 1, and 2 are also supported in which the differences are defined in both horizontal and vertical directions.
+
+    It is possible to define boundary conditions for the GMRF using the `bc_type` parameter.
+
+    **Illustration as a Gaussian distribution**
+
+    It may be beneficial to illustrate the GMRF distribution for a specific parameter setting. In 1D with zero boundary conditions,
+    the GMRF distribution can be represented by a Gaussian, :math:`\mathcal{N}(\mu, \mathbf{P}^{-1})`, with mean :math:`\mu` and the following precision matrices depending on the order:
+
+    * Order 0:
+
+    .. math::
+
+        \mathbf{P} = \delta \mathbf{I}.
+
+    * Order 1: 
+
+    .. math::
+    
+        \mathbf{P} = \delta 
+        \\begin{bmatrix} 
+             2  & -1        &           &           \\newline
+            -1  &  2        & -1        &           \\newline
+                & \ddots    & \ddots    & \ddots    \\newline
+                &           & -1        & 2         
+        \end{bmatrix}.
+
+    * Order 2:
+
+    .. math::
+
+        \mathbf{P} = \delta
+        \\begin{bmatrix}
+             6   & -4       &  1        &           &           &           \\newline
+            -4   &  6       & -4        & 1         &           &           \\newline
+            1    & -4       &  6        & -4        & 1         &           \\newline
+                 & \ddots   & \ddots    & \ddots    & \ddots    & \ddots    \\newline
+                 &          & \ddots    & \ddots    & \ddots    & \ddots    \\newline
+                 &          &           & 1         & -4        &  6        \\newline
+        \end{bmatrix}.
+
+    **General representation**
+
+    In general we can define the GMRF distribution on each point by
+
+    .. math::
+
+        x_i \mid \mathbf{x}_{\partial_i} \sim \mathcal{N}\left(\sum_{j \in \partial_i} \\beta_{ij} x_j, \kappa_i^{-1}\\right),
+
+    where :math:`\kappa_i` is the precision of each Gaussian and :math:`\\beta_{ij}` are coefficients defining the structure of the GMRF.
+
+    For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
+
     """
         
-    def __init__(self, mean, prec, partition_size, physical_dim, bc_type, order=1, is_symmetric=True, **kwargs): 
+    def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, is_symmetric=True, **kwargs): 
         super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
         self.prec = prec
-        self._partition_size = partition_size          # partition size
+        self._partition_size = int(len(mean)**(1/physical_dim))
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim
-        if physical_dim == 1: 
-            num_nodes = (partition_size,) 
-        else:
-            num_nodes = (partition_size,partition_size)
+        
+        num_nodes = tuple(self._partition_size for _ in range(physical_dim))
+        if physical_dim == 2: #TODO. Remove once _DefaultGeometry is implemented for 2D.
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
 
@@ -969,7 +1029,7 @@ class GMRF(Distribution):
             # np.log(np.linalg.det(self.L.todense()))
         elif (bc_type == 'periodic') or (bc_type == 'neumann'):
             # Print warning that periodic and Neumann boundary conditions are experimental
-            print("Warning: Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO will not produce fully accurate results.")
+            print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using Linear_RTO may not produce fully accurate results.")
 
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
