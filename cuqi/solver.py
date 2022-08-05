@@ -330,6 +330,99 @@ class CGLS(object):
     
         return x, k
 
+
+
+class LM(object):
+    """Levenberg-Marquardt algorithm for nonlinear least squares problems.
+    This is a translation of LevMaq.m from John's book.
+    https://github.com/bardsleyj/SIAMBookCodes/tree/master/Functions
+
+    Algorithm 3.3.5
+    C.T. Kelley, "Iterative Methods for Optimization," SIAM 1999
+
+    Parameters
+    ----------
+    A : callable f(x,*args).
+    x0 : ndarray. Initial guess.
+    jacfun : callable Jac(x). Jacobian of func. 
+    maxit : The maximum number of iterations.
+    tol : The numerical tolerance for convergence checks.
+    gradtol : The numerical tolerance for gradient.
+
+    Methods
+    ----------
+    :meth:`solve`: Runs the solver and returns the solution.
+    """
+    def __init__(self, Afun, x0, jacfun, maxit=int(1e4), tol=1e-6, gradtol=1e-8, nu0=1e-3, sparse=True):
+        self.A = Afun
+        self.x0 = x0
+        self.jacfun = jacfun
+        self.maxit = maxit
+        self.tol = tol
+        self.gradtol = gradtol
+        self.nu0 = nu0
+        self.n = len(x0)
+        self.sparse = sparse
+        if not callable(Afun):
+            self.explicitA = True
+        else:
+            self.explicitA = False
+
+    def solve(self):
+        x = self.x0
+        r = self.A(x)
+        J = self.jacfun(x)
+        g = J.T @ r
+        ng = LA.norm(g)
+        ng0, nu = np.copy(ng), np.copy(ng)
+        #
+        f = 0.5*(r.T @ r)
+        i = 0
+        if self.sparse:
+            insolve = lambda A, b: spa.linalg.spsolve(A, b)
+            I = spa.identity(self.n)
+        else:
+            insolve = lambda A, b: LA.solve(A, b)
+            I = np.identity(self.n)
+
+        # parameters required for the LM parameter update
+        mu0, mulow, muhigh = 0, 0.25, 0.75
+        omdown, omup = 0.5, 2
+        while ((ng/ng0) > self.gradtol) and (i < self.maxit):
+            i += 1
+            s = insolve((J.T@J + nu*I), g)
+            xtemp = x-s
+            rtemp = self.A(xtemp)
+            Jtemp = self.jacfun(xtemp)
+            ftemp = 0.5*(rtemp.T @ rtemp)
+
+            # LM parameter update
+            num, den = f-ftemp, (xtemp-x).T @ g
+            if (num != 0) and (den != 0): 
+                ratio = -2*(num / den)
+            else:
+                ratio = 0
+            if (ratio < mu0):
+                nu = max(omup*nu, self.nu0)
+            else:
+                x, r, f = np.copy(xtemp), np.copy(rtemp), np.copy(ftemp)
+                J = spa.csr_matrix.copy(Jtemp)
+                if (ratio < mulow):
+                    nu = max(omup*nu, self.nu0)
+                elif (ratio > muhigh):
+                    nu = omdown*nu
+                    if (nu < self.nu0):
+                        nu = 0
+            g = J.T @ r
+            ng = LA.norm(g)
+
+        info = {"func": r,
+                "Jac": J,
+                "nfev": i}
+        return x, info
+
+
+
 class PDHG(object):
     """Primal-Dual Hybrid Gradient algorithm."""
     def __init__(self):
