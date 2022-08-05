@@ -1,8 +1,10 @@
 import numpy as np
 from numpy import linalg as LA
-from scipy.optimize import fmin_l_bfgs_b
+from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt
+import scipy.sparse as spa
 from cuqi.samples import CUQIarray
+eps = np.finfo(float).eps
 
 class L_BFGS_B(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
@@ -156,6 +158,74 @@ class maximize(minimize):
         else:
             ngradfunc = gradfunc
         super().__init__(nfunc,x0,ngradfunc,method,**kwargs)
+
+
+
+class LS(object):
+    """Wrapper for :meth:`scipy.optimize.least_squares`.
+
+    Solve nonlinear least-squares problems with bounds:
+    
+    minimize F(x) = 0.5 * sum(rho(f_i(x)**2), i = 0, ..., m-1)
+    subject to lb <= x <= ub
+    
+    Parameters
+    ----------
+    func : callable f(x,*args)
+        Function to minimize.
+    x0 : ndarray
+        Initial guess.
+    Jac : callable f(x,*args), optional
+        The Jacobian of func. 
+        If None, then the solver approximates the Jacobian.
+    loss: callable rho(x,*args)
+        Determines the loss function
+        'linear' : rho(z) = z. Gives a standard least-squares problem.
+        'soft_l1': rho(z) = 2*((1 + z)**0.5 - 1). The smooth approximation of l1 (absolute value) loss.
+        'huber'  : rho(z) = z if z <= 1 else 2*z**0.5 - 1. Works similar to 'soft_l1'.
+        'cauchy' : rho(z) = ln(1 + z). Severely weakens outliers influence, but may cause difficulties in optimization process.
+        'arctan' : rho(z) = arctan(z). Limits a maximum loss on a single residual, has properties similar to 'cauchy'.        
+    method : str or callable, optional
+        Type of solver. Should be one of
+        'trf', Trust Region Reflective algorithm: for large sparse problems with bounds.
+        'dogbox', dogleg algorithm with rectangular trust regions, for small problems with bounds.
+        'lm', Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn't handle bounds and sparse Jacobians.
+
+    Methods
+    ----------
+    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
+    """
+    def __init__(self, func, x0, jacfun, method='trf', loss='linear', tol=1e-6, maxit=int(1e4)):
+        self.func = func
+        self.x0 = x0
+        self.jacfun = jacfun
+        self.method = method
+        self.loss = loss
+        self.tol = tol
+        self.maxit = maxit
+    
+    def solve(self):
+        """Runs optimization algorithm and returns solution and info.
+
+        Returns
+        ----------
+        solution : array_like
+            Solution found.
+        """
+        solution = least_squares(self.func, self.x0, jac=self.jacfun, \
+                                method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit)
+        info = {"success": solution['success'],
+                "message": solution['message'],
+                "func": solution['fun'],
+                "jac": solution['jac'],
+                "nfev": solution['nfev']}
+        if isinstance(self.x0, CUQIarray):
+            sol = CUQIarray(solution['x'], geometry=self.x0.geometry)
+        else:
+            sol = solution['x']
+        return sol, info
+
+
 
 class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
