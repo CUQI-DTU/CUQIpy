@@ -265,8 +265,6 @@ class CGLS(object):
             self.explicitA = False
             
     def solve(self):
-        eps = np.finfo(float).eps
-
         # initial state
         x = self.x0.copy()
         if self.explicitA:
@@ -406,7 +404,10 @@ class LM(object):
                 nu = max(omup*nu, self.nu0)
             else:
                 x, r, f = np.copy(xtemp), np.copy(rtemp), np.copy(ftemp)
-                J = spa.csr_matrix.copy(Jtemp)
+                if self.sparse:
+                    J = spa.csr_matrix.copy(Jtemp)
+                else:
+                    J = np.copy(Jtemp)
                 if (ratio < mulow):
                     nu = max(omup*nu, self.nu0)
                 elif (ratio > muhigh):
