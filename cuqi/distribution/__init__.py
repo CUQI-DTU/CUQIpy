@@ -11,4 +11,4 @@ from .lognormal import Lognormal
 from .normal import Normal
 from .posterior import Posterior
 from .uniform import Uniform
-from .user_defined import UserDefinedDistribution, DistributionGallery
+from .custom import UserDefinedDistribution, DistributionGallery
