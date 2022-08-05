@@ -44,7 +44,7 @@ A, y_obs, info = Deconvolution2D.get_components()
 #
 # where :math:`\sigma^2` is a noise variance that we know.
 #
-# We can represent :math:`\mathbf{y}\mid \mathbf{x}` as a :class:`cuqi.distribution.Distribution` object.
+# We can represent :math:`\mathbf{y}\mid \mathbf{x}` as a :class:`cuqi.core.Distribution` object.
 # We call the distribution of :math:`\mathbf{y}\mid \mathbf{x}` the data distribution.
 
 data_dist = GaussianCov(mean=A, cov=0.01)
@@ -57,7 +57,7 @@ data_dist = GaussianCov(mean=A, cov=0.01)
 #
 #   \mathcal{L}(\mathbf{x}|\mathbf{y}^\mathrm{obs}) := p(\mathbf{y}^\mathrm{obs}|\mathbf{x}).
 #
-# This is easily done using the :meth:`cuqi.distribution.Distribution.to_likelihood` method.
+# This is easily done using the :meth:`cuqi.core.Distribution.to_likelihood` method.
 
 likelihood = data_dist.to_likelihood(y_obs)
 
