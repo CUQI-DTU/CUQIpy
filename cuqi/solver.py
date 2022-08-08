@@ -191,14 +191,14 @@ class LS(object):
         'dogbox', dogleg algorithm with rectangular trust regions, for small problems with bounds.
         'lm', Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn't handle bounds and sparse Jacobians.
     """
-    def __init__(self, func, x0, jacfun=None, method='trf', loss='linear', tol=1e-6, maxit=int(1e4)):
+    def __init__(self, func, x0, jacfun=None, method='trf', loss='linear', tol=1e-6, maxit=1e4):
         self.func = func
         self.x0 = x0
         self.jacfun = jacfun
         self.method = method
         self.loss = loss
         self.tol = tol
-        self.maxit = maxit
+        self.maxit = int(maxit)
     
     def solve(self):
         """Runs optimization algorithm and returns solution and info.
@@ -246,7 +246,7 @@ class CGLS(object):
         self.A = A
         self.b = b
         self.x0 = x0
-        self.maxit = maxit
+        self.maxit = int(maxit)
         self.tol = tol        
         self.shift = shift
         if not callable(A):
@@ -338,35 +338,39 @@ class LM(object):
     tol : The numerical tolerance for convergence checks.
     gradtol : The numerical tolerance for gradient.
     nu0 : default value for nu parameter in the algorithm.
-    sparse : This is depends on whether 'jacfun' is defined as a sparse matrix, or as a function 
-            that supports sparse operations. Hence, if True, the code allows sparse matrix 
-            computations with the Jacobian.
+    sparse : True: if 'jacfun' is defined as a sparse matrix, or as a function that 
+            supports sparse operations. False: if 'jacfun' is dense.
     """
-    def __init__(self, A, x0, jacfun, maxit=int(1e4), tol=1e-6, gradtol=1e-8, nu0=1e-3, sparse=True):
+    def __init__(self, A, x0, jacfun, maxit=1e4, tol=1e-6, gradtol=1e-8, nu0=1e-3, sparse=True):
         self.A = A
         self.x0 = x0
         self.jacfun = jacfun
-        self.maxit = maxit
+        self.maxit = int(maxit)
         self.tol = tol
         self.gradtol = gradtol
         self.nu0 = nu0
         self.n = len(x0)
         self.sparse = sparse
-        if not callable(A):
+        if not callable(A): # also applies for jacfun
             self.explicitA = True
         else:
             self.explicitA = False
 
     def solve(self):
         x = self.x0
-        r = self.A(x)
-        J = self.jacfun(x)
+        if self.explicitA:
+            r = self.A @ x
+            J = self.jacfun @ x
+        else:
+            r = self.A(x)
+            J = self.jacfun(x)
         g = J.T @ r
         ng = LA.norm(g)
         ng0, nu = np.copy(ng), np.copy(ng)
-        #
         f = 0.5*(r.T @ r)
         i = 0
+
+        # solve function depending on sparsity
         if self.sparse:
             insolve = lambda A, b: spa.linalg.spsolve(A, b)
             I = spa.identity(self.n)
@@ -381,8 +385,12 @@ class LM(object):
             i += 1
             s = insolve((J.T@J + nu*I), g)
             xtemp = x-s
-            rtemp = self.A(xtemp)
-            Jtemp = self.jacfun(xtemp)
+            if self.explicitA:
+                rtemp = self.A @ xtemp
+                Jtemp = self.jacfun @ xtemp
+            else:
+                rtemp = self.A(xtemp)
+                Jtemp = self.jacfun(xtemp)
             ftemp = 0.5*(rtemp.T @ rtemp)
 
             # LM parameter update
@@ -418,5 +426,4 @@ class LM(object):
 class PDHG(object):
     """Primal-Dual Hybrid Gradient algorithm."""
     def __init__(self):
-        raise NotImplementedError        
-
+        raise NotImplementedError
