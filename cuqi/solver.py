@@ -190,12 +190,8 @@ class LS(object):
         'trf', Trust Region Reflective algorithm: for large sparse problems with bounds.
         'dogbox', dogleg algorithm with rectangular trust regions, for small problems with bounds.
         'lm', Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn't handle bounds and sparse Jacobians.
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self, func, x0, jacfun, method='trf', loss='linear', tol=1e-6, maxit=int(1e4)):
+    def __init__(self, func, x0, jacfun=None, method='trf', loss='linear', tol=1e-6, maxit=int(1e4)):
         self.func = func
         self.x0 = x0
         self.jacfun = jacfun
@@ -209,8 +205,8 @@ class LS(object):
 
         Returns
         ----------
-        solution : array_like
-            Solution found.
+        solution : Tuple
+            Solution found (array_like) and optimization information (dictionary).
         """
         solution = least_squares(self.func, self.x0, jac=self.jacfun, \
                                 method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit)
@@ -231,6 +227,9 @@ class CGLS(object):
     """Conjugate Gradient method for unsymmetric linear equations and least squares problems.
 
     See http://web.stanford.edu/group/SOL/software/cgls/ for the matlab version it is based on.
+    
+    If SHIFT is 0, then CGLS is Hestenes and Stiefel's conjugate-gradient method for least-squares problems. 
+    If SHIFT is nonzero, the system (A'*A + SHIFT*I)*X = A'*b is solved.
 
     Solve Ax=b or minimize ||Ax-b||^2 or solve (A^TA+sI)x=A^Tb.
     
@@ -242,16 +241,7 @@ class CGLS(object):
     maxit : The maximum number of iterations.
     tol : The numerical tolerance for convergence checks.
     shift : The shift parameter (s) shown above.
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution.
-    """
-    # http://web.stanford.edu/group/SOL/software/cgls/
-    # If SHIFT is 0, then CGLS is Hestenes and Stiefel's 
-    # conjugate-gradient method for least-squares problems. 
-    # If SHIFT is nonzero, the system (A'*A + SHIFT*I)*X = A'*b is solved
-    
+    """    
     def __init__(self, A, b, x0, maxit, tol=1e-6, shift=0):
         self.A = A
         self.b = b
@@ -331,12 +321,13 @@ class CGLS(object):
 
 
 class LM(object):
-    """Levenberg-Marquardt algorithm for nonlinear least squares problems.
-    This is a translation of LevMaq.m from John's book.
-    https://github.com/bardsleyj/SIAMBookCodes/tree/master/Functions
+    """Levenberg-Marquardt algorithm for nonlinear least-squares problems.
+    This is a translation of LevMaq.m from
+    https://github.com/bardsleyj/SIAMBookCodes/tree/master/Functions    
+    Used in Bardsley (2019) - Computational UQ for inverse problems. SIAM.
 
-    Algorithm 3.3.5
-    C.T. Kelley, "Iterative Methods for Optimization," SIAM 1999
+    Based Algorithm 3.3.5 from:
+    Kelley (1999) - Iterative Methods for Optimization. SIAM.
 
     Parameters
     ----------
@@ -346,13 +337,13 @@ class LM(object):
     maxit : The maximum number of iterations.
     tol : The numerical tolerance for convergence checks.
     gradtol : The numerical tolerance for gradient.
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution.
+    nu0 : default value for nu parameter in the algorithm.
+    sparse : This is depends on whether 'jacfun' is defined as a sparse matrix, or as a function 
+            that supports sparse operations. Hence, if True, the code allows sparse matrix 
+            computations with the Jacobian.
     """
-    def __init__(self, Afun, x0, jacfun, maxit=int(1e4), tol=1e-6, gradtol=1e-8, nu0=1e-3, sparse=True):
-        self.A = Afun
+    def __init__(self, A, x0, jacfun, maxit=int(1e4), tol=1e-6, gradtol=1e-8, nu0=1e-3, sparse=True):
+        self.A = A
         self.x0 = x0
         self.jacfun = jacfun
         self.maxit = maxit
@@ -361,7 +352,7 @@ class LM(object):
         self.nu0 = nu0
         self.n = len(x0)
         self.sparse = sparse
-        if not callable(Afun):
+        if not callable(A):
             self.explicitA = True
         else:
             self.explicitA = False
