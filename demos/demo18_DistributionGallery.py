@@ -14,11 +14,7 @@ from cuqi.distribution import DistributionGallery
 # ==========================================================================
 # choose benchmark
 # ==========================================================================
-<<<<<<< HEAD
 exa = 1
-=======
-exa = 0
->>>>>>> 0bd2577f8e54117f4d58225e386617abe232cbc2
 if exa == 0:
     xmin, xmax = -4, 4
     ymin, ymax = -4, 4    
@@ -80,7 +76,6 @@ if dist.gradient_func is not None:
 # =============================================================================
 # sample benchmarks
 # =============================================================================
-<<<<<<< HEAD
 # run NUTS and MH samplers
 Ns = int(5e3)      # number of samples
 Nb = int(0.5*Ns)   # burn-in
@@ -96,27 +91,11 @@ MCMC = MetropolisHastings(dist)
 ti = time.time()
 x_s_MH = MCMC.sample_adapt(Ns, Nb)
 print('Elapsed time MH:', time.time() - ti, '\n')
-=======
-# use MetropolisHastings if gradients are not available, and NUTS if they are
-if dist.gradient_func is not None:
-    MCMC = NUTS(dist)
-else:
-    MCMC = MetropolisHastings(dist)
-    
-# run sampler
-Ns = int(5e3)      # number of samples
-Nb = int(0.5*Ns)   # burn-in
-#
-ti = time.time()
-x_s = MCMC.sample_adapt(Ns, Nb)
-print('Elapsed time:', time.time() - ti)
->>>>>>> 0bd2577f8e54117f4d58225e386617abe232cbc2
 
 #%%
 # ==========================================================================
 # Plots samples and chains
 # ==========================================================================
-<<<<<<< HEAD
 # plot NUTS
 plt.figure(1)
 plt.plot(x_s_NUTS.samples[0, :], x_s_NUTS.samples[1, :], 'r.', markersize=1, alpha=0.3)
@@ -144,15 +123,4 @@ plt.figure(4)
 x_s_MH.plot_chain([0, 1])
 plt.xlim(0, Ns)
 plt.title('MH chains')
-=======
-plt.figure(1)
-plt.plot(x_s.samples[0, :], x_s.samples[1, :], 'r.', markersize=1, alpha=0.3)
-plt.gca().set_aspect('equal', adjustable='box')
-plt.xlim(xmin, xmax)
-plt.ylim(ymin, ymax)
-#
-plt.figure(2)
-x_s.plot_chain([0, 1])
-plt.xlim(0, Ns)
->>>>>>> 0bd2577f8e54117f4d58225e386617abe232cbc2
 plt.show()
