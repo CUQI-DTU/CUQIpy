@@ -14,7 +14,7 @@ from cuqi.distribution import DistributionGallery
 # ==========================================================================
 # choose benchmark
 # ==========================================================================
-exa = 0
+exa = 1
 if exa == 0:
     xmin, xmax = -4, 4
     ymin, ymax = -4, 4    
@@ -76,31 +76,51 @@ if dist.gradient_func is not None:
 # =============================================================================
 # sample benchmarks
 # =============================================================================
-# use MetropolisHastings if gradients are not available, and NUTS if they are
-if dist.gradient_func is not None:
-    MCMC = NUTS(dist)
-else:
-    MCMC = MetropolisHastings(dist)
-    
-# run sampler
+# run NUTS and MH samplers
 Ns = int(5e3)      # number of samples
 Nb = int(0.5*Ns)   # burn-in
-#
+
+# NUTS
+MCMC = NUTS(dist, opt_acc_rate=0.8)    
 ti = time.time()
-x_s = MCMC.sample_adapt(Ns, Nb)
-print('Elapsed time:', time.time() - ti)
+x_s_NUTS = MCMC.sample_adapt(Ns, Nb)
+print('Elapsed time NUTS:', time.time() - ti, '\n')
+
+# MH
+MCMC = MetropolisHastings(dist)
+ti = time.time()
+x_s_MH = MCMC.sample_adapt(Ns, Nb)
+print('Elapsed time MH:', time.time() - ti, '\n')
 
 #%%
 # ==========================================================================
 # Plots samples and chains
 # ==========================================================================
+# plot NUTS
 plt.figure(1)
-plt.plot(x_s.samples[0, :], x_s.samples[1, :], 'r.', markersize=1, alpha=0.3)
+plt.plot(x_s_NUTS.samples[0, :], x_s_NUTS.samples[1, :], 'r.', markersize=1, alpha=0.3)
 plt.gca().set_aspect('equal', adjustable='box')
 plt.xlim(xmin, xmax)
 plt.ylim(ymin, ymax)
+plt.title('NUTS samples')
 #
 plt.figure(2)
-x_s.plot_chain([0, 1])
+x_s_NUTS.plot_chain([0, 1])
 plt.xlim(0, Ns)
+plt.title('NUTS chains')
+
+# plots MH
+plt.figure(3)
+plt.contourf(X, Y, Z, nl)
+plt.contour(X, Y, Z, nl, linewidths=0.5, colors='k') 
+plt.plot(x_s_MH.samples[0, :], x_s_MH.samples[1, :], 'r.', markersize=1, alpha=0.3)
+plt.gca().set_aspect('equal', adjustable='box')
+plt.xlim(xmin, xmax)
+plt.ylim(ymin, ymax)
+plt.title('MH samples')
+#
+plt.figure(4)
+x_s_MH.plot_chain([0, 1])
+plt.xlim(0, Ns)
+plt.title('MH chains')
 plt.show()

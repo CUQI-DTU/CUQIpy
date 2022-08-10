@@ -163,7 +163,11 @@ class DistributionGallery(UserDefinedDistribution):
     def _CalSom91_grad_logpdf(self, x):
         if len(x.shape) == 1:
             x = x.reshape((1, 2))
-        return np.array([self.dfdx1(x[:, 0], x[:, 1]), self.dfdx2(x[:, 0], x[:, 1])])
+        grad = np.array([self.dfdx1(x[:, 0], x[:, 1]), self.dfdx2(x[:, 0], x[:, 1])])
+        if x.shape[0] == 1:
+            return grad.flatten()
+        else:
+            return grad
 
     def _funnel_logpdf_func(self, x):
         if len(x.shape) == 1:
@@ -175,8 +179,12 @@ class DistributionGallery(UserDefinedDistribution):
         if len(x.shape) == 1:
             x = x.reshape((1, 2))
         s0 = np.exp(x[:, 1]/2)
-        return np.array([self.dfdx(x[:, 0], self.m0, s0), \
+        grad = np.array([self.dfdx(x[:, 0], self.m0, s0), \
                         self.dfds(x[:, 0], self.m0, s0)*0.5*s0 + self.dfdx(x[:, 1], self.m1, self.s1)])
+        if x.shape[0] == 1:
+            return grad.flatten()
+        else:
+            return grad
 
     def _mixture_logpdf_func(self, x):
         if len(x.shape) == 1:
@@ -188,7 +196,11 @@ class DistributionGallery(UserDefinedDistribution):
             x = x.reshape((1, 2))
         p1, p2, p3 = self.G0.pdf(x), self.G1.pdf(x), self.G2.pdf(x)
         scale = np.nan_to_num(1 / (p1 + p2 + p3))
-        return (p1*self.G0.gradient(x) + p2*self.G1.gradient(x) + p3*self.G2.gradient(x)) * scale
+        grad = (p1*self.G0.gradient(x) + p2*self.G1.gradient(x) + p3*self.G2.gradient(x)) * scale
+        if x.shape[0] == 1:
+            return grad.flatten()
+        else:
+            return grad
 
     def _squiggle_logpdf_func(self, x):
         if len(x.shape) == 1:
@@ -205,7 +217,10 @@ class DistributionGallery(UserDefinedDistribution):
         grad = self.G0.gradient(y)
         gradx0, gradx1 = grad[0, :] + grad[1, :]*5*np.cos(5*x[:, 0]), grad[1, :]
         grad[0, :], grad[1, :] = gradx0, gradx1
-        return grad
+        if x.shape[0] == 1:
+            return grad.flatten()
+        else:
+            return grad
 
     def _donut_logpdf_func(self, x):
         if len(x.shape) == 1:
@@ -219,8 +234,12 @@ class DistributionGallery(UserDefinedDistribution):
         r = np.linalg.norm(x, axis=1)
         idx = np.argwhere(r==0)
         r[idx] = 1e-16
-        return np.array([(x[:, 0]*((self.radius/r)-1)*2)/self.sigma2, \
+        grad = np.array([(x[:, 0]*((self.radius/r)-1)*2)/self.sigma2, \
                          (x[:, 1]*((self.radius/r)-1)*2)/self.sigma2])
+        if x.shape[0] == 1:
+            return grad.flatten()
+        else:
+            return grad
 
     def _banana_logpdf_func(self, x):
         if len(x.shape) == 1:
@@ -239,4 +258,7 @@ class DistributionGallery(UserDefinedDistribution):
         grad = self.G0.gradient(y)
         gradx0, gradx1 = grad[0, :]/self.a + grad[1, :]*self.a*self.b*2*x[:, 0], grad[1, :]*self.a
         grad[0, :], grad[1, :] = gradx0, gradx1
-        return grad
+        if x.shape[0] == 1:
+            return grad.flatten()
+        else:
+            return grad
