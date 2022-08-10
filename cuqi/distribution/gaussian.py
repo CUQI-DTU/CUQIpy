@@ -131,21 +131,28 @@ class GaussianCov(Distribution): # TODO: super general with precisions
         return prec, sqrtprec, logdet, rank     
 
     def logpdf(self, x):
+        # organize shape of inputs
+        # x = x.reshape(-1, self.dim)
+
+        # compute density
         dev = x - self.mean
-        mahadist = np.sum(np.square(self.sqrtprec @ dev), axis=-1)
+        mahadist = np.sum(np.square(self.sqrtprec @ dev.T), axis=0)
         return -0.5*(self.rank*np.log(2*np.pi) + self.logdet + mahadist)
 
     def cdf(self, x1):   # TODO
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
 
     def gradient(self, val, *args, **kwargs):
+        # organize shape of inputs
+        # val = val.reshape(-1, self.dim)
+
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries() and \
            not hasattr(self.geometry, 'gradient'):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
         if not callable(self.mean): # for prior
-            return -( self.prec @ (val - self.mean) )
+            return -( self.prec @ (val - self.mean).T )
         elif hasattr(self.mean, "gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
