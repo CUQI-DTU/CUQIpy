@@ -132,9 +132,8 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     def logpdf(self, x):
         # organize shape of inputs
-        m, n = x.shape
-        if m < n:
-            x = x.T
+        # x = x.reshape(-1, self.dim)
+
         # compute density
         dev = x - self.mean
         mahadist = np.sum(np.square(self.sqrtprec @ dev.T), axis=0)
@@ -145,9 +144,8 @@ class GaussianCov(Distribution): # TODO: super general with precisions
 
     def gradient(self, val, *args, **kwargs):
         # organize shape of inputs
-        m, n = val.shape
-        if m < n:
-            val = val.T
+        # val = val.reshape(-1, self.dim)
+
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries() and \
            not hasattr(self.geometry, 'gradient'):

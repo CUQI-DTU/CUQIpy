@@ -1,3 +1,5 @@
+# import sys
+# sys.path.append("../")
 from math import isnan
 import cuqi
 import numpy as np
@@ -40,7 +42,17 @@ def test_Gaussian_cov():
     D = np.diag(std)
     S = D @ R @ D
     pX_1 = cuqi.distribution.Gaussian(mean, std, R)
-    assert np.allclose(pX_1.Sigma, S) 
+    assert np.allclose(pX_1.Sigma, S)
+    
+def test_Gaussian_multiple():
+    pX_1 = cuqi.distribution.GaussianCov(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
+    #
+    X, Y = np.meshgrid(np.linspace(-4, 4, 200), np.linspace(-4, 4, 200))
+    Xf, Yf = X.flatten(), Y.flatten()
+    pts = np.vstack([Xf, Yf]).T   # pts is (m*n, d)
+    npoints = pts.shape[0]
+    Z = pX_1.pdf(pts)
+    assert npoints == Z.shape[0]
 
 @pytest.mark.xfail(reason="Expected to fail after fixing GaussianCov sample. Regression needs to be updated")
 @pytest.mark.parametrize("mean,std,R,expected",[
