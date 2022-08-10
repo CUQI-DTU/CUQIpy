@@ -30,7 +30,7 @@ class Deblur(BayesianProblem):
     noise_std : scalar, default 0.1
         Standard deviation of the noise.
 
-    prior : cuqi.distribution.Distribution, default None
+    prior : cuqi.core.Distribution, default None
         Distribution of the prior.
 
     Attributes
@@ -44,7 +44,7 @@ class Deblur(BayesianProblem):
     likelihood : cuqi.likelihood.Likelihood
         Likelihood function.
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior (Default = None)
 
     exactSolution : ndarray
@@ -178,7 +178,7 @@ class Deconvolution1D(BayesianProblem):
     noise_std : scalar
         Standard deviation of the noise
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior
 
     Attributes
@@ -189,10 +189,10 @@ class Deconvolution1D(BayesianProblem):
     model : cuqi.model.Model
         Deconvolution forward model
 
-    noise : cuqi.distribution.Distribution
+    noise : cuqi.core.Distribution
         Distribution of the additive noise
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior (Default = None)
 
     likelihood : cuqi.likelihood.Likelihood
@@ -446,7 +446,7 @@ class Poisson_1D(BayesianProblem):
     model : cuqi.model.PDEModel_1D
         Poisson 1D model
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior
 
     likelihood : cuqi.likelihood.Likelihood
@@ -576,7 +576,7 @@ class Heat_1D(BayesianProblem):
     model : cuqi.model.PDEModel_1D
         Heat 1D model
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior
 
     likelihood : cuqi.likelihood.Likelihood
@@ -706,7 +706,7 @@ class Abel_1D(BayesianProblem):
     model : cuqi.model.LinearModel
         Abel 1D model
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior
 
     likelihood : cuqi.likelihood.Likelihood
@@ -821,7 +821,7 @@ class Deconv_1D(BayesianProblem):
     model : cuqi.model.LinearModel
         Deconvolution 1D model
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior
 
     likelihood : cuqi.likelihood.Likelihood
@@ -1197,7 +1197,7 @@ class WangCubic(BayesianProblem):
     noise_std : scalar
         Standard deviation of the noise
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior
     
     data : scalar

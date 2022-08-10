@@ -18,7 +18,7 @@ class BayesianProblem(object):
 
         \pi_\mathrm{posterior}(\mathbf{x} \mid \mathbf{b}) \propto \pi_\mathrm{likelihood}(\mathbf{b} \mid \mathbf{x}) \pi_\mathrm{prior}(\mathbf{x}),
 
-    where :math:`\pi_\mathrm{Likelihood}(\mathbf{b} \mid \mathbf{x})` is a :class:`cuqi.likelihood.Likelihood` function and :math:`\pi_\mathrm{prior}(\mathbf{x})` is a :class:`cuqi.distribution.Distribution`.
+    where :math:`\pi_\mathrm{Likelihood}(\mathbf{b} \mid \mathbf{x})` is a :class:`cuqi.likelihood.Likelihood` function and :math:`\pi_\mathrm{prior}(\mathbf{x})` is a :class:`cuqi.core.Distribution`.
 
     The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the posterior distribution.
 

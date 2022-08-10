@@ -50,7 +50,7 @@ class Sampler(ABC):
 
     @target.setter 
     def target(self, value):
-        if  not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+        if  not isinstance(value, cuqi.core.Distribution) and callable(value):
             # obtain self.dim
             if self.dim is not None:
                 dim = self.dim
@@ -60,10 +60,10 @@ class Sampler(ABC):
             # set target
             self._target = cuqi.distribution.UserDefinedDistribution(logpdf_func=value, dim = dim)
 
-        elif isinstance(value, cuqi.distribution.Distribution):
+        elif isinstance(value, cuqi.core.Distribution):
             self._target = value
         else:
-            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.distribution.Distribution'")
+            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.core.Distribution'")
 
 
     @property
@@ -175,7 +175,7 @@ class NUTS(Sampler):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution`
+    target : `cuqi.core.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     x0 : ndarray
@@ -593,10 +593,10 @@ class CWMH(ProposalBasedSampler):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution` or lambda function
+    target : `cuqi.core.Distribution` or lambda function
         The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    proposal : `cuqi.distribution.Distribution` or callable method
+    proposal : `cuqi.core.Distribution` or callable method
         The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
 
     scale : float
@@ -641,18 +641,18 @@ class CWMH(ProposalBasedSampler):
         
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
-        fail_msg = "Proposal should be either None, cuqi.distribution.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
+        fail_msg = "Proposal should be either None, cuqi.core.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
 
         if value is None:
             self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
 
-        elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
+        elif isinstance(value, cuqi.core.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
             self._proposal = value
 
         elif isinstance(value, cuqi.distribution.Normal) and sorted(value.get_conditioning_variables())==['mean','std']:
             self._proposal = value(mean = lambda location:location, std = lambda scale:scale)
 
-        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+        elif not isinstance(value, cuqi.core.Distribution) and callable(value):
             self._proposal = value
 
         else:
@@ -745,7 +745,7 @@ class CWMH(ProposalBasedSampler):
         return samples, target_eval, acccomp
 
     def single_update(self, x_t, target_eval_t):
-        if isinstance(self.proposal,cuqi.distribution.Distribution):
+        if isinstance(self.proposal,cuqi.core.Distribution):
             x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
         else:
             x_i_star = self.proposal(x_t, self.scale) 
@@ -788,10 +788,10 @@ class MetropolisHastings(ProposalBasedSampler):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution` or lambda function
+    target : `cuqi.core.Distribution` or lambda function
         The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    proposal : `cuqi.distribution.Distribution` or callable method
+    proposal : `cuqi.core.Distribution` or callable method
         The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
 
     scale : float
@@ -840,13 +840,13 @@ class MetropolisHastings(ProposalBasedSampler):
 
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
-        fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
+        fail_msg = "Proposal should be either None, symmetric cuqi.core.Distribution or a lambda function."
 
         if value is None:
             self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
-        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+        elif not isinstance(value, cuqi.core.Distribution) and callable(value):
             raise NotImplementedError(fail_msg)
-        elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
+        elif isinstance(value, cuqi.core.Distribution) and value.is_symmetric:
             self._proposal = value
         else:
             raise ValueError(fail_msg)
@@ -979,7 +979,7 @@ class pCN(Sampler):
     ----------
     target : `cuqi.distribution.Posterior` or tuple of likelihood and prior objects
         If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
-        If target is a tuple of (cuqi.likelihood.Likelihood, cuqi.distribution.Distribution) objects,
+        If target is a tuple of (cuqi.likelihood.Likelihood, cuqi.core.Distribution) objects,
         the first element is considered the likelihood and the second is considered the prior.
 
     scale : int
@@ -1073,7 +1073,7 @@ class pCN(Sampler):
             self._loglikelihood = lambda x : self.likelihood.log(x)
         elif isinstance(value,tuple) and len(value)==2 and \
              (isinstance(value[0], cuqi.likelihood.Likelihood) or isinstance(value[0], cuqi.likelihood.UserDefinedLikelihood))  and \
-             isinstance(value[1], cuqi.distribution.Distribution):
+             isinstance(value[1], cuqi.core.Distribution):
             self._target = value
             self._loglikelihood = lambda x : self.likelihood.log(x)
         else:
@@ -1227,7 +1227,7 @@ class ULA(Sampler):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution`
+    target : `cuqi.core.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
@@ -1335,7 +1335,7 @@ class MALA(ULA):
     Parameters
     ----------
 
-    target : `cuqi.distribution.Distribution`
+    target : `cuqi.core.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     

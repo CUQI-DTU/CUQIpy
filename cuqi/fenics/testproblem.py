@@ -40,7 +40,7 @@ class FEniCSDiffusion1D(BayesianProblem):
     model : cuqi.model.Model
         Deconvolution forward model
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior (Default = None)
 
     likelihood : cuqi.likelihood.Likelihood

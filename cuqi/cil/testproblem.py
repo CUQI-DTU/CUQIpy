@@ -38,7 +38,7 @@ class ParallelBeam2DProblem(cuqi.problem.BayesianProblem):
     noise_std : scalar
         Standard deviation of the noise
 
-    prior : cuqi.distribution.Distribution, optional
+    prior : cuqi.core.Distribution, optional
         Distribution of the prior.
         If set posterior samples can be computed using :meth:`sample_posterior`.
 
@@ -53,7 +53,7 @@ class ParallelBeam2DProblem(cuqi.problem.BayesianProblem):
     model : cuqi.cil.model.CILModel
         CT Model.
 
-    prior : cuqi.distribution.Distribution, Default None
+    prior : cuqi.core.Distribution, Default None
         Distribution of the prior.
 
     likelihood : cuqi.likelihood.Likelihood
