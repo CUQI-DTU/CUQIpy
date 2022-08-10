@@ -1,5 +1,3 @@
-# import sys
-# sys.path.append("../")
 from math import isnan
 import cuqi
 import numpy as np
