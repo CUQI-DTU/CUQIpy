@@ -14,7 +14,7 @@ from cuqi.distribution import DistributionGallery
 # ==========================================================================
 # choose benchmark
 # ==========================================================================
-exa = 2
+exa = 0
 if exa == 0:
     xmin, xmax = -4, 4
     ymin, ymax = -4, 4    
