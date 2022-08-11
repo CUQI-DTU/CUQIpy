@@ -207,14 +207,14 @@ class TimeDependentLinearPDE(LinearPDE):
 
         if self.method == 'backward_euler':
             for idx, t in enumerate(self.time_steps[1:]):
-                dt = t - self.time_steps[idx-1]
+                dt = t - self.time_steps[idx]
                 self.assemble_step(t, dt)
                 if idx == 0:
                     u = self.initial_condition
-                A = np.eye(len(u)) + dt*self.diff_op
+                A = np.eye(len(u)) - dt*self.diff_op
                 # from u at time t-dt, gives u at t
                 u, info = self._solve_linear_system(
-                    A, dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+                    A, u + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
 
         return u, info
 
