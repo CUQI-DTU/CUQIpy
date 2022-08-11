@@ -9,6 +9,12 @@ class PDE(ABC):
     Parametrized PDE abstract base class
     """
 
+    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None):
+        self.PDE_form = PDE_form
+        self.grid_sol = grid_sol
+        self.grid_obs = grid_obs
+        self.observation_map = observation_map
+
     @abstractmethod
     def assemble(self,parameter):
         pass
@@ -71,7 +77,28 @@ class PDE(ABC):
     def grids_equal(self):
         return self._grids_equal
 
-class SteadyStateLinearPDE(PDE):
+
+class LinearPDE(PDE):
+    def __init__(self, PDE_form, linalg_solve=None, linalg_solve_kwargs={}, **kwargs):
+        super().__init__(PDE_form, **kwargs)
+
+        if linalg_solve == None:
+            linalg_solve = scipy.linalg.solve
+        self._linalg_solve = linalg_solve
+        self._linalg_solve_kwargs = linalg_solve_kwargs
+
+    def _solve_linear_system(self, A, b, linalg_solve, kwargs):
+        returned_values = linalg_solve(A, b, **kwargs)
+        if isinstance(returned_values, tuple):
+            solution = returned_values[0]
+            info = returned_values[1:]
+        else:
+            solution = returned_values
+            info = None
+
+        return solution, info
+
+class SteadyStateLinearPDE(LinearPDE):
     """Linear steady state PDE.
     
     Parameters
@@ -100,34 +127,17 @@ class SteadyStateLinearPDE(PDE):
     See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2D.py also illustrates how to observe on a specific boundary, for example.
     """
 
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None, linalg_solve=None, linalg_solve_kwargs={}):
-        self.PDE_form = PDE_form
-        self.grid_sol = grid_sol
-        self.grid_obs = grid_obs
-        if linalg_solve == None:
-            linalg_solve = scipy.linalg.solve
-        self._linalg_solve = linalg_solve
-        self._linalg_solve_kwargs = linalg_solve_kwargs
-        self.observation_map = observation_map 
-
     def assemble(self, parameter):
         """Assembles differential operator and rhs according to PDE_form"""
         self.diff_op, self.rhs = self.PDE_form(parameter)
 
     def solve(self):
         """Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution."""
-        if not hasattr(self,"diff_op") or not hasattr(self,"rhs"):
+        if not hasattr(self, "diff_op") or not hasattr(self, "rhs"):
             raise Exception("PDE is not assembled.")
 
-        returned_values = self._linalg_solve(self.diff_op, self.rhs, **self._linalg_solve_kwargs)
-        if isinstance(returned_values, tuple):
-            solution = returned_values[0]
-            info = returned_values[1:]
-        else:
-            solution = returned_values
-            info = None
+        return self._solve_linear_system(self.diff_op, self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
 
-        return solution, info
 
     def observe(self, solution):
             
@@ -141,8 +151,8 @@ class SteadyStateLinearPDE(PDE):
                 
         return solution_obs
         
-class TimeDependentLinearPDE(PDE):
-    """Time steady state PDE.
+class TimeDependentLinearPDE(LinearPDE):
+    """Time Dependent Linear PDE with fixed time stepping using Euler method (backward or forward).
     
     Parameters
     -----------   
@@ -158,23 +168,54 @@ class TimeDependentLinearPDE(PDE):
     <<< ....
     <<< ....
     """
-    def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None):
-        self.PDE_form = PDE_form
-        self.grid_sol = grid_sol
-        self.grid_obs = grid_obs
-        self.observation_map = observation_map
+
+    def __init__(self, PDE_form, time_steps, method='forward_euler', **kwargs):
+        super().__init__(PDE_form, **kwargs)
+
+        self.time_steps = time_steps
+        self.method = method
+
+    @property
+    def method(self):
+        return self._method
+
+    @method.setter
+    def method(self, value):
+        if value != 'forward_euler' and value != 'backward_euler':
+            raise ValueError(
+                "method can be set to either `forward_euler` or `backward_euler`")
+        self._method = value
 
     def assemble(self, parameter):
         """Assemble PDE"""
-        self.diff_op, self.IC, self.time_steps = self.PDE_form(parameter)
+        self._parameter = parameter
+
+    def assemble_step(self, t, dt):
+        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t, dt)
 
     def solve(self):
         """Solve PDE by time-stepping"""
-        u = self.IC
-        for t in self.time_steps:
-            u = self.diff_op@u
-        
-        info = None
+
+        if self.method == 'forward_euler':
+            for idx, t in enumerate(self.time_steps[:-1]):
+                dt = self.time_steps[idx+1] - t
+                self.assemble_step(t, dt)
+                if idx == 0:
+                    u = self.initial_condition
+                u = (dt*self.diff_op + np.eye(len(u)))@u + dt*self.rhs  # from u at time t, gives u at t+dt
+            info = None
+
+        if self.method == 'backward_euler':
+            for idx, t in enumerate(self.time_steps[1:]):
+                dt = t - self.time_steps[idx-1]
+                self.assemble_step(t, dt)
+                if idx == 0:
+                    u = self.initial_condition
+                A = np.eye(len(u)) + dt*self.diff_op
+                # from u at time t-dt, gives u at t
+                u, info = self._solve_linear_system(
+                    A, dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+
         return u, info
 
     def observe(self, solution):
