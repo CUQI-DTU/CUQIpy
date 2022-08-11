@@ -492,7 +492,7 @@ class Poisson_1D(BayesianProblem):
         # PDE form: LHS(x)u=rhs(x)
         grid_obs = np.linspace(1./(dim_obs), endpoint, dim_obs, endpoint=False)
         PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
-        PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_range, grid_obs)
+        PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_sol=grid_range,  grid_obs=grid_obs)
 
         # Set up geometries for model
         if isinstance(field_type,Geometry):
@@ -610,17 +610,21 @@ class Heat_1D(BayesianProblem):
         cfl = 5/11 # the cfl condition to have a stable solution
         dt = cfl*dx**2 # defining time step
         max_iter = int(max_time/dt) # number of time steps
-        Dxx = np.diag( (1-2*cfl)*np.ones(N) ) + np.diag(cfl* np.ones(N-1),-1) + np.diag(cfl*np.ones(N-1),1) # FD diffusion operator
+        Dxx = (np.diag( -2*np.ones(N) ) + np.diag(np.ones(N-1),-1) + np.diag(np.ones(N-1),1))/dx**2 # FD diffusion operator
         
         # Grids for model
         grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
         grid_range  = grid_domain
-        time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
+        #time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
+        steps = np.ones(max_iter+1)*dt
+        steps[0]=0
+        time_steps = np.cumsum(steps)
 
         # PDE form (diff_op, IC, time_steps)
         grid_obs = np.linspace(dx, endpoint, dim_obs, endpoint=False)
-        PDE_form = lambda IC: (Dxx, IC, time_steps)
-        PDE = cuqi.pde.TimeDependentLinearPDE(PDE_form, grid_domain, grid_obs)
+        def PDE_form(IC, t, dt): return (Dxx, np.zeros(N), IC)
+        PDE = cuqi.pde.TimeDependentLinearPDE(
+            PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_obs)
 
         # Set up geometries for model
         if isinstance(field_type,Geometry):
@@ -656,7 +660,6 @@ class Heat_1D(BayesianProblem):
         #x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
         # Generate exact data
         b_exact = model.forward(x_exact,is_par=False)
-
         # Add noise to data
         sigma = np.linalg.norm(b_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
