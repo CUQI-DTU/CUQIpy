@@ -212,7 +212,8 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
         time_steps1 = np.linspace(0, max_time/2, max_iter+1, endpoint=True)
         time_steps2 = np.linspace(max_time/2, max_time,
                                   int(max_iter/2)+1, endpoint=True)
-        time_steps = np.hstack((time_steps1[:-1], time_steps2)) # Time steps array
+        time_steps = np.hstack(
+            (time_steps1[:-1], time_steps2))  # Time steps array
 
     # 2. Create differential operator
     Dxx = (np.diag(-2*np.ones(dim)) + np.diag(np.ones(dim-1), -1) +
@@ -247,7 +248,6 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
     assert(np.allclose(sol, expected_sols[expected_sol]))
 
 
-
 def test_TimeDependentLinearPDE_wave1D(copy_reference):
     """ Compute the final time solution of a 1D wave equation and
         compare it with previously stored solution.
@@ -261,7 +261,7 @@ def test_TimeDependentLinearPDE_wave1D(copy_reference):
     max_iter = int(max_time/dt_approx)  # Number of time steps
     time_steps = np.linspace(0, max_time, max_iter+1,
                              endpoint=True)  # Time steps array
-    
+
     # 2. Create the PDE form
     # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
     Dx = -(np.diag(1*np.ones(dim-1), 1) - np.diag(np.ones(dim), 0)) / \
@@ -270,12 +270,12 @@ def test_TimeDependentLinearPDE_wave1D(copy_reference):
 
     def PDE_form(initial_condition, t, dt): return (
         Dx, np.zeros(dim), initial_condition)
-    
+
     # 3. Create a PDE object
     PDE = cuqi.pde.TimeDependentLinearPDE(
         PDE_form, time_steps, method="forward_euler")
-    
-    # 4. Create the initial condition 
+
+    # 4. Create the initial condition
     grid = np.linspace(dx, L, dim, endpoint=True)
     def initial_condition_func(x): return np.exp(-200*(x-L/4)**2)
     initial_condition = initial_condition_func(grid)
