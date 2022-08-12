@@ -1,1 +1,1 @@
-from .distribution import Distribution
+from ._distribution import Distribution
