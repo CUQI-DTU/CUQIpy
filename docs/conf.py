@@ -44,6 +44,7 @@ autodoc_default_flags = ['members']
 todo_include_todos=True
 autosummary_generate = True
 autodoc_typehints = "none"
+autosummary_imported_members = True # Adds any imported members to api docs automatically
 
 # Mock modules for optional dependencies
 autodoc_mock_imports = ["dolfin", "ufl", "astra", "cil", "matlab"]
