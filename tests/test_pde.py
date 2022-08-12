@@ -181,4 +181,110 @@ def test_observe():
     assert(np.all(np.isclose(observed_sol, expected_observed_sol)))
 
 
+@pytest.mark.parametrize("method, time_steps, parametrization, expected_sol",
+                         [('forward_euler', 'fixed', 'initial_condition', 'sol1'),
+                          ('backward_euler', 'fixed', 'initial_condition', 'sol2'),
+                             ('backward_euler', 'varying',
+                              'initial_condition', 'sol3'),
+                             ('backward_euler', 'fixed', 'source_term1', 'sol4'),
+                             ('backward_euler', 'fixed', 'source_term2', 'sol5')])
+def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, parametrization, expected_sol):
+    """ Compute the final time solution of a 1D heat equation and
+        compare it with previously stored solution (for 5 different set up choices).
+    """
+    # 1. Time and space parameters
+    dim = 200   # Number of solution nodes
+    L = 5  # 1D domain length
+    max_time = 1  # Final time
+    dx = L/(dim+1)   # Space step size
+
+    if method == 'forward_euler':
+        cfl = 5/11  # The cfl condition to have a stable solution
+        max_iter = int(max_time/(cfl*dx**2))  # Number of time steps
+    elif method == 'backward_euler':
+        dt_approx = 0.006  # Approximate time step
+        max_iter = int(max_time/dt_approx)  # Number of time steps
+
+    if time_steps == 'fixed':
+        time_steps = np.linspace(
+            0, max_time, max_iter+1, endpoint=True)  # Time steps array
+    elif time_steps == 'varying':
+        time_steps1 = np.linspace(0, max_time/2, max_iter+1, endpoint=True)
+        time_steps2 = np.linspace(max_time/2, max_time,
+                                  int(max_iter/2)+1, endpoint=True)
+        time_steps = np.hstack((time_steps1[:-1], time_steps2)) # Time steps array
+
+    # 2. Create differential operator
+    Dxx = (np.diag(-2*np.ones(dim)) + np.diag(np.ones(dim-1), -1) +
+           np.diag(np.ones(dim-1), 1))/dx**2  # Finite difference diffusion operator
+
+    # 3. Create the PDE form and the Bayesian parameters
+    if parametrization == 'initial_condition':
+        # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
+        def PDE_form(initial_condition, t, dt): return (
+            Dxx, np.zeros(dim), initial_condition)
+        parameters = np.ones(dim)
+    else:
+        # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
+        def PDE_form(source_term, t, dt): return (
+            Dxx, source_term, np.ones(dim))
+        if parametrization == 'source_term1':
+            parameters = np.zeros(dim)
+        elif parametrization == 'source_term2':
+            parameters = np.ones(dim)
+
+    # 4. Create a PDE object
+    PDE = cuqi.pde.TimeDependentLinearPDE(
+        PDE_form, time_steps, method=method)
+
+    # 5 Solve the PDE
+    PDE.assemble(parameters)
+    sol, info = PDE.solve()
+
+    # 6 Compare the obtained solution with previously stored solution
+    solution_file = copy_reference("data/Heat1D_5solutions.npz")
+    expected_sols = np.load(solution_file)
+    assert(np.allclose(sol, expected_sols[expected_sol]))
+
+
+
+def test_TimeDependentLinearPDE_wave1D(copy_reference):
+    """ Compute the final time solution of a 1D wave equation and
+        compare it with previously stored solution.
+    """
+    # 1. Time and space parameters
+    dim = 100   # Number of solution nodes
+    L = 1  # 1D domain length
+    max_time = .2  # Final time
+    dx = L/(dim+1)   # Space step size
+    dt_approx = .005  # Approximate time step
+    max_iter = int(max_time/dt_approx)  # Number of time steps
+    time_steps = np.linspace(0, max_time, max_iter+1,
+                             endpoint=True)  # Time steps array
     
+    # 2. Create the PDE form
+    # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
+    Dx = -(np.diag(1*np.ones(dim-1), 1) - np.diag(np.ones(dim), 0)) / \
+        dx  # FD advection operator
+    Dx[0, :] = 0  # Setting boundary conditions
+
+    def PDE_form(initial_condition, t, dt): return (
+        Dx, np.zeros(dim), initial_condition)
+    
+    # 3. Create a PDE object
+    PDE = cuqi.pde.TimeDependentLinearPDE(
+        PDE_form, time_steps, method="forward_euler")
+    
+    # 4. Create the initial condition 
+    grid = np.linspace(dx, L, dim, endpoint=True)
+    def initial_condition_func(x): return np.exp(-200*(x-L/4)**2)
+    initial_condition = initial_condition_func(grid)
+
+    # 5 Solve the PDE
+    PDE.assemble(initial_condition)
+    sol, info = PDE.solve()
+
+    # 6 Compare the obtained solution with previously stored solution
+    solution_file = copy_reference("data/Wave1D_solution.npz")
+    expected_sol = np.load(solution_file)
+    assert(np.allclose(sol, expected_sol['sol']))
