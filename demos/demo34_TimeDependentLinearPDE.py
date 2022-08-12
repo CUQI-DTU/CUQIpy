@@ -191,19 +191,14 @@ dx = L/(dim+1)   # Space step size
 dt_approx = .005 # Approximate time step
 max_iter = int(max_time/dt_approx) # Number of time steps
 Dx = -(  np.diag(1*np.ones(dim-1),1) -np.diag( np.ones(dim),0) )/dx # FD advection operator
-#Dx[0,:]=0 
+Dx[0,:]=0 # Setting boundary conditions
+time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True) # Time steps array
 
+# PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
+def PDE_form(initial_condition, t, dt): return (Dx, np.zeros(dim), initial_condition)
 
+# 1.2 Create a PDE object
 
-# ......
-time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
-
-
-
-
-
-# PDE form (diff_op, IC, time_steps)
-def PDE_form(IC, t, dt): return (Dx, np.zeros(dim), IC)
 PDE = TimeDependentLinearPDE(
     PDE_form, time_steps, method="forward_euler")
 
@@ -214,21 +209,16 @@ grid = np.linspace(dx, L, dim, endpoint=True)
 domain_geometry = Continuous1D(grid)
 range_geometry = Continuous1D(grid)
 
-# Prepare model
+# Create the model
 model = PDEModel(PDE,range_geometry,domain_geometry)
 
-IC_func = lambda x: np.exp(-200*(x-L/4)**2)
-IC = IC_func(grid_domain)
-parameters= CUQIarray(IC,geometry=domain_geometry)
+# 1.4 Look at the solution for some initial condition
+
+initial_condition_func = lambda x: np.exp(-200*(x-L/4)**2)
+initial_condition = initial_condition_func(grid)
+parameters= CUQIarray(initial_condition,geometry=domain_geometry)
 solution_case5 = model.forward(parameters)
-solution_case5.plot()
 
-
-plt.plot(grid_domain,IC)
-# %%
-
-## limitations: time dependant observations and time dependent source term as parameter
-
-
-
-# reducing cfl to the implicit case will enhance the relative difference
+parameters.plot(label="Initial Condition (t=0)")
+solution_case5.plot(label=f"Final Solution (t={max_time})")
+plt.legend()
