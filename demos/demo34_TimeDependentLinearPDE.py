@@ -7,11 +7,8 @@ In this example we show how to set up various Time Dependent Linear PDE models.
 # %% 
 # First we import the modules needed.
 
-from turtle import color
 import numpy as np
 import sys
-
-from sympy import geometry
 sys.path.append("..")
 from cuqi.pde import TimeDependentLinearPDE
 from cuqi.geometry import Continuous1D
