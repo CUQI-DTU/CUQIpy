@@ -14,7 +14,7 @@ from cuqi.distribution import DistributionGallery
 # ==========================================================================
 # choose benchmark
 # ==========================================================================
-exa = 1
+exa = 4
 if exa == 0:
     xmin, xmax = -4, 4
     ymin, ymax = -4, 4    
@@ -56,11 +56,6 @@ Xf, Yf = X.flatten(), Y.flatten()
 pts = np.vstack([Xf, Yf]).T   # pts is (m*n, d)
 Z = dist.pdf(pts).reshape((m, n))
 
-# plot PDF
-plt.figure(1)
-plt.contourf(X, Y, Z, nl)
-plt.contour(X, Y, Z, nl, linewidths=0.5, colors='k') 
-
 # evaluate gradient
 if dist.gradient_func is not None:
     Xg, Yg = np.meshgrid(np.linspace(xmin, xmax, ng), np.linspace(ymin, ymax, ng))
@@ -69,22 +64,21 @@ if dist.gradient_func is not None:
     grad = dist.gradient(posg)
     norm = np.linalg.norm(grad, axis=0)
     u, v = grad[0, :]/norm, grad[1, :]/norm
-    plt.quiver(posg[:, 0], posg[:, 1], u, v, units='xy', scale=5, color='gray')
+
+    # plot PDF and gradient
+    plt.figure(3)
+    plt.contourf(X, Y, Z, nl)
+    plt.contour(X, Y, Z, nl, linewidths=0.5, colors='k') 
+    plt.quiver(posg[:, 0], posg[:, 1], u, v, units='xy', scale=4, color='gray')
 # plt.pause(1)
 
 #%% 
 # =============================================================================
 # sample benchmarks
 # =============================================================================
-# run NUTS and MH samplers
+# run MH and NUTS samplers
 Ns = int(5e3)      # number of samples
 Nb = int(0.5*Ns)   # burn-in
-
-# NUTS
-MCMC = NUTS(dist, opt_acc_rate=0.8)    
-ti = time.time()
-x_s_NUTS = MCMC.sample_adapt(Ns, Nb)
-print('Elapsed time NUTS:', time.time() - ti, '\n')
 
 # MH
 MCMC = MetropolisHastings(dist)
@@ -92,35 +86,38 @@ ti = time.time()
 x_s_MH = MCMC.sample_adapt(Ns, Nb)
 print('Elapsed time MH:', time.time() - ti, '\n')
 
-#%%
-# ==========================================================================
-# Plots samples and chains
-# ==========================================================================
-# plot NUTS
-plt.figure(1)
-plt.plot(x_s_NUTS.samples[0, :], x_s_NUTS.samples[1, :], 'r.', markersize=1, alpha=0.3)
-plt.gca().set_aspect('equal', adjustable='box')
-plt.xlim(xmin, xmax)
-plt.ylim(ymin, ymax)
-plt.title('NUTS samples')
-#
-plt.figure(2)
-x_s_NUTS.plot_chain([0, 1])
-plt.xlim(0, Ns)
-plt.title('NUTS chains')
-
 # plots MH
-plt.figure(3)
+plt.figure(1)
 plt.contourf(X, Y, Z, nl)
 plt.contour(X, Y, Z, nl, linewidths=0.5, colors='k') 
-plt.plot(x_s_MH.samples[0, :], x_s_MH.samples[1, :], 'r.', markersize=1, alpha=0.3)
+plt.plot(x_s_MH.samples[0, :], x_s_MH.samples[1, :], 'r.', markersize=1.5, alpha=0.3)
 plt.gca().set_aspect('equal', adjustable='box')
 plt.xlim(xmin, xmax)
 plt.ylim(ymin, ymax)
 plt.title('MH samples')
 #
-plt.figure(4)
+plt.figure(2)
 x_s_MH.plot_chain([0, 1])
 plt.xlim(0, Ns)
 plt.title('MH chains')
-plt.show()
+
+# NUTS
+if dist.gradient_func is not None:
+    MCMC = NUTS(dist, opt_acc_rate=0.8)    
+    ti = time.time()
+    x_s_NUTS = MCMC.sample_adapt(Ns, Nb)
+    print('Elapsed time NUTS:', time.time() - ti, '\n')
+
+    # plot NUTS
+    plt.figure(3)
+    plt.plot(x_s_NUTS.samples[0, :], x_s_NUTS.samples[1, :], 'r.', markersize=1.5, alpha=0.3)
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.xlim(xmin, xmax)
+    plt.ylim(ymin, ymax)
+    plt.title('NUTS samples')
+    #
+    plt.figure(4)
+    x_s_NUTS.plot_chain([0, 1])
+    plt.xlim(0, Ns)
+    plt.title('NUTS chains')
+    plt.show()
