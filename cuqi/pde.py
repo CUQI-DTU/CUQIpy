@@ -7,6 +7,20 @@ import numpy as np
 class PDE(ABC):
     """
     Parametrized PDE abstract base class
+
+    Parameters
+    -----------   
+    PDE_form : callable function
+        Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) 
+
+    observation_map: a function handle
+        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
+
+    grid_sol: np.ndarray
+        The grid on which solution is defined
+
+    grid_obs: np.ndarray
+        The grid on which the observed solution should be interpolated (currently only supported for 1D problems).  
     """
 
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None):
@@ -79,6 +93,30 @@ class PDE(ABC):
 
 
 class LinearPDE(PDE):
+    """
+    Parametrized Linear PDE base class
+
+    Parameters
+    -----------   
+    PDE_form : callable function
+        Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) 
+
+    linalg_solve: lambda function or function handle
+        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+
+    linalg_solve_kwargs: a dictionary 
+        A dictionary of the keywords arguments that linalg_solve can take.
+
+    observation_map: a function handle
+        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
+
+    grid_sol: np.ndarray
+        The grid on which solution is defined
+
+    grid_obs: np.ndarray
+        The grid on which the observed solution should be interpolated (currently only supported for 1D problems).  
+    """
+
     def __init__(self, PDE_form, linalg_solve=None, linalg_solve_kwargs={}, **kwargs):
         super().__init__(PDE_form, **kwargs)
 
@@ -88,6 +126,7 @@ class LinearPDE(PDE):
         self._linalg_solve_kwargs = linalg_solve_kwargs
 
     def _solve_linear_system(self, A, b, linalg_solve, kwargs):
+        """Helper function that solves the linear system `A*x=b` using the provided solve method `linalg_solve` and its keyword arguments `kwargs`. It then returns the output in the format: `solution`, `info`"""
         returned_values = linalg_solve(A, b, **kwargs)
         if isinstance(returned_values, tuple):
             solution = returned_values[0]
@@ -108,7 +147,7 @@ class SteadyStateLinearPDE(LinearPDE):
         the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
     linalg_solve: lambda function or function handle
-        linear system solver function with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
 
     linalg_solve_kwargs: a dictionary 
         A dictionary of the keywords arguments that linalg_solve can take.
@@ -157,16 +196,32 @@ class TimeDependentLinearPDE(LinearPDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function which returns a tuple with 3 things:
-        1: matrix used for the time-stepping.
-        2: initial condition
-        3: time_steps array
+        Callable function that accept (`parameter`, `t`) as input and returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `parameter` is the Bayesian parameter, `t` is the time at which the PDE form is evaluated, `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. 
+
+    time_steps : ndarray 
+        An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time.
+
+    method: str
+        Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`. 
+
+    linalg_solve: lambda function or function handle
+        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+
+    linalg_solve_kwargs: a dictionary 
+        A dictionary of the keywords arguments that linalg_solve can take.
+
+    observation_map: a function handle
+        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
+
+    grid_sol: np.ndarray
+        The grid on which solution is defined
+
+    grid_obs: np.ndarray
+        The grid on which the observed solution should be interpolated (Currently only supported for 1D problems). 
 
     Example
     -----------  
-    <<< ....
-    <<< ....
-    <<< ....
+    See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
     """
 
     def __init__(self, PDE_form, time_steps, method='forward_euler', **kwargs):
@@ -190,8 +245,9 @@ class TimeDependentLinearPDE(LinearPDE):
         """Assemble PDE"""
         self._parameter = parameter
 
-    def assemble_step(self, t, dt):
-        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t, dt)
+    def assemble_step(self, t):
+        """Assemble time step at time t"""
+        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t)
 
     def solve(self):
         """Solve PDE by time-stepping"""
@@ -199,7 +255,7 @@ class TimeDependentLinearPDE(LinearPDE):
         if self.method == 'forward_euler':
             for idx, t in enumerate(self.time_steps[:-1]):
                 dt = self.time_steps[idx+1] - t
-                self.assemble_step(t, dt)
+                self.assemble_step(t)
                 if idx == 0:
                     u = self.initial_condition
                 u = (dt*self.diff_op + np.eye(len(u)))@u + dt*self.rhs  # from u at time t, gives u at t+dt
@@ -208,7 +264,7 @@ class TimeDependentLinearPDE(LinearPDE):
         if self.method == 'backward_euler':
             for idx, t in enumerate(self.time_steps[1:]):
                 dt = t - self.time_steps[idx]
-                self.assemble_step(t, dt)
+                self.assemble_step(t)
                 if idx == 0:
                     u = self.initial_condition
                 A = np.eye(len(u)) - dt*self.diff_op

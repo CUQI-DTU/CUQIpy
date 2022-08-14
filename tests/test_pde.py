@@ -222,12 +222,12 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
     # 3. Create the PDE form and the Bayesian parameters
     if parametrization == 'initial_condition':
         # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
-        def PDE_form(initial_condition, t, dt): return (
+        def PDE_form(initial_condition, t): return (
             Dxx, np.zeros(dim), initial_condition)
         parameters = np.ones(dim)
     else:
         # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
-        def PDE_form(source_term, t, dt): return (
+        def PDE_form(source_term, t): return (
             Dxx, source_term, np.ones(dim))
         if parametrization == 'source_term1':
             parameters = np.zeros(dim)
@@ -268,7 +268,7 @@ def test_TimeDependentLinearPDE_wave1D(copy_reference):
         dx  # FD advection operator
     Dx[0, :] = 0  # Setting boundary conditions
 
-    def PDE_form(initial_condition, t, dt): return (
+    def PDE_form(initial_condition, t): return (
         Dx, np.zeros(dim), initial_condition)
 
     # 3. Create a PDE object

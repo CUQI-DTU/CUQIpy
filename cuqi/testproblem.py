@@ -622,7 +622,7 @@ class Heat_1D(BayesianProblem):
 
         # PDE form (diff_op, IC, time_steps)
         grid_obs = np.linspace(dx, endpoint, dim_obs, endpoint=False)
-        def PDE_form(IC, t, dt): return (Dxx, np.zeros(N), IC)
+        def PDE_form(IC, t): return (Dxx, np.zeros(N), IC)
         PDE = cuqi.pde.TimeDependentLinearPDE(
             PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_obs)
 

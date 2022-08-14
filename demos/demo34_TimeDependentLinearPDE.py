@@ -35,7 +35,7 @@ Dxx = (np.diag(-2*np.ones(dim)) + np.diag(np.ones(dim-1), -1) +
        np.diag(np.ones(dim-1), 1))/dx**2  # Finite difference diffusion operator
 
 # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
-def PDE_form(initial_condition, t, dt): return (
+def PDE_form(initial_condition, t): return (
     Dxx, np.zeros(dim), initial_condition)
 
 # 1.2 Create a PDE object
@@ -141,7 +141,7 @@ time_steps = np.linspace(0, max_time, max_iter+1, endpoint=True)
 
 # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
 initial_condition = np.ones(dim)
-def PDE_form(source_term, t, dt): return (Dxx, source_term, initial_condition)
+def PDE_form(source_term, t): return (Dxx, source_term, initial_condition)
 
 
 # 1.2 Create a PDE object
@@ -205,7 +205,7 @@ time_steps = np.linspace(0, max_time, max_iter+1,
                          endpoint=True)  # Time steps array
 
 # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
-def PDE_form(initial_condition, t, dt): return (
+def PDE_form(initial_condition, t): return (
     Dx, np.zeros(dim), initial_condition)
 
 # 1.2 Create a PDE object
