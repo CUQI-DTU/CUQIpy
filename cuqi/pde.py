@@ -212,7 +212,7 @@ class TimeDependentLinearPDE(LinearPDE):
 
     @method.setter
     def method(self, value):
-        if value != 'forward_euler' and value != 'backward_euler':
+        if value.lower() != 'forward_euler' and value.lower() != 'backward_euler':
             raise ValueError(
                 "method can be set to either `forward_euler` or `backward_euler`")
         self._method = value
