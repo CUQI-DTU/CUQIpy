@@ -11,6 +11,8 @@ from cuqi.pde import SteadyStateLinearPDE
 
 from copy import copy
 
+__all__ = ['BayesianProblem']
+
 class BayesianProblem(object):
     """Representation of a Bayesian inverse problem (posterior) defined by a likelihood and prior.
     

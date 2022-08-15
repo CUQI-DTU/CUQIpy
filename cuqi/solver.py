@@ -6,6 +6,16 @@ import scipy.sparse as spa
 from cuqi.samples import CUQIarray
 eps = np.finfo(float).eps
 
+__all__ = [
+    'L_BFGS_B',
+    'minimize',
+    'maximize',
+    'LS',
+    'CGLS',
+    'LM',
+    'PDHG'
+]
+
 class L_BFGS_B(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
 
