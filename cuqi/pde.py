@@ -107,21 +107,18 @@ class LinearPDE(PDE):
     linalg_solve_kwargs: a dictionary 
         A dictionary of the keywords arguments that linalg_solve can take.
 
-    observation_map: a function handle
-        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
-
-    grid_sol: np.ndarray
-        The grid on which solution is defined
-
-    grid_obs: np.ndarray
-        The grid on which the observed solution should be interpolated (currently only supported for 1D problems).  
+    kwargs: 
+        See :class:`~cuqi.pde.PDE` for the remaining keyword arguments. 
     """
 
-    def __init__(self, PDE_form, linalg_solve=None, linalg_solve_kwargs={}, **kwargs):
+    def __init__(self, PDE_form, linalg_solve=None, linalg_solve_kwargs=None, **kwargs):
         super().__init__(PDE_form, **kwargs)
 
-        if linalg_solve == None:
+        if linalg_solve is None:
             linalg_solve = scipy.linalg.solve
+        if linalg_solve_kwargs is None:
+            linalg_solve_kwargs = {}
+
         self._linalg_solve = linalg_solve
         self._linalg_solve_kwargs = linalg_solve_kwargs
 
@@ -146,25 +143,16 @@ class SteadyStateLinearPDE(LinearPDE):
         Callable function which returns a tuple with
         the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
-    linalg_solve: lambda function or function handle
-        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
-
-    linalg_solve_kwargs: a dictionary 
-        A dictionary of the keywords arguments that linalg_solve can take.
-
-    observation_map: a function handle
-        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
-
-    grid_sol: np.ndarray
-        The grid on which solution is defined
-
-    grid_obs: np.ndarray
-        The grid on which the observed solution should be interpolated (Currently only supported for 1D problems).  
+    kwargs: 
+        See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments. 
 
     Example
     -------- 
     See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2D.py also illustrates how to observe on a specific boundary, for example.
     """
+
+    def __init__(self, PDE_form, **kwargs):
+        super().__init__(PDE_form, **kwargs)
 
     def assemble(self, parameter):
         """Assembles differential operator and rhs according to PDE_form"""
@@ -202,23 +190,11 @@ class TimeDependentLinearPDE(LinearPDE):
         An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time.
 
     method: str
-        Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`. 
+        Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`.
 
-    linalg_solve: lambda function or function handle
-        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
-
-    linalg_solve_kwargs: a dictionary 
-        A dictionary of the keywords arguments that linalg_solve can take.
-
-    observation_map: a function handle
-        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
-
-    grid_sol: np.ndarray
-        The grid on which solution is defined
-
-    grid_obs: np.ndarray
-        The grid on which the observed solution should be interpolated (Currently only supported for 1D problems). 
-
+    kwargs: 
+        See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments 
+ 
     Example
     -----------  
     See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
