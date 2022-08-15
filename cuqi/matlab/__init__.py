@@ -1,1 +1,1 @@
-from .base import MatlabInstance
+from ._base import MatlabInstance
