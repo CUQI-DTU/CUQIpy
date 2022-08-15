@@ -608,17 +608,14 @@ class Heat_1D(BayesianProblem):
         N = dim   # Number of solution nodes
         dx = endpoint/(N+1)   # space step size
         cfl = 5/11 # the cfl condition to have a stable solution
-        dt = cfl*dx**2 # defining time step
-        max_iter = int(max_time/dt) # number of time steps
+        dt_approx = cfl*dx**2 # defining approximate time step size
+        max_iter = int(max_time/dt_approx) # number of time steps
         Dxx = (np.diag( -2*np.ones(N) ) + np.diag(np.ones(N-1),-1) + np.diag(np.ones(N-1),1))/dx**2 # FD diffusion operator
         
         # Grids for model
         grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
         grid_range  = grid_domain
-        #time_steps = np.linspace(0,max_time,max_iter,endpoint=True)
-        steps = np.ones(max_iter+1)*dt
-        steps[0]=0
-        time_steps = np.cumsum(steps)
+        time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
 
         # PDE form (diff_op, IC, time_steps)
         grid_obs = np.linspace(dx, endpoint, dim_obs, endpoint=False)
