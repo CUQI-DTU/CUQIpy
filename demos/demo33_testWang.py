@@ -5,9 +5,6 @@
 # Version 2022
 # %%=================================================================
 
-%load_ext autoreload
-%autoreload 2
-
 import sys
 sys.path.append("..") 
 import numpy as np

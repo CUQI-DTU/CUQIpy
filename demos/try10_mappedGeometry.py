@@ -5,8 +5,6 @@ from cuqi.geometry import StepExpansion, MappedGeometry
 import numpy as np
 import matplotlib.pyplot as plt
 
-%load_ext autoreload
-%autoreload 2
 
 # %% Values to plot
 vals = np.array([3,5,2])

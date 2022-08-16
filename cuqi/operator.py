@@ -5,7 +5,7 @@ __all__ = [
     'Operator',
     'FirstOrderFiniteDifference',
     'SecondOrderFiniteDifference',
-    'PrecisionFiniteDifferenc'
+    'PrecisionFiniteDifference'
 ]
 
 # ========== Operator class ===========

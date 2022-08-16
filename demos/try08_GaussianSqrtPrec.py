@@ -8,8 +8,6 @@ from scipy.sparse import diags
 import matplotlib.pyplot as plt
 import cuqi
 
-%load_ext autoreload
-%autoreload 2
 
 # %% Set up Deconvolution test problem
 # Parameters for Deconvolution problem
