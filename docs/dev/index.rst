@@ -24,7 +24,7 @@ Step-by-step instructions
 
    .. code-block:: bash
 
-      git clone https://lab.compute.dtu.dk/cuqi/cuqipy.git
+      git clone https://github.com/CUQI-DTU/CUQIpy.git
 
    Then enter the repository
 
@@ -82,23 +82,23 @@ Step-by-step instructions
 
       git push origin my-changes
 
-7. Submit a merge request.
+7. Submit a pull request.
 
-   After pushing your changes to the repository, it is time to submit a merge request.
+   After pushing your changes to the repository, it is time to submit a pull request.
 
    .. tip::
-      A merge request is a request to *merge* your code into the main code-base. After pushing your changes they still live in a separate branch and need to be reviewed before they are merged into the main code-base.
+      A pull request is a request to *merge* your code into the main code-base. After pushing your changes they still live in a separate branch and need to be reviewed before they are merged into the main code-base.
 
-   The easiest way to submit a merge request is to use the link provided by git after you have pushed your changes. The message looks like this
+   The easiest way to submit a pull request is to use the link provided by git after you have pushed your changes. The message looks like this
 
    .. code-block:: verbatim
 
-      remote: To create a merge request for 'my-changes', visit:
-      remote:   https://lab.compute.dtu.dk/cuqi/cuqipy/merge_requests/new?merge_request[source_branch]=my-changes
+      remote: To create a pull request for 'my-changes', visit:
+      remote:   https://github.com/CUQI-DTU/CUQIpy/pull/new/my-changes
      
-   Alternatively you can submit a merge request by logging into the `Source repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_. If you have just pushed some changes, a button should appear in the top right corner of the page. Click it. You can also navigate to the merge requests tab and create a merge request from the interface.
+   Alternatively you can submit a pull request by logging into the `Source repository <https://github.com/CUQI-DTU/CUQIpy>`_. If you have just pushed some changes, a button should appear in the top right corner of the page. Click it. You can also navigate to the pull requests tab and create a pull request from the interface.
 
-8. Add reviewer to the merge request.
+8. Add reviewer to the pull request.
 
    After you have submitted a merge request, you should add one of the core developers as a reviewer.
 

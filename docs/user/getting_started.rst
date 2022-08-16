@@ -62,14 +62,11 @@ If you have git installed you can clone the ``cuqipy`` repository with the follo
 
 .. code-block:: sh
  
-   git clone https://lab.compute.dtu.dk/cuqi/cuqipy.git
+   git clone https://github.com/CUQI-DTU/CUQIpy.git
 
 Alternatively you can download a zip of the latest versions of CUQIpy from here:
 
-- `CUQIpy (stable) <https://lab.compute.dtu.dk/cuqi/cuqipy/-/archive/master/cuqipy-master.zip>`_ (recommended)
-- `CUQIpy (latest) <https://lab.compute.dtu.dk/cuqi/cuqipy/-/archive/dev/cuqipy-dev.zip>`_
-
-Extract the zip file to a directory named ``cuqipy`` removing the ``-master`` or ``-dev`` suffix.
+- `CUQIpy releases <https://github.com/CUQI-DTU/CUQIpy/releases>`_
 
 Required Dependencies
 ~~~~~~~~~~~~~~~~~~~~~

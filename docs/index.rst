@@ -28,7 +28,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 :ref:`Installation <install>` |
 :doc:`Tutorials <user/_auto_tutorials/index>` |
 :doc:`How-To Guides <user/_auto_howtos/index>` |
-`Source Repository <https://lab.compute.dtu.dk/cuqi/cuqipy>`_
+`Source Repository <https://github.com/CUQI-DTU/CUQIpy>`_
 
 
 
@@ -165,6 +165,6 @@ Contributors
 ------------
 
 See the list of
-`contributors <https://lab.compute.dtu.dk/cuqi/cuqipy/-/graphs/master>`__
+`contributors <https://github.com/CUQI-DTU/CUQIpy/graphs/contributors>`__
 who participated in this project.
 

@@ -9,7 +9,7 @@
 
  Computational Uncertainty Quantification for Inverse Problems in python (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy provides a simple high-level interface to perform UQ analysis of inverse problems, while still allowing full control of the models and methods. The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
 
-You can find the full CUQIpy documentation [here](https://cuqi.gitlab.io/cuqipy/). 
+You can find the full CUQIpy documentation [here](https://cuqi-dtu.github.io/CUQIpy/). 
 
  This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
 
@@ -57,7 +57,7 @@ samples.plot_std(); plt.title("Posterior standard deviation")
 To run `cuqipy` on your local machine, clone the `cuqipy` repository:
 
 ```{r, engine='bash', count_lines}
-git clone https://lab.compute.dtu.dk/cuqi/cuqipy.git
+git clone https://github.com/CUQI-DTU/CUQIpy.git
 ```
 
 Then go to the project directory:
@@ -112,7 +112,7 @@ cuqipy documentation.
 ## Contributors
 
 See the list of
-[contributors](https://lab.compute.dtu.dk/cuqi/cuqipy/-/graphs/master)
+[contributors](https://github.com/CUQI-DTU/CUQIpy/graphs/contributors)
 who participated in this project.
 
 
