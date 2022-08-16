@@ -18,7 +18,7 @@ def test_CGLS():
     sol, _ = CGLS(A, b, x0, int(1e4), tol=1e-8).solve()
 
     # Compare
-    assert np.allclose(sol, ref_sol)
+    assert np.allclose(sol, ref_sol, rtol=1e-3)
 
 
 def test_LM():

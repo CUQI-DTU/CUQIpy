@@ -67,7 +67,7 @@ def test_Deconvolution_custom_kernel():
     TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=kernel, phantom="pc")
 
     # Test expected value
-    assert np.linalg.norm(TP.exactData) == 83.40353338231859
+    assert np.linalg.norm(TP.exactData) == pytest.approx(83.40353338231859)
 
     # Test raising of error if kernel is not 1D
     with pytest.raises(ValueError, match=r"kernel must be a 1D array"):

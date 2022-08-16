@@ -287,4 +287,4 @@ def test_TimeDependentLinearPDE_wave1D(copy_reference):
     # 6 Compare the obtained solution with previously stored solution
     solution_file = copy_reference("data/Wave1D_solution.npz")
     expected_sol = np.load(solution_file)
-    assert(np.allclose(sol, expected_sol['sol']))
+    assert(np.allclose(sol, expected_sol['sol'], rtol=1e-3))
