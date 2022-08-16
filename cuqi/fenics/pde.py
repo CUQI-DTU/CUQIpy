@@ -5,6 +5,10 @@ from ..samples import CUQIarray
 import dolfin as dl
 import ufl
 
+__all__ = [
+    'FEniCSPDE',
+    'SteadyStateLinearFEniCSPDE'
+]
 
 class FEniCSPDE(PDE,ABC):
     def __init__(self, PDE_form, mesh, solution_function_space, parameter_function_space, dirichlet_bc,observation_operator=None):

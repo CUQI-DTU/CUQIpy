@@ -9,6 +9,7 @@ from cuqi.problem import BayesianProblem
 import dolfin as dl
 import ufl
 
+__all__ = ['FEniCSDiffusion1D']
 
 class FEniCSDiffusion1D(BayesianProblem):
     """

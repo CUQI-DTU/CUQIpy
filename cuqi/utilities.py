@@ -7,6 +7,20 @@ from scipy.sparse import linalg as spslinalg
 from dataclasses import dataclass
 from abc import ABCMeta
 
+__all__ = [
+    'force_ndarray',
+    'infer_len',
+    'get_non_default_args',
+    'get_direct_attributes',
+    'get_indirect_variables',
+    'get_writeable_attributes',
+    'get_writeable_properties',
+    'first_order_finite_difference_gradient',
+    'ProblemInfo',
+    'sparse_cholesky',
+    'approx_derivative'
+]
+
 def force_ndarray(value,flatten=False):
     if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:

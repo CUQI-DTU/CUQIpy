@@ -4,6 +4,12 @@ import matplotlib.pyplot as plt
 import dolfin as dl
 import ufl
 
+__all__ = [
+    'FEniCSContinuous',
+    'FEniCSMappedGeometry',
+    'MaternExpansion'
+]
+
 class FEniCSContinuous(Geometry):
 
     def __init__(self, function_space, labels = ['x', 'y']):
