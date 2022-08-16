@@ -1,2 +1,2 @@
 from ._distribution import Distribution
-from .sampler import Sampler, ProposalBasedSampler
+from ._sampler import Sampler, ProposalBasedSampler
