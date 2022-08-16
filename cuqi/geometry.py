@@ -8,6 +8,20 @@ import scipy.sparse as sparse
 import operator
 from functools import reduce
 
+__all__ = [
+    'Geometry',
+    'Continuous',
+    'Continuous1D',
+    'Continuous2D',
+    'Image2D',
+    'Discrete',
+    'MappedGeometry',
+    'KLExpansion',
+    'KLExpansion_Full',
+    'CustomKL',
+    'StepExpansion',
+]
+
 def _get_identity_geometries():
     """Return the geometries that have identity par2fun and fun2par methods (can still reshape).
     These geometries do not alter the gradient computations.

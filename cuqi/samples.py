@@ -5,6 +5,12 @@ from cuqi.geometry import _DefaultGeometry, Continuous2D, Image2D
 from copy import copy
 import arviz # Plotting tool
 
+__all__ = [
+    'CUQIarray',
+    'Samples',
+    'Data'
+]
+
 class CUQIarray(np.ndarray):
     """
     A class to represent data arrays, subclassed from numpy array, along with geometry and plotting

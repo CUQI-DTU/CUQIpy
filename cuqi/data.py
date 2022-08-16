@@ -1,7 +1,7 @@
 import pkg_resources
 import scipy.io as spio
 import numpy as np
-from scipy.ndimage import zoom
+import scipy.ndimage as spnd
 
 def satellite(size=None):
     """Photograph of a satelite."""
@@ -326,4 +326,4 @@ def imresize(image, size, **kwargs):
     kwargs are passed to scipy.ndimage.zoom.
     """
     zoom_factor = size/np.array(image.shape)
-    return zoom(image, zoom_factor, **kwargs)
+    return spnd.zoom(image, zoom_factor, **kwargs)

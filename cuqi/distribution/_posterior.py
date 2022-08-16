@@ -1,0 +1,99 @@
+from cuqi.geometry import _DefaultGeometry, _get_identity_geometries
+from cuqi.core import Distribution
+
+# ========================================================================
+class Posterior(Distribution):
+    """
+    Posterior probability distribution defined by likelihood and prior.
+    The geometry is automatically determined from the model and prior.
+    Generates instance of cuqi.distribution.Posterior
+    
+    Parameters
+    ------------
+    likelihood: Likelihood function, cuqi.likelihood.Likelihood.
+    prior: Prior distribution, cuqi.core.Distribution.
+
+    Attributes
+    ------------
+    likelihood
+    prior
+    data
+    dim
+    geometry
+    model
+    
+    Methods
+    -----------
+    sample: NotImplemented. Use sampler module instead.
+    pdf: evaluate probability density function
+    logpdf: evaluate log probability density function
+    gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
+    """
+    def __init__(self, likelihood, prior, **kwargs):
+        self.likelihood = likelihood
+        self.prior = prior 
+        super().__init__(**kwargs)
+
+    @property
+    def data(self):
+        return self.likelihood.data
+
+    @property
+    def dim(self):
+        return self.prior.dim
+
+    @property
+    def geometry(self):
+        return self._geometry
+
+    @geometry.setter
+    def geometry(self, value):
+        # Compare model and prior
+        if self.model is not None and self.model.domain_geometry != self.prior.geometry:
+            if isinstance(self.prior.geometry,_DefaultGeometry):
+                pass #We allow default geometry in prior
+            else:
+                raise ValueError("Geometry from likelihood (model.domain_geometry) does not match prior geometry")
+
+        # Compare value and prior
+        if self.model is None and value is not None and value != self.prior.geometry:
+            if isinstance(self.prior.geometry,_DefaultGeometry):
+                pass #We allow default geometry in prior
+            else:
+                raise ValueError("Posterior and prior geometries are inconsistent.")
+
+        # Compare model and value
+        if self.model is not None and value is not None and value != self.model.domain_geometry:
+            if isinstance(self.model.domain_geometry,_DefaultGeometry):
+                pass #Allow default model geometry
+            else:
+                raise ValueError("Set geometry does not match with model geometry.")
+
+        # If value is set, its consistant with prior (and prior is consistant with model)
+        # If value is not set, take from model (if exists) or from prior as last resort
+        if value is not None:
+            self._geometry = value
+        elif self.model is not None:
+            self._geometry = self.model.domain_geometry
+        else:
+            self._geometry = self.prior.geometry
+            
+    def logpdf(self, x):
+        """ Returns the logpdf of the posterior distribution"""
+        return self.likelihood.log(x)+ self.prior.logpdf(x)
+
+    def gradient(self, x):
+        #Avoid complicated geometries that change the gradient.
+        if not type(self.geometry) in _get_identity_geometries() and\
+           not hasattr(self.geometry, 'gradient'):
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+            
+        return self.likelihood.gradient(x)+ self.prior.gradient(x)        
+
+    def _sample(self,N=1,rng=None):
+        raise Exception("'Posterior.sample' is not defined. Sampling can be performed with the 'sampler' module.")
+
+    @property
+    def model(self):
+        """Extract the cuqi model from likelihood."""
+        return self.likelihood.model

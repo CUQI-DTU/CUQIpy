@@ -53,6 +53,11 @@ from cuqi.geometry import _DefaultGeometry
 import warnings
 from copy import copy
 
+__all__ = [
+    'Likelihood',
+    'UserDefinedLikelihood'
+]
+
 class Likelihood(object):
     """Likelihood function defined from a conditional distribution and some observed data.
 
@@ -64,7 +69,7 @@ class Likelihood(object):
     
     Parameters
     ------------
-    distribution : ~cuqi.distribution.Distribution
+    distribution : ~cuqi.core.Distribution
         | Distribution to create likelihood from.
     
     data : ~cuqi.samples.CUQIarray or array_like

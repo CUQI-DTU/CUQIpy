@@ -9,6 +9,7 @@ from cuqi.problem import BayesianProblem
 import dolfin as dl
 import ufl
 
+__all__ = ['FEniCSDiffusion1D']
 
 class FEniCSDiffusion1D(BayesianProblem):
     """
@@ -40,7 +41,7 @@ class FEniCSDiffusion1D(BayesianProblem):
     model : cuqi.model.Model
         Deconvolution forward model
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.core.Distribution
         Distribution of the prior (Default = None)
 
     likelihood : cuqi.likelihood.Likelihood
