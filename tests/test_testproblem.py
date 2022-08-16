@@ -136,8 +136,8 @@ def test_Heat():
     true_kappa = x*np.exp(-2*x)*np.sin(L-x)
     model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, field_type="KL").model
 
-    assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(0.5478069279144476)
-    assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(0.5487907807357283)
+    assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(0.5476375563249378)
+    assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(0.548657107830281)
 
 def test_Abel():
     N = 128
