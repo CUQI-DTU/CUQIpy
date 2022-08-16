@@ -81,11 +81,8 @@ pip install -r requirements.txt
 ```
 
 ### Optional Dependencies
-- [pytest](https://docs.pytest.org): To run the tests on your local machine
-- [ASTRA Toolbox](https://github.com/astra-toolbox/astra-toolbox): For modeling CT problems
-- [CIL](https://github.com/TomographicImaging/CIL): For modeling CT problems
-- [FEniCS](https://fenicsproject.org): For modeling with FEniCS
-- [findiff](https://github.com/maroba/findiff): For some if the PDE based demos
+CUQIpy can be extended with additional functionality by installing optional plugins. These can be found at
+[CUQI-DTU](https://github.com/CUQI-DTU).
 
 ## Running the Tests
 

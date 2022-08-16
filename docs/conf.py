@@ -47,8 +47,6 @@ autodoc_typehints = "none"
 autosummary_imported_members = True # Adds any imported members to api docs automatically
 autosummary_ignore_module_all = False # Adds only members from __all__ to the api docs (if present)
 
-# Mock modules for optional dependencies
-autodoc_mock_imports = ["dolfin", "ufl", "astra", "cil", "matlab"]
 
 # Sphinx-gallery configuration
 sphinx_gallery_conf = {

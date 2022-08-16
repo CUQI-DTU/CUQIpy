@@ -101,22 +101,7 @@ Optional Dependencies
 ~~~~~~~~~~~~~~~~~~~~~
 
 CUQIpy also optionally interfaces with a number of 3rd party libraries.
-Please follow the install instructions on the website of the respective libraries.
-
--  `ASTRA Toolbox <https://github.com/astra-toolbox/astra-toolbox>`_:
-   High-performance primitives for 2D and 3D tomography.
--  `CIL <https://github.com/TomographicImaging/CIL>`_: Tomographic imaging library including reconstruction algorithms.
--  `FEniCS <https://fenicsproject.org>`_: For PDE modeling with FEniCS.
--  `findiff <https://github.com/maroba/findiff>`_: For some PDE based demos.
--  `pytest <https://docs.pytest.org>`_: To run the automatic tests on your local
-   machine.
-
-In development (find respective branches in the source repository)
-
-- `Matlab <https://mathworks.com/help/matlab/matlab-engine-for-python.html>`_: Using Matlab functions as part of CUQIpy.
-- `MUQ <https://mituq.bitbucket.io/>`_: MIT UQ library for defining and solving UQ problems.
-- `PyTorch <https://pytorch.org>`_: GPU-accelerated tensor computations with autograd support.
-- `Umbridge <https://github.com/UM-Bridge/umbridge>`_: Coupling computational models and statistical methods through HTTP.
+Please see the intall instructions for each library at `CUQI-DTU <https://github.com/CUQI-DTU>`_.
 
 Verification
 ------------
