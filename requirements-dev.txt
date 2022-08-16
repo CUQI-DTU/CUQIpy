@@ -1,0 +1,8 @@
+pytest
+flake8
+sphinx
+pydata-sphinx-theme
+sphinxcontrib-napoleon
+sphinx-panels
+sphinx-copybutton
+sphinx-gallery
