@@ -140,8 +140,7 @@ class SteadyStateLinearPDE(LinearPDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function which returns a tuple with
-        the discretized differential operator A and right-hand-side b. The type of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
+        Callable function with signature `PDE_form(parameter)` where `parameter` is the Bayesian parameter. The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
     kwargs: 
         See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments. 
@@ -184,7 +183,7 @@ class TimeDependentLinearPDE(LinearPDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function that accept (`parameter`, `t`) as input and returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `parameter` is the Bayesian parameter, `t` is the time at which the PDE form is evaluated, `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. 
+        Callable function with signature `PDE_form(parameter, t)` where `parameter` is the Bayesian parameter and `t` is the time at which the PDE form is evaluated. The function returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. The types of `differential_operator` and `source_term` are determined by what the method :meth:`linalg_solve` accepts as linear operator and right-hand side, respectively. The type of `initial_condition` should be the same type as the solution returned by :meth:`linalg_solve`.
 
     time_steps : ndarray 
         An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time.
