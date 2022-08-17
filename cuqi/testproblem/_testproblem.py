@@ -11,16 +11,6 @@ from cuqi.problem import BayesianProblem
 from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, Continuous2D, Image2D
 from cuqi.samples import CUQIarray
 
-__all__ = [
-    'Deblur',
-    'Deconvolution1D',
-    'Deconvolution2D',
-    'Poisson_1D',
-    'Heat_1D',
-    'Abel_1D',
-    'Deconv_1D',
-    'WangCubic'
-]
 
 #=============================================================================
 class Deblur(BayesianProblem):
