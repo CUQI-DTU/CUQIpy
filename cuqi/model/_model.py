@@ -7,12 +7,6 @@ from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
 import cuqi
 import matplotlib.pyplot as plt
 
-__all__ = [
-    'Model',
-    'LinearModel',
-    'PDEModel'   
-]
-
 class Model(object):
     """Generic model defined by a forward operator.
 

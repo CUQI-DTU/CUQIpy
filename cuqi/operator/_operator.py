@@ -1,13 +1,6 @@
 import numpy as np
 from scipy.sparse import spdiags, eye, kron, vstack
 
-__all__ = [
-    'Operator',
-    'FirstOrderFiniteDifference',
-    'SecondOrderFiniteDifference',
-    'PrecisionFiniteDifference'
-]
-
 # ========== Operator class ===========
 class Operator(object):
     """

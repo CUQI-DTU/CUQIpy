@@ -4,12 +4,6 @@ from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
 
-__all__ = [
-    'PDE',
-    'SteadyStateLinearPDE',
-    'TimeDependentLinearPDE'
-]
-
 class PDE(ABC):
     """
     Parametrized PDE abstract base class
