@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.core import Sampler
+from cuqi.sampler import Sampler
 
 
 class pCN(Sampler):   

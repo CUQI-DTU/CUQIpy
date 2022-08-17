@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.core import Sampler
+from cuqi.sampler import Sampler
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS

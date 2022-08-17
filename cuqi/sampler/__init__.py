@@ -1,3 +1,4 @@
+from ._sampler import Sampler, ProposalBasedSampler
 from ._cwmh import CWMH
 from ._hmc import NUTS
 from ._langevin_algorithm import ULA, MALA

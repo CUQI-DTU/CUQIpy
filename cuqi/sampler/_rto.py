@@ -2,7 +2,7 @@ import scipy as sp
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS
-from cuqi.core import Sampler
+from cuqi.sampler import Sampler
 
 
 class Linear_RTO(Sampler):

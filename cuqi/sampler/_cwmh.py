@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.core import ProposalBasedSampler
+from cuqi.sampler import ProposalBasedSampler
 
 
 class CWMH(ProposalBasedSampler):
