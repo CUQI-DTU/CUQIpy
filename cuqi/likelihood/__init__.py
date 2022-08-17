@@ -30,7 +30,7 @@ Consider the inverse problem
 
    b^{obs} = A(x)+e,
 
-where :math:`b^{obs}\in\mathbb{R}^m` is the (noisy) measurement, :math:`e\in\mathbb{R}^m` is the measurement noise, :math:`x\in\mathbb{R}^n` is the solution to the inverse problem and :math:`A: \mathbb{R}^n \to \mathbb{R}^m` is the forward model.
+where :math:`b^{obs}\in\mathbb{R}^m` is the (noisy) measurement, :math:`e\in\mathbb{R}^m` is the measurement noise, :math:`x\in\mathbb{R}^n` is the solution to the inverse problem and :math:`A: \mathbb{R}^n \\to \mathbb{R}^m` is the forward model.
 
 The stochastic extension of the inverse problem is
 
