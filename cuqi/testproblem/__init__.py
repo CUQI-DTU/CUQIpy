@@ -7,4 +7,6 @@ from ._testproblem import (
     Abel_1D,
     Deconv_1D,
     WangCubic,
+    _getCirculantMatrix,
+    _getExactSolution
 )
