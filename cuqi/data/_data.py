@@ -5,7 +5,7 @@ import scipy.ndimage as spnd
 
 def satellite(size=None):
     """Photograph of a satelite."""
-    stream = pkg_resources.resource_stream(__name__, 'data/satellite.mat')
+    stream = pkg_resources.resource_stream(__name__, 'satellite.mat')
     img= spio.loadmat(stream)['x_true']
     if size:
         img = imresize(img, size) 
@@ -16,7 +16,7 @@ def astronaut(size=None, grayscale=True):
 
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.astronaut
     """
-    stream = pkg_resources.resource_stream(__name__, 'data/astronaut.npz')
+    stream = pkg_resources.resource_stream(__name__, 'astronaut.npz')
     img = np.load(stream)['arr_0']
     if grayscale:
         img = rgb2gray(img)
@@ -29,7 +29,7 @@ def camera(size=None):
 
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.camera
     """
-    stream = pkg_resources.resource_stream(__name__, 'data/camera.npz')
+    stream = pkg_resources.resource_stream(__name__, 'camera.npz')
     img = np.load(stream)['arr_0']
     if size:
         img = imresize(img, size) 
@@ -40,7 +40,7 @@ def cat(size=None, grayscale=True):
 
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cat
     """
-    stream = pkg_resources.resource_stream(__name__, 'data/cat.npz')
+    stream = pkg_resources.resource_stream(__name__, 'cat.npz')
     img = np.load(stream)['arr_0']
     if grayscale:
         img = rgb2gray(img)
