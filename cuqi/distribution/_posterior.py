@@ -1,5 +1,5 @@
 from cuqi.geometry import _DefaultGeometry, _get_identity_geometries
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 # ========================================================================
 class Posterior(Distribution):
@@ -11,7 +11,7 @@ class Posterior(Distribution):
     Parameters
     ------------
     likelihood: Likelihood function, cuqi.likelihood.Likelihood.
-    prior: Prior distribution, cuqi.core.Distribution.
+    prior: Prior distribution, cuqi.distribution.Distribution.
 
     Attributes
     ------------

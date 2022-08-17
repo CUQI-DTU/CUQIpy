@@ -11,10 +11,10 @@ class MetropolisHastings(ProposalBasedSampler):
     Parameters
     ----------
 
-    target : `cuqi.core.Distribution` or lambda function
+    target : `cuqi.distribution.Distribution` or lambda function
         The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    proposal : `cuqi.core.Distribution` or callable method
+    proposal : `cuqi.distribution.Distribution` or callable method
         The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
 
     scale : float
@@ -63,13 +63,13 @@ class MetropolisHastings(ProposalBasedSampler):
 
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
-        fail_msg = "Proposal should be either None, symmetric cuqi.core.Distribution or a lambda function."
+        fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
         if value is None:
             self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
-        elif not isinstance(value, cuqi.core.Distribution) and callable(value):
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             raise NotImplementedError(fail_msg)
-        elif isinstance(value, cuqi.core.Distribution) and value.is_symmetric:
+        elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
             self._proposal = value
         else:
             raise ValueError(fail_msg)

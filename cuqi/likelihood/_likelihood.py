@@ -15,7 +15,7 @@ class Likelihood(object):
     
     Parameters
     ------------
-    distribution : ~cuqi.core.Distribution
+    distribution : ~cuqi.distribution.Distribution
         | Distribution to create likelihood from.
     
     data : ~cuqi.samples.CUQIarray or array_like

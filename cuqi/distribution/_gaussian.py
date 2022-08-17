@@ -8,7 +8,7 @@ from cuqi.utilities import force_ndarray, sparse_cholesky
 from cuqi import config
 import warnings
 import numbers
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 class GaussianCov(Distribution): # TODO: super general with precisions
     """

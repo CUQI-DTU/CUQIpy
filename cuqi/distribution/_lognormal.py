@@ -1,6 +1,6 @@
 import numpy as np
 from cuqi.geometry import _get_identity_geometries
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 from cuqi.distribution import GaussianCov
 import warnings
 

@@ -6,7 +6,7 @@ from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
 from cuqi.utilities import sparse_cholesky
 from cuqi import config
 from cuqi.operator import PrecisionFiniteDifference
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 class GMRF(Distribution):
     """ Gaussian Markov random field (GMRF).

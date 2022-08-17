@@ -1,7 +1,7 @@
 import numpy as np
 import warnings
 from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
 

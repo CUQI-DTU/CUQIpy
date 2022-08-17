@@ -11,10 +11,10 @@ class CWMH(ProposalBasedSampler):
     Parameters
     ----------
 
-    target : `cuqi.core.Distribution` or lambda function
+    target : `cuqi.distribution.Distribution` or lambda function
         The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    proposal : `cuqi.core.Distribution` or callable method
+    proposal : `cuqi.distribution.Distribution` or callable method
         The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
 
     scale : float
@@ -59,18 +59,18 @@ class CWMH(ProposalBasedSampler):
         
     @ProposalBasedSampler.proposal.setter 
     def proposal(self, value):
-        fail_msg = "Proposal should be either None, cuqi.core.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
+        fail_msg = "Proposal should be either None, cuqi.distribution.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
 
         if value is None:
             self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
 
-        elif isinstance(value, cuqi.core.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
+        elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
             self._proposal = value
 
         elif isinstance(value, cuqi.distribution.Normal) and sorted(value.get_conditioning_variables())==['mean','std']:
             self._proposal = value(mean = lambda location:location, std = lambda scale:scale)
 
-        elif not isinstance(value, cuqi.core.Distribution) and callable(value):
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             self._proposal = value
 
         else:
@@ -163,7 +163,7 @@ class CWMH(ProposalBasedSampler):
         return samples, target_eval, acccomp
 
     def single_update(self, x_t, target_eval_t):
-        if isinstance(self.proposal,cuqi.core.Distribution):
+        if isinstance(self.proposal,cuqi.distribution.Distribution):
             x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
         else:
             x_i_star = self.proposal(x_t, self.scale) 

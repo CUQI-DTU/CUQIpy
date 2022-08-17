@@ -14,7 +14,7 @@ Note: Distribution requires a logpdf and _sample method defined at the minimum.
 .. code-block:: python
 
     import numpy as np
-    from cuqi.core import Distribution
+    from cuqi.distribution import Distribution
     from cuqi.utilities import force_ndarray
 
     class Normal(Distribution):

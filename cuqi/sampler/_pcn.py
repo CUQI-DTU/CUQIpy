@@ -12,7 +12,7 @@ class pCN(Sampler):
     ----------
     target : `cuqi.distribution.Posterior` or tuple of likelihood and prior objects
         If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
-        If target is a tuple of (cuqi.likelihood.Likelihood, cuqi.core.Distribution) objects,
+        If target is a tuple of (cuqi.likelihood.Likelihood, cuqi.distribution.Distribution) objects,
         the first element is considered the likelihood and the second is considered the prior.
 
     scale : int
@@ -106,7 +106,7 @@ class pCN(Sampler):
             self._loglikelihood = lambda x : self.likelihood.log(x)
         elif isinstance(value,tuple) and len(value)==2 and \
              (isinstance(value[0], cuqi.likelihood.Likelihood) or isinstance(value[0], cuqi.likelihood.UserDefinedLikelihood))  and \
-             isinstance(value[1], cuqi.core.Distribution):
+             isinstance(value[1], cuqi.distribution.Distribution):
             self._target = value
             self._loglikelihood = lambda x : self.likelihood.log(x)
         else:

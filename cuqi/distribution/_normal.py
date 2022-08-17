@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.special import erf
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 class Normal(Distribution):
     """
