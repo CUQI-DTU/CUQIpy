@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 class Laplace(Distribution):
     """

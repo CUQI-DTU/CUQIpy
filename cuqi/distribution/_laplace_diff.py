@@ -1,7 +1,7 @@
 import numpy as np
 from cuqi.geometry import _DefaultGeometry, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 class Laplace_diff(Distribution):
     """Laplace distribution on the difference between neighboring nodes.

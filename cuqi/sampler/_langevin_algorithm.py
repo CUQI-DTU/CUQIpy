@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.core import Sampler
+from cuqi.sampler import Sampler
 
 
 class ULA(Sampler):
@@ -16,7 +16,7 @@ class ULA(Sampler):
     Parameters
     ----------
 
-    target : `cuqi.core.Distribution`
+    target : `cuqi.distribution.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
@@ -124,7 +124,7 @@ class MALA(ULA):
     Parameters
     ----------
 
-    target : `cuqi.core.Distribution`
+    target : `cuqi.distribution.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     

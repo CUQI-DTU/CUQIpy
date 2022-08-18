@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.core import Sampler
+from cuqi.sampler import Sampler
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
@@ -13,7 +13,7 @@ class NUTS(Sampler):
     Parameters
     ----------
 
-    target : `cuqi.core.Distribution`
+    target : `cuqi.distribution.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     x0 : ndarray

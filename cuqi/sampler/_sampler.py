@@ -40,7 +40,7 @@ class Sampler(ABC):
 
     @target.setter 
     def target(self, value):
-        if  not isinstance(value, cuqi.core.Distribution) and callable(value):
+        if  not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             # obtain self.dim
             if self.dim is not None:
                 dim = self.dim
@@ -50,10 +50,10 @@ class Sampler(ABC):
             # set target
             self._target = cuqi.distribution.UserDefinedDistribution(logpdf_func=value, dim = dim)
 
-        elif isinstance(value, cuqi.core.Distribution):
+        elif isinstance(value, cuqi.distribution.Distribution):
             self._target = value
         else:
-            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.core.Distribution'")
+            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.distribution.Distribution'")
 
 
     @property

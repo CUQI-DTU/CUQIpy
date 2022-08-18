@@ -1,4 +1,3 @@
-from . import core
 from . import data
 from . import diagnostics
 from . import distribution

@@ -3,7 +3,7 @@ import numpy as np
 import cuqi
 from cuqi.distribution import Normal
 from cuqi.solver import CGLS
-from cuqi.core import Sampler
+from cuqi.sampler import Sampler
 
 
 class UnadjustedLaplaceApproximation(Sampler):

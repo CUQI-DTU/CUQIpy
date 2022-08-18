@@ -1,4 +1,4 @@
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 import numpy as np
 

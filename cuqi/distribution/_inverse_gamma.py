@@ -2,7 +2,7 @@ import numpy as np
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
-from cuqi.core import Distribution
+from cuqi.distribution import Distribution
 
 class InverseGamma(Distribution):
     """
