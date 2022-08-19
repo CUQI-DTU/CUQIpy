@@ -123,7 +123,7 @@ def test_logp_err_handling():
     x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
 
     # Test that we raise error if we don't provide all parameters
-    with pytest.raises(ValueError, match=r"Not all conditioning variables are specified"):
+    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables must be specified"):
         x.logd(x=3)
 
     # Test that we raise error if we provide parameters that are not specified

@@ -132,36 +132,37 @@ class Distribution(Density, ABC):
         It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.
         """
 
-        # First extract the conditioning variables from kwargs
+        # Get the (potential) conditioning variables
         cond_vars = self.get_conditioning_variables()
 
+        # If distribution is conditional, we first condition before evaluating the log density
         if len(cond_vars) > 0:
 
             if len(args) > 0:
-                raise ValueError("Distribution.logp: Positional arguments on conditional distributions are not supported in logp evaluation (yet)")
+                raise ValueError("Distribution.logd: Positional arguments on conditional distributions are not supported in logp evaluation (yet)")
 
             # Check if all conditioning variables are specified
             if not all([key in kwargs for key in cond_vars]):
-                raise ValueError("Not all conditioning variables are specified.")
+                raise ValueError(f"Distribution.logd: To evaluate the log density all conditioning variables must be specified. Conditioning variables are: {cond_vars}")
 
             # Extract exactly the conditioning variables from kwargs
             cond_kwargs = {key: kwargs[key] for key in cond_vars}
 
-            # Extract the remaining variables from kwargs
+            # Extract any remaining variables from kwargs
             non_cond_kwargs = {key: kwargs[key] for key in kwargs if key not in cond_vars}
 
-            # Condition the distribution
+            # Condition the distribution on the conditioning variables
             new_dist = self(**cond_kwargs)
 
-            # Now evaluate the logd of the conditioned distribution
+            # Now evaluate the log density of the fully specified distribution
             return new_dist.logd(*args, **non_cond_kwargs)
 
-        # Not conditional distribution, simply evaluate logd
+        # Not conditional distribution, simply evaluate log density directly
         else:
             return super().logd(*args, **kwargs)
         
     def _logd(self, *args):
-        return self.logpdf(*args)
+        return self.logpdf(*args) # Currently all distributions implement logpdf so we simply call this method.
 
     @abstractmethod
     def logpdf(self,x):
