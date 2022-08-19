@@ -255,7 +255,8 @@ class Distribution(Density, ABC):
                     func = partial(var_val, **var_args)
                     setattr(new_dist, var_key, func)
 
-        # Parse kwargs if they match dist name
+        # If conditioning on the name of the distribution
+        # we convert the distribution to a likelihood.
         if self.name in kwargs:
             return new_dist.to_likelihood(kwargs[self.name])               
 
