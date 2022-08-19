@@ -124,7 +124,7 @@ class Distribution(Density, ABC):
         else:
             raise TypeError("The attribute 'geometry' should be of type 'int' or 'cuqi.geometry.Geometry', or None.")
 
-    def logp(self, *args, **kwargs):
+    def logd(self, *args, **kwargs):
         """  Evaluate the log probability of the distribution.
 
         It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.
@@ -151,15 +151,15 @@ class Distribution(Density, ABC):
             # Condition the distribution
             new_dist = self(**cond_kwargs)
 
-            # Now evaluate the logp of the conditioned distribution
-            return new_dist.logp(*args, **non_cond_kwargs)
+            # Now evaluate the logd of the conditioned distribution
+            return new_dist.logd(*args, **non_cond_kwargs)
 
-        # Not conditional distribution, simply evaluate logp
+        # Not conditional distribution, simply evaluate logd
         else:
-            return super().logp(*args, **kwargs)
+            return super().logd(*args, **kwargs)
         
-    def _logp(self, *args):
-        return self.logpdf(*args) # TODO. Remove logpdf
+    def _logd(self, *args):
+        return self.logpdf(*args)
 
     @abstractmethod
     def logpdf(self,x):
@@ -307,7 +307,7 @@ class Distribution(Density, ABC):
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
         if not self.is_cond: # If not conditional we create a constant density
-            return ConstantDensity(self.logp(data), name=self.name)
+            return ConstantDensity(self.logd(data), name=self.name)
         return Likelihood(self, data)
 
     def __repr__(self) -> str:

@@ -45,12 +45,12 @@ class Likelihood(Density):
     def _constant(self):
         return self.distribution._constant
 
-    def _logp(self, *args, **kwargs):
+    def _logd(self, *args, **kwargs):
         """Return the log-likelihood function at given value"""
-        return self.distribution(*args, **kwargs).logp(self.data)
+        return self.distribution(*args, **kwargs).logd(self.data)
 
-    def log(self, *args, **kwargs): #TODO: Remove log and use only logp
-        return self.logp(*args, **kwargs)
+    def log(self, *args, **kwargs): #TODO: Remove log and use only logd
+        return self.logd(*args, **kwargs)
 
     def gradient(self, *args, **kwargs):
         """Return gradient of the log-likelihood function at given value"""

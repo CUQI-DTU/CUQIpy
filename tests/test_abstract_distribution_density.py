@@ -104,19 +104,19 @@ def test_conditioning_class_flow():
 def test_logp_conditional():
     """ This tests logp evaluation for conditional distributions """
     # Base example logp value
-    true_val = cuqi.distribution.GaussianCov(3, 7).logp(13)
+    true_val = cuqi.distribution.GaussianCov(3, 7).logd(13)
 
     # Distribution with no specified parameters
     x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
 
     # Test logp evaluates correctly in various cases
-    assert x.logp(mean=3, s=7, x=13) == true_val
-    assert x(x=13).logp(mean=3, s=7) == true_val
-    assert x(x=13, mean=3).logp(s=7) == true_val
-    assert x(x=13, mean=3, s=7).logp() == true_val
-    assert x(mean=3).logp(s=7, x=13) == true_val
-    assert x(mean=3, s=7).logp(x=13) == true_val
-    assert x(mean=3, x=13).logp(s=7) == true_val
+    assert x.logd(mean=3, s=7, x=13) == true_val
+    assert x(x=13).logd(mean=3, s=7) == true_val
+    assert x(x=13, mean=3).logd(s=7) == true_val
+    assert x(x=13, mean=3, s=7).logd() == true_val
+    assert x(mean=3).logd(s=7, x=13) == true_val
+    assert x(mean=3, s=7).logd(x=13) == true_val
+    assert x(mean=3, x=13).logd(s=7) == true_val
 
 def test_logp_err_handling():
     """ This tests if logp correctly identifies errors in the input """
@@ -124,24 +124,24 @@ def test_logp_err_handling():
 
     # Test that we raise error if we don't provide all parameters
     with pytest.raises(ValueError, match=r"Not all conditioning variables are specified"):
-        x.logp(x=3)
+        x.logd(x=3)
 
     # Test that we raise error if we provide parameters that are not specified
     with pytest.raises(ValueError, match=r"do not match keyword arguments"):
-        x.logp(mean=3, s=7, x=13, y=1)
+        x.logd(mean=3, s=7, x=13, y=1)
 
     # Test that we raise error if provided with both positional and keyword arguments
     # Regex on word "positional" in both lower or upper case
     with pytest.raises(ValueError, match=r"(?i)positional"):
-        x.logp(3, s=7, x=13)
+        x.logd(3, s=7, x=13)
 
     # Test if we pass wrong number of arguments
     with pytest.raises(ValueError, match=r"Number of arguments must match"):
         y = x(x=13) #Condition on x to make it likelihood
 
         # Pass too many arguments
-        y.logp(3, 7, 100)
+        y.logd(3, 7, 100)
 
         # Pass too few arguments
-        y.logp(3)
+        y.logd(3)
 
