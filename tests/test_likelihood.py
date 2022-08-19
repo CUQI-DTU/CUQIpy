@@ -102,10 +102,10 @@ def test_likelihood_conditioning(dist, mean, cov, data):
     # Full param dict
     param_dict = {**mean_dict, **cov_dict}
 
-    # Evaluate log from full params
-    log_val = likelihood.log(**param_dict)
+    # Evaluate logp from full params
+    log_val = likelihood.logp(**param_dict)
 
     # Now compare log when conditioning on 3 cases: mean, cov, both
-    assert likelihood(**mean_dict).log(**cov_dict) == log_val
-    assert likelihood(**cov_dict).log(**mean_dict) == log_val
-    assert likelihood(**param_dict).log() == log_val
+    assert likelihood(**mean_dict).logp(**cov_dict) == log_val
+    assert likelihood(**cov_dict).logp(**mean_dict) == log_val
+    assert likelihood(**param_dict).logp() == log_val

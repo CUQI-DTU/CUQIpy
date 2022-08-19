@@ -1,10 +1,11 @@
 from cuqi.model import Model
 from cuqi.utilities import get_non_default_args
 from cuqi.geometry import _DefaultGeometry
+from cuqi.density import Density
 import warnings
 from copy import copy
 
-class Likelihood(object):
+class Likelihood(Density):
     """Likelihood function defined from a conditional distribution and some observed data.
 
     The parameters of the likelihood function is defined as the conditioning variables
@@ -31,9 +32,25 @@ class Likelihood(object):
         self.distribution = distribution
         self.data = data
 
-    def log(self, *args, **kwargs):
+    @property
+    def name(self):
+        """ Return name of likelihood """
+        return self.distribution.name
+
+    @name.setter
+    def name(self, value):
+        self.distribution.name = value
+
+    @property
+    def _constant(self):
+        return self.distribution._constant
+
+    def _logp(self, *args, **kwargs):
         """Return the log-likelihood function at given value"""
-        return self.distribution(*args, **kwargs).logpdf(self.data)
+        return self.distribution(*args, **kwargs).logp(self.data)
+
+    def log(self, *args, **kwargs): #TODO: Remove log and use only logp
+        return self.logp(*args, **kwargs)
 
     def gradient(self, *args, **kwargs):
         """Return gradient of the log-likelihood function at given value"""
@@ -91,10 +108,13 @@ class Likelihood(object):
         
         return model_value
 
-    def __call__(self, *args, **kwargs):
+    def _condition(self, *args, **kwargs):
         """ Fix some parameters of the likelihood function by conditioning on the underlying distribution. """
         new_likelihood = copy(self)
         new_likelihood.distribution = self.distribution(*args, **kwargs)
+        # If dist is no longer conditional, return a constant density
+        if not new_likelihood.distribution.is_cond:
+            return new_likelihood.distribution.to_likelihood(self.data) # TODO: Consider renaming to_likelihood as to_density
         return new_likelihood
 
 class UserDefinedLikelihood(object):
