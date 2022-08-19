@@ -130,3 +130,20 @@ def test_mapped_geometry(geom, map, imap):
 def test_geometry_equality(g1, g2, truth_value):
 	"""Ensure geometry arrays compare correctly"""
 	assert (g1==g2) == truth_value
+
+@pytest.mark.parametrize("n_steps",[1,2,6,7,9,10,20, 21])
+def test_StepExpansion_geometry(n_steps):
+    """Check StepExpansion geometry correctness"""
+    grid = np.linspace(0,1,20)
+    if n_steps > np.size(grid):
+	#If n_steps is greater than the number of grid points, StepExpansion will fail
+        with pytest.raises(ValueError):
+            cuqi.geometry.StepExpansion(grid,n_steps)
+    else:
+	#Otherwise, assert that the StepExpansion is correct
+        geom = cuqi.geometry.StepExpansion(grid,n_steps)
+        par = np.random.randn(n_steps)
+        geom.plot(par,linestyle = '', marker='.')
+
+        assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
+           and geom.dim == n_steps
