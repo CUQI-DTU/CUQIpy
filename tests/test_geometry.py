@@ -147,3 +147,4 @@ def test_StepExpansion_geometry(n_steps):
 
         assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
            and geom.dim == n_steps
+           
