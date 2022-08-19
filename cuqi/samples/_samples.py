@@ -80,9 +80,11 @@ class CUQIarray(np.ndarray):
     
     def plot(self, plot_par=False, **kwargs):
         if plot_par:
-            return self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+            kwargs["is_par"]=True
+            return self.geometry.plot(self.parameters, plot_par=plot_par, **kwargs)
         else:
-            return self.geometry.plot(self.funvals, is_par=False, **kwargs)
+            kwargs["is_par"]=False
+            return self.geometry.plot(self.funvals, **kwargs)
 
 
 class Data(object):
@@ -190,6 +192,16 @@ class Samples(object):
             self._geometry = _DefaultGeometry(grid=np.prod(self.samples.shape[:-1]))
         return self._geometry
 
+    @property
+    def _funvals(self):
+        """Return function values of the samples"""
+        if not hasattr(self, '_samples_funvals'):
+            funvals = np.empty((self.geometry.dim,self.Ns))
+            for i, s in enumerate(self):
+                funvals[:,i]=self.geometry.par2fun(s)
+            self._samples_funvals = funvals
+        return self._samples_funvals
+
     @geometry.setter
     def geometry(self,inGeometry):
         self._geometry = inGeometry
@@ -275,9 +287,10 @@ class Samples(object):
         plt.title('Width of sample credibility intervals')
         return ax
 
-    def mean(self):
-        """Compute mean of the samples"""
-        return np.mean(self.samples, axis=-1)
+    def mean(self, to_func=False):
+        """Compute mean of the samples. If to_func is True, the mean is computed for the function values."""
+        samples = self.samples if not to_func else self._funvals
+        return np.mean(samples, axis=-1)
 
     def median(self):
         """Compute pointwise median of the samples"""
@@ -287,11 +300,12 @@ class Samples(object):
         """Compute pointwise variance of the samples"""
         return np.var(self.samples, axis=-1)
 
-    def compute_ci(self, percent = 95):
-        """Compute pointwise credibility intervals of the samples"""
+    def compute_ci(self, percent=95, to_func=False):
+        """Compute pointwise credibility intervals of the samples. If to_func is True, the credibility intervals are computed for the function values."""
         lb = (100-percent)/2
         up = 100-lb
-        return np.percentile(self.samples, [lb, up], axis=-1)
+        samples = self.samples if not to_func else self._funvals
+        return np.percentile(samples, [lb, up], axis=-1)
 
     def ci_width(self, percent = 95):
         """Compute width of the pointwise credibility intervals of the samples"""
@@ -348,7 +362,7 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self,percent=95,exact=None,*args,plot_envelope_kwargs={},**kwargs):
+    def plot_ci(self,percent=95,exact=None, to_func=False, *args,plot_envelope_kwargs={},**kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
 
@@ -360,20 +374,34 @@ class Samples(object):
         exact : ndarray, default None
             The exact value (for comparison)
 
+        to_func : bool, default False
+            If True, the samples are converted to function values before computing the credibility interval.
+            This is useful if the parameter space and the function space of the samples geometry are different.
+
         plot_envelope_kwargs : dict, default {}
             Keyword arguments for the plot_envelope method
         
         """
         
         # Compute statistics
-        mean = np.mean(self.samples,axis=-1)
-        lo_conf, up_conf = self.compute_ci(percent)
+        mean = self.mean(to_func=to_func)
+        lo_conf, up_conf = self.compute_ci(percent, to_func=to_func)
 
         #Extract plotting keywords and put into plot_envelope
         if len(plot_envelope_kwargs)==0:
             pe_kwargs={}
         else:
             pe_kwargs = plot_envelope_kwargs
+
+        if to_func:
+            if "is_par" in kwargs.keys() and not kwargs["is_par"]:
+                #if samples are not parameters, they cannot be converted to function values
+                raise ValueError(
+                    "If argument 'is_par' is False, 'to_func' needs to be False")
+            else:
+                #if to_func==True, lo_conf, up_conf, and mean will be converted to function values and will no longer be parameter values
+                kwargs["is_par"] = False
+
         if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
         if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"]=kwargs.get("plot_par")   
 
