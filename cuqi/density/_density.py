@@ -35,7 +35,7 @@ class Density(ABC):
         """ Evaluates the log probability of the density given a set of parameters.
         
         The log probability can be evaluated with a set matching the parameter names
-        of the density. These can be accessed with the :meth:~`get_parameter_names` method.
+        of the density. These can be accessed with the :meth:`get_parameter_names` method.
         """
 
         # Get parameter names possible to evaluate the logp
@@ -78,7 +78,7 @@ class Density(ABC):
         """ Returns the names of the parameters that the density can be evaluated at or conditioned on. """
         pass
 
-    def __call__(self, *args, **kwargs) -> Density:
+    def __call__(self, *args, **kwargs) -> Density: #TODO: Parse args and kwargs similar to logp
         """ Condition on the given parameters. """
         return self._condition(*args, **kwargs)
 
