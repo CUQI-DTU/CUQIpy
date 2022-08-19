@@ -200,7 +200,3 @@ def test_plot_ci_par_func(is_par, plot_par, to_func, geometry):
         plt.figure()
         samples.plot_ci(is_par=is_par, plot_par=plot_par, to_func=to_func)
     #The remaining cases should not raise an error.
-
-def test_temp():
-    import matplotlib.pyplot as plt
-    plt.show()
