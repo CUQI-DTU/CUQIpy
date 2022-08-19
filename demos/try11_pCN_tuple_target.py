@@ -30,7 +30,7 @@ results1 = MCMC.sample(10,2)
 
 #%%
 np.random.seed(0)
-likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=d, logpdf_func=posterior.likelihood.log)
+likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=d, logpdf_func=posterior.likelihood.logd)
 prior = cuqi.distribution.UserDefinedDistribution(sample_func= posterior.prior.sample)
 
 MCMC = pCN((likelihood,prior), scale, x0)

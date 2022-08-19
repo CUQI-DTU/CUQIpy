@@ -187,7 +187,7 @@ scale = delta*1/dim
 prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
 
 # Target and proposal
-def target(x): return tp.likelihood.log(x)+prior.logpdf(x)
+def target(x): return tp.likelihood.logd(x)+prior.logpdf(x)
 def proposal(x,scale): return np.random.normal(x,scale)
 
 # Parameters for sampler

@@ -22,7 +22,7 @@ def test_conditioning_through_likelihood(): #TODO. Add more dists to test here!
     model = cuqi.model.Model(lambda x:x, 1, 1) #Simple 1 par model
     dist = cuqi.distribution.GaussianCov(mean=model)
     likelihood = dist.to_likelihood(5)
-    likelihood.log(10, 5)
+    likelihood.logd(10, 5)
     assert(likelihood.get_parameter_names() == ['cov', 'x'])
 
 def test_conditioning_wrong_keyword():

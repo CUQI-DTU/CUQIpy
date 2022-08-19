@@ -49,9 +49,6 @@ class Likelihood(Density):
         """Return the log-likelihood function at given value"""
         return self.distribution(*args, **kwargs).logd(self.data)
 
-    def log(self, *args, **kwargs): #TODO: Remove log and use only logd
-        return self.logd(*args, **kwargs)
-
     def gradient(self, *args, **kwargs):
         """Return gradient of the log-likelihood function at given value"""
         return self.distribution.gradient(self.data, *args, **kwargs)
@@ -151,7 +148,7 @@ class UserDefinedLikelihood(object):
     def dim(self, value):
         self._dim = value
 
-    def log(self, *args, **kwargs):
+    def logd(self, *args, **kwargs):
         """Returns value of likelihood function"""
         return self.logpdf_func(*args, **kwargs)
 

@@ -10,7 +10,7 @@ def test_likelihood_log_and_grad():
     likelihood = cuqi.distribution.GaussianCov(model,1).to_likelihood(data)
 
     # Tests log and gradient calls do not cause errors
-    likelihood.log(probInfo.exactSolution)
+    likelihood.logd(probInfo.exactSolution)
     likelihood.gradient(probInfo.exactSolution)
 
 def test_likelihood_attributes():
@@ -55,7 +55,7 @@ def test_likelihood_Gaussian_log_IID(dist):
     model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components(dim=128)
     dist.mean = model
     likelihood = dist.to_likelihood(probInfo.exactData) #We use exact data to get same logpdf every time
-    assert likelihood.log(probInfo.exactSolution) == approx(-264.14955763892135)
+    assert likelihood.logd(probInfo.exactSolution) == approx(-264.14955763892135)
 
 def test_likelihood_UserDefined():
     # CUQI likelihood
@@ -63,10 +63,10 @@ def test_likelihood_UserDefined():
     L = cuqi.distribution.GaussianCov(model, 1).to_likelihood(data)
 
     # Create user defined likelihood
-    likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=L.dim, logpdf_func=L.log, gradient_func=L.gradient, geometry=L.geometry)
+    likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=L.dim, logpdf_func=L.logd, gradient_func=L.gradient, geometry=L.geometry)
     
     # log
-    assert likelihood.log(probInfo.exactSolution) == L.log(probInfo.exactSolution)
+    assert likelihood.logd(probInfo.exactSolution) == L.logd(probInfo.exactSolution)
 
     # gradient
     assert np.allclose(likelihood.gradient(probInfo.exactSolution), L.gradient(probInfo.exactSolution))

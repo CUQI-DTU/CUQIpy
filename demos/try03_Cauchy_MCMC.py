@@ -31,7 +31,7 @@ norm_f = np.linalg.norm(test.exactSolution)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-def likelihood_logpdf(x): return test.likelihood.log(x)
+def likelihood_logpdf(x): return test.likelihood.logd(x)
 
 # =============================================================================
 # prior
