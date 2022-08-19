@@ -287,9 +287,9 @@ class Samples(object):
         plt.title('Width of sample credibility intervals')
         return ax
 
-    def mean(self, to_func=False):
-        """Compute mean of the samples. If to_func is True, the mean is computed for the function values."""
-        samples = self.samples if not to_func else self._funvals
+    def mean(self, compute_on_par=True):
+        """Compute mean of the samples. If compute_on_par is True, the mean is computed for the parameters. Otherwise, the mean is computed for the function values."""
+        samples = self.samples if compute_on_par else self._funvals
         return np.mean(samples, axis=-1)
 
     def median(self):
@@ -300,11 +300,11 @@ class Samples(object):
         """Compute pointwise variance of the samples"""
         return np.var(self.samples, axis=-1)
 
-    def compute_ci(self, percent=95, to_func=False):
-        """Compute pointwise credibility intervals of the samples. If to_func is True, the credibility intervals are computed for the function values."""
+    def compute_ci(self, percent=95, compute_on_par=True):
+        """Compute pointwise credibility intervals of the samples. If compute_on_par is True, the credibility intervals are computed for the parameters. Otherwise, the credibility intervals are computed for the function values."""
         lb = (100-percent)/2
         up = 100-lb
-        samples = self.samples if not to_func else self._funvals
+        samples = self.samples if compute_on_par else self._funvals
         return np.percentile(samples, [lb, up], axis=-1)
 
     def ci_width(self, percent = 95):
@@ -362,7 +362,7 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self,percent=95,exact=None, to_func=False, *args,plot_envelope_kwargs={},**kwargs):
+    def plot_ci(self,percent=95,exact=None, compute_on_par=True, *args,plot_envelope_kwargs={},**kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
 
@@ -374,8 +374,8 @@ class Samples(object):
         exact : ndarray, default None
             The exact value (for comparison)
 
-        to_func : bool, default False
-            If True, the samples are converted to function values before computing the credibility interval.
+        compute_on_par : bool, default True
+            If True, the credibility interval is computed on the parameters. Otherwise, the credibility interval is computed on the function values.
             This is useful if the parameter space and the function space of the samples geometry are different.
 
         plot_envelope_kwargs : dict, default {}
@@ -384,8 +384,8 @@ class Samples(object):
         """
         
         # Compute statistics
-        mean = self.mean(to_func=to_func)
-        lo_conf, up_conf = self.compute_ci(percent, to_func=to_func)
+        mean = self.mean(compute_on_par=compute_on_par)
+        lo_conf, up_conf = self.compute_ci(percent, compute_on_par=compute_on_par)
 
         #Extract plotting keywords and put into plot_envelope
         if len(plot_envelope_kwargs)==0:
@@ -393,13 +393,13 @@ class Samples(object):
         else:
             pe_kwargs = plot_envelope_kwargs
 
-        if to_func:
+        if not compute_on_par:
             if "is_par" in kwargs.keys() and not kwargs["is_par"]:
                 #if samples are not parameters, they cannot be converted to function values
                 raise ValueError(
-                    "If argument 'is_par' is False, 'to_func' needs to be False")
+                    "If argument 'is_par' is False, 'compute_on_par' needs to be True")
             else:
-                #if to_func==True, lo_conf, up_conf, and mean will be converted to function values and will no longer be parameter values
+                #if compute_on_par==False, lo_conf, up_conf, and mean will be converted to function values and will no longer be parameter values when passed to plotting methods
                 kwargs["is_par"] = False
 
         if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
