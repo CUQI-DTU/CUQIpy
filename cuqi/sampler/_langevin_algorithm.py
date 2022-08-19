@@ -7,7 +7,7 @@ class ULA(Sampler):
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logpdf and gradient (up to a constant) based on
-    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is 
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
     the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
 
     For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
@@ -17,7 +17,7 @@ class ULA(Sampler):
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
+        The target distribution to sample. Must have logd and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     x0 : ndarray
@@ -81,7 +81,7 @@ class ULA(Sampler):
 
         # initial state
         samples[:, 0] = self.x0
-        target_eval[0], g_target_eval[:,0] = self.target.logpdf(self.x0), self.target.gradient(self.x0)
+        target_eval[0], g_target_eval[:,0] = self.target.logd(self.x0), self.target.gradient(self.x0)
         acc[0] = 1
 
         # ULA
@@ -101,7 +101,7 @@ class ULA(Sampler):
         # approximate Langevin diffusion
         xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
         x_star = x_t + 0.5*self.scale*g_target_eval_t + xi
-        logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
+        logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
 
         # msg
         if np.isnan(logpi_eval_star):
@@ -113,8 +113,8 @@ class ULA(Sampler):
 class MALA(ULA):
     """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
 
-    Samples a distribution given its logpdf and gradient (up to a constant) based on
-    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logpdf(L_t)dt,  where L_t is 
+    Samples a distribution given its logd and gradient (up to a constant) based on
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
     the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion. 
     The sample is then accepted or rejected according to Metropolis–Hastings algorithm.
 
@@ -177,7 +177,7 @@ class MALA(ULA):
         # approximate Langevin diffusion
         xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
         x_star = x_t + (self.scale/2)*g_target_eval_t + xi
-        logpi_eval_star, g_logpi_star = self.target.logpdf(x_star), self.target.gradient(x_star)
+        logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
 
         # Metropolis step
         log_target_ratio = logpi_eval_star - target_eval_t

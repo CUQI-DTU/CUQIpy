@@ -40,7 +40,7 @@ loc = np.zeros(n)
 delta = 1
 scale = delta*h
 prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
-def prior_logpdf(x): return prior.logpdf(x)
+def prior_logpdf(x): return prior.logd(x)
 
 # =============================================================================
 # posterior sampling

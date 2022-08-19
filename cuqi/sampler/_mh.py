@@ -88,7 +88,7 @@ class MetropolisHastings(ProposalBasedSampler):
 
         # initial state    
         samples[:, 0] = self.x0
-        target_eval[0] = self.target.logpdf(self.x0)
+        target_eval[0] = self.target.logd(self.x0)
         acc[0] = 1
 
         # run MCMC
@@ -120,7 +120,7 @@ class MetropolisHastings(ProposalBasedSampler):
 
         # initial state    
         samples[:, 0] = self.x0
-        target_eval[0] = self.target.logpdf(self.x0)
+        target_eval[0] = self.target.logd(self.x0)
         acc[0] = 1
 
         # initial adaptation params 
@@ -170,7 +170,7 @@ class MetropolisHastings(ProposalBasedSampler):
         x_star = x_t + self.scale*xi.flatten()   # MH proposal
 
         # evaluate target
-        target_eval_star = self.target.logpdf(x_star)
+        target_eval_star = self.target.logd(x_star)
 
         # ratio and acceptance probability
         ratio = target_eval_star - target_eval_t  # proposal is symmetric

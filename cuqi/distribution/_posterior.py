@@ -80,7 +80,7 @@ class Posterior(Distribution):
             
     def logpdf(self, x):
         """ Returns the logpdf of the posterior distribution"""
-        return self.likelihood.logd(x)+ self.prior.logpdf(x)
+        return self.likelihood.logd(x)+ self.prior.logd(x)
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.

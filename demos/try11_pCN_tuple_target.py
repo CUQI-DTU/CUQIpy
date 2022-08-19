@@ -18,7 +18,7 @@ sigma = np.linspace(0.5, 1, d)
 R = np.eye(d)
 model = cuqi.model.Model(lambda x:x, range_geometry=d, domain_geometry=d)
 L = Gaussian(model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
-def target(x): return L.logpdf(x)
+def target(x): return L.logd(x)
 P = Gaussian(mu, np.ones(d), R)
 scale = 0.1
 x0 = 0.5*np.ones(d)

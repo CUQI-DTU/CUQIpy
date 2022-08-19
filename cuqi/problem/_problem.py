@@ -441,12 +441,7 @@ class BayesianProblem(object):
         if disp: print("x0: ones vector")
         
         # Get the function to minimize (negative log-likelihood or negative log-posterior)
-        if hasattr(density, 'logpdf'):
-            def func(x): return -density.logpdf(x)
-        elif hasattr(density, 'log'):
-            def func(x): return -density.log(x)
-        else:
-            raise ValueError("Density must have logpdf or log method to be maximized.")
+        def func(x): return -density.logd(x)
 
         # Initial value if not given
         if x0 is None:

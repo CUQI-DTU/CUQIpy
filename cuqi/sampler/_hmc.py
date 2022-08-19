@@ -66,7 +66,7 @@ class NUTS(Sampler):
         self.opt_acc_rate = opt_acc_rate
     
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
-        return self.target.logpdf(x), self.target.gradient(x)
+        return self.target.logd(x), self.target.gradient(x)
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N, Nb)
