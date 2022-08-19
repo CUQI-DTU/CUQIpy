@@ -703,31 +703,49 @@ class CustomKL(Continuous1D):
 class StepExpansion(Continuous1D):
     '''
     class representation of the step random field with 3 intermidiate steps
+
+    Parameters:
+    -----------
+    grid: ndarray
+        grid points
+
+    nsteps: int
+        number of equidistant steps
+
+    axis_labels: list of strings
+       plotting axis labels
+
+    kwargs: keyword arguments
+        keyword arguments defined in :class:`~cuqi.geometry.Continuous1D`
     '''
-    def __init__(self, grid, axis_labels=['x'], **kwargs):
+    def __init__(self, grid, n_steps=3, axis_labels=['x'], **kwargs):
 
         super().__init__(grid, axis_labels,**kwargs)
+        if n_steps > np.size(self.grid):
+            raise ValueError("n_steps must be smaller than the number of grid points")
 
+        self._n_steps = n_steps
         L = self.grid[-1]
-        self._idx1 = np.where( (self.grid>=0*L)&(self.grid<=0.333*L) )
-        self._idx2 = np.where( (self.grid>0.333*L)&(self.grid<=0.666*L) )
-        self._idx3 = np.where( (self.grid>0.666*L)&(self.grid<=L) )
+
+        self._ideces = []
+        for i in range(self._n_steps):
+            start = i*L/self._n_steps
+            end = (i+1)*L/self._n_steps
+            self._ideces.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
 
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
- 
-        real[self._idx1[0]] = p[0]
-        real[self._idx2[0]] = p[1]
-        real[self._idx3[0]] = p[2]
+        for i in range(self._n_steps):
+            real[self._ideces[i]] = p[i]
  
         return real
 
-    def fun2par(self,f):       
-        val1 = f[self._idx1[0][0]]
-        val2 = f[self._idx2[0][0]]
-        val3 = f[self._idx3[0][0]]
-        return np.array([val1,val2,val3])
+    def fun2par(self,f):
+        val = np.zeros(self._n_steps)
+        for i in range(self._n_steps):
+            val[i] = f[self._ideces[i][0]]
+        return val
 
     @property
     def shape(self):
-        return (3,)
+        return (self._n_steps,)
