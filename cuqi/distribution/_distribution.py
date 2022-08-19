@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
+from cuqi.density import Density
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry
@@ -8,7 +9,7 @@ from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_pr
 import numpy as np # To be replaced by cuqi.array_api
 
 # ========== Abstract distribution class ===========
-class Distribution(ABC):
+class Distribution(Density, ABC):
     """ Abstract Base Class for Distributions.
 
     Handles functionality for pdf evaluation, sampling, geometries and conditioning.
@@ -82,9 +83,7 @@ class Distribution(ABC):
             Indicator if distribution is symmetric.
                         
         """
-        if not isinstance(name,str) and name is not None:
-            raise ValueError("Name must be a string or None")
-        self.name = name
+        super().__init__(name=name)
         self.is_symmetric = is_symmetric
         self.geometry = geometry
 
@@ -125,6 +124,43 @@ class Distribution(ABC):
         else:
             raise TypeError("The attribute 'geometry' should be of type 'int' or 'cuqi.geometry.Geometry', or None.")
 
+    def logp(self, *args, **kwargs):
+        """  Evaluate the log probability of the distribution.
+
+        It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.
+        """
+
+        # First extract the conditioning variables from kwargs
+        cond_vars = self.get_conditioning_variables()
+
+        if len(cond_vars) > 0:
+
+            if len(args) > 0:
+                raise ValueError("Distribution.logp: Positional arguments on conditional distributions are not supported in logp evaluation (yet)")
+
+            # Check if all conditioning variables are specified
+            if not all([key in kwargs for key in cond_vars]):
+                raise ValueError("Not all conditioning variables are specified.")
+
+            # Extract exactly the conditioning variables from kwargs
+            cond_kwargs = {key: kwargs[key] for key in cond_vars}
+
+            # Extract the remaining variables from kwargs
+            non_cond_kwargs = {key: kwargs[key] for key in kwargs if key not in cond_vars}
+
+            # Condition the distribution
+            new_dist = self(**cond_kwargs)
+
+            # Now evaluate the logp of the conditioned distribution
+            return new_dist.logp(*args, **non_cond_kwargs)
+
+        # Not conditional distribution, simply evaluate logp
+        else:
+            return super().logp(*args, **kwargs)
+        
+    def _logp(self, *args):
+        return self.logpdf(*args) # TODO. Remove logpdf
+
     @abstractmethod
     def logpdf(self,x):
         pass
@@ -157,7 +193,7 @@ class Distribution(ABC):
     def pdf(self,x):
         return np.exp(self.logpdf(x))
 
-    def __call__(self, *args, **kwargs):
+    def _condition(self, *args, **kwargs):
         """ Generate new distribution conditioned on the input arguments. """
 
         # Store conditioning variables and mutable variables
@@ -252,6 +288,9 @@ class Distribution(ABC):
         self._mutable_vars = [var for var in (attributes+properties) if var not in ignore_vars]
 
         return self._mutable_vars
+
+    def get_parameter_names(self):
+        return self.get_conditioning_variables() + [self.name]
 
     @property
     def is_cond(self):
