@@ -1,5 +1,7 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
+
 
 class Density(ABC):
     """ Abstract base class for densities.
@@ -30,7 +32,11 @@ class Density(ABC):
         self._constant = 0 # Precomputed constant to add to the log probability.
 
     def logp(self, *args, **kwargs):
-        """ Evaluates the log probability of the density given a set of parameters. """
+        """ Evaluates the log probability of the density given a set of parameters.
+        
+        The log probability can be evaluated with a set matching the parameter names
+        of the density. These can be accessed with the :meth:~`get_parameter_names` method.
+        """
 
         # Check if kwargs are given. If so parse them according to the parameter names and add them to args.
         if len(kwargs) > 0:
@@ -54,7 +60,7 @@ class Density(ABC):
         pass
 
     @abstractmethod
-    def _condition(self):
+    def _condition(self) -> Density:
         pass
 
     @property
@@ -67,7 +73,7 @@ class Density(ABC):
         """ Returns the names of the parameters that the density can be evaluated at or conditioned on. """
         pass
 
-    def __call__(self, *args, **kwargs):
+    def __call__(self, *args, **kwargs) -> Density:
         """ Condition on the given parameters. """
         return self._condition(*args, **kwargs)
 
