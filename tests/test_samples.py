@@ -167,36 +167,25 @@ def test_compute_ci(percent, compute_on_par, geometry):
     assert np.allclose(ci[0], lo_conf)
     assert np.allclose(ci[1], up_conf)
 
-
-@pytest.mark.parametrize("is_par, plot_par, compute_on_par",
-                         [(True, True, True),
-                          (True, True, False), # raises error (from Samples.plot_ci)
-                          (True, False, True),
-                          (True, False, False),
-                          (False, True, True), # raises error (from Geometry.plot_envelope)
-                          (False, True, False), # raises error (from Samples.plot_ci)
-                          (False, False, True),
-                          (False, False, False)]) # raises error
+@pytest.mark.parametrize("is_par", [False, True, None])
+@pytest.mark.parametrize("plot_par, compute_on_par",
+                         [(True, True),
+                          (True, False), 
+                          (False, True),
+                          (False, False)]) # raises error
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.KLExpansion(np.arange(0, 1, .1))])
 def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
-    """Test that the compute_ci function works with parameters samples and functions samples."""
+    """Test passing flags to plot_ci."""
     np.random.seed(0)
     samples = cuqi.samples.Samples(np.random.randn(geometry.dim, 10), geometry=geometry)
 
-    if not is_par:
-        samples = cuqi.samples.Samples(samples._funvals, geometry=geometry)
-
-    #Error will be thrown for 4 cases out of the 8 combinations above.
-    if (not is_par and not compute_on_par) or (not is_par and plot_par) or (not compute_on_par and plot_par):
-        # TODO: enable the cases: (not is_par and plot_par) and (not compute_on_par and plot_par)
-        # to run without raising an error if the geometry has an implementation of fun2par
-        # this needs to be implemented in the geometry class (plot_envelope)
-
+    if is_par is not None:
+        # User should not be able to pass is_par for plotting because it is determined automatically
         with pytest.raises(ValueError):
             samples.plot_ci(is_par=is_par, plot_par=plot_par, compute_on_par=compute_on_par)
     else:
         import matplotlib.pyplot as plt
         plt.figure()
-        samples.plot_ci(is_par=is_par, plot_par=plot_par, compute_on_par=compute_on_par)
+        samples.plot_ci(plot_par=plot_par, compute_on_par=compute_on_par)
     #The remaining cases should not raise an error.
