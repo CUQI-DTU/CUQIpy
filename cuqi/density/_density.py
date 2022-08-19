@@ -30,6 +30,18 @@ class Density(ABC):
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
 
+    @property
+    def name(self):
+        """ Name of the random variable associated with the density. """
+        if self._name is None: # If none extract the name from the stack
+            name = cuqi.utilities.get_python_variable_name(self)
+            self._name = name
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
     def logd(self, *args, **kwargs):
         """ Evaluates the un-normalized log density function given a set of parameters.
         
@@ -38,14 +50,14 @@ class Density(ABC):
         
         """
 
-        # Get parameter names possible to evaluate the logd
-        par_names = self.get_parameter_names()
-
         # Check if kwargs are given. If so parse them according to the parameter names and add them to args.
         if len(kwargs) > 0:
 
             if len(args) > 0:
                 raise ValueError(f"{self.logd.__qualname__}: Cannot specify both positional and keyword arguments.")
+
+            # Get parameter names possible to evaluate the logd
+            par_names = self.get_parameter_names()
 
             # Check if parameter names match the keyword arguments (any order).
             if set(par_names) != set(kwargs.keys()):
@@ -53,10 +65,6 @@ class Density(ABC):
             
             # Ensure that the keyword arguments are given in the correct order and use them as positional arguments.
             args = [kwargs[name] for name in par_names]            
-
-        # Check if the number of arguments matches the number of parameters.
-        if len(args) != len(par_names):
-            raise ValueError(f"{self.logd.__qualname__}: Number of arguments must match number of parameters. Got {len(args)} arguments but density has {len(par_names)} parameters.")
 
         return self._logd(*args) + self._constant
    

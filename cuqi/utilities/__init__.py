@@ -11,3 +11,5 @@ from ._utilities import (
     sparse_cholesky,
     approx_derivative,
 )
+
+from ._get_python_variable_name import get_python_variable_name

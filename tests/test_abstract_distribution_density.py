@@ -135,13 +135,3 @@ def test_logd_err_handling():
     with pytest.raises(ValueError, match=r"(?i)positional"):
         x.logd(3, s=7, x=13)
 
-    # Test if we pass wrong number of arguments
-    with pytest.raises(ValueError, match=r"Number of arguments must match"):
-        y = x(x=13) #Condition on x to make it likelihood
-
-        # Pass too many arguments
-        y.logd(3, 7, 100)
-
-        # Pass too few arguments
-        y.logd(3)
-
