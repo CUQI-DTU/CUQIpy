@@ -125,7 +125,9 @@ class Distribution(Density, ABC):
             raise TypeError("The attribute 'geometry' should be of type 'int' or 'cuqi.geometry.Geometry', or None.")
 
     def logd(self, *args, **kwargs):
-        """  Evaluate the log probability of the distribution.
+        """  Evaluate the log density of the distribution.
+
+        The log density is proportional to the log probability density function (logpdf) of the distribution.
 
         It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.
         """
@@ -163,6 +165,7 @@ class Distribution(Density, ABC):
 
     @abstractmethod
     def logpdf(self,x):
+        """ Evaluate the log probability density function of the distribution. """
         pass
 
     def sample(self,N=1,*args,**kwargs):
