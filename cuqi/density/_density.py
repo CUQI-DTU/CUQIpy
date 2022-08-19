@@ -38,13 +38,14 @@ class Density(ABC):
         of the density. These can be accessed with the :meth:~`get_parameter_names` method.
         """
 
+        # Get parameter names possible to evaluate the logp
+        par_names = self.get_parameter_names()
+
         # Check if kwargs are given. If so parse them according to the parameter names and add them to args.
         if len(kwargs) > 0:
 
             if len(args) > 0:
                 raise ValueError("Density.logp: Cannot specify both positional and keyword arguments.")
-
-            par_names = self.get_parameter_names()
 
             # Check if parameter names match the keyword arguments (any order).
             if set(par_names) != set(kwargs.keys()):
@@ -52,6 +53,10 @@ class Density(ABC):
             
             # Ensure that the keyword arguments are given in the correct order and use them as positional arguments.
             args = [kwargs[name] for name in par_names]            
+
+        # Check if the number of arguments matches the number of parameters.
+        if len(args) != len(par_names):
+            raise ValueError(f"Density.logp: Number of arguments must match number of parameters. Got {len(args)} arguments but density has {len(par_names)} parameters.")
 
         return self._logp(*args) + self._constant
    
