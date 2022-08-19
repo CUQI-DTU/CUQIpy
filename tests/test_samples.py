@@ -143,18 +143,18 @@ def test_samples_funvals(geometry):
 
 
 @pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
-@pytest.mark.parametrize("to_func", [False, True])
+@pytest.mark.parametrize("compute_on_par", [False, True])
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.MappedGeometry(
                                         cuqi.geometry.Continuous1D(2), map=lambda x: x**2)])
-def test_compute_ci(percent, to_func, geometry):
+def test_compute_ci(percent, compute_on_par, geometry):
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MetropolisHastings(dist)
     samples = sampler.sample_adapt(500)
     samples.geometry = geometry
-    ci = samples.compute_ci(percent, to_func=to_func)
+    ci = samples.compute_ci(percent, compute_on_par=compute_on_par)
 
-    if to_func:
+    if not compute_on_par:
         samples = samples._funvals
     else:
         samples = samples.samples
@@ -168,18 +168,18 @@ def test_compute_ci(percent, to_func, geometry):
     assert np.allclose(ci[1], up_conf)
 
 
-@pytest.mark.parametrize("is_par, plot_par, to_func",
-                         [(True, True, True), # raise error
-                          (True, True, False),
+@pytest.mark.parametrize("is_par, plot_par, compute_on_par",
+                         [(True, True, True),
+                          (True, True, False), # raises error (from Samples.plot_ci)
                           (True, False, True),
                           (True, False, False),
-                          (False, True, True), # raise error
-                          (False, True, False), # raise error
-                          (False, False, True), # raise error
-                          (False, False, False)])
+                          (False, True, True), # raises error (from Geometry.plot_envelope)
+                          (False, True, False), # raises error (from Samples.plot_ci)
+                          (False, False, True),
+                          (False, False, False)]) # raises error
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.KLExpansion(np.arange(0, 1, .1))])
-def test_plot_ci_par_func(is_par, plot_par, to_func, geometry):
+def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
     """Test that the compute_ci function works with parameters samples and functions samples."""
     np.random.seed(0)
     samples = cuqi.samples.Samples(np.random.randn(geometry.dim, 10), geometry=geometry)
@@ -188,15 +188,15 @@ def test_plot_ci_par_func(is_par, plot_par, to_func, geometry):
         samples = cuqi.samples.Samples(samples._funvals, geometry=geometry)
 
     #Error will be thrown for 4 cases out of the 8 combinations above.
-    if (not is_par and to_func) or (not is_par and plot_par) or (to_func and plot_par):
-        # TODO: enable the cases: (not is_par and plot_par) and (to_func and plot_par)
+    if (not is_par and not compute_on_par) or (not is_par and plot_par) or (not compute_on_par and plot_par):
+        # TODO: enable the cases: (not is_par and plot_par) and (not compute_on_par and plot_par)
         # to run without raising an error if the geometry has an implementation of fun2par
         # this needs to be implemented in the geometry class (plot_envelope)
 
         with pytest.raises(ValueError):
-            samples.plot_ci(is_par=is_par, plot_par=plot_par, to_func=to_func)
+            samples.plot_ci(is_par=is_par, plot_par=plot_par, compute_on_par=compute_on_par)
     else:
         import matplotlib.pyplot as plt
         plt.figure()
-        samples.plot_ci(is_par=is_par, plot_par=plot_par, to_func=to_func)
+        samples.plot_ci(is_par=is_par, plot_par=plot_par, compute_on_par=compute_on_par)
     #The remaining cases should not raise an error.
