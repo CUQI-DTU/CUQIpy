@@ -101,7 +101,7 @@ class Geometry(ABC):
         """
         #Error check
         if plot_par and not is_par:
-            raise Exception("Plot par is true, but is_par is false (parameters were not given)")
+            raise ValueError("Plot par is true, but is_par is false (parameters were not given)")
         
         if plot_par:
             geom = Discrete(self.dim) #dim is size of para (at the moment)
