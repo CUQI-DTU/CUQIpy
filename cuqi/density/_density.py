@@ -110,3 +110,4 @@ class ConstantDensity(Density):
 
     def __repr__(self):
         return f"ConstantDensity({self.logd()})"
+        
