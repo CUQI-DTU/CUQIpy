@@ -167,12 +167,12 @@ def test_compute_ci(percent, compute_on_par, geometry):
     assert np.allclose(ci[0], lo_conf)
     assert np.allclose(ci[1], up_conf)
 
-@pytest.mark.parametrize("is_par", [False, True, None])
+@pytest.mark.parametrize("is_par", [False, True, None]) #passing is_par will raise an error.
 @pytest.mark.parametrize("plot_par, compute_on_par",
                          [(True, True),
-                          (True, False), 
+                          (True, False), # This case will raise an error.
                           (False, True),
-                          (False, False)]) # raises error
+                          (False, False)])
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.KLExpansion(np.arange(0, 1, .1))])
 def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
@@ -181,11 +181,21 @@ def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
     samples = cuqi.samples.Samples(np.random.randn(geometry.dim, 10), geometry=geometry)
 
     if is_par is not None:
-        # User should not be able to pass is_par for plotting because it is determined automatically
+        # User should not be able to pass is_par for plotting ci because samples are assumed
+        # to be in the parameter space and `is_par` that is passed for plotting the envelope and 
+        # the mean and the exact solution will be determined automatically depending 
+        # on compute_on_par value.
+        # plot_ci will raise an error if is_par is passed
         with pytest.raises(ValueError):
             samples.plot_ci(is_par=is_par, plot_par=plot_par, compute_on_par=compute_on_par)
+
+    elif plot_par and not compute_on_par:
+        # User cannot ask for computing statistics on function values then plotting on parameter space
+        # plot_ci will raise an error in this case
+        with pytest.raises(ValueError):
+            samples.plot_ci(plot_par=plot_par, compute_on_par=compute_on_par)
     else:
+        #The remaining cases should not raise an error.
         import matplotlib.pyplot as plt
         plt.figure()
         samples.plot_ci(plot_par=plot_par, compute_on_par=compute_on_par)
-    #The remaining cases should not raise an error.
