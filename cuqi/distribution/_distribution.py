@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
-from cuqi.density import Density
+from cuqi.density import Density, ConstantDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry
@@ -213,8 +213,8 @@ class Distribution(Density, ABC):
 
         # KEYWORD ERROR CHECK
         for kw_key in kwargs.keys():
-            if kw_key not in (mutable_vars+cond_vars):
-                raise ValueError("The keyword \"{}\" is not a mutable or conditioning variable of this distribution.".format(kw_key))
+            if kw_key not in (mutable_vars+cond_vars+[self.name]):
+                raise ValueError("The keyword \"{}\" is not a mutable, conditioning variable or parameter name of this distribution.".format(kw_key))
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
@@ -250,6 +250,10 @@ class Distribution(Density, ABC):
                     # Define new partial function with partially defined args
                     func = partial(var_val, **var_args)
                     setattr(new_dist, var_key, func)
+
+        # Parse kwargs if they match dist name
+        if self.name in kwargs:
+            return new_dist.to_likelihood(kwargs[self.name])               
 
         return new_dist
 
@@ -302,8 +306,9 @@ class Distribution(Density, ABC):
 
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
+        if not self.is_cond: # If not conditional we create a constant density
+            return ConstantDensity(self.logp(data), name=self.name)
         return Likelihood(self, data)
-
 
     def __repr__(self) -> str:
         if self.is_cond is True:
