@@ -382,29 +382,38 @@ class Samples(object):
             Keyword arguments for the plot_envelope method
         
         """
-        
-        # Compute statistics
-        mean = self.mean(compute_on_par=compute_on_par)
-        lo_conf, up_conf = self.compute_ci(percent, compute_on_par=compute_on_par)
-
         #Extract plotting keywords and put into plot_envelope
         if len(plot_envelope_kwargs)==0:
             pe_kwargs={}
         else:
             pe_kwargs = plot_envelope_kwargs
 
+        # User should not indicate that samples are function values
+        if "is_par" in kwargs.keys() or\
+           "is_par" in pe_kwargs.keys():
+            raise ValueError("Samples are assumed to be in the parameter space and the flag `is_par` that is passed to the underlying plotting methods will be determined automatically depending on the value of `compute_on_par`")
+
+        #User cannot ask for computing statistics on function values then plotting on parameter space
         if not compute_on_par:
-            if "is_par" in kwargs.keys() and not kwargs["is_par"]:
-                #if samples are not parameters, they cannot be converted to function values
-                raise ValueError(
-                    "If argument 'is_par' is False, 'compute_on_par' needs to be True")
-            else:
-                #if compute_on_par==False, lo_conf, up_conf, and mean will be converted to function values and will no longer be parameter values when passed to plotting methods
-                kwargs["is_par"] = False
+            if "plot_par" in kwargs.keys() and kwargs["plot_par"] or\
+             "plot_par" in pe_kwargs.keys() and kwargs["plot_par"]:
+                #TODO: could be allowed if the underlying plotting functions will convert the samples to parameter space
+                raise ValueError("Cannot plot on parameter space if computing statistics is on function space")
 
-        if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
-        if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"]=kwargs.get("plot_par")   
+        # Depending on the value of compute_on_par, the computed statistics below (mean, lo_conf,up_conf) are either parameter
+        # values or function values
+        statistics_is_par = compute_on_par
+        pe_kwargs["is_par"] = statistics_is_par
+        kwargs["is_par"] = statistics_is_par
 
+        # Set plot_par value to be passed to Geometry.plot_envelope and Geometry.plot.
+        if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"] = kwargs["plot_par"]
+
+        # Compute statistics
+        mean = self.mean(compute_on_par=compute_on_par)
+        lo_conf, up_conf = self.compute_ci(percent, compute_on_par=compute_on_par)
+
+        # Plot statistics
         if type(self.geometry) is Continuous2D or type(self.geometry) is Image2D:
             plt.figure()
             #fig.add_subplot(2,2,1)
