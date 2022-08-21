@@ -182,7 +182,7 @@ def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
 
     if is_par is not None:
         # User should not be able to pass is_par for plotting ci because samples are assumed
-        # to be in the parameter space and `is_par` that is passed for plotting the envelope and 
+        # to be in the parameter space. The flag `is_par` that is passed for plotting the envelope and 
         # the mean and the exact solution will be determined automatically depending 
         # on compute_on_par value.
         # plot_ci will raise an error if is_par is passed
