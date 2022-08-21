@@ -194,11 +194,11 @@ class Samples(object):
 
     @property
     def _funvals(self):
-        """Return function values of the samples"""
+        """Return function values of the samples by applying :meth:`self.geometry.par2fun`"""
         if not hasattr(self, '_samples_funvals'):
-            funvals = np.empty((self.geometry.dim,self.Ns))
+            funvals = np.empty((self.geometry.dim, self.Ns))
             for i, s in enumerate(self):
-                funvals[:,i]=self.geometry.par2fun(s)
+                funvals[:, i] = self.geometry.par2fun(s)
             self._samples_funvals = funvals
         return self._samples_funvals
 
@@ -362,7 +362,7 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self,percent=95,exact=None, compute_on_par=True, *args,plot_envelope_kwargs={},**kwargs):
+    def plot_ci(self, percent=95, exact=None, compute_on_par=True, *args, plot_envelope_kwargs={}, **kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
 
@@ -383,22 +383,23 @@ class Samples(object):
         
         """
         #Extract plotting keywords and put into plot_envelope
-        if len(plot_envelope_kwargs)==0:
-            pe_kwargs={}
+        if len(plot_envelope_kwargs) == 0:
+            pe_kwargs = {}
         else:
             pe_kwargs = plot_envelope_kwargs
 
         # User should not indicate that samples are function values
         if "is_par" in kwargs.keys() or\
            "is_par" in pe_kwargs.keys():
-            raise ValueError("Samples are assumed to be in the parameter space and the flag `is_par` that is passed to the underlying plotting methods will be determined automatically depending on the value of `compute_on_par`")
+            raise ValueError("Samples are assumed to be in the parameter space and the flag `is_par` that is passed to the underlying plotting methods will be determined automatically.")
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
         if not compute_on_par:
             if "plot_par" in kwargs.keys() and kwargs["plot_par"] or\
-             "plot_par" in pe_kwargs.keys() and kwargs["plot_par"]:
+                    "plot_par" in pe_kwargs.keys() and kwargs["plot_par"]:
                 #TODO: could be allowed if the underlying plotting functions will convert the samples to parameter space
-                raise ValueError("Cannot plot on parameter space if computing statistics is on function space")
+                raise ValueError(
+                    "Cannot plot on parameter space if computing statistics is on function space")
 
         # Depending on the value of compute_on_par, the computed statistics below (mean, lo_conf,up_conf) are either parameter
         # values or function values
@@ -407,11 +408,13 @@ class Samples(object):
         kwargs["is_par"] = statistics_is_par
 
         # Set plot_par value to be passed to Geometry.plot_envelope and Geometry.plot.
-        if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"] = kwargs["plot_par"]
+        if "plot_par" in kwargs.keys():
+            pe_kwargs["plot_par"] = kwargs["plot_par"]
 
         # Compute statistics
         mean = self.mean(compute_on_par=compute_on_par)
-        lo_conf, up_conf = self.compute_ci(percent, compute_on_par=compute_on_par)
+        lo_conf, up_conf = self.compute_ci(
+            percent, compute_on_par=compute_on_par)
 
         # Plot statistics
         if type(self.geometry) is Continuous2D or type(self.geometry) is Image2D:
@@ -436,17 +439,19 @@ class Samples(object):
             self.geometry.plot(lo_conf)
             plt.title("Lower credibility interval limit")
         else:
-            lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',**pe_kwargs)
-            
-            lmn = self.geometry.plot(mean,*args,**kwargs)
-            if exact is not None: #TODO: Allow exact to be defined in different space than mean?
+            lci = self.geometry.plot_envelope(
+                lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
+
+            lmn = self.geometry.plot(mean, *args, **kwargs)
+            if exact is not None:  #TODO: Allow exact to be defined in different space than mean?
                 if isinstance(exact, CUQIarray):
-                    lex = exact.plot(*args,**kwargs)
+                    lex = exact.plot(*args, **kwargs)
                 else:
-                    lex = self.geometry.plot(exact,*args,**kwargs)
-                plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Credibility Interval"])
+                    lex = self.geometry.plot(exact, *args, **kwargs)
+                plt.legend([lmn[0], lex[0], lci], [
+                           "Mean", "Exact", "Credibility Interval"])
             else:
-                plt.legend([lmn[0], lci],["Mean","Credibility Interval"])
+                plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
 
     def diagnostics(self):
         # Geweke test
