@@ -2,6 +2,8 @@ import sys
 from itertools import count
 import re
 
+import cuqi
+
 
 def get_python_variable_name(var):
     """ Retrieve the Python variable name of an object. Takes the first variable name appearing on the stack that are not in the ignore list. """
@@ -9,10 +11,10 @@ def get_python_variable_name(var):
     ignored_var_names = ["self", "cls", "obj", "var", "_"]
 
     # First get the stack size and loop (in reverse) through the stack
-    # It can be a bit slow to loop through stack size so we limit to 5 levels
+    # It can be a bit slow to loop through stack size so we limit the levels
     #stack_size = stack_size2a() 
 
-    for i in range(5): 
+    for i in range(cuqi.config.STACK_SEARCH_DEPTH): 
 
         # For each frame we look for a variable name matching the object (var)
         local_vars = sys._getframe(i).f_locals.items()
