@@ -155,7 +155,7 @@ def test_compute_ci(percent, compute_on_par, geometry):
     ci = samples.compute_ci(percent, compute_on_par=compute_on_par)
 
     if not compute_on_par:
-        samples = samples._funvals
+        samples = samples.funvals
     else:
         samples = samples.samples
 
