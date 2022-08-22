@@ -707,7 +707,7 @@ class StepExpansion(Continuous1D):
     Parameters:
     -----------
     grid: ndarray
-        grid points
+        Grid points for the step expansion to be evaluated at. There can be more grid points than number of steps.
 
     nsteps: int
         number of equidistant steps
