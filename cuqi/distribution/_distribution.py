@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import Union
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
@@ -262,6 +264,9 @@ class Distribution(Density, ABC):
 
         return new_dist
 
+    # Overload parent to add type hint.
+    def __call__(self, *args, **kwargs) -> Union[Distribution, Likelihood, ConstantDensity]:
+        return super().__call__(*args, **kwargs)
 
     def get_conditioning_variables(self):
         """Return the conditioning variables of this distribution (if any)."""

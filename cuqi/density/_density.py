@@ -1,8 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Optional
 
-import cuqi #  For type hints on conditioning
 class Density(ABC):
     """ Abstract base class for densities.
 
@@ -78,7 +77,7 @@ class Density(ABC):
         """ Returns the names of the parameters that the density can be evaluated at or conditioned on. """
         pass
 
-    def __call__(self, *args, **kwargs) -> Union[cuqi.distribution.Distribution, cuqi.likelihood.Likelihood, ConstantDensity]:
+    def __call__(self, *args, **kwargs):
         """ Condition on the given parameters. """
         return self._condition(*args, **kwargs)
 
@@ -100,6 +99,10 @@ class ConstantDensity(Density):
 
     def _condition(self, *args, **kwargs):
         return self
+
+    # Overload parent to add type hint.
+    def __call__(self, *args, **kwargs) -> ConstantDensity:
+        return super().__call__(*args, **kwargs)
 
     @property
     def dim(self):

@@ -1,7 +1,9 @@
+from __future__ import annotations
+from typing import Union
 from cuqi.model import Model
 from cuqi.utilities import get_non_default_args
 from cuqi.geometry import _DefaultGeometry
-from cuqi.density import Density
+from cuqi.density import Density, ConstantDensity
 import warnings
 from copy import copy
 
@@ -113,6 +115,10 @@ class Likelihood(Density):
         if not new_likelihood.distribution.is_cond:
             return new_likelihood.distribution.to_likelihood(self.data) # TODO: Consider renaming to_likelihood as to_density
         return new_likelihood
+
+    # Overload parent to add type hint.
+    def __call__(self, *args, **kwargs) -> Union[Likelihood, ConstantDensity]:
+        return super().__call__(*args, **kwargs)
 
 class UserDefinedLikelihood(object):
     """ Class to wrap user-defined likelihood functions.
