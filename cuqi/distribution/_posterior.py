@@ -78,9 +78,15 @@ class Posterior(Distribution):
         else:
             self._geometry = self.prior.geometry
             
-    def logpdf(self, x):
+    def logpdf(self, *args, **kwargs):
         """ Returns the logpdf of the posterior distribution"""
-        return self.likelihood.logd(x)+ self.prior.logd(x)
+        return self.likelihood.logd(*args, **kwargs)+ self.prior.logd(*args, **kwargs)
+
+    def get_conditioning_variables(self):
+        return self.prior.get_conditioning_variables()
+
+    def get_parameter_names(self):
+        return self.prior.get_parameter_names()
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
