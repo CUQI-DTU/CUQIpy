@@ -108,4 +108,4 @@ def test_likelihood_conditioning(dist, mean, cov, data):
     # Now compare log when conditioning on 3 cases: mean, cov, both
     assert likelihood(**mean_dict).logd(**cov_dict) == log_val
     assert likelihood(**cov_dict).logd(**mean_dict) == log_val
-    assert likelihood(**param_dict).logd() == log_val
+    assert likelihood(**param_dict).logd() == log_val # This becomes EvaluatedDensity. Throws warning on the stack size (since we pass name to EvaluatedDensity)

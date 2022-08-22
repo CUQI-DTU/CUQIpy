@@ -2,6 +2,7 @@ import sys
 from itertools import count
 import re
 
+import warnings
 import cuqi
 
 
@@ -12,9 +13,9 @@ def get_python_variable_name(var):
 
     # First get the stack size and loop (in reverse) through the stack
     # It can be a bit slow to loop through stack size so we limit the levels
-    #stack_size = stack_size2a() 
+    stack_size = stack_size2a() 
 
-    for i in range(cuqi.config.STACK_SEARCH_DEPTH): 
+    for i in range(min(stack_size, cuqi.config.MAX_STACK_SEARCH_DEPTH)): 
 
         # For each frame we look for a variable name matching the object (var)
         local_vars = sys._getframe(i).f_locals.items()
@@ -26,8 +27,9 @@ def get_python_variable_name(var):
             var_names = [var_name for var_name in var_names if not any([re.match(ignore_var_name, var_name) for ignore_var_name in ignored_var_names])]
             
             if len(var_names) > 0:
-                #print(i)
                 return var_names[0]
+
+    warnings.warn("Could not automatically find variable name for object: {}. If code runs slowly and variable name is not needed set config.MAX_STACK_SEARCH_DEPTH to 0.".format(var))
 
     return None
 
