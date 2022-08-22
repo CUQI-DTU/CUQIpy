@@ -709,8 +709,8 @@ class StepExpansion(Continuous1D):
     grid: ndarray
         Grid points for the step expansion to be evaluated at. There can be more grid points than number of steps.
 
-    nsteps: int
-        number of equidistant steps
+    n_steps: int
+        Number of equidistant steps.
 
     axis_labels: list of strings
        plotting axis labels
