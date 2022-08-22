@@ -716,7 +716,7 @@ class StepExpansion(Continuous1D):
        plotting axis labels
 
     kwargs: keyword arguments
-        keyword arguments defined in :class:`~cuqi.geometry.Continuous1D`
+        keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`
     '''
     def __init__(self, grid, n_steps=3, axis_labels=['x'], **kwargs):
 
