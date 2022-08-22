@@ -228,13 +228,9 @@ class Distribution(Density, ABC):
                     raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
-        # KEYWORD ERROR CHECK
-        for kw_key in kwargs.keys():
-            if kw_key not in (mutable_vars+cond_vars+[self.name]):
-                raise ValueError(f"{self._condition.__qualname__}: The keyword {kw_key} is not a mutable, conditioning variable or parameter name of this distribution.")
-
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
+        processed_kwargs = set() # Keep track of processed (unique) elements in kwargs
 
         # Go through every mutable variable and assign value from kwargs if present
         for var_key in mutable_vars:
@@ -242,6 +238,7 @@ class Distribution(Density, ABC):
             #If keyword directly specifies new value of variable we simply reassign
             if var_key in kwargs:
                 setattr(new_dist, var_key, kwargs.get(var_key))
+                processed_kwargs.add(var_key)
 
             # If variable is callable we check if any keyword arguments
             # can be used as arguments to the callable method.
@@ -267,11 +264,27 @@ class Distribution(Density, ABC):
                     # Define new partial function with partially defined args
                     func = partial(var_val, **var_args)
                     setattr(new_dist, var_key, func)
+                
+                # Store processed keywords
+                processed_kwargs.update(var_args.keys())
 
-        # If conditioning on the name of the distribution
-        # we convert the distribution to a likelihood.
-        if self.name in kwargs:
-            return new_dist.to_likelihood(kwargs[self.name])               
+        # Check if any keywords were not used
+        unused_kwargs = set(kwargs.keys()) - processed_kwargs
+
+        # If any keywords were not used we must use name.
+        # We defer the checking of name to here since it
+        # can be slow to automatically determine the name
+        # of a distribution by walking the python stack.
+        if len(unused_kwargs)>0:
+
+            if self.name in kwargs:
+                # If name matches we convert to likelihood
+                return new_dist.to_likelihood(kwargs[self.name])  
+            else:
+                # KEYWORD ERROR CHECK
+                for kw_key in kwargs.keys():
+                    if kw_key not in (mutable_vars+cond_vars+[self.name]):
+                        raise ValueError("The keyword \"{}\" is not a mutable, conditioning variable or parameter name of this distribution.".format(kw_key))       
 
         return new_dist
 
