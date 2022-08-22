@@ -139,11 +139,11 @@ class Distribution(Density, ABC):
         if len(cond_vars) > 0:
 
             if len(args) > 0:
-                raise ValueError("Distribution.logd: Positional arguments on conditional distributions are not supported in logp evaluation (yet)")
+                raise ValueError(f"{self.logd.__qualname__}: Positional arguments on conditional distributions are not supported in logd evaluation (yet)")
 
             # Check if all conditioning variables are specified
             if not all([key in kwargs for key in cond_vars]):
-                raise ValueError(f"Distribution.logd: To evaluate the log density all conditioning variables must be specified. Conditioning variables are: {cond_vars}")
+                raise ValueError(f"{self.logd.__qualname__}: To evaluate the log density all conditioning variables must be specified. Conditioning variables are: {cond_vars}")
 
             # Extract exactly the conditioning variables from kwargs
             cond_kwargs = {key: kwargs[key] for key in cond_vars}
@@ -208,17 +208,17 @@ class Distribution(Density, ABC):
         if len(args)>0:
             # If no cond_vars we throw error since we cant get order.
             if len(cond_vars)==0:
-                raise ValueError("Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
+                raise ValueError(f"{self._condition.__qualname__}: Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
             ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
                 if ordered_keys[index] in kwargs:
-                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
+                    raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
         # KEYWORD ERROR CHECK
         for kw_key in kwargs.keys():
             if kw_key not in (mutable_vars+cond_vars+[self.name]):
-                raise ValueError("The keyword \"{}\" is not a mutable, conditioning variable or parameter name of this distribution.".format(kw_key))
+                raise ValueError(f"{self._condition.__qualname__}: The keyword {kw_key} is not a mutable, conditioning variable or parameter name of this distribution.")
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs

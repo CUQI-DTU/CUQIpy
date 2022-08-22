@@ -27,7 +27,7 @@ class Density(ABC):
     """
     def __init__(self, name: Optional[str] = None):
         if not isinstance(name, str) and name is not None:
-            raise ValueError("Name must be a string or None")
+            raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
 
@@ -45,18 +45,18 @@ class Density(ABC):
         if len(kwargs) > 0:
 
             if len(args) > 0:
-                raise ValueError("Density.logd: Cannot specify both positional and keyword arguments.")
+                raise ValueError(f"{self.logd.__qualname__}: Cannot specify both positional and keyword arguments.")
 
             # Check if parameter names match the keyword arguments (any order).
             if set(par_names) != set(kwargs.keys()):
-                raise ValueError(f"Density.logd: Parameter names {par_names} do not match keyword arguments {kwargs.keys()}.")
+                raise ValueError(f"{self.logd.__qualname__}: Parameter names {par_names} do not match keyword arguments {kwargs.keys()}.")
             
             # Ensure that the keyword arguments are given in the correct order and use them as positional arguments.
             args = [kwargs[name] for name in par_names]            
 
         # Check if the number of arguments matches the number of parameters.
         if len(args) != len(par_names):
-            raise ValueError(f"Density.logd: Number of arguments must match number of parameters. Got {len(args)} arguments but density has {len(par_names)} parameters.")
+            raise ValueError(f"{self.logd.__qualname__}: Number of arguments must match number of parameters. Got {len(args)} arguments but density has {len(par_names)} parameters.")
 
         return self._logd(*args) + self._constant
    
