@@ -32,10 +32,21 @@ def test_conditioning_wrong_keyword():
         x(name="hey") #Should expect value-error since name not conditioning variable.
 
 def test_conditioning_arg_as_mutable_var():
-    """ This checks if we raise error if arg is given for a distribution that has no conditioning variables. """
+    """ This checks if we raise error if 2 args is given for a distribution that has no conditioning variables. """
     x = cuqi.distribution.GaussianCov(mean=1, cov=1)
     with pytest.raises(ValueError):
-        x(5) #Should expect value-error since no cond vars
+        x(5, 3) #Should expect value-error since no cond vars
+
+def test_conditioning_on_main_parameter():
+    """ This checks if we can condition on the main parameter in various ways. """
+    x = cuqi.distribution.GaussianCov()
+
+    # With keywords (name also automatically inferred)
+    assert isinstance(x(mean=1, x=5), cuqi.likelihood.Likelihood)
+    assert isinstance(x(mean=1, cov=1, x=5), cuqi.density.ConstantDensity)
+    
+    # Now using positional arguments
+    assert isinstance(x(1, 1, 5), cuqi.density.ConstantDensity)
 
 def test_conditioning_kwarg_as_mutable_var():
     """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
