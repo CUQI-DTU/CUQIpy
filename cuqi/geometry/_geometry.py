@@ -702,7 +702,7 @@ class CustomKL(Continuous1D):
 
 class StepExpansion(Continuous1D):
     '''
-    class representation of the step random field with 3 intermidiate steps
+    Class representation of the step random field with n_steps intermediate steps.
 
     Parameters:
     -----------
