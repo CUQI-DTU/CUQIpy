@@ -25,4 +25,18 @@ def test_density_variable_name_detection():
                 self(current_recursion + 1)
     recursive_name()()
 
+def test_variable_name_accross_frames():
+    """ Test variable name can be inferred across multiple stack frames. """
+
+    h = cuqi.distribution.GaussianCov() # Name should be 'h'
+
+    def recursive_return_dist(_dist, recursions):
+        if recursions == 0:
+            assert _dist.name == 'h' # h was defined many frames above, and name should be inferred correctly.
+        else:
+            recursive_return_dist(_dist, recursions - 1)
+    
+    recursive_return_dist(h, 10)
+
+
     
