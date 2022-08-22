@@ -139,7 +139,7 @@ def test_samples_funvals(geometry):
     for i, s in enumerate(samples):
         funvals[:, i] = geometry.par2fun(s)
 
-    assert np.allclose(samples._funvals, funvals)
+    assert np.allclose(samples.funvals, funvals)
 
 
 @pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
@@ -199,3 +199,32 @@ def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
         import matplotlib.pyplot as plt
         plt.figure()
         samples.plot_ci(plot_par=plot_par, compute_on_par=compute_on_par)
+
+
+def test_slicing_samples_property():
+    """Test that assigning samples property by slicing is not allowed."""
+    samples_obj = cuqi.samples.Samples(np.random.randn(
+        2, 10), geometry=cuqi.geometry.Discrete(2))
+    with pytest.raises(ValueError, match="assignment destination is read-only"):
+        samples_obj.samples[0, 0] = 1
+
+
+def test_samples_setter():
+    """Test `Samples.samples` setter. In particular, test that setting `Samples.samples` will cause resetting the geometry and the function values."""
+    # Create samples object and compute the function values
+    s1 = np.random.randn(4, 10)
+    samples_obj = cuqi.samples.Samples(s1, geometry=cuqi.geometry.MappedGeometry(
+        cuqi.geometry.Continuous1D(4), map=lambda x: x**2))
+    s1_funval = samples_obj.funvals
+
+    # Set the samples to a different array
+    s2 = np.random.randn(4, 10)*.1
+    samples_obj.samples = s2
+    geom = samples_obj.geometry
+    samples_obj.geometry = cuqi.geometry.MappedGeometry(
+        cuqi.geometry.Continuous1D(4), map=lambda x: x**3)
+    s2_funval = s2**3
+
+    # Assert that the function values are updated and the geoemtry was reset
+    assert np.allclose(samples_obj.funvals, s2_funval) and isinstance(
+        geom, cuqi.geometry._DefaultGeometry)
