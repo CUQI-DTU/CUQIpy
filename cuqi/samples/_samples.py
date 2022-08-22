@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
@@ -193,14 +194,31 @@ class Samples(object):
         return self._geometry
 
     @property
-    def _funvals(self):
+    def samples(self):
+        return self._samples
+
+    @samples.setter
+    def samples(self, value):
+        # Disable write flag to prevent updates to the samples through slicing.
+        value.setflags(write=False)
+        self._samples = value
+        if hasattr(self, '_funvals') and self._funvals is not None:
+            warnings.warn("Setting the samples value will reset the function values.", UserWarning)
+            self._funvals = None
+        if hasattr(self, '_geometry') and self._geometry is not None:
+            warnings.warn("Setting the samples value will reset the geometry.", UserWarning)
+            self._geometry = None
+
+    @property
+    def funvals(self):
         """Return function values of the samples by applying :meth:`self.geometry.par2fun`"""
-        if not hasattr(self, '_samples_funvals'):
-            funvals = np.empty((self.geometry.dim, self.Ns))
+        if not hasattr(self, '_funvals') or self._funvals is None:
+            self._funvals = np.empty((self.geometry.dim, self.Ns))
             for i, s in enumerate(self):
-                funvals[:, i] = self.geometry.par2fun(s)
-            self._samples_funvals = funvals
-        return self._samples_funvals
+                self._funvals[:, i] = self.geometry.par2fun(s)
+            # Disable write flag to prevent updates to the samples function values through slicing.
+            self._funvals.setflags(write=False)
+        return self._funvals
 
     @geometry.setter
     def geometry(self,inGeometry):
@@ -289,7 +307,7 @@ class Samples(object):
 
     def mean(self, compute_on_par=True):
         """Compute mean of the samples. If compute_on_par is True, the mean is computed for the parameters. Otherwise, the mean is computed for the function values."""
-        samples = self.samples if compute_on_par else self._funvals
+        samples = self.samples if compute_on_par else self.funvals
         return np.mean(samples, axis=-1)
 
     def median(self):
@@ -304,7 +322,7 @@ class Samples(object):
         """Compute pointwise credibility intervals of the samples. If compute_on_par is True, the credibility intervals are computed for the parameters. Otherwise, the credibility intervals are computed for the function values."""
         lb = (100-percent)/2
         up = 100-lb
-        samples = self.samples if compute_on_par else self._funvals
+        samples = self.samples if compute_on_par else self.funvals
         return np.percentile(samples, [lb, up], axis=-1)
 
     def ci_width(self, percent = 95):
@@ -362,7 +380,7 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self, percent=95, exact=None, compute_on_par=True, *args, plot_envelope_kwargs={}, **kwargs):
+    def plot_ci(self, percent=95, exact=None, compute_on_par=True, *args, plot_envelope_kwargs=None, **kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
 
@@ -383,10 +401,9 @@ class Samples(object):
         
         """
         #Extract plotting keywords and put into plot_envelope
-        if len(plot_envelope_kwargs) == 0:
-            pe_kwargs = {}
-        else:
-            pe_kwargs = plot_envelope_kwargs
+        if plot_envelope_kwargs is None:
+            plot_envelope_kwargs = {}
+        pe_kwargs = plot_envelope_kwargs
 
         # User should not indicate that samples are function values
         if "is_par" in kwargs.keys() or\
