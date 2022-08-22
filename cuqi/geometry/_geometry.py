@@ -712,38 +712,35 @@ class StepExpansion(Continuous1D):
     n_steps: int
         Number of equidistant steps.
 
-    axis_labels: list of strings
-       plotting axis labels
-
     kwargs: keyword arguments
         keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`
     '''
-    def __init__(self, grid, n_steps=3, axis_labels=['x'], **kwargs):
+    def __init__(self, grid, n_steps=3, **kwargs):
 
-        super().__init__(grid, axis_labels,**kwargs)
+        super().__init__(grid, **kwargs)
         if n_steps > np.size(self.grid):
             raise ValueError("n_steps must be smaller than the number of grid points")
 
         self._n_steps = n_steps
         L = self.grid[-1]
 
-        self._ideces = []
+        self._indices = []
         for i in range(self._n_steps):
             start = i*L/self._n_steps
             end = (i+1)*L/self._n_steps
-            self._ideces.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
+            self._indices.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
 
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
         for i in range(self._n_steps):
-            real[self._ideces[i]] = p[i]
+            real[self._indices[i]] = p[i]
  
         return real
 
     def fun2par(self,f):
         val = np.zeros(self._n_steps)
         for i in range(self._n_steps):
-            val[i] = f[self._ideces[i][0]]
+            val[i] = f[self._indices[i][0]]
         return val
 
     @property
