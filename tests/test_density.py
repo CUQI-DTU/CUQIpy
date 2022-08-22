@@ -30,11 +30,11 @@ def test_variable_name_accross_frames():
 
     h = cuqi.distribution.GaussianCov() # Name should be 'h'
 
-    def recursive_return_dist(_dist, recursions):
+    def recursive_return_dist(dist, recursions):
         if recursions == 0:
-            assert _dist.name == 'h' # h was defined many frames above, and name should be inferred correctly.
+            assert dist.name == 'h' # h was defined many frames above, and name should be inferred correctly.
         else:
-            recursive_return_dist(_dist, recursions - 1)
+            recursive_return_dist(dist, recursions - 1)
     
     recursive_return_dist(h, 10)
 

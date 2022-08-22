@@ -15,7 +15,7 @@ def get_python_variable_name(var):
     # It can be a bit slow to loop through stack size so we limit the levels
     stack_size = stack_size2a() 
 
-    for i in range(min(stack_size, cuqi.config.MAX_STACK_SEARCH_DEPTH)): 
+    for i in reversed(range(min(stack_size, cuqi.config.MAX_STACK_SEARCH_DEPTH))): 
 
         # For each frame we look for a variable name matching the object (var)
         local_vars = sys._getframe(i).f_locals.items()
