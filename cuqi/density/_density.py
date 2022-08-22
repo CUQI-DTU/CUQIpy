@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
+import cuqi
 
 class Density(ABC):
     """ Abstract base class for densities.
