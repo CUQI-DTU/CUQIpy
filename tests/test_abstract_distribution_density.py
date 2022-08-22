@@ -118,7 +118,7 @@ def test_logp_conditional():
     assert x(mean=3, s=7).logd(x=13) == true_val
     assert x(mean=3, x=13).logd(s=7) == true_val
 
-def test_logp_err_handling():
+def test_logd_err_handling():
     """ This tests if logp correctly identifies errors in the input """
     x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
 
