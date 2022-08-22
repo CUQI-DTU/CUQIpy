@@ -217,16 +217,18 @@ class Distribution(Density, ABC):
         cond_vars = self.get_conditioning_variables()
         mutable_vars = self.get_mutable_variables()
 
-        # PARSE ARGS AND ADD TO KWARGS
+        # PARSE ARGS AND ADD CONDITIONING VARIABLES TO KWARGS
         if len(args)>0:
             # If no cond_vars we throw error since we cant get order.
-            if len(cond_vars)==0:
-                raise ValueError(f"{self._condition.__qualname__}: Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
+            if len(args) > len(cond_vars)+1:
+                raise ValueError(f"{self._condition.__qualname__}: Unable to parse {len(args)} arguments. Only {len(cond_vars)+1} allowed (conditioning variables + main parameter). Use keywords to modify mutable variables.")
             ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
-                if ordered_keys[index] in kwargs:
-                    raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
-                kwargs[ordered_keys[index]] = arg
+                if index < len(ordered_keys):
+                    if ordered_keys[index] in kwargs:
+                        raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
+                    kwargs[ordered_keys[index]] = arg
+
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
@@ -267,6 +269,11 @@ class Distribution(Density, ABC):
                 
                 # Store processed keywords
                 processed_kwargs.update(var_args.keys())
+
+        # Check if more arguments were passed than conditioning variables
+        # If so we assume the last one is the distribution name
+        if len(args) == len(cond_vars) + 1:
+            return new_dist.to_likelihood(args[-1])
 
         # Check if any keywords were not used
         unused_kwargs = set(kwargs.keys()) - processed_kwargs
