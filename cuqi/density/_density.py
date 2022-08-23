@@ -82,15 +82,16 @@ class Density(ABC):
         return self._condition(*args, **kwargs)
 
 class EvaluatedDensity(Density):
-    """ An evaluated density representing a constant number.
+    """ An evaluated density representing a constant number exposed through the logd method.
 
-    The density returns a constant value for its log density function.
+    The density simply returns a constant value for its log density function.
+    The density has a fixed dimension of 1 and cannot be conditioned on any parameters.
 
     Parameters
     ----------
     value: float
-        The constant value of the density.
-        
+        The constant value that the density should return if queried for its log density function.
+
     """
     def __init__(self, value, **kwargs):
         super().__init__(**kwargs)
