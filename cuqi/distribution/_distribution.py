@@ -127,11 +127,17 @@ class Distribution(Density, ABC):
             raise TypeError("The attribute 'geometry' should be of type 'int' or 'cuqi.geometry.Geometry', or None.")
 
     def logd(self, *args, **kwargs):
-        """  Evaluate the log density of the distribution.
+        """  Evaluate the un-normalized log density function of the distribution.
 
-        The log density is proportional to the log probability density function (logpdf) of the distribution.
+        The log density function is equal to the log probability density function (logpdf) of a distribution
+        plus an additive constant.
 
         It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.
+
+        All distributions are required to implement an un-normalized log density function, but not required
+        implement the log probability density function (logpdf). For MCMC sampling, the log density function is
+        used to sample from the distribution for efficient sampling.
+        
         """
 
         # Get the (potential) conditioning variables

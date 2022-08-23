@@ -31,10 +31,11 @@ class Density(ABC):
         self._constant = 0 # Precomputed constant to add to the log probability.
 
     def logd(self, *args, **kwargs):
-        """ Evaluates the log density given a set of parameters.
+        """ Evaluates the un-normalized log density function given a set of parameters.
         
-        The log density can be evaluated with a set of arguments matching the parameter names
-        of the density. These can be accessed with the :meth:`get_parameter_names` method.
+        The arguments to the method should match the parameter names of the density.
+        These can be accessed with the :meth:`get_parameter_names` method.
+        
         """
 
         # Get parameter names possible to evaluate the logd
