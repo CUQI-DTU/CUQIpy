@@ -152,7 +152,11 @@ class JointDistribution:
         return kwargs
 
     def _reduce_to_single_density(self):
-        """ Reduce the joint distribution to a single density if possible. """
+        """ Reduce the joint distribution to a single density if possible.
+        
+        This method is a hack to allow our current samplers to work with
+        the joint distribution. It should be removed in the future.
+        """
 
         # Count number of distributions and likelihoods
         n_dist = len(self.distributions)
