@@ -8,7 +8,7 @@ import inspect
 import warnings
 
 from cuqi.density import Density, EvaluatedDensity
-from cuqi.distribution import Distribution
+from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
 
 class JointDistribution:
@@ -120,6 +120,11 @@ class JointDistribution:
             cond_kwargs = {key:value for (key,value) in kwargs.items() if key in density.get_parameter_names()}
             new_joint.densities[i] = density(**cond_kwargs)
 
+        # Hack to reduce the joint distribution to a single density
+        # This is useful for current implementation of our samplers
+        if self._allow_reduce:
+            return new_joint._reduce_to_single_density()
+
         return new_joint
 
     def logd(self, *args, **kwargs):
@@ -148,6 +153,22 @@ class JointDistribution:
                     raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed parameter names order: {ordered_keys}")
                 kwargs[ordered_keys[index]] = arg
         return kwargs
+
+    def _reduce_to_single_density(self):
+        """ Reduce the joint distribution to a single density if possible. """
+
+        # Count number of distributions and likelihoods
+        n_dist = len(self.distributions)
+        n_likelihood = len(self.likelihoods)
+
+        if n_dist == 1 and n_likelihood == 1:
+            return Posterior(self.likelihoods[0], self.distributions[0])
+        elif n_dist == 1:
+            return self.distributions[0]
+        elif n_likelihood == 1:
+            return self.likelihoods[0]
+        else:
+            return self
 
     def __repr__(self):
         msg = f"JointDistribution(\n"
