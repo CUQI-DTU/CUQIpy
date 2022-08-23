@@ -14,4 +14,4 @@ from ._posterior import Posterior
 from ._uniform import Uniform
 from ._custom import UserDefinedDistribution, DistributionGallery
 
-from ._joint_distribution import JointDistribution # Below Posterior
+from ._joint_distribution import JointDistribution, StackedJointDistribution # Below Posterior

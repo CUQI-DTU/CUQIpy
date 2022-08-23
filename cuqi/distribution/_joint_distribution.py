@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Type
 from copy import copy
 from cuqi.density import Density
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
-from cuqi.geometry import Geometry
+from cuqi.geometry import Geometry, _DefaultGeometry
+import numpy as np # for splitting array. Can avoid.
 
 class JointDistribution:
     """ 
@@ -181,6 +182,10 @@ class JointDistribution:
         if n_likelihood == 1 and n_dist == 0:
             return self.likelihoods[0]
 
+    def as_stacked(self) -> StackedJointDistribution:
+        """ Return a StackedJointDistribution with the same densities. """
+        return StackedJointDistribution(self.densities)
+
     def __repr__(self):
         msg = f"JointDistribution(\n"
         for density in self.densities:
@@ -189,3 +194,38 @@ class JointDistribution:
         return msg
 
 
+class StackedJointDistribution(JointDistribution, Distribution):
+    """ A joint distribution where all parameters are stacked into a single vector.
+    
+    See :class:`JointDistribution` for more details on the joint distribution.
+    """
+
+    @property
+    def dim(self):
+        return sum(super().dim)
+
+    @property
+    def geometry(self):
+        return _DefaultGeometry(self.dim)
+
+    def logd(self, stacked_input):
+        """ Return the un-normalized log density function stacked joint density. """
+
+        # Split the stacked input into individual inputs and call superclass
+        split_indices = np.cumsum(super().dim)  # list(accumulate(super().dim))
+        inputs = np.split(stacked_input, split_indices[:-1])
+        names = self.get_parameter_names()
+
+        # Create keyword arguments
+        kwargs = dict(zip(names, inputs))
+
+        return super().logd(**kwargs)
+
+    def logpdf(self, stacked_input):
+        return self.logd(stacked_input)
+    
+    def _sample(self, Ns=1):
+        raise TypeError("StackedJointDistribution does not support sampling.")
+
+    def __repr__(self):
+        return "Stacked"+super().__repr__()
