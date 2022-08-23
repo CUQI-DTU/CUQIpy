@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Type
+from typing import List
 from copy import copy
 from cuqi.density import Density
 from cuqi.distribution import Distribution, Posterior
