@@ -81,8 +81,10 @@ class Density(ABC):
         """ Condition on the given parameters. """
         return self._condition(*args, **kwargs)
 
-class ConstantDensity(Density):
-    """ A constant density.
+class EvaluatedDensity(Density):
+    """ An evaluated density representing a constant number.
+
+    The density returns a constant value for its log density function.
 
     Parameters
     ----------
@@ -101,7 +103,7 @@ class ConstantDensity(Density):
         return self
 
     # Overload parent to add type hint.
-    def __call__(self, *args, **kwargs) -> ConstantDensity:
+    def __call__(self, *args, **kwargs) -> EvaluatedDensity:
         return super().__call__(*args, **kwargs)
 
     @property
@@ -112,4 +114,4 @@ class ConstantDensity(Density):
         return []
 
     def __repr__(self):
-        return f"ConstantDensity({self.logd()})"
+        return f"EvaluatedDensity({self.logd()})"

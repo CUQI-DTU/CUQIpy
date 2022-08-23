@@ -90,16 +90,16 @@ def test_conditioning_class_flow():
     assert isinstance(y(x=1, cov=1), cuqi.distribution.Distribution)
 
     # Conditioning on all unspecified variables should return constant density
-    assert isinstance(y(x=1, y=1, cov=1), cuqi.density.ConstantDensity)
+    assert isinstance(y(x=1, y=1, cov=1), cuqi.density.EvaluatedDensity)
 
     # Conditioning on all parameters in various ways should also return constant density
     # (in between they might change to Likelihood)
-    assert isinstance(y(x=1)(y=1)(cov=1), cuqi.density.ConstantDensity)
-    assert isinstance(y(x=1)(cov=1)(y=1), cuqi.density.ConstantDensity)
-    assert isinstance(y(y=1)(x=1)(cov=1), cuqi.density.ConstantDensity)
-    assert isinstance(y(y=1)(cov=1)(x=1), cuqi.density.ConstantDensity)
-    assert isinstance(y(cov=1)(x=1)(y=1), cuqi.density.ConstantDensity)
-    assert isinstance(y(cov=1)(y=1)(x=1), cuqi.density.ConstantDensity)
+    assert isinstance(y(x=1)(y=1)(cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(x=1)(cov=1)(y=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(y=1)(x=1)(cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(y=1)(cov=1)(x=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(cov=1)(x=1)(y=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(cov=1)(y=1)(x=1), cuqi.density.EvaluatedDensity)
 
 def test_logp_conditional():
     """ This tests logp evaluation for conditional distributions """

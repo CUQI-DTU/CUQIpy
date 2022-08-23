@@ -3,7 +3,7 @@ from typing import Union
 from cuqi.model import Model
 from cuqi.utilities import get_non_default_args
 from cuqi.geometry import _DefaultGeometry
-from cuqi.density import Density, ConstantDensity
+from cuqi.density import Density, EvaluatedDensity
 import warnings
 from copy import copy
 
@@ -117,7 +117,7 @@ class Likelihood(Density):
         return new_likelihood
 
     # Overload parent to add type hint.
-    def __call__(self, *args, **kwargs) -> Union[Likelihood, ConstantDensity]:
+    def __call__(self, *args, **kwargs) -> Union[Likelihood, EvaluatedDensity]:
         return super().__call__(*args, **kwargs)
 
 class UserDefinedLikelihood(object):

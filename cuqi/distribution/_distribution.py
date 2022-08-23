@@ -3,7 +3,7 @@ from typing import Union
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
-from cuqi.density import Density, ConstantDensity
+from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry
@@ -265,7 +265,7 @@ class Distribution(Density, ABC):
         return new_dist
 
     # Overload parent to add type hint.
-    def __call__(self, *args, **kwargs) -> Union[Distribution, Likelihood, ConstantDensity]:
+    def __call__(self, *args, **kwargs) -> Union[Distribution, Likelihood, EvaluatedDensity]:
         return super().__call__(*args, **kwargs)
 
     def get_conditioning_variables(self):
@@ -317,7 +317,7 @@ class Distribution(Density, ABC):
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
         if not self.is_cond: # If not conditional we create a constant density
-            return ConstantDensity(self.logd(data), name=self.name)
+            return EvaluatedDensity(self.logd(data), name=self.name)
         return Likelihood(self, data)
 
     def __repr__(self) -> str:

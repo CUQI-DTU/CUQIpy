@@ -1,1 +1,1 @@
-from ._density import Density, ConstantDensity
+from ._density import Density, EvaluatedDensity
