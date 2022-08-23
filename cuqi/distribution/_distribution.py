@@ -174,7 +174,12 @@ class Distribution(Density, ABC):
 
     @abstractmethod
     def logpdf(self,x):
-        """ Evaluate the log probability density function of the distribution. """
+        """ Evaluate the log probability density function of the distribution.
+        
+        If the logpdf is only needed for MCMC sampling, consider using the un-normalized
+        log density function :meth:`logd` instead of the logpdf for efficiency.
+        
+        """
         pass
 
     def sample(self,N=1,*args,**kwargs):
