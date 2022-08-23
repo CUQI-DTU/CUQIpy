@@ -88,10 +88,22 @@ def test_joint_dist_logd(densities):
     # Compare the log density functions
     assert logd == pytest.approx(logd_manual)
 
-def test_joint_dist_properties():
-    """ This tests various properties of the joint distribution """
-
-    densities = [
+@pytest.mark.parametrize("densities", [
+    [
+        cuqi.distribution.Gamma(1, 1e-4, name="x"),
+        cuqi.distribution.Normal(0, lambda x:x, name="y")
+    ],
+    [
+        cuqi.distribution.Gamma(1, 1e-4, name="d"),
+        cuqi.distribution.Gamma(1, 1e-2, name="l"),
+        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.GaussianCov(
+            mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
+            cov=lambda l: l,
+            name="y"
+        )
+    ],
+    [
         cuqi.distribution.Normal(0, 1e-2, name="z"),
         cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
         cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
@@ -101,7 +113,10 @@ def test_joint_dist_properties():
             cov=lambda l: l,
             name="y"
         )
-    ]
+    ],
+])
+def test_joint_dist_properties(densities):
+    """ This tests various properties of the joint distribution """
 
     # Create a joint distribution
     J = cuqi.distribution.JointDistribution(densities)
