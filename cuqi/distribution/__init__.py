@@ -5,6 +5,7 @@ from ._gamma import Gamma
 from ._gaussian import Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec, JointGaussianSqrtPrec
 from ._gmrf import GMRF
 from ._inverse_gamma import InverseGamma
+from ._joint_distribution import JointDistribution
 from ._laplace_diff import Laplace_diff
 from ._laplace import Laplace
 from ._lmrf import LMRF
