@@ -39,7 +39,7 @@ Nb = int(0.1*Ns)
 u0 = np.random.randn(n)
 
 # set sampler
-MCMC = cuqi.sampler.RTO(tp.posterior, T, J_fun, mode='prerun', unadjusted=False, x0=u0)
+MCMC = cuqi.sampler._rto.RTO(tp.posterior, T, J_fun, mode='prerun', unadjusted=False, x0=u0)
 # MCMC = cuqi.sampler.NUTS(tp.posterior, u0, max_depth=12)
 
 # sample
