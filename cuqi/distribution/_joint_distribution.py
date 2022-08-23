@@ -161,14 +161,25 @@ class JointDistribution:
         n_dist = len(self.distributions)
         n_likelihood = len(self.likelihoods)
 
-        if n_dist == 1 and n_likelihood == 1:
-            return Posterior(self.likelihoods[0], self.distributions[0])
-        elif n_dist == 1:
-            return self.distributions[0]
-        elif n_likelihood == 1:
-            return self.likelihoods[0]
-        else:
+        # Cant reduce if there are multiple distributions or likelihoods
+        if n_dist > 1 or n_likelihood > 1:
             return self
+        
+        # If exactly one distribution and one likelihood its a Posterior
+        if n_dist == 1 and n_likelihood == 1:
+            # Ensure parameter names match, otherwise return the joint distribution
+            if set(self.likelihoods[0].get_parameter_names()) != set(self.distributions[0].get_parameter_names()):
+                return self
+            return Posterior(self.likelihoods[0], self.distributions[0])
+        
+        # If exactly one distribution and no likelihoods its a Distribution
+        if n_dist == 1 and n_likelihood == 0:
+            return self.distributions[0]
+
+        # If no distributions and exactly one likelihood its a Likelihood
+        if n_likelihood == 1 and n_dist == 0:
+            return self.likelihoods[0]
+
 
     def __repr__(self):
         msg = f"JointDistribution(\n"
