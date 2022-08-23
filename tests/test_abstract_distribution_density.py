@@ -43,10 +43,10 @@ def test_conditioning_on_main_parameter():
 
     # With keywords (name also automatically inferred)
     assert isinstance(x(mean=1, x=5), cuqi.likelihood.Likelihood)
-    assert isinstance(x(mean=1, cov=1, x=5), cuqi.density.ConstantDensity)
+    assert isinstance(x(mean=1, cov=1, x=5), cuqi.density.EvaluatedDensity)
     
     # Now using positional arguments
-    assert isinstance(x(1, 1, 5), cuqi.density.ConstantDensity)
+    assert isinstance(x(1, 1, 5), cuqi.density.EvaluatedDensity)
 
 def test_conditioning_kwarg_as_mutable_var():
     """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
