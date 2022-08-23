@@ -74,9 +74,6 @@ y(y=1, s=1).value
 # by first conditioning on s=1, and then evaluating the density at the different values of s.
 
 y_s = y(s=1) # y(s=1) is only set once and computed
-print(y_s.logd(y=1))
-print(y_s.logd(y=2))
-print(y_s.logd(y=3))
-print(y_s.logd(y=4))
-print(y_s.logd(y=5))
+for i in range(1, 6):
+    print(y_s.logd(y=i))
 # %%
