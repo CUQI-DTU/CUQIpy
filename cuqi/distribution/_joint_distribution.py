@@ -110,6 +110,11 @@ class JointDistribution:
             cond_vars.update([par_name for par_name in density.get_parameter_names() if par_name not in joint_par_names])
         return list(cond_vars)
 
+    def get_fixed_variables(self) -> List[str]:
+        """ Return the variables that have been conditioned on (fixed). """
+        # Extract names of Likelihoods and EvaluatedDensities
+        return [density.name for density in self.densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
+
     def get_density(self, name) -> Density:
         """ Return a density with the given name. """
         for density in self.densities:
@@ -206,9 +211,49 @@ class JointDistribution:
 
     def __repr__(self):
         msg = f"JointDistribution(\n"
+
+        msg += "    Equation: \n\t"
+
+        # Construct joint density expression
+        joint_par_names = ",".join(self.get_parameter_names())
+        fixed_par_names = ",".join(self.get_fixed_variables())
+        if len(joint_par_names) == 0:
+            msg += "constant number"
+        else:
+            msg += f"p({joint_par_names}"
+            if len(fixed_par_names) > 0:
+                msg += f"|{fixed_par_names}) ∝ "
+            else:
+                msg += ") = "
+            # Construct each density expression        
+            for density in self.densities:
+                par_names = ",".join([density.name])
+                cond_vars = ",".join(set(density.get_parameter_names())-set([density.name]))
+                if isinstance(density, EvaluatedDensity):
+                    msg += "" # Constant, so can ignore
+                elif isinstance(density, Likelihood):
+                    msg += f"L("
+                else:
+                    msg += f"p({par_names}"
+                if len(cond_vars) > 0:
+                    if isinstance(density, Distribution):
+                        msg += "|"
+                    msg += f"{cond_vars}"
+                    if isinstance(density, Likelihood):
+                        msg += f"|{par_names}"
+                if not isinstance(density, EvaluatedDensity):
+                    msg += ")"
+        
+        msg += "\n"
+
+        msg += "    Densities: \n"
+
+        # Create Bayesian model equations
         for density in self.densities:
-            msg += f"\t{density.name} \t~ {density}\n"
+            msg += f"\t{density.name} ~ {density}\n"
+
         msg += ")"
+
         return msg
 
 
