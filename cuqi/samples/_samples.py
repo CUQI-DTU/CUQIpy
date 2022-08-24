@@ -213,7 +213,7 @@ class Samples(object):
     def funvals(self):
         """Return function values of the samples by applying :meth:`self.geometry.par2fun`"""
         if not hasattr(self, '_funvals') or self._funvals is None:
-            self._funvals = np.empty((self.geometry.dim, self.Ns))
+            self._funvals = np.empty((self.geometry.fun_dim, self.Ns))
             for i, s in enumerate(self):
                 self._funvals[:, i] = self.geometry.par2fun(s)
             # Disable write flag to prevent updates to the samples function values through slicing.
@@ -251,6 +251,9 @@ class Samples(object):
             raise ValueError(f"Number of burn-in {Nb} is greater than or equal number of samples {self.Ns}")
         new_samples = copy(self)
         new_samples.samples = self.samples[...,Nb::Nt]
+        new_samples.geometry = self.geometry
+        if hasattr(self,'_funvals') and self._funvals is not None:
+            new_samples._funvals = self.funvals[...,Nb::Nt]
         return new_samples
 
     def plot_mean(self,*args,**kwargs):
