@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from copy import copy
 import cuqi
-import ctypes
 
 class Density(ABC):
     """ Abstract base class for densities.
