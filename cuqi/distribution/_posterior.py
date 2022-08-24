@@ -30,6 +30,12 @@ class Posterior(Distribution):
     gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
     """
     def __init__(self, likelihood, prior, **kwargs):
+
+        if len(likelihood.get_parameter_names()) > 1:
+            raise ValueError("Likelihood must only have one parameter.")
+        if prior.is_cond:
+            raise ValueError("Prior must not be a conditional distribution.")
+
         self.likelihood = likelihood
         self.prior = prior 
         super().__init__(**kwargs)
