@@ -13,7 +13,7 @@ def _get_python_variable_name(var):
 
     # First get the stack size and loop (in reverse) through the stack
     # It can be a bit slow to loop through stack size so we limit the levels
-    stack_size = stack_size2a() 
+    stack_size = _stack_size2a() 
 
     for i in reversed(range(min(stack_size, cuqi.config.MAX_STACK_SEARCH_DEPTH))): 
 
@@ -34,7 +34,7 @@ def _get_python_variable_name(var):
     return None
 
 #https://stackoverflow.com/questions/34115298/how-do-i-get-the-current-depth-of-the-python-interpreter-stack
-def stack_size2a(size=2):
+def _stack_size2a(size=2):
     """Get stack size for caller's frame.
     """
     frame = sys._getframe(size)
