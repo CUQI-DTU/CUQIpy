@@ -68,60 +68,23 @@ class JointDistribution:
         self.densities = densities
         self._allow_reduce = False # Hack to allow conditioning to reduce a joint distribution to a single density
 
-        # Make sure every unspecified parameter has a distribution (prior)
-        cond_vars = self.get_conditioning_variables()
+        # Make sure every parameter has a distribution (prior)
+        cond_vars = self._get_conditioning_variables()
         if len(cond_vars) > 0:
             raise ValueError(f"Every density parameter must have a distribution (prior). Missing prior for {cond_vars}.")
 
-    @property
-    def distributions(self) -> List[Distribution]:
-        """ Returns a list of the distributions (priors) in the joint distribution. """
-        return [dist for dist in self.densities if isinstance(dist, Distribution)]
-
-    @property
-    def likelihoods(self) -> List[Likelihood]:
-        """ Returns a list of the likelihoods in the joint distribution. """
-        return [likelihood for likelihood in self.densities if isinstance(likelihood, Likelihood)]
-
-    @property
-    def evaluated_densities(self) -> List[EvaluatedDensity]:
-        """ Returns a list of the evaluated densities in the joint distribution. """
-        return [eval_dens for eval_dens in self.densities if isinstance(eval_dens, EvaluatedDensity)]
-
+    # --------- Public properties ---------
     @property
     def dim(self) -> List[int]:
         """ Returns the dimensions of the joint distribution. """
-        return [dist.dim for dist in self.distributions]
+        return [dist.dim for dist in self._distributions]
 
     @property
     def geometry(self) -> List[Geometry]:
         """ Returns the geometries of the joint distribution. """
-        return [dist.geometry for dist in self.distributions]
+        return [dist.geometry for dist in self._distributions]
 
-    def get_parameter_names(self) -> List[str]:
-        """ Returns the parameter names of the joint distribution. """
-        return [dist.name for dist in self.distributions]
-
-    def get_conditioning_variables(self) -> List[str]:
-        """ Return the conditioning variables of the joint distribution. """
-        joint_par_names = self.get_parameter_names()
-        cond_vars = set()
-        for density in self.densities:
-            cond_vars.update([par_name for par_name in density.get_parameter_names() if par_name not in joint_par_names])
-        return list(cond_vars)
-
-    def get_fixed_variables(self) -> List[str]:
-        """ Return the variables that have been conditioned on (fixed). """
-        # Extract names of Likelihoods and EvaluatedDensities
-        return [density.name for density in self.densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
-
-    def get_density(self, name) -> Density:
-        """ Return a density with the given name. """
-        for density in self.densities:
-            if density.name == name:
-                return density
-        raise ValueError(f"No density with name {name}.")
-
+    # --------- Public methods ---------
     def logd(self, *args, **kwargs):
         """ Evaluate the un-normalized log density function. """
 
@@ -165,6 +128,47 @@ class JointDistribution:
 
         return new_joint
 
+    def get_parameter_names(self) -> List[str]:
+        """ Returns the parameter names of the joint distribution. """
+        return [dist.name for dist in self._distributions]
+
+    def get_density(self, name) -> Density:
+        """ Return a density with the given name. """
+        for density in self.densities:
+            if density.name == name:
+                return density
+        raise ValueError(f"No density with name {name}.")
+
+    # --------- Private properties ---------
+    @property
+    def _distributions(self) -> List[Distribution]:
+        """ Returns a list of the distributions (priors) in the joint distribution. """
+        return [dist for dist in self.densities if isinstance(dist, Distribution)]
+
+    @property
+    def _likelihoods(self) -> List[Likelihood]:
+        """ Returns a list of the likelihoods in the joint distribution. """
+        return [likelihood for likelihood in self.densities if isinstance(likelihood, Likelihood)]
+
+    @property
+    def _evaluated_densities(self) -> List[EvaluatedDensity]:
+        """ Returns a list of the evaluated densities in the joint distribution. """
+        return [eval_dens for eval_dens in self.densities if isinstance(eval_dens, EvaluatedDensity)]
+
+    # --------- Private methods ---------
+    def _get_conditioning_variables(self) -> List[str]:
+        """ Return the conditioning variables of the joint distribution. """
+        joint_par_names = self.get_parameter_names()
+        cond_vars = set()
+        for density in self.densities:
+            cond_vars.update([par_name for par_name in density.get_parameter_names() if par_name not in joint_par_names])
+        return list(cond_vars)
+
+    def _get_fixed_variables(self) -> List[str]:
+        """ Return the variables that have been conditioned on (fixed). """
+        # Extract names of Likelihoods and EvaluatedDensities
+        return [density.name for density in self.densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
+
     def _parse_args_add_to_kwargs(self, *args, **kwargs):
         """ Parse args and add to kwargs. The args are assumed to follow the order of the parameter names. """
         if len(args)>0:
@@ -183,8 +187,8 @@ class JointDistribution:
         """
 
         # Count number of distributions and likelihoods
-        n_dist = len(self.distributions)
-        n_likelihood = len(self.likelihoods)
+        n_dist = len(self._distributions)
+        n_likelihood = len(self._likelihoods)
 
         # Cant reduce if there are multiple distributions or likelihoods
         if n_dist > 1 or n_likelihood > 1:
@@ -193,20 +197,20 @@ class JointDistribution:
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
             # Ensure parameter names match, otherwise return the joint distribution
-            if set(self.likelihoods[0].get_parameter_names()) != set(self.distributions[0].get_parameter_names()):
+            if set(self._likelihoods[0].get_parameter_names()) != set(self._distributions[0].get_parameter_names()):
                 return self
-            return Posterior(self.likelihoods[0], self.distributions[0])
+            return Posterior(self._likelihoods[0], self._distributions[0])
         
         # If exactly one distribution and no likelihoods its a Distribution
         if n_dist == 1 and n_likelihood == 0:
-            return self.distributions[0]
+            return self._distributions[0]
 
         # If no distributions and exactly one likelihood its a Likelihood
         if n_likelihood == 1 and n_dist == 0:
-            return self.likelihoods[0]
+            return self._likelihoods[0]
 
-    def as_stacked(self) -> StackedJointDistribution:
-        """ Return a StackedJointDistribution with the same densities. """
+    def _as_stacked(self) -> StackedJointDistribution:
+        """ Return a stacked JointDistribution with the same densities. """
         return StackedJointDistribution(self.densities)
 
     def __repr__(self):
@@ -215,7 +219,7 @@ class JointDistribution:
 
         # Construct equation expression
         joint_par_names = ",".join(self.get_parameter_names())
-        fixed_par_names = ",".join(self.get_fixed_variables())
+        fixed_par_names = ",".join(self._get_fixed_variables())
         if len(joint_par_names) == 0:
             msg += "Constant number"
         else:

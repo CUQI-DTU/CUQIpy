@@ -131,10 +131,10 @@ def test_joint_dist_properties(densities):
     assert J.get_parameter_names() == [density.name for density in densities]
 
     # Check list of distributions
-    assert J.distributions == densities
+    assert J._distributions == densities
 
     # Check likelihoods
-    assert J.likelihoods == []
+    assert J._likelihoods == []
 
     # Now we condition y on some data
     data = cuqi.testproblem.Deconvolution1D(dim=8).data
@@ -151,10 +151,10 @@ def test_joint_dist_properties(densities):
     assert P.get_parameter_names() == [density.name for density in densities[:-1]]
 
     # Check list of distributions by comparing the names
-    assert [dist.name for dist in P.distributions] == [density.name for density in densities[:-1]]
+    assert [dist.name for dist in P._distributions] == [density.name for density in densities[:-1]]
 
     # Check likelihoods by comparing the names
-    assert [L.name for L in P.likelihoods] == [densities[-1].name]
+    assert [L.name for L in P._likelihoods] == [densities[-1].name]
 
 def test_joint_dist_reduce():
     """ This tests the reduce hack for the joint distribution. """
@@ -176,7 +176,7 @@ def test_stacked_joint_distribution():
 
     J, data = hierarchical_joint()
 
-    Js = J.as_stacked()
+    Js = J._as_stacked()
 
     # Check the dimension
     assert Js.dim == sum(J.dim)
