@@ -209,9 +209,9 @@ class JointDistribution:
         if n_likelihood == 1 and n_dist == 0:
             return self._likelihoods[0]
 
-    def _as_stacked(self) -> StackedJointDistribution:
+    def _as_stacked(self) -> _StackedJointDistribution:
         """ Return a stacked JointDistribution with the same densities. """
-        return StackedJointDistribution(self._densities)
+        return _StackedJointDistribution(self._densities)
 
     def __repr__(self):
         msg = f"JointDistribution(\n"
@@ -258,8 +258,15 @@ class JointDistribution:
         return msg
 
 
-class StackedJointDistribution(JointDistribution, Distribution):
+class _StackedJointDistribution(JointDistribution, Distribution):
     """ A joint distribution where all parameters are stacked into a single vector.
+
+    This acts like a regular Distribution with a single parameter even though
+    it is actually a joint distribution.
+
+    This is intended to be used by samplers that are not able to handle
+    joint distributions. A joint distribution can be converted to a stacked
+    joint distribution by calling the `_as_stacked` method.
     
     See :class:`JointDistribution` for more details on the joint distribution.
     """
@@ -292,4 +299,4 @@ class StackedJointDistribution(JointDistribution, Distribution):
         raise TypeError("StackedJointDistribution does not support sampling.")
 
     def __repr__(self):
-        return "Stacked"+super().__repr__()
+        return "_Stacked"+super().__repr__()
