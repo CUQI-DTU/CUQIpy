@@ -24,6 +24,7 @@ class Geometry(ABC):
 
     @property
     def dim(self):
+        """The dimension of the geometry (parameter space)."""
         if self.shape is None: return None
         return reduce(operator.mul, self.shape) # math.prod(self.shape) for Python 3.8+
 
@@ -33,6 +34,11 @@ class Geometry(ABC):
         if not hasattr(self,"_variables"):
                 self.variables = self.dim
         return self._variables
+
+    @property
+    def fun_dim(self):
+        """The dimension of the function space."""
+        return self.dim
 
     @variables.setter
     def variables(self, value):
@@ -731,3 +737,7 @@ class StepExpansion(Continuous1D):
     @property
     def shape(self):
         return (3,)
+
+    @property
+    def fun_dim(self):
+        return np.size(self.grid)
