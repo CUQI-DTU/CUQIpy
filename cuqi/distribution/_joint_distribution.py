@@ -65,7 +65,7 @@ class JointDistribution:
         if len(names) != len(set(names)):
             raise ValueError("All densities must have unique names.")
 
-        self.densities = densities
+        self._densities = densities
         self._allow_reduce = False # Hack to allow conditioning to reduce a joint distribution to a single density
 
         # Make sure every parameter has a distribution (prior)
@@ -96,7 +96,7 @@ class JointDistribution:
 
         # Evaluate the log density function for each density
         logd = 0
-        for density in self.densities:
+        for density in self._densities:
             logd_kwargs = {key:value for (key,value) in kwargs.items() if key in density.get_parameter_names()}
             logd += density.logd(**logd_kwargs)
 
@@ -112,12 +112,12 @@ class JointDistribution:
 
         # Create new shallow copy of joint density
         new_joint = copy(self) # Shallow copy of self
-        new_joint.densities = self.densities[:] # Shallow copy of densities
+        new_joint._densities = self._densities[:] # Shallow copy of densities
 
         # Condition each of the new densities on kwargs relevant to that density
-        for i, density in enumerate(new_joint.densities):
+        for i, density in enumerate(new_joint._densities):
             cond_kwargs = {key:value for (key,value) in kwargs.items() if key in density.get_parameter_names()}
-            new_joint.densities[i] = density(**cond_kwargs)
+            new_joint._densities[i] = density(**cond_kwargs)
 
         # Hack to reduce the joint distribution to a single density
         # This is useful for current implementation of our samplers
@@ -134,7 +134,7 @@ class JointDistribution:
 
     def get_density(self, name) -> Density:
         """ Return a density with the given name. """
-        for density in self.densities:
+        for density in self._densities:
             if density.name == name:
                 return density
         raise ValueError(f"No density with name {name}.")
@@ -143,31 +143,31 @@ class JointDistribution:
     @property
     def _distributions(self) -> List[Distribution]:
         """ Returns a list of the distributions (priors) in the joint distribution. """
-        return [dist for dist in self.densities if isinstance(dist, Distribution)]
+        return [dist for dist in self._densities if isinstance(dist, Distribution)]
 
     @property
     def _likelihoods(self) -> List[Likelihood]:
         """ Returns a list of the likelihoods in the joint distribution. """
-        return [likelihood for likelihood in self.densities if isinstance(likelihood, Likelihood)]
+        return [likelihood for likelihood in self._densities if isinstance(likelihood, Likelihood)]
 
     @property
     def _evaluated_densities(self) -> List[EvaluatedDensity]:
         """ Returns a list of the evaluated densities in the joint distribution. """
-        return [eval_dens for eval_dens in self.densities if isinstance(eval_dens, EvaluatedDensity)]
+        return [eval_dens for eval_dens in self._densities if isinstance(eval_dens, EvaluatedDensity)]
 
     # --------- Private methods ---------
     def _get_conditioning_variables(self) -> List[str]:
         """ Return the conditioning variables of the joint distribution. """
         joint_par_names = self.get_parameter_names()
         cond_vars = set()
-        for density in self.densities:
+        for density in self._densities:
             cond_vars.update([par_name for par_name in density.get_parameter_names() if par_name not in joint_par_names])
         return list(cond_vars)
 
     def _get_fixed_variables(self) -> List[str]:
         """ Return the variables that have been conditioned on (fixed). """
         # Extract names of Likelihoods and EvaluatedDensities
-        return [density.name for density in self.densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
+        return [density.name for density in self._densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
 
     def _parse_args_add_to_kwargs(self, *args, **kwargs):
         """ Parse args and add to kwargs. The args are assumed to follow the order of the parameter names. """
@@ -211,7 +211,7 @@ class JointDistribution:
 
     def _as_stacked(self) -> StackedJointDistribution:
         """ Return a stacked JointDistribution with the same densities. """
-        return StackedJointDistribution(self.densities)
+        return StackedJointDistribution(self._densities)
 
     def __repr__(self):
         msg = f"JointDistribution(\n"
@@ -231,7 +231,7 @@ class JointDistribution:
                 msg += ") = "
 
             # RHS of equation: product of densities
-            for density in self.densities:
+            for density in self._densities:
                 par_names = ",".join([density.name])
                 cond_vars = ",".join(set(density.get_parameter_names())-set([density.name]))
 
@@ -249,7 +249,7 @@ class JointDistribution:
         msg += "    Densities: \n"
 
         # Create "Bayesian model" equations
-        for density in self.densities:
+        for density in self._densities:
             msg += f"\t{density.name} ~ {density}\n"
 
         # Wrap up
