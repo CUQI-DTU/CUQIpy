@@ -139,7 +139,7 @@ def test_samples_funvals(geometry):
     for i, s in enumerate(samples):
         funvals[:, i] = geometry.par2fun(s)
 
-    assert np.allclose(samples.funvals, funvals)
+    assert np.allclose(samples.funvals.samples, funvals)
 
 
 @pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
@@ -150,19 +150,16 @@ def test_samples_funvals(geometry):
 def test_compute_ci(percent, compute_on_par, geometry):
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MetropolisHastings(dist)
-    samples = sampler.sample_adapt(500)
-    samples.geometry = geometry
-    ci = samples.compute_ci(percent, compute_on_par=compute_on_par)
-
-    if not compute_on_par:
-        samples = samples.funvals
-    else:
-        samples = samples.samples
+    par_samples = sampler.sample_adapt(500)
+    par_samples.geometry = geometry
+    
+    samples = par_samples if compute_on_par else par_samples.funvals
+    ci = samples.compute_ci(percent)
 
     # manually compute ci
     lb = (100-percent)/2
     up = 100-lb
-    lo_conf, up_conf = np.percentile(samples, [lb, up], axis=-1)
+    lo_conf, up_conf = np.percentile(samples.samples, [lb, up], axis=-1)
 
     assert np.allclose(ci[0], lo_conf)
     assert np.allclose(ci[1], up_conf)
@@ -178,71 +175,22 @@ def test_compute_ci(percent, compute_on_par, geometry):
 def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
     """Test passing flags to plot_ci."""
     np.random.seed(0)
-    samples = cuqi.samples.Samples(np.random.randn(geometry.dim, 10), geometry=geometry)
+    par_samples = cuqi.samples.Samples(np.random.randn(geometry.dim, 10), geometry=geometry)
+    samples = par_samples if compute_on_par else par_samples.funvals
 
     if is_par is not None:
-        # User should not be able to pass is_par for plotting ci because samples are assumed
-        # to be in the parameter space. The flag `is_par` that is passed for plotting the envelope and 
-        # the mean and the exact solution will be determined automatically depending 
-        # on compute_on_par value.
-        # plot_ci will raise an error if is_par is passed
+        # User should not be able to pass is_par for plotting ci because it is
+        #  determined automatically depending on self.is_par and plot_par
         with pytest.raises(ValueError):
-            samples.plot_ci(is_par=is_par, plot_par=plot_par, compute_on_par=compute_on_par)
+            samples.plot_ci(is_par=is_par, plot_par=plot_par)
 
     elif plot_par and not compute_on_par:
         # User cannot ask for computing statistics on function values then plotting on parameter space
         # plot_ci will raise an error in this case
         with pytest.raises(ValueError):
-            samples.plot_ci(plot_par=plot_par, compute_on_par=compute_on_par)
+            samples.plot_ci(plot_par=plot_par)
     else:
         #The remaining cases should not raise an error.
         import matplotlib.pyplot as plt
         plt.figure()
-        samples.plot_ci(plot_par=plot_par, compute_on_par=compute_on_par)
-
-
-def test_slicing_samples_property():
-    """Test that assigning samples property by slicing is not allowed."""
-    samples_obj = cuqi.samples.Samples(np.random.randn(
-        2, 10), geometry=cuqi.geometry.Discrete(2))
-    with pytest.raises(ValueError, match="assignment destination is read-only"):
-        samples_obj.samples[0, 0] = 1
-
-
-def test_samples_setter():
-    """Test `Samples.samples` setter. In particular, test that setting `Samples.samples` will cause resetting the geometry and the function values."""
-    # Create samples object and compute the function values
-    s1 = np.random.randn(4, 10)
-    samples_obj = cuqi.samples.Samples(s1, geometry=cuqi.geometry.MappedGeometry(
-        cuqi.geometry.Continuous1D(4), map=lambda x: x**2))
-    s1_funval = samples_obj.funvals
-
-    # Set the samples to a different array
-    s2 = np.random.randn(4, 10)*.1
-    samples_obj.samples = s2
-    geom = samples_obj.geometry
-    samples_obj.geometry = cuqi.geometry.MappedGeometry(
-        cuqi.geometry.Continuous1D(4), map=lambda x: x**3)
-    s2_funval = s2**3
-
-    # Assert that the function values are updated and the geoemtry was reset
-    assert np.allclose(samples_obj.funvals, s2_funval) and isinstance(
-        geom, cuqi.geometry._DefaultGeometry)
-
-
-def test_burnthin():
-    """Test burn-in and thinning for parameter values and function values."""
-    # Create random samples for a StepExpansion geometry
-    grid = np.linspace(0, 1, 10, endpoint=True)
-    geometry = cuqi.geometry.StepExpansion(grid)
-    samples_array = np.random.randn(3, 20)
-    samples_obj = cuqi.samples.Samples(samples_array, geometry=geometry)
-
-    samples_obj.funvals  # this will create and cache the function values
-
-    # Burn-in and thinning
-    new_samples = samples_obj.burnthin(2, 2)
-
-    assert np.allclose(new_samples.samples, samples_obj.samples[:, 2::2])\
-        and new_samples.geometry == samples_obj.geometry\
-        and np.allclose(new_samples.funvals, samples_obj.funvals[:, 2::2])
+        samples.plot_ci(plot_par=plot_par)
