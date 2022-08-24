@@ -205,6 +205,12 @@ class Samples(object):
         else:
             return self
 
+    @property
+    def geometry_dim(self):
+        if self.is_par:
+            return self.geometry.dim
+        else:
+            return self.geometry.fun_dim
 
     @geometry.setter
     def geometry(self,inGeometry):
@@ -341,7 +347,7 @@ class Samples(object):
 
 
     def plot_chain(self, variable_indices=None, *args, **kwargs):
-        dim = self.geometry.dim
+        dim = self.geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
         # If no variables are given we randomly select some at random
         if variable_indices is None:
@@ -477,7 +483,7 @@ class Samples(object):
         -------
         axes: matplotlib axes or bokeh figures
         """
-        dim = self.geometry.dim
+        dim = self.geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -517,7 +523,7 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
 
         """
-        dim = self.geometry.dim
+        dim = self.geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -558,7 +564,7 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
         
         """
-        dim = self.geometry.dim
+        dim = self.geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -587,7 +593,7 @@ class Samples(object):
         """ Return arviz InferenceData object of samples for the given variable indices"""
         # If no variable indices given we convert all
         if variable_indices is None:
-            variable_indices = np.arange(self.geometry.dim)
+            variable_indices = np.arange(self.geometry_dim)
 
         # Get variable names from geometry
         variables = np.array(self.geometry.variables) #Convert to np array for better slicing
