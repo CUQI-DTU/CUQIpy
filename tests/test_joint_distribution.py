@@ -218,7 +218,7 @@ def hierarchical_joint(main_dim=8):
         cuqi.distribution.Normal(0, 1e-2, name="z"),
         cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
         cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.GaussianCov(np.zeros(main_dim), lambda d: d, name="x"),
         cuqi.distribution.GaussianCov(
             mean=cuqi.testproblem.Deconvolution1D(dim=main_dim).model,
             cov=lambda l: l,

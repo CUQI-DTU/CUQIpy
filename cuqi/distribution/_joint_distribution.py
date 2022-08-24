@@ -211,47 +211,44 @@ class JointDistribution:
 
     def __repr__(self):
         msg = f"JointDistribution(\n"
-
         msg += "    Equation: \n\t"
 
-        # Construct joint density expression
+        # Construct equation expression
         joint_par_names = ",".join(self.get_parameter_names())
         fixed_par_names = ",".join(self.get_fixed_variables())
         if len(joint_par_names) == 0:
-            msg += "constant number"
+            msg += "Constant number"
         else:
+            # LHS of equation: p(x,y,z) = or p(x,y|z) ∝
             msg += f"p({joint_par_names}"
             if len(fixed_par_names) > 0:
                 msg += f"|{fixed_par_names}) ∝ "
             else:
                 msg += ") = "
-            # Construct each density expression        
+
+            # RHS of equation: product of densities
             for density in self.densities:
                 par_names = ",".join([density.name])
                 cond_vars = ",".join(set(density.get_parameter_names())-set([density.name]))
-                if isinstance(density, EvaluatedDensity):
-                    msg += "" # Constant, so can ignore
-                elif isinstance(density, Likelihood):
-                    msg += f"L("
-                else:
+
+                # Distributions are written as p(x|y) or p(x). Likelihoods are L(y|x).
+                # x=par_names, y=cond_vars.
+                if isinstance(density, Likelihood):
+                    msg += f"L({cond_vars}|{par_names})"
+                elif isinstance(density, Distribution):
                     msg += f"p({par_names}"
-                if len(cond_vars) > 0:
-                    if isinstance(density, Distribution):
-                        msg += "|"
-                    msg += f"{cond_vars}"
-                    if isinstance(density, Likelihood):
-                        msg += f"|{par_names}"
-                if not isinstance(density, EvaluatedDensity):
+                    if len(cond_vars) > 0:
+                        msg += f"|{cond_vars}"
                     msg += ")"
         
         msg += "\n"
-
         msg += "    Densities: \n"
 
-        # Create Bayesian model equations
+        # Create "Bayesian model" equations
         for density in self.densities:
             msg += f"\t{density.name} ~ {density}\n"
 
+        # Wrap up
         msg += ")"
 
         return msg
