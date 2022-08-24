@@ -228,3 +228,21 @@ def test_samples_setter():
     # Assert that the function values are updated and the geoemtry was reset
     assert np.allclose(samples_obj.funvals, s2_funval) and isinstance(
         geom, cuqi.geometry._DefaultGeometry)
+
+
+def test_burnthin():
+    """Test burn-in and thinning for parameter values and function values."""
+    # Create random samples for a StepExpansion geometry
+    grid = np.linspace(0, 1, 10, endpoint=True)
+    geometry = cuqi.geometry.StepExpansion(grid)
+    samples_array = np.random.randn(3, 20)
+    samples_obj = cuqi.samples.Samples(samples_array, geometry=geometry)
+
+    samples_obj.funvals  # this will create and cache the function values
+
+    # Burn-in and thinning
+    new_samples = samples_obj.burnthin(2, 2)
+
+    assert np.allclose(new_samples.samples, samples_obj.samples[:, 2::2])\
+        and new_samples.geometry == samples_obj.geometry\
+        and np.allclose(new_samples.funvals, samples_obj.funvals[:, 2::2])
