@@ -159,12 +159,12 @@ class Distribution(Density, ABC):
             new_dist = self(**cond_kwargs)
 
             # Evaluate the log density of the conditioned distribution
+            # We use _main_parameter to avoid extracting the name if not necessary
             if "_main_parameter" in kwargs:
                 return new_dist.logd(kwargs["_main_parameter"])
             else:
-                # Extract any remaining variables from kwargs and evaluate the log density
-                non_cond_kwargs = {key: kwargs[key] for key in kwargs if key not in cond_vars}
-                return new_dist.logd(**non_cond_kwargs)
+                main_params = {key: kwargs[key] for key in kwargs if key not in cond_vars}
+                return new_dist.logd(**main_params)
 
         # Not conditional distribution, simply evaluate log density directly
         else:

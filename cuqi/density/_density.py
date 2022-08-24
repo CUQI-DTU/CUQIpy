@@ -31,14 +31,14 @@ class Density(ABC):
             raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
-        self._original_density = None # Original density if this is a conditioned copy.
+        self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
 
     @property
     def name(self):
         """ Name of the random variable associated with the density. """
         if self._is_copy: # Extract the original density name
             return self._original_density.name
-        if self._name is None: # If none extract the name from the stack
+        if self._name is None: # If None extract the name from the stack
             self._name = cuqi.utilities._get_python_variable_name(self)
         return self._name
 
@@ -50,7 +50,7 @@ class Density(ABC):
 
     @property
     def _is_copy(self):
-        """ Returns True if this is a copy of another density. """
+        """ Returns True if this is a copy of another density, e.g. by conditioning. """
         return hasattr(self, '_original_density') and self._original_density is not None
 
     def logd(self, *args, **kwargs):
@@ -99,7 +99,6 @@ class Density(ABC):
 
     def _make_copy(self):
         """ Returns a shallow copy of the density keeping a pointer to the original. """
-        # Store id of original density
         new_density = copy(self)
         new_density._original_density = self
         return new_density
@@ -109,6 +108,8 @@ class Density(ABC):
         
         Positional arguments must follow the order of the parameter names.
         These can be accessed via the :meth:`get_parameter_names` method.
+
+        Conditioning maintains the name of the random variable associated with the density.
         
         """
         return self._condition(*args, **kwargs)
