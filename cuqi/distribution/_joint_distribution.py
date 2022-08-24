@@ -261,12 +261,12 @@ class JointDistribution:
 class _StackedJointDistribution(JointDistribution, Distribution):
     """ A joint distribution where all parameters are stacked into a single vector.
 
-    This acts like a regular Distribution with a single parameter even though
-    it is actually a joint distribution.
+    This acts like a regular Distribution with a single parameter vector even
+    though it is actually a joint distribution.
 
     This is intended to be used by samplers that are not able to handle
     joint distributions. A joint distribution can be converted to a stacked
-    joint distribution by calling the `_as_stacked` method.
+    joint distribution by calling the :meth:`_as_stacked` method.
     
     See :class:`JointDistribution` for more details on the joint distribution.
     """
