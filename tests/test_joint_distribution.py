@@ -159,23 +159,7 @@ def test_joint_dist_properties(densities):
 def test_joint_dist_reduce():
     """ This tests the reduce hack for the joint distribution. """
 
-    densities = [
-        cuqi.distribution.Normal(0, 1e-2, name="z"),
-        cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
-        cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
-        cuqi.distribution.GaussianCov(
-            mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
-            cov=lambda l: l,
-            name="y"
-        )
-    ]
-
-    # Data
-    data = cuqi.testproblem.Deconvolution1D(dim=8).data
-
-    # Create a joint distribution
-    J = cuqi.distribution.JointDistribution(densities)
+    J, data = hierarchical_joint()   
 
     # Allow reduce
     J._allow_reduce = True
@@ -187,6 +171,66 @@ def test_joint_dist_reduce():
     assert isinstance(J(y=data, z=1, x=np.zeros(8), l=1), cuqi.distribution.Posterior)
     assert isinstance(J(y=data, d=1, x=np.zeros(8), l=1), cuqi.distribution.JointDistribution) # 2 likelihoods
 
+def test_stacked_joint_distribution():
+    """ This tests the stacked joint distribution """
+
+    J, data = hierarchical_joint()
+
+    Js = J.as_stacked()
+
+    # Check the dimension
+    assert Js.dim == sum(J.dim)
+
+    # Check the geometry
+    assert Js.geometry == cuqi.geometry._DefaultGeometry(Js.dim)
+
+    # Check you can evaluate the log density function with a single vector
+    Js.logd(np.ones(Js.dim))
+
+    # Check that you can condition on the stacked distribution
+    # and again evaluate as a single vector
+    Ps = Js(y=data)
+    Ps.logd(np.ones(Ps.dim))
+
+    # Even if you condition in multiple parameters
+    Ps2 = Js(y=data, z=1, d=1)
+    Ps2.logd(np.ones(Ps2.dim))
+
+    # And even if you condition on all parameters
+    Ps3 = Js(y=data, z=1, d=1, x=np.zeros(Js.get_density("x").dim), l=1)
+    #Ps3.logd() # Should be allowed with no arguments
+
+def hierarchical_joint(main_dim=8):
+    """ This creates a deconvolution based hierarchical joint distribution.
+    
+    Parameters
+    ----------
+    main_dim : int
+        The dimension of the main model.
+
+    Returns
+    -------
+    JointDistribution, data
+        
+    """
+
+    densities = [
+        cuqi.distribution.Normal(0, 1e-2, name="z"),
+        cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
+        cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
+        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.GaussianCov(
+            mean=cuqi.testproblem.Deconvolution1D(dim=main_dim).model,
+            cov=lambda l: l,
+            name="y"
+        )
+    ]
+
+    data = cuqi.testproblem.Deconvolution1D(dim=main_dim).data
+
+    J = cuqi.distribution.JointDistribution(densities)
+
+    return J, data
 
 
 
