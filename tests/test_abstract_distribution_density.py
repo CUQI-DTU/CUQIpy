@@ -32,7 +32,7 @@ def test_conditioning_wrong_keyword():
         x(name="hey") #Should expect value-error since name not conditioning variable.
 
 def test_conditioning_arg_as_mutable_var():
-    """ This checks if we raise error if 2 args is given for a distribution that has no conditioning variables. """
+    """ This checks if we raise error if 2 args are given for a distribution that has no conditioning variables. """
     x = cuqi.distribution.GaussianCov(mean=1, cov=1)
     with pytest.raises(ValueError):
         x(5, 3) #Should expect value-error since no cond vars
