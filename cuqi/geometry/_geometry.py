@@ -702,12 +702,22 @@ class CustomKL(Continuous1D):
 
 class StepExpansion(Continuous1D):
     '''
-    Class representation of the step random field with n_steps intermediate steps.
-
+    Class representation of step functions (piecewise constant functions) with `n_steps` 
+    equidistant steps on the interval [0, L].
+    The function `par2fun` maps the parameters `p` (which are the step magnitudes) to the 
+    corresponding step function evaluated on the spacial grid (`grid`) of nodes x0=0, x1, ...xn=L.
+    
+    For example, if `n_steps` is 3 and `grid` is a uniform grid with nodes x0=0, x1=0.1L, ..., xn=L, 
+    then the resulting function evaluated on the grid will be p[0], if x<=L/3, p[1], if L/3<x<=2L/3, 
+    p[2], if 2L/3<x<=L.
+    
     Parameters:
     -----------
     grid: ndarray
-        Grid points for the step expansion to be evaluated at. There can be more grid points than number of steps.
+        Grid points for the step expansion to be evaluated at. There can be more grid points 
+        than number of steps, which can be useful, for example, when using the StepExpansion 
+        geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be
+        interpolated on a (possibly fine) grid (`grid`).
 
     n_steps: int
         Number of equidistant steps.
@@ -728,7 +738,10 @@ class StepExpansion(Continuous1D):
         for i in range(self._n_steps):
             start = i*L/self._n_steps
             end = (i+1)*L/self._n_steps
-            self._indices.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
+            if i ==0:
+                self._indices.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
+            else:
+                self._indices.append( np.where((self.grid>start)&(self.grid<=end))[0] )
 
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
