@@ -232,8 +232,17 @@ def hierarchical_joint(main_dim=8):
 
     return J, data
 
+def test_extra_parameter_no_prior():
+    A = np.random.randn(10,3)
 
+    # Define distributions for Bayesian model
+    y = cuqi.distribution.Normal(lambda x: A@x, np.ones(10))
+    x = cuqi.distribution.Normal(np.zeros(3), lambda z,b:z+b)
+    z = cuqi.distribution.Gamma(1, 1)
 
+    # Joint distribution p(y,x,z)
+    with pytest.raises(ValueError, match=r"Missing prior for b"):
+        cuqi.distribution.JointDistribution([y,x,z])
 
 
 

@@ -68,6 +68,14 @@ class JointDistribution:
         self.densities = densities
         self._allow_reduce = False # Hack to allow conditioning to reduce a joint distribution to a single density
 
+        # Make sure every unspecified parameter has a distribution (prior)
+        joint_par_names = self.get_parameter_names()
+        for density in self.densities:
+            dens_par_names = density.get_parameter_names()
+            for par_name in dens_par_names:
+                if par_name not in joint_par_names:
+                    raise ValueError(f"Every density parameter must have a distribution (prior). Missing prior for {par_name}.")
+
     @property
     def distributions(self) -> List[Distribution]:
         """ Returns a list of the distributions (not likelihoods) in the joint distribution. """
