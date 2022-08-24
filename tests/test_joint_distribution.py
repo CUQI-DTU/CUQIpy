@@ -241,7 +241,7 @@ def test_extra_parameter_no_prior():
     z = cuqi.distribution.Gamma(1, 1)
 
     # Joint distribution p(y,x,z)
-    with pytest.raises(ValueError, match=r"Missing prior for b"):
+    with pytest.raises(ValueError, match=r"Missing prior for \['b'\]"):
         cuqi.distribution.JointDistribution([y,x,z])
 
 

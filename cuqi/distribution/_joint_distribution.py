@@ -69,12 +69,9 @@ class JointDistribution:
         self._allow_reduce = False # Hack to allow conditioning to reduce a joint distribution to a single density
 
         # Make sure every unspecified parameter has a distribution (prior)
-        joint_par_names = self.get_parameter_names()
-        for density in self.densities:
-            dens_par_names = density.get_parameter_names()
-            for par_name in dens_par_names:
-                if par_name not in joint_par_names:
-                    raise ValueError(f"Every density parameter must have a distribution (prior). Missing prior for {par_name}.")
+        cond_vars = self.get_conditioning_variables()
+        if len(cond_vars) > 0:
+            raise ValueError(f"Every density parameter must have a distribution (prior). Missing prior for {cond_vars}.")
 
     @property
     def distributions(self) -> List[Distribution]:
@@ -104,6 +101,14 @@ class JointDistribution:
     def get_parameter_names(self) -> List[str]:
         """ Returns the parameter names of the joint distribution. """
         return [dist.name for dist in self.distributions]
+
+    def get_conditioning_variables(self) -> List[str]:
+        """ Return the conditioning variables of the joint distribution. """
+        joint_par_names = self.get_parameter_names()
+        cond_vars = set()
+        for density in self.densities:
+            cond_vars.update([par_name for par_name in density.get_parameter_names() if par_name not in joint_par_names])
+        return list(cond_vars)
 
     def get_density(self, name) -> Density:
         """ Return a density with the given name. """
