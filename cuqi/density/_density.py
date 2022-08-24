@@ -85,7 +85,7 @@ class Density(ABC):
 class EvaluatedDensity(Density):
     """ An evaluated density representing a constant number exposed through the logd method.
 
-    The density simply returns a constant value for its log density function.
+    EvaluatedDensity is a density that has been evaluated for a particular value/observation of the underlying random variable. It simply returns the value of the log density function evaluated at that value.
     The density has a fixed dimension of 1 and cannot be conditioned on any parameters.
 
     Parameters
