@@ -6,7 +6,7 @@ import warnings
 import cuqi
 
 
-def get_python_variable_name(var):
+def _get_python_variable_name(var):
     """ Retrieve the Python variable name of an object. Takes the first variable name appearing on the stack that are not in the ignore list. """
 
     ignored_var_names = ["self", "cls", "obj", "var", "_"]

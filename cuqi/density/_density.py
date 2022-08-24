@@ -39,7 +39,7 @@ class Density(ABC):
         if self._is_copy: # Extract the original density name
             return self._original_density.name
         if self._name is None: # If none extract the name from the stack
-            self._name = cuqi.utilities.get_python_variable_name(self)
+            self._name = cuqi.utilities._get_python_variable_name(self)
         return self._name
 
     @name.setter

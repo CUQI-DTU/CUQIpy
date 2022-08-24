@@ -12,4 +12,4 @@ from ._utilities import (
     approx_derivative,
 )
 
-from ._get_python_variable_name import get_python_variable_name
+from ._get_python_variable_name import _get_python_variable_name
