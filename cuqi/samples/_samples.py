@@ -169,9 +169,10 @@ class Samples(object):
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
-    def __init__(self, samples, geometry=None):
+    def __init__(self, samples, is_par=True, geometry=None):
         self.samples = samples
         self.geometry = geometry
+        self.is_par = is_par
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
@@ -194,31 +195,16 @@ class Samples(object):
         return self._geometry
 
     @property
-    def samples(self):
-        return self._samples
-
-    @samples.setter
-    def samples(self, value):
-        # Disable write flag to prevent updates to the samples through slicing.
-        value.setflags(write=False)
-        self._samples = value
-        if hasattr(self, '_funvals') and self._funvals is not None:
-            warnings.warn("Setting the samples value will reset the function values.", UserWarning)
-            self._funvals = None
-        if hasattr(self, '_geometry') and self._geometry is not None:
-            warnings.warn("Setting the samples value will reset the geometry.", UserWarning)
-            self._geometry = None
-
-    @property
     def funvals(self):
-        """Return function values of the samples by applying :meth:`self.geometry.par2fun`"""
-        if not hasattr(self, '_funvals') or self._funvals is None:
-            self._funvals = np.empty((self.geometry.fun_dim, self.Ns))
+        """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself."""
+        if self.is_par is True:
+            _funvals = np.empty((self.geometry.fun_dim, self.Ns))
             for i, s in enumerate(self):
-                self._funvals[:, i] = self.geometry.par2fun(s)
-            # Disable write flag to prevent updates to the samples function values through slicing.
-            self._funvals.setflags(write=False)
-        return self._funvals
+                _funvals[:, i] = self.geometry.par2fun(s)
+            return Samples(_funvals, is_par=False, geometry=self.geometry)
+        else:
+            return self
+
 
     @geometry.setter
     def geometry(self,inGeometry):
@@ -251,9 +237,6 @@ class Samples(object):
             raise ValueError(f"Number of burn-in {Nb} is greater than or equal number of samples {self.Ns}")
         new_samples = copy(self)
         new_samples.samples = self.samples[...,Nb::Nt]
-        new_samples.geometry = self.geometry
-        if hasattr(self,'_funvals') and self._funvals is not None:
-            new_samples._funvals = self.funvals[...,Nb::Nt]
         return new_samples
 
     def plot_mean(self,*args,**kwargs):
@@ -308,10 +291,9 @@ class Samples(object):
         plt.title('Width of sample credibility intervals')
         return ax
 
-    def mean(self, compute_on_par=True):
-        """Compute mean of the samples. If compute_on_par is True, the mean is computed for the parameters. Otherwise, the mean is computed for the function values."""
-        samples = self.samples if compute_on_par else self.funvals
-        return np.mean(samples, axis=-1)
+    def mean(self):
+        """Compute mean of the samples."""
+        return np.mean(self.samples, axis=-1)
 
     def median(self):
         """Compute pointwise median of the samples"""
@@ -321,12 +303,11 @@ class Samples(object):
         """Compute pointwise variance of the samples"""
         return np.var(self.samples, axis=-1)
 
-    def compute_ci(self, percent=95, compute_on_par=True):
-        """Compute pointwise credibility intervals of the samples. If compute_on_par is True, the credibility intervals are computed for the parameters. Otherwise, the credibility intervals are computed for the function values."""
+    def compute_ci(self, percent=95):
+        """Compute pointwise credibility intervals of the samples."""
         lb = (100-percent)/2
         up = 100-lb
-        samples = self.samples if compute_on_par else self.funvals
-        return np.percentile(samples, [lb, up], axis=-1)
+        return np.percentile(self.samples, [lb, up], axis=-1)
 
     def ci_width(self, percent = 95):
         """Compute width of the pointwise credibility intervals of the samples"""
@@ -383,10 +364,9 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self, percent=95, exact=None, compute_on_par=True, *args, plot_envelope_kwargs=None, **kwargs):
+    def plot_ci(self, percent=95, exact=None, *args, plot_envelope_kwargs=None, **kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
-
         Parameters
         ---------
         percent : int
@@ -394,49 +374,46 @@ class Samples(object):
         
         exact : ndarray, default None
             The exact value (for comparison)
-
-        compute_on_par : bool, default True
-            If True, the credibility interval is computed on the parameters. Otherwise, the credibility interval is computed on the function values.
-            This is useful if the parameter space and the function space of the samples geometry are different.
-
         plot_envelope_kwargs : dict, default {}
             Keyword arguments for the plot_envelope method
         
         """
+        
+        # Compute statistics
+        mean = np.mean(self.samples,axis=-1)
+        lo_conf, up_conf = self.compute_ci(percent)
+
         #Extract plotting keywords and put into plot_envelope
         if plot_envelope_kwargs is None:
             plot_envelope_kwargs = {}
         pe_kwargs = plot_envelope_kwargs
 
-        # User should not indicate that samples are function values
+        # is_par is determined automatically from self.is_par 
         if "is_par" in kwargs.keys() or\
            "is_par" in pe_kwargs.keys():
-            raise ValueError("Samples are assumed to be in the parameter space and the flag `is_par` that is passed to the underlying plotting methods will be determined automatically.")
+            raise ValueError("The flag `is_par` is determined automatically and should not be passed to `plot_ci`.")
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
-        if not compute_on_par:
+        if not self.is_par:
             if "plot_par" in kwargs.keys() and kwargs["plot_par"] or\
                     "plot_par" in pe_kwargs.keys() and kwargs["plot_par"]:
                 #TODO: could be allowed if the underlying plotting functions will convert the samples to parameter space
                 raise ValueError(
-                    "Cannot plot on parameter space if computing statistics is on function space")
+                    "Cannot plot credible interval on parameter space if the samples are in the function space.")
 
-        # Depending on the value of compute_on_par, the computed statistics below (mean, lo_conf,up_conf) are either parameter
+        # Depending on the value of self.is_par, the computed statistics below (mean, lo_conf,up_conf) are either parameter
         # values or function values
-        statistics_is_par = compute_on_par
+        statistics_is_par = self.is_par
         pe_kwargs["is_par"] = statistics_is_par
         kwargs["is_par"] = statistics_is_par
 
         # Set plot_par value to be passed to Geometry.plot_envelope and Geometry.plot.
         if "plot_par" in kwargs.keys():
             pe_kwargs["plot_par"] = kwargs["plot_par"]
+        else:
+            pe_kwargs["plot_par"] = False
+            kwargs["plot_par"] = False
 
-        # Compute statistics
-        mean = self.mean(compute_on_par=compute_on_par)
-        lo_conf, up_conf = self.compute_ci(
-            percent, compute_on_par=compute_on_par)
-
-        # Plot statistics
         if type(self.geometry) is Continuous2D or type(self.geometry) is Image2D:
             plt.figure()
             #fig.add_subplot(2,2,1)
@@ -461,7 +438,7 @@ class Samples(object):
         else:
             lci = self.geometry.plot_envelope(
                 lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
-
+            
             lmn = self.geometry.plot(mean, *args, **kwargs)
             if exact is not None:  #TODO: Allow exact to be defined in different space than mean?
                 if isinstance(exact, CUQIarray):
