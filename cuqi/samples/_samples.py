@@ -169,7 +169,7 @@ class Samples(object):
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
-    def __init__(self, samples, is_par=True, geometry=None):
+    def __init__(self, samples, geometry=None, is_par=True):
         self.samples = samples
         self.geometry = geometry
         self.is_par = is_par
