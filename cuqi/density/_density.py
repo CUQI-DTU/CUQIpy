@@ -106,7 +106,12 @@ class Density(ABC):
         return new_density
 
     def __call__(self, *args, **kwargs):
-        """ Condition on the given parameters. """
+        """ Condition the density on a set of parameters.
+        
+        Positional arguments must follow the order of the parameter names.
+        These can be accessed via the :meth:`get_parameter_names` method.
+        
+        """
         return self._condition(*args, **kwargs)
 
 class EvaluatedDensity(Density):

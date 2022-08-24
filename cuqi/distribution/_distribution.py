@@ -211,7 +211,12 @@ class Distribution(Density, ABC):
         return np.exp(self.logpdf(x))
 
     def _condition(self, *args, **kwargs):
-        """ Generate new distribution conditioned on the input arguments. """
+        """ Generate new distribution conditioned on the input arguments.
+        
+        Positional arguments must follow the order of the parameter names of the distribution.
+        These can be accessed via the :meth:`get_parameter_names` method.
+        
+        """
 
         # Store conditioning variables and mutable variables
         cond_vars = self.get_conditioning_variables()
