@@ -17,9 +17,10 @@ samples.plot_ci(95) #plot in function space
 
 
 # Compute statistics on function values
+func_samples = samples.funvals
 plt.figure()
-samples.plot_ci(95, compute_on_par=False) #plot in function space
+func_samples.plot_ci(95) #plot in function space
 
 
 plt.figure()
-samples.plot_ci(95, compute_on_par=False, plot_par=True) #Raises and error: plot in parameter space
+func_samples.plot_ci(95, plot_par=True) #Raises and error: plot in parameter space
