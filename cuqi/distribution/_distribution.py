@@ -231,7 +231,7 @@ class Distribution(Density, ABC):
 
 
         # EVALUATE CONDITIONAL DISTRIBUTION
-        new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
+        new_dist = self._make_copy() #New cuqi distribution conditioned on the kwargs
         processed_kwargs = set() # Keep track of processed (unique) elements in kwargs
 
         # Go through every mutable variable and assign value from kwargs if present

@@ -1,7 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
+from copy import copy
 import cuqi
+import ctypes
 
 class Density(ABC):
     """ Abstract base class for densities.
@@ -30,18 +32,27 @@ class Density(ABC):
             raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
+        self._original_density = None # Original density if this is a conditioned copy.
 
     @property
     def name(self):
         """ Name of the random variable associated with the density. """
+        if self._is_copy: # Extract the original density name
+            return self._original_density.name
         if self._name is None: # If none extract the name from the stack
-            name = cuqi.utilities.get_python_variable_name(self)
-            self._name = name
+            self._name = cuqi.utilities.get_python_variable_name(self)
         return self._name
 
     @name.setter
     def name(self, name):
+        if self._is_copy:
+            raise ValueError("Cannot set name of conditioned density. Only the original density can have its name set.")
         self._name = name
+
+    @property
+    def _is_copy(self):
+        """ Returns True if this is a copy of another density. """
+        return hasattr(self, '_original_density') and self._original_density is not None
 
     def logd(self, *args, **kwargs):
         """ Evaluates the un-normalized log density function given a set of parameters.
@@ -86,6 +97,13 @@ class Density(ABC):
     def get_parameter_names(self):
         """ Returns the names of the parameters that the density can be evaluated at or conditioned on. """
         pass
+
+    def _make_copy(self):
+        """ Returns a shallow copy of the density keeping a pointer to the original. """
+        # Store id of original density
+        new_density = copy(self)
+        new_density._original_density = self
+        return new_density
 
     def __call__(self, *args, **kwargs):
         """ Condition on the given parameters. """

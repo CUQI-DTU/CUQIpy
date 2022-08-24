@@ -1,4 +1,5 @@
 import cuqi
+import pytest
 
 def test_density_variable_name_detection():
     """Test that the density variable name is detected correctly at different levels of the python stack. """
@@ -37,6 +38,29 @@ def test_variable_name_accross_frames():
             recursive_return_dist(dist, recursions - 1)
     
     recursive_return_dist(h, 10)
+
+def test_density_name_consistency():
+
+    x = cuqi.distribution.GaussianCov()
+    x2 = x(mean=1)
+    x3 = x2(cov=1)
+
+    # Names should be the same as the original density.  
+    assert x3.name == 'x'
+    assert x2.name == 'x' 
+    assert x.name == 'x'
+
+    # Ensure that the name cannot be changed for conditioned densities.
+    with pytest.raises(ValueError, match=r"Cannot set name of conditioned density. Only the original density can have its name set."):
+        x2.name = 'y'
+
+    x.name = 'y'
+
+    # Ensure that the name is changed for the other conditioned densities.
+    assert x2.name == 'y'
+    assert x3.name == 'y'
+    
+
 
 
     
