@@ -29,7 +29,7 @@ def _get_python_variable_name(var):
             if len(var_names) > 0:
                 return var_names[0]
 
-    warnings.warn("Could not automatically find variable name for object: {}. If code runs slowly and variable name is not needed set config.MAX_STACK_SEARCH_DEPTH to 0.".format(var))
+    warnings.warn("Could not automatically find variable name for object: {}. Use keyword `name` when defining distribution to specify a name. If code runs slowly and variable name is not needed set config.MAX_STACK_SEARCH_DEPTH to 0.".format(var))
 
     return None
 
