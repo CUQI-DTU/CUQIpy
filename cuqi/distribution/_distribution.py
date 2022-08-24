@@ -146,8 +146,7 @@ class Distribution(Density, ABC):
         # If distribution is conditional, we first condition before evaluating the log density
         if len(cond_vars) > 0:
 
-            if len(args) > 0:
-                raise ValueError(f"{self.logd.__qualname__}: Positional arguments on conditional distributions are not supported in logd evaluation (yet)")
+            kwargs = self._parse_args_add_to_kwargs(cond_vars, *args, **kwargs)
 
             # Check if all conditioning variables are specified
             if not all([key in kwargs for key in cond_vars]):
@@ -156,14 +155,16 @@ class Distribution(Density, ABC):
             # Extract exactly the conditioning variables from kwargs
             cond_kwargs = {key: kwargs[key] for key in cond_vars}
 
-            # Extract any remaining variables from kwargs
-            non_cond_kwargs = {key: kwargs[key] for key in kwargs if key not in cond_vars}
-
             # Condition the distribution on the conditioning variables
             new_dist = self(**cond_kwargs)
 
-            # Now evaluate the log density of the fully specified distribution
-            return new_dist.logd(*args, **non_cond_kwargs)
+            # Evaluate the log density of the conditioned distribution
+            if "_main_parameter" in kwargs:
+                return new_dist.logd(kwargs["_main_parameter"])
+            else:
+                # Extract any remaining variables from kwargs and evaluate the log density
+                non_cond_kwargs = {key: kwargs[key] for key in kwargs if key not in cond_vars}
+                return new_dist.logd(**non_cond_kwargs)
 
         # Not conditional distribution, simply evaluate log density directly
         else:
@@ -222,18 +223,8 @@ class Distribution(Density, ABC):
         cond_vars = self.get_conditioning_variables()
         mutable_vars = self.get_mutable_variables()
 
-        # PARSE ARGS AND ADD CONDITIONING VARIABLES TO KWARGS
-        if len(args)>0:
-            # If no cond_vars we throw error since we cant get order.
-            if len(args) > len(cond_vars)+1:
-                raise ValueError(f"{self._condition.__qualname__}: Unable to parse {len(args)} arguments. Only {len(cond_vars)+1} allowed (conditioning variables + main parameter). Use keywords to modify mutable variables.")
-            ordered_keys = cond_vars # Args follow order of cond. vars
-            for index, arg in enumerate(args):
-                if index < len(ordered_keys):
-                    if ordered_keys[index] in kwargs:
-                        raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
-                    kwargs[ordered_keys[index]] = arg
-
+        # We allow the use of positional arguments following the order of the parameter names
+        kwargs = self._parse_args_add_to_kwargs(cond_vars, *args, **kwargs)
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = self._make_copy() #New cuqi distribution conditioned on the kwargs
@@ -275,15 +266,16 @@ class Distribution(Density, ABC):
                 # Store processed keywords
                 processed_kwargs.update(var_args.keys())
 
-        # Check if more arguments were passed than conditioning variables
-        # If so we assume the last one is the distribution name
-        if len(args) == len(cond_vars) + 1:
-            return new_dist.to_likelihood(args[-1])
+        # Check if _main_parameter is specified in kwargs
+        # (This is added by the _parse_args_add_to_kwargs method)
+        # If so we convert to likelihood with that parameter.
+        if "_main_parameter" in kwargs:
+            return new_dist.to_likelihood(kwargs["_main_parameter"])
 
         # Check if any keywords were not used
         unused_kwargs = set(kwargs.keys()) - processed_kwargs
 
-        # If any keywords were not used we must use name.
+        # If any keywords were not used we must check name.
         # We defer the checking of name to here since it
         # can be slow to automatically determine the name
         # of a distribution by walking the python stack.
@@ -355,6 +347,24 @@ class Distribution(Density, ABC):
         if not self.is_cond: # If not conditional we create a constant density
             return EvaluatedDensity(self.logd(data), name=self.name)
         return Likelihood(self, data)
+
+    def _parse_args_add_to_kwargs(self, cond_vars, *args, **kwargs):
+        """ Parse args and add to kwargs. The args are assumed to follow the order of the parameter names.
+        
+        This particular implementation avoids accessing .get_parameter_names() for speed and requires cond_vars to be passed.
+        
+        """
+        if len(args)>0:
+            if len(args) > len(cond_vars)+1:
+                raise ValueError(f"{self._condition.__qualname__}: Unable to parse {len(args)} arguments. Only {len(cond_vars)+1} allowed (conditioning variables + main parameter). Use keywords to modify mutable variables.")
+            ordered_keys = copy(cond_vars) # Args follow order of cond. vars
+            ordered_keys.append("_main_parameter") # Last arg is main parameter
+            for index, arg in enumerate(args):
+                if index < len(ordered_keys):
+                    if ordered_keys[index] in kwargs:
+                        raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
+                    kwargs[ordered_keys[index]] = arg
+        return kwargs
 
     def __repr__(self) -> str:
         if self.is_cond is True:
