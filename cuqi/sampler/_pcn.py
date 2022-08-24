@@ -103,12 +103,12 @@ class pCN(Sampler):
     def target(self, value):
         if isinstance(value, cuqi.distribution.Posterior):
             self._target = value
-            self._loglikelihood = lambda x : self.likelihood.log(x)
+            self._loglikelihood = lambda x : self.likelihood.logd(x)
         elif isinstance(value,tuple) and len(value)==2 and \
              (isinstance(value[0], cuqi.likelihood.Likelihood) or isinstance(value[0], cuqi.likelihood.UserDefinedLikelihood))  and \
              isinstance(value[1], cuqi.distribution.Distribution):
             self._target = value
-            self._loglikelihood = lambda x : self.likelihood.log(x)
+            self._loglikelihood = lambda x : self.likelihood.logd(x)
         else:
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
         

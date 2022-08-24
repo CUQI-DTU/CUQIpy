@@ -1,6 +1,9 @@
+from __future__ import annotations
+from typing import Union
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
+from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry
@@ -8,7 +11,7 @@ from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_pr
 import numpy as np # To be replaced by cuqi.array_api
 
 # ========== Abstract distribution class ===========
-class Distribution(ABC):
+class Distribution(Density, ABC):
     """ Abstract Base Class for Distributions.
 
     Handles functionality for pdf evaluation, sampling, geometries and conditioning.
@@ -82,9 +85,7 @@ class Distribution(ABC):
             Indicator if distribution is symmetric.
                         
         """
-        if not isinstance(name,str) and name is not None:
-            raise ValueError("Name must be a string or None")
-        self.name = name
+        super().__init__(name=name)
         self.is_symmetric = is_symmetric
         self.geometry = geometry
 
@@ -125,8 +126,60 @@ class Distribution(ABC):
         else:
             raise TypeError("The attribute 'geometry' should be of type 'int' or 'cuqi.geometry.Geometry', or None.")
 
+    def logd(self, *args, **kwargs):
+        """  Evaluate the un-normalized log density function of the distribution.
+
+        The log density function is equal to the log probability density function (logpdf) of a distribution
+        plus an additive constant.
+
+        It is possible to pass conditioning variables as arguments to this function in addition to the parameters of the distribution.
+
+        All distributions are required to implement an un-normalized log density function, but not required
+        implement the log probability density function (logpdf). For MCMC sampling, the log density function is
+        used to sample from the distribution for efficient sampling.
+        
+        """
+
+        # Get the (potential) conditioning variables
+        cond_vars = self.get_conditioning_variables()
+
+        # If distribution is conditional, we first condition before evaluating the log density
+        if len(cond_vars) > 0:
+
+            if len(args) > 0:
+                raise ValueError(f"{self.logd.__qualname__}: Positional arguments on conditional distributions are not supported in logd evaluation (yet)")
+
+            # Check if all conditioning variables are specified
+            if not all([key in kwargs for key in cond_vars]):
+                raise ValueError(f"{self.logd.__qualname__}: To evaluate the log density all conditioning variables must be specified. Conditioning variables are: {cond_vars}")
+
+            # Extract exactly the conditioning variables from kwargs
+            cond_kwargs = {key: kwargs[key] for key in cond_vars}
+
+            # Extract any remaining variables from kwargs
+            non_cond_kwargs = {key: kwargs[key] for key in kwargs if key not in cond_vars}
+
+            # Condition the distribution on the conditioning variables
+            new_dist = self(**cond_kwargs)
+
+            # Now evaluate the log density of the fully specified distribution
+            return new_dist.logd(*args, **non_cond_kwargs)
+
+        # Not conditional distribution, simply evaluate log density directly
+        else:
+            return super().logd(*args, **kwargs)
+        
+    def _logd(self, *args):
+        return self.logpdf(*args) # Currently all distributions implement logpdf so we simply call this method.
+
     @abstractmethod
     def logpdf(self,x):
+        """ Evaluate the log probability density function of the distribution.
+        
+        If the logpdf is only needed for MCMC sampling, consider using the un-normalized
+        log density function :meth:`logd` instead of the logpdf for efficiency.
+        
+        """
         pass
 
     def sample(self,N=1,*args,**kwargs):
@@ -157,7 +210,7 @@ class Distribution(ABC):
     def pdf(self,x):
         return np.exp(self.logpdf(x))
 
-    def __call__(self, *args, **kwargs):
+    def _condition(self, *args, **kwargs):
         """ Generate new distribution conditioned on the input arguments. """
 
         # Store conditioning variables and mutable variables
@@ -168,17 +221,17 @@ class Distribution(ABC):
         if len(args)>0:
             # If no cond_vars we throw error since we cant get order.
             if len(cond_vars)==0:
-                raise ValueError("Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
+                raise ValueError(f"{self._condition.__qualname__}: Unable to parse args since this distribution has no conditioning variables. Use keywords to modify mutable variables.")
             ordered_keys = cond_vars # Args follow order of cond. vars
             for index, arg in enumerate(args):
                 if ordered_keys[index] in kwargs:
-                    raise ValueError(f"{ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
+                    raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                 kwargs[ordered_keys[index]] = arg
 
         # KEYWORD ERROR CHECK
         for kw_key in kwargs.keys():
-            if kw_key not in (mutable_vars+cond_vars):
-                raise ValueError("The keyword \"{}\" is not a mutable or conditioning variable of this distribution.".format(kw_key))
+            if kw_key not in (mutable_vars+cond_vars+[self.name]):
+                raise ValueError(f"{self._condition.__qualname__}: The keyword {kw_key} is not a mutable, conditioning variable or parameter name of this distribution.")
 
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = copy(self) #New cuqi distribution conditioned on the kwargs
@@ -215,8 +268,16 @@ class Distribution(ABC):
                     func = partial(var_val, **var_args)
                     setattr(new_dist, var_key, func)
 
+        # If conditioning on the name of the distribution
+        # we convert the distribution to a likelihood.
+        if self.name in kwargs:
+            return new_dist.to_likelihood(kwargs[self.name])               
+
         return new_dist
 
+    # Overload parent to add type hint.
+    def __call__(self, *args, **kwargs) -> Union[Distribution, Likelihood, EvaluatedDensity]:
+        return super().__call__(*args, **kwargs)
 
     def get_conditioning_variables(self):
         """Return the conditioning variables of this distribution (if any)."""
@@ -253,6 +314,9 @@ class Distribution(ABC):
 
         return self._mutable_vars
 
+    def get_parameter_names(self):
+        return self.get_conditioning_variables() + [self.name]
+
     @property
     def is_cond(self):
         """ Returns True if instance (self) is a conditional distribution. """
@@ -263,8 +327,9 @@ class Distribution(ABC):
 
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
+        if not self.is_cond: # If not conditional we create a constant density
+            return EvaluatedDensity(self.logd(data), name=self.name)
         return Likelihood(self, data)
-
 
     def __repr__(self) -> str:
         if self.is_cond is True:

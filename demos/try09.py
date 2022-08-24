@@ -31,7 +31,7 @@ prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
 
 def posterior_logpdf(x):
-    logpdf = -prior.logpdf(x) - likelihood.log(x)
+    logpdf = -prior.logd(x) - likelihood.logd(x)
     return logpdf
 
 def posterior_logpdf_grad(x):
@@ -87,7 +87,7 @@ plt.show()
 #%% ML estimates
 
 def likelihood_logpdf(x):
-    logpdf = - likelihood.log(x)
+    logpdf = - likelihood.logd(x)
     return logpdf
 
 def likelihood_logpdf_grad(x):

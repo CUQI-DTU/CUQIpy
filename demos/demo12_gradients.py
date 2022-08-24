@@ -31,7 +31,7 @@ if (pr == 'gaussian'):
     x_MAP = TP.MAP()
 else:
     # Solve posterior problem using BFGS
-    def f(x): return -TP.posterior.logpdf(x)
+    def f(x): return -TP.posterior.logd(x)
     def gradf(x): return -TP.posterior.gradient(x)
     solver = cuqi.solver.L_BFGS_B(f, x0, gradf)
     x_MAP, solution_info = solver.solve()

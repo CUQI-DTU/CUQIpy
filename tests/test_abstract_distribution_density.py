@@ -1,6 +1,7 @@
 import cuqi
 import pytest
 
+
 #TODO. Make tests for all distributions going through their input variables
 @pytest.mark.parametrize("dist, expected",[
     (cuqi.distribution.GaussianCov(), ["mean", "cov"]),
@@ -21,7 +22,7 @@ def test_conditioning_through_likelihood(): #TODO. Add more dists to test here!
     model = cuqi.model.Model(lambda x:x, 1, 1) #Simple 1 par model
     dist = cuqi.distribution.GaussianCov(mean=model)
     likelihood = dist.to_likelihood(5)
-    likelihood.log(10, 5)
+    likelihood.logd(10, 5)
     assert(likelihood.get_parameter_names() == ['cov', 'x'])
 
 def test_conditioning_wrong_keyword():
@@ -72,3 +73,75 @@ def test_conditioning_keeps_name():
     assert y(x=1).name == y.name
     assert y(cov=1).name == y.name
     assert y().name == y.name
+
+def test_conditioning_class_flow():
+    """ This tests the class flow of conditioning a conditional distribution in various ways """
+
+    # Initial conditional distribution on parameter x and cov.
+    y = cuqi.distribution.GaussianCov(lambda x:x, name="y")
+
+    # Conditioning on x is still conditional on cov
+    assert y(x=1).is_cond
+
+    # Conditioning on y (name of distribution) should return a likelihood
+    assert isinstance(y(y=1), cuqi.likelihood.Likelihood)
+
+    # Conditioning on x and cov be a regular distribution
+    assert isinstance(y(x=1, cov=1), cuqi.distribution.Distribution)
+
+    # Conditioning on all unspecified variables should return constant density
+    assert isinstance(y(x=1, y=1, cov=1), cuqi.density.EvaluatedDensity)
+
+    # Conditioning on all parameters in various ways should also return constant density
+    # (in between they might change to Likelihood)
+    assert isinstance(y(x=1)(y=1)(cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(x=1)(cov=1)(y=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(y=1)(x=1)(cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(y=1)(cov=1)(x=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(cov=1)(x=1)(y=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(y(cov=1)(y=1)(x=1), cuqi.density.EvaluatedDensity)
+
+def test_logp_conditional():
+    """ This tests logp evaluation for conditional distributions """
+    # Base example logp value
+    true_val = cuqi.distribution.GaussianCov(3, 7).logd(13)
+
+    # Distribution with no specified parameters
+    x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
+
+    # Test logp evaluates correctly in various cases
+    assert x.logd(mean=3, s=7, x=13) == true_val
+    assert x(x=13).logd(mean=3, s=7) == true_val
+    assert x(x=13, mean=3).logd(s=7) == true_val
+    assert x(x=13, mean=3, s=7).logd() == true_val
+    assert x(mean=3).logd(s=7, x=13) == true_val
+    assert x(mean=3, s=7).logd(x=13) == true_val
+    assert x(mean=3, x=13).logd(s=7) == true_val
+
+def test_logd_err_handling():
+    """ This tests if logp correctly identifies errors in the input """
+    x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
+
+    # Test that we raise error if we don't provide all parameters
+    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables must be specified"):
+        x.logd(x=3)
+
+    # Test that we raise error if we provide parameters that are not specified
+    with pytest.raises(ValueError, match=r"do not match keyword arguments"):
+        x.logd(mean=3, s=7, x=13, y=1)
+
+    # Test that we raise error if provided with both positional and keyword arguments
+    # Regex on word "positional" in both lower or upper case
+    with pytest.raises(ValueError, match=r"(?i)positional"):
+        x.logd(3, s=7, x=13)
+
+    # Test if we pass wrong number of arguments
+    with pytest.raises(ValueError, match=r"Number of arguments must match"):
+        y = x(x=13) #Condition on x to make it likelihood
+
+        # Pass too many arguments
+        y.logd(3, 7, 100)
+
+        # Pass too few arguments
+        y.logd(3)
+
