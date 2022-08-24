@@ -91,7 +91,7 @@ class EvaluatedDensity(Density):
     Parameters
     ----------
     value: float
-        The constant value that the density should return if queried for its log density function.
+        The fixed scalar value of the log density function evaluated at the particular value of the underlying random variable. This value will be returned if the EvaluatedDensity is queried for its log density function.
 
     """
     def __init__(self, value, **kwargs):
