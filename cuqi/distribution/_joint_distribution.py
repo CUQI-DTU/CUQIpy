@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List
 from copy import copy
-from cuqi.density import Density
+from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
 from cuqi.geometry import Geometry, _DefaultGeometry
@@ -78,13 +78,18 @@ class JointDistribution:
 
     @property
     def distributions(self) -> List[Distribution]:
-        """ Returns a list of the distributions (not likelihoods) in the joint distribution. """
+        """ Returns a list of the distributions (priors) in the joint distribution. """
         return [dist for dist in self.densities if isinstance(dist, Distribution)]
 
     @property
     def likelihoods(self) -> List[Likelihood]:
         """ Returns a list of the likelihoods in the joint distribution. """
         return [likelihood for likelihood in self.densities if isinstance(likelihood, Likelihood)]
+
+    @property
+    def evaluated_densities(self) -> List[EvaluatedDensity]:
+        """ Returns a list of the evaluated densities in the joint distribution. """
+        return [eval_dens for eval_dens in self.densities if isinstance(eval_dens, EvaluatedDensity)]
 
     @property
     def dim(self) -> List[int]:
