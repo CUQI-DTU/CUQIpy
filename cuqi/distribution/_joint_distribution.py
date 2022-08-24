@@ -106,7 +106,7 @@ class JointDistribution:
         """ Condition the joint distribution on the given variables. """
         return self._condition(*args, **kwargs)
 
-    def _condition(self, *args, **kwargs):
+    def _condition(self, *args, **kwargs): # Public through __call__
 
         kwargs = self._parse_args_add_to_kwargs(*args, **kwargs)
 
