@@ -714,24 +714,26 @@ class StepExpansion(Continuous1D):
     Parameters:
     -----------
     grid: ndarray
-        Grid points for the step expansion to be evaluated at. There can be more grid points 
-        than number of steps, which can be useful, for example, when using the StepExpansion 
-        geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be
-        interpolated on a (possibly fine) grid (`grid`).
+        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`).
 
     n_steps: int
-        Number of equidistant steps.
+        | Number of equidistant steps.
 
+    projection: str
+        | Projection of the step function (evaluated on the grid) on the parameter space. The supported projections are 
+        | 'mean': the parameter p[i] value will be the average of the function values at the nodes that falls in the interval  I=(i*L/n_steps, (i+1)*L/n_steps].
+        | 'max': the parameter p[i] value will be the maximum of the function values in I.
+        | 'min': the parameter p[i] value will be the minimum of the function values in I.
+        
     kwargs: keyword arguments
-        keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`
+        | keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`
     '''
-    def __init__(self, grid, n_steps=3, **kwargs):
+    def __init__(self, grid, n_steps=3, projection='mean', **kwargs):
 
         super().__init__(grid, **kwargs)
-        if n_steps > np.size(self.grid):
-            raise ValueError("n_steps must be smaller than the number of grid points")
-
         self._n_steps = n_steps
+        self._check_grid_setup()
+        self._projection = projection
         L = self.grid[-1]
 
         self._indices = []
@@ -753,8 +755,28 @@ class StepExpansion(Continuous1D):
     def fun2par(self,f):
         val = np.zeros(self._n_steps)
         for i in range(self._n_steps):
-            val[i] = f[self._indices[i][0]]
+            if self._projection.lower() == 'mean':
+                val[i] = np.mean(f[self._indices[i]])
+            elif self._projection.lower() == 'max':
+                val[i] = np.max(f[self._indices[i]])
+            elif self._projection.lower() == 'min':
+                val[i] = np.min(f[self._indices[i]])
+            else:
+                raise ValueError("Invalid projection option.")
         return val
+
+    def _check_grid_setup(self):
+        # The grid should start at 0.
+        if not np.isclose(self.grid[0], 0):
+            raise ValueError("The first grid point should be 0.")
+        
+        # The grid size is greater than or equal to the number of steps.
+        if self._n_steps > np.size(self.grid):
+            raise ValueError("n_steps must be smaller than the number of grid points")
+        
+        # Ensure the grid is equally spaced
+        if not np.allclose(np.diff(self.grid), self.grid[1]-self.grid[0]):
+            raise ValueError("The grid must be an equally spaced grid (regular).")
 
     @property
     def shape(self):
