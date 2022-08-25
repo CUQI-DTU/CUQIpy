@@ -714,7 +714,7 @@ class StepExpansion(Continuous1D):
     Parameters:
     -----------
     grid: ndarray
-        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`).
+        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [0, L], should be included in the grid.
 
     n_steps: int
         | Number of equidistant steps.
