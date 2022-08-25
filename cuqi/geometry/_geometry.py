@@ -705,7 +705,7 @@ class StepExpansion(Continuous1D):
     Class representation of step functions (piecewise constant functions) with `n_steps` 
     equidistant steps on the interval [0, L].
     The function `par2fun` maps the parameters `p` (which are the step magnitudes) to the 
-    corresponding step function evaluated on the spacial grid (`grid`) of nodes x0=0, x1, ...xn=L.
+    corresponding step function evaluated on the spatial grid (`grid`) of nodes x0=0, x1, ...xn=L.
     
     For example, if `n_steps` is 3 and `grid` is a uniform grid with nodes x0=0, x1=0.1L, ..., xn=L, 
     then the resulting function evaluated on the grid will be p[0], if x<=L/3, p[1], if L/3<x<=2L/3, 
