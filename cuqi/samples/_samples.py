@@ -401,8 +401,8 @@ class Samples(object):
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
         if not self.is_par:
-            if "plot_par" in kwargs.keys() and kwargs["plot_par"] or\
-                    "plot_par" in pe_kwargs.keys() and kwargs["plot_par"]:
+            if "plot_par" in kwargs and kwargs["plot_par"] or\
+                    "plot_par" in pe_kwargs and kwargs["plot_par"]:
                 #TODO: could be allowed if the underlying plotting functions will convert the samples to parameter space
                 raise ValueError(
                     "Cannot plot credible interval on parameter space if the samples are in the function space.")
@@ -414,7 +414,7 @@ class Samples(object):
         kwargs["is_par"] = statistics_is_par
 
         # Set plot_par value to be passed to Geometry.plot_envelope and Geometry.plot.
-        if "plot_par" in kwargs.keys():
+        if "plot_par" in kwargs:
             pe_kwargs["plot_par"] = kwargs["plot_par"]
         else:
             pe_kwargs["plot_par"] = False
