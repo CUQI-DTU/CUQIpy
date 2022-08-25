@@ -1,6 +1,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional
+from copy import copy
+import cuqi
 
 class Density(ABC):
     """ Abstract base class for densities.
@@ -29,6 +31,27 @@ class Density(ABC):
             raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
+        self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
+
+    @property
+    def name(self):
+        """ Name of the random variable associated with the density. """
+        if self._is_copy: # Extract the original density name
+            return self._original_density.name
+        if self._name is None: # If None extract the name from the stack
+            self._name = cuqi.utilities._get_python_variable_name(self)
+        return self._name
+
+    @name.setter
+    def name(self, name):
+        if self._is_copy:
+            raise ValueError("Cannot set name of conditioned density. Only the original density can have its name set.")
+        self._name = name
+
+    @property
+    def _is_copy(self):
+        """ Returns True if this is a copy of another density, e.g. by conditioning. """
+        return hasattr(self, '_original_density') and self._original_density is not None
 
     def logd(self, *args, **kwargs):
         """ Evaluates the un-normalized log density function given a set of parameters.
@@ -38,14 +61,14 @@ class Density(ABC):
         
         """
 
-        # Get parameter names possible to evaluate the logd
-        par_names = self.get_parameter_names()
-
         # Check if kwargs are given. If so parse them according to the parameter names and add them to args.
         if len(kwargs) > 0:
 
             if len(args) > 0:
                 raise ValueError(f"{self.logd.__qualname__}: Cannot specify both positional and keyword arguments.")
+
+            # Get parameter names possible to evaluate the logd
+            par_names = self.get_parameter_names()
 
             # Check if parameter names match the keyword arguments (any order).
             if set(par_names) != set(kwargs.keys()):
@@ -53,10 +76,6 @@ class Density(ABC):
             
             # Ensure that the keyword arguments are given in the correct order and use them as positional arguments.
             args = [kwargs[name] for name in par_names]            
-
-        # Check if the number of arguments matches the number of parameters.
-        if len(args) != len(par_names):
-            raise ValueError(f"{self.logd.__qualname__}: Number of arguments must match number of parameters. Got {len(args)} arguments but density has {len(par_names)} parameters.")
 
         return self._logd(*args) + self._constant
    
@@ -78,8 +97,21 @@ class Density(ABC):
         """ Returns the names of the parameters that the density can be evaluated at or conditioned on. """
         pass
 
+    def _make_copy(self):
+        """ Returns a shallow copy of the density keeping a pointer to the original. """
+        new_density = copy(self)
+        new_density._original_density = self
+        return new_density
+
     def __call__(self, *args, **kwargs):
-        """ Condition on the given parameters. """
+        """ Condition the density on a set of parameters.
+        
+        Positional arguments must follow the order of the parameter names.
+        These can be accessed via the :meth:`get_parameter_names` method.
+
+        Conditioning maintains the name of the random variable associated with the density.
+        
+        """
         return self._condition(*args, **kwargs)
 
 class EvaluatedDensity(Density):

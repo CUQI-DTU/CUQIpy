@@ -32,10 +32,21 @@ def test_conditioning_wrong_keyword():
         x(name="hey") #Should expect value-error since name not conditioning variable.
 
 def test_conditioning_arg_as_mutable_var():
-    """ This checks if we raise error if arg is given for a distribution that has no conditioning variables. """
+    """ This checks if we raise error if 2 args are given for a distribution that has no conditioning variables. """
     x = cuqi.distribution.GaussianCov(mean=1, cov=1)
     with pytest.raises(ValueError):
-        x(5) #Should expect value-error since no cond vars
+        x(5, 3) #Should expect value-error since no cond vars
+
+def test_conditioning_on_main_parameter():
+    """ This checks if we can condition on the main parameter in various ways. """
+    x = cuqi.distribution.GaussianCov()
+
+    # With keywords (name also automatically inferred)
+    assert isinstance(x(mean=1, x=5), cuqi.likelihood.Likelihood)
+    assert isinstance(x(mean=1, cov=1, x=5), cuqi.density.EvaluatedDensity)
+    
+    # Now using positional arguments
+    assert isinstance(x(1, 1, 5), cuqi.density.EvaluatedDensity)
 
 def test_conditioning_kwarg_as_mutable_var():
     """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
@@ -64,7 +75,7 @@ def test_conditioning_partial_function():
 
 def test_conditioning_keeps_name():
     """ This tests if the name of the distribution is kept when conditioning. """
-    y = cuqi.distribution.GaussianCov(lambda x:x, name="y")
+    y = cuqi.distribution.GaussianCov(lambda x:x)
     
     assert y(x=1, cov=1).name == y.name
     assert y(x=1)(cov=1).name == y.name
@@ -78,7 +89,7 @@ def test_conditioning_class_flow():
     """ This tests the class flow of conditioning a conditional distribution in various ways """
 
     # Initial conditional distribution on parameter x and cov.
-    y = cuqi.distribution.GaussianCov(lambda x:x, name="y")
+    y = cuqi.distribution.GaussianCov(lambda x:x)
 
     # Conditioning on x is still conditional on cov
     assert y(x=1).is_cond
@@ -107,7 +118,7 @@ def test_logp_conditional():
     true_val = cuqi.distribution.GaussianCov(3, 7).logd(13)
 
     # Distribution with no specified parameters
-    x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
+    x = cuqi.distribution.GaussianCov(cov=lambda s:s)
 
     # Test logp evaluates correctly in various cases
     assert x.logd(mean=3, s=7, x=13) == true_val
@@ -120,7 +131,7 @@ def test_logp_conditional():
 
 def test_logd_err_handling():
     """ This tests if logp correctly identifies errors in the input """
-    x = cuqi.distribution.GaussianCov(cov=lambda s:s, name="x") # TODO: Remove name attribute once it can be inferred from variable
+    x = cuqi.distribution.GaussianCov(cov=lambda s:s)
 
     # Test that we raise error if we don't provide all parameters
     with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables must be specified"):
@@ -130,18 +141,47 @@ def test_logd_err_handling():
     with pytest.raises(ValueError, match=r"do not match keyword arguments"):
         x.logd(mean=3, s=7, x=13, y=1)
 
-    # Test that we raise error if provided with both positional and keyword arguments
-    # Regex on word "positional" in both lower or upper case
-    with pytest.raises(ValueError, match=r"(?i)positional"):
-        x.logd(3, s=7, x=13)
+def test_cond_positional_and_kwargs():
+    """ Test conditioning for both positional and kwargs """
+    x = cuqi.distribution.GaussianCov(cov=lambda s:s)
 
-    # Test if we pass wrong number of arguments
-    with pytest.raises(ValueError, match=r"Number of arguments must match"):
-        y = x(x=13) #Condition on x to make it likelihood
+    logd = x(mean=3, cov=7).logd(13)
 
-        # Pass too many arguments
-        y.logd(3, 7, 100)
+    # Conditioning full positional
+    assert x(3, 7, 13).value == logd
+    assert x(3, 7)(13).value == logd
+    assert x(3)(7, 13).value == logd
+    assert x(3)(7)(13).value == logd
 
-        # Pass too few arguments
-        y.logd(3)
+    # Conditioning full kwargs
+    assert x(mean=3, cov=7, x=13).value == logd
+    assert x(mean=3, cov=7)(x=13).value == logd
+    assert x(mean=3)(cov=7, x=13).value == logd
+    assert x(mean=3)(cov=7)(x=13).value == logd
+
+    # Conditioning partial positional
+    assert x(3, s=7, x=13).value == logd
+    assert x(3, 7, x=13).value == logd
+    assert x(3, s=7)(13).value == logd
+    assert x(mean=3)(7, x=13).value == logd
+    assert x(mean=3)(7)(x=13).value == logd
+    assert x(mean=3)(7)(13).value == logd
+
+def test_logd_positional_and_kwargs():
+    """ Test logd for both positional and kwargs """
+    x = cuqi.distribution.GaussianCov(cov=lambda s:s)
+
+    logd = x(mean=3, s=7).logd(13)
+
+    # logd full kwargs
+    assert x.logd(mean=3, s=7, x=13) == logd
+
+    # logd full positional
+    assert x.logd(3, 7, 13) == logd
+
+    # logd partial positional
+    assert x.logd(3, s=7, x=13) == logd
+    assert x.logd(3, 7, x=13) == logd
+
+
 
