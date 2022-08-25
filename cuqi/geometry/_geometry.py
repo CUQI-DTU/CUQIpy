@@ -703,25 +703,25 @@ class CustomKL(Continuous1D):
 class StepExpansion(Continuous1D):
     '''
     Class representation of step functions (piecewise constant functions) with `n_steps` 
-    equidistant steps on the interval [0, L].
+    equidistant steps on the interval [x0, xn], of length L.
     The function `par2fun` maps the parameters `p` (which are the step magnitudes) to the 
-    corresponding step function evaluated on the spatial grid (`grid`) of nodes x0=0, x1, ...xn=L.
+    corresponding step function evaluated on the spatial grid (`grid`) of nodes x0, x1, ...xn.
     
-    For example, if `n_steps` is 3 and `grid` is a uniform grid with nodes x0=0, x1=0.1L, ..., xn=L, 
+    For example, if `n_steps` is 3 and `grid` is a uniform grid on [0, L] with nodes x0=0, x1=0.1L, ..., xn=L, 
     then the resulting function evaluated on the grid will be p[0], if x<=L/3, p[1], if L/3<x<=2L/3, 
     p[2], if 2L/3<x<=L.
     
     Parameters:
     -----------
     grid: ndarray
-        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [0, L], should be included in the grid.
+        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [x0, xn], should be included in the grid.
 
     n_steps: int
         | Number of equidistant steps.
 
     projection: str
         | Projection of the step function (evaluated on the grid) on the parameter space. The supported projections are 
-        | 'mean': the parameter p[i] value will be the average of the function values at the nodes that falls in the interval  I=(i*L/n_steps, (i+1)*L/n_steps].
+        | 'mean': the parameter p[i] value will be the average of the function values at the nodes that falls in the interval  I=(x0+i*L/n_steps, x0+(i+1)*L/n_steps].
         | 'max': the parameter p[i] value will be the maximum of the function values in I.
         | 'min': the parameter p[i] value will be the minimum of the function values in I.
         
@@ -734,12 +734,13 @@ class StepExpansion(Continuous1D):
         self._n_steps = n_steps
         self._check_grid_setup()
         self._projection = projection
-        L = self.grid[-1]
+        L = self.grid[-1]-self.grid[0]
+        x0 = self.grid[0]
 
         self._indices = []
         for i in range(self._n_steps):
-            start = i*L/self._n_steps
-            end = (i+1)*L/self._n_steps
+            start = x0 + i*L/self._n_steps
+            end = x0 + (i+1)*L/self._n_steps
             if i ==0:
                 self._indices.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
             else:
@@ -766,9 +767,6 @@ class StepExpansion(Continuous1D):
         return val
 
     def _check_grid_setup(self):
-        # The grid should start at 0.
-        if not np.isclose(self.grid[0], 0):
-            raise ValueError("The first grid point should be 0.")
         
         # The grid size is greater than or equal to the number of steps.
         if self._n_steps > np.size(self.grid):
