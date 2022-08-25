@@ -147,3 +147,26 @@ def test_StepExpansion_geometry(n_steps):
 
         assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
            and geom.dim == n_steps
+
+@pytest.mark.parametrize("projection, func",[('MiN', np.min),
+      ('mAX', np.max),('mean', np.mean)])
+def test_stepExpansion_fun2par(projection, func):
+    """Check StepExpansion fun2par correctness when different projection methods are used"""
+
+    # Set up geometry and grid
+    np.random.seed(0)
+    grid = np.linspace(0,10, 100, endpoint=True)
+    n_steps = 3
+    SE_geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps, projection=projection)
+    
+    # Create cuqi array of function values
+    qa_f = cuqi.samples.CUQIarray(np.random.rand(len(grid)), is_par=False, geometry = SE_geom)
+    
+    # Compute projection manually (function value to parameters)
+    p = np.empty(n_steps)
+    p[0]= func(qa_f[np.where(grid <=grid[-1]/n_steps)])
+    p[1]= func(qa_f[np.where((grid[-1]/n_steps < grid)&( grid <=2*grid[-1]/n_steps))])
+    p[2]= func(qa_f[np.where(2*grid[-1]/n_steps < grid)])
+
+    # Compare projection with fun2par results
+    assert np.allclose(p, qa_f.parameters)
