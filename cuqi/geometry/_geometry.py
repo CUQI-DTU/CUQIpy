@@ -719,7 +719,7 @@ class StepExpansion(Continuous1D):
     n_steps: int
         | Number of equidistant steps.
 
-    projection: str
+    fun2par_projection: str, default 'mean'
         | Projection of the step function (evaluated on the grid) on the parameter space. The supported projections are 
         | 'mean': the parameter p[i] value will be the average of the function values at the nodes that falls in the interval  I=(x0+i*L/n_steps, x0+(i+1)*L/n_steps].
         | 'max': the parameter p[i] value will be the maximum of the function values in I.
@@ -728,12 +728,12 @@ class StepExpansion(Continuous1D):
     kwargs: keyword arguments
         | keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`
     '''
-    def __init__(self, grid, n_steps=3, projection='mean', **kwargs):
+    def __init__(self, grid, n_steps=3, fun2par_projection='mean', **kwargs):
 
         super().__init__(grid, **kwargs)
         self._n_steps = n_steps
         self._check_grid_setup()
-        self._projection = projection
+        self._fun2par_projection = fun2par_projection
         L = self.grid[-1]-self.grid[0]
         x0 = self.grid[0]
 
@@ -741,10 +741,12 @@ class StepExpansion(Continuous1D):
         for i in range(self._n_steps):
             start = x0 + i*L/self._n_steps
             end = x0 + (i+1)*L/self._n_steps
+            # Extract indices of the gird points that fall in the ith interval.
             if i ==0:
-                self._indices.append( np.where((self.grid>=start)&(self.grid<=end))[0] )
+                interval_indices, =  np.where((self.grid>=start)&(self.grid<=end))
             else:
-                self._indices.append( np.where((self.grid>start)&(self.grid<=end))[0] )
+                interval_indices, = np.where((self.grid>start)&(self.grid<=end))
+            self._indices.append(interval_indices)    
 
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
@@ -756,11 +758,11 @@ class StepExpansion(Continuous1D):
     def fun2par(self,f):
         val = np.zeros(self._n_steps)
         for i in range(self._n_steps):
-            if self._projection.lower() == 'mean':
+            if self._fun2par_projection.lower() == 'mean':
                 val[i] = np.mean(f[self._indices[i]])
-            elif self._projection.lower() == 'max':
+            elif self._fun2par_projection.lower() == 'max':
                 val[i] = np.max(f[self._indices[i]])
-            elif self._projection.lower() == 'min':
+            elif self._fun2par_projection.lower() == 'min':
                 val[i] = np.min(f[self._indices[i]])
             else:
                 raise ValueError("Invalid projection option.")
