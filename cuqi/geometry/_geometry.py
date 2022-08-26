@@ -702,32 +702,82 @@ class CustomKL(Continuous1D):
 
 class StepExpansion(Continuous1D):
     '''
-    class representation of the step random field with 3 intermidiate steps
+    Class representation of step functions (piecewise constant functions) with `n_steps` 
+    equidistant steps on the interval [x0, xn], with both endpoints included.
+    The function `par2fun` maps the parameters `p` (which are the step magnitudes) to the 
+    corresponding step function evaluated on the spatial grid (`grid`) of nodes x0, x1, ...xn.
+    
+    For example, if `n_steps` is 3 and `grid` is a uniform grid on [0, L] with nodes x0=0, x1=0.1L, ..., xn=L, 
+    then the resulting function evaluated on the grid will be p[0], if x<=L/3, p[1], if L/3<x<=2L/3, 
+    p[2], if 2L/3<x<=L.
+    
+    Parameters:
+    -----------
+    grid: ndarray
+        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [x0, xn], should be included in the grid.
+
+    n_steps: int
+        | Number of equidistant steps.
+
+    fun2par_projection: str, default 'mean'
+        | Projection of the step function (evaluated on the grid) on the parameter space. The supported projections are 
+        | 'mean': the parameter p[i] value will be the average of the function values at the nodes that falls in the interval  I=(x0+i*L/n_steps, x0+(i+1)*L/n_steps].
+        | 'max': the parameter p[i] value will be the maximum of the function values in I.
+        | 'min': the parameter p[i] value will be the minimum of the function values in I.
+        
+    kwargs: keyword arguments
+        | keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`
     '''
-    def __init__(self, grid, axis_labels=['x'], **kwargs):
+    def __init__(self, grid, n_steps=3, fun2par_projection='mean', **kwargs):
 
-        super().__init__(grid, axis_labels,**kwargs)
+        super().__init__(grid, **kwargs)
+        self._n_steps = n_steps
+        self._check_grid_setup()
+        self._fun2par_projection = fun2par_projection
+        L = self.grid[-1]-self.grid[0]
+        x0 = self.grid[0]
 
-        L = self.grid[-1]
-        self._idx1 = np.where( (self.grid>=0*L)&(self.grid<=0.333*L) )
-        self._idx2 = np.where( (self.grid>0.333*L)&(self.grid<=0.666*L) )
-        self._idx3 = np.where( (self.grid>0.666*L)&(self.grid<=L) )
+        self._indices = []
+        for i in range(self._n_steps):
+            start = x0 + i*L/self._n_steps
+            end = x0 + (i+1)*L/self._n_steps
+            # Extract indices of the grid points that fall in the ith interval.
+            if i ==0:
+                interval_indices, =  np.where((self.grid>=start)&(self.grid<=end))
+            else:
+                interval_indices, = np.where((self.grid>start)&(self.grid<=end))
+            self._indices.append(interval_indices)    
 
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
- 
-        real[self._idx1[0]] = p[0]
-        real[self._idx2[0]] = p[1]
-        real[self._idx3[0]] = p[2]
+        for i in range(self._n_steps):
+            real[self._indices[i]] = p[i]
  
         return real
 
-    def fun2par(self,f):       
-        val1 = f[self._idx1[0][0]]
-        val2 = f[self._idx2[0][0]]
-        val3 = f[self._idx3[0][0]]
-        return np.array([val1,val2,val3])
+    def fun2par(self,f):
+        val = np.zeros(self._n_steps)
+        for i in range(self._n_steps):
+            if self._fun2par_projection.lower() == 'mean':
+                val[i] = np.mean(f[self._indices[i]])
+            elif self._fun2par_projection.lower() == 'max':
+                val[i] = np.max(f[self._indices[i]])
+            elif self._fun2par_projection.lower() == 'min':
+                val[i] = np.min(f[self._indices[i]])
+            else:
+                raise ValueError("Invalid projection option.")
+        return val
+
+    def _check_grid_setup(self):
+        
+        # The grid size is greater than or equal to the number of steps.
+        if self._n_steps > np.size(self.grid):
+            raise ValueError("n_steps must be smaller than the number of grid points")
+        
+        # Ensure the grid is equally spaced
+        if not np.allclose(np.diff(self.grid), self.grid[1]-self.grid[0]):
+            raise ValueError("The grid must be an equally spaced grid (regular).")
 
     @property
     def shape(self):
-        return (3,)
+        return (self._n_steps,)
