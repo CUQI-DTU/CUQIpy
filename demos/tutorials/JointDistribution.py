@@ -222,7 +222,7 @@ Cd._reduce_to_single_density()
 # This returns a new "stacked" joint distribution that the samplers/solvers
 # can use as if it were any other Density.
 
-posterior_stacked = joint(y=y_obs)._as_stacked()
+posterior_stacked = posterior._as_stacked()
 
 print(posterior_stacked)
 
