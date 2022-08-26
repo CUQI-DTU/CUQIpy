@@ -1,11 +1,11 @@
 """
-Joint Distribution techinical demo.
-===================================
+Joint Distribution technical details
+====================================
 
     This shows technical aspects of the JointDistribution class.
     These are mostly relevant for developers and advanced users.
-    See :doc:`../auto_tutorials/JointDistribution` for a more
-    user-friendly introduction.
+    See :doc:`Joint distribution tutorial <../../user/_auto_tutorials/JointDistribution>`
+    for a more user-friendly introduction.
 
 """
 # %%
@@ -50,12 +50,15 @@ l = Gamma(1, 1e-4)
 x = GaussianCov(np.zeros(n), lambda d: d)
 y = GaussianCov(lambda x: A@x, lambda l: l)
 
+# %%
 # Define joint distribution p(d,l,x,y)
 joint = JointDistribution([d, l, x, y])
 print(joint)
 
-# %% Define posterior
+# %% 
+# Define posterior
 posterior = joint(y=y_obs)
+print(posterior)
 
 # %%
 # Enabling Gibbs sampling
