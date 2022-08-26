@@ -703,7 +703,7 @@ class CustomKL(Continuous1D):
 class StepExpansion(Continuous1D):
     '''
     Class representation of step functions (piecewise constant functions) with `n_steps` 
-    equidistant steps on the interval [x0, xn], of length L.
+    equidistant steps on the interval [x0, xn], with both endpoints included.
     The function `par2fun` maps the parameters `p` (which are the step magnitudes) to the 
     corresponding step function evaluated on the spatial grid (`grid`) of nodes x0, x1, ...xn.
     
