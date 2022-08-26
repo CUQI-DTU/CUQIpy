@@ -7,6 +7,7 @@ from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
 import operator
 from functools import reduce
+import warnings
 
 def _get_identity_geometries():
     """Return the geometries that have identity par2fun and fun2par methods (can still reshape).
@@ -29,16 +30,31 @@ class Geometry(ABC):
         return reduce(operator.mul, self.shape) # math.prod(self.shape) for Python 3.8+
 
     @property
+    def fun_shape(self):
+        """ The shape of the geometry (function space). """
+        if not hasattr(self,'_fun_shape') or self._fun_shape is None:
+            # Attempt to infer dimension
+            funvals = self.par2fun(np.ones(self.dim))
+            if hasattr(funvals, 'shape'):
+                self._fun_shape = funvals.shape
+            else:
+                warnings.warn("Could not infer function space shape.")
+                self._fun_shape = None
+        return self._fun_shape
+    
+    @property
+    def fun_dim(self):
+        """ The dimension of the geometry (function space). """
+        if self.fun_shape is None: return None
+        return reduce(operator.mul, self.fun_shape) # math.prod(self.shape) for Python 3.8+
+
+    @property
     def variables(self):
         #No variable names set, generate variable names from dim
         if not hasattr(self,"_variables"):
                 self.variables = self.dim
         return self._variables
 
-    @property
-    def fun_dim(self):
-        """The dimension of the function space."""
-        return self.dim
 
     @variables.setter
     def variables(self, value):
@@ -262,6 +278,11 @@ class Continuous(Geometry, ABC):
     @property
     def grid(self):
         return self._grid
+
+    @property
+    def fun_shape(self):
+        """The dimension of the function space."""
+        return self.shape
     
     def fun2par(self,funvals):
         return funvals
@@ -315,7 +336,7 @@ class Continuous2D(Continuous):
         super().__init__(grid, axis_labels)
             
     @property
-    def shape (self):
+    def shape (self): #TODO: This is actually the shape of the function space not the shape of the parameter space.
         if self.grid is None: return None
         return (len(self.grid[0]), len(self.grid[1])) 
 
@@ -450,6 +471,11 @@ class Discrete(Geometry):
     @property
     def shape(self):
         return (len(self.variables),)
+
+    @property
+    def fun_shape(self):
+        """The dimension of the function space."""
+        return self.shape
 
     def _plot(self,values, **kwargs):
 
@@ -739,5 +765,5 @@ class StepExpansion(Continuous1D):
         return (3,)
 
     @property
-    def fun_dim(self):
-        return np.size(self.grid)
+    def fun_shape(self):
+        return (self.grid.size,)
