@@ -26,6 +26,14 @@ class Sampler(ABC):
 
         self.callback = callback
 
+    def step(self, x):
+        """
+        Perform a single MCMC step
+        """
+        # Currently a hack to get step method for any sampler
+        self.x0 = x
+        return self.sample(2).samples[:,-1]
+
     @property
     def geometry(self):
         if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
@@ -107,12 +115,13 @@ class Sampler(ABC):
 
     def _print_progress(self,s,Ns):
         """Prints sampling progress"""
-        if (s % (max(Ns//100,1))) == 0:
-            msg = f'Sample {s} / {Ns}'
-            sys.stdout.write('\r'+msg)
-        if s==Ns:
-            msg = f'Sample {s} / {Ns}'
-            sys.stdout.write('\r'+msg+'\n')
+        if Ns > 2:
+            if (s % (max(Ns//100,1))) == 0:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg)
+            if s==Ns:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg+'\n')
 
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
