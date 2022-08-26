@@ -1,16 +1,16 @@
 """
-Joint Distribution tutorial
-===========================
+Joint Distribution techinical demo.
+===================================
 
-    This tutorial shows how to use the Joint Distribution class.
+    This shows technical aspects of the JointDistribution class.
+    These are mostly relevant for developers and advanced users.
+    See :doc:`../auto_tutorials/JointDistribution` for a more
+    user-friendly introduction.
 
 """
 # %%
 # Setup
 # -----
-# We start by importing the necessary modules and loading the model and data.
-# The model is a simple 1D convolution, but any model can be used.
-# We also define some helper variables to make the code more readable.
 
 import sys; sys.path.append("../..")
 import numpy as np
@@ -24,9 +24,38 @@ A, y_obs, _ = Deconvolution1D.get_components()
 n = A.domain_dim
 m = A.range_dim
 
-# "Idendity" matricies
-In = np.ones(n)
-Im = np.ones(m)
+# %%
+# Defining hierarchical Bayesian models
+# -------------------------------------
+#
+# The joint distribution is general enough to allow us to define hierarchical
+# Bayesian models.
+#
+# For example, consider the following extension of the Bayesian model earlier:
+#
+# .. math::
+#
+#     \begin{align}
+#         d &\sim \mathrm{Gamma}(1, 10^{-4}) \\
+#         l &\sim \mathrm{Gamma}(1,10^{-4}) \\
+#         \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^2 \mathbf{I}_n) \\
+#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^2 \mathbf{I}_m)
+#     \end{align}
+#
+# We can write this model in CUQIpy as follows:
+
+# Define distribution
+d = Gamma(1, 1e-4)
+l = Gamma(1, 1e-4)
+x = GaussianCov(np.zeros(n), lambda d: d)
+y = GaussianCov(lambda x: A@x, lambda l: l)
+
+# Define joint distribution p(d,l,x,y)
+joint = JointDistribution([d, l, x, y])
+print(joint)
+
+# %% Define posterior
+posterior = joint(y=y_obs)
 
 # %%
 # Enabling Gibbs sampling
@@ -55,9 +84,9 @@ dh = 1
 lh = 1
 
 # The conditionals can be computed as follows:
-Cx = joint_hier(y=yh, d=dh, l=lh)
-Cd = joint_hier(y=yh, x=xh, l=lh)
-Cl = joint_hier(y=yh, x=xh, d=dh)
+Cx = joint(y=yh, d=dh, l=lh)
+Cd = joint(y=yh, x=xh, l=lh)
+Cl = joint(y=yh, x=xh, d=dh)
 
 # We can try inspecting one of these conditional distributions.
 # Notice how the equations and densities change to reflect the conditioning.
@@ -84,7 +113,7 @@ Cd._reduce_to_single_density()
 # This returns a new "stacked" joint distribution that the samplers/solvers
 # can use as if it were any other Density.
 
-posterior_stacked = posterior_hier._as_stacked()
+posterior_stacked = posterior._as_stacked()
 
 print(posterior_stacked)
 
