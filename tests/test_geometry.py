@@ -157,7 +157,7 @@ def test_stepExpansion_fun2par(projection, func):
     np.random.seed(0)
     grid = np.linspace(0,10, 100, endpoint=True)
     n_steps = 3
-    SE_geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps, projection=projection)
+    SE_geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps, fun2par_projection=projection)
     
     # Create cuqi array of function values
     qa_f = cuqi.samples.CUQIarray(np.random.rand(len(grid)), is_par=False, geometry = SE_geom)
