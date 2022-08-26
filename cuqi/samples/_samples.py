@@ -170,9 +170,9 @@ class Samples(object):
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
     def __init__(self, samples, geometry=None, is_par=True):
+        self.geometry = geometry
         self.is_par = is_par
         self.samples = samples
-        self.geometry = geometry
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
