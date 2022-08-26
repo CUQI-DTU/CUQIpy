@@ -170,9 +170,9 @@ class Samples(object):
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
     def __init__(self, samples, geometry=None, is_par=True):
+        self.is_par = is_par
         self.samples = samples
         self.geometry = geometry
-        self.is_par = is_par
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
@@ -195,8 +195,19 @@ class Samples(object):
         return self._geometry
 
     @property
+    def is_par(self):
+        return self._is_par
+    
+    @is_par.setter
+    def is_par(self, value):
+        if value is False:
+            self._check_funvals_supported()
+        self._is_par = value
+
+    @property
     def funvals(self):
         """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself."""
+        self._check_funvals_supported()
         if self.is_par is True:
             _funvals = np.empty((self.geometry.fun_dim, self.Ns))
             for i, s in enumerate(self):
@@ -206,7 +217,18 @@ class Samples(object):
             return self
 
     @property
-    def geometry_dim(self):
+    def parameters(self):
+        """If `self.is_par` is False, returns a new Samples object of sample parameters by applying :meth:`self.geometry.fun2par` on each sample. Otherwise, returns the Samples object itself."""
+        if self.is_par is False:
+            _parameters = np.empty((self.geometry.dim, self.Ns))
+            for i, s in enumerate(self):
+                _parameters[:, i] = self.geometry.fun2par(s)
+            return Samples(_parameters, is_par=True, geometry=self.geometry)
+        else:
+            return self
+
+    @property
+    def _geometry_dim(self):
         if self.is_par:
             return self.geometry.dim
         else:
@@ -347,7 +369,7 @@ class Samples(object):
 
 
     def plot_chain(self, variable_indices=None, *args, **kwargs):
-        dim = self.geometry_dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
         # If no variables are given we randomly select some at random
         if variable_indices is None:
@@ -483,7 +505,7 @@ class Samples(object):
         -------
         axes: matplotlib axes or bokeh figures
         """
-        dim = self.geometry_dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -523,7 +545,7 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
 
         """
-        dim = self.geometry_dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -564,7 +586,7 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
         
         """
-        dim = self.geometry_dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -593,7 +615,7 @@ class Samples(object):
         """ Return arviz InferenceData object of samples for the given variable indices"""
         # If no variable indices given we convert all
         if variable_indices is None:
-            variable_indices = np.arange(self.geometry_dim)
+            variable_indices = np.arange(self._geometry_dim)
 
         # Get variable names from geometry
         variables = np.array(self.geometry.variables) #Convert to np array for better slicing
@@ -676,3 +698,7 @@ class Samples(object):
         for i, (key, value) in enumerate(RHAT_xarray.items()):
             RHAT[i] = value.to_numpy()
         return RHAT
+
+    def _check_funvals_supported(self):
+        if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
+            raise ValueError(f"Creating a Samples object with function values of samples is not supported for Samples object with a geometry of type {type(self.geometry)}.")
