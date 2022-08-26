@@ -741,7 +741,7 @@ class StepExpansion(Continuous1D):
         for i in range(self._n_steps):
             start = x0 + i*L/self._n_steps
             end = x0 + (i+1)*L/self._n_steps
-            # Extract indices of the gird points that fall in the ith interval.
+            # Extract indices of the grid points that fall in the ith interval.
             if i ==0:
                 interval_indices, =  np.where((self.grid>=start)&(self.grid<=end))
             else:
