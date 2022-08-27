@@ -8,7 +8,7 @@ import sys
 
 class Gibbs:
 
-    def __init__(self, target: JointDistribution, samplers: Dict[Union[str,tuple], Sampler]):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target
@@ -16,12 +16,12 @@ class Gibbs:
 
         # Parse samplers and split any keys that are tuple into separate keys
         self.samplers = {}
-        for par_name in samplers.keys():
+        for par_name in sampling_strategy.keys():
             if isinstance(par_name, tuple):
                 for par_name_ in par_name:
-                    self.samplers[par_name_] = samplers[par_name]
+                    self.samplers[par_name_] = sampling_strategy[par_name]
             else:
-                self.samplers[par_name] = samplers[par_name]
+                self.samplers[par_name] = sampling_strategy[par_name]
 
     def sample(self, Ns, Nb=0):
 
