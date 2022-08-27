@@ -27,11 +27,11 @@ Gibbs sampling
 
 import numpy as np
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import GaussianCov, Gamma, JointDistribution, GMRF
-from cuqi.sampler import Gibbs, Linear_RTO, Conjugate
+from cuqi.distribution import GaussianCov, Gamma, JointDistribution, GMRF, Laplace_diff
+from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UnadjustedLaplaceApproximation, ConjugateApprox
 
 # Model and data
-A, y_obs, probinfo = Deconvolution1D.get_components(phantom='pc')
+A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
 
 # %%
 # Hierarchical Bayesian model
@@ -117,3 +117,79 @@ samples['x'].plot_ci(exact=probinfo.exactSolution)
 samples['d'].plot_trace()
 samples['l'].plot_trace()
 
+# %%
+# Switching to a piecewise constant prior
+# ---------------------------------------
+#
+# Notice that while the sampling went well in the previous example,
+# the posterior distribution did not match the characteristics of
+# the exact solution. We can improve this result by switching to a
+# piecewise constant prior for :math:`\mathbf{x}`.
+#
+# One choice is the Laplace difference prior, which assumes a
+# Laplace distribution for the differences between neighboring
+# elements of :math:`\mathbf{x}`. That is, we assume that
+#
+# .. math::
+#
+#     \mathbf{x}_i - \mathbf{x}_{i-1} \sim \mathrm{Laplace}(0, d)
+#
+# This prior is implemented in CUQIpy as the ``Laplace_diff`` distribution.
+# To update our model we simply need to replace the ``GMRF`` distribution
+# with the ``Laplace_diff`` distribution. Note that the Laplace distribution
+# is defined via a scale parameter, so we invert the parameter :math:`d`.
+#
+# This laplace distribution and new posterior can be defined as follows:
+
+# Define new distribution for x
+x = Laplace_diff(np.zeros(A.domain_dim), lambda d: 1/d)
+
+# Define new joint distribution
+joint = JointDistribution([d, l, x, y])
+
+# Define new posterior by conditioning on the data
+posterior = joint(y=y_obs)
+
+print(posterior)
+
+
+# %%
+# Gibbs Sampler (with Laplace prior)
+# ----------------------------------
+#
+# Using the same approach as ealier we can define a Gibbs sampler
+# for this new hierarchical model. The only difference is that we
+# now need to use a different sampler for :math:`\mathbf{x}` because
+# the ``Linear_RTO`` sampler only works for Gaussian distributions.
+#
+# In this case we use the UnadjustedLaplaceApproximation sampler
+# for :math:`\mathbf{x}`. We also use an approximate Conjugate
+# sampler for :math:`d` which approximately samples from the
+# posterior distribution of :math:`d` conditional on the other
+# variables in an efficient manner. For more details see e.g.
+# `this paper <https://arxiv.org/abs/2104.06919>`.
+
+# Define sampling strategy
+sampling_strategy = {
+    'x': UnadjustedLaplaceApproximation,
+    'd': ConjugateApprox,
+    'l': Conjugate
+}
+
+# Define Gibbs sampler
+sampler = Gibbs(posterior, sampling_strategy)
+
+# Run sampler
+samples = sampler.sample(Ns=1000, Nb=200)
+
+# %%
+# Analyze results
+# ---------------
+#
+# Again we can inspect the results.
+# Here we notice the posterior distribution matches the exact solution much better.
+
+# Plot credible intervals for the signal and trace plots for hyperparameters
+samples['x'].plot_ci(exact=probinfo.exactSolution)
+samples['d'].plot_trace()
+samples['l'].plot_trace()
