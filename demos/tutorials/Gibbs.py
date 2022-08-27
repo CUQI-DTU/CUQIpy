@@ -21,17 +21,34 @@ Gibbs sampling
 # %%
 # Setup
 # -----
-# We start by importing the necessary modules and loading the model and data.
-# The model is a simple 1D convolution, but any model can be used.
-# We also define some helper variables to make the code more readable.
+# We start by importing the necessary modules
 
 import numpy as np
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import GaussianCov, Gamma, JointDistribution, GMRF, Laplace_diff
 from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UnadjustedLaplaceApproximation, ConjugateApprox
 
+np.random.seed(0)
+
+# %%
+# Forward model and data
+# ------------------------
+# We define the forward model and data.
+# Here we use a 1D deconvolution problem, so the forward model is linear,
+# that is:
+#
+# .. math::
+#    \mathbf{y} = \mathbf{A} \mathbf{x}
+#
+# where :math:`\mathbf{A}` is the convolution matrix, and :math:`\mathbf{x}` is the input signal.
+#
+# We load this example from the testproblem library of CUQIpy.
+
 # Model and data
 A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
+
+# Get dimension of signal
+n = A.domain_dim
 
 # %%
 # Hierarchical Bayesian model
@@ -44,17 +61,17 @@ A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
 #     \begin{align}
 #         d &\sim \mathrm{Gamma}(1, 10^{-4}) \\
 #         l &\sim \mathrm{Gamma}(1, 10^{-4}) \\
-#         \mathbf{x} &\sim \mathrm{GMRF}(\mathbf{0}, d^2 \mathbf{I}_n) \\
-#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, l^2 \mathbf{I}_m)
+#         \mathbf{x} &\sim \mathrm{GMRF}(\mathbf{0}, d) \\
+#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, l^{-1} \mathbf{I}_m)
 #     \end{align}
 #
-# where :math:`\mathbf{A}` is the convolution matrix, :math:`\mathbf{y}` is
-# the observed data, and :math:`\mathbf{x}` is the unknown signal.
-# The hyperparameters :math:`d` and :math:`l` are the precision of the
-# prior distribution of :math:`\mathbf{x}` and the noise, respectively.
+# where :math:`\mathbf{y}` is the observed data, and :math:`\mathbf{x}`
+# is the unknown signal. The hyperparameters :math:`d` and :math:`l` are
+# the precision of the prior distribution of :math:`\mathbf{x}` and
+# the noise, respectively.
 #
 # The prior distribution of :math:`\mathbf{x}` is a Gaussian Markov random
-# field (GMRF) with zero mean and precision :math:`d^2 \mathbf{I}_n`. It can
+# field (GMRF) with zero mean and precision :math:`d`. It can
 # be viewed as a Gaussian prior on the differences between neighboring
 # elements of :math:`\mathbf{x}`.
 #
@@ -63,7 +80,7 @@ A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
 # Define distributions
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
-x = GMRF(np.zeros(A.domain_dim), lambda d: d[0])
+x = GMRF(np.zeros(n), lambda d: d[0])
 y = GaussianCov(A, lambda l: 1/l)
 
 # Combine into a joint distribution
@@ -108,14 +125,20 @@ samples = sampler.sample(Ns=1000, Nb=200)
 # ---------------
 #
 # After sampling we can inspect the results. The samples are stored
-# as a dictionary with the variable names as keys. Each variable is
-# stored as a CUQIpy Samples object which contains the many convenience
-# methods for diagnostics and plotting of MCMC samples.
+# as a dictionary with the variable names as keys. Samples for each 
+# variable is stored as a CUQIpy Samples object which contains the
+# many convenience methods for diagnostics and plotting of MCMC samples.
 
-# Plot credible intervals for the signal and trace plots for hyperparameters
+# Plot credible intervals for the signal
 samples['x'].plot_ci(exact=probinfo.exactSolution)
-samples['d'].plot_trace()
-samples['l'].plot_trace()
+
+# %%
+# Trace plot for d
+samples['d'].plot_trace(figsize=(8,2))
+
+# %%
+# Trace plot for l
+samples['l'].plot_trace(figsize=(8,2))
 
 # %%
 # Switching to a piecewise constant prior
@@ -128,11 +151,13 @@ samples['l'].plot_trace()
 #
 # One choice is the Laplace difference prior, which assumes a
 # Laplace distribution for the differences between neighboring
-# elements of :math:`\mathbf{x}`. That is, we assume that
+# elements of :math:`\mathbf{x}`. That is,
 #
 # .. math::
 #
-#     \mathbf{x}_i - \mathbf{x}_{i-1} \sim \mathrm{Laplace}(0, d)
+#     \mathbf{x} \sim \text{Laplace_diff}(\mathbf{0}, d^{-1}),
+#
+# which means that :math:`x_i-x_{i-1} \sim \mathrm{Laplace}(0, d^{-1})`.
 #
 # This prior is implemented in CUQIpy as the ``Laplace_diff`` distribution.
 # To update our model we simply need to replace the ``GMRF`` distribution
@@ -142,7 +167,7 @@ samples['l'].plot_trace()
 # This laplace distribution and new posterior can be defined as follows:
 
 # Define new distribution for x
-x = Laplace_diff(np.zeros(A.domain_dim), lambda d: 1/d)
+x = Laplace_diff(np.zeros(n), lambda d: 1/d)
 
 # Define new joint distribution
 joint = JointDistribution([d, l, x, y])
@@ -189,7 +214,9 @@ samples = sampler.sample(Ns=1000, Nb=200)
 # Again we can inspect the results.
 # Here we notice the posterior distribution matches the exact solution much better.
 
-# Plot credible intervals for the signal and trace plots for hyperparameters
+# Plot credible intervals for the signal
 samples['x'].plot_ci(exact=probinfo.exactSolution)
-samples['d'].plot_trace()
-samples['l'].plot_trace()
+#%%
+samples['d'].plot_trace(figsize=(8,2))
+#%%
+samples['l'].plot_trace(figsize=(8,2))
