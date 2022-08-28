@@ -34,6 +34,22 @@ class Sampler(ABC):
         self.x0 = x
         return self.sample(2).samples[:,-1]
 
+    def step_tune(self, x, *args, **kwargs):
+        """
+        Perform a single MCMC step and tune the sampler. This is used during burn-in.
+        """
+        # Currently a hack to get step method for any sampler
+        out = self.step(x)
+        self.tune(*args, *kwargs)
+        return out
+
+    def tune(self):
+        """
+        Tune the sampler parameters.
+        """
+        pass
+
+
     @property
     def geometry(self):
         if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
