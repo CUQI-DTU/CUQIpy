@@ -30,24 +30,28 @@ class Gibbs:
     def sample(self, Ns, Nb=0):
         """ Sample from target distribution """
 
-        # Allocate memory for samples
-        self.samples_warmup = self._allocate_samples(Nb)
-        self.samples = self._allocate_samples(Ns)
-
         # Initial points
         current_samples = self._get_initial_points()
 
+        # Compute how many samples were already taken previously
+        at_Nb = self._Nb
+        at_Ns = self._Ns
+
+        # Allocate memory for samples
+        self._allocate_samples_warmup(Nb)
+        self._allocate_samples(Ns)
+
         # Sample tuning phase
-        for i in range(Nb):
+        for i in range(at_Nb, at_Nb+Nb):
             current_samples = self.step_tune(current_samples)
             self._store_samples(self.samples_warmup, current_samples, i)
-            self._print_progress(i+1, Nb, 'Warmup')
+            self._print_progress(i+1+at_Nb, at_Nb+Nb, 'Warmup')
 
         # Sample phase
-        for i in range(Ns):
+        for i in range(at_Ns, at_Ns+Ns):
             current_samples = self.step(current_samples)
             self._store_samples(self.samples, current_samples, i)
-            self._print_progress(i+1, Ns, 'Sample')
+            self._print_progress(i+1, at_Ns+Ns, 'Sample')
 
         # Convert to samples objects and return
         return self._convert_to_Samples(self.samples)
@@ -83,16 +87,38 @@ class Gibbs:
     # ------------ Private methods ------------
     def _allocate_samples(self, Ns):
         """ Allocate memory for samples """
+        # Allocate memory for samples
         samples = {}
         for par_name in self.par_names:
             samples[par_name] = np.zeros((self.target.get_density(par_name).dim, Ns))
-        return samples
+        
+        # Store samples in self
+        if hasattr(self, 'samples'):
+            # Append to existing samples (This makes a copy)
+            for par_name in self.par_names:
+                samples[par_name] = np.hstack((self.samples[par_name], samples[par_name]))
+        self.samples = samples
+
+    def _allocate_samples_warmup(self, Nb):
+        """ Allocate memory for samples """
+        if hasattr(self, 'samples_warmup') and Nb != 0:
+            raise ValueError('Sampler already has run warmup phase. Cannot run warmup phase again.')
+
+        # Allocate memory for samples
+        samples = {}
+        for par_name in self.par_names:
+            samples[par_name] = np.zeros((self.target.get_density(par_name).dim, Nb))
+        self.samples_warmup = samples
 
     def _get_initial_points(self):
         """ Get initial points for each parameter """
         initial_points = {}
         for par_name in self.par_names:
-            if hasattr(self.target.get_density(par_name), 'init_point'):
+            if hasattr(self, 'samples'):
+                initial_points[par_name] = self.samples[par_name][:, -1]
+            elif hasattr(self, 'samples_warmup'):
+                initial_points[par_name] = self.samples_warmup[par_name][:, -1]
+            elif hasattr(self.target.get_density(par_name), 'init_point'):
                 initial_points[par_name] = self.target.get_density(par_name).init_point
             else:
                 initial_points[par_name] = np.ones(self.target.get_density(par_name).dim)
@@ -120,3 +146,20 @@ class Gibbs:
         if s==Ns:
             msg = f'{phase} {s} / {Ns}'
             sys.stdout.write('\r'+msg+'\n')
+
+    # ------------ Private properties ------------
+    @property
+    def _Ns(self):
+        """ Number of samples already taken """
+        if hasattr(self, 'samples'):
+            return self.samples[self.par_names[0]].shape[-1]
+        else:
+            return 0
+    
+    @property
+    def _Nb(self):
+        """ Number of samples already taken in warmup phase """
+        if hasattr(self, 'samples_warmup'):
+            return self.samples_warmup[self.par_names[0]].shape[-1]
+        else:
+            return 0
