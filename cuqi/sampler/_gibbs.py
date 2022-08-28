@@ -7,6 +7,27 @@ import sys
 
 
 class Gibbs:
+    """
+    Gibbs sampler for sampling a joint distribution.
+
+    Gibbs sampling samples the variables of the distribution sequentially,
+    one variable at a time. The sampling of each variable is done by sampling
+    from the conditional distribution of that variable given the values of
+    the other variables. This is often a very efficient way of sampling
+    from a joint distribution if the conditional distributions are easy to
+    sample from.
+
+    Parameters
+    ----------
+    target : cuqi.distribution.JointDistribution
+        Target distribution to sample from.
+    
+    sampling_strategy : dict
+        Dictionary of sampling strategies for each parameter.
+        Keys are parameter names.
+        Values are sampler objects.
+    
+    """
 
     def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
 
