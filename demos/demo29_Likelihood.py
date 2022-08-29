@@ -25,7 +25,7 @@ cuqi.sampler.NUTS(posterior).sample(10,5);
 
 # %% Evaluations of likelihood and gradients are clear.
 gt = probInfo.exactSolution
-likelihood.log(gt); # Gives value of log-likelihood function at x=gt.
+likelihood.logd(gt); # Gives value of log-likelihood function at x=gt.
 likelihood.gradient(gt); #Gives gradient of log-likelihood function at x=gt.
 
 # %% User Defined likelihood works similar to distributions, but makes clear its likelihood.
@@ -39,8 +39,8 @@ likelihoodU
 # %% Solvers
 x0 = np.zeros(n)
 x_MAP, info1 = cuqi.solver.maximize(posterior.logpdf, x0, posterior.gradient).solve()
-x_ML, info2  = cuqi.solver.maximize(likelihood.log, x0, likelihood.gradient).solve()
-x_MLU, info3 = cuqi.solver.maximize(likelihoodU.log, x0, likelihoodU.gradient).solve()
+x_ML, info2  = cuqi.solver.maximize(likelihood.logd, x0, likelihood.gradient).solve()
+x_MLU, info3 = cuqi.solver.maximize(likelihoodU.logd, x0, likelihoodU.gradient).solve()
 
 # %% pCN (likelihood+prior)
 cuqi.sampler.pCN(posterior).sample_adapt(50); 

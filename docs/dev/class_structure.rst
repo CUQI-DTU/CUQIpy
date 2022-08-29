@@ -9,7 +9,7 @@ Finally private methods or attributes should be defined last.
 
 Example of defining a specific distribution in the distribution module.
 
-Note: Distribution requires a logpdf and _sample method defined at the minimum.
+Note: Distribution requires a _logd and _sample method defined at the minimum.
 
 .. code-block:: python
 
@@ -23,7 +23,7 @@ Note: Distribution requires a logpdf and _sample method defined at the minimum.
             self.mean = mean
             self.std = std
 
-        def logpdf(self, x):
+        def _logd(self, x):
             return 1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2)
 
         def _sample(self, n):

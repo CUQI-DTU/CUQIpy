@@ -78,7 +78,12 @@ class UserDefinedDistribution(Distribution):
                     out[:,i] = self.sample_func()
                 return out
         else:
-            raise Exception("sample_func is not defined. Sampling can be performed with the 'sampler' module.")
+            raise Exception("sample_func is not defined. Sampling can be performed by passing the density to a sampler from the 'sampler' module.")
+
+    def get_conditioning_variables(self):
+        """ Returns the conditioning variables of the distribution. """
+        # Currently conditioning variables are not supported for user-defined distributions.
+        return []
 
 ### BENCHMARKS
 class DistributionGallery(UserDefinedDistribution):

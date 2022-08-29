@@ -134,3 +134,43 @@ def test_mapped_geometry(geom, map, imap):
 def test_geometry_equality(g1, g2, truth_value):
 	"""Ensure geometry arrays compare correctly"""
 	assert (g1==g2) == truth_value
+
+@pytest.mark.parametrize("n_steps",[1,2,6,7,9,10,20, 21])
+def test_StepExpansion_geometry(n_steps):
+    """Check StepExpansion geometry correctness"""
+    grid = np.linspace(0,1,20)
+    if n_steps > np.size(grid):
+	#If n_steps is greater than the number of grid points, StepExpansion will fail
+        with pytest.raises(ValueError):
+            cuqi.geometry.StepExpansion(grid,n_steps)
+    else:
+	#Otherwise, assert that the StepExpansion is correct
+        geom = cuqi.geometry.StepExpansion(grid,n_steps)
+        par = np.random.randn(n_steps)
+        geom.plot(par,linestyle = '', marker='.')
+
+        assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
+           and geom.dim == n_steps
+
+@pytest.mark.parametrize("projection, func",[('MiN', np.min),
+      ('mAX', np.max),('mean', np.mean)])
+def test_stepExpansion_fun2par(projection, func):
+    """Check StepExpansion fun2par correctness when different projection methods are used"""
+
+    # Set up geometry and grid
+    np.random.seed(0)
+    grid = np.linspace(0,10, 100, endpoint=True)
+    n_steps = 3
+    SE_geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps, fun2par_projection=projection)
+    
+    # Create cuqi array of function values
+    qa_f = cuqi.samples.CUQIarray(np.random.rand(len(grid)), is_par=False, geometry = SE_geom)
+    
+    # Compute projection manually (function value to parameters)
+    p = np.empty(n_steps)
+    p[0]= func(qa_f[np.where(grid <=grid[-1]/n_steps)])
+    p[1]= func(qa_f[np.where((grid[-1]/n_steps < grid)&( grid <=2*grid[-1]/n_steps))])
+    p[2]= func(qa_f[np.where(2*grid[-1]/n_steps < grid)])
+
+    # Compare projection with fun2par results
+    assert np.allclose(p, qa_f.parameters)

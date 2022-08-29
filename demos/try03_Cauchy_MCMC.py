@@ -31,7 +31,7 @@ norm_f = np.linalg.norm(test.exactSolution)
 # Gaussian likelihood params
 b = test.data
 m = len(b)                             # number of data points
-def likelihood_logpdf(x): return test.likelihood.log(x)
+def likelihood_logpdf(x): return test.likelihood.logd(x)
 
 # =============================================================================
 # prior
@@ -40,7 +40,7 @@ loc = np.zeros(n)
 delta = 1
 scale = delta*h
 prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
-def prior_logpdf(x): return prior.logpdf(x)
+def prior_logpdf(x): return prior.logd(x)
 
 # =============================================================================
 # posterior sampling

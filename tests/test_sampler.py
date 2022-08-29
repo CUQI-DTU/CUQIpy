@@ -116,7 +116,7 @@ def test_pCN_sample_regression():
     R = np.eye(d)
     model = cuqi.model.Model(lambda x: x, range_geometry=d, domain_geometry=d)
     L = Gaussian(mean=model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
-    def target(x): return L.log(x)
+    def target(x): return L.logd(x)
     P = Gaussian(mu, np.ones(d), R)
     scale = 0.1
     x0 = 0.5*np.ones(d)
@@ -190,7 +190,7 @@ def test_sampler_UserDefined_tuple():
     # Define userdefined distribution + likelihood
     userP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
 
-    userL = cuqi.likelihood.UserDefinedLikelihood(2, L.log, L.gradient)
+    userL = cuqi.likelihood.UserDefinedLikelihood(2, L.logd, L.gradient)
 
     # Parameters
     Ns = 2000   # number of samples
