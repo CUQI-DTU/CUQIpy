@@ -140,8 +140,26 @@ class Gibbs:
 
     def step_tune(self, current_samples):
         """ Perform a single MCMC step for each parameter and tune the sampler """
-        # Not implemented. No tuning happening here yet. Requires samplers to be able to be modified after initialization.
-        return self.step(current_samples)
+
+        # Extract par names
+        par_names = self.par_names
+
+        # Sample from each conditional distribution
+        for par_name in par_names:
+
+            # Dict of all other parameters to condition on
+            other_params = {par_name_: current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
+
+            # Set up sampler for current conditional distribution
+            sampler = self.samplers[par_name](self.target(**other_params))
+
+            # Take a MCMC step
+            current_samples[par_name] = sampler.step_tune(current_samples[par_name])
+
+            # Ensure even 1-dimensional samples are 1D arrays
+            current_samples[par_name] = current_samples[par_name].reshape(-1)
+        
+        return current_samples
 
     # ------------ Private methods ------------
     def _allocate_samples(self, Ns):

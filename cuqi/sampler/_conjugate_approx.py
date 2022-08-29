@@ -50,3 +50,6 @@ class ConjugateApprox:
         dist = Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
 
         return dist.sample()
+
+    def step_tune(self, x=None):
+        return self.step()

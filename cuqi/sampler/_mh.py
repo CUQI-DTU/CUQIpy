@@ -56,24 +56,33 @@ class MetropolisHastings(ProposalBasedSampler):
     """
     #target,  proposal=None, scale=1, x0=None, dim=None
     #    super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim)
-    def __init__(self, target, proposal=None, scale=None, x0=None, dim=None, **kwargs):
+    def __init__(self, target=None, proposal=None, scale=None, x0=None, dim=None, **kwargs):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
         super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
 
+    @property 
+    def proposal(self):
+        if self._proposal is None:
+            self.proposal = None # Call proposal setter again to set default proposal
+        return self._proposal
 
-    @ProposalBasedSampler.proposal.setter 
+    @proposal.setter 
     def proposal(self, value):
         fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
         if value is None:
-            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
+            if self.dim is None:
+                self._proposal = None
+            else:
+                self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
         elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             raise NotImplementedError(fail_msg)
         elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
             self._proposal = value
         else:
             raise ValueError(fail_msg)
-        self._proposal.geometry = self.target.geometry
+        if self.target is not None:
+            self._proposal.geometry = self.target.geometry
 
     def _sample(self, N, Nb):
         if self.scale is None:
@@ -102,7 +111,7 @@ class MetropolisHastings(ProposalBasedSampler):
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
         accave = acc[Nb:].mean()   
-        print('\nAverage acceptance rate:', accave, '\n')
+        if Ns>10: print('\nAverage acceptance rate:', accave, '\n')
         #
         return samples, target_eval, accave
 
@@ -159,7 +168,7 @@ class MetropolisHastings(ProposalBasedSampler):
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
         accave = acc[Nb:].mean()   
-        print('\nAverage acceptance rate:', accave, 'MCMC scale:', self.scale, '\n')
+        if Ns>10: print('\nAverage acceptance rate:', accave, 'MCMC scale:', self.scale, '\n')
         
         return samples, target_eval, accave
 

@@ -35,3 +35,6 @@ class Conjugate:
         dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
 
         return dist.sample()
+
+    def step_tune(self, x=None):
+        return self.step()

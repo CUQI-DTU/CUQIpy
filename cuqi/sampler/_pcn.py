@@ -80,7 +80,7 @@ class pCN(Sampler):
         samples = sampler.sample(5000)
         
     """
-    def __init__(self, target, scale=None, x0=None, **kwargs):
+    def __init__(self, target=None, scale=None, x0=None, **kwargs):
         super().__init__(target, x0=x0, dim=None, **kwargs) 
         self.scale = scale
     
@@ -123,6 +123,10 @@ class pCN(Sampler):
         elif hasattr(self,'target') and isinstance(self.target,tuple) and len(self.target)==2:
             self._dim = self.target[0].dim
         return self._dim
+
+    @dim.setter
+    def dim(self, value):
+        self._dim = value
 
     def _sample(self, N, Nb):
         if self.scale is None:

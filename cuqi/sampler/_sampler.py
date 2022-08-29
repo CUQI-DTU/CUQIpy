@@ -7,23 +7,11 @@ from cuqi.samples import Samples
 
 class Sampler(ABC):
 
-    def __init__(self, target, x0=None, dim=None, callback=None):
+    def __init__(self, target=None, x0=None, dim=None, callback=None):
 
-        self._dim = dim
-        if hasattr(target,'dim'): 
-            if self._dim is None:
-                self._dim = target.dim 
-            elif self._dim != target.dim:
-                raise ValueError("'dim' need to be None or equal to 'target.dim'") 
-        elif x0 is not None:
-            self._dim = len(x0)
-
-        self.target = target
-
-        if x0 is None:
-            x0 = np.ones(self.dim)
+        self.dim = dim
         self.x0 = x0
-
+        self.target = target
         self.callback = callback
 
     def step(self, x):
@@ -34,21 +22,22 @@ class Sampler(ABC):
         self.x0 = x
         return self.sample(2).samples[:,-1]
 
-    def step_tune(self, x, *args, **kwargs):
+    def step_tune(self, x):
         """
         Perform a single MCMC step and tune the sampler. This is used during burn-in.
         """
         # Currently a hack to get step method for any sampler
-        out = self.step(x)
-        self.tune(*args, *kwargs)
-        return out
+        if hasattr(self, 'sample_adapt'):
+            self.x0 = x
+            return self.sample_adapt(10).samples[:,-1]
+        else:
+            return self.step(x)
 
     def tune(self):
         """
         Tune the sampler parameters.
         """
         pass
-
 
     @property
     def geometry(self):
@@ -64,7 +53,7 @@ class Sampler(ABC):
 
     @target.setter 
     def target(self, value):
-        if  not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+        if not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             # obtain self.dim
             if self.dim is not None:
                 dim = self.dim
@@ -76,16 +65,35 @@ class Sampler(ABC):
 
         elif isinstance(value, cuqi.distribution.Distribution):
             self._target = value
+        elif value is None:
+            self._target = None
         else:
-            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.distribution.Distribution'")
-
+            raise ValueError("'target' need to be either a lambda function or of type 'cuqi.distribution.Distribution' or None.")
 
     @property
     def dim(self):
-        if hasattr(self,'target') and hasattr(self.target,'dim'):
-            self._dim = self.target.dim 
-        return self._dim
+        if hasattr(self, 'target') and hasattr(self.target,'dim'):
+            if self._dim is not None and self._dim != self.target.dim:
+                raise ValueError(f"Dimension of target ({self.target.dim}) and sampler ({self._dim}) do not match.")
+            return self.target.dim
+        elif self._x0 is not None:
+            return len(self.x0)
+        else:
+            return self._dim
     
+    @dim.setter
+    def dim(self, value):
+        self._dim = value
+
+    @property
+    def x0(self):
+        if self._x0 is None and self.dim is not None:
+            self._x0 = np.ones(self.dim)
+        return self._x0
+    
+    @x0.setter
+    def x0(self, value):
+        self._x0 = value
 
     def sample(self,N,Nb=0):
         # Get samples from the samplers sample method
@@ -131,7 +139,7 @@ class Sampler(ABC):
 
     def _print_progress(self,s,Ns):
         """Prints sampling progress"""
-        if Ns > 2:
+        if Ns > 10:
             if (s % (max(Ns//100,1))) == 0:
                 msg = f'Sample {s} / {Ns}'
                 sys.stdout.write('\r'+msg)
@@ -143,6 +151,11 @@ class Sampler(ABC):
         """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
             self.callback(sample, sample_index)
+
+    def __call__(self, target):
+        """ Sets the target distribution and returns self"""
+        self.target = target
+        return self
 
 class ProposalBasedSampler(Sampler,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
