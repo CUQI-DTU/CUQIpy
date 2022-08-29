@@ -26,7 +26,45 @@ class Gibbs:
         Dictionary of sampling strategies for each parameter.
         Keys are parameter names.
         Values are sampler objects.
-    
+
+    Example
+    -------
+    .. code-block:: python
+
+        import cuqi
+        import numpy as np
+
+        # Model and data
+        A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D.get_components(phantom='square')
+        n = A.domain_dim
+
+        # Define distributions
+        d = cuqi.distribution.Gamma(1, 1e-4)
+        l = cuqi.distribution.Gamma(1, 1e-4)
+        x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d[0])
+        y = cuqi.distribution.GaussianCov(A, lambda l: 1/l)
+
+        # Combine into a joint distribution and create posterior
+        joint = cuqi.distribution.JointDistribution([d, l, x, y])
+        posterior = joint(y=y_obs)
+
+        # Define sampling strategy
+        sampling_strategy = {
+            'x': cuqi.sampler.Linear_RTO,
+            ('d', 'l'): cuqi.sampler.Conjugate,
+        }
+
+        # Define Gibbs sampler
+        sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+
+        # Run sampler
+        samples = sampler.sample(Ns=1000, Nb=200)
+
+        # Plot results
+        samples['x'].plot_ci(exact=probinfo.exactSolution)
+        samples['d'].plot_trace(figsize=(8,2))
+        samples['l'].plot_trace(figsize=(8,2))
+            
     """
 
     def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
