@@ -3,12 +3,18 @@ import numpy as np
 
 class Conjugate:
     """ Conjugate sampler
-    
-    https://en.wikipedia.org/wiki/Conjugate_prior
-    GaussianPrec likelihood + Gamma prior yields Gamma( alpha+n/2, beta+sum((x_i-mu)^2)/2) )
+
+    Sampler for sampling a posterior distribution where the likelihood and prior are conjugate.
+
+    Currently supported conjugate pairs are:
+    - (GaussianPrec, Gamma)
+    - (GaussianCov, Gamma)
+    - (GMRF, Gamma)
+
+    For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
+
     """
 
-    
     def __init__(self, target: Posterior):
         if not isinstance(target.likelihood.distribution, (GaussianPrec, GaussianCov, GMRF)):
             raise ValueError("Conjugate sampler only works with GaussianPrec likelihood function")

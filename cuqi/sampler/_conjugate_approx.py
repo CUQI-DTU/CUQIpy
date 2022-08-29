@@ -4,7 +4,15 @@ import scipy as sp
 
 class ConjugateApprox:
     """ Approximate Conjugate sampler
-    
+
+    Sampler for sampling a posterior distribution where the likelihood and prior can be approximated
+    by a conjugate pair.
+
+    Currently supported pairs are:
+    - (Laplace_diff, Gamma): Approximated by (GaussianPrec, Gamma)
+
+    For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
+
     """
 
     
