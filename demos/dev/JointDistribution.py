@@ -76,8 +76,10 @@ print(posterior)
 #       C_d&=p(d \mid \hat{\mathbf{y}}, \hat{\mathbf{x}}, \hat{l})\\
 #       C_l&=p(l \mid \hat{\mathbf{y}}, \hat{\mathbf{x}}, \hat{d})
 #
-# Assuming we have some values for :math:`\mathbf{x}`, :math:`d` and :math:`l`,
-# we can simply condition the joint distribution on these values and it will
+# Assuming we have some fixed values for :math:`\mathbf{x}`, :math:`d` and :math:`l`,
+# which we have denoted with the hat symbol. These simply indicate any fixed value.
+#
+# Then we can simply condition the joint distribution on these values and it will
 # handle the rest.
 
 # Assume we want to condition on these values
