@@ -39,21 +39,21 @@ Im = np.ones(m)
 #
 # .. math::
 #
-#   \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^2 \mathbf{I}_n) \\
-#   \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^2 \mathbf{I}_m)
+#   \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^{-1} \mathbf{I}_n) \\
+#   \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, l^{-1} \mathbf{I}_m)
 #
 # where :math:`\mathbf{A}\in\mathbb{R}^{m\times n}` is a matrix that defines the linear convolution.
-# and :math:`d`, :math:`s` are fixed parameters for the prior and noise standard deviations respectively.
+# and :math:`d`, :math:`s` are fixed parameters for the prior and noise precision respectively.
 #
 # We can write this model in CUQIpy as follows:
 
 # Define fixed parameters
-d = 0.1
-s = 0.05
+d = 100
+s = 400
 
 # Define distributions
-x = GaussianCov(np.zeros(n), d*In)
-y = GaussianCov(lambda x: A@x, s*Im)
+x = GaussianCov(np.zeros(n), 1/d*In)
+y = GaussianCov(lambda x: A@x, 1/s*Im)
 
 # Define joint distribution p(x,y)
 joint = JointDistribution([x, y])
@@ -138,8 +138,8 @@ print(f"Posterior geometry: {posterior.geometry}")
 #     \begin{align}
 #         d &\sim \mathrm{Gamma}(1, 10^{-4}) \\
 #         l &\sim \mathrm{Gamma}(1,10^{-4}) \\
-#         \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^2 \mathbf{I}_n) \\
-#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^2 \mathbf{I}_m)
+#         \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^{-1} \mathbf{I}_n) \\
+#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^{-1} \mathbf{I}_m)
 #     \end{align}
 #
 # We can write this model in CUQIpy as follows:
@@ -147,8 +147,8 @@ print(f"Posterior geometry: {posterior.geometry}")
 # Define distribution
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
-x = GaussianCov(np.zeros(n), lambda d: d*In)
-y = GaussianCov(lambda x: A@x, lambda l: l*Im)
+x = GaussianCov(np.zeros(n), lambda d: 1/d*In)
+y = GaussianCov(lambda x: A@x, lambda l: 1/l*Im)
 
 # Define joint distribution p(d,l,x,y)
 joint_hier = JointDistribution([d, l, x, y])
