@@ -181,6 +181,8 @@ class JointDistribution:
 
     def _reduce_to_single_density(self):
         """ Reduce the joint distribution to a single density if possible.
+
+        The single density is either a Posterior, Likelihood or Distribution.
         
         This method is a hack to allow our current samplers to work with
         the joint distribution. It should be removed in the future.
