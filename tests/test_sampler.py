@@ -436,13 +436,18 @@ def _Gibbs_joint_heir_model():
 
 def test_Gibbs_regression(copy_reference):
 
+    # SKIP Gibbs reg test if not windows.
+    if not sys.platform.startswith('win'):
+        pytest.skip("NUTS regression test is not implemented for this platform")
+
     sampler = _Gibbs_joint_heir_model()
 
     # Run sampler
     samples = sampler.sample(Ns=100, Nb=20)
 
-    samples_orig_file = copy_reference(
-        "data/Gibbs_original_code_results.npz")
+    if sys.platform.startswith('win'):
+        samples_orig_file = copy_reference(
+            "data/Gibbs_original_code_results_win.npz")
     samples_orig = np.load(samples_orig_file)
 
     assert(np.allclose(samples["d"].samples, samples_orig["arr_0"]))
