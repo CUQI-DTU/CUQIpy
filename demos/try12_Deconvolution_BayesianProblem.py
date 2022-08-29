@@ -15,8 +15,8 @@ dim = 128
 #TP = cuqi.testproblem.Deconvolution1D(dim=dim, phantom="square")
 TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom=cuqi.data.grains(size=dim))
 n = TP.model.domain_dim
-N = TP.model.domain_geometry.shape[0]
-ndim = len(TP.model.domain_geometry.shape)
+N = TP.model.domain_geometry.fun_shape[0]
+ndim = len(TP.model.domain_geometry.fun_shape)
 
 # Prior par
 if ndim == 1: par = 0.02 #1d

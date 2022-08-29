@@ -20,14 +20,14 @@ class Geometry(ABC):
     """
     @property
     @abstractmethod
-    def shape(self):
+    def par_shape(self):
         pass
 
     @property
     def dim(self):
         """The dimension of the geometry (parameter space)."""
-        if self.shape is None: return None
-        return reduce(operator.mul, self.shape) # math.prod(self.shape) for Python 3.8+
+        if self.par_shape is None: return None
+        return reduce(operator.mul, self.par_shape) # math.prod(self.par_shape) for Python 3.8+
 
     @property
     def fun_shape(self):
@@ -46,7 +46,7 @@ class Geometry(ABC):
     def fun_dim(self):
         """ The dimension of the geometry (function space). """
         if self.fun_shape is None: return None
-        return reduce(operator.mul, self.fun_shape) # math.prod(self.shape) for Python 3.8+
+        return reduce(operator.mul, self.fun_shape) # math.prod(self.fun_shape) for Python 3.8+
 
     @property
     def variables(self):
@@ -176,7 +176,7 @@ class Geometry(ABC):
         return self._all_values_equal(obj)
 
     def __repr__(self) -> str:
-        return "{}{}".format(self.__class__.__name__,self.shape)
+        return "{}{}".format(self.__class__.__name__,self.par_shape)
 
     def _all_values_equal(self, obj):
         """Returns true of all values of the object and self are equal"""
@@ -211,8 +211,8 @@ class _WrappedGeometry(Geometry):
         self.geometry = geometry
 
     @property
-    def shape(self):
-        return self.geometry.shape
+    def par_shape(self):
+        return self.geometry.par_shape
 
     @property
     def grid(self):
@@ -280,9 +280,10 @@ class Continuous(Geometry, ABC):
         return self._grid
 
     @property
-    def fun_shape(self):
-        """The dimension of the function space."""
-        return self.shape
+    def par_shape(self):
+        """The shape of the parameter space."""
+        if self.fun_dim is None: return None  
+        return (self.fun_dim,) 
     
     def fun2par(self,funvals):
         return funvals
@@ -305,7 +306,7 @@ class Continuous1D(Continuous):
         super().__init__(grid, axis_labels,**kwargs)
 
     @property
-    def shape(self):
+    def fun_shape(self):
         if self.grid is None: return None
         return self.grid.shape
 
@@ -336,9 +337,9 @@ class Continuous2D(Continuous):
         super().__init__(grid, axis_labels)
             
     @property
-    def shape (self): #TODO: This is actually the shape of the function space not the shape of the parameter space.
+    def fun_shape(self): 
         if self.grid is None: return None
-        return (len(self.grid[0]), len(self.grid[1])) 
+        return (len(self.grid[0]), len(self.grid[1]))  
 
     @Continuous.grid.setter
     def grid(self, value):
@@ -374,7 +375,7 @@ class Continuous2D(Continuous):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.shape[::-1]),
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.fun_shape[::-1]),
                           **kwargs))
         self._plot_config()
         return ims
@@ -414,7 +415,7 @@ class Image2D(Geometry):
 
     Parameters
     -----------
-    shape : tuple
+    fun_shape : tuple
         shape of the image (rows, columns)
 
     order : str
@@ -422,21 +423,25 @@ class Image2D(Geometry):
         if order = 'F', the image is represented column-major order.
 
     """
-    def __init__(self, shape, order="C"):
-        self.shape = shape
+    def __init__(self, fun_shape, order="C"):
+        self.fun_shape = fun_shape
         self.order = order
 
     @property
-    def shape(self):
-        return self._shape
+    def fun_shape(self):
+        return self._fun_shape
 
-    @shape.setter
-    def shape(self, value):
-        self._shape = value
+    @fun_shape.setter
+    def fun_shape(self, value):
+        self._fun_shape = value
+
+    @property
+    def par_shape(self):
+        return (self.fun_dim,)
 
     def par2fun(self, pars):
         # Reshape to image (also for multiple parameter vectors). TODO: #327
-        funvals = pars.reshape(self.shape+(-1,), order=self.order) 
+        funvals = pars.reshape(self.fun_shape+(-1,), order=self.order) 
         #Squeeze to return single image if only one parameter vector was given
         funvals = funvals.squeeze()
         return funvals 
@@ -469,13 +474,15 @@ class Discrete(Geometry):
         self.variables = variables
 
     @property
-    def shape(self):
+    def fun_shape(self):
+        """The dimension of the function space."""
         return (len(self.variables),)
 
     @property
-    def fun_shape(self):
-        """The dimension of the function space."""
-        return self.shape
+    def par_shape(self):
+        """The shape of the parameter space."""
+        if self.fun_dim is None: return None  
+        return (self.fun_dim,) 
 
     def _plot(self,values, **kwargs):
 
@@ -649,7 +656,7 @@ class CustomKL(Continuous1D):
 
 
     @property
-    def shape(self):
+    def par_shape(self):
         return (self._trunc_term,)
 
     def par2fun(self, p):
@@ -761,9 +768,5 @@ class StepExpansion(Continuous1D):
         return np.array([val1,val2,val3])
 
     @property
-    def shape(self):
+    def par_shape(self):
         return (3,)
-
-    @property
-    def fun_shape(self):
-        return (self.grid.size,)

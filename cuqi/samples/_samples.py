@@ -234,6 +234,13 @@ class Samples(object):
         else:
             return self.geometry.fun_dim
 
+    @property
+    def _geometry_shape(self):
+        if self.is_par:
+            return self.geometry.par_shape
+        else:
+            return self.geometry.fun_shape
+
     @geometry.setter
     def geometry(self,inGeometry):
         self._geometry = inGeometry
@@ -694,7 +701,7 @@ class Samples(object):
         RHAT_xarray = arviz.rhat(datadict, **kwargs)
 
         # Convert to numpy array
-        RHAT = np.empty(self.geometry.shape)
+        RHAT = np.empty(self._geometry_shape)
         for i, (key, value) in enumerate(RHAT_xarray.items()):
             RHAT[i] = value.to_numpy()
         return RHAT

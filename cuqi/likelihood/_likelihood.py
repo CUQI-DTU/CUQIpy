@@ -45,9 +45,14 @@ class Likelihood(object):
         return self.geometry.dim
 
     @property
-    def shape(self):
-        """ Return shape of likelihood """
-        return self.geometry.shape
+    def par_shape(self):
+        """ Return parameter shape of likelihood """
+        return self.geometry.par_shape
+
+    @property
+    def fun_shape(self):
+        """ Return function space shape of likelihood """
+        return self.geometry.fun_shape
 
     @property
     def geometry(self):

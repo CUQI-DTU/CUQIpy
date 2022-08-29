@@ -24,7 +24,8 @@ def test_likelihood_attributes():
     assert likelihood.geometry == model.domain_geometry
 
     # Shape of domain
-    assert likelihood.shape == model.domain_geometry.shape
+    assert likelihood.par_shape == model.domain_geometry.par_shape
+    assert likelihood.fun_shape == model.domain_geometry.fun_shape
 
     # Model extraction
     assert likelihood.model == model

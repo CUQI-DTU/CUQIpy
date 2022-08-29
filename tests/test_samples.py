@@ -123,7 +123,7 @@ def test_ess():
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MetropolisHastings(dist)
     samples = sampler.sample_adapt(500)
-    assert samples.compute_ess().shape == samples.geometry.shape
+    assert samples.compute_ess().shape == samples.geometry.par_shape
 
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.MappedGeometry(

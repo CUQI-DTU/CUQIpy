@@ -70,7 +70,7 @@ samples.plot_std()
 
 # Helper variables
 n = TP.model.domain_dim # Number of parameters
-N = TP.model.domain_geometry.shape[0] # Number of parameters in one dimension
+N = TP.model.domain_geometry.fun_shape[0] # Number of parameters in one dimension
 
 # Scaling factor of precision matrix
 alpha = 100 
