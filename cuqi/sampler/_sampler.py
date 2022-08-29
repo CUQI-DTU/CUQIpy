@@ -141,9 +141,9 @@ class ProposalBasedSampler(Sampler,ABC):
     @property
     def geometry(self):
         geom1, geom2 = None, None
-        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.dim is not None:
+        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
             geom1=  self.proposal.geometry
-        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.dim is not None:
+        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.par_dim is not None:
             geom2 = self.target.geometry
         if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
             return geom1

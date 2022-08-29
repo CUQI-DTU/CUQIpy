@@ -155,7 +155,7 @@ def test_distribution_contains_geometry(distribution, kwargs):
     geom = cuqi.geometry.Continuous2D((2,2))
     dist = distribution(**kwargs,geometry = geom)
     cuqi_samples = dist.sample(3,rng=rng)
-    assert(dist.dim == geom.dim and 
+    assert(dist.dim == geom.par_dim and 
           cuqi_samples.geometry == geom and
           dist.geometry == geom and 
           np.all(geom.grid[0]==np.array([0, 1])) and

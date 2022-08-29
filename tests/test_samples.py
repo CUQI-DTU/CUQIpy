@@ -15,7 +15,7 @@ from cuqi import geometry
 						(cuqi.geometry.Continuous1D(3)),
 						])
 def test_samples_plot(geom,is_par,plot_par):
-    dim = geom.dim
+    dim = geom.par_dim
     x = cuqi.distribution.Normal(np.zeros(dim),np.ones(dim),geometry=geom)
     s = x.sample(10)
 
@@ -133,9 +133,9 @@ def test_samples_funvals(geometry):
     """Test that the function values are computed correctly."""
     Ns = 10
     samples = cuqi.samples.Samples(
-        np.random.randn(geometry.dim, Ns), geometry=geometry)
+        np.random.randn(geometry.par_dim, Ns), geometry=geometry)
 
-    funvals = np.empty((geometry.dim, Ns))
+    funvals = np.empty((geometry.par_dim, Ns))
     for i, s in enumerate(samples):
         funvals[:, i] = geometry.par2fun(s)
 
@@ -175,7 +175,7 @@ def test_compute_ci(percent, compute_on_par, geometry):
 def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
     """Test passing flags to plot_ci."""
     np.random.seed(0)
-    par_samples = cuqi.samples.Samples(np.random.randn(geometry.dim, 10), geometry=geometry)
+    par_samples = cuqi.samples.Samples(np.random.randn(geometry.par_dim, 10), geometry=geometry)
     samples = par_samples if compute_on_par else par_samples.funvals
 
     if is_par is not None:

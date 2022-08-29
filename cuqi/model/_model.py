@@ -81,11 +81,11 @@ class Model(object):
 
     @property
     def domain_dim(self): 
-        return self.domain_geometry.dim
+        return self.domain_geometry.par_dim
 
     @property
     def range_dim(self): 
-        return self.range_geometry.dim
+        return self.range_geometry.par_dim
 
     def _input2fun(self, x, geometry, is_par):
         """ Converts input to function values (if needed) using the appropriate geometry. The input can then be passed to :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func).
@@ -170,7 +170,7 @@ class Model(object):
         # If input x is Samples we apply func for each sample
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
-            out = np.zeros((func_range_geometry.dim, x.Ns))
+            out = np.zeros((func_range_geometry.par_dim, x.Ns))
             # Recursively apply func to each sample
             for idx, item in enumerate(x):
                 out[:,idx] = self._apply_func(func,

@@ -58,7 +58,7 @@ class Likelihood(Density):
     @property
     def dim(self):
         """ Return dimension of likelihood """
-        return self.geometry.dim
+        return self.geometry.par_dim
 
     @property
     def par_shape(self):

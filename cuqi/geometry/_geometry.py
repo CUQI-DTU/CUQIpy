@@ -24,7 +24,7 @@ class Geometry(ABC):
         pass
 
     @property
-    def dim(self):
+    def par_dim(self):
         """The dimension of the geometry (parameter space)."""
         if self.par_shape is None: return None
         return reduce(operator.mul, self.par_shape) # math.prod(self.par_shape) for Python 3.8+
@@ -34,7 +34,7 @@ class Geometry(ABC):
         """ The shape of the geometry (function space). """
         if not hasattr(self,'_fun_shape') or self._fun_shape is None:
             # Attempt to infer dimension
-            funvals = self.par2fun(np.ones(self.dim))
+            funvals = self.par2fun(np.ones(self.par_dim))
             if hasattr(funvals, 'shape'):
                 self._fun_shape = funvals.shape
             else:
@@ -52,7 +52,7 @@ class Geometry(ABC):
     def variables(self):
         #No variable names set, generate variable names from dim
         if not hasattr(self,"_variables"):
-                self.variables = self.dim
+                self.variables = self.par_dim
         return self._variables
 
 
@@ -69,7 +69,7 @@ class Geometry(ABC):
         else:
             raise ValueError(variables_value_err_msg) 
         self._variables = value
-        self._ids = range(self.dim)
+        self._ids = range(self.par_dim)
 
     def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
@@ -93,7 +93,7 @@ class Geometry(ABC):
             raise Exception("Plot par is true, but is_par is false (parameters were not given)")
 
         if plot_par:
-            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
             return geom.plot(values,**kwargs)
 
         if is_par:
@@ -126,7 +126,7 @@ class Geometry(ABC):
             raise ValueError("Plot par is true, but is_par is false (parameters were not given)")
         
         if plot_par:
-            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
             return geom.plot_envelope(lo_values, hi_values,**kwargs)
 
         if is_par:
@@ -391,7 +391,7 @@ class Continuous2D(Continuous):
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+             (len(values.shape) == 2 and values.shape[0]== self.par_dim):  
             pass
         else:
             values = values[..., np.newaxis]
@@ -462,7 +462,7 @@ class Image2D(Geometry):
 
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+             (len(values.shape) == 2 and values.shape[0]== self.par_dim):  
             pass
         else:
             values = values[..., np.newaxis]
@@ -475,7 +475,7 @@ class Discrete(Geometry):
 
     @property
     def fun_shape(self):
-        """The dimension of the function space."""
+        """The shape of the function space."""
         return (len(self.variables),)
 
     @property
@@ -589,7 +589,7 @@ class KLExpansion(Continuous1D):
 
         self.decay_rate = 2.5 # decay rate of KL
         self.normalizer = 12. # normalizer factor
-        eigvals = np.array( range(1,self.dim+1) ) # KL eigvals
+        eigvals = np.array( range(1,self.par_dim+1) ) # KL eigvals
         self.coefs = 1/np.float_power( eigvals,self.decay_rate )
 
 
@@ -621,13 +621,13 @@ class KLExpansion_Full(Continuous1D):
         gamma = nu+1.
         self.var = params["std"]**2
 
-        modes = np.arange(0,self.dim)
+        modes = np.arange(0,self.par_dim)
 
         self.coefs =  np.float_power( tau2,gamma ) * np.float_power(tau2+modes**2,-gamma)
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        freq = np.zeros(self.dim)
+        freq = np.zeros(self.par_dim)
         m = len(p)
         freq[:m] = p
         temp = freq*self.coefs
@@ -652,7 +652,7 @@ class CustomKL(Continuous1D):
         #self.N = len(self.grid)
         self.mean = mean
         #self.std = std
-        self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
+        self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.par_dim) )
 
 
     @property

@@ -220,7 +220,7 @@ class Samples(object):
     def parameters(self):
         """If `self.is_par` is False, returns a new Samples object of sample parameters by applying :meth:`self.geometry.fun2par` on each sample. Otherwise, returns the Samples object itself."""
         if self.is_par is False:
-            _parameters = np.empty((self.geometry.dim, self.Ns))
+            _parameters = np.empty((self.geometry.par_dim, self.Ns))
             for i, s in enumerate(self):
                 _parameters[:, i] = self.geometry.fun2par(s)
             return Samples(_parameters, is_par=True, geometry=self.geometry)
@@ -230,7 +230,7 @@ class Samples(object):
     @property
     def _geometry_dim(self):
         if self.is_par:
-            return self.geometry.dim
+            return self.geometry.par_dim
         else:
             return self.geometry.fun_dim
 

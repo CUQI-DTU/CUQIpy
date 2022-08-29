@@ -17,7 +17,7 @@ def test_Continuous_geometry(geomClass,grid,expected_grid,expected_par_shape, ex
     geom = geomClass(grid=grid)
     assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
            and (geom.par_shape == expected_par_shape)
-	   and (geom.dim == expected_dim)
+	   and (geom.par_dim == expected_dim)
 	   and (geom.fun_shape == expected_fun_shape)
 	   and (geom.fun_dim == expected_dim))
 
@@ -28,7 +28,7 @@ def test_None_Continuous_geometry(geomClass):
     geom = geomClass()
     assert(    (geom.grid == None)
            and (geom.par_shape == None)
-           and (geom.dim == None)
+           and (geom.par_dim == None)
            and (geom.fun_shape == None)
 	   and (geom.fun_dim == None))
 
@@ -51,7 +51,7 @@ def test_Discrete_geometry(variables,expected_variables,expected_shape,expected_
     geom = cuqi.geometry.Discrete(variables)
     assert(geom.variables == expected_variables
            and (geom.par_shape == expected_shape)
-	   and (geom.dim == expected_dim))
+	   and (geom.par_dim == expected_dim))
 
 @pytest.mark.parametrize("geom1,geom2,truth_value",
                          [(cuqi.geometry._DefaultGeometry(2),cuqi.geometry.Continuous1D(2), True),
@@ -110,7 +110,7 @@ def test_mapped_geometry(geom, map, imap):
     np.random.seed(0)
 
     mapped_geom = cuqi.geometry.MappedGeometry(geom, map, imap)
-    val = np.random.rand(mapped_geom.dim)
+    val = np.random.rand(mapped_geom.par_dim)
     mapped_val = mapped_geom.par2fun(val)
     imapped_mapped_val = mapped_geom.fun2par(mapped_val)
     assert(np.allclose(val, imapped_mapped_val) and geom.par_shape == mapped_geom.par_shape)
@@ -150,7 +150,7 @@ def test_StepExpansion_geometry(n_steps):
         geom.plot(par,linestyle = '', marker='.')
 
         assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
-           and geom.dim == n_steps
+           and geom.par_dim == n_steps
 
 @pytest.mark.parametrize("projection, func",[('MiN', np.min),
       ('mAX', np.max),('mean', np.mean)])
