@@ -35,42 +35,41 @@ print(sampler.proposal)
 print(sampler.x0)
 print(sampler.scale)
 
-sampler.sample(200)
-
 # %%
 # We can set up a Gibbs sampler with an initialized sampler
-
-# Model and data
-A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D.get_components(phantom='square')
-
-# Get dimension of signal
-n = A.domain_dim
+# Here we choose a very sample 2D Gaussian to Gibbs sample from
 
 # Define distributions
-d = cuqi.distribution.Gamma(1, 1e-4)
-l = cuqi.distribution.Gamma(1, 1e-4)
-x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d[0])
-y = cuqi.distribution.GaussianCov(A, lambda l: 1/l)
+x = cuqi.distribution.GaussianCov(0, 1)
+y = cuqi.distribution.GaussianCov(5, 1)
 
 # Combine into a joint distribution
-joint = cuqi.distribution.JointDistribution([d, l, x, y])
-
-# Define posterior by conditioning on the data
-posterior = joint(y=y_obs)
+target = cuqi.distribution.JointDistribution([x, y])
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': cuqi.sampler.Linear_RTO,
-    'd': cuqi.sampler.MetropolisHastings(scale=0.1),
-    'l': cuqi.sampler.MetropolisHastings(scale=0.1)
+    'x': cuqi.sampler.MetropolisHastings(scale=0.1),
+    'y': cuqi.sampler.MetropolisHastings(scale=0.1),
 }
 
 # Define Gibbs sampler
-sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+sampler = cuqi.sampler.Gibbs(target, sampling_strategy)
 
 # Run sampler
 samples = sampler.sample(Ns=1000, Nb=200)
 # %%
-samples["d"].plot_trace()
-samples["l"].plot_trace()
+# Plot traces
+samples["x"].plot_trace()
+samples["y"].plot_trace()
+
+# %%
+# Try sampling x directly
+sampler_x = cuqi.sampler.MetropolisHastings(target=x, scale=0.1)
+samples_x = sampler_x.sample_adapt(N=1000, Nb=200)
+samples_x.plot_trace()
+
+# Try sampling y directly
+sampler_y = cuqi.sampler.MetropolisHastings(target=y, scale=0.1)
+samples_y = sampler_y.sample_adapt(N=1000, Nb=200)
+samples_y.plot_trace()
 # %%
