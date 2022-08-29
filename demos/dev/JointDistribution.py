@@ -38,8 +38,8 @@ m = A.range_dim
 #     \begin{align}
 #         d &\sim \mathrm{Gamma}(1, 10^{-4}) \\
 #         l &\sim \mathrm{Gamma}(1,10^{-4}) \\
-#         \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^2 \mathbf{I}_n) \\
-#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^2 \mathbf{I}_m)
+#         \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, d^{-1} \mathbf{I}_n) \\
+#         \mathbf{y} &\sim \mathcal{N}(\mathbf{A} \mathbf{x}, s^{-1} \mathbf{I}_m)
 #     \end{align}
 #
 # We can write this model in CUQIpy as follows:
@@ -47,8 +47,8 @@ m = A.range_dim
 # Define distribution
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
-x = GaussianCov(np.zeros(n), lambda d: d)
-y = GaussianCov(lambda x: A@x, lambda l: l)
+x = GaussianCov(np.zeros(n), lambda d: 1/d)
+y = GaussianCov(lambda x: A@x, lambda l: 1/l)
 
 # %%
 # Define joint distribution p(d,l,x,y)
