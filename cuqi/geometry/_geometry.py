@@ -787,6 +787,11 @@ class StepExpansion(Continuous1D):
                 interval_indices, = np.where((self.grid>start)&(self.grid<=end))
             self._indices.append(interval_indices)    
 
+    @property
+    def par_shape(self):
+        """Shape of the parameter space."""
+        return (self._n_steps,)
+
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
         for i in range(self._n_steps):
@@ -816,6 +821,3 @@ class StepExpansion(Continuous1D):
         # Ensure the grid is equally spaced
         if not np.allclose(np.diff(self.grid), self.grid[1]-self.grid[0]):
             raise ValueError("The grid must be an equally spaced grid (regular).")
-
-    def shape(self):
-        return (self._n_steps,)
