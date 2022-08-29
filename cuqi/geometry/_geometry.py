@@ -17,10 +17,13 @@ def _get_identity_geometries():
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
+
+    It specifies a mapping from the parameter space to the function space (:meth:`par2fun`) and the inverse map if possible (:meth:`fun2par`). The parameters can be for example, the center and width of a hat function, and the function is the resulting hat function evaluated at grid points of a given grid. The geometry keeps track of the dimension and shape of the parameter space (:meth:`par_dim` and :meth:`par_shape`) and the dimension and shape of the function space (:meth:`fun_dim` and :meth:`fun_shape`).
     """
     @property
     @abstractmethod
     def par_shape(self):
+        """The shape of the parameter space."""
         pass
 
     @property
@@ -31,7 +34,7 @@ class Geometry(ABC):
 
     @property
     def fun_shape(self):
-        """ The shape of the geometry (function space). """
+        """The shape of the geometry (function space). """
         if not hasattr(self,'_fun_shape') or self._fun_shape is None:
             # Attempt to infer dimension
             funvals = self.par2fun(np.ones(self.par_dim))
@@ -44,7 +47,7 @@ class Geometry(ABC):
     
     @property
     def fun_dim(self):
-        """ The dimension of the geometry (function space). """
+        """The dimension of the geometry (function space). """
         if self.fun_shape is None: return None
         return reduce(operator.mul, self.fun_shape) # math.prod(self.fun_shape) for Python 3.8+
 
