@@ -194,3 +194,38 @@ def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
         import matplotlib.pyplot as plt
         plt.figure()
         samples.plot_ci(plot_par=plot_par)
+
+
+@pytest.mark.parametrize("geom, map, imap, supported",
+                         [(cuqi.geometry.Discrete(4), lambda x:x**2, lambda x:np.sqrt(x), True),
+                          (cuqi.geometry.Continuous1D(15),
+                           lambda x:x+12, lambda x:x-12, True),
+                             (cuqi.geometry.Image2D((4, 5)), lambda x:x **
+                              2+1, lambda x:np.sqrt(x-1), False)
+                          ])
+def test_parameters_property(geom, map, imap, supported):
+    """Test that the Samples parameters property is computed correctly. And that an error is generated
+    when the Samples geometry type does not support computing funvals."""
+    # Create random samples:
+    np.random.seed(0)
+    Ns = 10
+    mapped_geom = cuqi.geometry.MappedGeometry(geom, map, imap)
+    val = np.absolute(np.random.rand(mapped_geom.par_dim, Ns))
+
+    # Create Samples object:
+    samples = cuqi.samples.Samples(val, geometry=mapped_geom)
+
+    if not supported:
+        with pytest.raises(ValueError, match=r"Creating a Samples object with function values of samples is not supported for the provided  geometry"):
+            funvals = samples.funvals
+    else:
+        # Compute function values and from the function values
+        # compute the parameters:
+        funvals = samples.funvals
+        parameters = funvals.parameters
+
+        # Assert that the parameters and the function values are different
+        # and that extracting the function values and going back to the parameters
+        # is done correctly.
+        assert not np.allclose(parameters.samples, funvals.samples) and\
+            np.allclose(parameters.samples, val)
