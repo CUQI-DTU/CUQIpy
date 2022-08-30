@@ -708,4 +708,4 @@ class Samples(object):
 
     def _check_funvals_supported(self):
         if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
-            raise ValueError(f"Creating a Samples object with function values of samples is not supported for Samples object with a geometry of type {type(self.geometry)}.")
+            raise ValueError(f"Creating a Samples object with function values of samples is not supported for the provided  geometry: {type(self.geometry)}. Currently, the geometry `fun_shape` must be a tuple of length 1, e.g. `(6,)`.")
