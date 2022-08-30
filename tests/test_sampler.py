@@ -464,6 +464,9 @@ def test_Gibbs_continue_sampling():
     # Continue sampling
     samples2 = sampler.sample(Ns=10)
 
+    assert samples["x"].shape[-1] == 10
+    assert samples2["x"].shape[-1] == 20
+
 def test_Gibbs_geometry_matches():
     sampler = _Gibbs_joint_hier_model()
 
