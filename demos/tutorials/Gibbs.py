@@ -215,13 +215,13 @@ samples['l'].plot_trace(figsize=(8,2))
 # Define new distribution for x
 x = Laplace_diff(np.zeros(n), lambda d: 1/d)
 
-# Define new joint distribution
-joint = JointDistribution([d, l, x, y])
+# Define new joint distribution with piecewise constant prior
+joint_pc = JointDistribution([d, l, x, y])
 
 # Define new posterior by conditioning on the data
-posterior = joint(y=y_obs)
+posterior_pc = joint_pc(y=y_obs)
 
-print(posterior)
+print(posterior_pc)
 
 
 # %%
@@ -248,10 +248,10 @@ sampling_strategy = {
 }
 
 # Define Gibbs sampler
-sampler = Gibbs(posterior, sampling_strategy)
+sampler_pc = Gibbs(posterior_pc, sampling_strategy)
 
 # Run sampler
-samples = sampler.sample(Ns=1000, Nb=200)
+samples_pc = sampler_pc.sample(Ns=1000, Nb=200)
 
 # %%
 # Analyze results
@@ -261,8 +261,8 @@ samples = sampler.sample(Ns=1000, Nb=200)
 # Here we notice the posterior distribution matches the exact solution much better.
 
 # Plot credible intervals for the signal
-samples['x'].plot_ci(exact=probinfo.exactSolution)
+samples_pc['x'].plot_ci(exact=probinfo.exactSolution)
 #%%
-samples['d'].plot_trace(figsize=(8,2))
+samples_pc['d'].plot_trace(figsize=(8,2))
 #%%
-samples['l'].plot_trace(figsize=(8,2))
+samples_pc['l'].plot_trace(figsize=(8,2))
