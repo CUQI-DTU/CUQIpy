@@ -2,7 +2,7 @@
 Gibbs sampling
 ==============
 
-    This tutorial shows how to use cuqipy to perform Gibbs sampling.
+    This tutorial shows how to use CUQIpy to perform Gibbs sampling.
     Gibbs sampling is a Markov chain Monte Carlo (MCMC) method for
     sampling a joint probability distribution.
 
@@ -10,7 +10,7 @@ Gibbs sampling
     sampling samples the variables of the distribution sequentially,
     one variable at a time. The sampling of each variable is done by
     sampling from the conditional distribution of that variable given 
-    the values of the other variables.
+    (fixed, previously sampled) values of the other variables.
 
     This is often a very efficient way of sampling from a joint
     distribution if the conditional distributions are easy to sample
