@@ -193,7 +193,7 @@ samples['l'].plot_trace(figsize=(8,2))
 # Notice that while the sampling went well in the previous example,
 # the posterior distribution did not match the characteristics of
 # the exact solution. We can improve this result by switching to a
-# piecewise constant prior for :math:`\mathbf{x}`.
+# prior that better matches the exact solution :math:`\mathbf{x}`.
 #
 # One choice is the Laplace difference prior, which assumes a
 # Laplace distribution for the differences between neighboring
@@ -216,12 +216,12 @@ samples['l'].plot_trace(figsize=(8,2))
 x = Laplace_diff(np.zeros(n), lambda d: 1/d)
 
 # Define new joint distribution with piecewise constant prior
-joint_pc = JointDistribution([d, l, x, y])
+joint_Ld = JointDistribution([d, l, x, y])
 
 # Define new posterior by conditioning on the data
-posterior_pc = joint_pc(y=y_obs)
+posterior_Ld = joint_Ld(y=y_obs)
 
-print(posterior_pc)
+print(posterior_Ld)
 
 
 # %%
@@ -248,10 +248,10 @@ sampling_strategy = {
 }
 
 # Define Gibbs sampler
-sampler_pc = Gibbs(posterior_pc, sampling_strategy)
+sampler_Ld = Gibbs(posterior_Ld, sampling_strategy)
 
 # Run sampler
-samples_pc = sampler_pc.sample(Ns=1000, Nb=200)
+samples_Ld = sampler_Ld.sample(Ns=1000, Nb=200)
 
 # %%
 # Analyze results
@@ -261,8 +261,8 @@ samples_pc = sampler_pc.sample(Ns=1000, Nb=200)
 # Here we notice the posterior distribution matches the exact solution much better.
 
 # Plot credible intervals for the signal
-samples_pc['x'].plot_ci(exact=probinfo.exactSolution)
+samples_Ld['x'].plot_ci(exact=probinfo.exactSolution)
 #%%
-samples_pc['d'].plot_trace(figsize=(8,2))
+samples_Ld['d'].plot_trace(figsize=(8,2))
 #%%
-samples_pc['l'].plot_trace(figsize=(8,2))
+samples_Ld['l'].plot_trace(figsize=(8,2))
