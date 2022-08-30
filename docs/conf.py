@@ -51,8 +51,8 @@ autosummary_ignore_module_all = False # Adds only members from __all__ to the ap
 # Sphinx-gallery configuration
 sphinx_gallery_conf = {
     'filename_pattern': '/*',
-    'examples_dirs': ['../demos/tutorials', '../demos/howtos'],
-    'gallery_dirs': ['user/_auto_tutorials', 'user/_auto_howtos'],
+    'examples_dirs': ['../demos/tutorials', '../demos/howtos', '../demos/dev'],
+    'gallery_dirs': ['user/_auto_tutorials', 'user/_auto_howtos', 'dev/_auto_dev'],
     'download_all_examples': False,
     'within_subsection_order': FileNameSortKey,
 }

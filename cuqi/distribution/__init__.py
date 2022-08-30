@@ -13,3 +13,4 @@ from ._normal import Normal
 from ._posterior import Posterior
 from ._uniform import Uniform
 from ._custom import UserDefinedDistribution, DistributionGallery
+from ._joint_distribution import JointDistribution, _StackedJointDistribution
