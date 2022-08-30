@@ -85,7 +85,7 @@ n = A.domain_dim
 # Define distributions
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
-x = GMRF(np.zeros(n), lambda d: d[0])
+x = GMRF(np.zeros(n), lambda d: d)
 y = GaussianCov(A, lambda l: 1/l)
 
 # Combine into a joint distribution
