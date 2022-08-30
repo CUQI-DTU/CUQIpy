@@ -15,7 +15,12 @@ Gibbs sampling
     This is often a very efficient way of sampling from a joint
     distribution if the conditional distributions are easy to sample
     from. This is one way to exploit the structure of the joint
-    distribution.
+    distribution. On the other hand, if the conditional distributions
+    are highly correlated and/or are difficult to sample from, then
+    Gibbs sampling can be very inefficient.
+
+    For these reasons, Gibbs sampling is often a double-edged sword,
+    that needs to be used in the right context.
 
 """
 # %%
