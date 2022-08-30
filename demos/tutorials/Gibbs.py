@@ -102,10 +102,33 @@ y = GaussianCov(A, lambda l: 1/l)
 # Combine into a joint distribution
 joint = JointDistribution([d, l, x, y])
 
+# View the joint distribution
+print(joint)
+
+# %%
+# Notice that the joint distribution prints a mathematical expression
+# for the density functions that make up :math:`p(d,l,\mathbf{x},\mathbf{y})`.
+# In this case they are all distributions, but this need not be the case.
+
+# %%
+# Defining the posterior distribution
+# ------------------------------------
+#
+# Now we define the posterior distribution, which is the joint distribution
+# conditioned on the observed data. That is, :math:`p(d, l, \mathbf{x} \mid \mathbf{y}=\mathbf{y}_\mathrm{obs})`
+#
+# This is done in the following way:
+
 # Define posterior by conditioning on the data
 posterior = joint(y=y_obs)
 
+# View the structure of the posterior
 print(posterior)
+
+# %%
+# Notice that after conditioning on the data, the distribution associated with
+# :math:`\mathbf{y}` became a likelihood function and that the posterior is now
+# a joint distribution of the variables :math:`d`, :math:`l`, :math:`\mathbf{x}`.
 
 # %%
 # Gibbs Sampler
