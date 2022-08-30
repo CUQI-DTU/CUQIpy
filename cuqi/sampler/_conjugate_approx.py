@@ -2,7 +2,7 @@ from cuqi.distribution import Posterior, Laplace_diff, Gamma
 import numpy as np
 import scipy as sp
 
-class ConjugateApprox:
+class ConjugateApprox: # TODO: Subclass from Sampler once updated
     """ Approximate Conjugate sampler
 
     Sampler for sampling a posterior distribution where the likelihood and prior can be approximated

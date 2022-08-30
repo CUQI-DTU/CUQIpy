@@ -1,7 +1,7 @@
 from cuqi.distribution import Posterior, GaussianCov, GaussianPrec, Gamma, GMRF
 import numpy as np
 
-class Conjugate:
+class Conjugate: # TODO: Subclass from Sampler once updated
     """ Conjugate sampler
 
     Sampler for sampling a posterior distribution where the likelihood and prior are conjugate.
