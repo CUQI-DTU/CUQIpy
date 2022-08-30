@@ -406,7 +406,8 @@ def test_NUTS_regression(copy_reference):
 
     assert(np.allclose(samples.samples, samples_orig["arr_0"]))
 
-def _Gibbs_joint_heir_model():
+def _Gibbs_joint_hier_model():
+    """ Define a Gibbs sampler based on a joint distribution from a hierarchical model. Used for testing Gibbs sampler. """
     np.random.seed(0)
     
     # Model and data
@@ -440,7 +441,7 @@ def test_Gibbs_regression(copy_reference):
     if not sys.platform.startswith('win'):
         pytest.skip("NUTS regression test is not implemented for this platform")
 
-    sampler = _Gibbs_joint_heir_model()
+    sampler = _Gibbs_joint_hier_model()
 
     # Run sampler
     samples = sampler.sample(Ns=100, Nb=20)
@@ -455,7 +456,7 @@ def test_Gibbs_regression(copy_reference):
 def test_Gibbs_continue_sampling():
     """ This tests the sampling can continue with the Gibbs sampler """
 
-    sampler = _Gibbs_joint_heir_model()
+    sampler = _Gibbs_joint_hier_model()
 
     # Run sampler
     samples = sampler.sample(Ns=10, Nb=5)
@@ -464,7 +465,7 @@ def test_Gibbs_continue_sampling():
     samples2 = sampler.sample(Ns=10)
 
 def test_Gibbs_geometry_matches():
-    sampler = _Gibbs_joint_heir_model()
+    sampler = _Gibbs_joint_hier_model()
 
     target = sampler.target
 
