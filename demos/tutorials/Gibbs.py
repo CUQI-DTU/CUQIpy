@@ -119,8 +119,15 @@ print(posterior)
 #
 # This is done in CUQIpy as follows:
 
+# Define sampling strategy
+sampling_strategy = {
+    'x': Linear_RTO,
+    'd': Conjugate,
+    'l': Conjugate
+}
+
 # Define Gibbs sampler
-sampler = Gibbs(posterior, {'x': Linear_RTO, ('d', 'l'): Conjugate})
+sampler = Gibbs(posterior, sampling_strategy)
 
 # Run sampler
 samples = sampler.sample(Ns=1000, Nb=200)
