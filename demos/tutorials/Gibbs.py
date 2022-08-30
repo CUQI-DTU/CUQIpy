@@ -29,6 +29,7 @@ Gibbs sampling
 # We start by importing the necessary modules
 
 import numpy as np
+import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import GaussianCov, Gamma, JointDistribution, GMRF, Laplace_diff
 from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UnadjustedLaplaceApproximation, ConjugateApprox
@@ -47,13 +48,23 @@ np.random.seed(0)
 #
 # where :math:`\mathbf{A}` is the convolution matrix, and :math:`\mathbf{x}` is the input signal.
 #
-# We load this example from the testproblem library of CUQIpy.
+# We load this example from the testproblem library of CUQIpy and visualize the
+# true solution (sharp signal) and data (convolved signal).
 
 # Model and data
 A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
 
 # Get dimension of signal
 n = A.domain_dim
+
+# Plot exact solution and observed data
+plt.subplot(121)
+probinfo.exactSolution.plot()
+plt.title('exact solution')
+
+plt.subplot(122)
+y_obs.plot()
+plt.title("Observed data")
 
 # %%
 # Hierarchical Bayesian model
