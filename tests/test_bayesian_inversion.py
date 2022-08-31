@@ -1,7 +1,8 @@
 import pytest
 import numpy as np
 import sys
-
+# import sys
+sys.path.append('../')
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF
 
