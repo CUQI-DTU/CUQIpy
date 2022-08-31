@@ -449,7 +449,7 @@ class Samples(object):
             pe_kwargs["plot_par"] = False
             kwargs["plot_par"] = False
 
-        if type(self.geometry) is Continuous2D or type(self.geometry) is Image2D:
+        if (type(self.geometry) is Continuous2D or type(self.geometry) is Image2D) and not kwargs["plot_par"]:
             plt.figure()
             #fig.add_subplot(2,2,1)
             self.geometry.plot(mean, *args, **kwargs)
