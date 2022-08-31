@@ -63,16 +63,16 @@ def test_Gaussian_multiple():
 
                         (([-3.14159265,  2.23606798]),
                         ([ 3.14159265, 50.        ]),
-                        ([[ 1.   ,  0.001],
+                        ([[ 1.   ,  -0.001],
                           [-0.001,  1.   ]]),
                         ([[  2.40014477,  -1.88427406,  -0.06682814,   3.89835695,  2.72559222],
                           [-46.63338991,  49.73922674,  -5.33487942,  -2.93194249, 22.76010272]])),
 
                         (([23.        ,  0.        ,  3.14159265]),
                         ([3.        , 1.41421356, 3.14159265]),
-                        ([[ 1. ,  0.9,  0.3],
-                          [0.9,  1. ,  0.5],
-                          [-0.3, -0.5,  1. ]]),
+                        ([[ 1., 0.9,  0.3],
+                          [0.9,  1. , -0.5],
+                          [0.3, -0.5,  1. ]]),
                         ([[23.7305748 , 22.58046919, 23.19981226, 23.43140839, 23.1244483 ],
                           [ 2.83554239,  3.92371224,  3.06634238,  4.00865492,  4.22990048],
                           [ 0.39008306,  4.56363292,  2.81075259, -1.94308617, -0.87372503]]))
@@ -95,10 +95,9 @@ def test_Normal_rng(mean,var,seed):
                         ([1, 1]),
                         ([[ 1. , -0.7],
                           [-0.7,  1. ]])),
-
                         (([-3.14159265,  2.23606798]),
                         ([ 3.14159265, 50.        ]),
-                        ([[ 1.   ,  0.001],
+                        ([[ 1.   ,  -0.001],
                           [-0.001,  1.   ]])),
                         ])
 def test_Gaussian_rng(mean,std,R):
@@ -169,7 +168,7 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (np.zeros(3)), (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
     ( (0),           (5*np.eye(3)),  (np.zeros(3)), (5*np.eye(3)) ),
     ( (0),           (5*sps.eye(3)), (np.zeros(3)), (5*np.eye(3)) ),
-    ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
+    ( (0), (np.array([[5,-3],[-3,2]])),       (np.zeros(2)), (np.array([[5,-3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
 def test_GaussianCov(mean,cov,mean_full,cov_full):
@@ -381,12 +380,13 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
     # difference approximation of the gradient.
 
     # ------------------- 1. Create lognormal distribution --------------------
-    LND = cuqi.distribution.Lognormal(mean, std**2*R)
-    
+    Sigma = np.diag(std)@R@np.diag(std) # std**2*R
+    LND = cuqi.distribution.Lognormal(mean, Sigma)
+
     # -------------- 2. Create the finite difference gradient -----------------
     eps = 0.000001
     FD_gradient = np.empty(LND.dim)
-    
+
     for i in range(LND.dim):
         # compute the ith component of the gradient
         eps_vec = np.zeros(LND.dim)
@@ -396,16 +396,19 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
 
     # ---------------- 3. Verify correctness of the gradient ------------------
     assert(np.all(np.isclose(FD_gradient, LND.gradient(val))) or
-           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val))) )
-           )
+           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val)))) )
 
 @pytest.mark.parametrize("std, R",[
                         (
                         3,
-                        np.array([[1, .3, 0], [.3, 1, .3], [0, .3, 1]])),
+                        np.array([[1, .3, 0], 
+                                  [.3, 1, .3], 
+                                  [0, .3, 1]])),
                         (
                         12,
-                        np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+                        np.array([[1, 0, 0], 
+                                  [0, 1, 0], 
+                                  [0, 0, 1]]))
                         ])
 @pytest.mark.parametrize("val",[
                         (np.array([10, 0.1, 3])),
