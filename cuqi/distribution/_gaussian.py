@@ -190,7 +190,7 @@ class GaussianCov(Distribution):
         return -0.5*mahadist.flatten()
 
     def logpdf(self, x):
-        Z = -0.5*(self.rank*np.log(2*np.pi) + self.logdet)  # normalizing constant
+        Z = -0.5*(self.rank*np.log(2*np.pi) + self.logdet.flatten())  # normalizing constant
         logup = self._logupdf(x)                            # unnormalized density
         return Z + logup
 

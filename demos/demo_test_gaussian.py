@@ -38,6 +38,20 @@ import cuqi
 # xstar = prior.sample(1)
 # np.allclose(eval1,eval2)
 
+# =======TEST 1D=======================
+mean = 0
+cov = 4
+sqrtcov = 2
+sqrtprec = 1/sqrtcov
+prec = 1/cov
+
+prior = cuqi.distribution.GaussianCov(mean, sqrtprec=sqrtprec)
+x0 = 10*np.random.rand(prior.dim)
+eval1 = prior.logpdf(x0)
+eval2 = sp.stats.norm.logpdf(x0, mean, sqrtcov)
+xstar = prior.sample(1000).samples
+np.allclose(eval1,eval2)
+
 # =======TEST SQRTCOV=======================
 n = 100
 mean = np.zeros(n)
