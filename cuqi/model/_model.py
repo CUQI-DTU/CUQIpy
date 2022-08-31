@@ -285,7 +285,7 @@ class Model(object):
             grad = self.domain_geometry.gradient(grad, wrt_par)
 
         elif type(self.domain_geometry) in _get_identity_geometries():
-            self._output2par(grad,
+            grad = self._output2par(grad,
                              self.domain_geometry,
                              to_CUQIarray= (type(direction) is CUQIarray)) 
 
