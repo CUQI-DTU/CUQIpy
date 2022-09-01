@@ -162,6 +162,8 @@ class Gibbs:
 
     def _allocate_samples_warmup(self, Nb):
         """ Allocate memory for samples """
+        
+        # If we already have warmup samples and more are requested raise error
         if hasattr(self, 'samples_warmup') and Nb != 0:
             raise ValueError('Sampler already has run warmup phase. Cannot run warmup phase again.')
 
