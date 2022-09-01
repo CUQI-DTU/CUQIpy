@@ -13,8 +13,9 @@ class JointDistribution:
 
     Parameters
     ----------
-    densities: List of Density objects
-        The densities can be Distribution, Likelihood, EvaluatedDensity etc.
+    densities : Density
+        The densities to include in the joint distribution.
+        Each density is passed as comma-separated arguments.
 
     Notes
     -----
