@@ -17,7 +17,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
 
     def __init__(self, target: Posterior):
         if not isinstance(target.likelihood.distribution, (GaussianPrec, GaussianCov, GMRF)):
-            raise ValueError("Conjugate sampler only works with GaussianPrec likelihood function")
+            raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
         self.target = target
