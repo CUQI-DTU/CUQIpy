@@ -109,3 +109,13 @@ class Posterior(Distribution):
     def model(self):
         """Extract the cuqi model from likelihood."""
         return self.likelihood.model
+
+    def __repr__(self):
+        msg = f"Posterior(\n"
+        msg += "    Equation:\n"
+        msg += f"\t p({self.prior.name}|{self.likelihood.name}) ∝ L({self.prior.name}|{self.likelihood.name})p({self.prior.name})\n"
+        msg += "    Densities:\n"
+        msg += f"\t{self.likelihood.name} ~ {self.likelihood}\n "
+        msg += f"\t{self.prior.name} ~ {self.prior}\n "
+        msg += ")"
+        return msg
