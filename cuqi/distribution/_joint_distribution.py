@@ -59,7 +59,7 @@ class JointDistribution:
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, *densities):
+    def __init__(self, *densities: Density):
 
         # Ensure all densities have unique names
         names = [density.name for density in densities]
