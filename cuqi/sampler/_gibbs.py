@@ -11,11 +11,13 @@ class Gibbs:
     Gibbs sampler for sampling a joint distribution.
 
     Gibbs sampling samples the variables of the distribution sequentially,
-    one variable at a time. The sampling of each variable is done by sampling
-    from the conditional distribution of that variable given the values of
-    the other variables. This is often a very efficient way of sampling
-    from a joint distribution if the conditional distributions are easy to
-    sample from.
+    one variable at a time. When a variable represents a random vector, the
+    whole vector is sampled simultaneously.
+    
+    The sampling of each variable is done by sampling from the conditional
+    distribution of that variable given the values of the other variables.
+    This is often a very efficient way of sampling from a joint distribution
+    if the conditional distributions are easy to sample from.
 
     Parameters
     ----------

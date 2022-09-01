@@ -8,9 +8,12 @@ Gibbs sampling
 
     Opposed to jointly sampling the distribution simultaneously, Gibbs
     sampling samples the variables of the distribution sequentially,
-    one variable at a time. The sampling of each variable is done by
-    sampling from the conditional distribution of that variable given 
-    (fixed, previously sampled) values of the other variables.
+    one variable at a time. When a variable represents a random vector, the
+    whole vector is sampled simultaneously.
+    
+    The sampling of each variable is done by sampling from the conditional
+    distribution of that variable given (fixed, previously sampled) values
+    of the other variables.
 
     This is often a very efficient way of sampling from a joint
     distribution if the conditional distributions are easy to sample
