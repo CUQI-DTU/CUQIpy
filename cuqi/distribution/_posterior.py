@@ -13,21 +13,6 @@ class Posterior(Distribution):
     likelihood: Likelihood function, cuqi.likelihood.Likelihood.
     prior: Prior distribution, cuqi.distribution.Distribution.
 
-    Attributes
-    ------------
-    likelihood
-    prior
-    data
-    dim
-    geometry
-    model
-    
-    Methods
-    -----------
-    sample: NotImplemented. Use sampler module instead.
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
     """
     def __init__(self, likelihood, prior, **kwargs):
 
