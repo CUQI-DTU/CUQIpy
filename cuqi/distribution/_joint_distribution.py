@@ -52,20 +52,20 @@ class JointDistribution:
         z = cuqi.distribution.Gamma(1, 1)
 
         # Joint distribution p(y,x,z)
-        joint = cuqi.distribution.JointDistribution([y, x, z])
+        joint = cuqi.distribution.JointDistribution(y, x, z)
 
         # Posterior p(x,z | y_obs)
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, densities: List[Density]):
+    def __init__(self, *densities):
 
         # Ensure all densities have unique names
         names = [density.name for density in densities]
         if len(names) != len(set(names)):
             raise ValueError("All densities must have unique names.")
 
-        self._densities = densities
+        self._densities = list(densities)
         self._allow_reduce = False # Hack to allow conditioning to reduce a joint distribution to a single density
 
         # Make sure every parameter has a distribution (prior)
@@ -213,7 +213,7 @@ class JointDistribution:
 
     def _as_stacked(self) -> _StackedJointDistribution:
         """ Return a stacked JointDistribution with the same densities. """
-        return _StackedJointDistribution(self._densities)
+        return _StackedJointDistribution(*self._densities)
 
     def __repr__(self):
         msg = f"JointDistribution(\n"

@@ -56,7 +56,7 @@ x = GaussianCov(np.zeros(n), 1/d*In)
 y = GaussianCov(lambda x: A@x, 1/s*Im)
 
 # Define joint distribution p(x,y)
-joint = JointDistribution([x, y])
+joint = JointDistribution(x, y)
 
 # The joint distributions prints a summary of its components.
 print(joint)
@@ -151,7 +151,7 @@ x = GaussianCov(np.zeros(n), lambda d: 1/d*In)
 y = GaussianCov(lambda x: A@x, lambda l: 1/l*Im)
 
 # Define joint distribution p(d,l,x,y)
-joint_hier = JointDistribution([d, l, x, y])
+joint_hier = JointDistribution(d, l, x, y)
 
 # Notice how the equations and densities change
 print(joint_hier)

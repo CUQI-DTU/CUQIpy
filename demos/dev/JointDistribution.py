@@ -52,7 +52,7 @@ y = GaussianCov(lambda x: A@x, lambda l: 1/l)
 
 # %%
 # Define joint distribution p(d,l,x,y)
-joint = JointDistribution([d, l, x, y])
+joint = JointDistribution(d, l, x, y)
 print(joint)
 
 # %% 

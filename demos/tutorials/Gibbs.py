@@ -103,7 +103,7 @@ x = GMRF(np.zeros(n), lambda d: d)
 y = GaussianCov(A, lambda l: 1/l)
 
 # Combine into a joint distribution
-joint = JointDistribution([d, l, x, y])
+joint = JointDistribution(d, l, x, y)
 
 # View the joint distribution
 print(joint)
@@ -219,7 +219,7 @@ samples['l'].plot_trace(figsize=(8,2))
 x = Laplace_diff(np.zeros(n), lambda d: 1/d)
 
 # Define new joint distribution with piecewise constant prior
-joint_Ld = JointDistribution([d, l, x, y])
+joint_Ld = JointDistribution(d, l, x, y)
 
 # Define new posterior by conditioning on the data
 posterior_Ld = joint_Ld(y=y_obs)
