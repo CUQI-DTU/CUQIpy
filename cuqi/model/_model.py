@@ -6,6 +6,7 @@ from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
 import cuqi
 import matplotlib.pyplot as plt
+from copy import copy
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -205,6 +206,15 @@ class Model(object):
         ndarray or cuqi.samples.CUQIarray
             The model output. Always returned as parameters.
         """
+        # If input is a distribution, we simply change the parameter name of model to match the distribution name
+        if isinstance(x, cuqi.distribution.Distribution):
+            if x.dim != self.domain_dim:
+                raise ValueError("Attempting to match parameter name of Model with given distribution, but distribution dimension does not match model domain dimension.")
+            new_model = copy(self)
+            new_model._non_default_args = [x.name] # Defaults to x if distribution had no name
+            return new_model
+
+        # Else we apply the forward operator
         return self._apply_func(self._forward_func,
                                 self.range_geometry,
                                 self.domain_geometry,
