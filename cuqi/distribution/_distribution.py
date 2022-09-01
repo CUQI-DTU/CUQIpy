@@ -110,7 +110,7 @@ class Distribution(Density, ABC):
 
     @property
     def geometry(self):
-        if self.dim != self._geometry.dim:
+        if self.dim != self._geometry.par_dim:
             if isinstance(self._geometry,_DefaultGeometry):
                 self.geometry = self.dim
             else:

@@ -32,7 +32,7 @@ def callback(sample, sample_index):
         ax.cla() 
 
         # Plot samples
-        ax.imshow(sample.reshape(TP.model.domain_geometry.shape), cmap="gray")
+        ax.imshow(sample.reshape(TP.model.domain_geometry.fun_shape), cmap="gray")
         ax.set_title(f'Sample index {sample_index}')
 
         # Update figure

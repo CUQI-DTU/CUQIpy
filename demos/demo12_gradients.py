@@ -8,8 +8,8 @@ import cuqi
 # %%
 # Load cuqi deblur model and data
 TP = cuqi.testproblem.Deblur()
-n = TP.model.domain_geometry.dim
-m = TP.model.range_geometry.dim
+n = TP.model.domain_dim
+m = TP.model.range_dim
 x_true = TP.exactSolution
 
 # %%

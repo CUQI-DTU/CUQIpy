@@ -15,7 +15,7 @@ from cuqi import geometry
 						(cuqi.geometry.Continuous1D(3)),
 						])
 def test_samples_plot(geom,is_par,plot_par):
-    dim = geom.dim
+    dim = geom.par_dim
     x = cuqi.distribution.Normal(np.zeros(dim),np.ones(dim),geometry=geom)
     s = x.sample(10)
 
@@ -123,13 +123,37 @@ def test_ess():
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MetropolisHastings(dist)
     samples = sampler.sample_adapt(500)
-    assert samples.compute_ess().shape == samples.geometry.shape
+    assert samples.compute_ess().shape == samples.geometry.par_shape
+
+@pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
+                                      cuqi.geometry.MappedGeometry(
+                                          cuqi.geometry.Continuous1D(2), map=lambda x: x**2),
+                                      cuqi.geometry.KLExpansion(np.arange(0, 1, .1))])
+def test_samples_funvals(geometry):
+    """Test that the function values are computed correctly."""
+    Ns = 10
+    samples = cuqi.samples.Samples(
+        np.random.randn(geometry.par_dim, Ns), geometry=geometry)
+
+    funvals = np.empty((geometry.par_dim, Ns))
+    for i, s in enumerate(samples):
+        funvals[:, i] = geometry.par2fun(s)
+
+    assert np.allclose(samples.funvals.samples, funvals)
+
 
 @pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
-def test_compute_ci(percent):
+@pytest.mark.parametrize("compute_on_par", [False, True])
+@pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
+                                      cuqi.geometry.MappedGeometry(
+                                        cuqi.geometry.Continuous1D(2), map=lambda x: x**2)])
+def test_compute_ci(percent, compute_on_par, geometry):
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MetropolisHastings(dist)
-    samples = sampler.sample_adapt(500)
+    par_samples = sampler.sample_adapt(500)
+    par_samples.geometry = geometry
+    
+    samples = par_samples if compute_on_par else par_samples.funvals
     ci = samples.compute_ci(percent)
 
     # manually compute ci
@@ -140,3 +164,68 @@ def test_compute_ci(percent):
     assert np.allclose(ci[0], lo_conf)
     assert np.allclose(ci[1], up_conf)
 
+@pytest.mark.parametrize("is_par", [False, True, None]) #passing is_par will raise an error.
+@pytest.mark.parametrize("plot_par, compute_on_par",
+                         [(True, True),
+                          (True, False), # This case will raise an error.
+                          (False, True),
+                          (False, False)])
+@pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
+                                      cuqi.geometry.KLExpansion(np.arange(0, 1, .1))])
+def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
+    """Test passing flags to plot_ci."""
+    np.random.seed(0)
+    par_samples = cuqi.samples.Samples(np.random.randn(geometry.par_dim, 10), geometry=geometry)
+    samples = par_samples if compute_on_par else par_samples.funvals
+
+    if is_par is not None:
+        # User should not be able to pass is_par for plotting ci because it is
+        #  determined automatically depending on self.is_par and plot_par
+        with pytest.raises(ValueError):
+            samples.plot_ci(is_par=is_par, plot_par=plot_par)
+
+    elif plot_par and not compute_on_par:
+        # User cannot ask for computing statistics on function values then plotting on parameter space
+        # plot_ci will raise an error in this case
+        with pytest.raises(ValueError):
+            samples.plot_ci(plot_par=plot_par)
+    else:
+        #The remaining cases should not raise an error.
+        import matplotlib.pyplot as plt
+        plt.figure()
+        samples.plot_ci(plot_par=plot_par)
+
+
+@pytest.mark.parametrize("geom, map, imap, supported",
+                         [(cuqi.geometry.Discrete(4), lambda x:x**2, lambda x:np.sqrt(x), True),
+                          (cuqi.geometry.Continuous1D(15),
+                           lambda x:x+12, lambda x:x-12, True),
+                             (cuqi.geometry.Image2D((4, 5)), lambda x:x **
+                              2+1, lambda x:np.sqrt(x-1), False)
+                          ])
+def test_parameters_property(geom, map, imap, supported):
+    """Test that the Samples parameters property is computed correctly. And that an error is generated
+    when the Samples geometry type does not support computing funvals."""
+    # Create random samples:
+    np.random.seed(0)
+    Ns = 10
+    mapped_geom = cuqi.geometry.MappedGeometry(geom, map, imap)
+    val = np.absolute(np.random.rand(mapped_geom.par_dim, Ns))
+
+    # Create Samples object:
+    samples = cuqi.samples.Samples(val, geometry=mapped_geom)
+
+    if not supported:
+        with pytest.raises(ValueError, match=r"Creating a Samples object with function values of samples is not supported for the provided  geometry"):
+            funvals = samples.funvals
+    else:
+        # Compute function values and from the function values
+        # compute the parameters:
+        funvals = samples.funvals
+        parameters = funvals.parameters
+
+        # Assert that the parameters and the function values are different
+        # and that extracting the function values and going back to the parameters
+        # is done correctly.
+        assert not np.allclose(parameters.samples, funvals.samples) and\
+            np.allclose(parameters.samples, val)

@@ -24,7 +24,8 @@ def test_likelihood_attributes():
     assert likelihood.geometry == model.domain_geometry
 
     # Shape of domain
-    assert likelihood.shape == model.domain_geometry.shape
+    assert likelihood.par_shape == model.domain_geometry.par_shape
+    assert likelihood.fun_shape == model.domain_geometry.fun_shape
 
     # Model extraction
     assert likelihood.model == model
@@ -109,3 +110,4 @@ def test_likelihood_conditioning(dist, mean, cov, data):
     assert likelihood(**mean_dict).logd(**cov_dict) == log_val
     assert likelihood(**cov_dict).logd(**mean_dict) == log_val
     assert likelihood(**param_dict).logd() == log_val # This becomes EvaluatedDensity. Throws warning on the stack size (since we pass name to EvaluatedDensity)
+

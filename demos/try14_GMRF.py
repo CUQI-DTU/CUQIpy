@@ -10,8 +10,8 @@ TP = cuqi.testproblem.Deconvolution2D() # Uncomment for 2D
 
 # Some helper variables
 n = TP.model.domain_dim # Number of parameters
-N = TP.model.domain_geometry.shape[0] # Number of parameters in one dimension
-ndim = len(TP.model.domain_geometry.shape) # Number of dimensions
+N = TP.model.domain_geometry.fun_shape[0] # Number of parameters in one dimension
+ndim = len(TP.model.domain_geometry.fun_shape) # Number of dimensions
 
 # %% Define GMRF prior (structured Gaussian)
 prior = cuqi.distribution.GMRF(

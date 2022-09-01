@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
@@ -80,9 +81,11 @@ class CUQIarray(np.ndarray):
     
     def plot(self, plot_par=False, **kwargs):
         if plot_par:
-            return self.geometry.plot(self.parameters, plot_par=plot_par, is_par=True, **kwargs)
+            kwargs["is_par"]=True
+            return self.geometry.plot(self.parameters, plot_par=plot_par, **kwargs)
         else:
-            return self.geometry.plot(self.funvals, is_par=False, **kwargs)
+            kwargs["is_par"]=False
+            return self.geometry.plot(self.funvals, **kwargs)
 
 
 class Data(object):
@@ -166,9 +169,10 @@ class Samples(object):
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
-    def __init__(self, samples, geometry=None):
-        self.samples = samples
+    def __init__(self, samples, geometry=None, is_par=True):
         self.geometry = geometry
+        self.is_par = is_par
+        self.samples = samples
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
@@ -189,6 +193,53 @@ class Samples(object):
         if self._geometry is None:
             self._geometry = _DefaultGeometry(grid=np.prod(self.samples.shape[:-1]))
         return self._geometry
+
+    @property
+    def is_par(self):
+        return self._is_par
+    
+    @is_par.setter
+    def is_par(self, value):
+        if value is False:
+            self._check_funvals_supported()
+        self._is_par = value
+
+    @property
+    def funvals(self):
+        """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself."""
+        self._check_funvals_supported()
+        if self.is_par is True:
+            _funvals = np.empty((self.geometry.fun_dim, self.Ns))
+            for i, s in enumerate(self):
+                _funvals[:, i] = self.geometry.par2fun(s)
+            return Samples(_funvals, is_par=False, geometry=self.geometry)
+        else:
+            return self
+
+    @property
+    def parameters(self):
+        """If `self.is_par` is False, returns a new Samples object of sample parameters by applying :meth:`self.geometry.fun2par` on each sample. Otherwise, returns the Samples object itself."""
+        if self.is_par is False:
+            _parameters = np.empty((self.geometry.par_dim, self.Ns))
+            for i, s in enumerate(self):
+                _parameters[:, i] = self.geometry.fun2par(s)
+            return Samples(_parameters, is_par=True, geometry=self.geometry)
+        else:
+            return self
+
+    @property
+    def _geometry_dim(self):
+        if self.is_par:
+            return self.geometry.par_dim
+        else:
+            return self.geometry.fun_dim
+
+    @property
+    def _geometry_shape(self):
+        if self.is_par:
+            return self.geometry.par_shape
+        else:
+            return self.geometry.fun_shape
 
     @geometry.setter
     def geometry(self,inGeometry):
@@ -276,7 +327,7 @@ class Samples(object):
         return ax
 
     def mean(self):
-        """Compute mean of the samples"""
+        """Compute mean of the samples."""
         return np.mean(self.samples, axis=-1)
 
     def median(self):
@@ -287,8 +338,8 @@ class Samples(object):
         """Compute pointwise variance of the samples"""
         return np.var(self.samples, axis=-1)
 
-    def compute_ci(self, percent = 95):
-        """Compute pointwise credibility intervals of the samples"""
+    def compute_ci(self, percent=95):
+        """Compute pointwise credibility intervals of the samples."""
         lb = (100-percent)/2
         up = 100-lb
         return np.percentile(self.samples, [lb, up], axis=-1)
@@ -325,7 +376,7 @@ class Samples(object):
 
 
     def plot_chain(self, variable_indices=None, *args, **kwargs):
-        dim = self.geometry.dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
         # If no variables are given we randomly select some at random
         if variable_indices is None:
@@ -348,10 +399,9 @@ class Samples(object):
         plt.legend(variables)
         return patches
 
-    def plot_ci(self,percent=95,exact=None,*args,plot_envelope_kwargs={},**kwargs):
+    def plot_ci(self, percent=95, exact=None, *args, plot_envelope_kwargs=None, **kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
-
         Parameters
         ---------
         percent : int
@@ -359,7 +409,6 @@ class Samples(object):
         
         exact : ndarray, default None
             The exact value (for comparison)
-
         plot_envelope_kwargs : dict, default {}
             Keyword arguments for the plot_envelope method
         
@@ -370,14 +419,37 @@ class Samples(object):
         lo_conf, up_conf = self.compute_ci(percent)
 
         #Extract plotting keywords and put into plot_envelope
-        if len(plot_envelope_kwargs)==0:
-            pe_kwargs={}
-        else:
-            pe_kwargs = plot_envelope_kwargs
-        if "is_par"   in kwargs.keys(): pe_kwargs["is_par"]  =kwargs.get("is_par")
-        if "plot_par" in kwargs.keys(): pe_kwargs["plot_par"]=kwargs.get("plot_par")   
+        if plot_envelope_kwargs is None:
+            plot_envelope_kwargs = {}
+        pe_kwargs = plot_envelope_kwargs
 
-        if type(self.geometry) is Continuous2D or type(self.geometry) is Image2D:
+        # is_par is determined automatically from self.is_par 
+        if "is_par" in kwargs.keys() or\
+           "is_par" in pe_kwargs.keys():
+            raise ValueError("The flag `is_par` is determined automatically and should not be passed to `plot_ci`.")
+
+        #User cannot ask for computing statistics on function values then plotting on parameter space
+        if not self.is_par:
+            if "plot_par" in kwargs and kwargs["plot_par"] or\
+                    "plot_par" in pe_kwargs and kwargs["plot_par"]:
+                #TODO: could be allowed if the underlying plotting functions will convert the samples to parameter space
+                raise ValueError(
+                    "Cannot plot credible interval on parameter space if the samples are in the function space.")
+
+        # Depending on the value of self.is_par, the computed statistics below (mean, lo_conf,up_conf) are either parameter
+        # values or function values
+        statistics_is_par = self.is_par
+        pe_kwargs["is_par"] = statistics_is_par
+        kwargs["is_par"] = statistics_is_par
+
+        # Set plot_par value to be passed to Geometry.plot_envelope and Geometry.plot.
+        if "plot_par" in kwargs:
+            pe_kwargs["plot_par"] = kwargs["plot_par"]
+        else:
+            pe_kwargs["plot_par"] = False
+            kwargs["plot_par"] = False
+
+        if (type(self.geometry) is Continuous2D or type(self.geometry) is Image2D) and not kwargs["plot_par"]:
             plt.figure()
             #fig.add_subplot(2,2,1)
             self.geometry.plot(mean, *args, **kwargs)
@@ -399,17 +471,19 @@ class Samples(object):
             self.geometry.plot(lo_conf)
             plt.title("Lower credibility interval limit")
         else:
-            lci = self.geometry.plot_envelope(lo_conf, up_conf,color='dodgerblue',**pe_kwargs)
+            lci = self.geometry.plot_envelope(
+                lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
             
-            lmn = self.geometry.plot(mean,*args,**kwargs)
-            if exact is not None: #TODO: Allow exact to be defined in different space than mean?
+            lmn = self.geometry.plot(mean, *args, **kwargs)
+            if exact is not None:  #TODO: Allow exact to be defined in different space than mean?
                 if isinstance(exact, CUQIarray):
-                    lex = exact.plot(*args,**kwargs)
+                    lex = exact.plot(*args, **kwargs)
                 else:
-                    lex = self.geometry.plot(exact,*args,**kwargs)
-                plt.legend([lmn[0], lex[0], lci],["Mean","Exact","Credibility Interval"])
+                    lex = self.geometry.plot(exact, *args, **kwargs)
+                plt.legend([lmn[0], lex[0], lci], [
+                           "Mean", "Exact", "Credibility Interval"])
             else:
-                plt.legend([lmn[0], lci],["Mean","Credibility Interval"])
+                plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
 
     def diagnostics(self):
         # Geweke test
@@ -438,7 +512,7 @@ class Samples(object):
         -------
         axes: matplotlib axes or bokeh figures
         """
-        dim = self.geometry.dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -478,7 +552,7 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
 
         """
-        dim = self.geometry.dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -519,7 +593,7 @@ class Samples(object):
         axes: matplotlib axes or bokeh figures  
         
         """
-        dim = self.geometry.dim
+        dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
 
         # If no variables are given we randomly select some at random
@@ -548,7 +622,7 @@ class Samples(object):
         """ Return arviz InferenceData object of samples for the given variable indices"""
         # If no variable indices given we convert all
         if variable_indices is None:
-            variable_indices = np.arange(self.geometry.dim)
+            variable_indices = np.arange(self._geometry_dim)
 
         # Get variable names from geometry
         variables = np.array(self.geometry.variables) #Convert to np array for better slicing
@@ -627,7 +701,11 @@ class Samples(object):
         RHAT_xarray = arviz.rhat(datadict, **kwargs)
 
         # Convert to numpy array
-        RHAT = np.empty(self.geometry.shape)
+        RHAT = np.empty(self._geometry_shape)
         for i, (key, value) in enumerate(RHAT_xarray.items()):
             RHAT[i] = value.to_numpy()
         return RHAT
+
+    def _check_funvals_supported(self):
+        if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
+            raise ValueError(f"Creating a Samples object with function values of samples is not supported for the provided  geometry: {type(self.geometry)}. Currently, the geometry `fun_shape` must be a tuple of length 1, e.g. `(6,)`.")

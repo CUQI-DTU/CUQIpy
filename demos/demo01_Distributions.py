@@ -49,13 +49,13 @@ elif (dom == 2):
    geometry = cuqi.geometry.Continuous2D((np.linspace(0, 1, N),np.linspace(0, 1, N)))
 
 # Set up GMRF
-mean = np.zeros(geometry.dim)
+mean = np.zeros(geometry.par_dim)
 prec = 4
 pX = cuqi.distribution.GMRF(mean, prec, dom, 'neumann', geometry = geometry)
 
 # evaluation of PDF
 Ns = 8
-xi = np.random.randn(geometry.dim, Ns)
+xi = np.random.randn(geometry.par_dim, Ns)
 Z = pX.pdf(xi)
 
 # call method to sample

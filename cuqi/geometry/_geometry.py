@@ -7,32 +7,57 @@ from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
 import operator
 from functools import reduce
+import warnings
 
 def _get_identity_geometries():
-    """Return the geometries that have identity par2fun and fun2par methods (can still reshape).
+    """Return the geometries that have identity `par2fun` and `fun2par` methods (including those where `par2fun` and `fun2par` perform reshaping of the parameters or the function values array. e.g. the geometry `Image2D`.).
     These geometries do not alter the gradient computations.
     """
     return [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
+
+    It specifies a mapping from the parameter space to the function space (:meth:`par2fun`) and the inverse map if possible (:meth:`fun2par`). The parameters can be for example, the center and width of a hat function, and the function is the resulting hat function evaluated at grid points of a given grid. The geometry keeps track of the dimension and shape of the parameter space (:meth:`par_dim` and :meth:`par_shape`) and the dimension and shape of the function space (:meth:`fun_dim` and :meth:`fun_shape`).
     """
     @property
     @abstractmethod
-    def shape(self):
+    def par_shape(self):
+        """The shape of the parameter space."""
         pass
 
     @property
-    def dim(self):
-        if self.shape is None: return None
-        return reduce(operator.mul, self.shape) # math.prod(self.shape) for Python 3.8+
+    def par_dim(self):
+        """The dimension of the geometry (parameter space)."""
+        if self.par_shape is None: return None
+        return reduce(operator.mul, self.par_shape) # math.prod(self.par_shape) for Python 3.8+
+
+    @property
+    def fun_shape(self):
+        """The shape of the geometry (function space). """
+        if not hasattr(self,'_fun_shape') or self._fun_shape is None:
+            # Attempt to infer dimension
+            funvals = self.par2fun(np.ones(self.par_dim))
+            if hasattr(funvals, 'shape'):
+                self._fun_shape = funvals.shape
+            else:
+                warnings.warn("Could not infer function space shape.")
+                self._fun_shape = None
+        return self._fun_shape
+    
+    @property
+    def fun_dim(self):
+        """The dimension of the geometry (function space). """
+        if self.fun_shape is None: return None
+        return reduce(operator.mul, self.fun_shape) # math.prod(self.fun_shape) for Python 3.8+
 
     @property
     def variables(self):
         #No variable names set, generate variable names from dim
         if not hasattr(self,"_variables"):
-                self.variables = self.dim
+                self.variables = self.par_dim
         return self._variables
+
 
     @variables.setter
     def variables(self, value):
@@ -47,7 +72,7 @@ class Geometry(ABC):
         else:
             raise ValueError(variables_value_err_msg) 
         self._variables = value
-        self._ids = range(self.dim)
+        self._ids = range(self.par_dim)
 
     def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
@@ -71,7 +96,7 @@ class Geometry(ABC):
             raise Exception("Plot par is true, but is_par is false (parameters were not given)")
 
         if plot_par:
-            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
             return geom.plot(values,**kwargs)
 
         if is_par:
@@ -101,10 +126,10 @@ class Geometry(ABC):
         """
         #Error check
         if plot_par and not is_par:
-            raise Exception("Plot par is true, but is_par is false (parameters were not given)")
+            raise ValueError("Plot par is true, but is_par is false (parameters were not given)")
         
         if plot_par:
-            geom = Discrete(self.dim) #dim is size of para (at the moment)
+            geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
             return geom.plot_envelope(lo_values, hi_values,**kwargs)
 
         if is_par:
@@ -154,7 +179,7 @@ class Geometry(ABC):
         return self._all_values_equal(obj)
 
     def __repr__(self) -> str:
-        return "{}{}".format(self.__class__.__name__,self.shape)
+        return "{}{}".format(self.__class__.__name__,self.par_shape)
 
     def _all_values_equal(self, obj):
         """Returns true of all values of the object and self are equal"""
@@ -189,8 +214,8 @@ class _WrappedGeometry(Geometry):
         self.geometry = geometry
 
     @property
-    def shape(self):
-        return self.geometry.shape
+    def par_shape(self):
+        return self.geometry.par_shape
 
     @property
     def grid(self):
@@ -278,9 +303,15 @@ class Continuous1D(Continuous):
         super().__init__(grid, axis_labels,**kwargs)
 
     @property
-    def shape(self):
+    def fun_shape(self):
         if self.grid is None: return None
         return self.grid.shape
+
+    @property
+    def par_shape(self):
+        """The shape of the parameter space"""
+        if self.grid is None: return None
+        return (len(self.grid), )
 
     @Continuous.grid.setter
     def grid(self, value):
@@ -309,9 +340,15 @@ class Continuous2D(Continuous):
         super().__init__(grid, axis_labels)
             
     @property
-    def shape (self):
+    def fun_shape(self): 
         if self.grid is None: return None
         return (len(self.grid[0]), len(self.grid[1])) 
+
+    @property
+    def par_shape(self):
+        """The shape of the parameter space"""
+        if self.grid is None: return None
+        return (len(self.grid[0])*len(self.grid[1]), ) 
 
     @Continuous.grid.setter
     def grid(self, value):
@@ -347,7 +384,7 @@ class Continuous2D(Continuous):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.shape[::-1]),
+            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.fun_shape[::-1]),
                           **kwargs))
         self._plot_config()
         return ims
@@ -363,7 +400,7 @@ class Continuous2D(Continuous):
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+             (len(values.shape) == 2 and values.shape[0]== self.par_dim):  
             pass
         else:
             values = values[..., np.newaxis]
@@ -387,7 +424,7 @@ class Image2D(Geometry):
 
     Parameters
     -----------
-    shape : tuple
+    im_shape : tuple
         shape of the image (rows, columns)
 
     order : str
@@ -395,21 +432,22 @@ class Image2D(Geometry):
         if order = 'F', the image is represented column-major order.
 
     """
-    def __init__(self, shape, order="C"):
-        self.shape = shape
+    def __init__(self, im_shape, order="C"):
+        self._fun_shape = im_shape
+        self._par_shape = (reduce(operator.mul, im_shape), ) 
         self.order = order
 
     @property
-    def shape(self):
-        return self._shape
+    def fun_shape(self):
+        return self._fun_shape
 
-    @shape.setter
-    def shape(self, value):
-        self._shape = value
+    @property
+    def par_shape(self):
+        return self._par_shape
 
     def par2fun(self, pars):
         # Reshape to image (also for multiple parameter vectors). TODO: #327
-        funvals = pars.reshape(self.shape+(-1,), order=self.order) 
+        funvals = pars.reshape(self.fun_shape+(-1,), order=self.order) 
         #Squeeze to return single image if only one parameter vector was given
         funvals = funvals.squeeze()
         return funvals 
@@ -430,7 +468,7 @@ class Image2D(Geometry):
 
     def _process_values(self,values):
         if len(values.shape) == 3 or\
-             (len(values.shape) == 2 and values.shape[0]== self.dim):  
+             (len(values.shape) == 2 and values.shape[0]== self.par_dim):  
             pass
         else:
             values = values[..., np.newaxis]
@@ -442,8 +480,14 @@ class Discrete(Geometry):
         self.variables = variables
 
     @property
-    def shape(self):
+    def fun_shape(self):
+        """The shape of the function space."""
         return (len(self.variables),)
+
+    @property
+    def par_shape(self):
+        """The shape of the parameter space."""
+        return (len(self.variables), )
 
     def _plot(self,values, **kwargs):
 
@@ -550,7 +594,7 @@ class KLExpansion(Continuous1D):
 
         self.decay_rate = 2.5 # decay rate of KL
         self.normalizer = 12. # normalizer factor
-        eigvals = np.array( range(1,self.dim+1) ) # KL eigvals
+        eigvals = np.array( range(1,self.par_dim+1) ) # KL eigvals
         self.coefs = 1/np.float_power( eigvals,self.decay_rate )
 
 
@@ -582,13 +626,13 @@ class KLExpansion_Full(Continuous1D):
         gamma = nu+1.
         self.var = params["std"]**2
 
-        modes = np.arange(0,self.dim)
+        modes = np.arange(0,self.par_dim)
 
         self.coefs =  np.float_power( tau2,gamma ) * np.float_power(tau2+modes**2,-gamma)
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
-        freq = np.zeros(self.dim)
+        freq = np.zeros(self.par_dim)
         m = len(p)
         freq[:m] = p
         temp = freq*self.coefs
@@ -613,11 +657,11 @@ class CustomKL(Continuous1D):
         #self.N = len(self.grid)
         self.mean = mean
         #self.std = std
-        self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.dim) )
+        self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.par_dim) )
 
 
     @property
-    def shape(self):
+    def par_shape(self):
         return (self._trunc_term,)
 
     def par2fun(self, p):
@@ -748,6 +792,11 @@ class StepExpansion(Continuous1D):
                 interval_indices, = np.where((self.grid>start)&(self.grid<=end))
             self._indices.append(interval_indices)    
 
+    @property
+    def par_shape(self):
+        """Shape of the parameter space."""
+        return (self._n_steps,)
+
     def par2fun(self, p):
         real = np.zeros_like(self.grid)  
         for i in range(self._n_steps):
@@ -777,7 +826,3 @@ class StepExpansion(Continuous1D):
         # Ensure the grid is equally spaced
         if not np.allclose(np.diff(self.grid), self.grid[1]-self.grid[0]):
             raise ValueError("The grid must be an equally spaced grid (regular).")
-
-    @property
-    def shape(self):
-        return (self._n_steps,)

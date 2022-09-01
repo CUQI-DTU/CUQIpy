@@ -16,8 +16,8 @@ TP = cuqi.testproblem.Deblur()
 model = TP.model #Deblur model
 data = TP.data #Data from deblur problem
 cov = TP.likelihood.distribution.cov
-n = model.domain_geometry.dim
-m = model.range_geometry.dim
+n = model.domain_dim
+m = model.range_dim
 x_true = TP.exactSolution
 
 # %%
