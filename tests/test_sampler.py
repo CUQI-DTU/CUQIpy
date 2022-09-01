@@ -405,3 +405,77 @@ def test_NUTS_regression(copy_reference):
     samples_orig = np.load(samples_orig_file)
 
     assert(np.allclose(samples.samples, samples_orig["arr_0"]))
+
+def _Gibbs_joint_hier_model():
+    """ Define a Gibbs sampler based on a joint distribution from a hierarchical model. Used for testing Gibbs sampler. """
+    np.random.seed(0)
+    
+    # Model and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(phantom='square')
+    n = A.domain_dim
+
+    # Define distributions
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    l = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d[0])
+    y = cuqi.distribution.GaussianCov(A, lambda l: 1/l)
+
+    # Combine into a joint distribution and create posterior
+    joint = cuqi.distribution.JointDistribution([d, l, x, y])
+    posterior = joint(y=y_obs)
+
+    # Define sampling strategy
+    sampling_strategy = {
+        'x': cuqi.sampler.Linear_RTO,
+        ('d', 'l'): cuqi.sampler.Conjugate,
+    }
+
+    # Define Gibbs sampler
+    sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+
+    return sampler
+
+def test_Gibbs_regression(copy_reference):
+
+    # SKIP Gibbs reg test if not windows.
+    if not sys.platform.startswith('win'):
+        pytest.skip("NUTS regression test is not implemented for this platform")
+
+    sampler = _Gibbs_joint_hier_model()
+
+    # Run sampler
+    samples = sampler.sample(Ns=100, Nb=20)
+
+    if sys.platform.startswith('win'):
+        samples_orig_file = copy_reference(
+            "data/Gibbs_original_code_results_win.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.allclose(samples["d"].samples, samples_orig["arr_0"]))
+
+def test_Gibbs_continue_sampling():
+    """ This tests the sampling can continue with the Gibbs sampler """
+
+    sampler = _Gibbs_joint_hier_model()
+
+    # Run sampler
+    samples = sampler.sample(Ns=10, Nb=5)
+
+    # Continue sampling
+    samples2 = sampler.sample(Ns=10)
+
+    assert samples["x"].shape[-1] == 10
+    assert samples2["x"].shape[-1] == 20
+
+def test_Gibbs_geometry_matches():
+    sampler = _Gibbs_joint_hier_model()
+
+    target = sampler.target
+
+    # Run sampler
+    samples = sampler.sample(Ns=10, Nb=5)
+
+    # Check that the geometry matches
+    assert samples["d"].geometry == target.get_density("d").geometry
+    assert samples["l"].geometry == target.get_density("l").geometry
+    assert samples["x"].geometry == target.get_density("x").geometry
