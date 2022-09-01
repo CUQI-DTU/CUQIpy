@@ -72,7 +72,7 @@ class Gibbs:
     def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
 
         # Store target and allow conditioning to reduce to a single density
-        self.target = target
+        self.target = target() # Create a copy of target distribution (to avoid modifying the original)
         self.target._allow_reduce = True
 
         # Parse samplers and split any keys that are tuple into separate keys
