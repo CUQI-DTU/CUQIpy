@@ -421,7 +421,7 @@ def _Gibbs_joint_hier_model():
     y = cuqi.distribution.GaussianCov(A, lambda l: 1/l)
 
     # Combine into a joint distribution and create posterior
-    joint = cuqi.distribution.JointDistribution([d, l, x, y])
+    joint = cuqi.distribution.JointDistribution(d, l, x, y)
     posterior = joint(y=y_obs)
 
     # Define sampling strategy

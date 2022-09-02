@@ -13,7 +13,7 @@ def test_joint_dist_dim_geometry():
     y = cuqi.distribution.GaussianCov(model, 1)
 
     # Joint distribution
-    J = cuqi.distribution.JointDistribution([d, x, y])
+    J = cuqi.distribution.JointDistribution(d, x, y)
 
     # Test the dimensions
     assert J.dim == [d.dim, x.dim, y.dim]
@@ -64,7 +64,7 @@ def test_joint_dist_logd(densities):
     """ Tests the log density function of the Joint distribution """
 
     # Create a joint distribution
-    J = cuqi.distribution.JointDistribution(densities)
+    J = cuqi.distribution.JointDistribution(*densities)
 
     # Get the parameter names
     names = J.get_parameter_names()
@@ -119,7 +119,7 @@ def test_joint_dist_properties(densities):
     """ This tests various properties of the joint distribution """
 
     # Create a joint distribution
-    J = cuqi.distribution.JointDistribution(densities)
+    J = cuqi.distribution.JointDistribution(*densities)
 
     # Now check various properties. First check the dimension
     assert J.dim == [density.dim for density in densities]
@@ -228,7 +228,7 @@ def hierarchical_joint(main_dim=8):
 
     data = cuqi.testproblem.Deconvolution1D(dim=main_dim).data
 
-    J = cuqi.distribution.JointDistribution(densities)
+    J = cuqi.distribution.JointDistribution(*densities)
 
     return J, data
 
@@ -242,4 +242,4 @@ def test_extra_parameter_no_prior():
 
     # Joint distribution p(y,x,z)
     with pytest.raises(ValueError, match=r"Missing prior for \['b'\]"):
-        cuqi.distribution.JointDistribution([y,x,z])
+        cuqi.distribution.JointDistribution(y,x,z)
