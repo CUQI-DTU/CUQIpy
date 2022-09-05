@@ -10,7 +10,7 @@ import cuqi
 
 # =====TEST COV=========================
 # Create sparse, symmetric PSD matrix S
-# n = 100
+# n = 10
 # mean = np.zeros(n)
 # A = np.random.randn(n, n)  # Unit normal gaussian distribution.
 # A[sp.sparse.rand(n, n, 0.85).todense().nonzero()] = 0  # Sparsen the matrix.
