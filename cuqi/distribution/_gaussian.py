@@ -8,10 +8,6 @@ import scipy.stats as sps
 import scipy.sparse as spa
 import scipy.linalg as splinalg
 
-# from scipy.sparse import diags, identity, issparse, vstack
-# from scipy.sparse import linalg as splinalg
-# from scipy.linalg import eigh, eigvals, cholesky
-
 try:
     import sksparse.cholmod as skchol
     chols = True
@@ -24,7 +20,7 @@ from cuqi.utilities import force_ndarray, sparse_cholesky
 from cuqi.distribution import Distribution
 
 # TODOs:
-# Support full sparse covariance matrices without cholmod library
+# Support sparse covariance matrices without cholmod library
 
 class GaussianCov(Distribution):
     """
@@ -32,12 +28,15 @@ class GaussianCov(Distribution):
 
     Parameters
     ------------
-    mean: Mean of distribution. Can be a scalar or 1d numpy array
+    mean: Mean of distribution. Can be a scalar or 1D numpy array.
     
-    cov: Covariance of the distribution. Can be a scalar, 1d numpy array (assumes diagonal elements), or 2d numpy array.
-    prec: Precision of the distribution. Can be a scalar, 1d numpy array (assumes diagonal elements), or 2d numpy array.
-    sqrtcov: A matrix R, where R.T@R = CovarianceMatrix of the distribution. Can be a 2d sparse or numpy array.
-    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution. Can be a 2d sparse or numpy array.  
+    cov: Covariance of the distribution. 
+    prec: Precision of the distribution.
+    sqrtcov: A matrix R, where R.T@R = CovarianceMatrix of the distribution.
+    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution.  
+    (cov, prec, sqrtcov and sqrtprec can be a scalar, 1D numpy array (assumes diagonal matrix), or 2D sparse or numpy arrays).
+    
+    Note: 2D sparse arrays are handled if the cholmod library is installed, otherwise we get an error.
     
     Example
     -----------
@@ -89,7 +88,7 @@ class GaussianCov(Distribution):
         value = force_ndarray(value)
         self._cov = value       
         if (value is not None) and (not callable(value)):  
-            if self.dim > 75:
+            if self.dim > config.MIN_DIM_SPARSE:
                 dimflag = True # do sparse computations
             else:
                 dimflag = False  # use numpy
@@ -110,7 +109,7 @@ class GaussianCov(Distribution):
         value = force_ndarray(value)
         self._prec = value       
         if (value is not None) and (not callable(value)):  
-            if self.dim > 75:
+            if self.dim > config.MIN_DIM_SPARSE:
                 dimflag = True # do sparse computations
             else:
                 dimflag = False  # use numpy
@@ -131,7 +130,7 @@ class GaussianCov(Distribution):
         value = force_ndarray(value)
         self._sqrtcov = value       
         if (value is not None) and (not callable(value)):  
-            if self.dim > 75:
+            if self.dim > config.MIN_DIM_SPARSE:
                 dimflag = True # do sparse computations
             else:
                 dimflag = False  # use numpy
@@ -152,7 +151,7 @@ class GaussianCov(Distribution):
         value = force_ndarray(value)
         self._sqrtprec = value
         if (value is not None) and (not callable(value)):  
-            if self.dim > 75:
+            if self.dim > config.MIN_DIM_SPARSE:
                 dimflag = True # do sparse computations
             else:
                 dimflag = False  # use numpy
@@ -507,8 +506,9 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, dimflag):
             sqrtprec = np.diag(sqrtprec)
     # sqrtprec diagonal
     elif (spa.issparse(sqrtprec) and sqrtprec.format == 'dia') or (not spa.issparse(sqrtprec) and np.count_nonzero(sqrtprec-np.diag(np.diagonal(sqrtprec))) == 0): 
-        precision = sqrtprec@sqrtprec.T
-        logdet = np.sum(-np.log(np.diagonal(precision)))
+        stdinv = sqrtprec.diagonal()
+        precision = stdinv**2
+        logdet = np.sum(-np.log(precision))
         rank = dim
     # sqrtprec is full
     else:
