@@ -6,3 +6,6 @@ MAX_DIM_INV = 2000
 
 DEFAULT_SEED = 0
 """ Default seed for random number generators. """
+
+MIN_DIM_SPARSE = 75
+""" From DIM > MIN_DIM_SPARSE, the array is handled with sparse computations. """
