@@ -20,6 +20,10 @@ requires-python = ">=3.7"
 Source = "https://github.com/CUQI-DTU/CUQIpy"
 Documentation = "https://cuqi-dtu.github.io/CUQIpy/"
 
+[tool.setuptools.packages.find]
+include = ["cuqi*"]  # package names should match these glob patterns (["*"] by default)
+# Alternative move cuqi to src/cuqi
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 
