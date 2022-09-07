@@ -49,6 +49,8 @@ class CUQIarray(np.ndarray):
         obj = np.asarray(input_array).view(cls)
         # add the new attribute to the created instance
         obj.is_par = is_par
+        if geometry is None:
+            geometry = _DefaultGeometry(grid=input_array.__len__())
         obj.geometry = geometry
         # Finally, we must return the newly created object:
         return obj

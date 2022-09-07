@@ -229,3 +229,8 @@ def test_parameters_property(geom, map, imap, supported):
         # is done correctly.
         assert not np.allclose(parameters.samples, funvals.samples) and\
             np.allclose(parameters.samples, val)
+
+def test_cuqiarray_default_geometry():
+    """ Test that CUQIarray creates a default geometry when no geometry is passed"""
+    v = CUQIarray([0,1,2,3,4,5,6,7,8])
+    assert type(v.geometry) is cuqi.geometry._geometry._DefaultGeometry
