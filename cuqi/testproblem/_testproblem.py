@@ -642,12 +642,13 @@ class Heat_1D(BayesianProblem):
         
         # Grids for model
         grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
+        grid_range = np.linspace(dx, endpoint, N, endpoint=False) 
         time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
 
         # PDE form (diff_op, IC, time_steps)
-        grid_obs = np.linspace(dx, endpoint, N, endpoint=False)
+        grid_obs = grid_range
         if observation_nodes is not None:
-            grid_obs = observation_nodes( np.linspace(dx, endpoint, N, endpoint=False) )
+            grid_obs = observation_nodes(grid_obs)
 
         def PDE_form(IC, t): return (Dxx, np.zeros(N), IC)
         PDE = cuqi.pde.TimeDependentLinearPDE(
