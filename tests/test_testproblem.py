@@ -96,21 +96,19 @@ def test_Deconvolution_custom_phantom():
         TP = cuqi.testproblem.Deconvolution1D(dim=128, phantom=np.ones(125))
 
 
-# Test the observation operator working on grids or not
-def test_testproblem_pde_grid_obs():
+@pytest.mark.parametrize("model_class", [cuqi.testproblem.Poisson_1D, cuqi.testproblem.Heat_1D])
+@pytest.mark.parametrize("observation_map, expected_grid_equal",
+                         [(None, True),
+                          (lambda x: x[np.where(x > np.pi/2)], False)])
+def test_testproblem_pde_grid_obs(model_class, observation_map, expected_grid_equal):
+    """ Test that the observation operator works on grids or not. """
     N = 128
     L = np.pi
-    T = 0.2
 
-    model1 = cuqi.testproblem.Poisson_1D(dim=N,endpoint=L, field_type="Step").model
-    model2 = cuqi.testproblem.Poisson_1D(dim=N,dim_obs=10,endpoint=L, field_type="Step").model
-    model3 = cuqi.testproblem.Heat_1D(dim=N,endpoint=L, field_type="Step").model
-    model4 = cuqi.testproblem.Heat_1D(dim=N,dim_obs=10,endpoint=L, field_type="Step").model
+    model = model_class(dim=N, endpoint=L, field_type="Step",
+                        observation_nodes=observation_map).model
 
-    assert model1.pde.grids_equal == True
-    assert model2.pde.grids_equal == False
-    assert model3.pde.grids_equal == True
-    assert model4.pde.grids_equal == False
+    assert model.pde.grids_equal == expected_grid_equal
 
 def test_Poisson():
     # %% Poisson
@@ -118,11 +116,11 @@ def test_Poisson():
     L = np.pi   # Length of domain
     amp_fact = 10
     f = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
-    KL_map = lambda x: np.exp(amp_fact*x)
+    map = lambda x: np.exp(amp_fact*x)
     dx = L/(N-1)
     x = np.linspace(dx/2,L-dx/2,N)
     true_kappa = np.exp( 5*x*np.exp(-2*x)*np.sin(L-x) )
-    model = cuqi.testproblem.Poisson_1D(dim=N, endpoint=L, source=f, field_type="KL", KL_map=KL_map).model
+    model = cuqi.testproblem.Poisson_1D(dim=N, endpoint=L, source=f, field_type="KL", map=map).model
 
     assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(6.183419642601269)
     assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(5.195849938761418)
