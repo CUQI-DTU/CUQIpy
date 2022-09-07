@@ -276,7 +276,7 @@ class Continuous(Geometry, ABC):
                 raise ValueError(dim_grid_value_err_msg)
         else:
             raise ValueError(dim_grid_value_err_msg)
-        return dim_grid
+        return dim_grid.astype(np.float64)
         
     @property
     def grid(self):
@@ -798,7 +798,7 @@ class StepExpansion(Continuous1D):
         return (self._n_steps,)
 
     def par2fun(self, p):
-        real = np.zeros_like(self.grid)  
+        real = np.zeros(self.grid.shape)
         for i in range(self._n_steps):
             real[self._indices[i]] = p[i]
  
