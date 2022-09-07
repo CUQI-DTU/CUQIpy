@@ -94,26 +94,14 @@ Cd = joint(y=yh, x=xh, l=lh)
 Cl = joint(y=yh, x=xh, d=dh)
 
 # We can try inspecting one of these conditional distributions.
-# Notice how the equations and densities change to reflect the conditioning.
-# In particular how the equation reflects a likelihood+prior structure.
+# Notice how conditional distributions changed into a posterior distribution.
 print(Cd)
 
 # %%
 # Going into the internals of the joint distribution
 # --------------------------------------------------
 #
-# One of the major tricks we currently employ to make the joint distribution
-# work with our samplers is to allow reducing the joint distribution to a
-# single Density (Distribution, Likelihood or Posterior). This is because
-# our samplers are implemented to work with these.
-# 
-# The way this is achieved is by calling a private method as shown below,
-# when conditioning. The samplers can then directly use the resulting Density.
-
-Cd._reduce_to_single_density()
-
-# %%
-# Another "hack" is to have the joint distribution act as if it were a single
+# A useful "hack" is to have the joint distribution act as if it were a single
 # parameter density. This is achieved by calling the `._as_stacked()` method.
 # This returns a new "stacked" joint distribution that the samplers/solvers
 # can use as if it were any other Density.
