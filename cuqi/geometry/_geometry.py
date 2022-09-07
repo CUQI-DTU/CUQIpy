@@ -276,7 +276,7 @@ class Continuous(Geometry, ABC):
                 raise ValueError(dim_grid_value_err_msg)
         else:
             raise ValueError(dim_grid_value_err_msg)
-        return dim_grid.astype(np.float64)
+        return dim_grid.astype(float)
         
     @property
     def grid(self):
