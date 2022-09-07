@@ -270,7 +270,8 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
             sqrtprec = np.diag(np.sqrt(1/cov))
 
     # cov diagonal
-    elif (spa.issparse(cov) and cov.format == 'dia') or (not spa.issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
+    #(spa.issparse(cov) and cov.format == 'dia') or (not spa.issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
+    elif np.count_nonzero(cov-np.diag(cov.diagonal())) == 0:
         var = cov.diagonal()
         logdet = np.sum(np.log(var))
         rank = dim
@@ -350,7 +351,7 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
             sqrtprec = np.diag(np.sqrt(prec))
 
     # prec diagonal
-    elif (spa.issparse(prec) and prec.format == 'dia') or (not spa.issparse(prec) and np.count_nonzero(prec-np.diag(np.diagonal(prec))) == 0): 
+    elif np.count_nonzero(prec-np.diag(prec.diagonal())) == 0:
         precision = prec.diagonal()
         logdet = np.sum(-np.log(precision))
         rank = dim
@@ -429,7 +430,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
             sqrtprec = np.diag(1/sqrtcov)
 
     # sqrtcov diagonal
-    elif (spa.issparse(sqrtcov) and sqrtcov.format == 'dia') or (not spa.issparse(sqrtcov) and np.count_nonzero(sqrtcov-np.diag(np.diagonal(sqrtcov))) == 0): 
+    elif np.count_nonzero(sqrtcov-np.diag(sqrtcov.diagonal())) == 0: 
         std = sqrtcov.diagonal()
         var = std**2
         logdet = np.sum(np.log(var))
@@ -505,7 +506,7 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, dimflag):
         else:
             sqrtprec = np.diag(sqrtprec)
     # sqrtprec diagonal
-    elif (spa.issparse(sqrtprec) and sqrtprec.format == 'dia') or (not spa.issparse(sqrtprec) and np.count_nonzero(sqrtprec-np.diag(np.diagonal(sqrtprec))) == 0): 
+    elif np.count_nonzero(sqrtprec-np.diag(sqrtprec.diagonal())) == 0:
         stdinv = sqrtprec.diagonal()
         precision = stdinv**2
         logdet = np.sum(-np.log(precision))
@@ -551,7 +552,17 @@ def eigvalsh_to_eps(spectrum, cond=None, rcond=None):
 
 
 
-class GaussianSqrtPrec(Distribution):
+class GaussianSqrtPrec(GaussianCov):
+    pass
+
+
+
+class GaussianPrec(GaussianCov):
+    pass
+
+
+
+class GaussianSqrtPrec2(Distribution):
     """
     Gaussian probability distribution defined using sqrt of precision matrix. 
     Generates instance of cuqi.distribution.GaussianSqrtPrec
@@ -636,7 +647,7 @@ class GaussianSqrtPrec(Distribution):
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
-class GaussianPrec(Distribution):
+class GaussianPrec2(Distribution):
 
     def __init__(self, mean, prec, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
