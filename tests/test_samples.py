@@ -229,3 +229,15 @@ def test_parameters_property(geom, map, imap, supported):
         # is done correctly.
         assert not np.allclose(parameters.samples, funvals.samples) and\
             np.allclose(parameters.samples, val)
+
+def test_violin_plot():
+    """ Test that the violin plot is generated correctly. """
+    dist = cuqi.distribution.DistributionGallery("CalSom91")
+    sampler = cuqi.sampler.MetropolisHastings(dist)
+    samples = sampler.sample_adapt(1000)
+    samples.geometry = cuqi.geometry.Discrete(["alpha","beta"])
+
+    ax = samples.plot_violin(shade=0.1)
+
+    assert ax[0].get_title() == "alpha"
+    assert ax[1].get_title() == "beta"

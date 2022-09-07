@@ -706,6 +706,40 @@ class Samples(object):
             RHAT[i] = value.to_numpy()
         return RHAT
 
+    def plot_violin(self, variable_indices=None, **kwargs):
+        """ Create a violin plot of the samples. 
+        
+        Parameters
+        ----------
+        variable_indices : list, optional
+            List of variable indices to plot.
+            If no input is given and less than 8 variables exist all
+            are plotted and with more 8 are randomly chosen.
+
+        Any remaining keyword arguments will be passed to the arviz plotting tool.
+        See https://arviz-devs.github.io/arviz/api/generated/arviz.plot_violin.html.
+
+        Returns
+        -------
+        axes: matplotlib axes or bokeh figures
+        
+        """
+        dim = self._geometry_dim
+        Nv = 8 # Max number of variables to plot if none are chosen
+
+        # If no variables are given we randomly select some at random
+        if variable_indices is None:
+            if Nv<dim: print(f"Selecting {Nv} randomly chosen variables")
+            variable_indices = self._select_random_indices(Nv, dim)
+
+        # Convert to arviz InferenceData object
+        datadict = self.to_arviz_inferencedata(variable_indices)
+
+        # Plot using arviz
+        ax =  arviz.plot_violin(datadict, **kwargs)
+
+        return ax
+
     def _check_funvals_supported(self):
         if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
             raise ValueError(f"Creating a Samples object with function values of samples is not supported for the provided  geometry: {type(self.geometry)}. Currently, the geometry `fun_shape` must be a tuple of length 1, e.g. `(6,)`.")
