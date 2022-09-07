@@ -430,11 +430,11 @@ class Poisson_1D(BayesianProblem):
     field_type : str or cuqi.geometry.Geometry
         | Field type of domain. The accepted values are:
         | a Geometry object.
-        | "KL": a :class:`cuqi.geometry.KLExpansion` geometry object will be created and set as domain geometry.
-        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` geometry object will be created and set as domain geometry.
-        | "Step": a :class:`cuqi.geometry.StepExpansion` geometry object will be created and set as domain geometry.
-        | "CustomKL": a :class:`cuqi.geometry.CustomKL` geometry object will be created and set as domain geometry.
-        | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as domain geometry.
+        | "KL": a :class:`cuqi.geometry.KLExpansion` geometry object will be created and set as a domain geometry.
+        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` geometry object will be created and set as a domain geometry.
+        | "Step": a :class:`cuqi.geometry.StepExpansion` geometry object will be created and set as a domain geometry.
+        | "CustomKL": a :class:`cuqi.geometry.CustomKL` geometry object will be created and set as a domain geometry.
+        | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as a domain geometry.
 
     field_params : dict
         | Passed as argument `params` to the underlying geometry when field type is `KL` or `KL_Full` or `CustomKL`.
@@ -571,11 +571,11 @@ class Heat_1D(BayesianProblem):
     field_type : str or cuqi.geometry.Geometry
         | Field type of domain. The accepted values are:
         | a Geometry object.
-        | "KL": a :class:`cuqi.geometry.KLExpansion` geometry object will be created and set as domain geometry.
-        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` geometry object will be created and set as domain geometry.
-        | "Step": a :class:`cuqi.geometry.StepExpansion` geometry object will be created and set as domain geometry.
-        | "CustomKL": a :class:`cuqi.geometry.CustomKL` geometry object will be created and set as domain geometry.
-        | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as domain geometry.
+        | "KL": a :class:`cuqi.geometry.KLExpansion` geometry object will be created and set as a domain geometry.
+        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` geometry object will be created and set as a domain geometry.
+        | "Step": a :class:`cuqi.geometry.StepExpansion` geometry object will be created and set as a domain geometry.
+        | "CustomKL": a :class:`cuqi.geometry.CustomKL` geometry object will be created and set as a domain geometry.
+        | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as a domain geometry.
 
     field_params : dict
         | Passed as argument `params` to the underlying geometry when field type is `KL` or `KL_Full` or `CustomKL`.
