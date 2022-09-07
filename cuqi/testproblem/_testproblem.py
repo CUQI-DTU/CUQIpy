@@ -419,25 +419,40 @@ class Poisson_1D(BayesianProblem):
     Parameters
     ------------
     dim : int
-        size of the grid for the poisson problem
+        | size of the grid for the poisson problem
 
     endpoint : float
-        Location of end-point of grid.
+        | Location of end-point of grid.
     
     source : lambda function
-        Function for source term.
+        | Function for source term.
 
     field_type : str or cuqi.geometry.Geometry
-        Field type of domain.
+        | Field type of domain. The accepted values are:
+        | a Geometry object.
+        | "KL": a :class:`cuqi.geometry.KLExpansion` is created.
+        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` is created.
+        | "Step": a :class:`cuqi.geometry.StepExpansion` is created.
+        | "CustomKL": a :class:`cuqi.geometry.CustomKL` is created.
+        | None: a :class:`cuqi.geometry.Continuous1D` is created.
 
-    KL_map : lambda function
-        Mapping used to modify field.
+    field_params : dict
+        | Passed as argument `params` to the underlying geometry when field type is `KL` or `KL_Full` or `CustomKL`.
 
-    KL_imap : lambda function
-        Inverse of KL map.
+    map : lambda function
+        | Mapping used to modify field.
+
+    imap : lambda function
+        | Inverse of KL map.
 
     SNR : int
-        Signal-to-noise ratio
+        | Signal-to-noise ratio
+
+    n_steps: int, default 3
+        | Number of steps for the "Step" field.
+
+    observation_nodes : lambda function
+        | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_nodes = lambda x: x[np.where(x>5.0)]`. 
 
     Attributes
     ----------
@@ -470,10 +485,7 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=None, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
-
-        if dim_obs is None:
-            dim_obs = dim-1
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, n_steps=3, observation_nodes=None):
 
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
@@ -491,7 +503,9 @@ class Poisson_1D(BayesianProblem):
         grid_range  = np.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
 
         # PDE form: LHS(x)u=rhs(x)
-        grid_obs = np.linspace(1./(dim_obs), endpoint, dim_obs, endpoint=False)
+        grid_obs = grid_range
+        if observation_nodes is not None:
+            grid_obs = observation_nodes(grid_range)
         PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
         PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_sol=grid_range,  grid_obs=grid_obs)
 
@@ -503,14 +517,14 @@ class Poisson_1D(BayesianProblem):
         elif field_type=="KL_Full":
             domain_geometry = KLExpansion_Full(grid_domain,field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain)
+            domain_geometry = StepExpansion(grid_domain, n_steps)
         elif field_type=="CustomKL":
             domain_geometry = CustomKL(grid_domain,field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
 
-        if KL_map is not None:
-            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
+        if map is not None:
+            domain_geometry = MappedGeometry(domain_geometry,map,imap)
 
         range_geometry = Continuous1D(grid_range)
 
@@ -578,7 +592,7 @@ class Heat_1D(BayesianProblem):
     exactSolution : ndarray or CUQIarray
         | The exact solution of the problem which is the heat model initial condition in this test problem. If provided as None, an exact solution is generated, if provided as ndarray, it is assumed to be function values and it is converted to a CUQIarray.
 
-    n_steps: int
+    n_steps: int, default 3
         | Number of steps for the "Step" field.
 
     observation_nodes : lambda function
