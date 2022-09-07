@@ -8,6 +8,13 @@ import matplotlib.pyplot as plt
 
 import cuqi
 
+prec = sp.sparse.diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(5, 5))
+cov = sp.linalg.inv(prec.toarray())
+sqrtprec = sp.linalg.cholesky(prec.toarray())
+X_prec = cuqi.distribution.GaussianPrec(np.zeros(5), prec)
+X_cov = cuqi.distribution.GaussianCov(np.zeros(5), cov)
+X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(5), sqrtprec)
+    
 # =====TEST COV=========================
 # Create sparse, symmetric PSD matrix S
 # n = 10
