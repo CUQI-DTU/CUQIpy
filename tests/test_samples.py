@@ -234,3 +234,15 @@ def test_cuqiarray_default_geometry():
     """ Test that CUQIarray creates a default geometry when no geometry is passed"""
     v = CUQIarray([0,1,2,3,4,5,6,7,8])
     assert type(v.geometry) is cuqi.geometry._geometry._DefaultGeometry
+
+def test_violin_plot():
+    """ Test that the violin plot is generated correctly. """
+    dist = cuqi.distribution.DistributionGallery("CalSom91")
+    sampler = cuqi.sampler.MetropolisHastings(dist)
+    samples = sampler.sample_adapt(1000)
+    samples.geometry = cuqi.geometry.Discrete(["alpha","beta"])
+
+    ax = samples.plot_violin(shade=0.1)
+
+    assert ax[0].get_title() == "alpha"
+    assert ax[1].get_title() == "beta"
