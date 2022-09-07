@@ -166,10 +166,13 @@ posterior_hier = joint_hier(y=y_obs)
 # Notice how the density for y becomes a likelihood
 print(posterior_hier)
 
+# In this case the posterior is still a joint distribution
+# over the parameters d, l, and x.
+
 # %%
 #
 # .. note::
 #
-#     The posterior distribution as shown above can be sampled via the sampler module.
-#     See e.g. the tutorial on sampling :doc:`Sampling tutorial <../_auto_tutorials/4-Samplers>`.
+#     The joint distribution as shown above can be sampled via the sampler module.
+#     See e.g. the tutorial on Gibbs sampling :doc:`Gibbs tutorial <../_auto_tutorials/Gibbs>`.
 #
