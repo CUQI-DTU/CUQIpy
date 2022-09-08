@@ -50,6 +50,7 @@ class Gaussian(Distribution):
         self.mean = mean
 
         # If everything is None we default to covariance as the mutable variables
+        # If more than one of the matrices are given we throw an error
         if (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) == 0:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
@@ -72,6 +73,7 @@ class Gaussian(Distribution):
 
     @property
     def mean(self):
+        """ Mean of the distribution """
         return self._mean
 
     @mean.setter
@@ -80,6 +82,7 @@ class Gaussian(Distribution):
 
     @property
     def cov(self):
+        """ Covariance of the distribution """
         return self._cov
 
     @cov.setter
@@ -90,10 +93,10 @@ class Gaussian(Distribution):
         self._cov = value       
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
-                dimflag = True # do sparse computations
+                sparse_flag = True # do sparse computations
             else:
-                dimflag = False  # use numpy
-            prec, sqrtprec, logdet, rank = get_sqrtprec_from_cov(self.dim, value, dimflag)
+                sparse_flag = False  # use numpy
+            prec, sqrtprec, logdet, rank = get_sqrtprec_from_cov(self.dim, value, sparse_flag)
             self._prec = prec
             self._sqrtprec = sqrtprec
             self._logdet = logdet
@@ -101,6 +104,7 @@ class Gaussian(Distribution):
 
     @property
     def prec(self):
+        """ Precision of the distribution """
         return self._prec
 
     @prec.setter
@@ -111,17 +115,18 @@ class Gaussian(Distribution):
         self._prec = value       
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
-                dimflag = True # do sparse computations
+                sparse_flag = True # do sparse computations
             else:
-                dimflag = False  # use numpy
-            sqrtprec, logdet, rank = get_sqrtprec_from_prec(self.dim, value, dimflag)
-            self._cov = None  # Often not necessary to compute cov
+                sparse_flag = False  # use numpy
+            sqrtprec, logdet, rank = get_sqrtprec_from_prec(self.dim, value, sparse_flag)
+            self._cov = None  # TODO: Compute covariance from precision (only if dim < MAX_DIM_INV)
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
 
     @property
-    def sqrtcov(self):        
+    def sqrtcov(self):
+        """ Square root of the covariance of the distribution. For 1D Gaussian this is the standard deviation. """
         return self._sqrtcov
 
     @sqrtcov.setter
@@ -132,18 +137,19 @@ class Gaussian(Distribution):
         self._sqrtcov = value       
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
-                dimflag = True # do sparse computations
+                sparse_flag = True # do sparse computations
             else:
-                dimflag = False  # use numpy
-            prec, sqrtprec, logdet, rank = get_sqrtprec_from_sqrtcov(self.dim, value, dimflag)
-            self._cov = None  # Often not necessary to compute cov
+                sparse_flag = False  # use numpy
+            prec, sqrtprec, logdet, rank = get_sqrtprec_from_sqrtcov(self.dim, value, sparse_flag)
+            self._cov = None  # TODO: Compute covariance from precision/sqrtprec (only if dim < MAX_DIM_INV)
             self._prec = prec
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
 
     @property
-    def sqrtprec(self):        
+    def sqrtprec(self):
+        """ Square root of the precision of the distribution. For 1D Gaussian this is the inverse standard deviation. """
         return self._sqrtprec
 
     @sqrtprec.setter
@@ -154,11 +160,12 @@ class Gaussian(Distribution):
         self._sqrtprec = value
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
-                dimflag = True # do sparse computations
+                sparse_flag = True # do sparse computations
             else:
-                dimflag = False  # use numpy
-            sqrtprec, logdet, rank = get_sqrtprec_from_sqrtprec(self.dim, value, dimflag)
-            self._cov = None  # Often not necessary to compute cov
+                sparse_flag = False  # use numpy
+            sqrtprec, logdet, rank = get_sqrtprec_from_sqrtprec(self.dim, value, sparse_flag)
+            self._prec = None # TODO: Compute precision from sqrtprec (only if dim < MAX_DIM_INV?)
+            self._cov = None  # TODO: Compute covariance from precision (only if dim < MAX_DIM_INV)
             self._sqrtprec = sqrtprec 
             self._logdet = logdet
             self._rank = rank
@@ -176,20 +183,21 @@ class Gaussian(Distribution):
         return (self.sqrtprec@self.mean).flatten()
 
     def _logupdf(self, x):
-        # compute unnormalized density
+        """ Un-normalized log density """
         dev = x - self.mean
         mahadist = np.sum(np.square(self.sqrtprec @ dev.T), axis=0)
-        # dev.T @ self.prec @ dev
         return -0.5*mahadist.flatten()
 
     def logpdf(self, x):
         if self.logdet is None:
             raise NotImplementedError("Normalized density is not implemented for Gaussian when precision or covariance is sparse and cholmod is not installed.")
         Z = -0.5*(self.rank*np.log(2*np.pi) + self.logdet.flatten())  # normalizing constant
-        logup = self._logupdf(x)                            # unnormalized density
+        logup = self._logupdf(x)                            # un-normalized density
         return Z + logup
 
     def cdf(self, x1):   # no closed form, we rely on scipy
+        if self.cov is None:
+            raise NotImplementedError("CDF is not implemented for this Gaussian because covariance is not available.")
         return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
 
     def gradient(self, val, *args, **kwargs):
@@ -222,8 +230,6 @@ class Gaussian(Distribution):
 
         # Compute perturbation
         if spa.issparse(self.sqrtprec): # do sparse
-            # if np.allclose(self.sqrtprec, spa.tril(self.sqrtprec, format='csr')): # matrix is triangular
-            #     perturbation = spa.linalg.spsolve_triangular(self.sqrtprec, e)
             if (N == 1):
                 perturbation = spa.linalg.spsolve(self.sqrtprec, e)[:, None]
             else:
@@ -238,16 +244,19 @@ class Gaussian(Distribution):
         s = self.mean[:, None] + perturbation
         return s
 
-#===================================================
-#===================================================
-#===================================================
-def get_sqrtprec_from_cov(dim, cov, dimflag):
-    # cov is scalar, corrmat is identity or 1D
+# ======= Helper functions for Gaussian distribution =======
+def get_sqrtprec_from_cov(dim, cov, sparse_flag):
+    """ Compute square root of precision matrix from covariance matrix.
+    
+    Also computes log determinant and rank of covariance matrix.
+    
+    """
+    # cov is scalar
     if (cov.shape[0] == 1): 
         var = cov.ravel()[0]
         logdet = dim*np.log(var)
         rank = dim
-        if dimflag:
+        if sparse_flag:
             prec = (1/var)*spa.identity(dim, format="csr")
             sqrtprec = np.sqrt(1/var)*spa.identity(dim, format="csr")
         else:
@@ -258,7 +267,7 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
     elif not spa.issparse(cov) and cov.shape[0] == np.size(cov): 
         logdet = np.sum(np.log(cov))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             prec = spa.diags(1/cov, format="csr")
             sqrtprec = spa.diags(np.sqrt(1/cov), format="csr")
         else:
@@ -266,12 +275,11 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
             sqrtprec = np.diag(np.sqrt(1/cov))
 
     # cov diagonal
-    #(spa.issparse(cov) and cov.format == 'dia') or (not spa.issparse(cov) and np.count_nonzero(cov-np.diag(np.diagonal(cov))) == 0): 
-    elif np.count_nonzero(cov-np.diag(cov.diagonal())) == 0:
+    elif np.count_nonzero(cov-np.diag(cov.diagonal())) == 0: #TODO. Make sure cov.diagonal() can be called!
         var = cov.diagonal()
         logdet = np.sum(np.log(var))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             prec = spa.diags(1/var, format="csr")
             sqrtprec = spa.diags(np.sqrt(1/var), format="csr")
         else:
@@ -286,18 +294,17 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
                 prec = L_cholmod.inv()
                 sqrtprec = sparse_cholesky(prec)
                 logdet = L_cholmod.logdet()
-                rank = spa.csgraph.structural_rank(cov)# or nplinalg.matrix_rank(cov.todense())
+                rank = spa.csgraph.structural_rank(cov) # or nplinalg.matrix_rank(cov.todense())
                 # sqrtcov = L_cholmod.L()
             else:
-                #raise NotImplementedError("Sparse covariance is only supported via 'cholmod'.")
                 prec = spa.linalg.inv(cov)
                 sqrtprec = sparse_cholesky(prec)
-                logdet = None # np.log(nplinalg.det(cov.todense())) TODO
+                logdet = None # np.log(nplinalg.det(cov.todense())) TODO.
                 rank = spa.csgraph.structural_rank(cov)                        
         else:
             if not np.allclose(cov, cov.T):
                 raise ValueError("Covariance matrix has to be symmetric.") 
-            if dimflag:
+            if sparse_flag:
                 # this comes from scipy implementation
                 s, u = splinalg.eigh(cov, check_finite=True)
                 eps = eigvalsh_to_eps(s)
@@ -320,14 +327,18 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
                 sqrtprec = nplinalg.cholesky(prec).T
     return prec, sqrtprec, logdet, rank
 
-#===================================================
-def get_sqrtprec_from_prec(dim, prec, dimflag):
-    # prec is scalar, corrmat is identity or 1D
+def get_sqrtprec_from_prec(dim, prec, sparse_flag):
+    """ Compute square root of precision matrix from precision matrix.
+    
+    Also computes log determinant and rank of precision matrix.
+    
+    """
+    # prec is scalar
     if (prec.shape[0] == 1): 
         precision = prec.ravel()[0]
         logdet = -dim*np.log(precision)
         rank = dim
-        if dimflag:
+        if sparse_flag:
             # cov = (1/precision)*spa.identity(dim, format="csr")
             sqrtprec = np.sqrt(precision)*spa.identity(dim, format="csr")
         else:
@@ -338,7 +349,7 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
     elif not spa.issparse(prec) and prec.shape[0] == np.size(prec): 
         logdet = np.sum(-np.log(prec))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             # cov = spa.diags(1/prec, format="csr")
             sqrtprec = spa.diags(np.sqrt(prec), format="csr")
         else:
@@ -350,7 +361,7 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
         precision = prec.diagonal()
         logdet = np.sum(-np.log(precision))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             # cov = spa.diags(1/precision, format="csr")
             sqrtprec = spa.diags(np.sqrt(precision), format="csr")
         else:
@@ -374,7 +385,7 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
         else:
             if not np.allclose(prec, prec.T):
                 raise ValueError("Precision matrix has to be symmetric.") 
-            if dimflag:
+            if sparse_flag:
                 s, u = splinalg.eigh(prec, check_finite=True)
                 eps = eigvalsh_to_eps(s)
                 if np.min(s) < -eps:
@@ -394,17 +405,19 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
                 sqrtprec = nplinalg.cholesky(prec).T
     return sqrtprec, logdet, rank
 
-#===================================================
-#===================================================
-#===================================================
-def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
-    # sqrtcov is scalar, corrmat is identity or 1D
+def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
+    """ Compute square root of precision matrix from square root of covariance matrix.
+    
+    Also computes log determinant and rank of precision matrix.
+    
+    """
+    # sqrtcov is scalar
     if (sqrtcov.shape[0] == 1): 
         sqrtcov = sqrtcov.ravel()[0]
         var = sqrtcov**2
         logdet = dim*np.log(var)
         rank = dim
-        if dimflag:
+        if sparse_flag:
             prec = (1/var)*spa.identity(dim, format="csr")
             sqrtprec = (1/sqrtcov)*spa.identity(dim, format="csr")
         else:
@@ -416,7 +429,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
         cov = sqrtcov**2
         logdet = np.sum(np.log(cov))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             prec = spa.diags(1/cov, format="csr")
             sqrtprec = spa.diags(1/sqrtcov, format="csr")
         else:
@@ -429,7 +442,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
         var = std**2
         logdet = np.sum(np.log(var))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             prec = spa.diags(1/var, format="csr")
             sqrtprec = spa.diags(1/std, format="csr")
         else:
@@ -448,14 +461,14 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
                 rank = spa.csgraph.structural_rank(cov)# or nplinalg.matrix_rank(cov.todense())
                 # sqrtcov = L_cholmod.L()
             else:
-                raise NotImplementedError("Sparse standard deviation is only supported via 'cholmod'.")
+                raise NotImplementedError("Sparse sqrtcov is only supported via 'cholmod'.")
                 # TODO:
                 # prec = spa.linalg.inv(cov)
                 # sqrtprec = sparse_cholesky(prec)
                 # logdet = np.log(nplinalg.det(cov.todense()))
                 # rank = spa.csgraph.structural_rank(cov)                    
         else:
-            if dimflag:
+            if sparse_flag:
                 # this comes from scipy implementation
                 cov = sqrtcov@sqrtcov.T
                 s, u = splinalg.eigh(cov, check_finite=True)
@@ -480,31 +493,37 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
                 sqrtprec = nplinalg.cholesky(prec).T
     return prec, sqrtprec, logdet, rank
 
-#===================================================
-def get_sqrtprec_from_sqrtprec(dim, sqrtprec, dimflag):
-    # sqrtprec is scalar, corrmat is identity or 1D
+def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
+    """ This computes the log determinant and rank of the precision matrix from the square root of the precision matrix.
+
+    """    
+
+    # sqrtprec is scalar
     if (sqrtprec.shape[0] == 1): 
         logdet = -dim*np.log(sqrtprec**2)
         rank = dim
         dia = np.ones(dim)*sqrtprec.flatten()
-        if dimflag:
+        if sparse_flag:
             sqrtprec = spa.diags(dia)
         else:
             sqrtprec = np.diag(dia)
+
     # sqrtprec is vector
     elif not spa.issparse(sqrtprec) and sqrtprec.shape[0] == np.size(sqrtprec): 
         logdet = np.sum(-np.log(sqrtprec**2))
         rank = dim
-        if dimflag:
+        if sparse_flag:
             sqrtprec = spa.diags(sqrtprec)
         else:
             sqrtprec = np.diag(sqrtprec)
+
     # sqrtprec diagonal
-    elif np.count_nonzero(sqrtprec-np.diag(sqrtprec.diagonal())) == 0:
+    elif np.count_nonzero(sqrtprec-np.diag(sqrtprec.diagonal())) == 0: #TODO. Check if sqrtprec has diagonal() method.
         stdinv = sqrtprec.diagonal()
         precision = stdinv**2
         logdet = np.sum(-np.log(precision))
         rank = dim
+
     # sqrtprec is full
     else:
         if spa.issparse(sqrtprec):
@@ -517,7 +536,7 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, dimflag):
                 raise NotImplementedError("Sparse precision is only supported via 'cholmod'.")
                 # TODO:               
         else:
-            if dimflag:
+            if sparse_flag:
                 prec = sqrtprec@sqrtprec.T
                 s, _ = splinalg.eigh(prec, check_finite=True)
                 eps = eigvalsh_to_eps(s)
@@ -532,7 +551,6 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, dimflag):
                 logdet = -np.log(nplinalg.det(prec))
     return sqrtprec, logdet, rank
 
-#===================================================
 def eigvalsh_to_eps(spectrum, cond=None, rcond=None):
     #Determine which eigenvalues are "small" given the spectrum.
     if rcond is not None:
