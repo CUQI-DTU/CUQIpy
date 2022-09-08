@@ -14,8 +14,8 @@ n = 128
 
 # %% Five line example (likelihood + prior)
 model, data, probInfo = Deconvolution1D.get_components(dim=n, phantom="Square")
-likelihood = Gaussian(mean=model, std=0.05).to_likelihood(data)
-prior = Gaussian(mean=np.zeros(n), std=0.2)
+likelihood = Gaussian(mean=model, sqrtcov=0.05).to_likelihood(data)
+prior = Gaussian(mean=np.zeros(n), sqrtcov=0.2)
 IP = BayesianProblem(likelihood, prior)
 IP.UQ(exact=probInfo.exactSolution)
 

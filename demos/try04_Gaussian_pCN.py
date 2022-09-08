@@ -20,16 +20,15 @@ from cuqi.distribution import Gaussian
 d = 200
 mu = np.zeros(d)
 sigma = np.linspace(0.5, 1, d)
-R = np.eye(d)
 
 # target function to sample
-dist = Gaussian(mu, sigma, R)
+dist = Gaussian(mu, sigma**2)
 def target(x): return dist.logpdf(x)
 
 # =============================================================================
 # reference measure (or 'prior' if it is a BIP)
 # =============================================================================
-ref = Gaussian(mu, np.ones(d), R)   # standard Gaussian
+ref = Gaussian(mu, np.ones(d))   # standard Gaussian
 
 # =============================================================================
 # posterior sampling
