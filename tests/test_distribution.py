@@ -154,8 +154,8 @@ def test_Uniform_sample(low, high, expected):
                           'high':np.array([5,7, 7,6])}),
                           (cuqi.distribution.Gaussian, 
                           {'mean':np.array([0, 0, 0, 0]),
-                          'std':np.array([1, 1, 1, 1]),
-                          'corrmat':np.eye(4)})])
+                          'sqrtcov':np.array([1, 1, 1, 1])})
+                          ])
 def test_distribution_contains_geometry(distribution, kwargs):
     rng = np.random.RandomState(3)
     geom = cuqi.geometry.Continuous2D((2,2))
