@@ -67,7 +67,6 @@ class JointDistribution:
             raise ValueError("All densities must have unique names.")
 
         self._densities = list(densities)
-        self._allow_reduce = False # Hack to allow conditioning to reduce a joint distribution to a single density
 
         # Make sure every parameter has a distribution (prior)
         cond_vars = self._get_conditioning_variables()
@@ -120,14 +119,10 @@ class JointDistribution:
             cond_kwargs = {key:value for (key,value) in kwargs.items() if key in density.get_parameter_names()}
             new_joint._densities[i] = density(**cond_kwargs)
 
-        # Hack to reduce the joint distribution to a single density
-        # This is useful for current implementation of our samplers
-        # but should be removed in the future. Should only be used
-        # by the Gibbs sampler.
-        if self._allow_reduce:
-            return new_joint._reduce_to_single_density()
-
-        return new_joint
+        # Potentially reduce joint distribution to a single density
+        # This happens if there is only a single parameter left.
+        # Can reduce to Posterior, Likelihood or Distribution.
+        return new_joint._reduce_to_single_density()
 
     def get_parameter_names(self) -> List[str]:
         """ Returns the parameter names of the joint distribution. """

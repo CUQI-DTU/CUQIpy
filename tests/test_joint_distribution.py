@@ -91,6 +91,7 @@ def test_joint_dist_logd(densities):
 @pytest.mark.parametrize("densities", [
     [
         cuqi.distribution.Gamma(1, 1e-4, name="x"),
+        cuqi.distribution.GaussianCov(0, lambda x:x, name="z"),
         cuqi.distribution.Normal(0, lambda x:x, name="y")
     ],
     [
@@ -160,9 +161,6 @@ def test_joint_dist_reduce():
     """ This tests the reduce hack for the joint distribution. """
 
     J, data = hierarchical_joint()   
-
-    # Allow reduce
-    J._allow_reduce = True
 
     # Check if we get the expected result when conditioning.
     assert isinstance(J(y=data), cuqi.distribution.JointDistribution)
