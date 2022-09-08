@@ -13,7 +13,7 @@ cov = sp.linalg.inv(prec.toarray())
 sqrtprec = sp.linalg.cholesky(prec.toarray())
 X_prec = cuqi.distribution.GaussianPrec(np.zeros(5), prec=prec)
 X_cov = cuqi.distribution.GaussianCov(np.zeros(5), cov)
-X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(5), sqrtprec)
+X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(5), sqrtprec=sqrtprec)
     
 # =====TEST COV=========================
 # Create sparse, symmetric PSD matrix S
