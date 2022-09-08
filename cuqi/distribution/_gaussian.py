@@ -49,12 +49,14 @@ class Gaussian(Distribution):
 
         self.mean = mean
 
+        # If everything is None we default to covariance as the mutable variables
         if (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) == 0:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
         elif (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) != 1:
             raise ValueError("Exactly one of 'cov', 'prec', 'sqrtcov', or 'sqrtprec' may be specified")
         
+        # This sets the mutable variables according to which matrix is given
         if cov is not None:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
