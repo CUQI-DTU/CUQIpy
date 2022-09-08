@@ -46,8 +46,8 @@ class GaussianCov(Distribution):
         n = 4
         x = cuqi.distribution.GaussianCov(mean=np.zeros(n), cov=2)
     """
-    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, is_symmetric=True, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs)
 
         if (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) == 0:
             self._mutable_vars = ['mean', 'cov']
