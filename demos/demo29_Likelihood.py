@@ -47,5 +47,5 @@ cuqi.sampler.pCN(posterior).sample_adapt(50);
 cuqi.sampler.pCN((likelihood,prior)).sample_adapt(50); 
 
 # %% Likelihood with "hyperparameters"
-likelihood = cuqi.distribution.GaussianCov(mean=model, cov=lambda sigma: sigma**2).to_likelihood(data)
+likelihood = cuqi.distribution.Gaussian(mean=model, cov=lambda sigma: sigma**2).to_likelihood(data)
 likelihood

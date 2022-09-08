@@ -14,7 +14,7 @@ Joint Distribution tutorial
 
 import sys; sys.path.append("../..")
 import numpy as np
-from cuqi.distribution import GaussianCov, Gamma, JointDistribution
+from cuqi.distribution import Gaussian, Gamma, JointDistribution
 from cuqi.testproblem import Deconvolution1D
 
 # Model and data
@@ -52,8 +52,8 @@ d = 100
 s = 400
 
 # Define distributions
-x = GaussianCov(np.zeros(n), 1/d*In)
-y = GaussianCov(lambda x: A@x, 1/s*Im)
+x = Gaussian(np.zeros(n), 1/d*In)
+y = Gaussian(lambda x: A@x, 1/s*Im)
 
 # Define joint distribution p(x,y)
 joint = JointDistribution(x, y)
@@ -147,8 +147,8 @@ print(f"Posterior geometry: {posterior.geometry}")
 # Define distribution
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
-x = GaussianCov(np.zeros(n), lambda d: 1/d*In)
-y = GaussianCov(lambda x: A@x, lambda l: 1/l*Im)
+x = Gaussian(np.zeros(n), lambda d: 1/d*In)
+y = Gaussian(lambda x: A@x, lambda l: 1/l*Im)
 
 # Define joint distribution p(d,l,x,y)
 joint_hier = JointDistribution(d, l, x, y)

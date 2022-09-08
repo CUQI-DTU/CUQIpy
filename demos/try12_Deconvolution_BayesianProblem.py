@@ -6,7 +6,7 @@ import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cuqi.distribution import Gaussian, GaussianCov, Cauchy_diff, Laplace_diff
+from cuqi.distribution import Gaussian, Gaussian, Cauchy_diff, Laplace_diff
 from cuqi.distribution import GMRF, LMRF, Laplace, Beta, InverseGamma, Lognormal
 from cuqi.sampler import NUTS, CWMH
 

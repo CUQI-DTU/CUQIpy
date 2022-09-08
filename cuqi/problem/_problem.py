@@ -3,7 +3,7 @@ import time
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
+from cuqi.distribution import Cauchy_diff, Gaussian, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
@@ -185,7 +185,7 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        if self._check_posterior((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
+        if self._check_posterior((Gaussian, Gaussian), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
             if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
@@ -242,7 +242,7 @@ class BayesianProblem(object):
         print("")
 
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
+        if self._check_posterior((Gaussian, Gaussian), (Gaussian, Gaussian), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
             return self._sampleMapCholesky(Ns, callback)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
@@ -250,7 +250,7 @@ class BayesianProblem(object):
             return self._sampleLinearRTO(Ns, callback)
 
         # For Laplace_diff we use our awesome unadjusted Laplace approximation!
-        elif self._check_posterior(Laplace_diff, (Gaussian, GaussianCov)):
+        elif self._check_posterior(Laplace_diff, (Gaussian, Gaussian)):
             return self._sampleUnadjustedLaplaceApproximation(Ns, callback)
 
         # If we have gradients, use NUTS!
@@ -259,7 +259,7 @@ class BayesianProblem(object):
             return self._sampleNUTS(Ns, callback)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior((Gaussian, GMRF, GaussianCov), (Gaussian, GaussianCov)):
+        elif self._check_posterior((Gaussian, GMRF, Gaussian), (Gaussian, Gaussian)):
             return self._samplepCN(Ns, callback)
 
         # For the remainder of valid cases we use CWMH
@@ -288,7 +288,7 @@ class BayesianProblem(object):
 
         # Set likelihood to constant
         model = cuqi.model.LinearModel(lambda x: 0*x, lambda y: 0*y, self.model.range_geometry, self.model.domain_geometry)
-        likelihood = cuqi.distribution.GaussianCov(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
+        likelihood = cuqi.distribution.Gaussian(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
         prior_problem.likelihood = likelihood
 
         # Now sample prior problem

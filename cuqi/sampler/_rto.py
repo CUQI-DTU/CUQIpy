@@ -61,13 +61,13 @@ class Linear_RTO(Sampler):
                 raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
 
             # Likelihood
-            L = cuqi.distribution.GaussianSqrtPrec(model, sqrtprec=L_sqrtprec).to_likelihood(data)
+            L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
 
             # Prior TODO: allow multiple priors stacked
             #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
             #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
             #else:
-            P = cuqi.distribution.GaussianSqrtPrec(P_mean, sqrtprec=P_sqrtprec)
+            P = cuqi.distribution.Gaussian(P_mean, sqrtprec=P_sqrtprec)
 
             # Construct posterior
             target = cuqi.distribution.Posterior(L, P)

@@ -9,8 +9,8 @@ def test_joint_dist_dim_geometry():
 
     # Bayesian model
     d = cuqi.distribution.Gamma(1, 1e-4)
-    x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), lambda d: d)
-    y = cuqi.distribution.GaussianCov(model, 1)
+    x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), lambda d: d)
+    y = cuqi.distribution.Gaussian(model, 1)
 
     # Joint distribution
     J = cuqi.distribution.JointDistribution(d, x, y)
@@ -41,8 +41,8 @@ def test_joint_dist_dim_geometry():
     [
         cuqi.distribution.Gamma(1, 1e-4, name="d"),
         cuqi.distribution.Gamma(1, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
-        cuqi.distribution.GaussianCov(
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
             name="y"
@@ -52,8 +52,8 @@ def test_joint_dist_dim_geometry():
         cuqi.distribution.Normal(0, 1e-2, name="z"),
         cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
         cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
-        cuqi.distribution.GaussianCov(
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
             name="y"
@@ -96,8 +96,8 @@ def test_joint_dist_logd(densities):
     [
         cuqi.distribution.Gamma(1, 1e-4, name="d"),
         cuqi.distribution.Gamma(1, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
-        cuqi.distribution.GaussianCov(
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
             name="y"
@@ -107,8 +107,8 @@ def test_joint_dist_logd(densities):
         cuqi.distribution.Normal(0, 1e-2, name="z"),
         cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
         cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(8), lambda d: d, name="x"),
-        cuqi.distribution.GaussianCov(
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
             name="y"
@@ -218,8 +218,8 @@ def hierarchical_joint(main_dim=8):
         cuqi.distribution.Normal(0, 1e-2, name="z"),
         cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
         cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.GaussianCov(np.zeros(main_dim), lambda d: d, name="x"),
-        cuqi.distribution.GaussianCov(
+        cuqi.distribution.Gaussian(np.zeros(main_dim), lambda d: d, name="x"),
+        cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=main_dim).model,
             cov=lambda l: l,
             name="y"

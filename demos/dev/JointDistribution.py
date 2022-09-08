@@ -14,7 +14,7 @@ Joint Distribution technical details
 
 import sys; sys.path.append("../..")
 import numpy as np
-from cuqi.distribution import GaussianCov, Gamma, JointDistribution
+from cuqi.distribution import Gaussian, Gamma, JointDistribution
 from cuqi.testproblem import Deconvolution1D
 
 # Model and data
@@ -47,8 +47,8 @@ m = A.range_dim
 # Define distribution
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
-x = GaussianCov(np.zeros(n), lambda d: 1/d)
-y = GaussianCov(lambda x: A@x, lambda l: 1/l)
+x = Gaussian(np.zeros(n), lambda d: 1/d)
+y = Gaussian(lambda x: A@x, lambda l: 1/l)
 
 # %%
 # Define joint distribution p(d,l,x,y)

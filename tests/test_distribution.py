@@ -44,7 +44,7 @@ def test_Gaussian_cov():
     assert np.allclose(pX_1.cov, S)
     
 def test_Gaussian_multiple():
-    pX_1 = cuqi.distribution.GaussianCov(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
+    pX_1 = cuqi.distribution.Gaussian(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
     #
     X, Y = np.meshgrid(np.linspace(-4, 4, 200), np.linspace(-4, 4, 200))
     Xf, Yf = X.flatten(), Y.flatten()
@@ -180,7 +180,7 @@ def test_distribution_contains_geometry(distribution, kwargs):
 ])
 def test_GaussianCov(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
-    prior = cuqi.distribution.GaussianCov(mean, cov)
+    prior = cuqi.distribution.Gaussian(mean, cov)
 
     # Compare logpdf with scipy using full vector+matrix rep
     x0 = 1000*np.random.rand(prior.dim)
@@ -219,9 +219,9 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     sqrtprec = sp.linalg.cholesky(prec.toarray())
 
     # Define Gaussians from all combinations
-    X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec=prec.toarray())
-    X_cov = cuqi.distribution.GaussianCov(np.zeros(dim), cov)
-    X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(dim), sqrtprec=sqrtprec)
+    X_prec = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec.toarray())
+    X_cov = cuqi.distribution.Gaussian(np.zeros(dim), cov)
+    X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec)
     X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
 
     # logpdfs
@@ -253,9 +253,9 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     assert np.allclose(np.round(s_cov, 1), np.round(s_prec, 1) , rtol=0.1)
 
     # Check un-normalized logpdfs for sparse precision and covariance
-    X_prec_s = cuqi.distribution.GaussianPrec(np.zeros(dim), prec=prec)
+    X_prec_s = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec)
     cov_s = sps.linalg.inv(prec)
-    X_cov_s = cuqi.distribution.GaussianCov(np.zeros(dim), cov=cov_s)
+    X_cov_s = cuqi.distribution.Gaussian(np.zeros(dim), cov=cov_s)
 
     assert np.allclose(X_cov._logupdf(x0), X_cov_s._logupdf(x0))
     assert np.allclose(X_cov._logupdf(x0), X_prec_s._logupdf(x0))
@@ -516,7 +516,7 @@ def test_beta(): #TODO. Make more tests
 
 @pytest.mark.parametrize("C",[1, np.ones(5), np.eye(5), sps.eye(5), sps.diags(np.ones(5))])
 def test_GaussianCov_sample(C):
-    x = cuqi.distribution.GaussianCov(np.zeros(5), np.pi*C)
+    x = cuqi.distribution.Gaussian(np.zeros(5), np.pi*C)
     rng = np.random.RandomState(0)
     samples = x.sample(rng=rng)
     assert np.allclose(samples, np.array([3.12670137, 0.70926018, 1.73476791, 3.97187978, 3.31016035]))

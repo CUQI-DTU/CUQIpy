@@ -22,7 +22,7 @@ from cuqi.distribution import Distribution
 # TODOs:
 # Support sparse covariance matrices without cholmod library
 
-class GaussianCov(Distribution):
+class Gaussian(Distribution):
     """
     General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian
 
@@ -544,19 +544,6 @@ def eigvalsh_to_eps(spectrum, cond=None, rcond=None):
     eps = cond * np.max(abs(spectrum))
     return eps
 
-
-
-class GaussianSqrtPrec(GaussianCov):
-    pass
-
-
-
-class GaussianPrec(GaussianCov):
-    pass
-
-class Gaussian(GaussianCov):
-    pass
-
 class GaussianSqrtPrec2(Distribution):
     """
     Gaussian probability distribution defined using sqrt of precision matrix. 
@@ -717,7 +704,7 @@ class GaussianPrec2(Distribution):
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
-class Gaussian2(GaussianCov):
+class Gaussian2(Gaussian):
     """
     Wrapper for GaussianCov using std and corrmat. See ::class::cuqi.distribution.GaussianCov.
     

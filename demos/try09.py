@@ -22,10 +22,10 @@ x_true = TP.exactSolution
 
 # %%
 # Define Gaussian likelihood and prior
-likelihood = cuqi.distribution.GaussianCov(model, cov).to_likelihood(data)
+likelihood = cuqi.distribution.Gaussian(model, cov).to_likelihood(data)
 
 var = 0.2
-prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
+prior = cuqi.distribution.Gaussian(0, var*np.ones(n))
 
 # %% MAP estimates
 # Define potential of posterior (returns logpdf and gradient w.r.t x)

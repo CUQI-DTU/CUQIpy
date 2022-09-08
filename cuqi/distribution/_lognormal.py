@@ -1,7 +1,7 @@
 import numpy as np
 from cuqi.geometry import _get_identity_geometries
 from cuqi.distribution import Distribution
-from cuqi.distribution import GaussianCov
+from cuqi.distribution import Gaussian
 import warnings
 
 class Lognormal(Distribution):
@@ -39,7 +39,7 @@ class Lognormal(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
         self.mean = mean
         self.cov = cov
-        self._normal = GaussianCov(self.mean, self.cov)
+        self._normal = Gaussian(self.mean, self.cov)
 
     @property
     def _normal(self):

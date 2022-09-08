@@ -32,7 +32,7 @@ b_exact.plot()
 plt.colorbar()
 
 # %% Setup data distribution
-data_distb = cuqi.distribution.GaussianCov(mean = model, cov = 50, geometry=range_geometry) #Geometry is not automatically inferred yet
+data_distb = cuqi.distribution.Gaussian(mean = model, cov = 50, geometry=range_geometry) #Geometry is not automatically inferred yet
 
 # %% Sample from data distribution to obtain noisy data
 data = data_distb(x = x_exact).sample()

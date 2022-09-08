@@ -58,7 +58,7 @@ cov2 = np.array([0.5, 0.4, 0.3, 0.2, 0.1])
 
 dim2 = 5
 
-G = cuqi.distribution.GaussianCov(mean=mu2, cov=cov2)
+G = cuqi.distribution.Gaussian(mean=mu2, cov=cov2)
 
 #%%
 
