@@ -3,7 +3,6 @@ import numbers
 import numpy as np
 import numpy.linalg as nplinalg
 
-import scipy as sp
 import scipy.stats as sps
 import scipy.sparse as spa
 import scipy.linalg as splinalg
@@ -19,12 +18,13 @@ from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray, sparse_cholesky
 from cuqi.distribution import Distribution
 
-# TODOs:
-# Support sparse covariance matrices without cholmod library
+# TODO: add full support for sparse covariance matrices without cholmod library (missing logdet)
 
 class Gaussian(Distribution):
     """
-    General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian
+    General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian.
+
+    Can be defined by mean and covariance, precision or square roots of covariance or precision.
 
     Parameters
     ------------
@@ -35,8 +35,6 @@ class Gaussian(Distribution):
     sqrtcov: A matrix R, where R.T@R = CovarianceMatrix of the distribution.
     sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution.  
     (cov, prec, sqrtcov and sqrtprec can be a scalar, 1D numpy array (assumes diagonal matrix), or 2D sparse or numpy arrays).
-    
-    Note: 2D sparse arrays are handled if the cholmod library is installed, otherwise we get an error.
     
     Example
     -----------
