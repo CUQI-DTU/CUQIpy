@@ -115,7 +115,7 @@ class GaussianCov(Distribution):
             else:
                 dimflag = False  # use numpy
             sqrtprec, logdet, rank = get_sqrtprec_from_prec(self.dim, value, dimflag)
-            # self._cov = cov  # not necessary
+            self._cov = None  # Often not necessary to compute cov
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
@@ -136,6 +136,7 @@ class GaussianCov(Distribution):
             else:
                 dimflag = False  # use numpy
             prec, sqrtprec, logdet, rank = get_sqrtprec_from_sqrtcov(self.dim, value, dimflag)
+            self._cov = None  # Often not necessary to compute cov
             self._prec = prec
             self._sqrtprec = sqrtprec
             self._logdet = logdet
@@ -157,7 +158,7 @@ class GaussianCov(Distribution):
             else:
                 dimflag = False  # use numpy
             sqrtprec, logdet, rank = get_sqrtprec_from_sqrtprec(self.dim, value, dimflag)
-            # self._cov = cov  # not necessary
+            self._cov = None  # Often not necessary to compute cov
             self._sqrtprec = sqrtprec 
             self._logdet = logdet
             self._rank = rank
