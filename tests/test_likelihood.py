@@ -88,7 +88,7 @@ def test_likelihood_UserDefined():
     (np.zeros(3), np.eye(3), np.random.rand(3)),
 ])
 def test_likelihood_conditioning(dist, mean, cov, data):
-    """ Test conditioning on parameters of likelihood for GaussianCov """
+    """ Test conditioning on parameters of likelihood for Gaussian """
 
     # Create likelihood
     likelihood = dist.to_likelihood(data)

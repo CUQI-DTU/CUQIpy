@@ -43,15 +43,15 @@ class Lognormal(Distribution):
 
     @property
     def _normal(self):
-        if not np.all(self._GaussianCov.mean == self.mean):
-            self._GaussianCov.mean = self.mean
-        if not np.all(self._GaussianCov.cov == self.cov):
-            self._GaussianCov.cov = self.cov 
-        return self._GaussianCov
+        if not np.all(self._Gaussian.mean == self.mean):
+            self._Gaussian.mean = self.mean
+        if not np.all(self._Gaussian.cov == self.cov):
+            self._Gaussian.cov = self.cov 
+        return self._Gaussian
 
     @_normal.setter
     def _normal(self, value):
-        self._GaussianCov = value
+        self._Gaussian = value
 
     @property
     def dim(self):

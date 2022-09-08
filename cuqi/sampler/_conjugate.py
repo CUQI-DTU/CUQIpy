@@ -7,8 +7,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     Sampler for sampling a posterior distribution where the likelihood and prior are conjugate.
 
     Currently supported conjugate pairs are:
-    - (GaussianPrec, Gamma)
-    - (GaussianCov, Gamma)
+    - (Gaussian, Gamma)
     - (GMRF, Gamma)
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.

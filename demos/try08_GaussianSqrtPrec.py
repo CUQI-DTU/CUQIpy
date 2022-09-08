@@ -32,7 +32,7 @@ plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 # Plot data
 plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 
-#%% Set likelihood to be on GaussianCov form
+#%% Set likelihood to be on Gaussian form
 likelihood = cuqi.distribution.Gaussian(mean = tp.model, cov = noise_std**2).to_likelihood(tp.data)
 
 # %% Lets try with the Gaussian prior
@@ -106,7 +106,7 @@ result = sampler.sample(N = Ns, Nb = Nb)
 # plot mean + 95% of samples
 result.plot_ci(95,exact=tp.exactSolution)
 
-# %% GMRF prior defined using GaussianSqrtPrec
+# %% GMRF prior defined using Gaussian
 
 # 1D finite difference matrix with Neumann boundary conditions
 one_vec = np.ones(dim)

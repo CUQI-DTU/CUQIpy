@@ -53,7 +53,7 @@ def test_Gaussian_multiple():
     Z = pX_1.pdf(pts)
     assert npoints == Z.shape[0]
 
-@pytest.mark.xfail(reason="Expected to fail after fixing GaussianCov sample. Regression needs to be updated")
+@pytest.mark.xfail(reason="Expected to fail after fixing Gaussian sample. Regression needs to be updated")
 @pytest.mark.parametrize("mean,std,R,expected",[
                         (([0, 0]),
                         ([1, 1]),
@@ -178,7 +178,7 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (0), (np.array([[5,-3],[-3,2]])),       (np.zeros(2)), (np.array([[5,-3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_GaussianCov(mean,cov,mean_full,cov_full):
+def test_Gaussian_cov(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
     prior = cuqi.distribution.Gaussian(mean, cov)
 
@@ -213,7 +213,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     dim = prec.shape[0]
 
     # Compute covariance from precision
-    cov = sp.linalg.inv(prec.toarray()) #TODO: check GaussianCov for sparse cov also. NotImplementedError
+    cov = sp.linalg.inv(prec.toarray())
 
     # Compute upper triangular cholesky decomposition of precision
     sqrtprec = sp.linalg.cholesky(prec.toarray())
@@ -333,7 +333,7 @@ def test_InverseGamma(a, location, scale, x, func):
     else:
         raise ValueError
 
-@pytest.mark.xfail(reason="Expected to fail after fixing GaussianCov sample. Regression needs to be updated")
+@pytest.mark.xfail(reason="Expected to fail after fixing Gaussian sample. Regression needs to be updated")
 def test_lognormal_sample():
     rng = np.random.RandomState(3)
     mean = np.array([0, -4])
@@ -515,7 +515,7 @@ def test_beta(): #TODO. Make more tests
 
 
 @pytest.mark.parametrize("C",[1, np.ones(5), np.eye(5), sps.eye(5), sps.diags(np.ones(5))])
-def test_GaussianCov_sample(C):
+def test_Gaussian_Cov_sample(C):
     x = cuqi.distribution.Gaussian(np.zeros(5), np.pi*C)
     rng = np.random.RandomState(0)
     samples = x.sample(rng=rng)

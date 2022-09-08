@@ -9,7 +9,7 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
     by a conjugate pair.
 
     Currently supported pairs are:
-    - (Laplace_diff, Gamma): Approximated by (GaussianPrec, Gamma)
+    - (Laplace_diff, Gamma): Approximated by (Gaussian, Gamma)
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 

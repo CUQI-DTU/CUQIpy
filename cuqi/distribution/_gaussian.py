@@ -44,7 +44,7 @@ class Gaussian(Distribution):
 
         # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
         n = 4
-        x = cuqi.distribution.GaussianCov(mean=np.zeros(n), cov=2)
+        x = cuqi.distribution.Gaussian(mean=np.zeros(n), cov=2)
     """
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs)
@@ -547,7 +547,7 @@ def eigvalsh_to_eps(spectrum, cond=None, rcond=None):
 class JointGaussianSqrtPrec(Distribution):
     """
     Joint Gaussian probability distribution defined by means and sqrt of precision matricies of independent Gaussians.
-    Generates instance of cuqi.distribution.JoinedGaussianSqrtPrec.
+    Generates instance of cuqi.distribution.JointGaussianSqrtPrec.
 
     
     Parameters
