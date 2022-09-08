@@ -437,7 +437,7 @@ class Poisson_1D(BayesianProblem):
         | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as a domain geometry.
 
     field_params : dict
-        | Passed as argument `params` to the underlying geometry when field type is `KL` or `KL_Full` or `CustomKL`.
+        | A dictionary of key word arguments that the underlying geometry accepts. (Passed to the underlying geometry when field type is `KL`, `KL_Full`, `CustomKL`, `Step`). For example, for `Step` field type, the dictionary can be `{"n_steps": 3}`.
 
     map : lambda function
         | Mapping used to modify field.
@@ -485,7 +485,7 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, n_steps=3, observation_nodes=None):
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, observation_nodes=None):
 
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
@@ -510,16 +510,18 @@ class Poisson_1D(BayesianProblem):
         PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_sol=grid_range,  grid_obs=grid_obs)
 
         # Set up geometries for model
+        if field_params is None:
+            field_params = {}
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain,field_params)
+            domain_geometry = KLExpansion(grid_domain,**field_params)
         elif field_type=="KL_Full":
-            domain_geometry = KLExpansion_Full(grid_domain,field_params)
+            domain_geometry = KLExpansion_Full(grid_domain,**field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain, n_steps)
+            domain_geometry = StepExpansion(grid_domain, **field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid_domain,field_params)
+            domain_geometry = CustomKL(grid_domain,**field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
 
@@ -578,7 +580,7 @@ class Heat_1D(BayesianProblem):
         | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as a domain geometry.
 
     field_params : dict
-        | Passed as argument `params` to the underlying geometry when field type is `KL` or `KL_Full` or `CustomKL`.
+        | A dictionary of key word arguments that the underlying geometry accepts. (Passed to the underlying geometry when field type is `KL`, `KL_Full`, `CustomKL`, `Step`). For example, for `Step` field type, the dictionary can be `{"n_steps": 3}`.
 
     map : lambda function
         | If given, an underlying `MappedGeometry` geometry object is created which applies the mapping on the field, e.g. for log parameterization: `map = lambda x:np.exp(x)`.
@@ -592,8 +594,6 @@ class Heat_1D(BayesianProblem):
     exactSolution : ndarray or CUQIarray
         | The exact solution of the problem which is the heat model initial condition in this test problem. If provided as None, an exact solution is generated, if provided as ndarray, it is assumed to be function values and it is converted to a CUQIarray.
 
-    n_steps: int, default 3
-        | Number of steps for the "Step" field.
 
     observation_nodes : lambda function
        | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_nodes = lambda x: x[np.where(x>5.0)]`. 
@@ -629,7 +629,7 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, max_time=0.2, field_type=None, field_params=None,map=None, imap=None, SNR=200, exactSolution=None, n_steps=3, observation_nodes=None):
+    def __init__(self, dim=128, endpoint=1, max_time=0.2, field_type=None, field_params=None,map=None, imap=None, SNR=200, exactSolution=None, observation_nodes=None):
         
 
         # Prepare PDE form
@@ -655,16 +655,18 @@ class Heat_1D(BayesianProblem):
             PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_obs)
 
         # Set up geometries for model
+        if field_params is None:
+            field_params = {}
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain, field_params)
+            domain_geometry = KLExpansion(grid_domain, **field_params)
         elif field_type=="KL_Full":
-            domain_geometry = KLExpansion_Full(grid_domain,field_params)
+            domain_geometry = KLExpansion_Full(grid_domain, **field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain, n_steps)
+            domain_geometry = StepExpansion(grid_domain, **field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid_domain, field_params)
+            domain_geometry = CustomKL(grid_domain, **field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
         if map is not None:
@@ -679,6 +681,7 @@ class Heat_1D(BayesianProblem):
         
         else:
             if field_type=="Step":
+                n_steps = domain_geometry.n_steps
                 x_exact = CUQIarray(domain_geometry.par2fun(np.array(range(n_steps))), is_par=False, geometry=domain_geometry)
             else:
                 grid_domain = model.domain_geometry.grid
@@ -776,14 +779,16 @@ class Abel_1D(BayesianProblem):
         grid = np.linspace(0, endpoint, N)
 
         # Geometry
+        if field_params is None:
+            field_params = {}
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid,field_params)
+            domain_geometry = KLExpansion(grid,**field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid)
+            domain_geometry = StepExpansion(grid,**field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid,field_params)
+            domain_geometry = CustomKL(grid,**field_params)
         else:
             domain_geometry = Continuous1D(grid)
 
