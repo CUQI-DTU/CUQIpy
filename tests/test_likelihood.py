@@ -7,7 +7,7 @@ from pytest import approx
 def test_likelihood_log_and_grad():
     #Create likelihood
     model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
-    likelihood = cuqi.distribution.GaussianCov(model,1).to_likelihood(data)
+    likelihood = cuqi.distribution.Gaussian(model,1).to_likelihood(data)
 
     # Tests log and gradient calls do not cause errors
     likelihood.logd(probInfo.exactSolution)
@@ -15,7 +15,7 @@ def test_likelihood_log_and_grad():
 
 def test_likelihood_attributes():
     model, data, _ = cuqi.testproblem.Poisson_1D.get_components(dim=128, field_type="Step")
-    likelihood = cuqi.distribution.GaussianCov(model,1).to_likelihood(data)
+    likelihood = cuqi.distribution.Gaussian(model,1).to_likelihood(data)
 
     # dim of domain
     assert likelihood.dim == model.domain_dim
@@ -33,24 +33,24 @@ def test_likelihood_attributes():
 @pytest.mark.parametrize("dist",[
                         # ------------ Scalar --------------
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtcov=np.pi),
-                        cuqi.distribution.GaussianCov(np.zeros(128), cov=np.pi**2),
-                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/np.pi**2),
-                        cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi),
+                        cuqi.distribution.Gaussian(np.zeros(128), cov=np.pi**2),
+                        cuqi.distribution.Gaussian(np.zeros(128), prec=1/np.pi**2),
+                        cuqi.distribution.Gaussian(np.zeros(128), sqrtprec=1/np.pi),
                         # ------------ VECTOR --------------
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtcov=np.pi*np.ones(128)),
-                        cuqi.distribution.GaussianCov(np.zeros(128), cov=(np.pi**2)*np.ones(128)),
-                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/(np.pi**2)*np.ones(128)),
-                        cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi*np.ones(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), cov=(np.pi**2)*np.ones(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), prec=1/(np.pi**2)*np.ones(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), sqrtprec=1/np.pi*np.ones(128)),
                         # ------------ Diagonal matrix --------------
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtcov=np.pi*np.eye(128)),
-                        cuqi.distribution.GaussianCov(np.zeros(128), cov=(np.pi**2)*np.eye(128)),
-                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/(np.pi**2)*np.eye(128)),
-                        cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi*np.eye(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), cov=(np.pi**2)*np.eye(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), prec=1/(np.pi**2)*np.eye(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), sqrtprec=1/np.pi*np.eye(128)),
                         # ------------ Sparse diagonal matrix --------------
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtcov=np.pi*sps.eye(128)),
-                        cuqi.distribution.GaussianCov(np.zeros(128), cov=(np.pi**2)*sps.eye(128)),
-                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/(np.pi**2)*sps.eye(128)),
-                        cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi*sps.eye(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), cov=(np.pi**2)*sps.eye(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), prec=1/(np.pi**2)*sps.eye(128)),
+                        cuqi.distribution.Gaussian(np.zeros(128), sqrtprec=1/np.pi*sps.eye(128)),
                         ])
 def test_likelihood_Gaussian_log_IID(dist):
     model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components(dim=128)
@@ -61,7 +61,7 @@ def test_likelihood_Gaussian_log_IID(dist):
 def test_likelihood_UserDefined():
     # CUQI likelihood
     model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
-    L = cuqi.distribution.GaussianCov(model, 1).to_likelihood(data)
+    L = cuqi.distribution.Gaussian(model, 1).to_likelihood(data)
 
     # Create user defined likelihood
     likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=L.dim, logpdf_func=L.logd, gradient_func=L.gradient, geometry=L.geometry)
@@ -79,9 +79,9 @@ def test_likelihood_UserDefined():
     assert likelihood.geometry == model.domain_geometry
 
 @pytest.mark.parametrize("dist",[
-    cuqi.distribution.GaussianCov(),
-    cuqi.distribution.GaussianCov(lambda x: x, lambda s: s),
-    cuqi.distribution.GaussianCov(cuqi.model.Model(lambda x: x, 2, 2), lambda s:s)
+    cuqi.distribution.Gaussian(),
+    cuqi.distribution.Gaussian(lambda x: x, lambda s: s),
+    cuqi.distribution.Gaussian(cuqi.model.Model(lambda x: x, 2, 2), lambda s:s)
 ])
 @pytest.mark.parametrize("mean, cov, data",[
     (np.zeros(2), np.eye(2), np.ones(2)),

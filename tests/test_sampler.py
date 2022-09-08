@@ -3,7 +3,7 @@ import numpy as np
 
 import sys
 
-from cuqi.distribution import Gaussian, Cauchy_diff, GaussianCov, Laplace_diff, GMRF, LMRF
+from cuqi.distribution import Gaussian, Cauchy_diff, Gaussian, Laplace_diff, GMRF, LMRF
 from cuqi.sampler import pCN
 
 import pytest
@@ -159,7 +159,7 @@ def test_sampler_UserDefined_basic():
     (potentially requireing a gradient or sample method also)
     """
     # Distribution
-    X = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    X = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
     distX = cuqi.distribution.UserDefinedDistribution(X.dim, X.logpdf, X.gradient, X.sample)
 
     # Parameters
@@ -180,11 +180,11 @@ def test_sampler_UserDefined_tuple():
     Here we require two userdefined distributions.
     """
     # This provides a way to give the logpdf
-    P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    P = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
 
     #
     model = cuqi.model.Model(lambda x: x, range_geometry=2, domain_geometry=2)
-    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]])).to_likelihood(np.array([5,6]))
+    L = cuqi.distribution.Gaussian(model,np.array([[1,0.5],[0.5,3]])).to_likelihood(np.array([5,6]))
 
     # Define userdefined distribution + likelihood
     userP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
@@ -211,8 +211,8 @@ def test_sampler_CustomInput_Linear_RTO():
     # In linear_RTO we require Gaussian distributions
     # or at least classes with sqrtprec and sqrtprecTimesMean 
     # This is most easily done by defining a Gaussian. #TODO make UserDefined.
-    P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
-    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]]))
+    P = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    L = cuqi.distribution.Gaussian(model,np.array([[1,0.5],[0.5,3]]))
 
     # Data
     data = np.array([5,6])
@@ -353,11 +353,11 @@ def test_MALA_regression(copy_reference):
     assert(np.allclose(samples.samples, samples_orig['arr_0']))
 
 @pytest.mark.parametrize("prior, sample_method, expected", [
-    (GaussianCov(np.zeros(128), 0.1), "_sampleMapCholesky", np.arange(10)), # Direct (no burn-in, no initial guess)
-    (GaussianCov(np.zeros(128), 0.1), "_sampleLinearRTO", np.arange(1,12)), # 20% burn-in + initial guess
-    (GaussianCov(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
-    (GaussianCov(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
-    (GaussianCov(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_sampleMapCholesky", np.arange(10)), # Direct (no burn-in, no initial guess)
+    (Gaussian(np.zeros(128), 0.1), "_sampleLinearRTO", np.arange(1,12)), # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
     (Laplace_diff(np.zeros(128), 0.1),"_sampleUnadjustedLaplaceApproximation", np.arange(1,12)), # 20% burn-in + initial guess
     ])
 def test_TP_callback(prior, sample_method, expected):
@@ -417,7 +417,7 @@ def _Gibbs_joint_hier_model():
     d = cuqi.distribution.Gamma(1, 1e-4)
     l = cuqi.distribution.Gamma(1, 1e-4)
     x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d[0])
-    y = cuqi.distribution.GaussianCov(A, lambda l: 1/l)
+    y = cuqi.distribution.Gaussian(A, lambda l: 1/l)
 
     # Combine into a joint distribution and create posterior
     joint = cuqi.distribution.JointDistribution(d, l, x, y)

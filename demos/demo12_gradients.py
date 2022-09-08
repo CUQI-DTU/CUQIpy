@@ -17,7 +17,7 @@ x_true = TP.exactSolution
 pr = 'gaussian'
 if (pr == 'gaussian'):
     var = 0.2
-    prior = cuqi.distribution.GaussianCov(np.zeros(n), var)
+    prior = cuqi.distribution.Gaussian(np.zeros(n), var)
 elif (pr == 'cauchy'):
     h = 1/n
     delta = 0.3

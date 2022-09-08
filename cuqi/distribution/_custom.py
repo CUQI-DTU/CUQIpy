@@ -1,6 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
-from cuqi.distribution import GaussianCov
+from cuqi.distribution import Gaussian
 
 class UserDefinedDistribution(Distribution):
     """
@@ -108,7 +108,7 @@ class DistributionGallery(UserDefinedDistribution):
             mu = np.zeros(dim)
             sigma = np.linspace(0.5, 1, dim)
             R = np.array([[1.0, .9 ],[.9, 1]])
-            dist = GaussianCov(mu, (sigma**2)*R)
+            dist = Gaussian(mu, (sigma**2)*R)
             self._sample = dist._sample
             logpdf_func = dist.logpdf
             grad_logpdf = dist.gradient
@@ -127,9 +127,9 @@ class DistributionGallery(UserDefinedDistribution):
             dim = 2
             self.m0, self.m1, self.m2 = np.array([-1.5, -1.5]), np.array([1.5, 1.5]), np.array([-2, 2])
             self.S0, self.S1, self.S2 = (0.8**2), (0.8**2), (0.5**2)
-            self.G0 = GaussianCov(self.m0, self.S0)
-            self.G1 = GaussianCov(self.m1, self.S1)
-            self.G2 = GaussianCov(self.m2, self.S2)
+            self.G0 = Gaussian(self.m0, self.S0)
+            self.G1 = Gaussian(self.m1, self.S1)
+            self.G2 = Gaussian(self.m2, self.S2)
             # self.grad_logG = lambda x, mu, s: -np.diag([1/s, 1/s])@(x-mu).T
             #
             logpdf_func = self._mixture_logpdf_func
@@ -138,7 +138,7 @@ class DistributionGallery(UserDefinedDistribution):
             dim = 2
             m0 = np.zeros(dim)
             S0 = np.array([[2, 0.25], [0.25, 0.5]])
-            self.G0 = GaussianCov(m0, S0)
+            self.G0 = Gaussian(m0, S0)
             #
             logpdf_func = self._squiggle_logpdf_func
             grad_logpdf = self._squiggle_grad_logpdf
@@ -152,7 +152,7 @@ class DistributionGallery(UserDefinedDistribution):
             dim = 2
             m0 = np.array([0, 4])
             S0 = np.array([[1, 0.5], [0.5, 1]])
-            self.G0 = GaussianCov(m0, S0)
+            self.G0 = Gaussian(m0, S0)
             self.a, self.b = 2, 0.2
             #
             logpdf_func = self._banana_logpdf_func

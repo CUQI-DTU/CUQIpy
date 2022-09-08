@@ -1,4 +1,4 @@
-from cuqi.distribution import Posterior, GaussianCov, GaussianPrec, Gamma, GMRF
+from cuqi.distribution import Posterior, Gaussian, Gaussian, Gamma, GMRF
 import numpy as np
 
 class Conjugate: # TODO: Subclass from Sampler once updated
@@ -16,7 +16,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     """
 
     def __init__(self, target: Posterior):
-        if not isinstance(target.likelihood.distribution, (GaussianPrec, GaussianCov, GMRF)):
+        if not isinstance(target.likelihood.distribution, (Gaussian, Gaussian, GMRF)):
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
