@@ -39,7 +39,7 @@ def test_likelihood_attributes():
                         # ------------ VECTOR --------------
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtcov=np.pi*np.ones(128)),
                         cuqi.distribution.GaussianCov(np.zeros(128), cov=(np.pi**2)*np.ones(128)),
-                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=np.ones(128)),
+                        cuqi.distribution.GaussianPrec(np.zeros(128), prec=1/(np.pi**2)*np.ones(128)),
                         cuqi.distribution.GaussianSqrtPrec(np.zeros(128), sqrtprec=1/np.pi*np.ones(128)),
                         # ------------ Diagonal matrix --------------
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtcov=np.pi*np.eye(128)),
