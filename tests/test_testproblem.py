@@ -106,7 +106,7 @@ def test_testproblem_pde_grid_obs(model_class, observation_map, expected_grid_eq
     L = np.pi
 
     model = model_class(dim=N, endpoint=L, field_type="Step",
-                        observation_nodes=observation_map).model
+                        observation_grid_map=observation_map).model
 
     assert model.pde.grids_equal == expected_grid_equal
 
