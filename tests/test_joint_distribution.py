@@ -91,7 +91,7 @@ def test_joint_dist_logd(densities):
 @pytest.mark.parametrize("densities", [
     [
         cuqi.distribution.Gamma(1, 1e-4, name="x"),
-        cuqi.distribution.GaussianCov(0, lambda x:x, name="z"),
+        cuqi.distribution.Gaussian(0, lambda x:x, name="z"),
         cuqi.distribution.Normal(0, lambda x:x, name="y")
     ],
     [
