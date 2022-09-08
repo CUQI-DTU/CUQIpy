@@ -287,12 +287,11 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
                 rank = spa.csgraph.structural_rank(cov)# or nplinalg.matrix_rank(cov.todense())
                 # sqrtcov = L_cholmod.L()
             else:
-                raise NotImplementedError("Sparse covariance is only supported via 'cholmod'.")
-                # TODO:
-                # prec = spa.linalg.inv(cov)
-                # sqrtprec = sparse_cholesky(prec)
-                # logdet = np.log(nplinalg.det(cov.todense()))
-                # rank = spa.csgraph.structural_rank(cov)                    
+                #raise NotImplementedError("Sparse covariance is only supported via 'cholmod'.")
+                prec = spa.linalg.inv(cov)
+                sqrtprec = sparse_cholesky(prec)
+                logdet = None # np.log(nplinalg.det(cov.todense())) TODO
+                rank = spa.csgraph.structural_rank(cov)                        
         else:
             if not np.allclose(cov, cov.T):
                 raise ValueError("Covariance matrix has to be symmetric.") 
@@ -366,12 +365,10 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
                 logdet = -L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(prec)# or nplinalg.matrix_rank(cov.todense())
             else:
-                raise NotImplementedError("Sparse precision is only supported via 'cholmod'.")
-                # TODO:
                 # cov = spa.linalg.inv(cov)
-                # sqrtprec = sparse_cholesky(prec)
-                # logdet = np.log(nplinalg.det(cov.todense()))
-                # rank = spa.csgraph.structural_rank(cov)                    
+                sqrtprec = sparse_cholesky(prec)
+                logdet = None # np.log(nplinalg.det(cov.todense()))
+                rank = spa.csgraph.structural_rank(prec)                    
         else:
             if not np.allclose(prec, prec.T):
                 raise ValueError("Precision matrix has to be symmetric.") 

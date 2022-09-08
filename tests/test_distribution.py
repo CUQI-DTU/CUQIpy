@@ -219,7 +219,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     sqrtprec = sp.linalg.cholesky(prec.toarray())
 
     # Define Gaussians from all combinations
-    X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec=prec)
+    X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec=prec.toarray())
     X_cov = cuqi.distribution.GaussianCov(np.zeros(dim), cov)
     X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(dim), sqrtprec=sqrtprec)
     X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
@@ -252,8 +252,16 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_prec, 1) , rtol=0.1)
 
+    # Check un-normalized logpdfs for sparse precision and covariance
+    X_prec_s = cuqi.distribution.GaussianPrec(np.zeros(dim), prec=prec)
+    cov_s = sps.linalg.inv(prec)
+    X_cov_s = cuqi.distribution.GaussianCov(np.zeros(dim), cov=cov_s)
+
+    assert np.allclose(X_cov._logupdf(x0), X_cov_s._logupdf(x0))
+    assert np.allclose(X_cov._logupdf(x0), X_prec_s._logupdf(x0))
+
     #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
-    # %% CUQI test problem
+    # CUQI test problem
     # TP = cuqi.testproblem.Deconvolution1D(dim=n)
     # TP.prior = X_GMRF
     # samples_GMRF = TP._sampleLinearRTO(2000)
