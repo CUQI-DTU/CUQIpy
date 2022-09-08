@@ -183,6 +183,8 @@ class GaussianCov(Distribution):
         return -0.5*mahadist.flatten()
 
     def logpdf(self, x):
+        if self.logdet is None:
+            raise NotImplementedError("Normalized density is not implemented for Gaussian when precision or covariance is sparse and cholmod is not installed.")
         Z = -0.5*(self.rank*np.log(2*np.pi) + self.logdet.flatten())  # normalizing constant
         logup = self._logupdf(x)                            # unnormalized density
         return Z + logup
