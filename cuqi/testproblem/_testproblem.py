@@ -90,7 +90,7 @@ class Deblur(BayesianProblem):
         model = LinearModel(A)
         
         # Store data_dist
-        data_dist = Gaussian(model, noise_std, np.eye(dim))
+        data_dist = Gaussian(model, noise_std**2)
         
         # Generate inverse-crime free data (still same blur size)
         data, f_true, g_true = self._generateData(mesh,kernel,blur_size,data_dist)
@@ -251,9 +251,9 @@ class Deconvolution1D(BayesianProblem):
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            data_dist = cuqi.distribution.Gaussian(model,noise_std,np.eye(dim))
+            data_dist = cuqi.distribution.Gaussian(model, noise_std**2)
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model,b_exact*noise_std,np.eye(dim))
+            data_dist = cuqi.distribution.Gaussian(model, sqrtcov=b_exact*noise_std)
         else:
             raise NotImplementedError("This noise type is not implemented")
         
@@ -1229,7 +1229,7 @@ class WangCubic(BayesianProblem):
             data = 1
 
         # data distribution is Gaussian
-        data_dist = cuqi.distribution.Gaussian(model, noise_std)
+        data_dist = cuqi.distribution.Gaussian(model, noise_std**2)
 
         # Define Gaussian likelihood
         likelihood = data_dist.to_likelihood(data)
