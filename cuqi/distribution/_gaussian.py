@@ -49,13 +49,14 @@ class GaussianCov(Distribution):
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs)
 
+        self.mean = mean
+
         if (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) == 0:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
         elif (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) != 1:
             raise ValueError("Exactly one of 'cov', 'prec', 'sqrtcov', or 'sqrtprec' may be specified")
-
-        self.mean = mean
+        
         if cov is not None:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
