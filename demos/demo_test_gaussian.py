@@ -24,7 +24,7 @@ X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(5), sqrtprec=sqrtprec)
 # Strue = A.dot(A.T) + 0.05 * np.eye(n)  # Force strict pos. def.
 # cov = sp.sparse.csr_matrix(np.linalg.inv(Strue))
 
-# prior = cuqi.distribution.GaussianCov(mean, cov)
+# prior = cuqi.distribution.Gaussian(mean, cov)
 # x0 = 1000*np.random.rand(prior.dim)
 # eval1 = prior.logpdf(x0)
 # eval2 = sp.stats.multivariate_normal.logpdf(x0, mean, cov.todense())
@@ -38,7 +38,7 @@ X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(5), sqrtprec=sqrtprec)
 # A[sp.sparse.rand(n, n, 0.85).todense().nonzero()] = 0  # Sparsen the matrix.
 # Strue = A.dot(A.T) + 0.05 * np.eye(n)  # Force strict pos. def.
 # cov = np.linalg.inv(Strue) # sp.sparse.csr_matrix(
-# prior = cuqi.distribution.GaussianCov(mean, prec=Strue)
+# prior = cuqi.distribution.Gaussian(mean, prec=Strue)
 # x0 = 1000*np.random.rand(prior.dim)
 # eval1 = prior.logpdf(x0)
 # eval2 = sp.stats.multivariate_normal.logpdf(x0, mean, cov)

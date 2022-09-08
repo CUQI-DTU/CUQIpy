@@ -44,7 +44,7 @@ class Gibbs:
         d = cuqi.distribution.Gamma(1, 1e-4)
         l = cuqi.distribution.Gamma(1, 1e-4)
         x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d)
-        y = cuqi.distribution.GaussianCov(A, lambda l: 1/l)
+        y = cuqi.distribution.Gaussian(A, lambda l: 1/l)
 
         # Combine into a joint distribution and create posterior
         joint = cuqi.distribution.JointDistribution(d, l, x, y)

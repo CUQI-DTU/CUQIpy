@@ -21,7 +21,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution2D
 from cuqi.data import grains
-from cuqi.distribution import Laplace_diff, GaussianCov 
+from cuqi.distribution import Laplace_diff, Gaussian
 from cuqi.problem import BayesianProblem
 
 # Step 1: Model and data
@@ -34,7 +34,7 @@ prior = Laplace_diff(location=np.zeros(model.domain_dim),
                      physical_dim=2)
 
 # Step 3: Likelihood
-likelihood = GaussianCov(mean=model, cov=0.0036**2).to_likelihood(data)
+likelihood = Gaussian(mean=model, cov=0.0036**2).to_likelihood(data)
 
 # Step 4: Posterior samples
 samples = BayesianProblem(likelihood, prior).sample_posterior(200)

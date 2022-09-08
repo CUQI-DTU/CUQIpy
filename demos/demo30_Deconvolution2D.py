@@ -85,7 +85,7 @@ Ds = kron(I, P)
 Dt = kron(P, I)
 P = Ds+Dt # Precision matrix defined for the 2D problem
 
-# Then we define the Gaussian using GaussianPrec to avoid computing the (dense) covariance matrix.
+# Then we define the Gaussian using Gaussian precision to avoid computing the (dense) covariance matrix.
 TP.prior = cuqi.distribution.Gaussian(mean = np.zeros(n), prec = P)
 
 # We can plot some samples of this prior

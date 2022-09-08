@@ -32,7 +32,7 @@ samples = TP.sample_posterior(200)
 # Plot samples of posterior
 samples.plot_ci(exact=TP.exactSolution)
 
-# %% Using GaussianPrec instead
+# %% Using Gaussian instead
 
 P = 500*sps.diags([-1, 2, -1], [-1, 0, 1], shape=(N, N)) # order 1
 #P = 500*sps.diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(N, N)) # order 2
