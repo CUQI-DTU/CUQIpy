@@ -189,9 +189,15 @@ class BayesianProblem(object):
             if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
-            Ce = self.likelihood.distribution.Sigma
+            Ce = self.likelihood.distribution.cov
             x0 = self.prior.mean
-            Cx = self.prior.Sigma
+            Cx = self.prior.cov
+
+            # If Ce and Cx are scalar them matrices
+            if np.size(Ce)==1:
+                Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
+            if np.size(Cx)==1:
+                Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
 
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
@@ -324,9 +330,15 @@ class BayesianProblem(object):
 
         b  = self.data
         A  = self.model.get_matrix()
-        Ce = self.likelihood.distribution.Sigma
+        Ce = self.likelihood.distribution.cov
         x0 = self.prior.mean
-        Cx = self.prior.Sigma
+        Cx = self.prior.cov
+
+        # If Ce and Cx are scalar them matrices
+        if np.size(Ce)==1:
+            Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
+        if np.size(Cx)==1:
+            Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
 
         # Preallocate samples
         n = self.prior.dim 

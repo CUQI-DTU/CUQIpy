@@ -46,16 +46,17 @@ class GaussianCov(Distribution):
         n = 4
         x = cuqi.distribution.GaussianCov(mean=np.zeros(n), cov=2)
     """
-    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, is_symmetric=True, **kwargs):
+        super().__init__(is_symmetric=is_symmetric, **kwargs)
+
+        self.mean = mean
 
         if (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) == 0:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
         elif (cov is not None) + (prec is not None) + (sqrtprec is not None) + (sqrtcov is not None) != 1:
             raise ValueError("Exactly one of 'cov', 'prec', 'sqrtcov', or 'sqrtprec' may be specified")
-
-        self.mean = mean
+        
         if cov is not None:
             self._mutable_vars = ['mean', 'cov']
             self.cov = cov
@@ -114,7 +115,7 @@ class GaussianCov(Distribution):
             else:
                 dimflag = False  # use numpy
             sqrtprec, logdet, rank = get_sqrtprec_from_prec(self.dim, value, dimflag)
-            # self._cov = cov  # not necessary
+            self._cov = None  # Often not necessary to compute cov
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
@@ -135,6 +136,7 @@ class GaussianCov(Distribution):
             else:
                 dimflag = False  # use numpy
             prec, sqrtprec, logdet, rank = get_sqrtprec_from_sqrtcov(self.dim, value, dimflag)
+            self._cov = None  # Often not necessary to compute cov
             self._prec = prec
             self._sqrtprec = sqrtprec
             self._logdet = logdet
@@ -156,7 +158,7 @@ class GaussianCov(Distribution):
             else:
                 dimflag = False  # use numpy
             sqrtprec, logdet, rank = get_sqrtprec_from_sqrtprec(self.dim, value, dimflag)
-            # self._cov = cov  # not necessary
+            self._cov = None  # Often not necessary to compute cov
             self._sqrtprec = sqrtprec 
             self._logdet = logdet
             self._rank = rank
@@ -169,17 +171,9 @@ class GaussianCov(Distribution):
     def rank(self):        
         return self._rank
 
-    # ===begin{delete}
     @property
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
-
-    @property 
-    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
-        if self.dim > config.MAX_DIM_INV:
-            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
-        return nplinalg.inv(self.prec.toarray())
-    # ===end{delete}
 
     def _logupdf(self, x):
         # compute unnormalized density
@@ -189,6 +183,8 @@ class GaussianCov(Distribution):
         return -0.5*mahadist.flatten()
 
     def logpdf(self, x):
+        if self.logdet is None:
+            raise NotImplementedError("Normalized density is not implemented for Gaussian when precision or covariance is sparse and cholmod is not installed.")
         Z = -0.5*(self.rank*np.log(2*np.pi) + self.logdet.flatten())  # normalizing constant
         logup = self._logupdf(x)                            # unnormalized density
         return Z + logup
@@ -293,12 +289,11 @@ def get_sqrtprec_from_cov(dim, cov, dimflag):
                 rank = spa.csgraph.structural_rank(cov)# or nplinalg.matrix_rank(cov.todense())
                 # sqrtcov = L_cholmod.L()
             else:
-                raise NotImplementedError("Sparse covariance is only supported via 'cholmod'.")
-                # TODO:
-                # prec = spa.linalg.inv(cov)
-                # sqrtprec = sparse_cholesky(prec)
-                # logdet = np.log(nplinalg.det(cov.todense()))
-                # rank = spa.csgraph.structural_rank(cov)                    
+                #raise NotImplementedError("Sparse covariance is only supported via 'cholmod'.")
+                prec = spa.linalg.inv(cov)
+                sqrtprec = sparse_cholesky(prec)
+                logdet = None # np.log(nplinalg.det(cov.todense())) TODO
+                rank = spa.csgraph.structural_rank(cov)                        
         else:
             if not np.allclose(cov, cov.T):
                 raise ValueError("Covariance matrix has to be symmetric.") 
@@ -372,12 +367,10 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
                 logdet = -L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(prec)# or nplinalg.matrix_rank(cov.todense())
             else:
-                raise NotImplementedError("Sparse precision is only supported via 'cholmod'.")
-                # TODO:
                 # cov = spa.linalg.inv(cov)
-                # sqrtprec = sparse_cholesky(prec)
-                # logdet = np.log(nplinalg.det(cov.todense()))
-                # rank = spa.csgraph.structural_rank(cov)                    
+                sqrtprec = sparse_cholesky(prec)
+                logdet = None # np.log(nplinalg.det(cov.todense()))
+                rank = spa.csgraph.structural_rank(prec)                    
         else:
             if not np.allclose(prec, prec.T):
                 raise ValueError("Precision matrix has to be symmetric.") 
@@ -407,6 +400,7 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
 def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
     # sqrtcov is scalar, corrmat is identity or 1D
     if (sqrtcov.shape[0] == 1): 
+        sqrtcov = sqrtcov.ravel()[0]
         var = sqrtcov**2
         logdet = dim*np.log(var)
         rank = dim
@@ -560,7 +554,8 @@ class GaussianSqrtPrec(GaussianCov):
 class GaussianPrec(GaussianCov):
     pass
 
-
+class Gaussian(GaussianCov):
+    pass
 
 class GaussianSqrtPrec2(Distribution):
     """
@@ -722,7 +717,7 @@ class GaussianPrec2(Distribution):
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
-class Gaussian(GaussianCov):
+class Gaussian2(GaussianCov):
     """
     Wrapper for GaussianCov using std and corrmat. See ::class::cuqi.distribution.GaussianCov.
     
