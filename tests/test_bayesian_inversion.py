@@ -9,7 +9,7 @@ from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_
 #All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
                          [
-                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071), 20),
+                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
                              (Deconvolution1D, "gauss", GaussianCov(np.zeros(128), 0.005), 20),
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
                              (Deconvolution1D, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),

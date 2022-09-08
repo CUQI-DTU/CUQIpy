@@ -407,6 +407,7 @@ def get_sqrtprec_from_prec(dim, prec, dimflag):
 def get_sqrtprec_from_sqrtcov(dim, sqrtcov, dimflag):
     # sqrtcov is scalar, corrmat is identity or 1D
     if (sqrtcov.shape[0] == 1): 
+        sqrtcov = sqrtcov.ravel()[0]
         var = sqrtcov**2
         logdet = dim*np.log(var)
         rank = dim
@@ -560,7 +561,8 @@ class GaussianSqrtPrec(GaussianCov):
 class GaussianPrec(GaussianCov):
     pass
 
-
+class Gaussian(GaussianCov):
+    pass
 
 class GaussianSqrtPrec2(Distribution):
     """
@@ -722,7 +724,7 @@ class GaussianPrec2(Distribution):
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
-class Gaussian(GaussianCov):
+class Gaussian2(GaussianCov):
     """
     Wrapper for GaussianCov using std and corrmat. See ::class::cuqi.distribution.GaussianCov.
     

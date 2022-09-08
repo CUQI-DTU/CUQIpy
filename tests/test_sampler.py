@@ -55,7 +55,8 @@ def test_CWMH_sample_regression():
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
-    def target(x): return cuqi.distribution.Gaussian(mean,std,R).pdf(x)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    def target(x): return cuqi.distribution.Gaussian(mean,cov).pdf(x)
 
     # Define proposal
     # def proposal(x, sigma): return np.random.normal(x, sigma)
@@ -76,12 +77,11 @@ def test_RWMH_sample_regression():
     d = 6
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
-    R = np.eye(d)
 
     # target function to sample
-    dist = cuqi.distribution.Gaussian(mu, sigma, R)
+    dist = cuqi.distribution.Gaussian(mu, sigma**2)
 
-    ref = cuqi.distribution.Gaussian(mu, np.ones(d), R)   # standard Gaussian
+    ref = cuqi.distribution.Gaussian(mu, np.ones(d))   # standard Gaussian
 
     scale = 0.1
     x0 = 0.5*np.ones(d)
@@ -113,11 +113,10 @@ def test_pCN_sample_regression():
     d= 2
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
-    R = np.eye(d)
     model = cuqi.model.Model(lambda x: x, range_geometry=d, domain_geometry=d)
-    L = Gaussian(mean=model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
+    L = Gaussian(mean=model, sqrtcov=sigma).to_likelihood(np.zeros(d))
     def target(x): return L.logd(x)
-    P = Gaussian(mu, np.ones(d), R)
+    P = Gaussian(mu, np.ones(d))
     scale = 0.1
     x0 = 0.5*np.ones(d)
     posterior = cuqi.distribution.Posterior(L, P)

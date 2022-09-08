@@ -30,7 +30,8 @@ def test_Gaussian_mean():
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
-    pX_1 = cuqi.distribution.Gaussian(mean, std, R)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    pX_1 = cuqi.distribution.Gaussian(mean, cov)
     assert np.allclose(pX_1.mean, np.array([0, 0]) ) 
 
 def test_Gaussian_cov():
@@ -39,7 +40,7 @@ def test_Gaussian_cov():
     R = np.array([[1, -0.7], [-0.7, 1]])
     D = np.diag(std)
     S = D @ R @ D
-    pX_1 = cuqi.distribution.Gaussian(mean, std, R)
+    pX_1 = cuqi.distribution.Gaussian(mean, S)
     assert np.allclose(pX_1.Sigma, S)
     
 def test_Gaussian_multiple():
@@ -79,7 +80,10 @@ def test_Gaussian_multiple():
                         ])
 def test_Gaussian_sample_regression(mean,std,R,expected):
     rng = np.random.RandomState(0)
-    pX_1 = cuqi.distribution.Gaussian(np.array(mean), np.array(std), np.array(R))
+    std = np.array(std)
+    R = np.array(R)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    pX_1 = cuqi.distribution.Gaussian(np.array(mean), cov)
     samples = pX_1.sample(5,rng=rng).samples
     assert np.allclose( samples, np.array(expected))
 
@@ -103,7 +107,10 @@ def test_Normal_rng(mean,var,seed):
 def test_Gaussian_rng(mean,std,R):
     np.random.seed(3)
     rng = np.random.RandomState(3)
-    assert np.allclose(cuqi.distribution.Gaussian(mean,std,R).sample(10).samples,cuqi.distribution.Gaussian(mean,std,R).sample(10,rng=rng).samples)
+    std = np.array(std)
+    R = np.array(R)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    assert np.allclose(cuqi.distribution.Gaussian(mean,cov).sample(10).samples,cuqi.distribution.Gaussian(mean,cov).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,1,'zero'),cuqi.distribution.GMRF(np.ones(128),35,1,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,1,'neumann')])
 def test_GMRF_rng(dist):
