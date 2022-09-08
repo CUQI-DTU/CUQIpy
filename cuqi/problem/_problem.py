@@ -193,6 +193,12 @@ class BayesianProblem(object):
             x0 = self.prior.mean
             Cx = self.prior.cov
 
+            # If Ce and Cx are scalar them matrices
+            if np.size(Ce)==1:
+                Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
+            if np.size(Cx)==1:
+                Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
+
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
@@ -327,6 +333,12 @@ class BayesianProblem(object):
         Ce = self.likelihood.distribution.cov
         x0 = self.prior.mean
         Cx = self.prior.cov
+
+        # If Ce and Cx are scalar them matrices
+        if np.size(Ce)==1:
+            Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
+        if np.size(Cx)==1:
+            Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
 
         # Preallocate samples
         n = self.prior.dim 
