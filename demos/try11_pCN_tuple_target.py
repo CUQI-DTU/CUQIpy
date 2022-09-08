@@ -15,11 +15,11 @@ np.random.seed(0)
 d= 2
 mu = np.zeros(d)
 sigma = np.linspace(0.5, 1, d)
-R = np.eye(d)
+
 model = cuqi.model.Model(lambda x:x, range_geometry=d, domain_geometry=d)
-L = Gaussian(model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
+L = Gaussian(model, std=sigma**2).to_likelihood(np.zeros(d))
 def target(x): return L.logd(x)
-P = Gaussian(mu, np.ones(d), R)
+P = Gaussian(mu, np.ones(d))
 scale = 0.1
 x0 = 0.5*np.ones(d)
 posterior = cuqi.distribution.Posterior(L, P)

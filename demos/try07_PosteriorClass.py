@@ -25,7 +25,7 @@ L = test_problem.likelihood
 
 dim = test_problem.model.domain_dim
 #prior = cuqi.distribution.GMRF(np.zeros(128), 25, 1, "zero")
-prior = cuqi.distribution.Gaussian(np.zeros(dim), .2, np.eye(dim))
+prior = cuqi.distribution.Gaussian(np.zeros(dim), .2**2)
 posterior = cuqi.distribution.Posterior(L, prior)
 
 MCMC_MH = MetropolisHastings(posterior, scale=0.31)
