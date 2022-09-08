@@ -11,7 +11,7 @@ n = 128
 
 z = np.zeros(n//4); o = np.ones(n//4) #Building blocks for defining means and covariances
 
-X1 = cuqi.distribution.GaussianPrec(np.hstack((z,o,o,z)),np.diag(np.hstack((100*o,2*o,2*o,100*o))))
+X1 = cuqi.distribution.GaussianPrec(np.hstack((z,o,o,z)), prec=np.diag(np.hstack((100*o,2*o,2*o,100*o))))
 X2 = cuqi.distribution.GMRF(np.hstack((o,o,o,o)),25,1,'zero')
 # %%
 plt.figure(); X1.sample(5).plot(); plt.title("X1 (Gaussian with high probability zeros in ends)")

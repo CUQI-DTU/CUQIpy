@@ -212,7 +212,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     sqrtprec = sp.linalg.cholesky(prec.toarray())
 
     # Define Gaussians from all combinations
-    X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec)
+    X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec=prec)
     X_cov = cuqi.distribution.GaussianCov(np.zeros(dim), cov)
     X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(dim), sqrtprec)
     X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
