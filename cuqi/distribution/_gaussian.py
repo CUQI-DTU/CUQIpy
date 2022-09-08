@@ -169,17 +169,9 @@ class GaussianCov(Distribution):
     def rank(self):        
         return self._rank
 
-    # ===begin{delete}
     @property
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
-
-    @property 
-    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
-        if self.dim > config.MAX_DIM_INV:
-            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
-        return nplinalg.inv(self.prec.toarray())
-    # ===end{delete}
 
     def _logupdf(self, x):
         # compute unnormalized density

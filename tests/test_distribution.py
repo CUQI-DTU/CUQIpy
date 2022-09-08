@@ -41,7 +41,7 @@ def test_Gaussian_cov():
     D = np.diag(std)
     S = D @ R @ D
     pX_1 = cuqi.distribution.Gaussian(mean, S)
-    assert np.allclose(pX_1.Sigma, S)
+    assert np.allclose(pX_1.cov, S)
     
 def test_Gaussian_multiple():
     pX_1 = cuqi.distribution.GaussianCov(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
