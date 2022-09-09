@@ -593,7 +593,7 @@ class KLExpansion(Continuous1D):
     .. math::
         f = \sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
-        + \\frac{(-1)^K}{2}(\\frac{1}{(N)^\\gamma\\tau})  p_{N-1}
+        + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}
 
     where:
     :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
@@ -657,7 +657,7 @@ class KLExpansion_Full(Continuous1D):
     .. math::
         f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
-        + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}(\\frac{\\tau^\\gamma}{(\\tau+(N-1)^2)^\\gamma}) p_{N-1}
+        + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}
 
     where:
     :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
