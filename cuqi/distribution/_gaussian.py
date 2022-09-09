@@ -86,7 +86,7 @@ class Gaussian(Distribution):
     @property
     def cov(self):
         """ Covariance of the distribution """
-        if not hasattr(self, '_cov'):
+        if not hasattr(self, '_cov') or self._cov is None:
             raise NotImplementedError(f"Covariance is not computed for Gaussian with mutable variables {self.get_mutable_variables()} and dim {self.dim}. Use method compute_cov() to compute it if needed.")
         return self._cov
 
@@ -119,7 +119,8 @@ class Gaussian(Distribution):
         if not 'prec' in self._mutable_vars:
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
         value = force_ndarray(value)
-        self._prec = value       
+        self._prec = value
+        self._cov = None # Reset covariance (in case it was computed before)
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
                 sparse_flag = True # do sparse computations
@@ -129,7 +130,6 @@ class Gaussian(Distribution):
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
-            self._cov = None # Reset covariance (in case it was computed before)
 
     @property
     def sqrtcov(self):
@@ -143,7 +143,8 @@ class Gaussian(Distribution):
         if not 'sqrtcov' in self._mutable_vars:
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
         value = force_ndarray(value)
-        self._sqrtcov = value       
+        self._sqrtcov = value
+        self._cov = None # Reset covariance (in case it was computed before)      
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
                 sparse_flag = True # do sparse computations
@@ -154,7 +155,6 @@ class Gaussian(Distribution):
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
-            self._cov = None # Reset covariance (in case it was computed before)
 
     @property
     def sqrtprec(self):
@@ -167,6 +167,7 @@ class Gaussian(Distribution):
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
         value = force_ndarray(value)
         self._sqrtprec = value
+        self._cov = None # Reset covariance (in case it was computed before)
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
                 sparse_flag = True # do sparse computations
@@ -176,7 +177,6 @@ class Gaussian(Distribution):
             self._sqrtprec = sqrtprec 
             self._logdet = logdet
             self._rank = rank
-            self._cov = None # Reset covariance (in case it was computed before)
 
     @property
     def logdet(self):
