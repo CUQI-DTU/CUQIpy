@@ -585,16 +585,22 @@ class KLExpansion(Continuous1D):
     Class representation of the random field in the sine basis
 
     .. math::
-        f = \sum_{i=0}^{N-2} (\\frac{1}{(i+1)^\\text{decay}\\text{normalizer}})  p_i \\, sin(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})) 
+        \\gamma = \\text{decay_rate}
+
+    .. math::
+        \\tau = \\text{normalizer}
+
+    .. math::
+        f = \sum_{i=0}^{N-2} (\\frac{1}{(i+1)^\\gamma\\tau})  p_i \\, \\text{sin}(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})) 
         
-        + \\frac{(-1)^K}{2}(\\frac{1}{(N)^\\text{decay}\\text{normalizer}})  p_{N-1}
+        + \\frac{(-1)^K}{2}(\\frac{1}{(N)^\\gamma\\tau})  p_{N-1}
 
     where:
     :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
 
     The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
 
-    Parameters:
+    Parameters
     -----------
     grid : array-like
         One dimensional regular grid on which the random field is defined.
@@ -649,7 +655,7 @@ class KLExpansion_Full(Continuous1D):
         \\gamma = \\text{nu}+1
 
     .. math::
-        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} (\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma})  p_i \\, sin(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})) 
+        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} (\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma})  p_i \\, \\text{sin}(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})) 
         
         + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}(\\frac{\\tau^\\gamma}{(\\tau+(N-1)^2)^\\gamma}) p_{N-1}
 
@@ -658,7 +664,7 @@ class KLExpansion_Full(Continuous1D):
 
     The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
 
-    Parameters:
+    Parameters
     -----------
     grid : array-like
         One dimensional regular grid on which the random field is defined.
@@ -708,7 +714,7 @@ class CustomKL(Continuous1D):
     """
     A class representation of a random field in which a truncated KL expansion is computed from a given covariance function.
     
-    Parameters:
+    Parameters
     -----------
     grid : array-like
         One dimensional grid on which the random field is defined.
@@ -855,7 +861,7 @@ class StepExpansion(Continuous1D):
     then the resulting function evaluated on the grid will be p[0], if x<=L/3, p[1], if L/3<x<=2L/3, 
     p[2], if 2L/3<x<=L.
     
-    Parameters:
+    Parameters
     -----------
     grid: ndarray
         | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [x0, xn], should be included in the grid.
