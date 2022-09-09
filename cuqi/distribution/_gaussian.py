@@ -239,10 +239,9 @@ class Gaussian(Distribution):
         logup = self._logupdf(x)                            # un-normalized density
         return Z + logup
 
-    def cdf(self, x1):   # no closed form, we rely on scipy
-        if self.cov is None:
-            raise NotImplementedError("CDF is not implemented for this Gaussian because covariance is not available.")
-        return sps.multivariate_normal.cdf(x1, self.mean, self.cov)
+    def cdf(self, x1):   # no closed form, we rely on scipy with full covariance
+        cov = self.compute_cov() # Ensure that we have the full covariance matrix
+        return sps.multivariate_normal.cdf(x1, self.mean, cov)
 
     def gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
