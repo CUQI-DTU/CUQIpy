@@ -51,10 +51,10 @@ class CUQIarray(np.ndarray):
         obj.is_par = is_par
         if (not is_par) and (geometry is None):
             raise ValueError("geometry cannot be none when initializing a CUQIarray as function values (with is_par False).")
-        if is_par and (input_array.ndim>1):
+        if is_par and (obj.ndim>1):
             raise ValueError("input_array cannot be multidimensional when initializing CUQIarray as parameter (with is_par True).")
         if geometry is None:
-            geometry = _DefaultGeometry(grid=input_array.__len__())
+            geometry = _DefaultGeometry(grid=obj.__len__())
         obj.geometry = geometry
         # Finally, we must return the newly created object:
         return obj
