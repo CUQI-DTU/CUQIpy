@@ -7,16 +7,18 @@ import scipy.stats as sps
 import scipy.sparse as spa
 import scipy.linalg as splinalg
 
+from cuqi import config
+from cuqi.geometry import _get_identity_geometries
+from cuqi.utilities import force_ndarray, sparse_cholesky
+from cuqi.distribution import Distribution
+
+# We potentially allow the use of sksparse.cholmod for sparse Cholesky
+# if it is installed. If not, we use our own sparse Cholesky.
 try:
     import sksparse.cholmod as skchol
     chols = True
 except ImportError:
     chols = False
-
-from cuqi import config
-from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import force_ndarray, sparse_cholesky
-from cuqi.distribution import Distribution
 
 # TODO: add full support for sparse covariance matrices without cholmod library (missing logdet)
 
