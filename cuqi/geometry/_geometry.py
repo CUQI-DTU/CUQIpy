@@ -591,6 +591,7 @@ class KLExpansion(Continuous1D):
         + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}
 
     where:
+
     .. math::
         \\gamma = \\text{decay_rate},
 
@@ -657,6 +658,7 @@ class KLExpansion_Full(Continuous1D):
         + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}
 
     where:
+    
     .. math::
         \\tau = \\frac{1}{\\text{cor_len}^2},
 
