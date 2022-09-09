@@ -16,9 +16,9 @@ from cuqi.distribution import Distribution
 # if it is installed. If not, we use our own sparse Cholesky.
 try:
     import sksparse.cholmod as skchol
-    chols = True
+    has_cholmod = True
 except ImportError:
-    chols = False
+    has_cholmod = False
 
 # TODO: add full support for sparse covariance matrices without cholmod library (missing logdet)
 
@@ -297,7 +297,7 @@ def get_sqrtprec_from_cov(dim, cov, sparse_flag):
     # cov is full
     else:
         if spa.issparse(cov):
-            if chols:
+            if has_cholmod:
                 L_cholmod = skchol.cholesky(cov, ordering_method='natural')
                 prec = L_cholmod.inv()
                 sqrtprec = sparse_cholesky(prec)
@@ -379,7 +379,7 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
     # prec is full
     else:
         if spa.issparse(prec):
-            if chols:
+            if has_cholmod:
                 L_cholmod = skchol.cholesky(prec, ordering_method='natural')
                 sqrtprec = L_cholmod.L().T
                 # cov = L_cholmod.inv()
@@ -460,7 +460,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
     # sqrtcov is full
     else:
         if spa.issparse(sqrtcov):
-            if chols:
+            if has_cholmod:
                 cov = sqrtcov@sqrtcov.T
                 L_cholmod = skchol.cholesky(cov, ordering_method='natural')
                 prec = L_cholmod.inv()
@@ -531,7 +531,7 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
     # sqrtprec is full
     else:
         if spa.issparse(sqrtprec):
-            if chols:
+            if has_cholmod:
                 prec = sqrtprec@sqrtprec.T
                 L_cholmod = skchol.cholesky(prec, ordering_method='natural')
                 logdet = -L_cholmod.logdet()
