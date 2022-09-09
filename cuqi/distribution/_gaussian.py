@@ -325,7 +325,7 @@ def get_sqrtprec_from_cov(dim, cov, sparse_flag):
             sqrtprec = np.diag(np.sqrt(1/cov))
 
     # cov diagonal
-    elif np.count_nonzero(cov-np.diag(cov.diagonal())) == 0: #TODO. Make sure cov.diagonal() can be called!
+    elif hasattr(cov, 'diagonal') and np.count_nonzero(cov-np.diag(cov.diagonal())) == 0:
         var = cov.diagonal()
         logdet = np.sum(np.log(var))
         rank = dim
@@ -407,7 +407,7 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
             sqrtprec = np.diag(np.sqrt(prec))
 
     # prec diagonal
-    elif np.count_nonzero(prec-np.diag(prec.diagonal())) == 0:
+    elif hasattr(prec, 'diagonal') and np.count_nonzero(prec-np.diag(prec.diagonal())) == 0:
         precision = prec.diagonal()
         logdet = np.sum(-np.log(precision))
         rank = dim
@@ -487,7 +487,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
             sqrtprec = np.diag(1/sqrtcov)
 
     # sqrtcov diagonal
-    elif np.count_nonzero(sqrtcov-np.diag(sqrtcov.diagonal())) == 0: 
+    elif hasattr(sqrtcov, 'diagonal') and np.count_nonzero(sqrtcov-np.diag(sqrtcov.diagonal())) == 0: 
         std = sqrtcov.diagonal()
         var = std**2
         logdet = np.sum(np.log(var))
