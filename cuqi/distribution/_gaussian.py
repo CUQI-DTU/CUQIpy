@@ -22,21 +22,21 @@ except ImportError:
     has_cholmod = False
 
 
-
 class Gaussian(Distribution):
     """
     General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian.
 
-    Can be defined by mean and covariance, precision or square roots of covariance or precision.
+    Can be defined by a mean and one of the following: covariance, precision, square root of covariance, or square root of precision.
+
+    Internally the class will always convert the given matrices to the square root of the precision matrix.
 
     Parameters
     ------------
     mean: Mean of distribution. Can be a scalar or 1D numpy array.
-    
     cov: Covariance of the distribution. 
     prec: Precision of the distribution.
     sqrtcov: A matrix R, where R.T@R = CovarianceMatrix of the distribution.
-    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution.  
+    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution.
     (cov, prec, sqrtcov and sqrtprec can be a scalar, 1D numpy array (assumes diagonal matrix), or 2D sparse or numpy arrays).
     
     Example
