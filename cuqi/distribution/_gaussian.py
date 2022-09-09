@@ -512,6 +512,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
                 # sqrtcov = L_cholmod.L()
             else:
                 sqrtprec = spa.linalg.inv(sqrtcov)
+                prec = sqrtcov@sqrtprec
                 logdet = None # np.log(nplinalg.det(cov.todense()))
                 rank = spa.csgraph.structural_rank(prec)                  
         else:
