@@ -3,7 +3,7 @@ import numpy as np
 
 import sys
 
-from cuqi.distribution import Gaussian, Cauchy_diff, GaussianCov, Laplace_diff, GMRF, LMRF
+from cuqi.distribution import Gaussian, Cauchy_diff, Gaussian, Laplace_diff, GMRF, LMRF
 from cuqi.sampler import pCN
 
 import pytest
@@ -55,7 +55,8 @@ def test_CWMH_sample_regression():
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
-    def target(x): return cuqi.distribution.Gaussian(mean,std,R).pdf(x)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    def target(x): return cuqi.distribution.Gaussian(mean,cov).pdf(x)
 
     # Define proposal
     # def proposal(x, sigma): return np.random.normal(x, sigma)
@@ -76,12 +77,11 @@ def test_RWMH_sample_regression():
     d = 6
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
-    R = np.eye(d)
 
     # target function to sample
-    dist = cuqi.distribution.Gaussian(mu, sigma, R)
+    dist = cuqi.distribution.Gaussian(mu, sigma**2)
 
-    ref = cuqi.distribution.Gaussian(mu, np.ones(d), R)   # standard Gaussian
+    ref = cuqi.distribution.Gaussian(mu, np.ones(d))   # standard Gaussian
 
     scale = 0.1
     x0 = 0.5*np.ones(d)
@@ -113,11 +113,10 @@ def test_pCN_sample_regression():
     d= 2
     mu = np.zeros(d)
     sigma = np.linspace(0.5, 1, d)
-    R = np.eye(d)
     model = cuqi.model.Model(lambda x: x, range_geometry=d, domain_geometry=d)
-    L = Gaussian(mean=model, std=sigma, corrmat = R).to_likelihood(np.zeros(d))
-    def target(x): return L.log(x)
-    P = Gaussian(mu, np.ones(d), R)
+    L = Gaussian(mean=model, sqrtcov=sigma).to_likelihood(np.zeros(d))
+    def target(x): return L.logd(x)
+    P = Gaussian(mu, np.ones(d))
     scale = 0.1
     x0 = 0.5*np.ones(d)
     posterior = cuqi.distribution.Posterior(L, P)
@@ -160,7 +159,7 @@ def test_sampler_UserDefined_basic():
     (potentially requireing a gradient or sample method also)
     """
     # Distribution
-    X = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    X = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
     distX = cuqi.distribution.UserDefinedDistribution(X.dim, X.logpdf, X.gradient, X.sample)
 
     # Parameters
@@ -181,16 +180,16 @@ def test_sampler_UserDefined_tuple():
     Here we require two userdefined distributions.
     """
     # This provides a way to give the logpdf
-    P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    P = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
 
     #
     model = cuqi.model.Model(lambda x: x, range_geometry=2, domain_geometry=2)
-    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]])).to_likelihood(np.array([5,6]))
+    L = cuqi.distribution.Gaussian(model,np.array([[1,0.5],[0.5,3]])).to_likelihood(np.array([5,6]))
 
     # Define userdefined distribution + likelihood
     userP = cuqi.distribution.UserDefinedDistribution(2, P.logpdf, P.gradient, P.sample)
 
-    userL = cuqi.likelihood.UserDefinedLikelihood(2, L.log, L.gradient)
+    userL = cuqi.likelihood.UserDefinedLikelihood(2, L.logd, L.gradient)
 
     # Parameters
     Ns = 2000   # number of samples
@@ -212,8 +211,8 @@ def test_sampler_CustomInput_Linear_RTO():
     # In linear_RTO we require Gaussian distributions
     # or at least classes with sqrtprec and sqrtprecTimesMean 
     # This is most easily done by defining a Gaussian. #TODO make UserDefined.
-    P = cuqi.distribution.GaussianCov(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
-    L = cuqi.distribution.GaussianCov(model,np.array([[1,0.5],[0.5,3]]))
+    P = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
+    L = cuqi.distribution.Gaussian(model,np.array([[1,0.5],[0.5,3]]))
 
     # Data
     data = np.array([5,6])
@@ -354,11 +353,11 @@ def test_MALA_regression(copy_reference):
     assert(np.allclose(samples.samples, samples_orig['arr_0']))
 
 @pytest.mark.parametrize("prior, sample_method, expected", [
-    (GaussianCov(np.zeros(128), 0.1), "_sampleMapCholesky", np.arange(10)), # Direct (no burn-in, no initial guess)
-    (GaussianCov(np.zeros(128), 0.1), "_sampleLinearRTO", np.arange(1,12)), # 20% burn-in + initial guess
-    (GaussianCov(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
-    (GaussianCov(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
-    (GaussianCov(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_sampleMapCholesky", np.arange(10)), # Direct (no burn-in, no initial guess)
+    (Gaussian(np.zeros(128), 0.1), "_sampleLinearRTO", np.arange(1,12)), # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
+    (Gaussian(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
     (Laplace_diff(np.zeros(128), 0.1),"_sampleUnadjustedLaplaceApproximation", np.arange(1,12)), # 20% burn-in + initial guess
     ])
 def test_TP_callback(prior, sample_method, expected):
@@ -405,3 +404,77 @@ def test_NUTS_regression(copy_reference):
     samples_orig = np.load(samples_orig_file)
 
     assert(np.allclose(samples.samples, samples_orig["arr_0"]))
+
+def _Gibbs_joint_hier_model():
+    """ Define a Gibbs sampler based on a joint distribution from a hierarchical model. Used for testing Gibbs sampler. """
+    np.random.seed(0)
+    
+    # Model and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(phantom='square')
+    n = A.domain_dim
+
+    # Define distributions
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    l = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d[0])
+    y = cuqi.distribution.Gaussian(A, lambda l: 1/l)
+
+    # Combine into a joint distribution and create posterior
+    joint = cuqi.distribution.JointDistribution(d, l, x, y)
+    posterior = joint(y=y_obs)
+
+    # Define sampling strategy
+    sampling_strategy = {
+        'x': cuqi.sampler.Linear_RTO,
+        ('d', 'l'): cuqi.sampler.Conjugate,
+    }
+
+    # Define Gibbs sampler
+    sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+
+    return sampler
+
+def test_Gibbs_regression(copy_reference):
+
+    # SKIP Gibbs reg test if not windows.
+    if not sys.platform.startswith('win'):
+        pytest.skip("NUTS regression test is not implemented for this platform")
+
+    sampler = _Gibbs_joint_hier_model()
+
+    # Run sampler
+    samples = sampler.sample(Ns=100, Nb=20)
+
+    if sys.platform.startswith('win'):
+        samples_orig_file = copy_reference(
+            "data/Gibbs_original_code_results_win.npz")
+    samples_orig = np.load(samples_orig_file)
+
+    assert(np.allclose(samples["d"].samples, samples_orig["arr_0"]))
+
+def test_Gibbs_continue_sampling():
+    """ This tests the sampling can continue with the Gibbs sampler """
+
+    sampler = _Gibbs_joint_hier_model()
+
+    # Run sampler
+    samples = sampler.sample(Ns=10, Nb=5)
+
+    # Continue sampling
+    samples2 = sampler.sample(Ns=10)
+
+    assert samples["x"].shape[-1] == 10
+    assert samples2["x"].shape[-1] == 20
+
+def test_Gibbs_geometry_matches():
+    sampler = _Gibbs_joint_hier_model()
+
+    target = sampler.target
+
+    # Run sampler
+    samples = sampler.sample(Ns=10, Nb=5)
+
+    # Check that the geometry matches
+    assert samples["d"].geometry == target.get_density("d").geometry
+    assert samples["l"].geometry == target.get_density("l").geometry
+    assert samples["x"].geometry == target.get_density("x").geometry

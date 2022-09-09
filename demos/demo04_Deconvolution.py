@@ -43,7 +43,7 @@ model = cuqi.model.LinearModel(A)
 
 # Define data distribution as Gaussian with model as mean and i.i.d. noise with 0.05 std.
 noise_std = 0.05
-data_dist = cuqi.distribution.Gaussian(model,noise_std,np.eye(m))
+data_dist = cuqi.distribution.Gaussian(model,noise_std**2)
 
 # Plot samples of noise
 data_dist(x=np.zeros(n)).sample(5).plot()
@@ -57,7 +57,7 @@ plt.title('Simulated data'); plt.show()
 
 # %% Define prior
 prior_std = 0.2
-prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,np.eye(n))
+prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std**2)
 
 # Plot samples of prior
 prior.sample(5).plot()
@@ -113,7 +113,7 @@ indexes = np.linspace(-l/2,l/2,l+1,dtype=int)
 corrmat = diags(corr, indexes, shape=(n, n)).toarray()
 
 # Set new prior
-IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
+IP.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std**2)
 
 # Plot samples from prior
 IP.prior.sample(5).plot() 
@@ -157,7 +157,7 @@ plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 
 # %% Lets try with the Gaussian prior
 
-tp.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std,corrmat)
+tp.prior = cuqi.distribution.Gaussian(np.zeros(n),prior_std**2)
 
 # Sample
 result = tp.sample_posterior(Ns)
@@ -187,7 +187,7 @@ scale = delta*1/dim
 prior = cuqi.distribution.Laplace_diff(loc,scale,'zero')
 
 # Target and proposal
-def target(x): return tp.likelihood.log(x)+prior.logpdf(x)
+def target(x): return tp.likelihood.logd(x)+prior.logd(x)
 def proposal(x,scale): return np.random.normal(x,scale)
 
 # Parameters for sampler

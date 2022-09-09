@@ -8,8 +8,8 @@ import cuqi
 # %%
 # Load cuqi deblur model and data
 TP = cuqi.testproblem.Deblur()
-n = TP.model.domain_geometry.dim
-m = TP.model.range_geometry.dim
+n = TP.model.domain_dim
+m = TP.model.range_dim
 x_true = TP.exactSolution
 
 # %%
@@ -17,7 +17,7 @@ x_true = TP.exactSolution
 pr = 'gaussian'
 if (pr == 'gaussian'):
     var = 0.2
-    prior = cuqi.distribution.GaussianCov(np.zeros(n), var)
+    prior = cuqi.distribution.Gaussian(np.zeros(n), var)
 elif (pr == 'cauchy'):
     h = 1/n
     delta = 0.3
@@ -31,7 +31,7 @@ if (pr == 'gaussian'):
     x_MAP = TP.MAP()
 else:
     # Solve posterior problem using BFGS
-    def f(x): return -TP.posterior.logpdf(x)
+    def f(x): return -TP.posterior.logd(x)
     def gradf(x): return -TP.posterior.gradient(x)
     solver = cuqi.solver.L_BFGS_B(f, x0, gradf)
     x_MAP, solution_info = solver.solve()

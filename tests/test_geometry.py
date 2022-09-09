@@ -4,20 +4,22 @@ import cuqi
 import pytest
 from cuqi.geometry import Continuous2D, Continuous1D
 
-@pytest.mark.parametrize("geomClass,grid,expected_grid,expected_shape,expected_dim",
-                         [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),1),
-			  (cuqi.geometry.Continuous1D,(1,),np.array([0]),(1,),1),
-			  (cuqi.geometry.Continuous1D, 1, np.array([0]),(1,),1),
-			  (cuqi.geometry.Continuous1D, [1,2,3,4],np.array([1,2,3,4]),(4,),4),
-			  (cuqi.geometry.Continuous1D, 5,np.array([0,1,2,3,4]),(5,),5),
-			  (cuqi.geometry.Continuous2D,(1,1),(np.array([0]),np.array([0])),(1,1),1),
-			  (cuqi.geometry.Continuous2D,([1,2,3],1), (np.array([1,2,3]), np.array([0])), (3,1), 3)
+@pytest.mark.parametrize("geomClass,grid,expected_grid,expected_par_shape,expected_fun_shape,expected_dim",
+                         [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),(1,),1),
+			  (cuqi.geometry.Continuous1D,(1,),np.array([0]),(1,),(1,),1),
+			  (cuqi.geometry.Continuous1D, 1, np.array([0]),(1,),(1,),1),
+			  (cuqi.geometry.Continuous1D, [1,2,3,4],np.array([1,2,3,4]),(4,),(4,),4),
+			  (cuqi.geometry.Continuous1D, 5,np.array([0,1,2,3,4]),(5,),(5,),5),
+			  (cuqi.geometry.Continuous2D,(1,1),(np.array([0]),np.array([0])),(1,),(1,1),1),
+			  (cuqi.geometry.Continuous2D,([1,2,3],1), (np.array([1,2,3]), np.array([0])), (3,),(3,1), 3)
 			  ])
-def test_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,expected_dim):
+def test_Continuous_geometry(geomClass,grid,expected_grid,expected_par_shape, expected_fun_shape,expected_dim):
     geom = geomClass(grid=grid)
     assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
-           and (geom.shape == expected_shape)
-	   and (geom.dim == expected_dim))
+           and (geom.par_shape == expected_par_shape)
+	   and (geom.par_dim == expected_dim)
+	   and (geom.fun_shape == expected_fun_shape)
+	   and (geom.fun_dim == expected_dim))
 
 @pytest.mark.parametrize("geomClass",
                          [(cuqi.geometry.Continuous1D),
@@ -25,8 +27,10 @@ def test_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,expecte
 def test_None_Continuous_geometry(geomClass):
     geom = geomClass()
     assert(    (geom.grid == None)
-           and (geom.shape == None)
-	   and (geom.dim == None))
+           and (geom.par_shape == None)
+           and (geom.par_dim == None)
+           and (geom.fun_shape == None)
+	   and (geom.fun_dim == None))
 
 @pytest.mark.parametrize("geomClass,grid,expected_grid,expected_shape,expected_dim",
                          [(cuqi.geometry.Continuous1D, (4,), np.array([0,1,2,3]),(4,),4),
@@ -35,8 +39,8 @@ def test_update_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,
     geom = geomClass()
     geom.grid = grid
     assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
-           and (geom.shape == expected_shape)
-	   and (geom.dim == expected_dim))
+           and (geom.fun_shape == expected_shape)
+	   and (geom.fun_dim == expected_dim))
 
 @pytest.mark.parametrize("variables,expected_variables,expected_shape,expected_dim",
                          [(3,['v0','v1','v2'],(3,),3),
@@ -46,8 +50,8 @@ def test_update_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,
 def test_Discrete_geometry(variables,expected_variables,expected_shape,expected_dim):
     geom = cuqi.geometry.Discrete(variables)
     assert(geom.variables == expected_variables
-           and (geom.shape == expected_shape)
-	   and (geom.dim == expected_dim))
+           and (geom.par_shape == expected_shape)
+	   and (geom.par_dim == expected_dim))
 
 @pytest.mark.parametrize("geom1,geom2,truth_value",
                          [(cuqi.geometry._DefaultGeometry(2),cuqi.geometry.Continuous1D(2), True),
@@ -106,10 +110,10 @@ def test_mapped_geometry(geom, map, imap):
     np.random.seed(0)
 
     mapped_geom = cuqi.geometry.MappedGeometry(geom, map, imap)
-    val = np.random.rand(mapped_geom.dim)
+    val = np.random.rand(mapped_geom.par_dim)
     mapped_val = mapped_geom.par2fun(val)
     imapped_mapped_val = mapped_geom.fun2par(mapped_val)
-    assert(np.allclose(val, imapped_mapped_val) and geom.shape == mapped_geom.shape)
+    assert(np.allclose(val, imapped_mapped_val) and geom.par_shape == mapped_geom.par_shape)
     
 @pytest.mark.parametrize("g1, g2, truth_value",[
 						(Continuous2D((128,128)), Continuous2D((128,128)), True),
@@ -130,3 +134,43 @@ def test_mapped_geometry(geom, map, imap):
 def test_geometry_equality(g1, g2, truth_value):
 	"""Ensure geometry arrays compare correctly"""
 	assert (g1==g2) == truth_value
+
+@pytest.mark.parametrize("n_steps",[1,2,6,7,9,10,20, 21])
+def test_StepExpansion_geometry(n_steps):
+    """Check StepExpansion geometry correctness"""
+    grid = np.linspace(0,1,20)
+    if n_steps > np.size(grid):
+	#If n_steps is greater than the number of grid points, StepExpansion will fail
+        with pytest.raises(ValueError):
+            cuqi.geometry.StepExpansion(grid,n_steps)
+    else:
+	#Otherwise, assert that the StepExpansion is correct
+        geom = cuqi.geometry.StepExpansion(grid,n_steps)
+        par = np.random.randn(n_steps)
+        geom.plot(par,linestyle = '', marker='.')
+
+        assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
+           and geom.par_dim == n_steps
+
+@pytest.mark.parametrize("projection, func",[('MiN', np.min),
+      ('mAX', np.max),('mean', np.mean)])
+def test_stepExpansion_fun2par(projection, func):
+    """Check StepExpansion fun2par correctness when different projection methods are used"""
+
+    # Set up geometry and grid
+    np.random.seed(0)
+    grid = np.linspace(0,10, 100, endpoint=True)
+    n_steps = 3
+    SE_geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps, fun2par_projection=projection)
+    
+    # Create cuqi array of function values
+    qa_f = cuqi.samples.CUQIarray(np.random.rand(len(grid)), is_par=False, geometry = SE_geom)
+    
+    # Compute projection manually (function value to parameters)
+    p = np.empty(n_steps)
+    p[0]= func(qa_f[np.where(grid <=grid[-1]/n_steps)])
+    p[1]= func(qa_f[np.where((grid[-1]/n_steps < grid)&( grid <=2*grid[-1]/n_steps))])
+    p[2]= func(qa_f[np.where(2*grid[-1]/n_steps < grid)])
+
+    # Compare projection with fun2par results
+    assert np.allclose(p, qa_f.parameters)

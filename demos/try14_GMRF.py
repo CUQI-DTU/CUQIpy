@@ -10,8 +10,8 @@ TP = cuqi.testproblem.Deconvolution2D() # Uncomment for 2D
 
 # Some helper variables
 n = TP.model.domain_dim # Number of parameters
-N = TP.model.domain_geometry.shape[0] # Number of parameters in one dimension
-ndim = len(TP.model.domain_geometry.shape) # Number of dimensions
+N = TP.model.domain_geometry.fun_shape[0] # Number of parameters in one dimension
+ndim = len(TP.model.domain_geometry.fun_shape) # Number of dimensions
 
 # %% Define GMRF prior (structured Gaussian)
 prior = cuqi.distribution.GMRF(
@@ -32,7 +32,7 @@ samples = TP.sample_posterior(200)
 # Plot samples of posterior
 samples.plot_ci(exact=TP.exactSolution)
 
-# %% Using GaussianPrec instead
+# %% Using Gaussian instead
 
 P = 500*sps.diags([-1, 2, -1], [-1, 0, 1], shape=(N, N)) # order 1
 #P = 500*sps.diags([1, -4, 6, -4, 1], [-2, -1, 0, 1, 2], shape=(N, N)) # order 2
@@ -43,7 +43,7 @@ if ndim == 2:
     Dt = sps.kron(P, I)
     P = Ds+Dt
 
-prior2 = cuqi.distribution.GaussianPrec(mean = np.zeros(n), prec = P, geometry=TP.model.domain_geometry)
+prior2 = cuqi.distribution.Gaussian(mean = np.zeros(n), prec = P, geometry=TP.model.domain_geometry)
 
 # Plot samples of prior
 prior2.sample(5).plot()

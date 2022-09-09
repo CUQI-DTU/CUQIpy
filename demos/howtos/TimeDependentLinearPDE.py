@@ -56,7 +56,7 @@ model = PDEModel(PDE, range_geometry, domain_geometry)
 
 # 1.4 Look at the solution for some initial condition
 
-parameters = CUQIarray(np.ones(domain_geometry.dim), geometry=domain_geometry)
+parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case1 = model.forward(parameters)
 
 parameters.plot(label="Initial Condition (t=0)")
@@ -84,7 +84,7 @@ model = PDEModel(PDE, range_geometry, domain_geometry)
 
 # 1.3 Look at the solution for the same initial condition as in `Model 1`
 
-parameters = CUQIarray(np.ones(domain_geometry.dim), geometry=domain_geometry)
+parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case2 = model.forward(parameters)
 
 parameters.plot(label="Initial Condition (t=0)")
@@ -119,7 +119,7 @@ model = PDEModel(PDE, range_geometry, domain_geometry)
 
 # 1.3 Look at the solution for the same initial condition as in Model 2 & 1
 
-parameters = CUQIarray(np.ones(domain_geometry.dim), geometry=domain_geometry)
+parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case3 = model.forward(parameters)
 
 parameters.plot(label="Initial Condition (t=0)")
@@ -154,7 +154,7 @@ model = PDEModel(PDE, range_geometry, domain_geometry)
 
 # 1.4 Look at the solution for zero source term
 
-parameters = CUQIarray(np.zeros(domain_geometry.dim), geometry=domain_geometry)
+parameters = CUQIarray(np.zeros(model.domain_dim), geometry=domain_geometry)
 solution_case4_a = model.forward(parameters)
 
 parameters.plot(label="Source term")
@@ -173,7 +173,7 @@ print(np.linalg.norm(solution_case4_a-solution_case2) /
 
 # 1.6 Set the source term to a non-zero value
 
-parameters = CUQIarray(np.ones(domain_geometry.dim), geometry=domain_geometry)
+parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case4_b = model.forward(parameters)
 
 plt.figure()

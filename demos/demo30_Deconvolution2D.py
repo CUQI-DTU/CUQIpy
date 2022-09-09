@@ -42,7 +42,7 @@ plt.imshow(TP.Miscellaneous["PSF"], cmap="gray")
 # so we only need to define the prior.
 
 # Gaussian i.i.d. prior (identity matrix)
-TP.prior = cuqi.distribution.GaussianCov(
+TP.prior = cuqi.distribution.Gaussian(
     mean=np.zeros(TP.model.domain_dim),
     cov=1
 )
@@ -70,7 +70,7 @@ samples.plot_std()
 
 # Helper variables
 n = TP.model.domain_dim # Number of parameters
-N = TP.model.domain_geometry.shape[0] # Number of parameters in one dimension
+N = TP.model.domain_geometry.fun_shape[0] # Number of parameters in one dimension
 
 # Scaling factor of precision matrix
 alpha = 100 
@@ -85,8 +85,8 @@ Ds = kron(I, P)
 Dt = kron(P, I)
 P = Ds+Dt # Precision matrix defined for the 2D problem
 
-# Then we define the Gaussian using GaussianPrec to avoid computing the (dense) covariance matrix.
-TP.prior = cuqi.distribution.GaussianPrec(mean = np.zeros(n), prec = P)
+# Then we define the Gaussian using Gaussian precision to avoid computing the (dense) covariance matrix.
+TP.prior = cuqi.distribution.Gaussian(mean = np.zeros(n), prec = P)
 
 # We can plot some samples of this prior
 TP.prior.sample(5).plot()

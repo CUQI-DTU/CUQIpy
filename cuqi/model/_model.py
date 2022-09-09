@@ -6,6 +6,7 @@ from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
 import cuqi
 import matplotlib.pyplot as plt
+from copy import copy
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -81,11 +82,11 @@ class Model(object):
 
     @property
     def domain_dim(self): 
-        return self.domain_geometry.dim
+        return self.domain_geometry.par_dim
 
     @property
     def range_dim(self): 
-        return self.range_geometry.dim
+        return self.range_geometry.par_dim
 
     def _input2fun(self, x, geometry, is_par):
         """ Converts input to function values (if needed) using the appropriate geometry. The input can then be passed to :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func).
@@ -170,7 +171,7 @@ class Model(object):
         # If input x is Samples we apply func for each sample
         # TODO: Check if this can be done all-at-once for computational speed-up
         if isinstance(x,Samples):
-            out = np.zeros((func_range_geometry.dim, x.Ns))
+            out = np.zeros((func_range_geometry.par_dim, x.Ns))
             # Recursively apply func to each sample
             for idx, item in enumerate(x):
                 out[:,idx] = self._apply_func(func,
@@ -205,6 +206,15 @@ class Model(object):
         ndarray or cuqi.samples.CUQIarray
             The model output. Always returned as parameters.
         """
+        # If input is a distribution, we simply change the parameter name of model to match the distribution name
+        if isinstance(x, cuqi.distribution.Distribution):
+            if x.dim != self.domain_dim:
+                raise ValueError("Attempting to match parameter name of Model with given distribution, but distribution dimension does not match model domain dimension.")
+            new_model = copy(self)
+            new_model._non_default_args = [x.name] # Defaults to x if distribution had no name
+            return new_model
+
+        # Else we apply the forward operator
         return self._apply_func(self._forward_func,
                                 self.range_geometry,
                                 self.domain_geometry,
@@ -285,7 +295,7 @@ class Model(object):
             grad = self.domain_geometry.gradient(grad, wrt_par)
 
         elif type(self.domain_geometry) in _get_identity_geometries():
-            self._output2par(grad,
+            grad = self._output2par(grad,
                              self.domain_geometry,
                              to_CUQIarray= (type(direction) is CUQIarray)) 
 

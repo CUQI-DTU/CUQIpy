@@ -87,7 +87,7 @@ class CWMH(ProposalBasedSampler):
 
         # initial state    
         samples[:, 0] = self.x0
-        target_eval[0] = self.target.logpdf(self.x0)
+        target_eval[0] = self.target.logd(self.x0)
         acc[:, 0] = np.ones(self.dim)
 
         # run MCMC
@@ -118,7 +118,7 @@ class CWMH(ProposalBasedSampler):
 
         # initial state
         samples[:, 0] = self.x0
-        target_eval[0] = self.target.logpdf(self.x0)
+        target_eval[0] = self.target.logd(self.x0)
         acc[:, 0] = np.ones(self.dim)
 
         # initial adaptation params 
@@ -175,7 +175,7 @@ class CWMH(ProposalBasedSampler):
             x_star[j] = x_i_star[j]
 
             # evaluate target
-            target_eval_star = self.target.logpdf(x_star)
+            target_eval_star = self.target.logd(x_star)
 
             # ratio and acceptance probability
             ratio = target_eval_star - target_eval_t  # proposal is symmetric

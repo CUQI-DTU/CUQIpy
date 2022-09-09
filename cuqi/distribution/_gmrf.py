@@ -138,6 +138,20 @@ class GMRF(Distribution):
         else:
             raise ValueError('bc_type must be "zero", "periodic" or "neumann"')
 
+    @property
+    def prec(self):
+        return self._prec
+
+    @prec.setter
+    def prec(self, value):
+        # We store the precision as a scalar to match existing code in this class,
+        # but allow user and other code to provide it as a 1D ndarray with 1 element.
+        if isinstance(value, np.ndarray):
+            if len(value) == 1:
+                value = value[0]
+            else:
+                raise ValueError('Precision must be a scalar or a 1D array with a single scalar element.')
+        self._prec = value
 
     @property 
     def dim(self):  

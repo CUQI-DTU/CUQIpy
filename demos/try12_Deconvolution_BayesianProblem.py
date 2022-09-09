@@ -6,7 +6,7 @@ import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cuqi.distribution import Gaussian, GaussianCov, Cauchy_diff, Laplace_diff
+from cuqi.distribution import Gaussian, Cauchy_diff, Laplace_diff
 from cuqi.distribution import GMRF, LMRF, Laplace, Beta, InverseGamma, Lognormal
 from cuqi.sampler import NUTS, CWMH
 
@@ -15,8 +15,8 @@ dim = 128
 #TP = cuqi.testproblem.Deconvolution1D(dim=dim, phantom="square")
 TP = cuqi.testproblem.Deconvolution2D(dim=dim, phantom=cuqi.data.grains(size=dim))
 n = TP.model.domain_dim
-N = TP.model.domain_geometry.shape[0]
-ndim = len(TP.model.domain_geometry.shape)
+N = TP.model.domain_geometry.fun_shape[0]
+ndim = len(TP.model.domain_geometry.fun_shape)
 
 # Prior par
 if ndim == 1: par = 0.02 #1d
@@ -26,8 +26,7 @@ if ndim == 2: Ns = 500
 
 # %% Prior choices (Main ones of interest: Gaussian, GMR, Cauchy_diff, Laplace_diff:
 # Working choices
-#TP.prior = Gaussian(mean=np.zeros(n), std=par, geometry=TP.model.domain_geometry) #Not for 2D.
-#TP.prior = GaussianCov(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
+#TP.prior = Gaussian(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
 #TP.prior = GMRF(np.zeros(n), 1/par**2, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 
 TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry)

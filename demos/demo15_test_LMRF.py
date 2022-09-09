@@ -13,7 +13,7 @@ prec = 1.0
 dom = 1
 BCs = 'neumann'
 x = cuqi.distribution.LMRF(mean, prec, N, dom, BCs)
-print(x.logpdf(np.array([3,4])))
+print(x.logd(np.array([3,4])))
 #%%
 location = 0
 prec = 1

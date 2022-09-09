@@ -26,6 +26,30 @@ class Sampler(ABC):
 
         self.callback = callback
 
+    def step(self, x):
+        """
+        Perform a single MCMC step
+        """
+        # Currently a hack to get step method for any sampler
+        self.x0 = x
+        return self.sample(2).samples[:,-1]
+
+    def step_tune(self, x, *args, **kwargs):
+        """
+        Perform a single MCMC step and tune the sampler. This is used during burn-in.
+        """
+        # Currently a hack to get step method for any sampler
+        out = self.step(x)
+        self.tune(*args, *kwargs)
+        return out
+
+    def tune(self):
+        """
+        Tune the sampler parameters.
+        """
+        pass
+
+
     @property
     def geometry(self):
         if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
@@ -107,12 +131,13 @@ class Sampler(ABC):
 
     def _print_progress(self,s,Ns):
         """Prints sampling progress"""
-        if (s % (max(Ns//100,1))) == 0:
-            msg = f'Sample {s} / {Ns}'
-            sys.stdout.write('\r'+msg)
-        if s==Ns:
-            msg = f'Sample {s} / {Ns}'
-            sys.stdout.write('\r'+msg+'\n')
+        if Ns > 2:
+            if (s % (max(Ns//100,1))) == 0:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg)
+            if s==Ns:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg+'\n')
 
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
@@ -141,9 +166,9 @@ class ProposalBasedSampler(Sampler,ABC):
     @property
     def geometry(self):
         geom1, geom2 = None, None
-        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.dim is not None:
+        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
             geom1=  self.proposal.geometry
-        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.dim is not None:
+        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.par_dim is not None:
             geom2 = self.target.geometry
         if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
             return geom1

@@ -77,7 +77,7 @@ d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=lambda x: .5*x.T@(L@x)+beta)
 # Define prior
 mean_func = lambda l,d: np.linalg.solve(l*A.T@A+d*L,l*A.T@b)
 cov_func  = lambda l,d: np.linalg.inv(l*A.T@A+d*L)
-x = cuqi.distribution.GaussianCov(mean=mean_func,cov=cov_func)
+x = cuqi.distribution.Gaussian(mean=mean_func,cov=cov_func)
 
 # Preallocate sample vectors
 ls = np.zeros(n_samp+1)

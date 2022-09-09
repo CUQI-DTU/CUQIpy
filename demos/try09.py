@@ -16,22 +16,22 @@ TP = cuqi.testproblem.Deblur()
 model = TP.model #Deblur model
 data = TP.data #Data from deblur problem
 cov = TP.likelihood.distribution.cov
-n = model.domain_geometry.dim
-m = model.range_geometry.dim
+n = model.domain_dim
+m = model.range_dim
 x_true = TP.exactSolution
 
 # %%
 # Define Gaussian likelihood and prior
-likelihood = cuqi.distribution.GaussianCov(model, cov).to_likelihood(data)
+likelihood = cuqi.distribution.Gaussian(model, cov).to_likelihood(data)
 
 var = 0.2
-prior = cuqi.distribution.GaussianCov(0, var*np.ones(n))
+prior = cuqi.distribution.Gaussian(0, var*np.ones(n))
 
 # %% MAP estimates
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
 
 def posterior_logpdf(x):
-    logpdf = -prior.logpdf(x) - likelihood.log(x)
+    logpdf = -prior.logd(x) - likelihood.logd(x)
     return logpdf
 
 def posterior_logpdf_grad(x):
@@ -87,7 +87,7 @@ plt.show()
 #%% ML estimates
 
 def likelihood_logpdf(x):
-    logpdf = - likelihood.log(x)
+    logpdf = - likelihood.logd(x)
     return logpdf
 
 def likelihood_logpdf_grad(x):

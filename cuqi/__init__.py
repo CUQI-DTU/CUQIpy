@@ -1,4 +1,5 @@
 from . import data
+from . import density
 from . import diagnostics
 from . import distribution
 from . import geometry

@@ -13,23 +13,14 @@ class Posterior(Distribution):
     likelihood: Likelihood function, cuqi.likelihood.Likelihood.
     prior: Prior distribution, cuqi.distribution.Distribution.
 
-    Attributes
-    ------------
-    likelihood
-    prior
-    data
-    dim
-    geometry
-    model
-    
-    Methods
-    -----------
-    sample: NotImplemented. Use sampler module instead.
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    gradient: evaluate the gradient of the log probability density function w.r.t. input parameter.
     """
     def __init__(self, likelihood, prior, **kwargs):
+
+        if len(likelihood.get_parameter_names()) > 1:
+            raise ValueError("Likelihood must only have one parameter.")
+        if prior.is_cond:
+            raise ValueError("Prior must not be a conditional distribution.")
+
         self.likelihood = likelihood
         self.prior = prior 
         super().__init__(**kwargs)
@@ -78,9 +69,15 @@ class Posterior(Distribution):
         else:
             self._geometry = self.prior.geometry
             
-    def logpdf(self, x):
+    def logpdf(self, *args, **kwargs):
         """ Returns the logpdf of the posterior distribution"""
-        return self.likelihood.log(x)+ self.prior.logpdf(x)
+        return self.likelihood.logd(*args, **kwargs)+ self.prior.logd(*args, **kwargs)
+
+    def get_conditioning_variables(self):
+        return self.prior.get_conditioning_variables()
+
+    def get_parameter_names(self):
+        return self.prior.get_parameter_names()
 
     def gradient(self, x):
         #Avoid complicated geometries that change the gradient.
@@ -97,3 +94,13 @@ class Posterior(Distribution):
     def model(self):
         """Extract the cuqi model from likelihood."""
         return self.likelihood.model
+
+    def __repr__(self):
+        msg = f"Posterior(\n"
+        msg += "    Equation:\n"
+        msg += f"\t p({self.prior.name}|{self.likelihood.name}) ∝ L({self.prior.name}|{self.likelihood.name})p({self.prior.name})\n"
+        msg += "    Densities:\n"
+        msg += f"\t{self.likelihood.name} ~ {self.likelihood}\n "
+        msg += f"\t{self.prior.name} ~ {self.prior}\n "
+        msg += ")"
+        return msg

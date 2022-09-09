@@ -50,7 +50,7 @@ plt.figure()
 s_N.hist_chain(0, bins=100)
 s_NU.hist_chain(0, bins=100)
 
-#%%  NOW DO THE SAME TEST FOR A 5-dim GAUSSIANCOV
+#%%  NOW DO THE SAME TEST FOR A 5-dim GAUSSIAN
 
 #%%
 mu2 = np.array([1,2,3,4,5])
@@ -58,7 +58,7 @@ cov2 = np.array([0.5, 0.4, 0.3, 0.2, 0.1])
 
 dim2 = 5
 
-G = cuqi.distribution.GaussianCov(mean=mu2, cov=cov2)
+G = cuqi.distribution.Gaussian(mean=mu2, cov=cov2)
 
 #%%
 

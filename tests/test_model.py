@@ -42,13 +42,13 @@ def test_initialize_model_continuous2D_geom():
 
 def test_initialize_model_matr():
     model1 = cuqi.model.LinearModel(np.eye(5))
-    assert( (model1.range_dim, model1.domain_dim) == (5,5) and model1.domain_geometry.shape == (5,) and
+    assert( (model1.range_dim, model1.domain_dim) == (5,5) and model1.domain_geometry.par_shape == (5,) and
             len(model1.range_geometry.grid) == 5)
 
 def test_model_allow_DefaultGeometry():
     """ Tests that model can have specific geometry (Image2D) and x can be _Defaultgeometry"""
     model = cuqi.testproblem.Deconvolution2D(dim=5).model
-    x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1).sample()
+    x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).sample()
     model(x)   #Forward
     model.T(x) #Adjoint
 
@@ -347,3 +347,32 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
 
     # Compare the two gradients
     assert(np.allclose(grad, findiff_grad))
+
+def test_model_parameter_name_switch():
+    """ Test that the model can switch its parameter name if given a distribution as input """
+
+    model = cuqi.testproblem.Deconvolution1D().model 
+
+    # Parameter name defaults to 'x'
+    assert cuqi.utilities.get_non_default_args(model) == ['x']
+
+    # Parameter name can be switched to 'y' by "evaluating" the model with y as input
+    y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+    model_y = model(y)
+    model_y2 = model@y
+    model_y3 = model.forward(y)
+
+    # Check that the model has switched its parameter name
+    assert cuqi.utilities.get_non_default_args(model_y) == ['y']
+    assert cuqi.utilities.get_non_default_args(model_y2) == ['y']
+    assert cuqi.utilities.get_non_default_args(model_y3) == ['y']
+
+def test_model_parameter_name_switch_errors():
+    """ Check that an error is raised if dim does not match or if distribution has no name """
+
+    model = cuqi.testproblem.Poisson_1D().model # domain_dim != range_dim
+
+    y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim-1), 1)
+
+    with pytest.raises(ValueError, match=r"dimension does not match"):
+        model(y)    
