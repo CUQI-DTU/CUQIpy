@@ -595,8 +595,7 @@ class KLExpansion(Continuous1D):
         
         + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}
 
-    where:
-    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
+    where :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
 
     The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
 
@@ -659,8 +658,7 @@ class KLExpansion_Full(Continuous1D):
         
         + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}
 
-    where:
-    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
+    where :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
 
     The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
 
