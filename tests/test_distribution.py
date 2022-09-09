@@ -227,7 +227,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     # logpdfs
     x0 = np.random.randn(dim)
     assert np.allclose(X_cov.logpdf(x0), X_GMRF.logpdf(x0))
-    assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0)) #TODO: Returns complex number
+    assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0))
     assert np.allclose(X_cov.logpdf(x0), X_prec.logpdf(x0))
 
     # gradients

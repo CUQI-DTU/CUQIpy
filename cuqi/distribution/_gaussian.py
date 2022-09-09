@@ -182,6 +182,12 @@ class Gaussian(Distribution):
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
+    @property 
+    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+        if self.dim > config.MAX_DIM_INV:
+            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
+        return np.linalg.inv(self.prec.toarray())  
+
     def _logupdf(self, x):
         """ Un-normalized log density """
         dev = x - self.mean
@@ -373,7 +379,7 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
         if spa.issparse(prec):
             if chols:
                 L_cholmod = skchol.cholesky(prec, ordering_method='natural')
-                sqrtprec = L_cholmod.L()
+                sqrtprec = L_cholmod.L().T
                 # cov = L_cholmod.inv()
                 logdet = -L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(prec)# or nplinalg.matrix_rank(cov.todense())
@@ -456,17 +462,14 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
                 cov = sqrtcov@sqrtcov.T
                 L_cholmod = skchol.cholesky(cov, ordering_method='natural')
                 prec = L_cholmod.inv()
-                sqrtprec = sparse_cholesky(prec)
+                sqrtprec = spa.linalg.inv(sqrtcov) # sparse_cholesky(prec)
                 logdet = L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(cov)# or nplinalg.matrix_rank(cov.todense())
                 # sqrtcov = L_cholmod.L()
             else:
-                raise NotImplementedError("Sparse sqrtcov is only supported via 'cholmod'.")
-                # TODO:
-                # prec = spa.linalg.inv(cov)
-                # sqrtprec = sparse_cholesky(prec)
-                # logdet = np.log(nplinalg.det(cov.todense()))
-                # rank = spa.csgraph.structural_rank(cov)                    
+                sqrtprec = spa.linalg.inv(sqrtcov)
+                logdet = None # np.log(nplinalg.det(cov.todense()))
+                rank = spa.csgraph.structural_rank(prec)                  
         else:
             if sparse_flag:
                 # this comes from scipy implementation
@@ -495,7 +498,6 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
 
 def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
     """ This computes the log determinant and rank of the precision matrix from the square root of the precision matrix.
-
     """    
 
     # sqrtprec is scalar
@@ -533,8 +535,8 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
                 logdet = -L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(prec)# or nplinalg.matrix_rank(cov.todense())
             else:
-                raise NotImplementedError("Sparse precision is only supported via 'cholmod'.")
-                # TODO:               
+                logdet = None # np.log(nplinalg.det(cov.todense()))
+                rank = spa.csgraph.structural_rank(prec)                 
         else:
             if sparse_flag:
                 prec = sqrtprec@sqrtprec.T
