@@ -86,7 +86,7 @@ class Gaussian(Distribution):
     @property
     def cov(self):
         """ Covariance of the distribution """
-        if not hasattr(self, '_cov') or self._cov is None:
+        if not hasattr(self, '_cov') or (self._cov is None and not 'cov' in self._mutable_vars):
             raise NotImplementedError(f"Covariance is not computed for Gaussian with mutable variables {self.get_mutable_variables()} and dim {self.dim}. Use method compute_cov() to compute it if needed.")
         return self._cov
 
