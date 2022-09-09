@@ -185,7 +185,7 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        if self._check_posterior((Gaussian, Gaussian), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
+        if self._check_posterior(Gaussian, Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
             if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
@@ -193,7 +193,7 @@ class BayesianProblem(object):
             x0 = self.prior.mean
             Cx = self.prior.cov
 
-            # If Ce and Cx are scalar them matrices
+            # If Ce and Cx are scalar, make them into matrices
             if np.size(Ce)==1:
                 Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
             if np.size(Cx)==1:
@@ -242,7 +242,7 @@ class BayesianProblem(object):
         print("")
 
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior((Gaussian, Gaussian), (Gaussian, Gaussian), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
+        if self._check_posterior(Gaussian, Gaussian, LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
             return self._sampleMapCholesky(Ns, callback)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
@@ -250,7 +250,7 @@ class BayesianProblem(object):
             return self._sampleLinearRTO(Ns, callback)
 
         # For Laplace_diff we use our awesome unadjusted Laplace approximation!
-        elif self._check_posterior(Laplace_diff, (Gaussian, Gaussian)):
+        elif self._check_posterior(Laplace_diff, Gaussian):
             return self._sampleUnadjustedLaplaceApproximation(Ns, callback)
 
         # If we have gradients, use NUTS!
@@ -259,7 +259,7 @@ class BayesianProblem(object):
             return self._sampleNUTS(Ns, callback)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior((Gaussian, GMRF, Gaussian), (Gaussian, Gaussian)):
+        elif self._check_posterior((Gaussian, GMRF), Gaussian):
             return self._samplepCN(Ns, callback)
 
         # For the remainder of valid cases we use CWMH
@@ -334,7 +334,7 @@ class BayesianProblem(object):
         x0 = self.prior.mean
         Cx = self.prior.cov
 
-        # If Ce and Cx are scalar them matrices
+        # If Ce and Cx are scalar, make them into matrices
         if np.size(Ce)==1:
             Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
         if np.size(Cx)==1:
