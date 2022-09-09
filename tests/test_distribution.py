@@ -207,30 +207,45 @@ def _stats(samples):
     (sps.eye(5), 0),
 ])
 def test_Gaussians_vs_GMRF(prec, GMRF_order):
-    """ Tests the various Gaussians given some common precision matricies related to GMRFs"""
+    """ Tests the various Gaussians given some common precision matricies related to GMRFs
+    
+    This tests both logpdf, gradient, and sample methods for sparse and dense matricies as input.
+    """
 
     # Get dimension of precision matrix
     dim = prec.shape[0]
 
+    # Store normal and sparse version of precision matrix
+    prec_s = prec
+    prec = prec.toarray()
+
     # Compute covariance from precision
-    cov = sp.linalg.inv(prec.toarray())
+    cov = sp.linalg.inv(prec)
+    cov_s = sps.linalg.inv(prec_s)
+
+    # Compute lower triangular Cholesky decomposition of covariance
+    sqrtcov = sp.linalg.cholesky(cov, lower=True)
+    sqrtcov_s = sp.sparse.csr_matrix(sqrtcov)  
 
     # Compute upper triangular cholesky decomposition of precision
-    sqrtprec = sp.linalg.cholesky(prec.toarray())
+    sqrtprec = sp.linalg.cholesky(prec)
+    sqrtprec_s = sp.sparse.csr_matrix(sqrtprec)    
 
     # Define Gaussians from all combinations
-    X_prec = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec.toarray())
+    X_prec = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec)
     X_cov = cuqi.distribution.Gaussian(np.zeros(dim), cov)
     X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec)
+    X_sqrtcov = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov)
     X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
 
-    # logpdfs
+    # logpdfs for full matrix
     x0 = np.random.randn(dim)
     assert np.allclose(X_cov.logpdf(x0), X_GMRF.logpdf(x0))
     assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0))
     assert np.allclose(X_cov.logpdf(x0), X_prec.logpdf(x0))
+    assert np.allclose(X_cov.logpdf(x0), X_sqrtcov.logpdf(x0))
 
-    # gradients
+    # gradients for full matrix
     assert np.allclose(X_cov.gradient(x0), X_GMRF.gradient(x0))
     #assert np.allclose(X_cov.gradient(x0), X_sqrtprec.gradient(x0)) #TODO: NotImplementedError
     assert np.allclose(X_cov.gradient(x0), X_prec.gradient(x0))
@@ -241,6 +256,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     s_GMRF = _stats(X_GMRF.sample(Ns).samples)
     s_sqrtprec = _stats(X_sqrtprec.sample(Ns).samples)
     s_prec = _stats(X_prec.sample(Ns).samples)
+    s_sqrtcov = _stats(X_sqrtcov.sample(Ns).samples)
 
     # We round to one decimal and allow 10% error in sample statistics.
     # TODO. Better comparrison here..
@@ -251,15 +267,37 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     assert np.allclose(np.round(s_cov, 1), np.round(s_GMRF, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_prec, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtcov, 1) , rtol=0.1)
 
+    # Now compare sparse versions
     # Check un-normalized logpdfs for sparse precision and covariance
-    X_prec_s = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec)
-    cov_s = sps.linalg.inv(prec)
+    X_prec_s = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec_s)
     X_cov_s = cuqi.distribution.Gaussian(np.zeros(dim), cov=cov_s)
+    X_sqrtprec_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec_s)
+    X_sqrtcov_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov_s)
 
     assert np.allclose(X_cov._logupdf(x0), X_cov_s._logupdf(x0))
     assert np.allclose(X_cov._logupdf(x0), X_prec_s._logupdf(x0))
+    assert np.allclose(X_cov._logupdf(x0), X_sqrtprec_s._logupdf(x0))
+    assert np.allclose(X_cov._logupdf(x0), X_sqrtcov_s._logupdf(x0))
 
+    # Check gradients for sparse precision and covariance
+    assert np.allclose(X_cov.gradient(x0), X_cov_s.gradient(x0))
+    assert np.allclose(X_cov.gradient(x0), X_prec_s.gradient(x0))
+    #assert np.allclose(X_cov.gradient(x0), X_sqrtprec_s.gradient(x0)) # TODO: NotImplementedError
+    assert np.allclose(X_cov.gradient(x0), X_sqrtcov_s.gradient(x0))
+
+    # Check samples for sparse precision and covariance
+    s_cov_s = _stats(X_cov_s.sample(Ns).samples)
+    s_prec_s = _stats(X_prec_s.sample(Ns).samples)
+    s_sqrtprec_s = _stats(X_sqrtprec_s.sample(Ns).samples)
+    s_sqrtcov_s = _stats(X_sqrtcov_s.sample(Ns).samples)
+
+    assert np.allclose(np.round(s_cov, 1), np.round(s_cov_s, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_prec_s, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec_s, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtcov_s, 1) , rtol=0.1)
+    
     #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
     # CUQI test problem
     # TP = cuqi.testproblem.Deconvolution1D(dim=n)
