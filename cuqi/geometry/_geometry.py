@@ -591,7 +591,7 @@ class KLExpansion(Continuous1D):
         \\tau = \\text{normalizer}
 
     .. math::
-        f = \sum_{i=0}^{N-2} (\\frac{1}{(i+1)^\\gamma\\tau})  p_i \\, \\text{sin}(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})) 
+        f = \sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
         + \\frac{(-1)^K}{2}(\\frac{1}{(N)^\\gamma\\tau})  p_{N-1}
 
@@ -655,7 +655,7 @@ class KLExpansion_Full(Continuous1D):
         \\gamma = \\text{nu}+1
 
     .. math::
-        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} (\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma})  p_i \\, \\text{sin}(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})) 
+        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
         + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}(\\frac{\\tau^\\gamma}{(\\tau+(N-1)^2)^\\gamma}) p_{N-1}
 
