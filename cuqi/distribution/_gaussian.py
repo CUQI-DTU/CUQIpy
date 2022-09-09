@@ -129,6 +129,7 @@ class Gaussian(Distribution):
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
+            self._cov = None # Reset covariance (in case it was computed before)
 
     @property
     def sqrtcov(self):
@@ -153,6 +154,7 @@ class Gaussian(Distribution):
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
+            self._cov = None # Reset covariance (in case it was computed before)
 
     @property
     def sqrtprec(self):
@@ -174,6 +176,7 @@ class Gaussian(Distribution):
             self._sqrtprec = sqrtprec 
             self._logdet = logdet
             self._rank = rank
+            self._cov = None # Reset covariance (in case it was computed before)
 
     @property
     def logdet(self):
@@ -213,18 +216,22 @@ class Gaussian(Distribution):
             cov = self.cov
             if cov is not None and not callable(cov):
                 if cov.shape[0] == 1: # Scalar
-                    return cov.ravel()[0]*np.eye(self.dim)
+                    computed_cov = cov.ravel()[0]*np.eye(self.dim)
                 elif len(cov.shape) == 1: # Vector
-                    return np.diag(cov)
+                    computed_cov = np.diag(cov)
                 else:
-                    return cov
-
+                    computed_cov = cov
         # If not, we compute it via sqrtprec which is guaranteed to exist
-        sqrtprec = self.sqrtprec
-        prec = sqrtprec.T@sqrtprec
-        if spa.issparse(prec):
-            return spa.linalg.inv(prec).todense()
-        return np.linalg.inv(prec)
+        else:
+            sqrtprec = self.sqrtprec
+            prec = sqrtprec.T@sqrtprec
+            if spa.issparse(prec):
+                computed_cov = spa.linalg.inv(prec).todense()
+            else:
+                computed_cov = np.linalg.inv(prec)
+        
+        self._cov = computed_cov
+        return computed_cov
 
     def _logupdf(self, x):
         """ Un-normalized log density """
