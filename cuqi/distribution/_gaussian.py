@@ -14,13 +14,14 @@ from cuqi.distribution import Distribution
 
 # We potentially allow the use of sksparse.cholmod for sparse Cholesky
 # if it is installed. If not, we use our own sparse Cholesky.
+# TODO: add full support for sparse covariance matrices without cholmod library (missing efficient logdet computation)
 try:
     import sksparse.cholmod as skchol
     has_cholmod = True
 except ImportError:
     has_cholmod = False
 
-# TODO: add full support for sparse covariance matrices without cholmod library (missing logdet)
+
 
 class Gaussian(Distribution):
     """
