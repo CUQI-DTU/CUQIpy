@@ -86,6 +86,8 @@ class Gaussian(Distribution):
     @property
     def cov(self):
         """ Covariance of the distribution """
+        if not hasattr(self, '_cov'):
+            raise NotImplementedError(f"Covariance is not computed for Gaussian with mutable variables {self.get_mutable_variables()} and dim {self.dim}. Use method compute_cov() to compute it if needed.")
         return self._cov
 
     @cov.setter
@@ -108,6 +110,8 @@ class Gaussian(Distribution):
     @property
     def prec(self):
         """ Precision of the distribution """
+        if not hasattr(self, '_prec'):
+            raise NotImplementedError(f"Precision is not computed Gaussian with mutable variables {self.get_mutable_variables()} and dim {self.dim}")
         return self._prec
 
     @prec.setter
@@ -122,7 +126,6 @@ class Gaussian(Distribution):
             else:
                 sparse_flag = False  # use numpy
             sqrtprec, logdet, rank = get_sqrtprec_from_prec(self.dim, value, sparse_flag)
-            self._cov = None  # TODO: Compute covariance from precision (only if dim < MAX_DIM_INV)
             self._sqrtprec = sqrtprec
             self._logdet = logdet
             self._rank = rank
@@ -130,6 +133,8 @@ class Gaussian(Distribution):
     @property
     def sqrtcov(self):
         """ Square root of the covariance of the distribution. For 1D Gaussian this is the standard deviation. """
+        if not hasattr(self, '_sqrtcov'):
+            raise NotImplementedError(f"Square root of covariance is not computed Gaussian with mutable variables {self.get_mutable_variables()} and dim {self.dim}")
         return self._sqrtcov
 
     @sqrtcov.setter
@@ -144,7 +149,6 @@ class Gaussian(Distribution):
             else:
                 sparse_flag = False  # use numpy
             prec, sqrtprec, logdet, rank = get_sqrtprec_from_sqrtcov(self.dim, value, sparse_flag)
-            self._cov = None  # TODO: Compute covariance from precision/sqrtprec (only if dim < MAX_DIM_INV)
             self._prec = prec
             self._sqrtprec = sqrtprec
             self._logdet = logdet
@@ -167,29 +171,60 @@ class Gaussian(Distribution):
             else:
                 sparse_flag = False  # use numpy
             sqrtprec, logdet, rank = get_sqrtprec_from_sqrtprec(self.dim, value, sparse_flag)
-            self._prec = None # TODO: Compute precision from sqrtprec (only if dim < MAX_DIM_INV?)
-            self._cov = None  # TODO: Compute covariance from precision (only if dim < MAX_DIM_INV)
             self._sqrtprec = sqrtprec 
             self._logdet = logdet
             self._rank = rank
 
     @property
-    def logdet(self):        
+    def logdet(self):
+        """ Logarithm of the determinant of the covariance of the distribution """
+        if not hasattr(self, '_logdet'):
+            raise NotImplementedError(f"Log determinant is not computed Gaussian with mutable variables {self.get_mutable_variables()} and dim {self.dim}")
         return self._logdet
 
     @property
-    def rank(self):        
+    def rank(self):
         return self._rank
 
     @property
     def sqrtprecTimesMean(self):
         return (self.sqrtprec@self.mean).flatten()
 
-    @property 
-    def Sigma(self): #Backwards compatabilty. TODO. Remove Sigma in demos, tests etc.
+    def compute_cov(self):
+        """ Computes the covariance matrix regardless of the mutable variables. 
+        
+        This is useful for smaller scale problems where we may want to use the full covariance matrix.
+
+        """
+        # First determine which mutable variables are set
+        mutable_vars = self.get_mutable_variables()
+
+        # Check if main matrix is set
+        main_matrix = getattr(self, mutable_vars[1]) # 1. index is the main matrix
+        if main_matrix is None or callable(main_matrix):
+            raise ValueError(f"Mutable variable {mutable_vars[1]} is not set. Cannot get covariance matrix.")
+
+        # If dim is too large, we do not support computing the covariance matrix
         if self.dim > config.MAX_DIM_INV:
-            raise NotImplementedError(f"Sigma: Full covariance matrix not implemented for dim > {config.MAX_DIM_INV}.")
-        return np.linalg.inv(self.prec.toarray())  
+            raise NotImplementedError(f"Extracting the full covariance matrix is not implemented for dim > {config.MAX_DIM_INV}.")
+
+        # First check if covariance is already computed
+        if 'cov' in mutable_vars:
+            cov = self.cov
+            if cov is not None and not callable(cov):
+                if cov.shape[0] == 1: # Scalar
+                    return cov.ravel()[0]*np.eye(self.dim)
+                elif len(cov.shape) == 1: # Vector
+                    return np.diag(cov)
+                else:
+                    return cov
+
+        # If not, we compute it via sqrtprec which is guaranteed to exist
+        sqrtprec = self.sqrtprec
+        prec = sqrtprec.T@sqrtprec
+        if spa.issparse(prec):
+            return spa.linalg.inv(prec).todense()
+        return np.linalg.inv(prec)
 
     def _logupdf(self, x):
         """ Un-normalized log density """
