@@ -584,18 +584,20 @@ class KLExpansion(Continuous1D):
     """
     Class representation of the random field in the sine basis
 
-    .. math::
-        \\gamma = \\text{decay_rate}
-
-    .. math::
-        \\tau = \\text{normalizer}
 
     .. math::
         f = \sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
         + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}
 
-    where :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
+    where:
+    .. math::
+        \\gamma = \\text{decay_rate},
+
+    .. math::
+        \\tau = \\text{normalizer},
+
+    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}`, :math:`N` is the number of nodes in the grid, and :math:`p_i` are the expansion coefficients. 
 
     The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
 
@@ -647,18 +649,21 @@ class KLExpansion_Full(Continuous1D):
     '''
     Class representation of the random field in the sine basis
 
-    .. math::
-        \\tau = \\frac{1}{\\text{cor_len}^2}
 
-    .. math::
-        \\gamma = \\text{nu}+1
 
     .. math::
         f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
         + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}
 
-    where :math:`K=\\{0, 1, 2, 3, ..., N-1\\}` and :math:`N` is the number of nodes in the grid and :math:`p_i` are the expansion coefficients. 
+    where:
+    .. math::
+        \\tau = \\frac{1}{\\text{cor_len}^2},
+
+    .. math::
+        \\gamma = \\text{nu}+1,
+
+    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}`, :math:`N` is the number of nodes in the grid, and :math:`p_i` are the expansion coefficients. 
 
     The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
 
