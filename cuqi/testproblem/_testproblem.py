@@ -448,8 +448,6 @@ class Poisson_1D(BayesianProblem):
     SNR : int
         | Signal-to-noise ratio
 
-    n_steps: int, default 3
-        | Number of steps for the "Step" field.
 
     observation_grid_map : lambda function
         | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[np.where(x>5.0)]`. 
@@ -515,18 +513,18 @@ class Poisson_1D(BayesianProblem):
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain,**field_params)
+            domain_geometry = KLExpansion(grid_domain, **field_params)
         elif field_type=="KL_Full":
-            domain_geometry = KLExpansion_Full(grid_domain,**field_params)
+            domain_geometry = KLExpansion_Full(grid_domain, **field_params)
         elif field_type=="Step":
             domain_geometry = StepExpansion(grid_domain, **field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid_domain,**field_params)
+            domain_geometry = CustomKL(grid_domain, **field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
 
         if map is not None:
-            domain_geometry = MappedGeometry(domain_geometry,map,imap)
+            domain_geometry = MappedGeometry(domain_geometry, map, imap)
 
         range_geometry = Continuous1D(grid_range)
 
