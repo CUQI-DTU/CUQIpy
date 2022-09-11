@@ -112,6 +112,7 @@ def test_BayesianProblem_geometry_consistency():
 
     # Check that we do not change the user provided geometries (We may want to change these in BP!)
     # This is what the now removed _check_geometry_consistency did (but it did not do it for all cases)
+    # The tasks should be delegated to Posterior or JointDistribution
     assert BP.posterior.prior.geometry == x.geometry # prior geometry is not changed
     assert BP.posterior.likelihood.distribution.geometry == y.geometry # likelihood geometry is not changed
     assert BP.data.geometry == y_obs.geometry # data geometry is not changed
@@ -120,6 +121,7 @@ def test_BayesianProblem_geometry_consistency():
     # Check that BayesianProblem correctly infers the geometry of the posterior (from model)
     assert BP.posterior.geometry == domain_geometry
     assert BP.sample_posterior(10).geometry == domain_geometry
+    #assert BP.sample_prior(10).geometry == domain_geometry # This fails because prior is sampled directly. TODO (should be domain_geometry)
     assert BP.MAP().geometry == domain_geometry
     assert BP.ML().geometry == domain_geometry
 
