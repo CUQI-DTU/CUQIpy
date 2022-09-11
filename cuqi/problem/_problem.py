@@ -3,7 +3,8 @@ import time
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
+from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta, JointDistribution
+from cuqi.likelihood import Likelihood
 from cuqi.model import LinearModel, Model
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
@@ -25,37 +26,12 @@ class BayesianProblem(object):
 
     Parameters
     ----------
-    likelihood : Likelihood
-        The likelihood function.
+    *densities
+        The densities representing the problem
 
-    prior : Distribution
-        The prior distribution.
+    **observations
+        The observations.
 
-    Attributes
-    ----------
-    likelihood: Likelihood
-        The likelihood function.
-
-    prior: Distribution
-        The prior distribution.
-
-    posterior: Distribution
-        The posterior distribution (inferred from likelihood and prior).
-
-    model: Model
-        The deterministic model for the inverse problem (inferred from likelihood).
-
-    data: CUQIarray
-        The observed data (inferred from likelihood).
-
-    Methods
-    -------
-    sample_posterior(Ns):
-        Sample Ns samples of the posterior.
-    MAP():
-        Compute Maximum a posteriori (MAP) estimate of the posterior.
-    ML():
-        Compute maximum likelihood estimate.
     """
     @classmethod
     def get_components(cls, **kwargs):
@@ -76,9 +52,15 @@ class BayesianProblem(object):
 
         return problem.model, problem.data, problem_info
 
-    def __init__(self,likelihood,prior):
-        self.likelihood = likelihood
-        self.prior = prior
+    def __init__(self, *densities, **observations):
+        self._target = JointDistribution(*densities)(**observations)
+
+    def set_data(self, **kwargs):
+        """ Set the data of the problem. This conditions the underlying joint distribution on the data. """
+        if not isinstance(self._target, JointDistribution):
+            raise ValueError("Unable to set data for this problem. Maybe data is already set?")
+        self._target = self._target(**kwargs)
+        return self
 
     @property
     def data(self):
@@ -88,30 +70,28 @@ class BayesianProblem(object):
     @property
     def likelihood(self):
         """The likelihood function."""
-        return self._likelihood
-    
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to extract likelihood from this problem. Current target is: \n {self._target}")
+        return self._target.likelihood
+
     @likelihood.setter
-    def likelihood(self, value):
-        self._likelihood = value
-        if value is not None:        
-            msg = f"{self.model.__class__} range_geometry and likelihood data distribution geometry are not consistent"
-            self.likelihood.distribution.geometry,self.model.range_geometry = \
-                self._check_geometries_consistency(self.likelihood.distribution.geometry,self.model.range_geometry,msg)
-            if hasattr(self,'prior'):
-                self.prior=self.prior
+    def likelihood(self, likelihood):
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to set likelihood for this problem. Current target is: \n {self._target}")
+        self._target.likelihood = likelihood
 
     @property
     def prior(self):
         """The prior distribution"""
-        return self._prior
-    
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to extract prior from this problem. Current target is: \n {self._target}")
+        return self._target.prior
+
     @prior.setter
-    def prior(self, value):
-        self._prior = value
-        if value is not None and self.model is not None:
-            msg = f"{self.model.__class__} domain_geometry and prior geometry are not consistent"
-            self.prior.geometry,self.model.domain_geometry = \
-                self._check_geometries_consistency(self.prior.geometry,self.model.domain_geometry,msg)
+    def prior(self, prior):
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to set prior for this problem. Current target is: \n {self._target}")
+        self._target.prior = prior
 
     @property
     def model(self):
@@ -121,7 +101,9 @@ class BayesianProblem(object):
     @property
     def posterior(self):
         """Create posterior distribution from likelihood and prior"""
-        return Posterior(self.likelihood, self.prior)
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to extract posterior for this problem. Current target is: \n {self._target}")
+        return self._target
 
     def ML(self, disp=True, x0=None):
         """ Compute the Maximum Likelihood (ML) estimate of the posterior.
