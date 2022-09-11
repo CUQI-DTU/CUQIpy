@@ -5,7 +5,6 @@ from scipy.integrate import quad_vec
 from scipy.signal import fftconvolve
 
 import cuqi
-from cuqi import likelihood
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
