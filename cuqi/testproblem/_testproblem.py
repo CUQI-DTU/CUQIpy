@@ -5,6 +5,7 @@ from scipy.integrate import quad_vec
 from scipy.signal import fftconvolve
 
 import cuqi
+from cuqi import likelihood
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
@@ -89,17 +90,18 @@ class Deblur(BayesianProblem):
         # Store forward model
         model = LinearModel(A)
         
-        # Store data_dist
-        data_dist = Gaussian(model, noise_std, np.eye(dim))
-        
-        # Generate inverse-crime free data (still same blur size)
-        data, f_true, g_true = self._generateData(mesh,kernel,blur_size,data_dist)
-        
-        # Create likelihood function
-        likelihood = data_dist.to_likelihood(data)
-
+        # Prior
         if prior is None:
             prior = Gaussian(np.zeros(dim), 1, np.eye(dim), name="x")
+
+        # Store data distribution
+        data_dist = Gaussian(model(prior), noise_std, np.eye(dim), name="y")
+        
+        # Generate inverse-crime free data (still same blur size)
+        data, f_true, g_true = self._generateData(mesh, kernel, blur_size, data_dist)
+
+        # Likelihood
+        likelihood = data_dist.to_likelihood(data)
 
         #Initialize deblur as BayesianProblem cuqi problem
         super().__init__(likelihood, prior)
@@ -129,7 +131,7 @@ class Deblur(BayesianProblem):
         g_true = g_conv(mesh)[0]
 
         # noisy data
-        data = g_true + data_dist(x=np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
+        data = g_true + data_dist(np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
         return data, f_true, g_true
 
@@ -182,7 +184,7 @@ class Deconvolution1D(BayesianProblem):
     noise_std : scalar
         Standard deviation of the noise
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.distribution.Distribution, Default Gaussian
         Distribution of the prior
 
     Attributes
@@ -254,27 +256,25 @@ class Deconvolution1D(BayesianProblem):
 
         # Set up prior
         if prior is None:
-            x = cuqi.distribution.Gaussian(np.zeros(dim), 1)
-        else:
-            x = prior
+            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, name="x")
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            y = cuqi.distribution.Gaussian(model(x), noise_std, np.eye(dim))
+            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std, np.eye(dim), name="y")
         elif noise_type.lower() == "scaledgaussian":
-            y = cuqi.distribution.Gaussian(model(x), y_exact*noise_std, np.eye(dim))
+            data_dist = cuqi.distribution.Gaussian(model(prior), y_exact*noise_std, np.eye(dim), name="y")
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate data
         if data is None:
-            data = y(x_exact).sample()
+            data = data_dist(x_exact).sample()
+
+        # Likelihood
+        likelihood = data_dist.to_likelihood(data)
 
         # Set up as Bayesian problem
-        super().__init__(y, x)
-
-        # Set data
-        self.set_data(y=data)
+        super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
