@@ -1247,10 +1247,12 @@ class WangCubic(BayesianProblem):
             data = 1
 
         # data distribution is Gaussian
-        data_dist = cuqi.distribution.Gaussian(model, noise_std)
+        data_dist = cuqi.distribution.Gaussian(model(prior), noise_std, name="y")
 
         # Define Gaussian likelihood
         likelihood = data_dist.to_likelihood(data)
+
+        # Set up Bayesian Problem
         super().__init__(likelihood, prior)
 
         # Store exact values
