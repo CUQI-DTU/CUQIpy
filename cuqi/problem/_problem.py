@@ -1,13 +1,17 @@
+from __future__ import annotations
 import numpy as np
 import time
+from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution
+from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution
 from cuqi.density import Density
-from cuqi.model import LinearModel
+from cuqi.model import LinearModel, Model
+from cuqi.likelihood import Likelihood
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
+from cuqi.samples import CUQIarray
 
 from copy import copy
 
@@ -55,7 +59,7 @@ class BayesianProblem(object):
 
     """
     @classmethod
-    def get_components(cls, **kwargs):
+    def get_components(cls, **kwargs) -> Tuple[Model, CUQIarray, ProblemInfo]:
         """
         Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
         
@@ -76,7 +80,7 @@ class BayesianProblem(object):
     def __init__(self, *densities: Density, **data: np.ndarray):
         self._target = JointDistribution(*densities)(**data)
 
-    def set_data(self, **kwargs):
+    def set_data(self, **kwargs) -> BayesianProblem:
         """ Set the data of the problem. This conditions the underlying joint distribution on the data. """
         if not isinstance(self._target, JointDistribution):
             raise ValueError("Unable to set data for this problem. Maybe data is already set?")
@@ -89,7 +93,7 @@ class BayesianProblem(object):
         return self.likelihood.data
 
     @property
-    def likelihood(self):
+    def likelihood(self) -> Likelihood:
         """The likelihood function."""
         if not isinstance(self._target, Posterior):
             raise ValueError(f"Unable to extract likelihood from this problem. Current target is: \n {self._target}")
@@ -102,7 +106,7 @@ class BayesianProblem(object):
         self._target.likelihood = likelihood
 
     @property
-    def prior(self):
+    def prior(self) -> Distribution:
         """The prior distribution"""
         if not isinstance(self._target, Posterior):
             raise ValueError(f"Unable to extract prior from this problem. Current target is: \n {self._target}")
@@ -115,18 +119,18 @@ class BayesianProblem(object):
         self._target.prior = prior
 
     @property
-    def model(self):
+    def model(self) -> Model:
         """Extract the cuqi model from likelihood."""
         return self.likelihood.model
 
     @property
-    def posterior(self):
+    def posterior(self) -> Posterior:
         """Create posterior distribution from likelihood and prior"""
         if not isinstance(self._target, Posterior):
             raise ValueError(f"Unable to extract posterior for this problem. Current target is: \n {self._target}")
         return self._target
 
-    def ML(self, disp=True, x0=None):
+    def ML(self, disp=True, x0=None) -> CUQIarray:
         """ Compute the Maximum Likelihood (ML) estimate of the posterior.
         
         Parameters
@@ -161,7 +165,7 @@ class BayesianProblem(object):
         return x_ML
 
 
-    def MAP(self, disp=True, x0=None):
+    def MAP(self, disp=True, x0=None) -> CUQIarray:
         """ Compute the Maximum A Posteriori (MAP) estimate of the posterior.
         
         Parameters
