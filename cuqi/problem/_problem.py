@@ -295,9 +295,9 @@ class BayesianProblem(object):
         # Now sample prior problem
         return prior_problem.sample_posterior(Ns, callback)
 
-    def UQ(self, exact=None):
-        print("Computing 5000 samples")
-        samples = self.sample_posterior(5000)
+    def UQ(self, Ns=1000, exact=None) -> cuqi.samples.Samples:
+        print(f"Computing {Ns} samples")
+        samples = self.sample_posterior(Ns)
 
         print("Plotting 95 percent credibility interval")
         if exact is not None:
@@ -306,6 +306,8 @@ class BayesianProblem(object):
             samples.plot_ci(95,exact=self.exactSolution)
         else:
             samples.plot_ci(95)
+
+        return samples
 
     def _sampleLinearRTO(self,Ns, callback=None):
         print("Using Linear_RTO sampler.")
