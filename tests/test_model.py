@@ -247,7 +247,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
                                      np.cos(x))@direction,
                                  np.array([1, 1, 4]),
                                  cuqi.samples.CUQIarray(
-                                     np.array([1, 12**2, 8**2]), is_par=False),
+                                     np.array([1, 12**2, 8**2]), is_par=False, geometry=Continuous1D(3)), # Geometry will be updated
                                  cuqi.geometry.MappedGeometry(Continuous1D(
                                      3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
                                  lambda direction, x:2*np.diag(x)@direction,
@@ -273,7 +273,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
                                  lambda direction, x: np.diag(
                                      np.cos(x))@direction,
                                  cuqi.samples.CUQIarray(
-                                     np.array([1, 1, 4]), is_par=False),
+                                     np.array([1, 1, 4]), is_par=False, geometry=Continuous1D(3)), # Geometry will be updated
                                  np.array([1, 12, 8]),
                                  cuqi.geometry.MappedGeometry(Continuous1D(
                                      3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
