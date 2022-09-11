@@ -540,6 +540,7 @@ class Poisson_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = y_exact + np.random.normal( 0, sigma, y_exact.shape )
 
+        # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
         y = cuqi.distribution.GaussianCov(model, sigma2*np.eye(model.range_dim)).to_likelihood(data)
 
@@ -674,6 +675,7 @@ class Heat_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = y_exact + np.random.normal( 0, sigma, y_exact.shape )
 
+        # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
         y = cuqi.distribution.GaussianCov(model(x), sigma2*np.eye(model.range_dim)).to_likelihood(data)
         
@@ -790,7 +792,7 @@ class Abel_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = y_exact + np.random.normal(0, sigma, y_exact.shape )
 
-        # Set up prior + likelihood
+        # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
         y = cuqi.distribution.GaussianCov(model(x), sigma2*np.eye(model.range_dim)).to_likelihood(data)
         
@@ -1093,26 +1095,24 @@ class Deconvolution2D(BayesianProblem):
 
         # Create prior
         if prior is None:
-            x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1, geometry=domain_geometry)
-        else:
-            x = prior
+            prior = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1, geometry=domain_geometry, name="x")
 
         # Data distribution
         if noise_type.lower() == "gaussian":
-            y = cuqi.distribution.GaussianCov(model(x), noise_std**2, geometry=range_geometry)
+            data_dist = cuqi.distribution.GaussianCov(model(prior), noise_std**2, geometry=range_geometry, name="y")
         elif noise_type.lower() == "scaledgaussian":
-            y = cuqi.distribution.GaussianCov(model(x), (y_exact*noise_std)**2, geometry=range_geometry)
+            data_dist = cuqi.distribution.GaussianCov(model(prior), (y_exact*noise_std)**2, geometry=range_geometry, name="y")
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate noisy data
-        data = y(x_exact).sample()
+        data = data_dist(x_exact).sample()
+
+        # Likelihood
+        likelihood = data_dist.to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(y, x)
-
-        # Set data
-        self.set_data(y=data)
+        super().__init__(likelihood, prior)
 
         self.exactSolution = x_exact
         self.exactData = y_exact
