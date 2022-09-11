@@ -541,10 +541,10 @@ class Poisson_1D(BayesianProblem):
 
         # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.GaussianCov(model, sigma2*np.eye(model.range_dim)).to_likelihood(data)
+        y = cuqi.distribution.GaussianCov(model, sigma2*np.eye(model.range_dim))
 
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(y, x)
+        super().__init__(y, x, y=data)
 
         # Store exact values
         self.exactSolution = x_exact
@@ -676,10 +676,10 @@ class Heat_1D(BayesianProblem):
 
         # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.GaussianCov(model(x), sigma2*np.eye(model.range_dim)).to_likelihood(data)
+        y = cuqi.distribution.GaussianCov(model(x), sigma2*np.eye(model.range_dim))
         
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(y, x)
+        super().__init__(y, x, y=data)
 
         # Store exact values
         self.exactSolution = x_exact
@@ -793,10 +793,10 @@ class Abel_1D(BayesianProblem):
 
         # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.GaussianCov(model(x), sigma2*np.eye(model.range_dim)).to_likelihood(data)
+        y = cuqi.distribution.GaussianCov(model(x), sigma2*np.eye(model.range_dim))
         
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(y, x)
+        super().__init__(y, x, y=data)
 
         # Store exact values
         self.exactSolution = x_exact
