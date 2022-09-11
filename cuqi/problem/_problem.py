@@ -4,6 +4,7 @@ import time
 import cuqi
 from cuqi import config
 from cuqi.distribution import GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution
+from cuqi.density import Density
 from cuqi.model import LinearModel
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
@@ -11,23 +12,46 @@ from cuqi.utilities import ProblemInfo
 from copy import copy
 
 class BayesianProblem(object):
-    """Representation of a Bayesian inverse problem (posterior) defined by a likelihood and prior.
-    
+    """ Representation of a Bayesian inverse problem defined by any number of distributions or likelihoods, e.g.
+
     .. math::
 
-        \pi_\mathrm{posterior}(\mathbf{x} \mid \mathbf{b}) \propto \pi_\mathrm{likelihood}(\mathbf{b} \mid \mathbf{x}) \pi_\mathrm{prior}(\mathbf{x}),
+        \\begin{align*}
+        \mathrm{density}_1 &\sim \pi_1 \\newline
+        \mathrm{density}_2 &\sim \pi_2 \\newline
+                           &\\vdots
+        \end{align*}
 
-    where :math:`\pi_\mathrm{Likelihood}(\mathbf{b} \mid \mathbf{x})` is a :class:`cuqi.likelihood.Likelihood` function and :math:`\pi_\mathrm{prior}(\mathbf{x})` is a :class:`cuqi.distribution.Distribution`.
-
-    The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the posterior distribution.
+    The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the Bayesian problem.
 
     Parameters
     ----------
-    *densities
-        The densities representing the problem
+    \*densities: Density
+        The densities that represent the Bayesian Problem
+        Each density is passed as comma-separated arguments.
+        Can be Distribution, Likelihood etc.
 
-    **observations
-        The observations.
+    \**data: ndarray, Optional
+        Any potential observed data.
+        Data should be passed as keyword arguments.
+        Data can also be set later using the :meth:`set_data` method.
+
+    Notes
+    -----
+
+    This class uses :class:`~cuqi.distribution.JointDistribution` to model the Bayesian problem,
+    and to condition on observed data.
+
+    In the simplest form the Bayesian problem represents a posterior distribution defined by two densities, i.e.,
+    
+    .. math::
+
+        \pi_\mathrm{posterior}(\\boldsymbol{\\theta} \mid \mathbf{y}) \propto \pi_1(\mathbf{y} \mid \\boldsymbol{\\theta}) \pi_2(\\boldsymbol{\\theta}),
+
+    where :math:`\pi_1(\mathbf{y} \mid \\boldsymbol{\\theta})` is a :class:`~cuqi.likelihood.Likelihood` function and :math:`\pi_2(\\boldsymbol{\\theta})` is a :class:`~cuqi.distribution.Distribution`.
+    In this case, the joint distribution reduces to a :class:`~cuqi.distribution.Posterior` distribution.
+
+    Most functionality is currently only implemented for this simple case.
 
     """
     @classmethod
@@ -49,8 +73,8 @@ class BayesianProblem(object):
 
         return problem.model, problem.data, problem_info
 
-    def __init__(self, *densities, **observations):
-        self._target = JointDistribution(*densities)(**observations)
+    def __init__(self, *densities: Density, **data: np.ndarray):
+        self._target = JointDistribution(*densities)(**data)
 
     def set_data(self, **kwargs):
         """ Set the data of the problem. This conditions the underlying joint distribution on the data. """
