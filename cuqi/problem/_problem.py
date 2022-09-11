@@ -3,15 +3,12 @@ import time
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta, JointDistribution
-from cuqi.likelihood import Likelihood
-from cuqi.model import LinearModel, Model
+from cuqi.distribution import GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution
+from cuqi.model import LinearModel
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
-from cuqi.pde import SteadyStateLinearPDE
 
 from copy import copy
-
 
 class BayesianProblem(object):
     """Representation of a Bayesian inverse problem (posterior) defined by a likelihood and prior.
