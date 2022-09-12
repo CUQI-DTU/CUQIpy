@@ -24,24 +24,25 @@ from cuqi.data import grains
 from cuqi.distribution import Laplace_diff, GaussianCov 
 from cuqi.problem import BayesianProblem
 
-# Step 1: Model and data
-model, data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
+# Step 1: Model and data, y = Ax
+A, y_data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
 
-# Step 2: Prior
-prior = Laplace_diff(location=np.zeros(model.domain_dim),
-                     scale=0.01,
-                     bc_type='neumann',
-                     physical_dim=2)
+# Step 2: Prior, x ~ Laplace_diff(0, 0.01)
+x = Laplace_diff(location=np.zeros(A.domain_dim),
+                 scale=0.01,
+                 bc_type='neumann',
+                 physical_dim=2)
 
-# Step 3: Likelihood
-likelihood = GaussianCov(mean=model, cov=0.0036**2).to_likelihood(data)
+# Step 3: Likelihood, y ~ N(Ax, 0.0036^2)
+y = GaussianCov(mean=A@x, cov=0.0036**2)
 
-# Step 4: Posterior samples
-samples = BayesianProblem(likelihood, prior).sample_posterior(200)
+# Step 4: Set up Bayesian problem and sample posterior
+BP = BayesianProblem(y, x).set_data(y=y_data)
+samples = BP.sample_posterior(200)
 
 # Step 5: Analysis
 info.exactSolution.plot(); plt.title("Exact solution")
-data.plot(); plt.title("Data")
+y_data.plot(); plt.title("Data")
 samples.plot_mean(); plt.title("Posterior mean")
 samples.plot_std(); plt.title("Posterior standard deviation")
 ```
