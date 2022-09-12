@@ -677,7 +677,7 @@ class BayesianProblem(object):
 
             # If not Posterior, we cant get sampling strategy (for now)
             if not isinstance(cond_target, Posterior):
-                raise TypeError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
+                raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
             # Gamma prior, Gaussian likelihood
             if self._check_posterior(cond_target, Gamma, (GaussianCov, GaussianPrec, GMRF)): 
