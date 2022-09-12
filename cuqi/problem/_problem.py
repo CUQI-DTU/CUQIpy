@@ -5,7 +5,8 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution
+from cuqi import density
+from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, GaussianPrec, GaussianSqrtPrec
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -311,6 +312,11 @@ class BayesianProblem(object):
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print("")
 
+        # If target is a joint distribution, try Gibbs sampling
+        # This is still very experimental!
+        if isinstance(self._target, JointDistribution):       
+            return self._sampleGibbs(Ns, callback=callback)
+
         # For Gaussian small-scale we can use direct sampling
         if self._check_posterior((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
             return self._sampleMapCholesky(Ns, callback)
@@ -368,17 +374,35 @@ class BayesianProblem(object):
         print(f"Computing {Ns} samples")
         samples = self.sample_posterior(Ns)
 
-        print("Plotting 95 percent credibility interval")
-        if exact is not None:
-            samples.plot_ci(95,exact=exact)
-        elif hasattr(self,"exactSolution"):
-            samples.plot_ci(95,exact=self.exactSolution)
+        # Gibbs case
+        if isinstance(samples, dict):
+            # Loop over values from dict
+            for key, value in samples.items():
+                if key in exact:
+                    self._plot_UQ_for_variable(value, exact=exact[key])
+                else:
+                    self._plot_UQ_for_variable(value)
         else:
-            samples.plot_ci(95)
+            self._plot_UQ_for_variable(samples, exact=exact)
 
         return samples
 
-    def _sampleLinearRTO(self, Ns, callback=None):
+    def _plot_UQ_for_variable(self, samples, exact=None):
+        """ Do a fitting UQ plot for a single variable given by samples. """
+        # Potentially extract exact solution
+        if exact is None and hasattr(self, 'exactSolution'):
+            exact = self.exactSolution
+
+        # Plot traces for single parameters
+        if samples.shape[0] == 1:
+            if exact is not None:
+                samples.plot_trace(lines=(("v0", {}, exact),)) # TODO. Switch "v0" to name of parameter
+            else:
+                samples.plot_trace()
+        else: # Else plot credible intervals
+            samples.plot_ci(exact=exact)
+
+    def _sampleLinearRTO(self,Ns, callback=None):
         print("Using Linear_RTO sampler.")
         print("burn-in: 20%")
 
@@ -597,6 +621,88 @@ class BayesianProblem(object):
             G = True
 
         return L and P and M and D and G
+
+    def _sampleGibbs(self, Ns, callback=None):
+        """ This is a helper function for sampling from the posterior using Gibbs sampler. """
+        print("Using Gibbs sampler")
+        print("burn-in: 20%")
+        print("")
+
+        if callback is not None:
+            raise NotImplementedError("Callback not implemented for Gibbs sampler")
+
+        # Start timing
+        ti = time.time()
+
+        # Burn-in
+        Nb = int(0.2*Ns)
+
+        # Sampling strategy
+        sampling_strategy = self._determine_sampling_strategy()
+
+        sampler = cuqi.sampler.Gibbs(self._target, sampling_strategy)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+
+        return samples
+
+    def _determine_sampling_strategy(self):
+        """ This is a helper function for determining the sampling strategy for Gibbs sampler.
+        
+        It is still very experimental and not very robust.
+        
+        """
+
+        joint = self._target # Joint distribution
+
+        # Get the list of main distributions & all densities
+        distributions = joint._distributions
+        densities = joint._densities
+
+        # Match distributions.name with any likelihoods that have parameter names that match
+        # the distribution's parameter names
+        pairings = {}
+        for dist in distributions:
+            pairings[dist.name] = [dist]
+            for dens in densities:
+                if dist.name is dens.name:
+                    pass # Don't pair a distribution with itself
+                elif dist.name in dens.get_parameter_names():
+                    pairings[dist.name].append(dens)
+
+        # Now find a suitable sampling strategy for each distribution
+        sampling_strategy = {}
+        for dist_name, density_list in pairings.items():
+
+            if len(density_list) > 2:
+                raise NotImplementedError(f"Unable to determine sampling strategy for densities {density_list}")
+
+            try:
+                # First check for simple conjugate pairs
+                if isinstance(density_list[0], cuqi.distribution.Gamma):
+                    if isinstance(density_list[1], (Gaussian, GaussianCov, GaussianPrec)):
+                        sampling_strategy[dist_name] = cuqi.sampler.Conjugate
+                    elif isinstance(density_list[1].distribution, (Gaussian, GaussianCov, GaussianPrec)):
+                        sampling_strategy[dist_name] = cuqi.sampler.Conjugate
+                elif isinstance(density_list[0], (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec)):
+                    if isinstance(density_list[1].distribution, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec)):
+                        if isinstance(density_list[1].model, LinearModel):
+                            sampling_strategy[dist_name] = cuqi.sampler.Linear_RTO
+            except (AttributeError, ValueError):
+                pass
+            
+            # If we haven't found a sampling strategy yet raise an error
+            if dist_name not in sampling_strategy:
+                raise NotImplementedError(f"Unable to determine sampling strategy for densities {density_list}")
+
+        print("Automatically determined sampling strategy:")
+        for dist_name, strategy in sampling_strategy.items():
+            print(f"\t{dist_name}: {strategy.__name__}")
+        print("")
+
+        return sampling_strategy
 
     def __repr__(self):
         return f"BayesianProblem with target: \n {self._target}"
