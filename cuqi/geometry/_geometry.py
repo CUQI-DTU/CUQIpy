@@ -519,7 +519,10 @@ class Discrete(Geometry):
                             **kwargs)
 
     def _plot_config(self):
-        plt.xticks(self._ids, self.variables)
+        # Add at most 10 ticks including the first and last
+        n_ticks = min(10, len(self.variables))
+        tick_ids = np.linspace(0, len(self.variables)-1, n_ticks, dtype=int)
+        plt.xticks(tick_ids, [self.variables[i] for i in tick_ids])
 
     def fun2par(self,funvals):
         return funvals
