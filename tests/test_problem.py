@@ -60,10 +60,10 @@ def test_BayesianProblem_hier_errors():
     with pytest.raises(ValueError, match=r"Unable to extract prior"):
         BP.sample_prior(10)
 
-    with pytest.raises(ValueError, match=r"Unable to extract prior"): # Should rly be posterior
+    with pytest.raises(NotImplementedError, match=r"Unable to determine sampling strategy"):
         BP.UQ()
 
-    with pytest.raises(ValueError, match=r"Unable to extract prior"): # Should rly be posterior
+    with pytest.raises(NotImplementedError, match=r"Unable to determine sampling strategy"):
         BP.sample_posterior(10)
 
     with pytest.raises(ValueError, match=r"Unable to extract prior"): # Should rly be posterior
