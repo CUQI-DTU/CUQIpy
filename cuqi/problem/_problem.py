@@ -6,7 +6,7 @@ from typing import Tuple
 import cuqi
 from cuqi import config
 from cuqi import density
-from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, GaussianPrec, GaussianSqrtPrec
+from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, GaussianPrec, GaussianSqrtPrec, Gamma
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -262,7 +262,7 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        if self._check_posterior((Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
+        if self._check_posterior(self, (Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
             if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
@@ -318,7 +318,7 @@ class BayesianProblem(object):
             return self._sampleGibbs(Ns, callback=callback)
 
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior((Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(GMRF):
+        if self._check_posterior(self, (Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(self, GMRF):
             return self._sampleMapCholesky(Ns, callback)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
@@ -326,20 +326,20 @@ class BayesianProblem(object):
             return self._sampleLinearRTO(Ns, callback)
 
         # For Laplace_diff we use our awesome unadjusted Laplace approximation!
-        elif self._check_posterior(Laplace_diff, (Gaussian, GaussianCov)):
+        elif self._check_posterior(self, Laplace_diff, (Gaussian, GaussianCov)):
             return self._sampleUnadjustedLaplaceApproximation(Ns, callback)
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
-        elif self._check_posterior(must_have_gradient=True) and not self._check_posterior((Beta, InverseGamma, Lognormal)):
+        elif self._check_posterior(self, must_have_gradient=True) and not self._check_posterior(self, (Beta, InverseGamma, Lognormal)):
             return self._sampleNUTS(Ns, callback)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior((Gaussian, GMRF, GaussianCov), (Gaussian, GaussianCov)):
+        elif self._check_posterior(self, (Gaussian, GMRF, GaussianCov), (Gaussian, GaussianCov)):
             return self._samplepCN(Ns, callback)
 
         # For the remainder of valid cases we use CWMH
-        elif self._check_posterior(LMRF):
+        elif self._check_posterior(self, LMRF):
             return self._sampleCWMH(Ns, callback)
 
         else:
@@ -583,37 +583,38 @@ class BayesianProblem(object):
                     return geom1,geom2
         raise Exception(fail_msg)
 
-    def _check_posterior(self, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, must_have_gradient=False):
+    @staticmethod
+    def _check_posterior(posterior, prior_type=None, likelihood_type=None, model_type=None, max_dim=None, must_have_gradient=False):
         """Returns true if components of the posterior reflects the types (can be tuple of types) given as input."""
         # Prior check
         if prior_type is None:
             P = True
         else:
-            P = isinstance(self.prior, prior_type)
+            P = isinstance(posterior.prior, prior_type)
 
         # Likelihood check
         if likelihood_type is None:
             L = True
         else:
-            L = isinstance(self.likelihood.distribution, likelihood_type)
+            L = isinstance(posterior.likelihood.distribution, likelihood_type)
 
         # Model check
         if model_type is None:
             M = True
         else:
-            M = isinstance(self.model, model_type)
+            M = isinstance(posterior.model, model_type)
 
         #Dimension check
         if max_dim is None:
             D = True
         else:
-            D = self.model.domain_dim<=max_dim and self.model.range_dim<=max_dim
+            D = posterior.model.domain_dim<=max_dim and posterior.model.range_dim<=max_dim
 
         # Require gradient?
         if must_have_gradient:
             try: 
-                self.prior.gradient(np.zeros(self.prior.dim))
-                self.likelihood.gradient(np.zeros(self.likelihood.dim))
+                posterior.prior.gradient(np.zeros(posterior.prior.dim))
+                posterior.likelihood.gradient(np.zeros(posterior.likelihood.dim))
                 G = True
             except (NotImplementedError, AttributeError):
                 G = False
@@ -655,47 +656,39 @@ class BayesianProblem(object):
         
         """
 
-        joint = self._target # Joint distribution
+        # We determine sampling strategy by sequentially conditioning each variable on the others.
+        # We then re-use the _check_posterior method to select the best sampler for each variable.
+        # In the future we may consider refactoring these methods into one more robust way of
+        # determining the sampling strategy.
 
-        # Get the list of main distributions & all densities
-        distributions = joint._distributions
-        densities = joint._densities
+        # Joint distribution and parameters
+        joint = self._target
+        par_names = joint.get_parameter_names()
 
-        # Match distributions.name with any likelihoods that have parameter names that match
-        # the distribution's parameter names
-        pairings = {}
-        for dist in distributions:
-            pairings[dist.name] = [dist]
-            for dens in densities:
-                if dist.name is dens.name:
-                    pass # Don't pair a distribution with itself
-                elif dist.name in dens.get_parameter_names():
-                    pairings[dist.name].append(dens)
-
-        # Now find a suitable sampling strategy for each distribution
+        # Go through each parameter and condition on the others, then select the best sampler
         sampling_strategy = {}
-        for dist_name, density_list in pairings.items():
+        for par_name in par_names:
 
-            if len(density_list) > 2:
-                raise NotImplementedError(f"Unable to determine sampling strategy for densities {density_list}")
+            # Dict of all other parameters to condition on with ones vector as initial value
+            other_params = {par_name_: np.ones(joint.get_density(par_name_).dim) for par_name_ in par_names if par_name_ != par_name}
 
-            try:
-                # First check for simple conjugate pairs
-                if isinstance(density_list[0], cuqi.distribution.Gamma):
-                    if isinstance(density_list[1], (Gaussian, GaussianCov, GaussianPrec)):
-                        sampling_strategy[dist_name] = cuqi.sampler.Conjugate
-                    elif isinstance(density_list[1].distribution, (Gaussian, GaussianCov, GaussianPrec)):
-                        sampling_strategy[dist_name] = cuqi.sampler.Conjugate
-                elif isinstance(density_list[0], (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec)):
-                    if isinstance(density_list[1].distribution, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec)):
-                        if isinstance(density_list[1].model, LinearModel):
-                            sampling_strategy[dist_name] = cuqi.sampler.Linear_RTO
-            except (AttributeError, ValueError):
-                pass
-            
-            # If we haven't found a sampling strategy yet raise an error
-            if dist_name not in sampling_strategy:
-                raise NotImplementedError(f"Unable to determine sampling strategy for densities {density_list}")
+            # Condition on all other parameters to get target conditional distribution
+            cond_target = joint(**other_params)
+
+            # If not Posterior, we cant get sampling strategy (for now)
+            if not isinstance(cond_target, Posterior):
+                raise TypeError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
+
+            # Gamma prior, Gaussian likelihood
+            if self._check_posterior(cond_target, Gamma, (GaussianCov, GaussianPrec, GMRF)): 
+                sampling_strategy[par_name] = cuqi.sampler.Conjugate
+
+            # Gaussian prior, Gaussian likelihood, Linear model
+            elif self._check_posterior(cond_target, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec, GMRF), (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec), LinearModel):
+                sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
+
+            else:
+                raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
         print("Automatically determined sampling strategy:")
         for dist_name, strategy in sampling_strategy.items():
