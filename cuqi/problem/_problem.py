@@ -679,13 +679,21 @@ class BayesianProblem(object):
             if not isinstance(cond_target, Posterior):
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
-            # Gamma prior, Gaussian likelihood
+            # Gamma prior, Gaussian likelihood -> Conjugate
             if self._check_posterior(cond_target, Gamma, (GaussianCov, GaussianPrec, GMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
-            # Gaussian prior, Gaussian likelihood, Linear model
+            # Gamma prior, Laplace_diff likelihood -> ConjugateApprox
+            elif self._check_posterior(cond_target, Gamma, Laplace_diff):
+                sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
+
+            # Gaussian prior, Gaussian likelihood, Linear model -> Linear_RTO
             elif self._check_posterior(cond_target, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec, GMRF), (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec), LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
+
+            # Laplace_diff prior, Gaussian likelihood, Linear model -> UnadjustedLaplaceApproximation
+            elif self._check_posterior(cond_target, Laplace_diff, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec), LinearModel):
+                sampling_strategy[par_name] = cuqi.sampler.UnadjustedLaplaceApproximation
 
             else:
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
