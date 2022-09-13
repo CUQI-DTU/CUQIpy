@@ -389,6 +389,7 @@ class BayesianProblem(object):
         print(f"Computing {Ns} samples")
         samples = self.sample_posterior(Ns)
 
+        print("Plotting results")
         # Gibbs case
         if isinstance(samples, dict):
             for key, value in samples.items():
