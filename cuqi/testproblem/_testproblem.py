@@ -537,7 +537,7 @@ class Poisson_1D(BayesianProblem):
         # Add noise to data
         sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal( 0, sigma, y_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
@@ -668,11 +668,11 @@ class Heat_1D(BayesianProblem):
                 x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
         #x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
         # Generate exact data
-        y_exact = model.forward(x_exact,is_par=False)
+        y_exact = model.forward(x_exact, is_par=False)
         # Add noise to data
         sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal( 0, sigma, y_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
         x = cuqi.distribution.GaussianCov(np.zeros(model.domain_dim), 1)
@@ -905,7 +905,7 @@ class Deconv_1D(BayesianProblem):
         # Add noise to data
         sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal( 0, sigma, y_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
         likelihood = cuqi.distribution.GaussianCov(model(prior), sigma2*np.eye(model.range_dim), name="y").to_likelihood(data)
         
@@ -1090,7 +1090,7 @@ class Deconvolution2D(BayesianProblem):
         x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
 
         # Generate exact data (blurred)
-        y_exact = model @ x_exact
+        y_exact = model@x_exact
 
         # Create prior
         if prior is None:

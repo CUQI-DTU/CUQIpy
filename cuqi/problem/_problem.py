@@ -183,7 +183,7 @@ class BayesianProblem(object):
 
     @property
     def posterior(self) -> Posterior:
-        """Create posterior distribution from likelihood and prior"""
+        """Create posterior distribution from likelihood and prior."""
         if not isinstance(self._target, Posterior):
             raise ValueError(f"Unable to extract posterior for this problem. Current target is: \n {self._target}")
         return self._target
@@ -367,7 +367,7 @@ class BayesianProblem(object):
 
         return samples
 
-    def _sampleLinearRTO(self,Ns, callback=None):
+    def _sampleLinearRTO(self, Ns, callback=None):
         print("Using Linear_RTO sampler.")
         print("burn-in: 20%")
 
