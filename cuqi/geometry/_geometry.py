@@ -97,12 +97,12 @@ class Geometry(ABC):
 
         if plot_par:
             geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
-            return geom.plot(values,**kwargs)
+            return geom.plot(values, **kwargs)
 
         if is_par:
             values = self.par2fun(values)
 
-        return self._plot(values,**kwargs)
+        return self._plot(values, **kwargs)
 
     def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
         """
@@ -130,13 +130,13 @@ class Geometry(ABC):
         
         if plot_par:
             geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
-            return geom.plot_envelope(lo_values, hi_values,**kwargs)
+            return geom.plot_envelope(lo_values, hi_values, **kwargs)
 
         if is_par:
             lo_values = self.par2fun(lo_values)
             hi_values = self.par2fun(hi_values)
 
-        return self._plot_envelope(lo_values,hi_values,**kwargs)
+        return self._plot_envelope(lo_values,hi_values, **kwargs)
 
     def par2fun(self,par):
         """The parameter to function map used to map parameters to function values in e.g. plotting."""
@@ -150,7 +150,7 @@ class Geometry(ABC):
     def _plot(self):
         pass
 
-    def _plot_envelope(self,*args,**kwargs):
+    def _plot_envelope(self, *args, **kwargs):
         raise NotImplementedError("Plot envelope not implemented for {}. Use flag plot_par to plot envelope of parameters instead.".format(type(self)))
             
     def _plot_config(self,values):
@@ -243,9 +243,9 @@ class _WrappedGeometry(Geometry):
         """Calls the underlying geometry plotting method."""
         return self.geometry._plot(values, *args, **kwargs)
 
-    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
+    def _plot_envelope(self, lo_values, hi_values, *args, **kwargs):
         """Calls the underlying geometry plotting of envelope method."""
-        return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
+        return self.geometry._plot_envelope(lo_values, hi_values, *args, **kwargs)
 
     def _process_values(self,values):
         return self.geometry._process_values(values) 
@@ -299,8 +299,8 @@ class Continuous1D(Continuous):
         1D array of node coordinates in a 1D grid
     """
 
-    def __init__(self,grid=None,axis_labels=['x'],**kwargs):
-        super().__init__(grid, axis_labels,**kwargs)
+    def __init__(self, grid=None, axis_labels=['x'], **kwargs):
+        super().__init__(grid, axis_labels, **kwargs)
 
     @property
     def fun_shape(self):
@@ -317,8 +317,8 @@ class Continuous1D(Continuous):
     def grid(self, value):
         self._grid = self._create_dimension(value)
 
-    def _plot(self,values,*args,**kwargs):
-        p = plt.plot(self.grid,values,*args,**kwargs)
+    def _plot(self, values, *args, **kwargs):
+        p = plt.plot(self.grid, values, *args, **kwargs)
         self._plot_config()
         return p
 
@@ -358,7 +358,7 @@ class Continuous2D(Continuous):
                 raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
             self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
-    def _plot(self,values,plot_type='pcolor',**kwargs):
+    def _plot(self, values, plot_type='pcolor', **kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
         
@@ -384,19 +384,19 @@ class Continuous2D(Continuous):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.fun_shape[::-1]),
-                          **kwargs))
+            ims.append(plot_method(self.grid[0], self.grid[1], values[..., subplot_id-1].reshape(self.fun_shape[::-1]),
+                                   **kwargs))
         self._plot_config()
         return ims
 
-    def plot_pcolor(self,values,**kwargs):
-        return self.plot(values,plot_type='pcolor',**kwargs)
+    def plot_pcolor(self, values, **kwargs):
+        return self.plot(values, plot_type='pcolor', **kwargs)
 
-    def plot_contour(self,values,**kwargs):
-        return self.plot(values,plot_type='contour',**kwargs)
+    def plot_contour(self, values, **kwargs):
+        return self.plot(values, plot_type='contour', **kwargs)
 
-    def plot_contourf(self,values,**kwargs):
-       return self.plot(values,plot_type='contourf',**kwargs)
+    def plot_contourf(self, values, **kwargs):
+       return self.plot(values, plot_type='contourf', **kwargs)
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
@@ -498,7 +498,7 @@ class Discrete(Geometry):
             kwargs["marker"]  = 'o'
 
         self._plot_config() 
-        return plt.plot(self._ids,values,**kwargs)
+        return plt.plot(self._ids, values, **kwargs)
 
     def _plot_envelope(self, lo_values, up_values, **kwargs):
         self._plot_config()
@@ -514,8 +514,9 @@ class Discrete(Geometry):
         lo_values = np.array(lo_values).flatten()
         up_values = np.array(up_values).flatten()
         
-        return plt.errorbar(self._ids, lo_values, 
-                            yerr=np.vstack((np.zeros(len(lo_values)),up_values-lo_values)),
+        return plt.errorbar(self._ids, lo_values,
+                            yerr=np.vstack(
+                                (np.zeros(len(lo_values)), up_values-lo_values)),
                             **kwargs)
 
     def _plot_config(self):
@@ -584,22 +585,60 @@ class _DefaultGeometry(Continuous1D):
 #         return self.mean + self.L.T@p
     
 class KLExpansion(Continuous1D):
-    '''
-    class representation of the random field in  the sine basis
-    alpha = sum_i p * (1/i)^decay * sin(i*L*x/pi)
-    L is the length of the interval
-    '''
-    
-    # init function defining paramters for the KL expansion
-    def __init__(self, grid, params=None, axis_labels=['x'],**kwargs):
+    """
+    Class representation of the random field in the sine basis
+
+
+    .. math::
+        f = \sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
-        super().__init__(grid, axis_labels,**kwargs)
+        + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}
 
-        self.decay_rate = 2.5 # decay rate of KL
-        self.normalizer = 12. # normalizer factor
-        eigvals = np.array( range(1,self.par_dim+1) ) # KL eigvals
-        self.coefs = 1/np.float_power( eigvals,self.decay_rate )
+    where:
 
+    .. math::
+        \\gamma = \\text{decay_rate},
+
+    .. math::
+        \\tau = \\text{normalizer},
+
+    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}`, :math:`N` is the number of nodes in the grid, and :math:`p_i` are the expansion coefficients. 
+
+    The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
+
+    Parameters
+    -----------
+    grid : array-like
+        One dimensional regular grid on which the random field is defined.
+
+    decay_rate : float, default 2.5
+        The decay rate of the basis functions.
+
+    normalizer : float, default 1.0
+        A factor of the basis functions shown in the formula above.
+    """
+    
+    # init function defining parameters for the KL expansion
+    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, axis_labels=['x'], **kwargs):
+
+        super().__init__(grid, axis_labels, **kwargs)
+
+        self._decay_rate = decay_rate  # decay rate of KL
+        self._normalizer = normalizer  # normalizer factor
+        eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
+        self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+
+    @property
+    def decay_rate(self):
+        return self._decay_rate
+
+    @property
+    def normalizer(self):
+        return self._normalizer
+
+    @property
+    def coefs(self):
+        return self._coefs
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
@@ -613,25 +652,58 @@ class KLExpansion(Continuous1D):
 
 class KLExpansion_Full(Continuous1D):
     '''
-    class representation of the random field in  the sine basis
-    alpha = sum_i p * (1/i)^decay * sin(i*L*x/pi)
-    L is the length of the interval
+    Class representation of the random field in the sine basis
+
+
+
+    .. math::
+        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
+        
+        + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}
+
+    where:
+    
+    .. math::
+        \\tau = \\frac{1}{\\text{cor_len}^2},
+
+    .. math::
+        \\gamma = \\text{nu}+1,
+
+    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}`, :math:`N` is the number of nodes in the grid, and :math:`p_i` are the expansion coefficients. 
+
+    The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)
+
+    Parameters
+    -----------
+    grid : array-like
+        One dimensional regular grid on which the random field is defined.
+
+    cor_len : float, default 1.0
+        The correlation length of the random field.
+
+    nu : float, default 2.5
+        Smoothness parameter of the random field.
+
+    std : float, default 1.0
+        Standard deviation of the random field.
     '''
     
-    # init function defining paramters for the KL expansion
-    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
+    # init function defining parameters for the KL expansion
+    def __init__(self, grid, std=1.0, cor_len=0.2, nu=3.0, axis_labels=['x'], **kwargs):
 
-        super().__init__(grid, axis_labels,**kwargs)
-
-        cl = params['cor_len']
-        tau2 = 1./cl/cl
-        nu = params["nu"]
+        super().__init__(grid, axis_labels, **kwargs)
+ 
+        tau2 = 1./cor_len/cor_len
         gamma = nu+1.
-        self.var = params["std"]**2
+        self.var = std**2
 
         modes = np.arange(0,self.par_dim)
 
-        self.coefs =  np.float_power( tau2,gamma ) * np.float_power(tau2+modes**2,-gamma)
+        self._coefs =  np.float_power( tau2,gamma ) * np.float_power(tau2+modes**2,-gamma)
+
+    @property
+    def coefs(self):
+        return self._coefs
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
@@ -648,24 +720,64 @@ class KLExpansion_Full(Continuous1D):
 
 
 class CustomKL(Continuous1D):
-    def __init__(self, grid, params, axis_labels=['x'],**kwargs):
-        super().__init__(grid, axis_labels,**kwargs)
+    """
+    A class representation of a random field in which a truncated KL expansion is computed from a given covariance function.
+    
+    Parameters
+    -----------
+    grid : array-like
+        One dimensional grid on which the random field is defined.
+    
+    cov_func : callable
+        A covariance function that takes two variables and returns the covariance between them.
 
-        cov_func = params["cov_func"]
-        mean = params["mean"]
-        std = params["std"]
-        trunc_term = params["trunc_term"]
+    mean : float, default 0.0
+        The mean of the random field.
+
+    std : float, default 1.0
+        The standard deviation of the random field.
+        
+    trunc_term : int, default 20% of the number of grid points
+        The number of terms to truncate the KL expansion at.
+    """
+    def __init__(self, grid, mean=0, std=1.0, cov_func=None, trunc_term=None, axis_labels=['x'], **kwargs):
+        super().__init__(grid, axis_labels, **kwargs)
+
+        if trunc_term is None:
+            trunc_term = int(len(grid)*0.2)
         self._trunc_term = trunc_term 
-
+        if cov_func is None:
+            # Identity covariance function
+            cov_func = lambda x,y: 1.0 if np.isclose(x,y,rtol=1e-10) else 0.0
+        
         #self.N = len(self.grid)
-        self.mean = mean
-        #self.std = std
+        self._mean = mean
+        self._std = std
         self._compute_eigpairs( grid, cov_func, std, trunc_term, int(2*self.par_dim) )
 
+    @property
+    def mean(self):
+        return self._mean
+
+    @property
+    def std(self):
+        return self._std
+
+    @property
+    def trunc_term(self):
+        return self._trunc_term
+
+    @property
+    def eigval(self):
+        return self._eigval
+
+    @property
+    def eigvec(self):
+        return self._eigvec
 
     @property
     def par_shape(self):
-        return (self._trunc_term,)
+        return (self.trunc_term,)
 
     def par2fun(self, p):
         return self.mean + ((self.eigvec@np.diag(np.sqrt(self.eigval))) @ p)
@@ -743,8 +855,8 @@ class CustomKL(Continuous1D):
         #for i in range(M):
         #    norm_fact[i] = np.sqrt(np.trapz(eigvec[:,i]**2, xnod))
         #eigvec = eigvec/np.matlib.repmat(norm_fact, 1, n)             
-        self.eigval = eigval
-        self.eigvec = eigvec
+        self._eigval = eigval
+        self._eigvec = eigvec
 
 
 class StepExpansion(Continuous1D):
@@ -758,7 +870,7 @@ class StepExpansion(Continuous1D):
     then the resulting function evaluated on the grid will be p[0], if x<=L/3, p[1], if L/3<x<=2L/3, 
     p[2], if 2L/3<x<=L.
     
-    Parameters:
+    Parameters
     -----------
     grid: ndarray
         | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [x0, xn], should be included in the grid.
@@ -799,6 +911,11 @@ class StepExpansion(Continuous1D):
     def par_shape(self):
         """Shape of the parameter space."""
         return (self._n_steps,)
+
+    @property
+    def n_steps(self):
+        """Number of equidistant steps."""
+        return self._n_steps
 
     def par2fun(self, p):
         real = np.zeros(self.grid.shape)
