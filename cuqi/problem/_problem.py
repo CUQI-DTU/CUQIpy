@@ -31,14 +31,72 @@ class BayesianProblem(object):
     Parameters
     ----------
     \*densities: Density
-        The densities that represent the Bayesian Problem
+        The densities that represent the Bayesian Problem.
         Each density is passed as comma-separated arguments.
         Can be Distribution, Likelihood etc.
 
     \**data: ndarray, Optional
-        Any potential observed data.
-        Data should be passed as keyword arguments.
-        Data can alternatively be set using the :meth:`set_data` method.
+        Any potential observed data. The data should be passed
+        as keyword arguments, where the keyword is the name of the
+        density that the data is associated with.
+        Data can alternatively be set using the :meth:`set_data` method,
+        after the problem has been initialized.
+
+    Example
+    --------
+
+    Consider a Bayesian inverse problem with a Gaussian prior and a Gaussian likelihood.
+    Assume that the forward model is a linear model with a known matrix
+    :math:`\mathbf{A}: \mathbf{x} \mapsto \mathbf{y}` and  that we have observed data
+    :math:`\mathbf{y}=\mathbf{y}^\mathrm{obs}`. The Bayesian model can be summarized as
+
+    .. math::
+
+        \\begin{align*}
+        \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, 0.1^2 \mathbf{I}) \\newline
+        \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2 \mathbf{I}).
+        \end{align*}
+    
+    Using the :class:`BayesianProblem` class, we can define the problem, set the data and
+    compute samples from the posterior distribution associated with the problem as well as
+    estimates such as the Maximum Likelihood (ML) and Maximum A Posteriori (MAP).
+
+    .. note::
+
+        In this case, we use a forward model from the :mod:`~cuqi.testproblem` module, but any
+        custom forward model can added via the :mod:`~cuqi.model` module.
+
+    .. code-block:: python
+
+        # Import modules
+        import cuqi
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        # Deterministic forward model and data (1D convolution)
+        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+
+        # Bayesian model
+        x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
+        y = cuqi.distribution.Gaussian(A@x, 0.05)
+
+        # Define Bayesian problem and set data
+        BP = cuqi.problem.BayesianProblem(y, x).set_data(y=y_data)
+
+        # Compute MAP estimate
+        x_MAP = BP.MAP()
+
+        # Compute samples from posterior
+        x_samples = BP.sample_posterior(1000)
+
+        # Plot results
+        x_samples.plot_ci(exact=probInfo.exactSolution)
+        plt.show()
+        
+        # Plot difference between MAP and sample mean
+        (x_MAP - x_samples.mean()).plot()
+        plt.title("MAP estimate - sample mean")
+        plt.show()
 
     Notes
     -----
