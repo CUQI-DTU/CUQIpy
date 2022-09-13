@@ -1,9 +1,13 @@
+from typing import Dict
+
 import pytest
 import numpy as np
 import sys
 
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF
+from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF, Gamma
+from cuqi.problem import BayesianProblem
+from cuqi.density import Density
 
 #All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
@@ -49,3 +53,75 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
     assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
     assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
+
+@pytest.mark.parametrize("TP_type, phantom, priors, Ns",
+    [
+        # Case: Gaussian prior (no hyperparameters)
+        (
+            Deconvolution1D,
+            "gauss",
+            [
+                GaussianCov(np.zeros(128), 0.005, name="x")
+            ],
+            50
+        ),
+        # Case: Gaussian with Gamma hyperprior on noise precision
+        (
+            Deconvolution1D,
+            "gauss",
+            [
+                GaussianCov(np.zeros(128), 0.005, name="x"),
+                Gamma(1, 1e-4, name="l")
+            ],
+            50
+        ),
+        # Case: Gaussian with Gamma hyperpriors on both noise and prior precision
+        (
+            Deconvolution1D,
+            "gauss",
+            [
+                GaussianCov(np.zeros(128), lambda d: 1/d, name="x"),
+                Gamma(1, 1e-4, name="l"),
+                Gamma(1, 1e-4, name="d")
+            ],
+            50
+        ),
+        # Case 2: Laplace_diff with Gamma hyperpriors on both noise and prior precision
+        (
+            Deconvolution1D,
+            "square",
+            [
+                Laplace_diff(np.zeros(128), lambda d: 1/d, name="x"),
+                Gamma(1, 1e-4, name="l"),
+                Gamma(1, 1e-4, name="d")
+            ],
+            50,
+        ),
+    ]
+)
+def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str, priors: Dict[str, Density], Ns: int):
+    
+    # Load model + data from testproblem library
+    A, y_data, probInfo = TP_type.get_components(dim=priors[0].dim, phantom=phantom)
+
+    # data distribution
+    if len(priors) == 1: # No hyperparameters
+        data_dist = GaussianCov(A@priors[0], 400, name="y")
+    else:
+        data_dist = GaussianCov(A@priors[0], lambda l: 1/l, name="y")
+
+    # Bayesian problem
+    BP = BayesianProblem(data_dist, *priors).set_data(y=y_data)
+
+    # Sample posterior using UQ method
+    if len(priors) == 1: # No hyperparameters
+        samples = BP.UQ(Ns=Ns, exact=probInfo.exactSolution)
+    else:
+        samples = BP.UQ(Ns=Ns, exact={priors[0].name: probInfo.exactSolution})
+
+    # No regression test yet, just check that the samples are the right shape
+    if isinstance(samples, dict): # Gibbs case
+        for prior in priors:
+            assert samples[prior.name].shape == (prior.dim, Ns)
+    else:
+        assert samples.shape == (priors[0].dim, Ns)
