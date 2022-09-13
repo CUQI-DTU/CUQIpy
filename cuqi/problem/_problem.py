@@ -45,8 +45,19 @@ class BayesianProblem(object):
         Data can alternatively be set using the :meth:`set_data` method,
         after the problem has been initialized.
 
-    Example
+    Examples
     --------
+
+    **Basic syntax**
+
+    Given distributions for ``x``, ``y`` and ``z``, we can define a Bayesian problem
+    and set the observed data ``y=y_data`` as follows:
+
+    .. code-block:: python
+
+        BP = BayesianProblem(x, y, z).set_data(y=y_data)
+
+    **Complete example**
 
     Consider a Bayesian inverse problem with a Gaussian prior and a Gaussian likelihood.
     Assume that the forward model is a linear model with a known matrix
