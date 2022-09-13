@@ -370,6 +370,22 @@ class BayesianProblem(object):
         return prior_problem.sample_posterior(Ns, callback)
 
     def UQ(self, Ns=1000, exact=None) -> cuqi.samples.Samples:
+        """ Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.
+        
+        Parameters
+        ----------
+        Ns : int, *Optional*
+            Number of samples to draw.
+        
+        exact : ndarray or dict[str, ndarray], *Optional*
+            Exact solution to the problem. If provided the summary will include a comparison to the exact solution.
+            If a dict is provided, the keys should be the names of the variables and the values should be the exact solution for each variable.
+
+        Returns
+        -------
+        samples : cuqi.samples.Samples
+            Samples from the posterior. The samples can be used to compute further statistics and plots.
+        """
         print(f"Computing {Ns} samples")
         samples = self.sample_posterior(Ns)
 
