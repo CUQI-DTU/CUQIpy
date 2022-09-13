@@ -375,12 +375,12 @@ class BayesianProblem(object):
 
         # Gibbs case
         if isinstance(samples, dict):
-            # Loop over values from dict
             for key, value in samples.items():
                 if key in exact:
                     self._plot_UQ_for_variable(value, exact=exact[key])
                 else:
-                    self._plot_UQ_for_variable(value)
+                    self._plot_UQ_for_variable(value, exact=None)
+        # Single parameter case
         else:
             self._plot_UQ_for_variable(samples, exact=exact)
 
