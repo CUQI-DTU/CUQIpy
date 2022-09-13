@@ -100,7 +100,12 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     ]
 )
 def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str, priors: Dict[str, Density], Ns: int):
+    """ This tests Bayesian inversion for Bayesian Problem using a hierarchical model.
     
+    It is an end-to-end test that checks that the posterior samples are consistent with the expected shape.
+
+    Currently, no reference data is available for this test, so no regression test is performed.
+    """
     # Load model + data from testproblem library
     A, y_data, probInfo = TP_type.get_components(dim=priors[0].dim, phantom=phantom)
 
