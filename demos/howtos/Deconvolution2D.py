@@ -78,7 +78,7 @@ y = GaussianCov(mean=A@x, cov=0.01)
 #
 # .. math::
 #
-#   p(\mathbf{x}|\mathbf{y}^\mathrm{obs}) \propto p(\mathbf{y}^\mathrm{obs}|\mathbf{x})p(\mathbf{x})},
+#   p(\mathbf{x}|\mathbf{y}^\mathrm{obs}) \propto p(\mathbf{y}^\mathrm{obs}|\mathbf{x})p(\mathbf{x}),
 #
 # and then sampling from this posterior distribution.
 #

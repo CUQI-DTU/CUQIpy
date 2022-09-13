@@ -16,7 +16,7 @@ from cuqi.samples import CUQIarray
 from copy import copy
 
 class BayesianProblem(object):
-    """ Representation of a Bayesian inverse problem defined by any number of distributions or likelihoods, e.g.
+    """ Representation of a Bayesian inverse problem defined by any number of densities (distributions and likelihoods), e.g.
 
     .. math::
 
@@ -38,7 +38,7 @@ class BayesianProblem(object):
     \**data: ndarray, Optional
         Any potential observed data.
         Data should be passed as keyword arguments.
-        Data can also be set later using the :meth:`set_data` method.
+        Data can alternatively be set using the :meth:`set_data` method.
 
     Notes
     -----
@@ -53,7 +53,7 @@ class BayesianProblem(object):
         \pi_\mathrm{posterior}(\\boldsymbol{\\theta} \mid \mathbf{y}) \propto \pi_1(\mathbf{y} \mid \\boldsymbol{\\theta}) \pi_2(\\boldsymbol{\\theta}),
 
     where :math:`\pi_1(\mathbf{y} \mid \\boldsymbol{\\theta})` is a :class:`~cuqi.likelihood.Likelihood` function and :math:`\pi_2(\\boldsymbol{\\theta})` is a :class:`~cuqi.distribution.Distribution`.
-    In this case, the joint distribution reduces to a :class:`~cuqi.distribution.Posterior` distribution.
+    In this two-density case, the joint distribution reduces to a :class:`~cuqi.distribution.Posterior` distribution.
 
     Most functionality is currently only implemented for this simple case.
 
