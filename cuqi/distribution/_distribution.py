@@ -115,6 +115,10 @@ class Distribution(Density, ABC):
                 self.geometry = self.dim
             else:
                 raise Exception("Distribution Geometry attribute is not consistent with the distribution dimension ('dim')")
+        # Check if dist has a name, if so we provide it to the geometry
+        # We do not use self.name to potentially infer it from python stack.
+        if self._name is not None: 
+            self._geometry._variable_name = self._name
         return self._geometry
 
     @geometry.setter
