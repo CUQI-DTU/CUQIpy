@@ -586,3 +586,6 @@ class BayesianProblem(object):
             G = True
 
         return L and P and M and D and G
+
+    def __repr__(self):
+        return f"BayesianProblem with target: \n {self._target}"
