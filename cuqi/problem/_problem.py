@@ -102,7 +102,7 @@ class BayesianProblem(object):
     -----
 
     This class uses :class:`~cuqi.distribution.JointDistribution` to model the Bayesian problem,
-    and to condition on observed data.
+    and to condition on observed data. We term the resulting distribution the *target distribution*.
 
     In the simplest form the Bayesian problem represents a posterior distribution defined by two densities, i.e.,
     
