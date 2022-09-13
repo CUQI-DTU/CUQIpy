@@ -614,7 +614,7 @@ class KLExpansion(Continuous1D):
         A factor of the basis functions shown in the formula above.
     """
     
-    # init function defining paramters for the KL expansion
+    # init function defining parameters for the KL expansion
     def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, axis_labels=['x'], **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
@@ -684,10 +684,10 @@ class KLExpansion_Full(Continuous1D):
         Standard deviation of the random field.
     '''
     
-    # init function defining paramters for the KL expansion
-    def __init__(self, grid, std=1.0, cor_len=0.2, nu=3.0, axis_labels=['x'],**kwargs):
+    # init function defining parameters for the KL expansion
+    def __init__(self, grid, std=1.0, cor_len=0.2, nu=3.0, axis_labels=['x'], **kwargs):
 
-        super().__init__(grid, axis_labels,**kwargs)
+        super().__init__(grid, axis_labels, **kwargs)
  
         tau2 = 1./cor_len/cor_len
         gamma = nu+1.
