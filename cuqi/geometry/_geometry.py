@@ -299,7 +299,7 @@ class Continuous1D(Continuous):
         1D array of node coordinates in a 1D grid
     """
 
-    def __init__(self, grid=None, axis_labels=['x'], **kwargs):
+    def __init__(self, grid=None, axis_labels=None, **kwargs):
         super().__init__(grid, axis_labels, **kwargs)
 
     @property
@@ -336,7 +336,7 @@ class Continuous1D(Continuous):
 
 class Continuous2D(Continuous):
 
-    def __init__(self,grid=None,axis_labels=['x','y']):
+    def __init__(self,grid=None,axis_labels=None):
         super().__init__(grid, axis_labels)
             
     @property
@@ -563,7 +563,7 @@ class MappedGeometry(_WrappedGeometry):
 
 
 class _DefaultGeometry(Continuous1D):
-    def __init__(self,grid=None, axis_labels=['x']):
+    def __init__(self, grid=None, axis_labels=None):
         super().__init__(grid, axis_labels)
 
     def __eq__(self, obj):
@@ -619,7 +619,7 @@ class KLExpansion(Continuous1D):
     """
     
     # init function defining parameters for the KL expansion
-    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, axis_labels=['x'], **kwargs):
+    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, axis_labels=None, **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
 
@@ -689,7 +689,7 @@ class KLExpansion_Full(Continuous1D):
     '''
     
     # init function defining parameters for the KL expansion
-    def __init__(self, grid, std=1.0, cor_len=0.2, nu=3.0, axis_labels=['x'], **kwargs):
+    def __init__(self, grid, std=1.0, cor_len=0.2, nu=3.0, axis_labels=None, **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
  
@@ -740,7 +740,7 @@ class CustomKL(Continuous1D):
     trunc_term : int, default 20% of the number of grid points
         The number of terms to truncate the KL expansion at.
     """
-    def __init__(self, grid, mean=0, std=1.0, cov_func=None, trunc_term=None, axis_labels=['x'], **kwargs):
+    def __init__(self, grid, mean=0, std=1.0, cov_func=None, trunc_term=None, axis_labels=None, **kwargs):
         super().__init__(grid, axis_labels, **kwargs)
 
         if trunc_term is None:
