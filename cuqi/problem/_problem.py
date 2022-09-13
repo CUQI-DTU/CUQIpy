@@ -28,6 +28,9 @@ class BayesianProblem(object):
 
     The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the Bayesian problem.
 
+    This class uses :class:`~cuqi.distribution.JointDistribution` to model the Bayesian problem,
+    and to condition on observed data. We term the resulting distribution the *target distribution*.
+
     Parameters
     ----------
     \*densities: Density
@@ -100,9 +103,6 @@ class BayesianProblem(object):
 
     Notes
     -----
-
-    This class uses :class:`~cuqi.distribution.JointDistribution` to model the Bayesian problem,
-    and to condition on observed data. We term the resulting distribution the *target distribution*.
 
     In the simplest form the Bayesian problem represents a posterior distribution defined by two densities, i.e.,
     
