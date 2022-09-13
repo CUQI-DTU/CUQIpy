@@ -23,7 +23,7 @@ A  = LinearModel(Amat)                          # y = Ax. Model for inverse prob
 x  = Gaussian(np.zeros(n), 0.1)                 # x ~ N(0,0.1)
 y  = Gaussian(A@x, 0.05)                        # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)   # Bayesian problem given observed data
-samples = IP.UQ(exact=x_exact)                            # Run UQ analysis
+samples = IP.UQ(exact=x_exact)                  # Run UQ analysis
 
 # %%
 # Wrap into CUQI "testproblem".
@@ -37,7 +37,7 @@ A  = LinearModel(Amat)                                  # y = Ax. Model for inve
 x  = Laplace_diff(np.zeros(n), 0.01, bc_type='zero')    # x ~ Laplace_diff(0,0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
-samples = IP.UQ(exact=x_exact)                            # Run UQ analysis
+samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
 
 # %%
 # switch prior again
@@ -46,4 +46,4 @@ A  = LinearModel(Amat)                                  # y = Ax. Model for inve
 x  = Cauchy_diff(np.zeros(n), 0.01, bc_type='zero')     # x ~ Cauchy_diff(0,0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
-samples = IP.UQ(exact=x_exact)                            # Run UQ analysis
+samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
