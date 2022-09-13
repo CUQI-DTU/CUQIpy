@@ -97,12 +97,12 @@ class Geometry(ABC):
 
         if plot_par:
             geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
-            return geom.plot(values,**kwargs)
+            return geom.plot(values, **kwargs)
 
         if is_par:
             values = self.par2fun(values)
 
-        return self._plot(values,**kwargs)
+        return self._plot(values, **kwargs)
 
     def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
         """
@@ -130,13 +130,13 @@ class Geometry(ABC):
         
         if plot_par:
             geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
-            return geom.plot_envelope(lo_values, hi_values,**kwargs)
+            return geom.plot_envelope(lo_values, hi_values, **kwargs)
 
         if is_par:
             lo_values = self.par2fun(lo_values)
             hi_values = self.par2fun(hi_values)
 
-        return self._plot_envelope(lo_values,hi_values,**kwargs)
+        return self._plot_envelope(lo_values,hi_values, **kwargs)
 
     def par2fun(self,par):
         """The parameter to function map used to map parameters to function values in e.g. plotting."""
@@ -150,7 +150,7 @@ class Geometry(ABC):
     def _plot(self):
         pass
 
-    def _plot_envelope(self,*args,**kwargs):
+    def _plot_envelope(self, *args, **kwargs):
         raise NotImplementedError("Plot envelope not implemented for {}. Use flag plot_par to plot envelope of parameters instead.".format(type(self)))
             
     def _plot_config(self,values):
@@ -243,9 +243,9 @@ class _WrappedGeometry(Geometry):
         """Calls the underlying geometry plotting method."""
         return self.geometry._plot(values, *args, **kwargs)
 
-    def _plot_envelope(self,lo_values,hi_values,*args,**kwargs):
+    def _plot_envelope(self, lo_values, hi_values, *args, **kwargs):
         """Calls the underlying geometry plotting of envelope method."""
-        return self.geometry._plot_envelope(lo_values,hi_values,*args,**kwargs)
+        return self.geometry._plot_envelope(lo_values, hi_values, *args, **kwargs)
 
     def _process_values(self,values):
         return self.geometry._process_values(values) 
@@ -299,8 +299,8 @@ class Continuous1D(Continuous):
         1D array of node coordinates in a 1D grid
     """
 
-    def __init__(self,grid=None,axis_labels=['x'],**kwargs):
-        super().__init__(grid, axis_labels,**kwargs)
+    def __init__(self, grid=None, axis_labels=['x'], **kwargs):
+        super().__init__(grid, axis_labels, **kwargs)
 
     @property
     def fun_shape(self):
@@ -317,8 +317,8 @@ class Continuous1D(Continuous):
     def grid(self, value):
         self._grid = self._create_dimension(value)
 
-    def _plot(self,values,*args,**kwargs):
-        p = plt.plot(self.grid,values,*args,**kwargs)
+    def _plot(self, values, *args, **kwargs):
+        p = plt.plot(self.grid, values, *args, **kwargs)
         self._plot_config()
         return p
 
@@ -358,7 +358,7 @@ class Continuous2D(Continuous):
                 raise NotImplementedError("grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both")
             self._grid = (self._create_dimension(value[0]), self._create_dimension(value[1]))
 
-    def _plot(self,values,plot_type='pcolor',**kwargs):
+    def _plot(self, values, plot_type='pcolor', **kwargs):
         """
         Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.
         
@@ -384,19 +384,19 @@ class Continuous2D(Continuous):
         ims = []
         for rows,cols,subplot_id in subplot_ids:
             plt.subplot(rows,cols,subplot_id); 
-            ims.append(plot_method(self.grid[0],self.grid[1],values[...,subplot_id-1].reshape(self.fun_shape[::-1]),
-                          **kwargs))
+            ims.append(plot_method(self.grid[0], self.grid[1], values[..., subplot_id-1].reshape(self.fun_shape[::-1]),
+                                   **kwargs))
         self._plot_config()
         return ims
 
-    def plot_pcolor(self,values,**kwargs):
-        return self.plot(values,plot_type='pcolor',**kwargs)
+    def plot_pcolor(self, values, **kwargs):
+        return self.plot(values, plot_type='pcolor', **kwargs)
 
-    def plot_contour(self,values,**kwargs):
-        return self.plot(values,plot_type='contour',**kwargs)
+    def plot_contour(self, values, **kwargs):
+        return self.plot(values, plot_type='contour', **kwargs)
 
-    def plot_contourf(self,values,**kwargs):
-       return self.plot(values,plot_type='contourf',**kwargs)
+    def plot_contourf(self, values, **kwargs):
+       return self.plot(values, plot_type='contourf', **kwargs)
     
     def _process_values(self,values):
         if len(values.shape) == 3 or\
@@ -498,7 +498,7 @@ class Discrete(Geometry):
             kwargs["marker"]  = 'o'
 
         self._plot_config() 
-        return plt.plot(self._ids,values,**kwargs)
+        return plt.plot(self._ids, values, **kwargs)
 
     def _plot_envelope(self, lo_values, up_values, **kwargs):
         self._plot_config()
@@ -514,8 +514,9 @@ class Discrete(Geometry):
         lo_values = np.array(lo_values).flatten()
         up_values = np.array(up_values).flatten()
         
-        return plt.errorbar(self._ids, lo_values, 
-                            yerr=np.vstack((np.zeros(len(lo_values)),up_values-lo_values)),
+        return plt.errorbar(self._ids, lo_values,
+                            yerr=np.vstack(
+                                (np.zeros(len(lo_values)), up_values-lo_values)),
                             **kwargs)
 
     def _plot_config(self):
@@ -736,8 +737,8 @@ class CustomKL(Continuous1D):
     trunc_term : int, default 20% of the number of grid points
         The number of terms to truncate the KL expansion at.
     """
-    def __init__(self, grid, mean=0, std=1.0, cov_func=None, trunc_term=None, axis_labels=['x'],**kwargs):
-        super().__init__(grid, axis_labels,**kwargs)
+    def __init__(self, grid, mean=0, std=1.0, cov_func=None, trunc_term=None, axis_labels=['x'], **kwargs):
+        super().__init__(grid, axis_labels, **kwargs)
 
         if trunc_term is None:
             trunc_term = int(len(grid)*0.2)
