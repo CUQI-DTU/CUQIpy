@@ -403,7 +403,7 @@ class BayesianProblem(object):
 
         return samples
 
-    def _plot_UQ_for_variable(self, samples, exact=None):
+    def _plot_UQ_for_variable(self, samples: cuqi.samples.Samples, exact=None):
         """ Do a fitting UQ plot for a single variable given by samples. """
         # Potentially extract exact solution
         if exact is None and hasattr(self, 'exactSolution'):
@@ -412,7 +412,8 @@ class BayesianProblem(object):
         # Plot traces for single parameters
         if samples.shape[0] == 1:
             if exact is not None:
-                samples.plot_trace(lines=(("v0", {}, exact),)) # TODO. Switch "v0" to name of parameter
+                par_name = samples.geometry.variables[0]
+                samples.plot_trace(lines=((par_name, {}, exact),))
             else:
                 samples.plot_trace()
         else: # Else plot credible intervals
