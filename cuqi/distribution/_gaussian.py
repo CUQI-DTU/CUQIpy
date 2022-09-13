@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats as sps
-from scipy.sparse import diags, identity, issparse, vstack
+from scipy.sparse import diags, identity, issparse, vstack, csc_matrix, isspmatrix_csr, isspmatrix_csc
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import eigh, eigvals, cholesky
 from cuqi.geometry import _get_identity_geometries
@@ -184,11 +184,17 @@ class GaussianCov(Distribution): # TODO: super general with precisions
         else:
             e = np.random.randn(np.shape(self.sqrtprec)[0],N)
 
+        # Convert matrix to sparse (this avoids the scipy warning)
+        # TODO. REMOVE THIS IN NEW GAUSSIAN (including imports)
+        sqrtprec = self.sqrtprec
+        if not (isspmatrix_csc(sqrtprec) or isspmatrix_csr(sqrtprec)):
+            sqrtprec = csc_matrix(sqrtprec)
+
         #Compute permutation
         if N==1: #Ensures we add (dim,1) with (dim,1) and not with (dim,)
-            permutation = splinalg.spsolve(self.sqrtprec,e)[:,None]
+            permutation = splinalg.spsolve(sqrtprec,e)[:,None]
         else:
-            permutation = splinalg.spsolve(self.sqrtprec,e)
+            permutation = splinalg.spsolve(sqrtprec,e)
             
         # Add to mean
         s = self.mean[:,None] + permutation
