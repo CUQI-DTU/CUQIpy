@@ -191,7 +191,7 @@ class Geometry(ABC):
         for key, value in vars(self).items():
             # If _variables exist ensure it exists in both objects (by calling generator)
             if key == "_variables": obj.variables
-            if key == "_variable_name" and not hasattr(obj, "_variable_name"): obj._variable_name == None
+            if key == "_variable_name" and not hasattr(obj, "_variable_name"): obj._variable_name = None
 
             # Store value to compare
             obj_value = vars(obj)[key]
