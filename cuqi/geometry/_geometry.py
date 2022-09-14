@@ -437,11 +437,22 @@ class Image2D(Geometry):
         If order = 'C', the image is represented in row-major order.
         if order = 'F', the image is represented column-major order.
 
+    visual_only : bool, Default: False
+        If visual_only = True, par2fun and fun2par will not convert parameter vector into image and vice versa.
+        But visualization will still be in 2D image format.
+
     """
-    def __init__(self, im_shape, order="C"):
-        self._fun_shape = im_shape
-        self._par_shape = (reduce(operator.mul, im_shape), ) 
+    def __init__(self, im_shape, order="C", visual_only=False):
+        self._im_shape = im_shape
+        self._par_shape = (reduce(operator.mul, im_shape), )
         self.order = order
+        self.visual_only = visual_only
+
+        # If visual only, we have same fun_shape as par_shape
+        if visual_only:
+            self._fun_shape = self._par_shape
+        else: # else we have image shape
+            self._fun_shape = self._im_shape
 
     @property
     def fun_shape(self):
@@ -452,16 +463,30 @@ class Image2D(Geometry):
         return self._par_shape
 
     def par2fun(self, pars):
-        # Reshape to image (also for multiple parameter vectors). TODO: #327
-        funvals = pars.reshape(self.fun_shape+(-1,), order=self.order) 
-        #Squeeze to return single image if only one parameter vector was given
-        funvals = funvals.squeeze()
-        return funvals 
+        # If geometry is only used for visualization, do nothing
+        if self.visual_only: return pars
+        # Else, convert parameter vector into image
+        return self._vector_to_image(pars)
 
     def fun2par(self, funvals):
+        # If geometry is only used for visualization, do nothing
+        if self.visual_only: return funvals
+        # Else, convert image into parameter vector
         return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
+
+    def _vector_to_image(self, vectors):
+        """ Converts a vector or multiple vectors into an image. """
+        # Reshape to image (also for multiple parameter vectors). TODO: #327
+        image = vectors.reshape(self._im_shape+(-1,), order=self.order) 
+        #Squeeze to return single image if only one parameter vector was given
+        image = image.squeeze()
+        return image
     
     def _plot(self, values, **kwargs):
+        # If only visual, we must convert value to image ourselves
+        if self.visual_only:
+            values = self._vector_to_image(values)
+
         kwargs.setdefault('cmap', kwargs.get('cmap', "gray"))
 
         values = self._process_values(values)
