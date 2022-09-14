@@ -8,11 +8,11 @@ class Laplace(Distribution):
 
     .. math::
 
-        p(x) = \frac{1}{2b} \exp\left(-\frac{|x-\mu|}{b}\right),
+        p(x) = \\frac{1}{2b} \exp\left(-\\frac{|x-\mu|}{b}\\right),
 
     where :math:`\mu` is the location and :math:`b` is the scale parameter.
 
-    The precision is defined as :math:`\lambda = \frac{1}{b}`.
+    The precision is defined as :math:`\lambda = \\frac{1}{b}`.
 
     The variables of this Laplace distribution are independent identically distributed (i.i.d.).
 
