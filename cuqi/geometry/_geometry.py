@@ -443,10 +443,16 @@ class Image2D(Geometry):
 
     """
     def __init__(self, im_shape, order="C", visual_only=False):
-        self._fun_shape = im_shape
-        self._par_shape = (reduce(operator.mul, im_shape), ) 
+        self._im_shape = im_shape
+        self._par_shape = (reduce(operator.mul, im_shape), )
         self.order = order
         self.visual_only = visual_only
+
+        # If visual only, we have same fun_shape as par_shape
+        if visual_only:
+            self._fun_shape = self._par_shape
+        else: # else we have image shape
+            self._fun_shape = self._im_shape
 
     @property
     def fun_shape(self):
@@ -471,7 +477,7 @@ class Image2D(Geometry):
     def _vector_to_image(self, vectors):
         """ Converts a vector or multiple vectors into an image. """
         # Reshape to image (also for multiple parameter vectors). TODO: #327
-        image = vectors.reshape(self.fun_shape+(-1,), order=self.order) 
+        image = vectors.reshape(self._im_shape+(-1,), order=self.order) 
         #Squeeze to return single image if only one parameter vector was given
         image = image.squeeze()
         return image
