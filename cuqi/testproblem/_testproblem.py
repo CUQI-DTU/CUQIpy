@@ -1115,8 +1115,10 @@ class Deconvolution2D(BayesianProblem):
                 x_exact2D = cuqi.data.camera(size=dim)
             elif phantom.lower() == "astronaut":
                 x_exact2D = cuqi.data.astronaut(size=dim)
+            else:
+                raise TypeError(f"Unknown phantom: {phantom}.")
         else:
-            raise TypeError("Unknown phantom type.")
+            raise TypeError("Unknown phantom type. Must be ndarray or string.")
 
         x_exact = x_exact2D.flatten()
         x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
