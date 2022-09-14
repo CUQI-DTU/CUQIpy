@@ -1,64 +1,134 @@
+from __future__ import annotations
 import numpy as np
 import time
+from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Cauchy_diff, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Laplace, Beta
+from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution
+from cuqi.density import Density
 from cuqi.model import LinearModel, Model
+from cuqi.likelihood import Likelihood
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
-from cuqi.pde import SteadyStateLinearPDE
+from cuqi.samples import CUQIarray
 
 from copy import copy
 
-
 class BayesianProblem(object):
-    """Representation of a Bayesian inverse problem (posterior) defined by a likelihood and prior.
-    
+    """ Representation of a Bayesian inverse problem defined by any number of densities (distributions and likelihoods), e.g.
+
     .. math::
 
-        \pi_\mathrm{posterior}(\mathbf{x} \mid \mathbf{b}) \propto \pi_\mathrm{likelihood}(\mathbf{b} \mid \mathbf{x}) \pi_\mathrm{prior}(\mathbf{x}),
+        \\begin{align*}
+        \mathrm{density}_1 &\sim \pi_1 \\newline
+        \mathrm{density}_2 &\sim \pi_2 \\newline
+                           &\\vdots
+        \end{align*}
 
-    where :math:`\pi_\mathrm{Likelihood}(\mathbf{b} \mid \mathbf{x})` is a :class:`cuqi.likelihood.Likelihood` function and :math:`\pi_\mathrm{prior}(\mathbf{x})` is a :class:`cuqi.distribution.Distribution`.
+    The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the Bayesian problem.
 
-    The main goal of this class is to provide fully automatic methods for computing samples or point estimates of the posterior distribution.
+    This class uses :class:`~cuqi.distribution.JointDistribution` to model the Bayesian problem,
+    and to condition on observed data. We term the resulting distribution the *target distribution*.
 
     Parameters
     ----------
-    likelihood : Likelihood
-        The likelihood function.
+    \*densities: Density
+        The densities that represent the Bayesian Problem.
+        Each density is passed as comma-separated arguments.
+        Can be Distribution, Likelihood etc.
 
-    prior : Distribution
-        The prior distribution.
+    \**data: ndarray, Optional
+        Any potential observed data. The data should be passed
+        as keyword arguments, where the keyword is the name of the
+        density that the data is associated with.
+        Data can alternatively be set using the :meth:`set_data` method,
+        after the problem has been initialized.
 
-    Attributes
-    ----------
-    likelihood: Likelihood
-        The likelihood function.
+    Examples
+    --------
 
-    prior: Distribution
-        The prior distribution.
+    **Basic syntax**
 
-    posterior: Distribution
-        The posterior distribution (inferred from likelihood and prior).
+    Given distributions for ``x``, ``y`` and ``z``, we can define a Bayesian problem
+    and set the observed data ``y=y_data`` as follows:
 
-    model: Model
-        The deterministic model for the inverse problem (inferred from likelihood).
+    .. code-block:: python
 
-    data: CUQIarray
-        The observed data (inferred from likelihood).
+        BP = BayesianProblem(x, y, z).set_data(y=y_data)
 
-    Methods
-    -------
-    sample_posterior(Ns):
-        Sample Ns samples of the posterior.
-    MAP():
-        Compute Maximum a posteriori (MAP) estimate of the posterior.
-    ML():
-        Compute maximum likelihood estimate.
+    **Complete example**
+
+    Consider a Bayesian inverse problem with a Gaussian prior and a Gaussian likelihood.
+    Assume that the forward model is a linear model with a known matrix
+    :math:`\mathbf{A}: \mathbf{x} \mapsto \mathbf{y}` and  that we have observed data
+    :math:`\mathbf{y}=\mathbf{y}^\mathrm{obs}`. The Bayesian model can be summarized as
+
+    .. math::
+
+        \\begin{align*}
+        \mathbf{x} &\sim \mathcal{N}(\mathbf{0}, 0.1^2 \mathbf{I}) \\newline
+        \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2 \mathbf{I}).
+        \end{align*}
+    
+    Using the :class:`BayesianProblem` class, we can define the problem, set the data and
+    compute samples from the posterior distribution associated with the problem as well as
+    estimates such as the Maximum Likelihood (ML) and Maximum A Posteriori (MAP).
+
+    .. note::
+
+        In this case, we use a forward model from the :mod:`~cuqi.testproblem` module, but any
+        custom forward model can added via the :mod:`~cuqi.model` module.
+
+    .. code-block:: python
+
+        # Import modules
+        import cuqi
+        import numpy as np
+        import matplotlib.pyplot as plt
+
+        # Deterministic forward model and data (1D convolution)
+        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+
+        # Bayesian model
+        x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
+        y = cuqi.distribution.Gaussian(A@x, 0.05)
+
+        # Define Bayesian problem and set data
+        BP = cuqi.problem.BayesianProblem(y, x).set_data(y=y_data)
+
+        # Compute MAP estimate
+        x_MAP = BP.MAP()
+
+        # Compute samples from posterior
+        x_samples = BP.sample_posterior(1000)
+
+        # Plot results
+        x_samples.plot_ci(exact=probInfo.exactSolution)
+        plt.show()
+        
+        # Plot difference between MAP and sample mean
+        (x_MAP - x_samples.mean()).plot()
+        plt.title("MAP estimate - sample mean")
+        plt.show()
+
+    Notes
+    -----
+
+    In the simplest form the Bayesian problem represents a posterior distribution defined by two densities, i.e.,
+    
+    .. math::
+
+        \pi_\mathrm{posterior}(\\boldsymbol{\\theta} \mid \mathbf{y}) \propto \pi_1(\mathbf{y} \mid \\boldsymbol{\\theta}) \pi_2(\\boldsymbol{\\theta}),
+
+    where :math:`\pi_1(\mathbf{y} \mid \\boldsymbol{\\theta})` is a :class:`~cuqi.likelihood.Likelihood` function and :math:`\pi_2(\\boldsymbol{\\theta})` is a :class:`~cuqi.distribution.Distribution`.
+    In this two-density case, the joint distribution reduces to a :class:`~cuqi.distribution.Posterior` distribution.
+
+    Most functionality is currently only implemented for this simple case.
+
     """
     @classmethod
-    def get_components(cls, **kwargs):
+    def get_components(cls, **kwargs) -> Tuple[Model, CUQIarray, ProblemInfo]:
         """
         Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
         
@@ -76,9 +146,15 @@ class BayesianProblem(object):
 
         return problem.model, problem.data, problem_info
 
-    def __init__(self,likelihood,prior):
-        self.likelihood = likelihood
-        self.prior = prior
+    def __init__(self, *densities: Density, **data: np.ndarray):
+        self._target = JointDistribution(*densities)(**data)
+
+    def set_data(self, **kwargs) -> BayesianProblem:
+        """ Set the data of the problem. This conditions the underlying joint distribution on the data. """
+        if not isinstance(self._target, JointDistribution):
+            raise ValueError("Unable to set data for this problem. Maybe data is already set?")
+        self._target = self._target(**kwargs)
+        return self
 
     @property
     def data(self):
@@ -86,44 +162,44 @@ class BayesianProblem(object):
         return self.likelihood.data
 
     @property
-    def likelihood(self):
+    def likelihood(self) -> Likelihood:
         """The likelihood function."""
-        return self._likelihood
-    
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to extract likelihood from this problem. Current target is: \n {self._target}")
+        return self._target.likelihood
+
     @likelihood.setter
-    def likelihood(self, value):
-        self._likelihood = value
-        if value is not None:        
-            msg = f"{self.model.__class__} range_geometry and likelihood data distribution geometry are not consistent"
-            self.likelihood.distribution.geometry,self.model.range_geometry = \
-                self._check_geometries_consistency(self.likelihood.distribution.geometry,self.model.range_geometry,msg)
-            if hasattr(self,'prior'):
-                self.prior=self.prior
+    def likelihood(self, likelihood):
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to set likelihood for this problem. Current target is: \n {self._target}")
+        self._target.likelihood = likelihood
 
     @property
-    def prior(self):
+    def prior(self) -> Distribution:
         """The prior distribution"""
-        return self._prior
-    
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to extract prior from this problem. Current target is: \n {self._target}")
+        return self._target.prior
+
     @prior.setter
-    def prior(self, value):
-        self._prior = value
-        if value is not None and self.model is not None:
-            msg = f"{self.model.__class__} domain_geometry and prior geometry are not consistent"
-            self.prior.geometry,self.model.domain_geometry = \
-                self._check_geometries_consistency(self.prior.geometry,self.model.domain_geometry,msg)
+    def prior(self, prior):
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to set prior for this problem. Current target is: \n {self._target}")
+        self._target.prior = prior
 
     @property
-    def model(self):
+    def model(self) -> Model:
         """Extract the cuqi model from likelihood."""
         return self.likelihood.model
 
     @property
-    def posterior(self):
-        """Create posterior distribution from likelihood and prior"""
-        return Posterior(self.likelihood, self.prior)
+    def posterior(self) -> Posterior:
+        """Create posterior distribution from likelihood and prior."""
+        if not isinstance(self._target, Posterior):
+            raise ValueError(f"Unable to extract posterior for this problem. Current target is: \n {self._target}")
+        return self._target
 
-    def ML(self, disp=True, x0=None):
+    def ML(self, disp=True, x0=None) -> CUQIarray:
         """ Compute the Maximum Likelihood (ML) estimate of the posterior.
         
         Parameters
@@ -158,7 +234,7 @@ class BayesianProblem(object):
         return x_ML
 
 
-    def MAP(self, disp=True, x0=None):
+    def MAP(self, disp=True, x0=None) -> CUQIarray:
         """ Compute the Maximum A Posteriori (MAP) estimate of the posterior.
         
         Parameters
@@ -288,9 +364,9 @@ class BayesianProblem(object):
         # Now sample prior problem
         return prior_problem.sample_posterior(Ns, callback)
 
-    def UQ(self, exact=None):
-        print("Computing 5000 samples")
-        samples = self.sample_posterior(5000)
+    def UQ(self, Ns=1000, exact=None) -> cuqi.samples.Samples:
+        print(f"Computing {Ns} samples")
+        samples = self.sample_posterior(Ns)
 
         print("Plotting 95 percent credibility interval")
         if exact is not None:
@@ -300,7 +376,9 @@ class BayesianProblem(object):
         else:
             samples.plot_ci(95)
 
-    def _sampleLinearRTO(self,Ns, callback=None):
+        return samples
+
+    def _sampleLinearRTO(self, Ns, callback=None):
         print("Using Linear_RTO sampler.")
         print("burn-in: 20%")
 
@@ -519,3 +597,6 @@ class BayesianProblem(object):
             G = True
 
         return L and P and M and D and G
+
+    def __repr__(self):
+        return f"BayesianProblem with target: \n {self._target}"

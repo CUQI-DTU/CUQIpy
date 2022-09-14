@@ -30,12 +30,12 @@ n = tp.model.domain_dim;    # Number of unknowns
 
 #%% Two choices of prior
 
-P1 = cuqi.distribution.GMRF(np.zeros(n),25,1,'zero')
+P1 = cuqi.distribution.GMRF(np.zeros(n), 25, 1, 'zero', name="x")
 
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-P2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+P2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann', name="x")
 
 #%% Generate and display some prior samples
 sp1 = P1.sample(5)
@@ -51,12 +51,12 @@ plt.title('GMRF')
 #title('Cauchy')
 
 #%% Number of samples
-Ns = 2000
+Ns = 200
 
 #%% 1.  "High level"  - set up cuqi Problem
 
 # Define Bayesian model
-IP = cuqi.problem.BayesianProblem(likelihood=L, prior=P1)
+IP = cuqi.problem.BayesianProblem(L, P1)
 
 # Then we can simply sample the posterior
 results_prior1 = IP.sample_posterior(Ns) 
