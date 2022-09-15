@@ -8,6 +8,20 @@ from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
 class Cauchy_diff(Distribution):
     """Cauchy distribution on the difference between neighboring nodes.
 
+    For 1D `(physical_dim=1)`, the Cauchy difference distribution assumes that
+
+    .. math::
+
+        x_i-x_{i-1} \sim \mathrm{Cauchy}(0, \gamma),
+
+    where :math:`\gamma` is the scale parameter.
+
+    For 2D `(physical_dim=2)` the differences are defined in both horizontal and vertical directions.
+
+    It is possible to define boundary conditions using the `bc_type` parameter.
+
+    The location parameter is a shift of the :math:`\mathbf{x}`.
+
     Parameters
     ----------
     location : scalar or ndarray
@@ -29,16 +43,6 @@ class Cauchy_diff(Distribution):
         import cuqi
         import numpy as np
         prior = cuqi.distribution.Cauchy_diff(location=np.zeros(128), scale=0.1)
-
-    Notes
-    -----
-    The pdf is given by
-
-    .. math::
-
-        \pi(\mathbf{x}) = \\frac{1}{(\pi\gamma)^n \left( 1+\left( \\frac{\mathbf{D}(\mathbf{x}-\mathbf{x}_0)}{\gamma} \\right)^2 \\right) },
-
-    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`\gamma` is the scale, :math:`\mathbf{D}` is the difference operator.
  
     """
    

@@ -506,6 +506,15 @@ class Image2D(Geometry):
         return values
 
 class Discrete(Geometry):
+    """ Discrete geometry defined by a list of variables.
+
+    Parameters
+    ----------
+    variables : list of strings or integer
+        If variables is a list, it contains the discrete variables names.
+        If variables is an integer, it is the number of discrete variables.
+    
+    """
 
     def __init__(self,variables):       
         self.variables = variables

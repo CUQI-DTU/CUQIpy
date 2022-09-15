@@ -20,13 +20,6 @@ class GaussianCov(Distribution): # TODO: super general with precisions
     mean: Mean of distribution. Can be a scalar or 1d numpy array
     cov: Covariance of distribution. Can be a scalar, 1d numpy array (assumes diagonal elements), or 2d numpy array.
     
-    Methods
-    -----------
-    sample: generate one or more random samples
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    cdf: evaluate cumulative probability function
-    
     Example
     -----------
     .. code-block:: python

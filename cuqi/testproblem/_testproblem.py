@@ -137,7 +137,16 @@ class Deblur(BayesianProblem):
 #=============================================================================
 class Deconvolution1D(BayesianProblem):
     """
-    1D periodic deconvolution test problem
+    
+    Create a 1D periodic deconvolution test problem defined by the inverse problem
+
+    .. math::
+
+        \mathbf{b} = \mathbf{A}\mathbf{x},
+
+    where :math:`\mathbf{b}` is a (noisy) convolved signal,
+    :math:`\mathbf{x}` is a sharp (clean) signal and
+    :math:`\mathbf{A}` is a convolution operator.
 
     Parameters
     ------------
@@ -185,41 +194,6 @@ class Deconvolution1D(BayesianProblem):
 
     prior : cuqi.distribution.Distribution, Default Gaussian
         Distribution of the prior
-
-    Attributes
-    ----------
-    data : ndarray
-        Generated (noisy) data
-
-    model : cuqi.model.Model
-        Deconvolution forward model
-
-    noise : cuqi.distribution.Distribution
-        Distribution of the additive noise
-
-    prior : cuqi.distribution.Distribution
-        Distribution of the prior (Default = None)
-
-    likelihood : cuqi.likelihood.Likelihood
-        Likelihood function. 
-        (automatically computed from noise distribution)
-
-    exactSolution : ndarray
-        Exact solution (ground truth)
-
-    exactData : ndarray
-        Noise free data
-
-    Methods
-    ----------
-    MAP()
-        Compute MAP estimate of posterior.
-        NB: Requires prior to be defined.
-
-    Sample(Ns)
-        Sample Ns samples of the posterior.
-        NB: Requires prior to be defined.
-
 
     """
     def __init__(self,
@@ -963,7 +937,7 @@ class Deconvolution2D(BayesianProblem):
     :math:`\mathbf{x}` is a sharp image and
     :math:`\mathbf{A}` is a convolution operator.
 
-    The convolution operator is defined by specifing a point spread function and
+    The convolution operator is defined by specifying a point spread function and
     boundary conditions and is computed (matrix-free) via scipy.signal.fftconvolve.
     The inputs are padded to fit the boundary conditions.
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html.
