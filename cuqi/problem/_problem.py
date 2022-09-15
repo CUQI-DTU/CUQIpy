@@ -393,7 +393,7 @@ class BayesianProblem(object):
         # Gibbs case
         if isinstance(samples, dict):
             for key, value in samples.items():
-                if key in exact:
+                if exact is not None and key in exact:
                     self._plot_UQ_for_variable(value, exact=exact[key])
                 else:
                     self._plot_UQ_for_variable(value, exact=None)
