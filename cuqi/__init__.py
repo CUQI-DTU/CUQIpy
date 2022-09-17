@@ -13,3 +13,6 @@ from . import samples
 from . import solver
 from . import testproblem
 from . import utilities
+
+from . import _version
+__version__ = _version.get_versions()['version']
