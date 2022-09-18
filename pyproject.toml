@@ -29,7 +29,7 @@ dependencies = { file = ["requirements.txt"] }
 
 [tool.versioneer]
 VCS = "git"
-style = "pep440"
+style = "pep440-pre" # This style is compliant with PyPI
 versionfile_source = "cuqi/_version.py"
 versionfile_build = "cuqi/_version.py"
 tag_prefix = ""
