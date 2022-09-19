@@ -22,3 +22,9 @@ desktop.ini
 
 # auto-generated doc files
 _auto*
+
+# ignore distribution files
+dist/
+
+# ignore egg files
+*.egg-info
