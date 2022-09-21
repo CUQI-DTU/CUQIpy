@@ -8,6 +8,9 @@ The main resources for contributors are structured as follows.
 - :doc:`Step-by-step contributor guide <step_by_step>`
    Step-by-step instructions for how to add a new feature or fix a bug using git.
 
+- :doc:`How-To Guides for contributors <how_to>`
+   How to do common tasks related to contributing to the project.
+
 - :doc:`Developer demos <_auto_dev/index>`
    Demo files relevant to developers.
 
@@ -19,6 +22,7 @@ The main resources for contributors are structured as follows.
    :hidden:
 
    Step-by-step instructions <step_by_step>
+   How-To Guides <how_to>
    Developer demos <_auto_dev/index>
    Style guide <style_guide>
 

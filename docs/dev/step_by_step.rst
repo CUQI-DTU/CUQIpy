@@ -1,98 +1,177 @@
 Step-by-step contributor guide
 ------------------------------
 
-1. Ensure git is installed on your system.
+This is a guide for contributors who want to add a new feature to the
+project. It explains how to fork the project, how to create a new branch,
+how to run the tests, how to add documentation, and how to submit a pull
+request.
 
-   On Linux and Mac git comes pre-installed. On Windows, you can install git from:
+**1. Ensure git is installed on your system.**
 
-   - |git|
+On Linux and Mac git comes pre-installed. On Windows, you can install git from:
+
+- |git|
 
 .. |git| raw:: html
 
    <a href="https://git-scm.com/download/win" target="_blank">Git for windows</a>
 
+**2. Fork the project**
 
-2. Clone the repository
+The first step to contributing is to fork the project on Github. This
+creates your own copy of the project that you can edit. To fork the
+project, you can click the "Fork" button on the project page or 
+`click here <https://github.com/CUQI-DTU/CUQIpy/fork>`_.
 
-   .. code-block:: bash
+**3. Clone the repository**
 
-      git clone https://github.com/CUQI-DTU/CUQIpy.git
+The next step is to clone the repository to your local machine. To do
+this, you can run the following command:
 
-   Then enter the repository
+.. code-block:: bash
 
-   .. code-block:: bash
+   git clone https://github.com/username/CUQIpy.git
 
-      cd cuqipy
+where ``username`` is your Github username.
 
-3. Create a new branch for your changes.
+Then enter the repository
 
-   .. code-block:: bash
+.. code-block:: bash
 
-      git checkout -b my-changes
+   cd cuqipy
 
-   This creates a new branch named my-changes and switches to it.
+**4. Create a virtual environment (optional)**
 
-4. Make your changes to the code.
+It is recommended to create a virtual environment for the project. This
+allows you to install the project dependencies without affecting other
+projects on your system.
 
-   Simply edit the files as you normally would.
+Using conda (recommended)
+
+.. code-block:: bash
+
+   conda create -n cuqipy-dev
+   conda activate cuqipy-dev
+
+Using virtualenv
+
+.. code-block:: bash
+
+   python -m venv cuqipy-dev
+   source cuqipy-dev/bin/activate
+
+**5. Install the package in editable mode**
+
+To install the package in editable mode, run the following command:
+
+.. code-block:: bash
+
+   pip install -e .
+
+This will install the package so that any changes you make to the code will be reflected automatically reflected in the installed package.
+
+**6. Install developer dependencies**
+
+To run tests or build the documentation, you will need to install the
+developer dependencies. To do this, run the following command:
+
+.. code-block:: bash
+
+   pip install -r requirements-dev.txt
+
+**7. Run the tests**
+
+To ensure that the package is working correctly, you should run the
+tests. To do this, run the following command:
+
+.. code-block:: bash
+
+   python -m pytest -v
+
+After making changes to the code, you should run the tests again to
+ensure that the changes have not broken anything.
+
+**8. Create a new branch for your changes.**
+
+Using git, you can create a new branch for your changes. This allows you
+to make changes without affecting the main code base. To create a new
+branch, run the following command:
+
+.. code-block:: bash
+
+   git checkout -b my-changes
+
+This creates a new branch named `my-changes`` and switches to it.
+
+**9. Make your changes to the code.**
+
+Now you can make your changes to the code.
+
+You can get an overview of the changes by running:
+
+.. code-block:: bash
+
+   git status
+
+You can see the diff of the changes by running:
+
+.. code-block:: bash
+
+   git diff
+
+**10. Commit your changes.**
+
+It is recommended commit your changes regularly. See the resource 
+`Git Guides - Git Commit <https://github.com/git-guides/git-commit>`_ for more information.
+
+For example if you fixed a typo in the file ``cuqi/distribution/_distribution.py``, you can commit it by running:
+
+.. code-block:: bash
+
+   git add cuqi/distribution/_distribution.py
+   git commit -m "Fixed typo in distribution"
+
+Please provide a meaningful commit message.
+
+Keep repeating the two previous steps until you are happy with your changes.
+
+**11. Push your changes to the repository.**
+
+Once you are satisfied with your changes, you can push the ``my-changes`` branch to the repository.
+
+.. code-block:: bash
+
+   git push origin my-changes
+
+**12. Submit a pull request.**
+
+After pushing your changes to the repository, it is time to submit a pull request.
+
+.. tip::
+   A pull request is a request to *merge* your code into the main code-base. After pushing your changes they still live in a separate branch and need to be reviewed before they are merged into the main code-base.
+
+The easiest way to submit a pull request is to use the link provided by git after you have pushed your changes. The message looks like this
+
+.. code-block:: verbatim
+
+   remote: To create a pull request for 'my-changes', visit:
+   remote:   https://github.com/CUQI-DTU/username/pull/new/my-changes
+
+where ``username`` is your Github username.
    
-   **Note:** Remember to *commit* (step 5) often.
+Alternatively you can submit a pull request by going to the project page on Github and clicking the "Pull requests" button.
 
-   You can get an overview of the changes by running:
+Please provide a description of your changes and a link to the issue you are addressing.
 
-   .. code-block:: bash
+**13. Add reviewer to the pull request.**
 
-      git status
+After you have submitted a t, you should add one of the core developers as a reviewer.
 
-   You can see the diff of the changes by running:
+**14. Wait for your pull request to be reviewed.**
 
-   .. code-block:: bash
+Once you have submitted a pull request, it will be reviewed by one of the project maintainers. If there are any issues with your pull request, you will be notified and asked to make changes.
 
-      git diff
-
-5. Commit your changes.
-
-   It is recommended commit your changes regularly. See the resource 
-   `Git Guides - Git Commit <https://github.com/git-guides/git-commit>`_ for more information.
-
-   For example if fixed a typo in the file ``samplers.py``, you can commit it by running:
-
-   .. code-block:: bash
-
-      git add samplers.py
-      git commit -m "Fixed typo in samplers.py"
-
-   Please provide a meaningful commit message.
-
-   Keep repeating steps 4 and 5 until you are happy with your changes.
-
-6. Push your changes to the repository.
-
-   Once you are satisfied with your changes, you can push the ``my-changes`` branch to the repository.
-
-   .. code-block:: bash
-
-      git push origin my-changes
-
-7. Submit a pull request.
-
-   After pushing your changes to the repository, it is time to submit a pull request.
-
-   .. tip::
-      A pull request is a request to *merge* your code into the main code-base. After pushing your changes they still live in a separate branch and need to be reviewed before they are merged into the main code-base.
-
-   The easiest way to submit a pull request is to use the link provided by git after you have pushed your changes. The message looks like this
-
-   .. code-block:: verbatim
-
-      remote: To create a pull request for 'my-changes', visit:
-      remote:   https://github.com/CUQI-DTU/CUQIpy/pull/new/my-changes
-     
-   Alternatively you can submit a pull request by logging into the `Source repository <https://github.com/CUQI-DTU/CUQIpy>`_. If you have just pushed some changes, a button should appear in the top right corner of the page. Click it. You can also navigate to the pull requests tab and create a pull request from the interface.
-
-8. Add reviewer to the pull request.
-
-   After you have submitted a merge request, you should add one of the core developers as a reviewer.
+If your pull request is accepted, it will be merged into the main code-base.
 
 For more information on the git workflow see 
 `Git Guide <https://github.com/git-guides>`_.

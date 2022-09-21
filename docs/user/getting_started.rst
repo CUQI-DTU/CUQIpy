@@ -2,14 +2,17 @@
 Getting Started
 ===============
 
-.. todo::
-   
-   Provide a brief overview of CUQIpy and its features.
-
 Prerequisites
 -------------
 
-You need to have Python installed. The following are some popular ways to install Python:
+You need to have Python installed on your system. You can check if you have
+Python installed by running the following command in a terminal or powershell:
+
+.. code-block:: sh
+
+   python --version
+
+If you don't have Python installed, the following are some popular ways to install Python:
 
 - |Anaconda| (recommended)
 - |Python|
@@ -22,7 +25,7 @@ You need to have Python installed. The following are some popular ways to instal
 
    <a href="https://www.python.org/downloads/" target="_blank">Python website</a>
 
-It is also recommended to use an IDE. The following are some popular choices:
+It is also recommended to use an IDE to run the code. The following are some popular choices:
 
 - |Visual Studio Code| (recommended)
 - |Spyder|
@@ -40,7 +43,7 @@ It is also recommended to use an IDE. The following are some popular choices:
 
    <a href="https://www.jetbrains.com/pycharm/" target="_blank">PyCharm</a>
 
-*Anaconda + VS Code* is our recommended setup. Once both are installed use the terminal (Linux or Mac) 
+*Anaconda distribution + Visual Studio Code* is our recommended setup. Once both are installed use the terminal (Linux or Mac) 
 or Anaconda Prompt (Windows) to carry out the remaining steps below.
 
 
@@ -49,62 +52,28 @@ or Anaconda Prompt (Windows) to carry out the remaining steps below.
 Installation
 ------------
 
-To install locally follow the instructions below.
-
-.. note::
-    CUQIpy is currently not publicly available and therefore not released through PyPI or Anaconda.
-    For this reason installation requires a few extra manual steps.
-
-Download CUQIpy
-~~~~~~~~~~~~~~~
-
-If you have git installed you can clone the ``cuqipy`` repository with the following command:
-
-.. code-block:: sh
- 
-   git clone https://github.com/CUQI-DTU/CUQIpy.git
-
-Alternatively you can download a zip of the latest versions of CUQIpy from here:
-
-- `CUQIpy releases <https://github.com/CUQI-DTU/CUQIpy/releases>`_
-
-Required Dependencies
-~~~~~~~~~~~~~~~~~~~~~
-
-The required dependencies of cuqipy are listed in the ``requirements.txt`` file and can be
-installed via conda or pip.
-
-First ensure you are in the project directory:
+Installing CUQIpy is easy. You can install it using pip:
 
 .. code-block:: sh
 
-   cd cuqipy
-
-Then install using pip (recommended):
-
-.. code-block:: sh
-
-   pip install -r requirements.txt
-
-or conda (if you have conda installed):
-
-.. code-block:: sh
-
-   conda install --file requirements.txt
+   pip install cuqipy
 
 
+Plugins
+~~~~~~~
+CUQIpy can be extended with additional functionality by installing optional plugins. These can be found at
+[CUQI-DTU](https://github.com/CUQI-DTU?q=CUQIpy-).
 
-Optional Dependencies
-~~~~~~~~~~~~~~~~~~~~~
-
-CUQIpy also optionally interfaces with a number of 3rd party libraries.
-Please see the intall instructions for each library at `CUQI-DTU <https://github.com/CUQI-DTU>`_.
+Often the plugins use 3rd party libraries that are not compatible with each other, so it is always
+recommended to install the plugins in a seperate environment. We recommended using anaconda to 
+[create a new environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
+and install the plugins in that environment.
 
 Verification
 ------------
-To ensure that CUQIpy is installed correctly, you can run the following example (while in the ``cuqipy`` directory).
+To ensure that CUQIpy is installed correctly, you can run the following example.
 
-From the terminal (Linux or Mac) or Anaconda Prompt (Windows) type :
+From the terminal (Linux or Mac) or Anaconda Prompt (Windows) type:
 
 .. code-block:: sh
 
@@ -116,26 +85,7 @@ then enter the following code
 
    import cuqi
 
-If the import succeeds cuqipy is most likely working correctly.
-
-.. tip:: 
-
-   In VS Code, you can get tab-completion for CUQIpy by adding the following line to your ``.vscode/settings.json`` file of your current project.:
-
-   .. code-block:: json
-
-      "python.analysis.extraPaths": ["/path/to/cuqipy/"]
-
-If the import fails, you can check the error message. 
-Most likely cause of failure is that CUQIpy is not in the interpreter path.
-You can add to the current path of the interpreter using (``sys.path``) as shown below.
-
-.. code-block:: python
-
-   import sys
-   sys.path.append('/path/to/cuqipy/')
-
-This is also useful if you are writing scripts in another directory and want to import CUQIpy as a part of those scripts.
+If the import succeeds CUQIpy is most likely working correctly.
 
 Start using CUQIpy
 ------------------
@@ -146,25 +96,15 @@ Follow the resources linked in the :doc:`User Guide <index>` to learn more.
 Running the Tests*
 ------------------
 
-To fully make sure that cuqipy runs as expected on your machine you should run the automatic tests.
-While in the project directory ``cuqipy``, run (requires pytest):
+To fully make sure that cuqipy runs as expected on your machine you can run the automatic tests.
+This requires `pytest` to be installed. You can install it using pip:
 
 .. code-block:: sh
 
-   python -m pytest
+   pip install pytest
 
-Building Documentation*
------------------------
-
-To generate sphinx html documentation in your local machine, make sure
-you have working installation of sphinx and all the extensions listed 
-in the ``docs/conf.py`` file. 
-
-Then run the following command in ``cuqipy`` directory:
+Then run the tests from the terminal (Linux or Mac) or Anaconda Prompt (Windows) by typing:
 
 .. code-block:: sh
 
-   sphinx-build -b html docs/. docs/_build
-
-Then open ``docs/_build/index.html`` using your preferred web browser to
-browse the documentation.
+   python -m pytest -v
