@@ -1,17 +1,24 @@
 <div align="center">
-<img src="./logo.png" alt="CUQIpy logo" width="250"/>
+<img src="https://cuqi-dtu.github.io/CUQIpy/_static/logo.png" alt="CUQIpy logo" width="250"/>
 </div>
 
-# CUQIpy: Computational Uncertainty Quantification for Inverse Problems in python
+# Computational Uncertainty Quantification for Inverse Problems in python
 
 [![pytest](https://github.com/CUQI-DTU/CUQIpy/actions/workflows/tests.yml/badge.svg)](https://github.com/CUQI-DTU/CUQIpy/actions/workflows/tests.yml)
 [![docs](https://github.com/CUQI-DTU/CUQIpy/actions/workflows/docs.yml/badge.svg)](https://cuqi-dtu.github.io/CUQIpy/)
 
- Computational Uncertainty Quantification for Inverse Problems in python (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy provides a simple high-level interface to perform UQ analysis of inverse problems, while still allowing full control of the models and methods. The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
+Computational Uncertainty Quantification for Inverse Problems in python (CUQIpy) is a python package for modeling and solving inverse problems in a Bayesian inference framework. CUQIpy provides a simple high-level interface to perform UQ analysis of inverse problems, while still allowing full control of the models and methods. The package comes equipped with a number of predefined distributions, samplers, models and test problems and is built to be easily further extended when needed.
 
 You can find the full CUQIpy documentation [here](https://cuqi-dtu.github.io/CUQIpy/). 
 
- This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
+This software package is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) funded by [the Villum Foundation.](https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning)
+
+## Quickstart
+Install CUQIpy using pip:
+```{r, engine='bash', count_lines}
+pip install cuqipy
+```
+For more detailed instructions, see the [Getting Started](https://cuqi-dtu.github.io/CUQIpy/user/getting_started.html) guide.
 
 ## Quick Example - UQ in 5 steps
 Image deconvolution with uncertainty quantification
@@ -46,74 +53,20 @@ y_data.plot(); plt.title("Data")
 samples.plot_mean(); plt.title("Posterior mean")
 samples.plot_std(); plt.title("Posterior standard deviation")
 ```
-<img src="docs/_static/img/deconv2D_exact_sol.png" alt="Exact solution" width="360">
+<img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_exact_sol.png" alt="Exact solution" width="330">
+<img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_data.png" alt="Data" width="330">
+<img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_post_mean.png" alt="Posterior mean" width="330">
+<img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_post_std.png" alt="Posterior standard deviation" width="330">
 
-<img src="docs/_static/img/deconv2D_data.png" alt="Data" width="360">
-
-<img src="docs/_static/img/deconv2D_post_mean.png" alt="Posterior mean" width="360">
-
-<img src="docs/_static/img/deconv2D_post_std.png" alt="Posterior standard deviation" width="360">
-
-## Getting Started
-To run `cuqipy` on your local machine, clone the `cuqipy` repository:
-
-```{r, engine='bash', count_lines}
-git clone https://github.com/CUQI-DTU/CUQIpy.git
-```
-
-Then go to the project directory:
-```{r, engine='bash', count_lines}
-cd cuqipy
-```
-
-You can run some demos, for example: 
-```{r, engine='bash', count_lines}
-cd demos
-python demo00_MinimalExample.py 
-```
-
-### Required Dependencies
-Requirements of cuqipy are listed in `cuqipy/requirements.txt` and can be installed via conda by (while in `cuqipy` directory)
-```{r, engine='bash', count_lines}
-conda install --file requirements.txt
-```
-or using pip by
-```{r, engine='bash', count_lines}
-pip install -r requirements.txt 
-```
-
-### Optional Dependencies
+## Plugins
 CUQIpy can be extended with additional functionality by installing optional plugins. These can be found at
-[CUQI-DTU](https://github.com/CUQI-DTU).
+[CUQI-DTU](https://github.com/CUQI-DTU?q=CUQIpy-).
 
-## Running the Tests
-
-To make sure that cuqipy runs as expected on your machine and that all requirements
-are met, you can run the tests. While in the project
-directory `cuqipy`, run:
-
-```{r, engine='bash', count_lines}
-python -m pytest 
-```
-
-## Building Documentation
-
-To generate sphinx html documentation in your local machine, 
-make sure you have working installation of sphinx and sphinx-rtd-theme. 
-Then run the following commands in cuqipy directory:  
-
-```{r, engine='bash', count_lines}
-cd docs
-sphinx-build -b html . _build
-```
-
-Then open docs/_build/index.html using your preferred web browser to browse
-cuqipy documentation.
+## Contributing
+We welcome contributions to CUQIpy. Please see our [contributing guidelines](https://cuqi-dtu.github.io/CUQIpy/dev/index.html) for more information.
 
 ## Contributors
 
 See the list of
 [contributors](https://github.com/CUQI-DTU/CUQIpy/graphs/contributors)
 who participated in this project.
-
-
