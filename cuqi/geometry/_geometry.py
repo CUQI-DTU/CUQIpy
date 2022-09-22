@@ -9,12 +9,6 @@ import operator
 from functools import reduce
 import warnings
 
-def _get_identity_geometries():
-    """Return the geometries that have identity `par2fun` and `fun2par` methods (including those where `par2fun` and `fun2par` perform reshaping of the parameters or the function values array. e.g. the geometry `Image2D`.).
-    These geometries do not alter the gradient computations.
-    """
-    return [_DefaultGeometry, Continuous1D, Continuous2D, Discrete, Image2D]
-
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
 
