@@ -7,7 +7,7 @@ Welcome to the user guide for CUQIpy!
 The main resources for users are structured as follows.
 
 - :doc:`Getting started <getting_started>`
-   To get started with CUQIpy. This contains installation instructions, as well as a brief overview of the features of CUQIpy.
+   Get CUQIpy up and running on your system and learn the basics.
 
 - :doc:`Tutorials <_auto_tutorials/index>`
    To learn about the features of CUQIpy. Tutorials are step-by-step guides for learning about CUQIpy and how to use it for uncertainty quantification.
