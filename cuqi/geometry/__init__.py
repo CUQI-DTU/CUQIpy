@@ -1,5 +1,4 @@
 from ._geometry import (
-    _get_identity_geometries,
     Geometry,
     _WrappedGeometry,
     Continuous,
