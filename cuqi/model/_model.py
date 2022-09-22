@@ -476,6 +476,8 @@ class PDEModel(Model):
         super().__init__(self._forward_func, range_geometry, domain_geometry)
 
         self.pde = PDE
+        if hasattr(self.pde, "gradient_wrt_parameter"):
+            self._gradient_func = self.pde.gradient_wrt_parameter
 
     def _forward_func(self,x):
         
