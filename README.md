@@ -53,10 +53,13 @@ y_data.plot(); plt.title("Data")
 samples.plot_mean(); plt.title("Posterior mean")
 samples.plot_std(); plt.title("Posterior standard deviation")
 ```
+
+<p float="left">
 <img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_exact_sol.png" alt="Exact solution" width="330">
 <img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_data.png" alt="Data" width="330">
 <img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_post_mean.png" alt="Posterior mean" width="330">
 <img src="https://cuqi-dtu.github.io/CUQIpy/_images/deconv2D_post_std.png" alt="Posterior standard deviation" width="330">
+</p>
 
 ## Plugins
 CUQIpy can be extended with additional functionality by installing optional plugins. These can be found at
