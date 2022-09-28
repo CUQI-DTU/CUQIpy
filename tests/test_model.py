@@ -444,7 +444,3 @@ def test_linear_model_allow_other_parameter_names():
     assert model_y@1 == 1
     assert model_z@1 == 1
     assert model_mat@np.ones(1) == np.ones(1)
-
-
-
-    
