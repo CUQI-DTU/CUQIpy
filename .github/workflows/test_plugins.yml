@@ -1,5 +1,5 @@
-on:
-  workflow_dispatch:
+name: Test plugins
+on: [push, pull_request]
 
 jobs:
   dispatch-tests: # This job will trigger the plugin tests workflow in the other repositories
