@@ -44,13 +44,18 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
-  dispatch-tests: # This job will trigger the plugin tests workflow in the other repositories
+  dispatch-tests: # This job will trigger the plugin tests workflow in the other repositories (waits for the previous job to finish and then 5 minutes)
+    name: Dispatch tests on downstream plugins after publishing to PyPI
+    needs: build-n-publish
     strategy:
       matrix:
         repo: ['CUQI-DTU/CUQIpy-PyTorch', 'CUQI-DTU/CUQIpy-CIL', 'CUQI-DTU/CUQIpy-FEniCS']
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch tests on downstream plugins after publishing to PyPI
+      - name: Sleep for 5 minutes
+        run: sleep 300s
+        shell: bash
+      - name: Dispatch tests on downstream plugins
         uses: peter-evans/repository-dispatch@v2
         with:
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
