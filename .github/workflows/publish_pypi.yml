@@ -44,3 +44,16 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
+  dispatch-tests: # This job will trigger the plugin tests workflow in the other repositories
+    strategy:
+      matrix:
+        repo: ['CUQI-DTU/CUQIpy-PyTorch', 'CUQI-DTU/CUQIpy-CIL', 'CUQI-DTU/CUQIpy-FEniCS']
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch tests on downstream plugins after publishing to PyPI
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: ${{ matrix.repo }}
+          event-type: run-tests-on-cuqipy-update
+          client-payload: '{"event_name": "${{ github.event_name }}"}'
