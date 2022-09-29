@@ -1,11 +1,11 @@
 name: Test plugins
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   dispatch-tests: # This job will trigger the plugin tests workflow in the other repositories
     strategy:
       matrix:
-        repo: ['CUQI-DTU/CUQIpy-PyTorch']
+        repo: ['CUQI-DTU/CUQIpy-PyTorch', 'CUQI-DTU/CUQIpy-CIL', 'CUQI-DTU/CUQIpy-FEniCS']
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch plugin tests after publishing to PyPI
