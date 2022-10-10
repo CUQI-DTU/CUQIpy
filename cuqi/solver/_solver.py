@@ -274,8 +274,7 @@ class CGLS(object):
         # main loop
         k, flag, indefinite = 0, 0, 0
         while (k < self.maxit) and (flag == 0):
-            k += 1  
-
+            k += 1
             if self.explicitA:
                 q = self.A @ p
             else:
@@ -317,6 +316,119 @@ class CGLS(object):
             flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
             ValueError('\n Instability likely !') 
     
+        return x, k
+
+
+class PCGLS:
+    """Conjugate Gradient method for least squares problems with preconditioning
+    
+    See Bjorck (1996) - Numerical Methods for Least Squares Problems. Pag 294.
+
+    Parameters
+    ----------
+    A : ndarray or callable f(x,*args).
+    b : ndarray.
+    x0 : ndarray. Initial guess.
+    Pinv : darray or callable; applies the inverse of the preconditioner (solve routine).
+    maxit : The maximum number of iterations.
+    tol : The numerical tolerance for convergence checks.
+    """    
+    def __init__(self, A, b, x0, Pinv, maxit, tol=1e-6, shift=0):
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.Pinv = Pinv
+        self.maxit = int(maxit)
+        self.tol = tol        
+        self.shift = shift
+        if not callable(A):
+            self.explicitA = True
+        else:
+            self.explicitA = False
+        if not callable(Pinv):
+            self.explicitPinv = True
+        else:
+            self.explicitPinv = False
+            
+    def solve(self):
+        # initial state
+        x = self.x0.copy()
+        if self.explicitA:
+            r = self.b - (self.A @ x)
+            if self.explicitPinv:
+                s = self.Pinv.T @ (self.A.T @ r)
+            else:
+                s = self.Pinv((self.A.T @ r), 2)
+        else:
+            r = self.b - self.A(x, 1)
+            if self.explicitPinv:
+                s = self.Pinv.T @ self.A(r, 2)
+            else:
+                s = self.Pinv(self.A(r, 2), 2)
+
+        # initialization
+        p = s.copy()
+        norms0 = LA.norm(s)
+        normx = LA.norm(x)
+        gamma, xmax = norms0**2, normx
+    
+        # main loop
+        k, flag, indefinite = 0, 0, 0
+        while (k < self.maxit) and (flag == 0):
+            k += 1
+            #
+            if self.explicitPinv:
+                t = self.Pinv @ p
+            else:
+                t = self.Pinv(p, 1)
+            if self.explicitA:
+                q = self.A @ t
+            else:
+                q = self.A(t, 1)
+            #
+            delta_cgls = LA.norm(q)**2
+            if (delta_cgls < 0):
+                indefinite = True
+            elif (delta_cgls == 0):
+                delta_cgls = eps
+            alpha_cgls = gamma / delta_cgls
+            #
+            x += alpha_cgls*t
+            r -= alpha_cgls*q
+            if self.explicitA:
+                if self.explicitPinv:
+                    s = self.Pinv.T @ (self.A.T @ r)
+                else:
+                    s = self.Pinv((self.A.T @ r), 2)
+            else:
+                if self.explicitPinv:
+                    s = self.Pinv.T @ self.A(r, 2) 
+                else:
+                    s = self.Pinv(self.A(r, 2), 2)
+            #
+            norms = LA.norm(s)
+            gamma1 = gamma.copy()
+            gamma = norms**2
+            beta = gamma / gamma1
+            p = s + beta*p
+
+            # convergence
+            normx = LA.norm(x)
+            xmax = max(xmax, normx)
+            flag = (norms <= norms0*self.tol) or (normx*self.tol >= 1)
+            # resNE = norms / norms0
+
+        shrink = normx/xmax
+        # if k == self.maxit:          
+        #     flag = 2   # CGLS iterated MAXIT times but did not converge
+        #     Warning('\n maxit reached without convergence !')
+        if indefinite:          
+            flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
+            ValueError('\n Negative curvature detected !')  
+        if shrink <= np.sqrt(self.tol):
+            flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
+            ValueError('\n Instability likely !') 
+
         return x, k
 
 
