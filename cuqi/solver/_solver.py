@@ -3,8 +3,15 @@ from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt
 import scipy.sparse as spa
+
 from cuqi.samples import CUQIarray
 eps = np.finfo(float).eps
+
+try:
+    from sksparse.cholmod import cholesky
+    has_cholmod = True
+except ImportError:
+    has_cholmod = False
 
 
 class L_BFGS_B(object):
@@ -329,27 +336,35 @@ class PCGLS:
     A : ndarray or callable f(x,*args).
     b : ndarray.
     x0 : ndarray. Initial guess.
-    Pinv : darray or callable; applies the inverse of the preconditioner (solve routine).
+    P : ndarray. Preconditioner array in sparse format.
     maxit : The maximum number of iterations.
     tol : The numerical tolerance for convergence checks.
     """    
-    def __init__(self, A, b, x0, Pinv, maxit, tol=1e-6, shift=0):
+    def __init__(self, A, b, x0, P, maxit, tol=1e-6, shift=0):
         self.A = A
         self.b = b
         self.x0 = x0
-        self.Pinv = Pinv
+        self.P = P
         self.maxit = int(maxit)
         self.tol = tol        
         self.shift = shift
+        self.dim = len(x0)
         if not callable(A):
             self.explicitA = True
         else:
             self.explicitA = False
-        if not callable(Pinv):
+        #
+        if self.dim < 1000:
             self.explicitPinv = True
+            Pinv = spa.linalg.inv(P)
         else:
             self.explicitPinv = False
-            
+            Pinv = None # we do cholesky.solve or sparse.solve with P
+            if has_cholmod:
+                # turn P into a cholesky object
+                P = cholesky(P, ordering_method='natural')
+        self.Pinv = Pinv # inverse of the preconditioner as a ndarray or function
+
     def solve(self):
         # initial state
         x = self.x0.copy()
@@ -358,13 +373,13 @@ class PCGLS:
             if self.explicitPinv:
                 s = self.Pinv.T @ (self.A.T @ r)
             else:
-                s = self.Pinv((self.A.T @ r), 2)
+                s = self._apply_Pinv((self.A.T @ r), 2)
         else:
             r = self.b - self.A(x, 1)
             if self.explicitPinv:
                 s = self.Pinv.T @ self.A(r, 2)
             else:
-                s = self.Pinv(self.A(r, 2), 2)
+                s = self._apply_Pinv(self.A(r, 2), 2)
 
         # initialization
         p = s.copy()
@@ -380,7 +395,7 @@ class PCGLS:
             if self.explicitPinv:
                 t = self.Pinv @ p
             else:
-                t = self.Pinv(p, 1)
+                t = self._apply_Pinv(p, 1)
             if self.explicitA:
                 q = self.A @ t
             else:
@@ -399,12 +414,12 @@ class PCGLS:
                 if self.explicitPinv:
                     s = self.Pinv.T @ (self.A.T @ r)
                 else:
-                    s = self.Pinv((self.A.T @ r), 2)
+                    s = self._apply_Pinv((self.A.T @ r), 2)
             else:
                 if self.explicitPinv:
                     s = self.Pinv.T @ self.A(r, 2) 
                 else:
-                    s = self.Pinv(self.A(r, 2), 2)
+                    s = self._apply_Pinv(self.A(r, 2), 2)
             #
             norms = LA.norm(s)
             gamma1 = gamma.copy()
@@ -419,9 +434,6 @@ class PCGLS:
             # resNE = norms / norms0
 
         shrink = normx/xmax
-        # if k == self.maxit:          
-        #     flag = 2   # CGLS iterated MAXIT times but did not converge
-        #     Warning('\n maxit reached without convergence !')
         if indefinite:          
             flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
             ValueError('\n Negative curvature detected !')  
@@ -430,6 +442,19 @@ class PCGLS:
             ValueError('\n Instability likely !') 
 
         return x, k
+
+    def _apply_Pinv(self, x, flag):
+        if has_cholmod:
+            if flag == 1:
+                precond = self.P.solve_A(x, use_LDLt_decomposition=False) 
+            elif flag == 2:
+                precond = self.P.solve_At(x, use_LDLt_decomposition=False) 
+        else:
+            if flag == 1:
+                precond = spa.linalg.spsolve(self.P, x) 
+            elif flag == 2:
+                precond = spa.linalg.spsolve(self.P.T, x)
+        return precond
 
 
 
