@@ -376,3 +376,71 @@ def test_model_parameter_name_switch_errors():
 
     with pytest.raises(ValueError, match=r"dimension does not match"):
         model(y)    
+
+def test_model_allow_other_parameter_names():
+    """ Test that Model correctly infers parameter names from the forward function and evaluation matches. """
+
+    forward_x = lambda x: x
+    forward_y = lambda y: y
+    def forward_z(z, not_used=None):
+        return z
+
+    model_x = cuqi.model.Model(forward_x, 1, 1)
+    model_y = cuqi.model.Model(forward_y, 1, 1)
+    model_z = cuqi.model.Model(forward_z, 1, 1)
+
+    # Check that the model has switched its parameter name
+    assert model_x._non_default_args == ['x']
+    assert model_y._non_default_args == ['y']
+    assert model_z._non_default_args == ['z']
+
+    # Check that we can provide parameter names when evaluating the model
+    assert model_x(x=1) == 1
+    assert model_y(y=1) == 1
+    assert model_z(z=1) == 1
+
+    # And check that we can provide positional arguments
+    assert model_x(1) == 1
+    assert model_y(1) == 1
+    assert model_z(1) == 1
+
+def test_linear_model_allow_other_parameter_names():
+    """ Test that linear model automatically infers parameter names from the forward function and evaluation matches. """
+
+    forward_x = lambda x: x
+    forward_y = lambda y: y
+    def forward_z(z, not_used=None):
+        return z
+
+    adjoint = lambda w: w
+
+    model_x = cuqi.model.LinearModel(forward_x, adjoint, 1, 1)
+    model_y = cuqi.model.LinearModel(forward_y, adjoint, 1, 1)
+    model_z = cuqi.model.LinearModel(forward_z, adjoint, 1, 1)
+
+    A = np.array([[1]])
+    model_mat = cuqi.model.LinearModel(A) # Default parameter name is 'x'
+
+    # Check that the model has switched its parameter name
+    assert model_x._non_default_args == ['x']
+    assert model_y._non_default_args == ['y']
+    assert model_z._non_default_args == ['z']
+    assert model_mat._non_default_args == ['x']
+
+    # Check that we can provide parameter names when evaluating the model
+    assert model_x(x=1) == 1
+    assert model_y(y=1) == 1
+    assert model_z(z=1) == 1
+    assert model_mat(x=np.ones(1)) == np.ones(1) # With matrix it has to be numpy array
+
+    # And check that we can provide positional arguments
+    assert model_x(1) == 1
+    assert model_y(1) == 1
+    assert model_z(1) == 1
+    assert model_mat(np.ones(1)) == np.ones(1)
+
+    # Check that matrix multiplication works
+    assert model_x@1 == 1
+    assert model_y@1 == 1
+    assert model_z@1 == 1
+    assert model_mat@np.ones(1) == np.ones(1)
