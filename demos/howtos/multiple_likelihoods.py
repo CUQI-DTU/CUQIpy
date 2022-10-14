@@ -25,9 +25,9 @@ assert set_up == "multi_observation" or set_up == "multi_source", "set_up must b
 
 # %%
 # Set up the models common parameters
-# ----------------------------------
+# -----------------------------------
 
-dim = 129
+dim = 50
 endpoint = 1
 field_type = "Step"
 SNR = 1000
@@ -41,17 +41,12 @@ x_exact[ceil(dim/2):] = 3
 # %%
 # Set up the first model
 # ----------------------
-source1 = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
 
+observation_grid_map1 = None
 if set_up == "multi_observation":
 	observation_grid_map1 = lambda x: x[np.where(x<.5)] 
-else:
-	observation_grid_map1 = None
 
-if set_up == "multi_source":
-	source1 = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
-else:
-	source1 = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
+source1 = lambda xs: 20*np.sin(xs)+20.1
 
 model1, data1, problemInfo1 = cuqi.testproblem.Poisson_1D.get_components(dim=dim, endpoint=endpoint, field_type = field_type,field_params = {'n_steps':n_steps}, observation_grid_map = observation_grid_map1, exactSolution =x_exact , SNR =SNR)
 
@@ -64,19 +59,16 @@ plt.legend()
 
 # %%
 # Set up the second model
-# ----------------------
+# -----------------------
 
-source2 = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
-
+observation_grid_map2 = None
 if set_up == "multi_observation":
 	observation_grid_map2 = lambda x: x[np.where(x>=.5)]
-else:
-	observation_grid_map2 = None
 
 if set_up == "multi_source":
-	source2 = lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02)
+	source2 = lambda xs: 20*np.sin(2*xs)+20.1
 else:
-	source2 = lambda xs: 10*np.exp( -( (2*xs - .75)**2 ) / 0.02)
+	source2 = source1
 
 model2, data2, problemInfo2 = cuqi.testproblem.Poisson_1D.get_components(dim=dim, endpoint=endpoint, field_type=field_type,field_params = {'n_steps': n_steps}, observation_grid_map = observation_grid_map2, exactSolution =x_exact , SNR =SNR)
 
@@ -107,7 +99,7 @@ y2 = cuqi.distribution.Gaussian(mean=model2, std=sigma_noise2, corrmat=np.eye(mo
 
 # %%
 # Create the posterior (multiple likelihoods)
-# ------------------------------------------
+# -------------------------------------------
 
 z_joint = cuqi.distribution.JointDistribution(x,y1,y2)(y1=data1, y2=data2)._as_stacked() # _as_stacked() is needed to stack the random variables but it is a temporary hack that will be not needed in the future.
 
@@ -123,15 +115,33 @@ samples.geometry=x.geometry # this is will be not needed in the future as sample
 samples.burnthin(1000).plot_ci(95, exact = problemInfo1.exactSolution)
 samples.compute_ess()
 
-# %% Create the posterior (single likelihoods)
-# --------------------------------------------
+# %% 
+# Create the posterior (single likelihoods, first model)
+# ------------------------------------------------------
 
 z1 = cuqi.distribution.JointDistribution(x,y1)(y1=data1)
 
-# %% Sample from the posterior (single likelihoods)
-# -------------------------------------------------
+# %% 
+# Sample from the posterior (single likelihoods, first model)
+# -----------------------------------------------------------
 
 sampler = cuqi.sampler.MetropolisHastings(z1)
+samples = sampler.sample_adapt(5000)
+
+samples.burnthin(1000).plot_ci(95, exact = problemInfo1.exactSolution)
+samples.compute_ess()
+
+# %% 
+# Create the posterior (single likelihoods, second model)
+# -------------------------------------------------------
+
+z2 = cuqi.distribution.JointDistribution(x,y2)(y2=data2)
+
+# %% 
+# Sample from the posterior (single likelihoods, second model)
+# ------------------------------------------------------------
+
+sampler = cuqi.sampler.MetropolisHastings(z2)
 samples = sampler.sample_adapt(5000)
 
 samples.burnthin(1000).plot_ci(95, exact = problemInfo1.exactSolution)
