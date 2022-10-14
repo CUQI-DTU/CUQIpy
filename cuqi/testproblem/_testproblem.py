@@ -467,7 +467,7 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, observation_grid_map=None):
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, observation_grid_map=None, exactSolution=None):
 
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
@@ -510,13 +510,16 @@ class Poisson_1D(BayesianProblem):
         if map is not None:
             domain_geometry = MappedGeometry(domain_geometry, map, imap)
 
-        range_geometry = Continuous1D(grid_range)
+        range_geometry = Continuous1D(grid_obs)
 
         # Prepare model
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
 
         # Set up exact solution
-        x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) )   
+        if exactSolution is None:
+            x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) ) 
+        else: 
+            x_exact = exactSolution 
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
