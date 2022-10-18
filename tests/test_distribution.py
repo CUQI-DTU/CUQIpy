@@ -480,7 +480,7 @@ def test_gradient_lognormal_as_likelihood(std, R, val, x):
     range_geometry = 3
 
     # model's forward function
-    def forward(x=None):
+    def forward(x):
         return np.array([np.exp(x[0]) + x[1],
              np.exp(2*x[1]) + 3*x[0],
              x[0]+2*x[1]])

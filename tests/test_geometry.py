@@ -45,7 +45,7 @@ def test_update_Continuous_geometry(geomClass,grid,expected_grid,expected_shape,
 @pytest.mark.parametrize("variables,expected_variables,expected_shape,expected_dim",
                          [(3,['v0','v1','v2'],(3,),3),
 			  (['a','b'],['a','b'],(2,),2),
-			  (1,['v0'],(1,),1),
+			  (1,['v'],(1,),1),
 			  ])
 def test_Discrete_geometry(variables,expected_variables,expected_shape,expected_dim):
     geom = cuqi.geometry.Discrete(variables)
@@ -174,3 +174,92 @@ def test_stepExpansion_fun2par(projection, func):
 
     # Compare projection with fun2par results
     assert np.allclose(p, qa_f.parameters)
+
+def test_KL_expansion():
+    """Check KL expansion geometry correctness"""
+    N = 20
+    grid = np.linspace(0,1,N)
+    decay_rate = 2.5
+    normalizer = 12
+    geom = cuqi.geometry.KLExpansion(grid,
+                                     decay_rate=decay_rate,
+				     normalizer=normalizer)
+    p = np.random.randn(N)
+    f_geom = geom.par2fun(p)
+    f_expected = _inverse_sin_discrete_transform_KL(p, N, decay_rate, normalizer)
+
+    assert np.allclose(f_geom, f_expected)
+
+
+def _inverse_sin_discrete_transform_KL(p, N, decay_rate, normalizer):
+    """Inverse of sin discrete transform, the code
+    computes the KL expansion coefficients that the KLExpansion geometry computes given p and then computes the same transformation done by `idst` from
+    `scipy.fftpack`"""
+    p_f2 = np.zeros(N)
+    modes = []
+    K = np.arange(N)
+    for i in range(0,N-1):
+
+        coeff = 1/np.float_power( i+1,decay_rate )
+        modes.append( p[i]*coeff/normalizer)
+        p_f2 +=  modes[-1]*np.sin(np.pi*(i+1) *(K+.5)/N)
+
+    coeff = 1/np.float_power( N,decay_rate )
+    modes.append( p[-1]*coeff/normalizer)
+
+    p_f2 +=(-1)**(K)/2*modes[-1]
+    return p_f2
+
+def _inverse_sin_discrete_transform_KLFull(p, N, var, tau, gamma):
+    """Inverse of sin discrete transform, the code
+    computes the KL expansion coefficients that the KLExpansion_Full geometry computes given p and then computes the same transformation done by `idst` from
+    `scipy.fftpack`"""
+    p_f2 = np.zeros(N)
+    modes = []
+    K = np.arange(N)
+    for i in range(0,N-1):
+
+        coeff = var*np.float_power(tau, gamma)*np.float_power( i**2+tau,-gamma)
+        modes.append( p[i]*coeff)
+        p_f2 +=  modes[-1]*np.sin(np.pi*(i+1) *(K+.5)/N)
+
+    coeff = var*np.float_power(tau, gamma)*np.float_power( (N-1)**2+tau,-gamma)
+    modes.append( p[-1]*coeff)
+
+    p_f2 +=(-1)**(K)/2*modes[-1]
+
+    return p_f2/np.pi
+
+def test_KLExpansion_Full_geometry():
+    """Check KLExpansion_Full geometry correctness"""
+    N = 20
+    grid = np.linspace(0,1,N)
+    std = 1.2
+    cor_len = .1
+    nu = 3.0
+    geom = cuqi.geometry.KLExpansion_Full(grid,std,cor_len,nu)
+
+    p = np.random.randn(N)
+    f_geom = geom.par2fun(p)
+    var = std**2
+    tau = 1.0/cor_len**2
+    gamma = nu+1.
+    f_expected = _inverse_sin_discrete_transform_KLFull(p, N, var, tau, gamma)
+
+    assert np.allclose(f_geom, f_expected)
+
+def test_create_CustomKL_geometry():
+    """Check CustomKL geometry initialization"""
+    N = 20
+    grid = np.linspace(0,1,N)
+    mean = 1
+    std = .1
+    cov_func = None
+    trunc_term = 4
+    geom = cuqi.geometry.CustomKL(grid,mean,std,cov_func,trunc_term)
+
+    assert np.isclose(geom.mean, mean) and\
+           np.isclose(geom.std, std) and\
+	   geom.trunc_term==trunc_term
+	
+

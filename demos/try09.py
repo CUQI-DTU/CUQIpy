@@ -22,10 +22,10 @@ x_true = TP.exactSolution
 
 # %%
 # Define Gaussian likelihood and prior
-likelihood = cuqi.distribution.Gaussian(model, cov).to_likelihood(data)
+likelihood = cuqi.distribution.Gaussian(model, cov, name="y").to_likelihood(data)
 
 var = 0.2
-prior = cuqi.distribution.Gaussian(0, var*np.ones(n))
+prior = cuqi.distribution.Gaussian(0, var*np.ones(n), name="x")
 
 # %% MAP estimates
 # Define potential of posterior (returns logpdf and gradient w.r.t x)
@@ -117,7 +117,7 @@ plt.show()
 
 prob = cuqi.problem.BayesianProblem(likelihood, prior)
 # %%
-MAP_prob, MAP_info = prob.MAP()
+MAP_prob = prob.MAP()
 # %%
 print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_true)/np.linalg.norm(x_true))
 # %%
@@ -125,8 +125,10 @@ print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_MAP_BFGS)/np.linalg.
 # %%
 
 # %%
-ML_prob, ML_info = prob.ML()
+ML_prob = prob.ML()
 # %%
 print('relative error BFGS ML:', np.linalg.norm(ML_prob-x_true)/np.linalg.norm(x_true))
 # %%
 print('relative error BFGS ML:', np.linalg.norm(ML_prob-x_ML_BFGS)/np.linalg.norm(x_MAP_BFGS))
+
+# %%

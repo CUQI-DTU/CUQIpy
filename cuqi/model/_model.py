@@ -78,7 +78,7 @@ class Model(object):
             raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
         # Store non_default_args of the forward operator for faster caching when checking for those arguments.
-        self._non_default_args = cuqi.utilities.get_non_default_args(self)
+        self._non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
 
     @property
     def domain_dim(self): 
@@ -184,9 +184,26 @@ class Model(object):
         x = self._input2fun(x, func_domain_geometry, is_par)
         out = func(x, **kwargs)
         return self._output2par(out, func_range_geometry, 
-                                    to_CUQIarray= (type(x) is CUQIarray)) 
+                                    to_CUQIarray= (type(x) is CUQIarray))
+
+    def _parse_args_add_to_kwargs(self, *args, **kwargs):
+        """ Private function that parses the input arguments of the model and adds them as keyword arguments matching the non default arguments of the forward function. """
+
+        if len(args) > 0:
+
+            if len(kwargs) > 0:
+                raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
+                
+            if len(args) != len(self._non_default_args):
+                raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model.")
+            
+            # Add args to kwargs following the order of non_default_args
+            for idx, arg in enumerate(args):
+                kwargs[self._non_default_args[idx]] = arg
+
+        return kwargs
         
-    def forward(self, x, is_par=True ):
+    def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
         
         Forward converts the input to function values (if needed) using the domain geometry of the model.
@@ -194,18 +211,35 @@ class Model(object):
 
         Parameters
         ----------
-        x : ndarray or cuqi.samples.CUQIarray
+        *args : ndarray or cuqi.samples.CUQIarray
             The model input.
 
         is_par : bool
             If True the input is assumed to be parameters.
             If False the input is assumed to be function values.
+        
+        **kwargs : keyword arguments for model input.
+            Keywords must match the names of the non_default_args of the model.
 
         Returns
         -------
         ndarray or cuqi.samples.CUQIarray
             The model output. Always returned as parameters.
         """
+
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs)
+
+        # Check kwargs matches non_default_args
+        if set(list(kwargs.keys())) != set(self._non_default_args):
+            raise ValueError(f"The model input is specified by a keywords arguments {kwargs.keys()} that does not match the non_default_args of the model {self._non_default_args}.")
+
+        # For now only support one input
+        if len(kwargs) > 1:
+            raise ValueError("The model input is specified by more than one argument. This is not supported.")
+
+        # Get input matching the non_default_args
+        x = kwargs[self._non_default_args[0]]
+
         # If input is a distribution, we simply change the parameter name of model to match the distribution name
         if isinstance(x, cuqi.distribution.Distribution):
             if x.dim != self.domain_dim:
@@ -220,8 +254,8 @@ class Model(object):
                                 self.domain_geometry,
                                 x, is_par)
 
-    def __call__(self,x):
-        return self.forward(x)
+    def __call__(self, *args, **kwargs):
+        return self.forward(*args, **kwargs)
 
     def gradient(self, direction, wrt, is_direction_par=True, is_wrt_par=True):
         """ Gradient of the forward operator.
@@ -476,6 +510,8 @@ class PDEModel(Model):
         super().__init__(self._forward_func, range_geometry, domain_geometry)
 
         self.pde = PDE
+        if hasattr(self.pde, "gradient_wrt_parameter"):
+            self._gradient_func = self.pde.gradient_wrt_parameter
 
     def _forward_func(self,x):
         

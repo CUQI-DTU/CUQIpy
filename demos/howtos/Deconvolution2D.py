@@ -33,36 +33,7 @@ from cuqi.problem import BayesianProblem
 A, y_obs, info = Deconvolution2D.get_components()
 
 # %%
-# Step 2: Likelihood model
-# ------------------------
-#
-# Suppose our data is corrupted by a Gaussian noise so our observational model is
-#
-# .. math::
-#
-#   \mathbf{y}\mid \mathbf{x} \sim \mathcal{N}(\mathbf{A} \mathbf{x}, \sigma^2),
-#
-# where :math:`\sigma^2` is a noise variance that we know.
-#
-# We can represent :math:`\mathbf{y}\mid \mathbf{x}` as a :class:`cuqi.distribution.Distribution` object.
-# We call the distribution of :math:`\mathbf{y}\mid \mathbf{x}` the data distribution.
-
-data_dist = Gaussian(mean=A, cov=0.01)
-
-# %%
-# In actuality we are interested in conditioning the distribution on the observed data :math:`\mathbf{y}^\mathrm{obs}`.
-# Mathematically, this produces a likelihood function defined as
-#
-# .. math::
-#
-#   \mathcal{L}(\mathbf{x}|\mathbf{y}^\mathrm{obs}) := p(\mathbf{y}^\mathrm{obs}|\mathbf{x}).
-#
-# This is easily done using the :meth:`cuqi.distribution.Distribution.to_likelihood` method.
-
-likelihood = data_dist.to_likelihood(y_obs)
-
-# %%
-# Step 3: Prior model
+# Step 2: Prior model
 # -------------------
 #
 # Now we aim to represent our prior knowledge of the unknown image. In this case, let us assume
@@ -80,17 +51,48 @@ likelihood = data_dist.to_likelihood(y_obs)
 # This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.Laplace_diff`.
 # Notice we have to specify the physical dimensions of the unknown.
 
-prior = Laplace_diff(location=np.zeros(A.domain_dim), scale=0.1, physical_dim=2)
+x = Laplace_diff(location=np.zeros(A.domain_dim), scale=0.1, physical_dim=2)
+
+# %%
+# Step 3: Likelihood model
+# ------------------------
+#
+# Suppose our data is corrupted by a Gaussian noise so our observational model is
+#
+# .. math::
+#
+#   \mathbf{y}\mid \mathbf{x} \sim \mathcal{N}(\mathbf{A} \mathbf{x}, \sigma^2),
+#
+# where :math:`\sigma^2` is a noise variance that we know.
+#
+# We can represent :math:`\mathbf{y}\mid \mathbf{x}` as a :class:`cuqi.distribution.Distribution` object.
+# We often call the distribution of :math:`\mathbf{y}\mid \mathbf{x}` the data distribution.
+
+y = Gaussian(mean=A@x, cov=0.01)
 
 # %%
 # Step 4: Posterior sampling
 # --------------------------
+# In actuality we are interested in conditioning on the observed data :math:`\mathbf{y}^\mathrm{obs}`,
+# to obtain the posterior distribution
 #
-# Given the likelihood and prior we can construct a :class:`cuqi.problem.BayesianProblem` and
-# sample the posterior. Notice that a well-suited sampler is automatically chosen based on the
-# model, likelihood and prior chosen.
+# .. math::
+#
+#   p(\mathbf{x}|\mathbf{y}^\mathrm{obs}) \propto p(\mathbf{y}^\mathrm{obs}|\mathbf{x})p(\mathbf{x}),
+#
+# and then sampling from this posterior distribution.
+#
+# In CUQIpy, we the easiest way to do this is to use the :class:`cuqi.problem.BayesianProblem` class.
 
-samples = BayesianProblem(likelihood, prior).sample_posterior(200)
+# Create Bayesian problem and set observed data (conditioning)
+BP = BayesianProblem(y, x).set_data(y=y_obs)
+
+# %%
+# After setting the data, we can sample from the posterior using the :meth:`cuqi.problem.BayesianProblem.sample_posterior`
+# method. Notice that a well-suited sampler is automatically chosen based on the model, likelihood and prior chosen.
+
+# Sample posterior
+samples = BP.sample_posterior(200)
 
 # %%
 # Step 5: Posterior analysis

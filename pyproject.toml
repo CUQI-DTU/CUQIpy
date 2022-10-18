@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "versioneer[toml]==0.26"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "CUQIpy"
+description = "Computational Uncertainty Quantification for Inverse problems in Python"
+maintainers = [
+    {name = "Nicolai A. B. Riis", email = "nabr@dtu.dk"},
+    {name = "Jakob S. Jørgensen", email = "jakj@dtu.dk"},
+    {name = "Amal M. Alghamdi", email = "amaal@dtu.dk"}
+]
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+dynamic = ["dependencies", "version"]
+
+[project.urls]
+Source = "https://github.com/CUQI-DTU/CUQIpy"
+Documentation = "https://cuqi-dtu.github.io/CUQIpy/"
+Download = "https://github.com/CUQI-DTU/CUQIpy/releases"
+Tracker = "https://github.com/CUQI-DTU/CUQIpy/issues"
+
+[tool.setuptools.packages.find]
+include = ["cuqi*"]  # package names should match these glob patterns (["*"] by default)
+
+[tool.setuptools.package-data]
+cuqi = ["data/*.npz", "data/*.mat"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440-pre" # This style is compliant with PyPI
+versionfile_source = "cuqi/_version.py"
+versionfile_build = "cuqi/_version.py"
+tag_prefix = "v" # Tag is prefixed with "v" (e.g. v1.0.0)
+parentdir_prefix = "cuqi-"

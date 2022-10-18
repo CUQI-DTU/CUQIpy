@@ -4,49 +4,89 @@ sys.path.append("..")
 import numpy as np
 import cuqi
 from cuqi.model import LinearModel
-from cuqi.distribution import Gaussian, Cauchy_diff
+from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff, Gamma
 from cuqi.problem import BayesianProblem
 
 # %% Minimal example
 
 # Import data and forward matrix
-A      = np.load("data/Deconvolution.npz")["A"]          #Matrix (numpy)
-b      = np.load("data/Deconvolution.npz")["data"]       #Vector (numpy)
-m,n    = A.shape
+Amat   = np.load("data/Deconvolution.npz")["A"]          #Matrix (numpy)
+y_data = np.load("data/Deconvolution.npz")["data"]       #Vector (numpy)
+m,n    = Amat.shape
 
 # Data from square function
-b = cuqi.testproblem.Deconvolution1D(phantom="square").data
+y_data = cuqi.testproblem.Deconvolution1D(phantom="square").data
 x_exact = cuqi.testproblem.Deconvolution1D(phantom="square").exactSolution
 
 # Set up Bayesian model for inverse problem
-model      = LinearModel(A)                           #Model for inverse problem
-prior      = Gaussian(np.zeros(n),0.1)                #Prior distribution
-likelihood = Gaussian(model,0.05**2).to_likelihood(b)    #Likelihood function
-IP         = BayesianProblem(likelihood, prior)        #Bayesian model for inverse problem
-IP.UQ(exact=x_exact)                                  #Perform UQ on inverse problem
+A  = LinearModel(Amat)                          # y = Ax. Model for inverse problem
+x  = Gaussian(np.zeros(n), 0.1)                 # x ~ N(0,0.1)
+y  = Gaussian(A@x, 0.05)                        # y ~ N(Ax,0.05)
+IP = BayesianProblem(y, x).set_data(y=y_data)   # Bayesian problem given observed data
+samples = IP.UQ(exact=x_exact)                  # Run UQ analysis
 
 # %%
 # Wrap into CUQI "testproblem".
-TP = cuqi.testproblem.Deconvolution1D(prior=prior)
+TP = cuqi.testproblem.Deconvolution1D(prior=x, phantom="square")
 TP.UQ()
 
 # %%
 # switch prior
 # Set up Bayesian model for inverse problem
-M  = LinearModel(forward=A)                                          #Model for inverse problem
-P  = Cauchy_diff(location=np.zeros(n),scale=0.05,bc_type='neumann')  #Prior distribution
-L  = Gaussian(mean=M,cov=0.05**2).to_likelihood(data=b)             #Likelihood function
-IP = BayesianProblem(likelihood=L, prior=P)                          #Bayesian model for inverse problem
-IP.UQ(exact=x_exact)                                                 #Perform UQ on inverse problem
+A  = LinearModel(Amat)                                  # y = Ax. Model for inverse problem
+x  = Laplace_diff(np.zeros(n), 0.01, bc_type='zero')    # x ~ Laplace_diff(0,0.01), Zero BC
+y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
+IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
+samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
 
 # %%
-samples = IP.sample_posterior(50000)
-# %%
-samples.plot_ci(95,exact=x_exact)
-# %%
+# switch prior again
 # Set up Bayesian model for inverse problem
-model      = LinearModel(A)                             #Model for inverse problem
-prior      = Cauchy_diff(np.zeros(n),0.05,'neumann')    #Prior distribution
-likelihood = Gaussian(model,0.05**2).to_likelihood(data=b) #Likelihood function
-IP         = BayesianProblem(likelihood,prior)          #Bayesian model for inverse problem
-IP.UQ()                                                 #Perform UQ on inverse problem        
+A  = LinearModel(Amat)                                  # y = Ax. Model for inverse problem
+x  = Cauchy_diff(np.zeros(n), 0.01, bc_type='zero')     # x ~ Cauchy_diff(0,0.01), Zero BC
+y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
+IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
+samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
+
+# %% Hierarchical Bayesian models
+# Set up Bayesian model for inverse problem,
+# now with hyper-parameter on noise precision!
+A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
+l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
+x  = Gaussian(np.zeros(n), 0.1)                          # x ~ N(0, 0.1)
+y  = Gaussian(A@x, lambda l: 1/l)                        # y ~ N(Ax, l^-1)
+IP = BayesianProblem(y, x, l).set_data(y=y_data)         # Bayesian problem given observed data
+samples = IP.UQ(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+
+# %% Hierarchical Bayesian models
+# Set up Bayesian model for inverse problem,
+# now with hyper-parameters on noise precision and prior precision.
+A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
+d  = Gamma(1, 1e-2)                                      # d ~ Gamma(1, 10^-2)
+l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
+x  = Gaussian(np.zeros(n), cov=lambda d: 1/d)            # x ~ N(0, d^-1)
+y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
+IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
+samples = IP.UQ(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+
+# %% Hierarchical Bayesian models (switch prior)
+# Set up Bayesian model for inverse problem with a different prior
+A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
+d  = Gamma(1, 1e-2)                                      # d ~ Gamma(1, 10^-2)
+l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
+x  = Laplace_diff(np.zeros(n), lambda d: 1/d)            # x ~ Laplace_diff(0, d^{-1}), Zero BC
+y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
+IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
+samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+
+# %% Hierarchical Bayesian models (Not implemented choices)
+try:
+    A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
+    d  = Gamma(1, 1e-2)                                      # d ~ Gamma(1, 10^-2)
+    l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
+    x  = Cauchy_diff(np.zeros(n), lambda d: 1/d)             # x ~ Cauchy_diff(0, d^{-1}), Zero BC
+    y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
+    IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
+    samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+except NotImplementedError as e:
+    print(e)

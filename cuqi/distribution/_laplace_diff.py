@@ -6,6 +6,20 @@ from cuqi.distribution import Distribution
 class Laplace_diff(Distribution):
     """Laplace distribution on the difference between neighboring nodes.
 
+    For 1D `(physical_dim=1)`, the Laplace difference distribution assumes that
+
+    .. math::
+
+        x_i-x_{i-1} \sim \mathrm{Laplace}(0, b),
+
+    where :math:`b` is the scale parameter.
+
+    For 2D `(physical_dim=2)` the differences are defined in both horizontal and vertical directions.
+
+    It is possible to define boundary conditions using the `bc_type` parameter.
+
+    The location parameter is a shift of the :math:`\mathbf{x}`.
+
     Parameters
     ----------
     location : scalar or ndarray
@@ -27,16 +41,6 @@ class Laplace_diff(Distribution):
         import cuqi
         import numpy as np
         prior = cuqi.distribution.Laplace_diff(location=np.zeros(128), scale=0.1)
-
-    Notes
-    -----
-    The pdf is given by
-
-    .. math::
-
-        \pi(\mathbf{x}) = \\frac{1}{(2b)^n} \exp \left(- \\frac{\|\mathbf{D}(\mathbf{x}-\mathbf{x}_0) \|_1 }{b} \\right),
-
-    where :math:`\mathbf{x}_0\in \mathbb{R}^n` is the location parameter, :math:`b` is the scale, :math:`\mathbf{D}` is the difference operator.
  
     """
     def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):

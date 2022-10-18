@@ -31,7 +31,7 @@ class Deblur(BayesianProblem):
     noise_std : scalar, default 0.1
         Standard deviation of the noise.
 
-    prior : cuqi.distribution.Distribution, default None
+    prior : cuqi.distribution.Distribution, default Gaussian
         Distribution of the prior.
 
     Attributes
@@ -45,8 +45,8 @@ class Deblur(BayesianProblem):
     likelihood : cuqi.likelihood.Likelihood
         Likelihood function.
 
-    prior : cuqi.distribution.Distribution
-        Distribution of the prior (Default = None)
+    prior : cuqi.distribution.Distribution, Default Gaussian
+        Distribution of the prior
 
     exactSolution : ndarray
         Exact solution (ground truth)
@@ -89,13 +89,17 @@ class Deblur(BayesianProblem):
         # Store forward model
         model = LinearModel(A)
         
-        # Store data_dist
-        data_dist = Gaussian(model, noise_std**2)
+        # Prior
+        if prior is None:
+            prior = Gaussian(np.zeros(dim), 1, name="x")
+
+        # Store data distribution
+        data_dist = Gaussian(model(prior), noise_std**2, name="y")
         
         # Generate inverse-crime free data (still same blur size)
-        data, f_true, g_true = self._generateData(mesh,kernel,blur_size,data_dist)
-        
-        # Create likelihood function
+        data, f_true, g_true = self._generateData(mesh, kernel, blur_size, data_dist)
+
+        # Likelihood
         likelihood = data_dist.to_likelihood(data)
 
         #Initialize deblur as BayesianProblem cuqi problem
@@ -126,14 +130,23 @@ class Deblur(BayesianProblem):
         g_true = g_conv(mesh)[0]
 
         # noisy data
-        data = g_true + data_dist(x=np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
+        data = g_true + data_dist(np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
         return data, f_true, g_true
 
 #=============================================================================
 class Deconvolution1D(BayesianProblem):
     """
-    1D periodic deconvolution test problem
+    
+    Create a 1D periodic deconvolution test problem defined by the inverse problem
+
+    .. math::
+
+        \mathbf{b} = \mathbf{A}\mathbf{x},
+
+    where :math:`\mathbf{b}` is a (noisy) convolved signal,
+    :math:`\mathbf{x}` is a sharp (clean) signal and
+    :math:`\mathbf{A}` is a convolution operator.
 
     Parameters
     ------------
@@ -179,43 +192,8 @@ class Deconvolution1D(BayesianProblem):
     noise_std : scalar
         Standard deviation of the noise
 
-    prior : cuqi.distribution.Distribution
+    prior : cuqi.distribution.Distribution, Default Gaussian
         Distribution of the prior
-
-    Attributes
-    ----------
-    data : ndarray
-        Generated (noisy) data
-
-    model : cuqi.model.Model
-        Deconvolution forward model
-
-    noise : cuqi.distribution.Distribution
-        Distribution of the additive noise
-
-    prior : cuqi.distribution.Distribution
-        Distribution of the prior (Default = None)
-
-    likelihood : cuqi.likelihood.Likelihood
-        Likelihood function. 
-        (automatically computed from noise distribution)
-
-    exactSolution : ndarray
-        Exact solution (ground truth)
-
-    exactData : ndarray
-        Noise free data
-
-    Methods
-    ----------
-    MAP()
-        Compute MAP estimate of posterior.
-        NB: Requires prior to be defined.
-
-    Sample(Ns)
-        Sample Ns samples of the posterior.
-        NB: Requires prior to be defined.
-
 
     """
     def __init__(self,
@@ -247,27 +225,33 @@ class Deconvolution1D(BayesianProblem):
         x_exact = CUQIarray(x_exact, geometry=model.domain_geometry)
 
         # Generate exact data
-        b_exact = model.forward(x_exact)
+        y_exact = model.forward(x_exact)
+
+        # Set up prior
+        if prior is None:
+            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, name="x")
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            data_dist = cuqi.distribution.Gaussian(model, noise_std**2)
+            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, name="y")
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model, sqrtcov=b_exact*noise_std)
+            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, name="y")
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate data
         if data is None:
-            data = data_dist(x=x_exact).sample()
+            data = data_dist(x_exact).sample()
 
-        # Initialize Deconvolution as BayesianProblem problem
+        # Likelihood
         likelihood = data_dist.to_likelihood(data)
+
+        # Set up as Bayesian problem
         super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
-        self.exactData = b_exact
+        self.exactData = y_exact
         self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
 
 def _getCirculantMatrix(dim,kernel,kernel_param):
@@ -419,25 +403,38 @@ class Poisson_1D(BayesianProblem):
     Parameters
     ------------
     dim : int
-        size of the grid for the poisson problem
+        | size of the grid for the poisson problem
 
     endpoint : float
-        Location of end-point of grid.
+        | Location of end-point of grid.
     
     source : lambda function
-        Function for source term.
+        | Function for source term.
 
     field_type : str or cuqi.geometry.Geometry
-        Field type of domain.
+        | Field type of domain. The accepted values are:
+        | a Geometry object.
+        | "KL": a :class:`cuqi.geometry.KLExpansion` geometry object will be created and set as a domain geometry.
+        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` geometry object will be created and set as a domain geometry.
+        | "Step": a :class:`cuqi.geometry.StepExpansion` geometry object will be created and set as a domain geometry.
+        | "CustomKL": a :class:`cuqi.geometry.CustomKL` geometry object will be created and set as a domain geometry.
+        | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as a domain geometry.
 
-    KL_map : lambda function
-        Mapping used to modify field.
+    field_params : dict
+        | A dictionary of key word arguments that the underlying geometry accepts. (Passed to the underlying geometry when field type is `KL`, `KL_Full`, `CustomKL`, `Step`). For example, for `Step` field type, the dictionary can be `{"n_steps": 3}`.
 
-    KL_imap : lambda function
-        Inverse of KL map.
+    map : lambda function
+        | Mapping used to modify field.
+
+    imap : lambda function
+        | Inverse of KL map.
 
     SNR : int
-        Signal-to-noise ratio
+        | Signal-to-noise ratio
+
+
+    observation_grid_map : lambda function
+        | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[np.where(x>5.0)]`. 
 
     Attributes
     ----------
@@ -470,10 +467,7 @@ class Poisson_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=None, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=200):
-
-        if dim_obs is None:
-            dim_obs = dim-1
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, observation_grid_map=None):
 
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
@@ -491,26 +485,30 @@ class Poisson_1D(BayesianProblem):
         grid_range  = np.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
 
         # PDE form: LHS(x)u=rhs(x)
-        grid_obs = np.linspace(1./(dim_obs), endpoint, dim_obs, endpoint=False)
+        grid_obs = grid_range
+        if observation_grid_map is not None:
+            grid_obs = observation_grid_map(grid_range)
         PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
         PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_sol=grid_range,  grid_obs=grid_obs)
 
         # Set up geometries for model
+        if field_params is None:
+            field_params = {}
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain,field_params)
+            domain_geometry = KLExpansion(grid_domain, **field_params)
         elif field_type=="KL_Full":
-            domain_geometry = KLExpansion_Full(grid_domain,field_params)
+            domain_geometry = KLExpansion_Full(grid_domain, **field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain)
+            domain_geometry = StepExpansion(grid_domain, **field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid_domain,field_params)
+            domain_geometry = CustomKL(grid_domain, **field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
 
-        if KL_map is not None:
-            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
+        if map is not None:
+            domain_geometry = MappedGeometry(domain_geometry, map, imap)
 
         range_geometry = Continuous1D(grid_range)
 
@@ -522,22 +520,23 @@ class Poisson_1D(BayesianProblem):
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
-        b_exact = model.forward(x_exact,is_par=False)
+        y_exact = model.forward(x_exact,is_par=False)
 
         # Add noise to data
-        sigma = np.linalg.norm(b_exact)/SNR
+        sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
-        likelihood = cuqi.distribution.Gaussian(model, sigma2*np.eye(model.range_dim)).to_likelihood(data)
-        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        # Bayesian model
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        y = cuqi.distribution.Gaussian(model, sigma2)
 
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood, prior)
+        super().__init__(y, x, y=data)
 
         # Store exact values
         self.exactSolution = x_exact
-        self.exactData = b_exact
+        self.exactData = y_exact
 
 class Heat_1D(BayesianProblem):
     """
@@ -546,29 +545,42 @@ class Heat_1D(BayesianProblem):
     Parameters
     ------------
     dim : int
-        size of the grid for the heat problem
+        | size of the grid for the heat problem
 
     endpoint : float
-        Location of end-point of grid.
+        | Location of end-point of grid.
     
     max_time : float
-        The last time step.
+        | The last time step.
     
-    source : lambda function
-        Function for source term.
-
     field_type : str or cuqi.geometry.Geometry
-        Field type of domain.
+        | Field type of domain. The accepted values are:
+        | a Geometry object.
+        | "KL": a :class:`cuqi.geometry.KLExpansion` geometry object will be created and set as a domain geometry.
+        | "KL_Full": a :class:`cuqi.geometry.KLExpansion_Full` geometry object will be created and set as a domain geometry.
+        | "Step": a :class:`cuqi.geometry.StepExpansion` geometry object will be created and set as a domain geometry.
+        | "CustomKL": a :class:`cuqi.geometry.CustomKL` geometry object will be created and set as a domain geometry.
+        | None: a :class:`cuqi.geometry.Continuous1D` geometry object will be created and set as a domain geometry.
 
-    KL_map : lambda function
-        Mapping used to modify field.
+    field_params : dict
+        | A dictionary of key word arguments that the underlying geometry accepts. (Passed to the underlying geometry when field type is `KL`, `KL_Full`, `CustomKL`, `Step`). For example, for `Step` field type, the dictionary can be `{"n_steps": 3}`.
 
-    KL_imap : lambda function
-        Inverse of KL map.
+    map : lambda function
+        | If given, an underlying `MappedGeometry` geometry object is created which applies the mapping on the field, e.g. for log parameterization: `map = lambda x:np.exp(x)`.
+
+    imap : lambda function
+        | The inverse of the provided map. 
 
     SNR : int
-        Signal-to-noise ratio
+        | Signal-to-noise ratio
 
+    exactSolution : ndarray or CUQIarray
+        | The exact solution of the problem which is the heat model initial condition in this test problem. If provided as None, an exact solution is generated, if provided as ndarray, it is assumed to be function values and it is converted to a CUQIarray.
+
+
+    observation_grid_map : lambda function
+       | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[np.where(x>5.0)]`. 
+ 
     Attributes
     ----------
     data : ndarray
@@ -600,10 +612,8 @@ class Heat_1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, dim_obs=None, endpoint=1, max_time=0.2, field_type=None, field_params=None,KL_map=None, KL_imap=None, SNR=200, exactSolution=None):
+    def __init__(self, dim=128, endpoint=1, max_time=0.2, field_type=None, field_params=None,map=None, imap=None, SNR=200, exactSolution=None, observation_grid_map=None):
         
-        if dim_obs is None:
-            dim_obs = dim
 
         # Prepare PDE form
         N = dim   # Number of solution nodes
@@ -615,32 +625,36 @@ class Heat_1D(BayesianProblem):
         
         # Grids for model
         grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
-        grid_range  = grid_domain
+        grid_range = np.linspace(dx, endpoint, N, endpoint=False) 
         time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
 
         # PDE form (diff_op, IC, time_steps)
-        grid_obs = np.linspace(dx, endpoint, dim_obs, endpoint=False)
+        grid_obs = grid_range
+        if observation_grid_map is not None:
+            grid_obs = observation_grid_map(grid_obs)
+
         def PDE_form(IC, t): return (Dxx, np.zeros(N), IC)
         PDE = cuqi.pde.TimeDependentLinearPDE(
             PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_obs)
 
         # Set up geometries for model
+        if field_params is None:
+            field_params = {}
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid_domain, field_params)
+            domain_geometry = KLExpansion(grid_domain, **field_params)
         elif field_type=="KL_Full":
-            domain_geometry = KLExpansion_Full(grid_domain,field_params)
+            domain_geometry = KLExpansion_Full(grid_domain, **field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid_domain)
+            domain_geometry = StepExpansion(grid_domain, **field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid_domain, field_params)
+            domain_geometry = CustomKL(grid_domain, **field_params)
         else:
             domain_geometry = Continuous1D(grid_domain)
-        domain_geometry_old = domain_geometry 
-        if KL_map is not None:
-            domain_geometry = MappedGeometry(domain_geometry,KL_map,KL_imap)
-        range_geometry = Continuous1D(grid_range)
+        if map is not None:
+            domain_geometry = MappedGeometry(domain_geometry,map,imap)
+        range_geometry = Continuous1D(grid_obs)
 
         # Prepare model
         model = cuqi.model.PDEModel(PDE,range_geometry,domain_geometry)
@@ -650,28 +664,30 @@ class Heat_1D(BayesianProblem):
         
         else:
             if field_type=="Step":
-                x_exact = CUQIarray(domain_geometry_old.par2fun(np.array([1,2,3])), is_par=False, geometry=domain_geometry)
+                n_steps = domain_geometry.n_steps
+                x_exact = CUQIarray(domain_geometry.par2fun(np.array(range(n_steps))), is_par=False, geometry=domain_geometry)
             else:
                 grid_domain = model.domain_geometry.grid
                 x_exact = grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain)
                 x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
         #x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
         # Generate exact data
-        b_exact = model.forward(x_exact,is_par=False)
+        y_exact = model.forward(x_exact, is_par=False)
         # Add noise to data
-        sigma = np.linalg.norm(b_exact)/SNR
+        sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
-        likelihood = cuqi.distribution.Gaussian(model, sigma2*np.eye(model.range_dim)).to_likelihood(data)
-        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-
+        # Bayesian model
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        y = cuqi.distribution.Gaussian(model(x), sigma2)
+        
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood, prior)
+        super().__init__(y, x, y=data)
 
         # Store exact values
         self.exactSolution = x_exact
-        self.exactData = b_exact
+        self.exactData = y_exact
         self.infoString = f"Noise type: Additive i.i.d. noise with mean zero and signal to noise ratio: {SNR}"
 
 
@@ -747,14 +763,16 @@ class Abel_1D(BayesianProblem):
         grid = np.linspace(0, endpoint, N)
 
         # Geometry
+        if field_params is None:
+            field_params = {}
         if isinstance(field_type,Geometry):
             domain_geometry = field_type
         elif field_type=="KL":
-            domain_geometry = KLExpansion(grid,field_params)
+            domain_geometry = KLExpansion(grid,**field_params)
         elif field_type=="Step":
-            domain_geometry = StepExpansion(grid)
+            domain_geometry = StepExpansion(grid,**field_params)
         elif field_type=="CustomKL":
-            domain_geometry = CustomKL(grid,field_params)
+            domain_geometry = CustomKL(grid,**field_params)
         else:
             domain_geometry = Continuous1D(grid)
 
@@ -772,22 +790,23 @@ class Abel_1D(BayesianProblem):
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
         # Generate exact data
-        b_exact = model.forward(x_exact,is_par=False)
+        y_exact = model.forward(x_exact,is_par=False)
 
         # Add noise to data
-        sigma = np.linalg.norm(b_exact)/SNR
+        sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = b_exact + np.random.normal(0, sigma, b_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape )
 
-        likelihood = cuqi.distribution.Gaussian(model, sigma2*np.eye(model.range_dim)).to_likelihood(data)
-        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-
+        # Bayesian model
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        y = cuqi.distribution.Gaussian(model(x), sigma2)
+        
         # Initialize Deconvolution as BayesianProblem problem
-        super().__init__(likelihood, prior)
+        super().__init__(y, x, y=data)
 
         # Store exact values
         self.exactSolution = x_exact
-        self.exactData = b_exact
+        self.exactData = y_exact
 
 
 class Deconv_1D(BayesianProblem):
@@ -881,27 +900,27 @@ class Deconv_1D(BayesianProblem):
         model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
     
         # Prior
-        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry)
+        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry, name="x")
 
         # Set up exact solution
         x_exact = prior.sample()
 
         # Generate exact data
-        b_exact = model.forward(x_exact)
+        y_exact = model.forward(x_exact)
 
         # Add noise to data
-        sigma = np.linalg.norm(b_exact)/SNR
+        sigma = np.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = b_exact + np.random.normal( 0, sigma, b_exact.shape )
+        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
-        likelihood = cuqi.distribution.Gaussian(model, sigma2*np.eye(model.range_dim)).to_likelihood(data)
+        likelihood = cuqi.distribution.Gaussian(model(prior), sigma2, name="y").to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood, prior)
 
         # Store exact values
         self.exactSolution = x_exact
-        self.exactData = b_exact
+        self.exactData = y_exact
 
 
 #=============================================================================
@@ -918,7 +937,7 @@ class Deconvolution2D(BayesianProblem):
     :math:`\mathbf{x}` is a sharp image and
     :math:`\mathbf{A}` is a convolution operator.
 
-    The convolution operator is defined by specifing a point spread function and
+    The convolution operator is defined by specifying a point spread function and
     boundary conditions and is computed (matrix-free) via scipy.signal.fftconvolve.
     The inputs are padded to fit the boundary conditions.
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.fftconvolve.html.
@@ -1070,34 +1089,40 @@ class Deconvolution2D(BayesianProblem):
                 x_exact2D = cuqi.data.camera(size=dim)
             elif phantom.lower() == "astronaut":
                 x_exact2D = cuqi.data.astronaut(size=dim)
+            else:
+                raise TypeError(f"Unknown phantom: {phantom}.")
         else:
-            raise TypeError("Unknown phantom type.")
+            raise TypeError("Unknown phantom type. Must be ndarray or string.")
 
         x_exact = x_exact2D.flatten()
         x_exact = CUQIarray(x_exact, is_par=True, geometry=domain_geometry)
 
         # Generate exact data (blurred)
-        b_exact = model @ x_exact
+        y_exact = model@x_exact
+
+        # Create prior
+        if prior is None:
+            prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=domain_geometry, name="x")
 
         # Data distribution
         if noise_type.lower() == "gaussian":
-            data_dist = cuqi.distribution.Gaussian(model, noise_std**2, geometry=range_geometry)
+            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, geometry=range_geometry, name="y")
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model, (b_exact*noise_std)**2, geometry=range_geometry)
+            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, geometry=range_geometry, name="y")
         else:
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate noisy data
         data = data_dist(x_exact).sample()
 
-        # Create likelihood
+        # Likelihood
         likelihood = data_dist.to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood, prior)
 
         self.exactSolution = x_exact
-        self.exactData = b_exact
+        self.exactData = y_exact
         self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
         self.Miscellaneous = {"PSF" : P, "BC": BC}
 
@@ -1222,17 +1247,19 @@ class WangCubic(BayesianProblem):
 
         # define prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.array([1, 0]), 1)
+            prior = cuqi.distribution.Gaussian(np.array([1, 0]), 1, name="x")
 
         # data
         if data is None:
             data = 1
 
         # data distribution is Gaussian
-        data_dist = cuqi.distribution.Gaussian(model, noise_std**2)
+        data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, name="y")
 
         # Define Gaussian likelihood
         likelihood = data_dist.to_likelihood(data)
+
+        # Set up Bayesian Problem
         super().__init__(likelihood, prior)
 
         # Store exact values
