@@ -73,9 +73,12 @@ class CUQIarray(np.ndarray):
             vals = self
 
         if isinstance(vals, np.ndarray):
-            return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)
-        else: 
-            return vals  
+            if vals.dtype == np.dtype('O'):
+                return self.reshape(1)[0]
+            else:
+                return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)
+        else:
+            return vals 
 
     @property
     def parameters(self):
