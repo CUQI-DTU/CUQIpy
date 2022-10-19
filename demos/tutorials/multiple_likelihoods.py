@@ -2,7 +2,15 @@
 Setting a Bayesian model with multiple likelihoods 
 ==================================================
 
-In this example we build a PDE-based Bayesian inverse problem where the Bayesian model has multiple likelihood functions (two different likelihood functions in this case, but it can be readily extended to more functions) for the same Bayesian parameter `theta`, which represents the conductivity parameters in a 1D Poisson problem. Each likelihood is associated with a different model set up. The models we use here are obtained from the test problem :class:`cuqi.testproblem.Poisson_1D`. See the class :class:`cuqi.testproblem.Poisson_1D` documentation for more details about the forward model.
+In this example we build a PDE-based Bayesian inverse problem where the Bayesian
+model has multiple likelihood functions (two different likelihood functions in
+this case, but it can be readily extended to more functions) for the same 
+Bayesian parameter `theta`, which represents the conductivity parameters in a
+1D Poisson problem. Each likelihood is associated with a different model set
+up. The models we use here are obtained from the test problem 
+:class:`cuqi.testproblem.Poisson_1D`. See the class
+:class:`cuqi.testproblem.Poisson_1D` documentation for more details about the
+forward model.
 """
 # %% 
 # First we import the python libraries needed.
@@ -18,12 +26,16 @@ from math import ceil
 # -------------------------------------------------
 #
 # We can choose between two cases:
-# Choose `set_up = set_ups[0]` for the case where we have two 1D Poisson models that differ in the observation operator only. And choose `set_up = set_ups[1]` for the case where we have two 1D Poisson models that differ in the source term only. Here we demonstrate the first case, `set_up = set_ups[0]`.
+# Choose `set_up = set_ups[0]` for the case where we have two 1D Poisson models
+# that differ in the observation operator only. And choose `set_up = set_ups[1]`
+# for the case where we have two 1D Poisson models that differ in the source 
+# term only. Here we demonstrate the first case, `set_up = set_ups[0]`.
 
 set_ups = ["multi_observation", "multi_source"]
 set_up = set_ups[0]
 
-assert set_up == "multi_observation" or set_up == "multi_source", "set_up must be either 'multi_observation' or 'multi_source'"
+assert set_up == "multi_observation" or set_up == "multi_source",\
+    "set_up must be either 'multi_observation' or 'multi_source'"
 
 # %%
 # Set up the parameters used in both models
@@ -31,7 +43,8 @@ assert set_up == "multi_observation" or set_up == "multi_source", "set_up must b
 
 dim = 50  # Number of the model grid points
 endpoint = 1  # The model domain is the interval [0, endpoint]
-field_type = "Step"  # The conductivity (or diffusivity) field type. We choose step function parameterization here.
+field_type = "Step"  # The conductivity (or diffusivity) field type.
+                     # We choose step function parameterization here.
 SNR = 400  # Signal-to-noise ratio
 n_steps = 2  # Number of steps in the conductivity (or diffusivity) step field
 magnitude = 100 # Magnitude of the source term in the Poisson problem
@@ -46,7 +59,10 @@ x_exact[ceil(dim/2):] = 3
 # Set up the first model
 # ----------------------
 #
-# We set up the first forward model to have observations at the first half of the domain (or observation everywhere if `set_up = set_ups[1]`). We then plot the true conductivity field (the exact solution), the exact data and the noisy data.
+# We set up the first forward model to have observations at the first half of 
+# the domain (or observation everywhere if `set_up = set_ups[1]`). We then plot
+# the true conductivity field (the exact solution), the exact data and the noisy
+# data.
 
 observation_grid_map1 = None
 if set_up == "multi_observation":
@@ -78,7 +94,10 @@ plt.legend()
 # Set up the second model
 # -----------------------
 #
-# We set up the second forward model to have observations at the second half of the domain (or observation everywhere and and different source term if `set_up = set_ups[1]`). We then plot the true conductivity field (the exact solution), the exact data and the noisy data.
+# We set up the second forward model to have observations at the second half of
+# the domain (or observation everywhere and and different source term if
+# `set_up = set_ups[1]`). We then plot the true conductivity field (the exact
+# solution), the exact data and the noisy data.
 
 observation_grid_map2 = None
 if set_up == "multi_observation":
@@ -113,7 +132,9 @@ plt.legend()
 # Create the prior
 # ----------------
 #
-# Create the prior for the Bayesian parameter `theta`, which is the expansion coefficients of the conductivity (or diffusivity) step function. We use a Gaussian prior.
+# Create the prior for the Bayesian parameter `theta`, which is the expansion 
+# coefficients of the conductivity (or diffusivity) step function. We use a 
+# Gaussian prior.
 
 theta = cuqi.distribution.GaussianCov(np.zeros(
 	model1.domain_dim), 3*np.ones(model1.domain_dim), geometry=model1.domain_geometry)
@@ -143,6 +164,16 @@ y2 = cuqi.distribution.Gaussian(mean=model2(theta), std=sigma_noise2,
 
 z1 = cuqi.distribution.JointDistribution(theta,y1)(y1=data1)
 
+# %%
+# We print the joint distribution `z1`:
+print(z1)
+
+# %%
+# We see that we obtain a :class:`cuqi.distribution.Posterior` object, which
+# represents the posterior distribution of the parameters `theta` given the data
+# `y1`. The posterior distribution in this case is proportional to the product
+# of the likelihood obtained from the first data distribution and the prior.
+
 # %% 
 # Sample from the posterior
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,6 +197,16 @@ samples.compute_ess()
 
 z2 = cuqi.distribution.JointDistribution(theta,y2)(y2=data2)
 
+# %%
+# We print the joint distribution `z2`:
+print(z2)
+
+# %%
+# We see that we obtain a :class:`cuqi.distribution.Posterior` object, which
+# represents the posterior distribution of the parameters `theta` given the data
+# `y2`. The posterior distribution in this case is proportional to the product
+# of the likelihood obtained from the second data distribution and the prior.
+
 # %% 
 # Sample from the posterior
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -187,7 +228,19 @@ samples.compute_ess()
 # Create the posterior 
 # ~~~~~~~~~~~~~~~~~~~~~
 
-z_joint = cuqi.distribution.JointDistribution(theta,y1,y2)(y1=data1, y2=data2)._as_stacked() # _as_stacked() is needed to stack the random variables but it is a temporary hack that will be not needed in the future.
+z_joint = cuqi.distribution.JointDistribution(theta,y1,y2)(y1=data1, y2=data2)._as_stacked() 
+# Note: _as_stacked() is needed to stack the random variables but it is a
+# temporary hack that will be not needed in the future.
+
+# %%
+# We print the joint distribution `z_joint`:
+print(z_joint)
+
+# %%
+# We see that in this case we obtain a :class:`_StackedJointDistribution` 
+# object, which represents the posterior distribution of the parameters `theta`
+# given the data `y1` and `y2`. The posterior distribution in this case is 
+# proportional to the product of the two likelihoods and the prior.
 
 # %%
 # Sample from the posterior 
@@ -198,11 +251,18 @@ sampler = cuqi.sampler.MetropolisHastings(z_joint)
 samples = sampler.sample_adapt(8000)
 
 # Set the samples geometry
-samples.geometry=theta.geometry # this is will be not needed in the future as samples geometry will be automatically determined.
+# Note: this step is will be not needed in the future as samples geometry will
+# be automatically determined.
+samples.geometry=theta.geometry 
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
 samples.compute_ess()
 
 # %%
-# We notice that combining the two data distributions leads to a more certain estimate of the conductivity (using the same number of MCMC iterations). This is because including the two different data sets in the inversion is more informative than the single data set case. Also, the effective sample size is larger than (or comparable to) what is obtained in any of the single data distribution case.
+# We notice that combining the two data distributions leads to a more certain 
+# estimate of the conductivity (using the same number of MCMC iterations).
+# This is because including the two different data sets in the inversion is more
+# informative than the single data set case. Also, the effective sample size is
+# larger than (or comparable to) what is obtained in any of the single data
+# distribution case.
