@@ -1,11 +1,11 @@
 """
-How to set up multiple likelihoods 
-==================================
+Setting a Bayesian model with multiple likelihoods 
+==================================================
 
-In this example we show how to set up multiple likelihoods for the same Bayesian parameter `x`, where each likelihood is associated with a different model set up. The model we use here is obtained from the test problem :class:`cuqi.testproblem.Poisson_1D`. See the class :class:`cuqi.testproblem.Poisson_1D` documentation for more details about the forward model.
+In this example we build a PDE-based Bayesian inverse problem where the Bayesian model has multiple likelihood functions (two different likelihood functions in this case, but it can be readily extended to more functions) for the same Bayesian parameter `theta`, which represents the conductivity parameters in a 1D Poisson problem. Each likelihood is associated with a different model set up. The models we use here are obtained from the test problem :class:`cuqi.testproblem.Poisson_1D`. See the class :class:`cuqi.testproblem.Poisson_1D` documentation for more details about the forward model.
 """
 # %% 
-# First we import the modules needed.
+# First we import the python libraries needed.
 import sys
 sys.path.append("../../")
 import cuqi
@@ -16,7 +16,9 @@ from math import ceil
 # %%
 # Choose one of the two cases we study in this demo 
 # -------------------------------------------------
-# Choose `set_up = set_ups[0]` for the case where we have two 1D Poisson models that differ in the observation operator only. And choose `set_up = set_ups[1]` for the case where we have two 1D Poisson models that differ in the source term only.
+#
+# We can choose between two cases:
+# Choose `set_up = set_ups[0]` for the case where we have two 1D Poisson models that differ in the observation operator only. And choose `set_up = set_ups[1]` for the case where we have two 1D Poisson models that differ in the source term only. Here we demonstrate the first case, `set_up = set_ups[0]`.
 
 set_ups = ["multi_observation", "multi_source"]
 set_up = set_ups[0]
@@ -29,19 +31,22 @@ assert set_up == "multi_observation" or set_up == "multi_source", "set_up must b
 
 dim = 50  # Number of the model grid points
 endpoint = 1  # The model domain is the interval [0, endpoint]
-field_type = "Step"  # The conductivity (or diffusivity) field type
-SNR = 500  # Signal-to-noise ratio
+field_type = "Step"  # The conductivity (or diffusivity) field type. We choose step function parameterization here.
+SNR = 400  # Signal-to-noise ratio
 n_steps = 2  # Number of steps in the conductivity (or diffusivity) step field
+magnitude = 100 # Magnitude of the source term in the Poisson problem
 
 # Exact solution
 x_exact = np.empty(dim)
-x_exact[:ceil(dim/2)] = 1
+x_exact[:ceil(dim/2)] = 2
 x_exact[ceil(dim/2):] = 3
 
 
 # %%
 # Set up the first model
 # ----------------------
+#
+# We set up the first forward model to have observations at the first half of the domain (or observation everywhere if `set_up = set_ups[1]`). We then plot the true conductivity field (the exact solution), the exact data and the noisy data.
 
 observation_grid_map1 = None
 if set_up == "multi_observation":
@@ -49,7 +54,7 @@ if set_up == "multi_observation":
 	observation_grid_map1 = lambda x: x[np.where(x<.5)] 
 
 # The source term signal
-source1 = lambda xs: 20*np.sin(xs)+20.1
+source1 = lambda xs: magnitude*np.sin(xs*2*np.pi/endpoint)+magnitude
 
 # Obtain the forward model from the test problem
 model1, data1, problemInfo1 = cuqi.testproblem.Poisson_1D.get_components(dim=dim,
@@ -59,6 +64,7 @@ model1, data1, problemInfo1 = cuqi.testproblem.Poisson_1D.get_components(dim=dim
                                                                              'n_steps': n_steps},
                                                                          observation_grid_map=observation_grid_map1,
                                                                          exactSolution=x_exact,
+                                                                         source=source1,
                                                                          SNR=SNR)
 
 # Plot data, exact data and exact solution
@@ -71,6 +77,8 @@ plt.legend()
 # %%
 # Set up the second model
 # -----------------------
+#
+# We set up the second forward model to have observations at the second half of the domain (or observation everywhere and and different source term if `set_up = set_ups[1]`). We then plot the true conductivity field (the exact solution), the exact data and the noisy data.
 
 observation_grid_map2 = None
 if set_up == "multi_observation":
@@ -79,7 +87,7 @@ if set_up == "multi_observation":
 
 # The source term signal
 if set_up == "multi_source":
-	source2 = lambda xs: 20*np.sin(2*xs)+20.1
+	source2 = lambda xs: magnitude*np.sin(2*xs*2*np.pi/endpoint)+magnitude
 else:
 	source2 = source1
 
@@ -91,6 +99,7 @@ model2, data2, problemInfo2 = cuqi.testproblem.Poisson_1D.get_components(dim=dim
                                                                              'n_steps': n_steps},
                                                                          observation_grid_map=observation_grid_map2,
                                                                          exactSolution=x_exact,
+                                                                         source=source2,
                                                                          SNR=SNR)
 
 # Plot data, exact data and exact solution
@@ -103,78 +112,97 @@ plt.legend()
 # %%
 # Create the prior
 # ----------------
-# Create the prior for the Bayesian parameter `x`, which is the conductivity (or diffusivity) of the medium. We use a Gaussian prior.
+#
+# Create the prior for the Bayesian parameter `theta`, which is the expansion coefficients of the conductivity (or diffusivity) step function. We use a Gaussian prior.
 
-x = cuqi.distribution.GaussianCov(np.zeros(
+theta = cuqi.distribution.GaussianCov(np.zeros(
 	model1.domain_dim), 3*np.ones(model1.domain_dim), geometry=model1.domain_geometry)
 
 # %%
-# Create the likelihoods
-# ----------------------
+# Create the data distributions using the two forward models
+# ----------------------------------------------------------
 
 # Estimate the data noise standard deviation
 sigma_noise1 = np.linalg.norm(problemInfo1.exactData)/SNR
 sigma_noise2 = np.linalg.norm(problemInfo2.exactData)/SNR
 
 # Create the data distributions
-y1 = cuqi.distribution.Gaussian(mean=model1, std=sigma_noise1,
+y1 = cuqi.distribution.Gaussian(mean=model1(theta), std=sigma_noise1,
                                 corrmat=np.eye(model1.range_dim), geometry=model1.range_geometry)
-y2 = cuqi.distribution.Gaussian(mean=model2, std=sigma_noise2,
+y2 = cuqi.distribution.Gaussian(mean=model2(theta), std=sigma_noise2,
                                 corrmat=np.eye(model2.range_dim), geometry=model2.range_geometry)
 
 # %%
-# Create the posterior (multiple likelihoods)
-# -------------------------------------------
+# Formulate the Bayesian inverse problem using the first data distribution (single likelihood)
+# ----------------------------------------------------------------------------------------------------------
+# We first formulate the Bayesian inverse problem using the first data distribution and analyze the posterior samples.
 
-z_joint = cuqi.distribution.JointDistribution(x,y1,y2)(y1=data1, y2=data2)._as_stacked() # _as_stacked() is needed to stack the random variables but it is a temporary hack that will be not needed in the future.
+# %% 
+# Create the posterior 
+# ~~~~~~~~~~~~~~~~~~~~
 
-# %%
-# Sample from the posterior (multiple likelihoods)
-# ------------------------------------------------
+z1 = cuqi.distribution.JointDistribution(theta,y1)(y1=data1)
 
+# %% 
 # Sample from the posterior
-sampler = cuqi.sampler.MetropolisHastings(z_joint)
-samples = sampler.sample_adapt(5000)
-
-# Set the samples geometry
-samples.geometry=x.geometry # this is will be not needed in the future as samples geometry will be automatically determined.
-
-# Plot the credible interval and compute the ESS
-samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
-samples.compute_ess()
-
-# %% 
-# Create the posterior (single likelihoods, first model)
-# ------------------------------------------------------
-
-z1 = cuqi.distribution.JointDistribution(x,y1)(y1=data1)
-
-# %% 
-# Sample from the posterior (single likelihoods, first model)
-# -----------------------------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
 sampler = cuqi.sampler.MetropolisHastings(z1)
-samples = sampler.sample_adapt(5000)
+samples = sampler.sample_adapt(8000)
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
 samples.compute_ess()
 
-# %% 
-# Create the posterior (single likelihoods, second model)
-# -------------------------------------------------------
+# %%
+# Formulate the Bayesian inverse problem using the second data distribution (single likelihood)
+# ------------------------------------------------------------------------------------------------------------
+# We then formulate the Bayesian inverse problem using the second data distribution and analyze the posterior samples.
 
-z2 = cuqi.distribution.JointDistribution(x,y2)(y2=data2)
+# %% 
+# Create the posterior 
+# ~~~~~~~~~~~~~~~~~~~~
+
+z2 = cuqi.distribution.JointDistribution(theta,y2)(y2=data2)
 
 # %% 
-# Sample from the posterior (single likelihoods, second model)
-# ------------------------------------------------------------
+# Sample from the posterior
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
 sampler = cuqi.sampler.MetropolisHastings(z2)
-samples = sampler.sample_adapt(5000)
+samples = sampler.sample_adapt(8000)
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
 samples.compute_ess()
+
+# %%
+# Formulate the Bayesian inverse problem using both data distributions (multiple likelihoods)
+# -------------------------------------------------------------------------------------------
+# We then formulate the Bayesian inverse problem using both data distributions and analyze the posterior samples.
+
+# %%
+# Create the posterior 
+# ~~~~~~~~~~~~~~~~~~~~~
+
+z_joint = cuqi.distribution.JointDistribution(theta,y1,y2)(y1=data1, y2=data2)._as_stacked() # _as_stacked() is needed to stack the random variables but it is a temporary hack that will be not needed in the future.
+
+# %%
+# Sample from the posterior 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# Sample from the posterior
+sampler = cuqi.sampler.MetropolisHastings(z_joint)
+samples = sampler.sample_adapt(8000)
+
+# Set the samples geometry
+samples.geometry=theta.geometry # this is will be not needed in the future as samples geometry will be automatically determined.
+
+# Plot the credible interval and compute the ESS
+samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
+samples.compute_ess()
+
+# %%
+# We notice that combining the two data distributions leads to a more certain estimate of the conductivity (using the same number of MCMC iterations). This is because including the two different data sets in the inversion is more informative than the single data set case. Also, the effective sample size is larger than (or comparable to) what is obtained in any of the single data distribution case.
