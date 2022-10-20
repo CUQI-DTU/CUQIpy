@@ -31,7 +31,7 @@ class Gaussian(Distribution):
     Depending on the specific Gaussian distribution, it is useful to have the option of defining the Gaussian through one of the options mentioned above.
     However, internally the class will always convert the given matrices to the square root of the precision matrix for efficiency.
 
-    In the multivariate case where the Gaussian has correlation between values, i is best for computational efficiency to define the
+    In the multivariate case where the Gaussian has correlation between values, it is best for computational efficiency to define the
     Gaussian via the square root of the precision matrix.
 
     Parameters
