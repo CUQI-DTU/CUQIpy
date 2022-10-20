@@ -26,13 +26,21 @@ class Gaussian(Distribution):
     """
     General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian.
 
-    Can be defined by a mean and one of the following: covariance, precision, square root of covariance, or square root of precision matrices.
+    The Gaussian is defined via the probability density function
 
-    Depending on the specific Gaussian distribution, it is useful to have the option of defining the Gaussian through one of the options mentioned above.
-    However, internally the class will always convert the given matrices to the square root of the precision matrix for efficiency.
+    .. math::
 
-    In the multivariate case where the Gaussian has correlation between values, it is best for computational efficiency to define the
-    Gaussian via the square root of the precision matrix.
+        p(x) = \\frac{1}{(2\\pi)^{\\frac{d}{2}}|\\Sigma|^{\\frac{1}{2}}} \\exp\\left(-\\frac{1}{2}(x-\\mu)^{\\top}\\Sigma^{-1}(x-\\mu)\\right)
+
+    where :math:`\\mu` is the mean, :math:`\\Sigma` is the covariance matrix, and :math:`d` is the dimension of the Gaussian.
+
+    Depending on the specific Gaussian distribution, it is useful to have the option of defining the Gaussian by a mean and one of the following:
+    covariance, precision, square root of covariance, or square root of precision matrices. The relationship between these matrices is described in
+    the parameters section below.
+
+    Internally the class will always convert the given matrices to the square root of the precision matrix for efficiency. It is therefore best for
+    computational efficiency to define the Gaussian via the square root of the precision matrix in the multivariate case. For the i.i.d. case the
+    overhead of computing the square root of the precision matrix is negligible.
 
     Parameters
     ----------
@@ -43,7 +51,8 @@ class Gaussian(Distribution):
         Covariance matrix of Gaussian. If a scalar or 1d-array, the value defines the diagonal entries of the covariance matrix.
 
     prec : scalar, 1d-array or 2d-array (sparse matrix is supported)
-        Precision matrix of Gaussian. If a scalar or 1d-array, the value defines the diagonal entries of the precision matrix.
+        Precision matrix of Gaussian defined as the inverse of the covariance.
+        If a scalar or 1d-array, the value defines the diagonal entries of the precision matrix.
 
     sqrtcov : scalar, 1d-array or 2d-array (sparse matrix is supported)
         Square root of covariance matrix of Gaussian. Defined as matrix R, where R.T@R = cov.
