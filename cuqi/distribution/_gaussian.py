@@ -14,7 +14,7 @@ from cuqi.distribution import Distribution
 
 # We potentially allow the use of sksparse.cholmod for sparse Cholesky
 # if it is installed. If not, we use our own sparse Cholesky.
-# TODO: add full support for sparse covariance matrices without cholmod library (missing efficient logdet computation)
+# TODO #129: add full support for sparse covariance matrices without cholmod library (missing efficient logdet computation)
 try:
     import sksparse.cholmod as skchol
     has_cholmod = True
@@ -353,7 +353,7 @@ def get_sqrtprec_from_cov(dim, cov, sparse_flag):
             else:
                 prec = spa.linalg.inv(cov)
                 sqrtprec = sparse_cholesky(prec)
-                logdet = None # np.log(nplinalg.det(cov.todense())) TODO.
+                logdet = None # np.log(nplinalg.det(cov.todense()))
                 rank = spa.csgraph.structural_rank(cov)                        
         else:
             if not np.allclose(cov, cov.T):
@@ -569,7 +569,7 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
             sqrtprec = np.diag(sqrtprec)
 
     # sqrtprec diagonal
-    elif np.count_nonzero(sqrtprec-np.diag(sqrtprec.diagonal())) == 0: #TODO. Check if sqrtprec has diagonal() method.
+    elif np.count_nonzero(sqrtprec-np.diag(sqrtprec.diagonal())) == 0:
         stdinv = sqrtprec.diagonal()
         precision = stdinv**2
         logdet = np.sum(-np.log(precision))
