@@ -334,6 +334,17 @@ def get_sqrtprec_from_cov(dim, cov, sparse_flag):
     """ Compute square root of precision matrix from covariance matrix.
     
     Also computes log determinant and rank of covariance matrix.
+
+    Parameters
+    ----------
+    dim : int
+        Dimension of the covariance matrix.
+    
+    cov : 1-d or 2-d ndarray or sparse matrix
+        Covariance matrix. If 1-dimensional, then assumed to be a diagonal covariance matrix.
+
+    sparse_flag: bool
+        Whether to store matrices as Dense or Sparse
     
     """
     # cov is scalar
@@ -416,6 +427,17 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
     """ Compute square root of precision matrix from precision matrix.
     
     Also computes log determinant and rank of precision matrix.
+
+    Parameters
+    ----------
+    dim : int
+        Dimension of the precision matrix.
+    
+    prec : 1-d or 2-d ndarray or sparse matrix
+        Precision matrix. If 1-dimensional, then assumed to be a diagonal matrix.
+
+    sparse_flag: bool
+        Whether to store matrices as Dense or Sparse
     
     """
     # prec is scalar
@@ -494,6 +516,17 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
     """ Compute square root of precision matrix from square root of covariance matrix.
     
     Also computes log determinant and rank of precision matrix.
+
+    Parameters
+    ----------
+    dim : int
+        Dimension of the square root of the covariance matrix.
+    
+    sqrtcov : 1-d or 2-d ndarray or sparse matrix
+        Square root of covariance matrix. If 1-dimensional, then assumed to be a diagonal matrix.
+
+    sparse_flag: bool
+        Whether to store matrices as Dense or Sparse
     
     """
     # sqrtcov is scalar
@@ -578,6 +611,19 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
 
 def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
     """ This computes the log determinant and rank of the precision matrix from the square root of the precision matrix.
+
+    Stores the square root of the precision as a matrix.
+
+    Parameters
+    ----------
+    dim : int
+        Dimension of the sqrtprec matrix.
+    
+    sqrtprec : 1-d or 2-d ndarray or sparse matrix
+        Square root of precision matrix. If 1-dimensional, then assumed to be a diagonal matrix.
+
+    sparse_flag: bool
+        Whether to store matrices as Dense or Sparse
     """    
 
     # sqrtprec is scalar
