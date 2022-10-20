@@ -35,13 +35,24 @@ class Gaussian(Distribution):
     Gaussian via the square root of the precision matrix.
 
     Parameters
-    ------------
-    mean: Mean of distribution. Can be a scalar or 1D numpy array.
-    cov: Covariance of the distribution. 
-    prec: Precision of the distribution. This is the inverse of the covariance.
-    sqrtcov: A matrix R, where R.T@R = CovarianceMatrix of the distribution.
-    sqrtprec: A matrix R, where R.T@R = PrecisionMatrix of the distribution.
-    (cov, prec, sqrtcov and sqrtprec can be a scalar, 1D numpy array (assumes diagonal matrix), or 2D sparse or numpy arrays).
+    ----------
+    mean : scalar or 1d-array
+        Mean vector of Gaussian. If a scalar value, all entries in the mean vector are set to that scalar.
+
+    cov : scalar, 1d-array or 2d-array (sparse matrix is supported)
+        Covariance matrix of Gaussian. If a scalar or 1d-array, the value defines the diagonal entries of the covariance matrix.
+
+    prec : scalar, 1d-array or 2d-array (sparse matrix is supported)
+        Precision matrix of Gaussian. If a scalar or 1d-array, the value defines the diagonal entries of the precision matrix.
+
+    sqrtcov : scalar, 1d-array or 2d-array (sparse matrix is supported)
+        Square root of covariance matrix of Gaussian. Defined as matrix R, where R.T@R = cov.
+        If a scalar or 1d-array the value is assumed to be the standard deviation of each component of the Gaussian.
+
+    sqrtprec : scalar or 1d-array or 2d-array (sparse matrix is supported)
+        Square root of precision matrix of Gaussian. Defined as matrix R, where R.T@R = prec.
+        If a scalar or 1d-array the value is assumed to be the inverse standard deviation of each component of the Gaussian.
+    
     
     Example
     -----------
@@ -50,6 +61,26 @@ class Gaussian(Distribution):
         # Generate an i.i.d. n-dim Gaussian with zero mean and 2 variance.
         n = 4
         x = cuqi.distribution.Gaussian(mean=np.zeros(n), cov=2)
+
+    .. code-block:: python
+
+        # Generate an 2-dim Gaussian with zero mean and standard deviations [2, 10].
+        x = cuqi.distribution.Gaussian(mean=0, sqrtcov=np.array([2, 10]))
+
+    .. code-block:: python
+
+        # Generate an n-dim Gaussian from given scipy.sparse precision matrix.
+        n = 5
+        prec = scipy.sparse.diags([-1, 2, -1], [-1, 0, 1], shape=(n, n))
+        x = cuqi.distribution.Gaussian(mean=0, prec=prec)
+
+    .. code-block:: python
+
+        # Generate an n-dim Gaussian from given scipy.sparse square root of precision matrix.
+        n = 5
+        sqrtprec = scipy.sparse.diags([1, -1], [0, 1], shape=(n, n))
+        x = cuqi.distribution.Gaussian(mean=0, sqrtprec=sqrtprec)
+    
     """
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, is_symmetric=True, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs)
