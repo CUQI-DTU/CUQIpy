@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, Gamma
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, Laplace_diff, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, Gamma
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
