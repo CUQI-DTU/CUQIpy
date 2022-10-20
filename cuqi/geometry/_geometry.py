@@ -650,17 +650,31 @@ class KLExpansion(Continuous1D):
 
     normalizer : float, default 1.0
         A factor of the basis functions shown in the formula above.
+
+    num_modes : int, default None
+        Number of expansion modes to use in the KL expansion. If None, all modes
+        will be used.
+
     """
     
     # init function defining parameters for the KL expansion
-    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, axis_labels=None, **kwargs):
+    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, num_modes=None, axis_labels=None, **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
 
         self._decay_rate = decay_rate  # decay rate of KL
         self._normalizer = normalizer  # normalizer factor
+        if num_modes is None:
+            num_modes = len(grid)
+        self._num_modes = num_modes
         eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
         self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+ 
+    @property
+    def par_shape(self):
+        """The shape of the parameter space"""
+        if self.grid is None: return None
+        return (self.num_modes, )
 
     @property
     def decay_rate(self):
@@ -674,9 +688,21 @@ class KLExpansion(Continuous1D):
     def coefs(self):
         return self._coefs
 
+    @property
+    def num_modes(self):
+        return self._num_modes
+
     # computes the real function out of expansion coefs
     def par2fun(self,p):
+        # Check that the input is of the correct shape
+        if len(p) != self.par_dim:
+            raise ValueError("Input array p must have length {}".format(self.par_dim))
+
         modes = p*self.coefs/self.normalizer
+
+        # pad the remaining modes with zeros
+        modes = np.pad(modes, (0, len(self.grid)-self.par_dim), 'constant', constant_values=0)
+
         real = idst(modes)/2
         return real
     
