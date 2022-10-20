@@ -244,7 +244,7 @@ class Gaussian(Distribution):
 
         # If dim is too large, we do not support computing the covariance matrix
         if self.dim > config.MAX_DIM_INV:
-            raise NotImplementedError(f"Extracting the full covariance matrix is not implemented for dim > {config.MAX_DIM_INV}.")
+            raise NotImplementedError(f"Extracting the full covariance matrix is not implemented for dim > {config.MAX_DIM_INV}. To modify this edit the option cuqi.config.MAX_DIM_INV to a larger number.")
 
         # First check if covariance is already computed
         if 'cov' in mutable_vars:
