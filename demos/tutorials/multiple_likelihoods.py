@@ -14,8 +14,6 @@ forward model.
 """
 # %% 
 # First we import the python libraries needed.
-import sys
-sys.path.append("../../")
 import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
@@ -73,15 +71,16 @@ if set_up == "multi_observation":
 source1 = lambda xs: magnitude*np.sin(xs*2*np.pi/endpoint)+magnitude
 
 # Obtain the forward model from the test problem
-model1, data1, problemInfo1 = cuqi.testproblem.Poisson_1D.get_components(dim=dim,
-                                                                         endpoint=endpoint,
-                                                                         field_type=field_type,
-                                                                         field_params={
-                                                                             'n_steps': n_steps},
-                                                                         observation_grid_map=observation_grid_map1,
-                                                                         exactSolution=x_exact,
-                                                                         source=source1,
-                                                                         SNR=SNR)
+model1, data1, problemInfo1 = cuqi.testproblem.Poisson_1D.get_components(
+    dim=dim,
+    endpoint=endpoint,
+    field_type=field_type,
+    field_params={"n_steps": n_steps},
+    observation_grid_map=observation_grid_map1,
+    exactSolution=x_exact,
+    source=source1,
+    SNR=SNR,
+)
 
 # Plot data, exact data and exact solution
 plt.figure()
@@ -111,15 +110,16 @@ else:
 	source2 = source1
 
 # Obtain the forward model from the test problem
-model2, data2, problemInfo2 = cuqi.testproblem.Poisson_1D.get_components(dim=dim,
-                                                                         endpoint=endpoint,
-                                                                         field_type=field_type,
-                                                                         field_params={
-                                                                             'n_steps': n_steps},
-                                                                         observation_grid_map=observation_grid_map2,
-                                                                         exactSolution=x_exact,
-                                                                         source=source2,
-                                                                         SNR=SNR)
+model2, data2, problemInfo2 = cuqi.testproblem.Poisson_1D.get_components(
+    dim=dim,
+    endpoint=endpoint,
+    field_type=field_type,
+    field_params={"n_steps": n_steps},
+    observation_grid_map=observation_grid_map2,
+    exactSolution=x_exact,
+    source=source2,
+    SNR=SNR,
+)
 
 # Plot data, exact data and exact solution
 plt.figure()
@@ -136,8 +136,12 @@ plt.legend()
 # coefficients of the conductivity (or diffusivity) step function. We use a 
 # Gaussian prior.
 
-theta = cuqi.distribution.GaussianCov(np.zeros(
-	model1.domain_dim), 3*np.ones(model1.domain_dim), geometry=model1.domain_geometry)
+theta = cuqi.distribution.GaussianCov(
+    np.zeros(model1.domain_dim),
+    3 * np.ones(model1.domain_dim),
+    geometry=model1.domain_geometry,
+)
+
 
 # %%
 # Create the data distributions using the two forward models
@@ -148,10 +152,19 @@ sigma_noise1 = np.linalg.norm(problemInfo1.exactData)/SNR
 sigma_noise2 = np.linalg.norm(problemInfo2.exactData)/SNR
 
 # Create the data distributions
-y1 = cuqi.distribution.Gaussian(mean=model1(theta), std=sigma_noise1,
-                                corrmat=np.eye(model1.range_dim), geometry=model1.range_geometry)
-y2 = cuqi.distribution.Gaussian(mean=model2(theta), std=sigma_noise2,
-                                corrmat=np.eye(model2.range_dim), geometry=model2.range_geometry)
+y1 = cuqi.distribution.Gaussian(
+    mean=model1(theta),
+    std=sigma_noise1,
+    corrmat=np.eye(model1.range_dim),
+    geometry=model1.range_geometry,
+)
+y2 = cuqi.distribution.Gaussian(
+    mean=model2(theta),
+    std=sigma_noise2,
+    corrmat=np.eye(model2.range_dim),
+    geometry=model2.range_geometry,
+)
+
 
 # %%
 # Formulate the Bayesian inverse problem using the first data distribution (single likelihood)
