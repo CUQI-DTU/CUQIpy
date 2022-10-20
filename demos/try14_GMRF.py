@@ -43,7 +43,7 @@ if ndim == 2:
     Dt = sps.kron(P, I)
     P = Ds+Dt
 
-prior2 = cuqi.distribution.Gaussian(mean = np.zeros(n), prec = P, geometry=TP.model.domain_geometry)
+prior2 = cuqi.distribution.Gaussian(mean=np.zeros(n), prec=P, geometry=TP.model.domain_geometry)
 
 # Plot samples of prior
 prior2.sample(5).plot()

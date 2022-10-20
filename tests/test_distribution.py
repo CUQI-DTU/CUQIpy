@@ -207,7 +207,7 @@ def _stats(samples):
     (sps.eye(5), 0),
 ])
 def test_Gaussians_vs_GMRF(prec, GMRF_order):
-    """ Tests the various Gaussians given some common precision matricies related to GMRFs
+    """ Tests the various Gaussians given some common precision matrices related to GMRFs
     
     This tests both logpdf, gradient, and sample methods for sparse and dense matricies as input.
     """
