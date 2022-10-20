@@ -393,10 +393,10 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
         logdet = -dim*np.log(precision)
         rank = dim
         if sparse_flag:
-            # cov = (1/precision)*spa.identity(dim, format="csr")
+            # cov = (1/precision)*spa.identity(dim, format="csr") # For computational efficiency we do not compute cov. We leave code for reference.
             sqrtprec = np.sqrt(precision)*spa.identity(dim, format="csr")
         else:
-            # cov = (1/precision)*np.identity(dim)
+            # cov = (1/precision)*np.identity(dim) # For computational efficiency we do not compute cov. We leave code for reference.
             sqrtprec = np.sqrt(precision)*np.identity(dim)
 
     # prec is vector
@@ -404,10 +404,10 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
         logdet = np.sum(-np.log(prec))
         rank = dim
         if sparse_flag:
-            # cov = spa.diags(1/prec, format="csr")
+            # cov = spa.diags(1/prec, format="csr") # For computational efficiency we do not compute cov. We leave code for reference.
             sqrtprec = spa.diags(np.sqrt(prec), format="csr")
         else:
-            # cov = np.diag(1/cov)
+            # cov = np.diag(1/cov) # For computational efficiency we do not compute cov. We leave code for reference.
             sqrtprec = np.diag(np.sqrt(prec))
 
     # prec diagonal
@@ -416,10 +416,10 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
         logdet = np.sum(-np.log(precision))
         rank = dim
         if sparse_flag:
-            # cov = spa.diags(1/precision, format="csr")
+            # cov = spa.diags(1/precision, format="csr") # For computational efficiency we do not compute cov. We leave code for reference.
             sqrtprec = spa.diags(np.sqrt(precision), format="csr")
         else:
-            # cov = np.diag(1/precision)
+            # cov = np.diag(1/precision) # For computational efficiency we do not compute cov. We leave code for reference.
             sqrtprec = np.diag(np.sqrt(precision))
 
     # prec is full
@@ -428,11 +428,11 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
             if has_cholmod:
                 L_cholmod = skchol.cholesky(prec, ordering_method='natural')
                 sqrtprec = L_cholmod.L().T
-                # cov = L_cholmod.inv()
+                # cov = L_cholmod.inv() # For computational efficiency we do not compute cov. We leave code for reference.
                 logdet = -L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(prec)# or nplinalg.matrix_rank(cov.todense())
             else:
-                # cov = spa.linalg.inv(cov)
+                # cov = spa.linalg.inv(cov) # For computational efficiency we do not compute cov. We leave code for reference.
                 sqrtprec = sparse_cholesky(prec)
                 logdet = None # np.log(nplinalg.det(cov.todense()))
                 rank = spa.csgraph.structural_rank(prec)                    
@@ -455,7 +455,7 @@ def get_sqrtprec_from_prec(dim, prec, sparse_flag):
             else:
                 rank = nplinalg.matrix_rank(prec)
                 logdet = -np.log(nplinalg.det(prec))
-                # cov = nplinalg.inv(prec)
+                # cov = nplinalg.inv(prec) # For computational efficiency we do not compute cov. We leave code for reference.
                 sqrtprec = nplinalg.cholesky(prec).T
     return sqrtprec, logdet, rank
 
@@ -513,7 +513,7 @@ def get_sqrtprec_from_sqrtcov(dim, sqrtcov, sparse_flag):
                 sqrtprec = spa.linalg.inv(sqrtcov) # sparse_cholesky(prec)
                 logdet = L_cholmod.logdet()
                 rank = spa.csgraph.structural_rank(cov)# or nplinalg.matrix_rank(cov.todense())
-                # sqrtcov = L_cholmod.L()
+                # sqrtcov = L_cholmod.L() # For computational efficiency we do not compute sqrtcov. We leave code for reference.
             else:
                 sqrtprec = spa.linalg.inv(sqrtcov)
                 prec = sqrtprec.T@sqrtprec
