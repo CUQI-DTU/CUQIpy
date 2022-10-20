@@ -122,7 +122,7 @@ class Gaussian(Distribution):
     def cov(self):
         """ Covariance of the distribution """
         if not hasattr(self, '_cov') or (self._cov is None and not 'cov' in self._mutable_vars):
-            raise NotImplementedError(f"Covariance is not computed by default for a Gaussian initialized with mutable variables {self.get_mutable_variables()} and dim {self.dim}. Use method compute_cov() to compute it if needed.")
+            raise NotImplementedError(f"Covariance is not computed by default for a Gaussian initialized with {self.get_mutable_variables()} and dim {self.dim}. Use method compute_cov() to compute it if needed.")
         return self._cov
 
     @cov.setter
@@ -146,7 +146,7 @@ class Gaussian(Distribution):
     def prec(self):
         """ Precision of the distribution """
         if not hasattr(self, '_prec'):
-            raise NotImplementedError(f"Precision is not computed by default for a Gaussian initialized with mutable variables {self.get_mutable_variables()} and dim {self.dim}")
+            raise NotImplementedError(f"Precision is not computed by default for a Gaussian initialized with {self.get_mutable_variables()} and dim {self.dim}")
         return self._prec
 
     @prec.setter
@@ -170,7 +170,7 @@ class Gaussian(Distribution):
     def sqrtcov(self):
         """ Square root of the covariance of the distribution. For 1D Gaussian this is the standard deviation. """
         if not hasattr(self, '_sqrtcov'):
-            raise NotImplementedError(f"Square root of covariance is not computed by default for a Gaussian initialized with mutable variables {self.get_mutable_variables()} and dim {self.dim}")
+            raise NotImplementedError(f"Square root of covariance is not computed by default for a Gaussian initialized with {self.get_mutable_variables()} and dim {self.dim}")
         return self._sqrtcov
 
     @sqrtcov.setter
@@ -217,7 +217,7 @@ class Gaussian(Distribution):
     def logdet(self):
         """ Logarithm of the determinant of the covariance of the distribution """
         if not hasattr(self, '_logdet'):
-            raise NotImplementedError(f"Log determinant is not computed by default for a Gaussian initialized with mutable variables {self.get_mutable_variables()} {self.get_mutable_variables()} and dim {self.dim}")
+            raise NotImplementedError(f"Log determinant is not computed by default for a Gaussian initialized with {self.get_mutable_variables()} {self.get_mutable_variables()} and dim {self.dim}")
         return self._logdet
 
     @property
