@@ -68,8 +68,8 @@ class pCN(Sampler):
 
         # Define as UserDefinedDistributions
         model = cuqi.model.Model(lambda x: x, range_geometry=dim, domain_geometry=dim)
-        likelihood = cuqi.distribution.GaussianCov(mean=model, cov=np.ones(dim)).to_likelihood(mu)
-        prior = cuqi.distribution.GaussianCov(mean=np.zeros(dim), cov=1)
+        likelihood = cuqi.distribution.Gaussian(mean=model, cov=np.ones(dim)).to_likelihood(mu)
+        prior = cuqi.distribution.Gaussian(mean=np.zeros(dim), cov=1)
 
         target = cuqi.distribution.Posterior(likelihood, prior)
 
@@ -113,7 +113,7 @@ class pCN(Sampler):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
         
         #TODO:
-        #if not isinstance(self.prior,(cuqi.distribution.Gaussian,cuqi.distribution.GaussianCov, cuqi.distribution.GaussianPrec, cuqi.distribution.GaussianSqrtPrec, cuqi.distribution.Normal)):
+        #if not isinstance(self.prior,(cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
         #    raise ValueError("The prior distribution of the target need to be Gaussian")
 
     @property

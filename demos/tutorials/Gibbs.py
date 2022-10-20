@@ -34,7 +34,7 @@ Gibbs sampling
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import GaussianCov, Gamma, JointDistribution, GMRF, Laplace_diff
+from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, Laplace_diff
 from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UnadjustedLaplaceApproximation, ConjugateApprox
 
 np.random.seed(0)
@@ -100,7 +100,7 @@ plt.title("Observed data")
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
 x = GMRF(np.zeros(n), lambda d: d)
-y = GaussianCov(A, lambda l: 1/l)
+y = Gaussian(A, lambda l: 1/l)
 
 # Combine into a joint distribution
 joint = JointDistribution(d, l, x, y)

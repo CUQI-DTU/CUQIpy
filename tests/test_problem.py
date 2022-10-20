@@ -7,8 +7,8 @@ def test_BayesianProblem_init():
     
     f = lambda x: np.hstack((x+5, x-5))
     A = cuqi.model.Model(f, 10, 5)
-    x = cuqi.distribution.GaussianCov(np.zeros(A.domain_dim), 1)
-    y = cuqi.distribution.GaussianCov(A, 1)
+    x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 1)
+    y = cuqi.distribution.Gaussian(A, 1)
     y_obs = y(x.sample()).sample() # Sample prior, then sample data distribution
 
     # Posterior manually
@@ -33,8 +33,8 @@ def _assert_same_BP_posterior(BP: cuqi.problem.BayesianProblem, P: cuqi.distribu
 def test_BayesianProblem_wrong_names():
     """ Test that wrong names raise errors """
 
-    z = cuqi.distribution.GaussianCov(np.zeros(10), 1) # p(z)
-    y = cuqi.distribution.GaussianCov(lambda x: x, 1)  # p(y|x)
+    z = cuqi.distribution.Gaussian(np.zeros(10), 1) # p(z)
+    y = cuqi.distribution.Gaussian(lambda x: x, 1)  # p(y|x)
 
     with pytest.raises(ValueError, match=r"Missing prior for"):
         cuqi.problem.BayesianProblem(z, y)
@@ -43,8 +43,8 @@ def test_BayesianProblem_hier_errors():
     """ Test that hierarchical Bayes models raise various errors (for now) """
 
     d = cuqi.distribution.Gamma(1, 1)
-    x = cuqi.distribution.GaussianCov(np.zeros(10), lambda d: d)
-    y = cuqi.distribution.GaussianCov(lambda x: x, 1)
+    x = cuqi.distribution.Gaussian(np.zeros(10), lambda d: d)
+    y = cuqi.distribution.Gaussian(lambda x: x, 1)
 
     BP = cuqi.problem.BayesianProblem(y, x, d)
 
@@ -80,8 +80,8 @@ def test_BayesianProblem_hier_errors():
 
 def test_cannot_set_data():
 
-    x = cuqi.distribution.GaussianCov(0, 1)
-    y = cuqi.distribution.GaussianCov(lambda x: x, 1)
+    x = cuqi.distribution.Gaussian(0, 1)
+    y = cuqi.distribution.Gaussian(lambda x: x, 1)
 
     BP = cuqi.problem.BayesianProblem(y, x)
 
@@ -103,8 +103,8 @@ def test_BayesianProblem_geometry_consistency():
 
     f = lambda x: np.hstack((x+5, x-5))
     A = cuqi.model.Model(f, range_geometry, domain_geometry)
-    x = cuqi.distribution.GaussianCov(np.zeros(A.domain_dim), 1)
-    y = cuqi.distribution.GaussianCov(A, 1)
+    x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 1)
+    y = cuqi.distribution.Gaussian(A, 1)
     y_obs = y(x.sample()).sample() # Sample prior, then sample data distribution
 
     # BayesianProblem

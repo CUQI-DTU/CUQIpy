@@ -66,7 +66,7 @@ class MetropolisHastings(ProposalBasedSampler):
         fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
         if value is None:
-            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim),np.ones(self.dim), np.eye(self.dim))
+            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
         elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             raise NotImplementedError(fail_msg)
         elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:

@@ -16,7 +16,7 @@ m,n    = A.shape
 
 #%%  Set up iid Gaussian size 128, without specifying a geometry, default will be used.
 prior      = cuqi.distribution.Gaussian(mean=np.zeros(n), 
-                                        std=0.1)           #Prior distribution
+                                        sqrtcov=0.1)           #Prior distribution
 
 
 #%% Generate 100 samples
@@ -30,7 +30,7 @@ prior_samples.plot_chain([20,80])
 
 #%% Set up a new Gaussian, this time specifying it to be a 2D image geometry
 p2D  = cuqi.distribution.Gaussian(mean=np.zeros(16**2), 
-                                  std=0.1, 
+                                  sqrtcov=0.1, 
                                   geometry=Continuous2D(grid=(16,16)))
 
 #%% Generate 100 samples

@@ -9,7 +9,7 @@ In this example we show how to quantify the uncertainty of a solution to a 2D de
 
 import numpy as np
 from cuqi.testproblem import Deconvolution2D
-from cuqi.distribution import GaussianCov, Laplace_diff
+from cuqi.distribution import Gaussian, Laplace_diff
 from cuqi.problem import BayesianProblem
 # %%
 # Step 1: Deterministic model
@@ -68,7 +68,7 @@ x = Laplace_diff(location=np.zeros(A.domain_dim), scale=0.1, physical_dim=2)
 # We can represent :math:`\mathbf{y}\mid \mathbf{x}` as a :class:`cuqi.distribution.Distribution` object.
 # We often call the distribution of :math:`\mathbf{y}\mid \mathbf{x}` the data distribution.
 
-y = GaussianCov(mean=A@x, cov=0.01)
+y = Gaussian(mean=A@x, cov=0.01)
 
 # %%
 # Step 4: Posterior sampling

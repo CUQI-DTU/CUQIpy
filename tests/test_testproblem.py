@@ -152,7 +152,7 @@ def test_Abel():
 #Deconv 2D tests
 #TODO. Add tests for custom PSF
 @pytest.mark.parametrize("prior",[
-    (cuqi.distribution.GaussianCov(np.zeros(128**2), 1, name="x")),
+    (cuqi.distribution.Gaussian(np.zeros(128**2), 1, name="x")),
     #(cuqi.distribution.Laplace_diff(np.zeros(128**2), 1, "zeros")),
     #(cuqi.distribution.Cauchy_diff(np.zeros(128**2), 1, "zeros")),
 ])

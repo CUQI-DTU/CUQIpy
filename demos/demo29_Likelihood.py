@@ -14,8 +14,8 @@ n = 128
 
 # %% Five line example (likelihood + prior)
 model, data, probInfo = Deconvolution1D.get_components(dim=n, phantom="Square")
-prior = Gaussian(mean=np.zeros(n), std=0.2, name="x")
-likelihood = Gaussian(mean=model, std=0.05, name="y").to_likelihood(data)
+prior = Gaussian(mean=np.zeros(n), sqrtcov=0.2, name="x")
+likelihood = Gaussian(mean=model, sqrtcov=0.05, name="y").to_likelihood(data)
 IP = BayesianProblem(likelihood, prior)
 IP.UQ(exact=probInfo.exactSolution)
 
@@ -47,5 +47,5 @@ cuqi.sampler.pCN(posterior).sample_adapt(50);
 cuqi.sampler.pCN((likelihood,prior)).sample_adapt(50); 
 
 # %% Likelihood with "hyperparameters"
-likelihood = cuqi.distribution.GaussianCov(mean=model, cov=lambda sigma: sigma**2).to_likelihood(data)
+likelihood = cuqi.distribution.Gaussian(mean=model, cov=lambda sigma: sigma**2).to_likelihood(data)
 likelihood

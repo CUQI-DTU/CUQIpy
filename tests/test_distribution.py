@@ -30,7 +30,8 @@ def test_Gaussian_mean():
     mean = np.array([0, 0])
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
-    pX_1 = cuqi.distribution.Gaussian(mean, std, R)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    pX_1 = cuqi.distribution.Gaussian(mean, cov)
     assert np.allclose(pX_1.mean, np.array([0, 0]) ) 
 
 def test_Gaussian_cov():
@@ -39,11 +40,11 @@ def test_Gaussian_cov():
     R = np.array([[1, -0.7], [-0.7, 1]])
     D = np.diag(std)
     S = D @ R @ D
-    pX_1 = cuqi.distribution.Gaussian(mean, std, R)
-    assert np.allclose(pX_1.Sigma, S)
+    pX_1 = cuqi.distribution.Gaussian(mean, S)
+    assert np.allclose(pX_1.cov, S)
     
 def test_Gaussian_multiple():
-    pX_1 = cuqi.distribution.GaussianCov(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
+    pX_1 = cuqi.distribution.Gaussian(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
     #
     X, Y = np.meshgrid(np.linspace(-4, 4, 200), np.linspace(-4, 4, 200))
     Xf, Yf = X.flatten(), Y.flatten()
@@ -52,34 +53,37 @@ def test_Gaussian_multiple():
     Z = pX_1.pdf(pts)
     assert npoints == Z.shape[0]
 
-@pytest.mark.xfail(reason="Expected to fail after fixing GaussianCov sample. Regression needs to be updated")
+@pytest.mark.xfail(reason="Expected to fail after fixing Gaussian sample. Regression needs to be updated")
 @pytest.mark.parametrize("mean,std,R,expected",[
                         (([0, 0]),
                         ([1, 1]),
-                        ([[ 1. , -0.7],
+                        ([[ 1.0 , -0.7],
                           [-0.7,  1. ]]),
                         ([[ 0.30471644,  0.52294788,  0.3204432 ,  0.82791771,  0.88232622],
                           [-2.52738159,  0.50701152, -1.04189629, -2.16116453, -1.34325028]])),
 
                         (([-3.14159265,  2.23606798]),
                         ([ 3.14159265, 50.        ]),
-                        ([[ 1.   ,  0.001],
-                          [-0.001,  1.   ]]),
+                        ([[ 1.0   ,  -0.001],
+                          [-0.001,  1.0   ]]),
                         ([[  2.40014477,  -1.88427406,  -0.06682814,   3.89835695,  2.72559222],
                           [-46.63338991,  49.73922674,  -5.33487942,  -2.93194249, 22.76010272]])),
 
-                        (([23.        ,  0.        ,  3.14159265]),
-                        ([3.        , 1.41421356, 3.14159265]),
-                        ([[ 1. ,  0.9,  0.3],
-                          [0.9,  1. ,  0.5],
-                          [-0.3, -0.5,  1. ]]),
+                        (([23.        ,  0.0        ,  3.14159265]),
+                        ([3.0        , 1.41421356, 3.14159265]),
+                        ([[ 1.0, 0.9,  0.3],
+                          [0.9,  1. , -0.5],
+                          [0.3, -0.5,  1.0 ]]),
                         ([[23.7305748 , 22.58046919, 23.19981226, 23.43140839, 23.1244483 ],
                           [ 2.83554239,  3.92371224,  3.06634238,  4.00865492,  4.22990048],
                           [ 0.39008306,  4.56363292,  2.81075259, -1.94308617, -0.87372503]]))
                         ])
 def test_Gaussian_sample_regression(mean,std,R,expected):
     rng = np.random.RandomState(0)
-    pX_1 = cuqi.distribution.Gaussian(np.array(mean), np.array(std), np.array(R))
+    std = np.array(std)
+    R = np.array(R)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    pX_1 = cuqi.distribution.Gaussian(np.array(mean), cov)
     samples = pX_1.sample(5,rng=rng).samples
     assert np.allclose( samples, np.array(expected))
 
@@ -95,16 +99,18 @@ def test_Normal_rng(mean,var,seed):
                         ([1, 1]),
                         ([[ 1. , -0.7],
                           [-0.7,  1. ]])),
-
                         (([-3.14159265,  2.23606798]),
                         ([ 3.14159265, 50.        ]),
-                        ([[ 1.   ,  0.001],
+                        ([[ 1.   ,  -0.001],
                           [-0.001,  1.   ]])),
                         ])
 def test_Gaussian_rng(mean,std,R):
     np.random.seed(3)
     rng = np.random.RandomState(3)
-    assert np.allclose(cuqi.distribution.Gaussian(mean,std,R).sample(10).samples,cuqi.distribution.Gaussian(mean,std,R).sample(10,rng=rng).samples)
+    std = np.array(std)
+    R = np.array(R)
+    cov = np.diag(std) @ (R @ np.diag(std))
+    assert np.allclose(cuqi.distribution.Gaussian(mean,cov).sample(10).samples,cuqi.distribution.Gaussian(mean,cov).sample(10,rng=rng).samples)
 
 @pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,1,'zero'),cuqi.distribution.GMRF(np.ones(128),35,1,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,1,'neumann')])
 def test_GMRF_rng(dist):
@@ -148,8 +154,8 @@ def test_Uniform_sample(low, high, expected):
                           'high':np.array([5,7, 7,6])}),
                           (cuqi.distribution.Gaussian, 
                           {'mean':np.array([0, 0, 0, 0]),
-                          'std':np.array([1, 1, 1, 1]),
-                          'corrmat':np.eye(4)})])
+                          'sqrtcov':np.array([1, 1, 1, 1])})
+                          ])
 def test_distribution_contains_geometry(distribution, kwargs):
     rng = np.random.RandomState(3)
     geom = cuqi.geometry.Continuous2D((2,2))
@@ -169,12 +175,12 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (np.zeros(3)), (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
     ( (0),           (5*np.eye(3)),  (np.zeros(3)), (5*np.eye(3)) ),
     ( (0),           (5*sps.eye(3)), (np.zeros(3)), (5*np.eye(3)) ),
-    ( (0), (np.array([[5,3],[-3,2]])),       (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
+    ( (0), (np.array([[5,-3],[-3,2]])),       (np.zeros(2)), (np.array([[5,-3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_GaussianCov(mean,cov,mean_full,cov_full):
+def test_Gaussian_cov(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
-    prior = cuqi.distribution.GaussianCov(mean, cov)
+    prior = cuqi.distribution.Gaussian(mean, cov)
 
     # Compare logpdf with scipy using full vector+matrix rep
     x0 = 1000*np.random.rand(prior.dim)
@@ -201,30 +207,45 @@ def _stats(samples):
     (sps.eye(5), 0),
 ])
 def test_Gaussians_vs_GMRF(prec, GMRF_order):
-    """ Tests the various Gaussians given some common precision matricies related to GMRFs"""
+    """ Tests the various Gaussians given some common precision matrices related to GMRFs
+    
+    This tests both logpdf, gradient, and sample methods for sparse and dense matricies as input.
+    """
 
     # Get dimension of precision matrix
     dim = prec.shape[0]
 
+    # Store normal and sparse version of precision matrix
+    prec_s = prec
+    prec = prec.toarray()
+
     # Compute covariance from precision
-    cov = sp.linalg.inv(prec.toarray()) #TODO: check GaussianCov for sparse cov also. NotImplementedError
+    cov = sp.linalg.inv(prec)
+    cov_s = sps.linalg.inv(prec_s)
+
+    # Compute lower triangular Cholesky decomposition of covariance
+    sqrtcov = sp.linalg.cholesky(cov, lower=True)
+    sqrtcov_s = sp.sparse.csr_matrix(sqrtcov)  
 
     # Compute upper triangular cholesky decomposition of precision
-    sqrtprec = sp.linalg.cholesky(prec.toarray())
+    sqrtprec = sp.linalg.cholesky(prec)
+    sqrtprec_s = sp.sparse.csr_matrix(sqrtprec)    
 
     # Define Gaussians from all combinations
-    X_prec = cuqi.distribution.GaussianPrec(np.zeros(dim), prec)
-    X_cov = cuqi.distribution.GaussianCov(np.zeros(dim), cov)
-    X_sqrtprec = cuqi.distribution.GaussianSqrtPrec(np.zeros(dim), sqrtprec)
+    X_prec = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec)
+    X_cov = cuqi.distribution.Gaussian(np.zeros(dim), cov)
+    X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec)
+    X_sqrtcov = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov)
     X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
 
-    # logpdfs
+    # logpdfs for full matrix
     x0 = np.random.randn(dim)
     assert np.allclose(X_cov.logpdf(x0), X_GMRF.logpdf(x0))
-    assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0)) #TODO: Returns complex number
+    assert np.allclose(X_cov.logpdf(x0), X_sqrtprec.logpdf(x0))
     assert np.allclose(X_cov.logpdf(x0), X_prec.logpdf(x0))
+    assert np.allclose(X_cov.logpdf(x0), X_sqrtcov.logpdf(x0))
 
-    # gradients
+    # gradients for full matrix
     assert np.allclose(X_cov.gradient(x0), X_GMRF.gradient(x0))
     #assert np.allclose(X_cov.gradient(x0), X_sqrtprec.gradient(x0)) #TODO: NotImplementedError
     assert np.allclose(X_cov.gradient(x0), X_prec.gradient(x0))
@@ -235,6 +256,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     s_GMRF = _stats(X_GMRF.sample(Ns).samples)
     s_sqrtprec = _stats(X_sqrtprec.sample(Ns).samples)
     s_prec = _stats(X_prec.sample(Ns).samples)
+    s_sqrtcov = _stats(X_sqrtcov.sample(Ns).samples)
 
     # We round to one decimal and allow 10% error in sample statistics.
     # TODO. Better comparrison here..
@@ -245,9 +267,39 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     assert np.allclose(np.round(s_cov, 1), np.round(s_GMRF, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_prec, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtcov, 1) , rtol=0.1)
 
+    # Now compare sparse versions
+    # Check un-normalized logpdfs for sparse precision and covariance
+    X_prec_s = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec_s)
+    X_cov_s = cuqi.distribution.Gaussian(np.zeros(dim), cov=cov_s)
+    X_sqrtprec_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec_s)
+    X_sqrtcov_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov_s)
+
+    assert np.allclose(X_cov._logupdf(x0), X_cov_s._logupdf(x0))
+    assert np.allclose(X_cov._logupdf(x0), X_prec_s._logupdf(x0))
+    assert np.allclose(X_cov._logupdf(x0), X_sqrtprec_s._logupdf(x0))
+    assert np.allclose(X_cov._logupdf(x0), X_sqrtcov_s._logupdf(x0))
+
+    # Check gradients for sparse precision and covariance
+    assert np.allclose(X_cov.gradient(x0), X_cov_s.gradient(x0))
+    assert np.allclose(X_cov.gradient(x0), X_prec_s.gradient(x0))
+    #assert np.allclose(X_cov.gradient(x0), X_sqrtprec_s.gradient(x0)) # TODO: NotImplementedError
+    assert np.allclose(X_cov.gradient(x0), X_sqrtcov_s.gradient(x0))
+
+    # Check samples for sparse precision and covariance
+    s_cov_s = _stats(X_cov_s.sample(Ns).samples)
+    s_prec_s = _stats(X_prec_s.sample(Ns).samples)
+    s_sqrtprec_s = _stats(X_sqrtprec_s.sample(Ns).samples)
+    s_sqrtcov_s = _stats(X_sqrtcov_s.sample(Ns).samples)
+
+    assert np.allclose(np.round(s_cov, 1), np.round(s_cov_s, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_prec_s, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec_s, 1) , rtol=0.1)
+    assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtcov_s, 1) , rtol=0.1)
+    
     #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
-    # %% CUQI test problem
+    # CUQI test problem
     # TP = cuqi.testproblem.Deconvolution1D(dim=n)
     # TP.prior = X_GMRF
     # samples_GMRF = TP._sampleLinearRTO(2000)
@@ -319,7 +371,7 @@ def test_InverseGamma(a, location, scale, x, func):
     else:
         raise ValueError
 
-@pytest.mark.xfail(reason="Expected to fail after fixing GaussianCov sample. Regression needs to be updated")
+@pytest.mark.xfail(reason="Expected to fail after fixing Gaussian sample. Regression needs to be updated")
 def test_lognormal_sample():
     rng = np.random.RandomState(3)
     mean = np.array([0, -4])
@@ -381,12 +433,13 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
     # difference approximation of the gradient.
 
     # ------------------- 1. Create lognormal distribution --------------------
-    LND = cuqi.distribution.Lognormal(mean, std**2*R)
-    
+    Sigma = np.diag(std)@R@np.diag(std) # std**2*R
+    LND = cuqi.distribution.Lognormal(mean, Sigma)
+
     # -------------- 2. Create the finite difference gradient -----------------
     eps = 0.000001
     FD_gradient = np.empty(LND.dim)
-    
+
     for i in range(LND.dim):
         # compute the ith component of the gradient
         eps_vec = np.zeros(LND.dim)
@@ -396,16 +449,19 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
 
     # ---------------- 3. Verify correctness of the gradient ------------------
     assert(np.all(np.isclose(FD_gradient, LND.gradient(val))) or
-           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val))) )
-           )
+           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(LND.gradient(val)))) )
 
 @pytest.mark.parametrize("std, R",[
                         (
                         3,
-                        np.array([[1, .3, 0], [.3, 1, .3], [0, .3, 1]])),
+                        np.array([[1, .3, 0], 
+                                  [.3, 1, .3], 
+                                  [0, .3, 1]])),
                         (
                         12,
-                        np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
+                        np.array([[1, 0, 0], 
+                                  [0, 1, 0], 
+                                  [0, 0, 1]]))
                         ])
 @pytest.mark.parametrize("val",[
                         (np.array([10, 0.1, 3])),
@@ -497,8 +553,8 @@ def test_beta(): #TODO. Make more tests
 
 
 @pytest.mark.parametrize("C",[1, np.ones(5), np.eye(5), sps.eye(5), sps.diags(np.ones(5))])
-def test_GaussianCov_sample(C):
-    x = cuqi.distribution.GaussianCov(np.zeros(5), np.pi*C)
+def test_Gaussian_Cov_sample(C):
+    x = cuqi.distribution.Gaussian(np.zeros(5), np.pi*C)
     rng = np.random.RandomState(0)
     samples = x.sample(rng=rng)
     assert np.allclose(samples, np.array([3.12670137, 0.70926018, 1.73476791, 3.97187978, 3.31016035]))

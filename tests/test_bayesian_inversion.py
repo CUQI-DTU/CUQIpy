@@ -5,15 +5,14 @@ import numpy as np
 import sys
 
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, GaussianCov, GMRF, Cauchy_diff, Laplace_diff, LMRF, Gamma
+from cuqi.distribution import Gaussian, GMRF, Cauchy_diff, Laplace_diff, LMRF, Gamma
 from cuqi.problem import BayesianProblem
 from cuqi.density import Density
 
 #All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
                          [
-                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071), 20),
-                             (Deconvolution1D, "gauss", GaussianCov(np.zeros(128), 0.005), 20),
+                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
                              (Deconvolution1D, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
                              (Deconvolution1D, "square", Laplace_diff(np.zeros(128), 0.005), 100),
@@ -61,7 +60,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "gauss",
             [
-                GaussianCov(np.zeros(128), 0.005, name="x")
+                Gaussian(np.zeros(128), 0.005, name="x")
             ],
             50
         ),
@@ -70,7 +69,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "gauss",
             [
-                GaussianCov(np.zeros(128), 0.005, name="x"),
+                Gaussian(np.zeros(128), 0.005, name="x"),
                 Gamma(1, 1e-4, name="l")
             ],
             50
@@ -80,7 +79,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "gauss",
             [
-                GaussianCov(np.zeros(128), lambda d: 1/d, name="x"),
+                Gaussian(np.zeros(128), lambda d: 1/d, name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],
@@ -111,9 +110,9 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
 
     # data distribution
     if len(priors) == 1: # No hyperparameters
-        data_dist = GaussianCov(A@priors[0], 400, name="y")
+        data_dist = Gaussian(A@priors[0], 400, name="y")
     else:
-        data_dist = GaussianCov(A@priors[0], lambda l: 1/l, name="y")
+        data_dist = Gaussian(A@priors[0], lambda l: 1/l, name="y")
 
     # Bayesian problem
     BP = BayesianProblem(data_dist, *priors).set_data(y=y_data)

@@ -32,14 +32,14 @@ plt.plot(tp.exactSolution,'.-'); plt.title("Exact solution"); plt.show()
 # Plot data
 plt.plot(tp.data,'.-'); plt.title("Noisy data"); plt.show()
 
-#%% Set likelihood to be on GaussianCov form
-likelihood = cuqi.distribution.GaussianCov(mean = tp.model, cov = noise_std**2).to_likelihood(tp.data)
+#%% Set likelihood to be on Gaussian form
+likelihood = cuqi.distribution.Gaussian(mean = tp.model, cov = noise_std**2).to_likelihood(tp.data)
 
 # %% Lets try with the Gaussian prior
 prior_mean = np.zeros(dim)
 prior_std = 0.2
 prior_cov = sps.diags(prior_std**2 * np.ones(dim))
-prior = cuqi.distribution.GaussianCov(mean = prior_mean, cov = prior_cov)
+prior = cuqi.distribution.Gaussian(mean = prior_mean, cov = prior_cov)
 
 # %% sample prior
 prior_samples = prior.sample(3)
@@ -62,7 +62,7 @@ result.plot_ci(95,exact=tp.exactSolution)
 
 # %% Lets try with Gaussian sqrtprec prior, first identical to above
 prior_sqrtprec = sps.diags(1/prior_std*np.ones(dim))
-prior = cuqi.distribution.GaussianSqrtPrec(mean = prior_mean, sqrtprec = prior_sqrtprec)
+prior = cuqi.distribution.Gaussian(mean = prior_mean, sqrtprec = prior_sqrtprec)
 
 # %% sample prior
 prior_samples = prior.sample(5)
@@ -91,7 +91,7 @@ sqrtprec = 20*np.ones(dim)
 sqrtprec[(dimh-w):(dimh+w)] = 2
 prior_sqrtprec = sps.diags(sqrtprec, 0)
 # setup prior
-prior = cuqi.distribution.GaussianSqrtPrec(mean = prior_mean, sqrtprec = prior_sqrtprec)
+prior = cuqi.distribution.Gaussian(mean = prior_mean, sqrtprec = prior_sqrtprec)
 
 # %% sample prior
 prior_samples = prior.sample(5)
@@ -106,7 +106,7 @@ result = sampler.sample(N = Ns, Nb = Nb)
 # plot mean + 95% of samples
 result.plot_ci(95,exact=tp.exactSolution)
 
-# %% GMRF prior defined using GaussianSqrtPrec
+# %% GMRF prior defined using Gaussian
 
 # 1D finite difference matrix with Neumann boundary conditions
 one_vec = np.ones(dim)
@@ -117,7 +117,7 @@ D[-1, -1] = 0
 
 prior_sqrtprec = (1/prior_std)*D
 # setup prior
-prior = cuqi.distribution.GaussianSqrtPrec(mean = np.zeros(dim), sqrtprec = prior_sqrtprec)
+prior = cuqi.distribution.Gaussian(mean = np.zeros(dim), sqrtprec = prior_sqrtprec)
 
 # %% sample prior
 prior_samples = prior.sample(5)

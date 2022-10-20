@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, GaussianCov, InverseGamma, Laplace_diff, Gaussian, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, GaussianPrec, GaussianSqrtPrec, Gamma
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, Laplace_diff, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, Gamma
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -261,13 +261,19 @@ class BayesianProblem(object):
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
-        if self._check_posterior(self, (Gaussian, GaussianCov), Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
+        if self._check_posterior(self, Gaussian, Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
             if disp: print(f"Using direct MAP of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
             b  = self.data
             A  = self.model.get_matrix()
-            Ce = self.likelihood.distribution.Sigma
+            Ce = self.likelihood.distribution.cov
             x0 = self.prior.mean
-            Cx = self.prior.Sigma
+            Cx = self.prior.cov
+
+            # If Ce and Cx are scalar, make them into matrices
+            if np.size(Ce)==1:
+                Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
+            if np.size(Cx)==1:
+                Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
 
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
@@ -317,7 +323,7 @@ class BayesianProblem(object):
             return self._sampleGibbs(Ns, callback=callback)
 
         # For Gaussian small-scale we can use direct sampling
-        if self._check_posterior(self, (Gaussian, GaussianCov), (Gaussian, GaussianCov), LinearModel, config.MAX_DIM_INV) and not self._check_posterior(self, GMRF):
+        if self._check_posterior(self, Gaussian, Gaussian, LinearModel, config.MAX_DIM_INV) and not self._check_posterior(self, GMRF):
             return self._sampleMapCholesky(Ns, callback)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
@@ -325,7 +331,7 @@ class BayesianProblem(object):
             return self._sampleLinearRTO(Ns, callback)
 
         # For Laplace_diff we use our awesome unadjusted Laplace approximation!
-        elif self._check_posterior(self, Laplace_diff, (Gaussian, GaussianCov)):
+        elif self._check_posterior(self, Laplace_diff, Gaussian):
             return self._sampleUnadjustedLaplaceApproximation(Ns, callback)
 
         # If we have gradients, use NUTS!
@@ -334,7 +340,7 @@ class BayesianProblem(object):
             return self._sampleNUTS(Ns, callback)
 
         # For Gaussians with non-linear model we use pCN
-        elif self._check_posterior(self, (Gaussian, GMRF, GaussianCov), (Gaussian, GaussianCov)):
+        elif self._check_posterior(self, (Gaussian, GMRF), Gaussian):
             return self._samplepCN(Ns, callback)
 
         # For the remainder of valid cases we use CWMH
@@ -363,7 +369,7 @@ class BayesianProblem(object):
 
         # Set likelihood to constant
         model = cuqi.model.LinearModel(lambda x: 0*x, lambda y: 0*y, self.model.range_geometry, self.model.domain_geometry)
-        likelihood = cuqi.distribution.GaussianCov(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
+        likelihood = cuqi.distribution.Gaussian(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
         prior_problem.likelihood = likelihood
 
         # Now sample prior problem
@@ -443,9 +449,15 @@ class BayesianProblem(object):
 
         b  = self.data
         A  = self.model.get_matrix()
-        Ce = self.likelihood.distribution.Sigma
+        Ce = self.likelihood.distribution.cov
         x0 = self.prior.mean
-        Cx = self.prior.Sigma
+        Cx = self.prior.cov
+
+        # If Ce and Cx are scalar, make them into matrices
+        if np.size(Ce)==1:
+            Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
+        if np.size(Cx)==1:
+            Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
 
         # Preallocate samples
         n = self.prior.dim 
@@ -701,7 +713,7 @@ class BayesianProblem(object):
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
             # Gamma prior, Gaussian likelihood -> Conjugate
-            if self._check_posterior(cond_target, Gamma, (GaussianCov, GaussianPrec, GMRF)): 
+            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
             # Gamma prior, Laplace_diff likelihood -> ConjugateApprox
@@ -709,11 +721,11 @@ class BayesianProblem(object):
                 sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
 
             # Gaussian prior, Gaussian likelihood, Linear model -> Linear_RTO
-            elif self._check_posterior(cond_target, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec, GMRF), (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec), LinearModel):
+            elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
 
             # Laplace_diff prior, Gaussian likelihood, Linear model -> UnadjustedLaplaceApproximation
-            elif self._check_posterior(cond_target, Laplace_diff, (Gaussian, GaussianCov, GaussianPrec, GaussianSqrtPrec), LinearModel):
+            elif self._check_posterior(cond_target, Laplace_diff, Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.UnadjustedLaplaceApproximation
 
             else:
