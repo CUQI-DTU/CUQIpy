@@ -665,7 +665,7 @@ class KLExpansion(Continuous1D):
         self._decay_rate = decay_rate  # decay rate of KL
         self._normalizer = normalizer  # normalizer factor
         if num_modes is None:
-            num_modes = len(grid)
+            num_modes = None if grid is None else len(grid)
         self._num_modes = num_modes
         eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
         self._coefs = 1/np.float_power(eigvals, self.decay_rate)
@@ -673,7 +673,7 @@ class KLExpansion(Continuous1D):
     @property
     def par_shape(self):
         """The shape of the parameter space"""
-        if self.grid is None: return None
+        if self.num_modes is None: return None
         return (self.num_modes, )
 
     @property
