@@ -136,9 +136,9 @@ plt.legend()
 # coefficients of the conductivity (or diffusivity) step function. We use a 
 # Gaussian prior.
 
-theta = cuqi.distribution.GaussianCov(
-    np.zeros(model1.domain_dim),
-    3 * np.ones(model1.domain_dim),
+theta = cuqi.distribution.Gaussian(
+    mean=np.zeros(model1.domain_dim),
+    cov=3,
     geometry=model1.domain_geometry,
 )
 
@@ -154,14 +154,12 @@ sigma_noise2 = np.linalg.norm(problemInfo2.exactData)/SNR
 # Create the data distributions
 y1 = cuqi.distribution.Gaussian(
     mean=model1(theta),
-    std=sigma_noise1,
-    corrmat=np.eye(model1.range_dim),
+    cov=sigma_noise1**2,
     geometry=model1.range_geometry,
 )
 y2 = cuqi.distribution.Gaussian(
     mean=model2(theta),
-    std=sigma_noise2,
-    corrmat=np.eye(model2.range_dim),
+    cov=sigma_noise2**2,
     geometry=model2.range_geometry,
 )
 
