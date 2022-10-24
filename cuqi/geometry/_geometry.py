@@ -665,21 +665,12 @@ class KLExpansion(Continuous1D):
 
         self._decay_rate = decay_rate  # decay rate of KL
         self._normalizer = normalizer  # normalizer factor
-
-        # Check if num_modes is provided. If not, all modes will be used.
-        if num_modes is None:
-            self._use_all_modes = True
-        else:
-            self._use_all_modes = False
-        self._num_modes = num_modes
-
+        self._num_modes = num_modes # number of modes 
         self._coefs = None
 
     @property
     def par_shape(self):
         """The shape of the parameter space"""
-        if self.num_modes is None:
-            return None
         return (self.num_modes, )
 
     @property
@@ -713,7 +704,7 @@ class KLExpansion(Continuous1D):
 
         # If num_modes is not provided or larger than the number of grid points,
         # all modes will be used.
-        if self._use_all_modes or self._num_modes > grid_dim:
+        if self._num_modes is None or self._num_modes > grid_dim:
             return grid_dim
         else:
             return self._num_modes
