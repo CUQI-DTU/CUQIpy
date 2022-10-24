@@ -652,8 +652,8 @@ class KLExpansion(Continuous1D):
         A factor of the basis functions shown in the formula above.
 
     num_modes : int, default None
-        Number of expansion modes to use in the KL expansion. If None, all modes
-        will be used.
+        Number of expansion modes to use in the KL expansion. If `num_modes` is 
+        None or larger than the number of grid points, all modes will be used.
 
     """
     
@@ -664,11 +664,15 @@ class KLExpansion(Continuous1D):
 
         self._decay_rate = decay_rate  # decay rate of KL
         self._normalizer = normalizer  # normalizer factor
+
+        # Check if num_modes is provided. If not, all modes will be used.
         if num_modes is None:
-            num_modes = None if grid is None else len(grid)
+            self._use_all_modes = True
+        else:
+            self._use_all_modes = False
         self._num_modes = num_modes
-        eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
-        self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+        
+        self._coefs = None
  
     @property
     def par_shape(self):
@@ -686,11 +690,19 @@ class KLExpansion(Continuous1D):
 
     @property
     def coefs(self):
+        if self._coefs is None or len(self._coefs) != self.num_modes:
+            eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
+            self._coefs = 1/np.float_power(eigvals, self.decay_rate)
         return self._coefs
 
     @property
     def num_modes(self):
-        return self._num_modes
+        # If num_modes is not provided or larger than the number of grid points,
+        # all modes will be used.
+        if self._use_all_modes or self._num_modes > self.fun_dim:
+            return self.fun_dim
+        else:
+            return self._num_modes
 
     # computes the real function out of expansion coefs
     def par2fun(self,p):
@@ -701,7 +713,7 @@ class KLExpansion(Continuous1D):
         modes = p*self.coefs/self.normalizer
 
         # pad the remaining modes with zeros
-        modes = np.pad(modes, (0, len(self.grid)-self.par_dim), 'constant', constant_values=0)
+        modes = np.pad(modes, (0, self.fun_dim-self.par_dim), 'constant', constant_values=0)
 
         real = idst(modes)/2
         return real
