@@ -179,7 +179,7 @@ def test_stepExpansion_fun2par(projection, func):
 def test_KL_expansion(num_modes):
     """Check KL expansion geometry correctness"""
     N = 20
-    grid = np.linspace(0,1,N)
+    grid = np.linspace(0, 1, N)
     decay_rate = 2.5
     normalizer = 12
     geom = cuqi.geometry.KLExpansion(grid,
@@ -193,12 +193,13 @@ def test_KL_expansion(num_modes):
     f_geom = geom.par2fun(p[:num_modes])
 
     p[num_modes:] = 0
-    f_expected = _inverse_sin_discrete_transform_KL(p, N, decay_rate, normalizer)
+    f_expected = _inverse_sin_discrete_transform_KL(
+        p, N, decay_rate, normalizer)
 
     assert np.allclose(f_geom, f_expected) and\
-           len(geom.coefs) == geom.par_dim and\
-           geom.par_dim == geom.num_modes and\
-           len(geom.grid) == geom.fun_dim
+        len(geom.coefs) == geom.par_dim and\
+        geom.par_dim == geom.num_modes and\
+        len(geom.grid) == geom.fun_dim
 
 
 def test_KLExpansion_set_grid():
@@ -211,24 +212,24 @@ def test_KLExpansion_set_grid():
     assert geom.num_modes == 100 and len(geom.coefs) == 100
 
     # Update grid (num_modes > len(grid))
-    geom.grid = np.linspace(0,1,120)
+    geom.grid = np.linspace(0, 1, 120)
     assert geom.num_modes == 120 and len(geom.coefs) == 120
-    
+
     # Update grid (num_modes < len(grid))
-    geom.grid = np.linspace(0,1,300)
+    geom.grid = np.linspace(0, 1, 300)
     assert geom.num_modes == 200 and len(geom.coefs) == 200
 
 
 def test_KLExpansion_input():
     """Check KL expansion geometry par2fun input"""
-    grid = np.linspace(0,1,100)
+    grid = np.linspace(0, 1, 100)
     geom = cuqi.geometry.KLExpansion(grid, num_modes=30, decay_rate=1.5)
 
     input = np.random.randn(150)
-    
+
     # Correct input
     geom.par2fun(input[:30])
-    
+
     # Input larger than num_modes
     with pytest.raises(ValueError):
         geom.par2fun(input)
@@ -250,9 +251,9 @@ def test_KLExpansion_None_grid():
     assert geom.par_dim == 0
     assert geom.fun_dim is None
     assert geom.coefs is None
-    
-    # Set grid 
-    geom.grid = np.linspace(0,1,110)
+
+    # Set grid
+    geom.grid = np.linspace(0, 1, 110)
 
     # Check geometry properties
     assert geom.num_modes == 100
@@ -260,15 +261,16 @@ def test_KLExpansion_None_grid():
     assert geom.fun_dim == 110
     assert geom.coefs is not None
 
-    # Initialize KLExpansion geometry with grid of length 110 
-    geom = cuqi.geometry.KLExpansion(np.linspace(0,1,110), num_modes=100, decay_rate=1.5)
+    # Initialize KLExpansion geometry with grid of length 110
+    geom = cuqi.geometry.KLExpansion(np.linspace(
+        0, 1, 110), num_modes=100, decay_rate=1.5)
 
     # Check geometry properties
     assert geom.num_modes == 100
     assert geom.par_dim == 100
     assert geom.fun_dim == 110
     assert geom.coefs is not None
-    
+
     # Set grid to None
     geom.grid = None
 
@@ -277,8 +279,8 @@ def test_KLExpansion_None_grid():
     assert geom.par_dim == 0
     assert geom.fun_dim is None
     assert geom.coefs is None
-    
-    # Initialize KLExpansion geometry with no arguments 
+
+    # Initialize KLExpansion geometry with no arguments
     geom = cuqi.geometry.KLExpansion()
 
     # Check geometry properties
