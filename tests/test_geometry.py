@@ -238,6 +238,55 @@ def test_KLExpansion_input():
         geom.par2fun(input[:5])
 
 
+def test_KLExpansion_None_grid():
+    """Check KL expansion geometry when grid is None at the initialization or
+    set to None later"""
+
+    # Initialize KLExpansion geometry with None grid
+    geom = cuqi.geometry.KLExpansion(None, num_modes=100, decay_rate=1.5)
+
+    # Check geometry properties
+    assert geom.num_modes == 0
+    assert geom.par_dim == 0
+    assert geom.fun_dim is None
+    assert geom.coefs is None
+    
+    # Set grid 
+    geom.grid = np.linspace(0,1,110)
+
+    # Check geometry properties
+    assert geom.num_modes == 100
+    assert geom.par_dim == 100
+    assert geom.fun_dim == 110
+    assert geom.coefs is not None
+
+    # Initialize KLExpansion geometry with grid of length 110 
+    geom = cuqi.geometry.KLExpansion(np.linspace(0,1,110), num_modes=100, decay_rate=1.5)
+
+    # Check geometry properties
+    assert geom.num_modes == 100
+    assert geom.par_dim == 100
+    assert geom.fun_dim == 110
+    assert geom.coefs is not None
+    
+    # Set grid to None
+    geom.grid = None
+
+    # Check geometry properties
+    assert geom.num_modes == 0
+    assert geom.par_dim == 0
+    assert geom.fun_dim is None
+    assert geom.coefs is None
+    
+    # Initialize KLExpansion geometry with no arguments 
+    geom = cuqi.geometry.KLExpansion()
+
+    # Check geometry properties
+    assert geom.num_modes == 0
+    assert geom.par_dim == 0
+    assert geom.fun_dim is None
+    assert geom.coefs is None
+
 def _inverse_sin_discrete_transform_KL(p, N, decay_rate, normalizer):
     """Inverse of sin discrete transform, the code
     computes the KL expansion coefficients that the KLExpansion geometry computes given p and then computes the same transformation done by `idst` from
