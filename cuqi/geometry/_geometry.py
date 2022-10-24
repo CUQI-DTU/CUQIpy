@@ -618,6 +618,7 @@ class _DefaultGeometry(Continuous1D):
 #     def par2fun(self, p):
 #         return self.mean + self.L.T@p
     
+
 class KLExpansion(Continuous1D):
     """
     Class representation of the random field in the sine basis
@@ -656,9 +657,9 @@ class KLExpansion(Continuous1D):
         None or larger than the number of grid points, all modes will be used.
 
     """
-    
+
     # init function defining parameters for the KL expansion
-    def __init__(self, grid=None,  decay_rate=2.5, normalizer=12.0, num_modes=None, axis_labels=None, **kwargs):
+    def __init__(self, grid=None, decay_rate=2.5, normalizer=12.0, num_modes=None, axis_labels=None, **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
 
@@ -671,13 +672,14 @@ class KLExpansion(Continuous1D):
         else:
             self._use_all_modes = False
         self._num_modes = num_modes
-        
+
         self._coefs = None
- 
+
     @property
     def par_shape(self):
         """The shape of the parameter space"""
-        if self.num_modes is None: return None
+        if self.num_modes is None:
+            return None
         return (self.num_modes, )
 
     @property
@@ -691,10 +693,11 @@ class KLExpansion(Continuous1D):
     @property
     def coefs(self):
         # Return None if self.num_modes is 0,
-        # that is when num_modes is not provided and 
+        # that is when num_modes is not provided and
         # the grid is None (fun_dim is None).
-        if self.num_modes == 0: return None
-        
+        if self.num_modes == 0:
+            return None
+
         # If the coefficients are not computed, compute them.
         if self._coefs is None or len(self._coefs) != self.num_modes:
             eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
@@ -716,20 +719,22 @@ class KLExpansion(Continuous1D):
             return self._num_modes
 
     # computes the real function out of expansion coefs
-    def par2fun(self,p):
+    def par2fun(self, p):
         # Check that the input is of the correct shape
         if len(p) != self.par_dim:
-            raise ValueError("Input array p must have length {}".format(self.par_dim))
+            raise ValueError(
+                "Input array p must have length {}".format(self.par_dim))
 
         modes = p*self.coefs/self.normalizer
 
         # pad the remaining modes with zeros
-        modes = np.pad(modes, (0, self.fun_dim-self.par_dim), 'constant', constant_values=0)
+        modes = np.pad(modes, (0, self.fun_dim-self.par_dim),
+                       'constant', constant_values=0)
 
         real = idst(modes)/2
         return real
-    
-    def fun2par(self,funvals):
+
+    def fun2par(self, funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
 
