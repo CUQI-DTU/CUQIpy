@@ -658,7 +658,7 @@ class KLExpansion(Continuous1D):
     """
     
     # init function defining parameters for the KL expansion
-    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, num_modes=None, axis_labels=None, **kwargs):
+    def __init__(self, grid=None,  decay_rate=2.5, normalizer=12.0, num_modes=None, axis_labels=None, **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
 
@@ -690,17 +690,28 @@ class KLExpansion(Continuous1D):
 
     @property
     def coefs(self):
+        # Return None if self.num_modes is 0,
+        # that is when num_modes is not provided and 
+        # the grid is None (fun_dim is None).
+        if self.num_modes == 0: return None
+        
+        # If the coefficients are not computed, compute them.
         if self._coefs is None or len(self._coefs) != self.num_modes:
             eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
             self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+
+        # Return the coefficients.
         return self._coefs
 
     @property
     def num_modes(self):
+        # If grid is not set, interpret grid dimension as 0.
+        grid_dim = self.fun_dim if self.fun_dim is not None else 0
+
         # If num_modes is not provided or larger than the number of grid points,
         # all modes will be used.
-        if self._use_all_modes or self._num_modes > self.fun_dim:
-            return self.fun_dim
+        if self._use_all_modes or self._num_modes > grid_dim:
+            return grid_dim
         else:
             return self._num_modes
 
