@@ -496,7 +496,7 @@ class Samples(object):
             im_lo = self.geometry.plot(lo_conf)
             plt.title("Lower credibility interval limit")
 
-            return [im_mn[0], im_ex[0], im_lo[0], im_up[0], im_wd[0]]
+            plotting_objects = [im_mn, im_ex, im_lo, im_up, im_wd]
         else:
             # Create variables for returned values from geometry plotting methods
             lci, lmn, lex = None, None, None
@@ -515,7 +515,12 @@ class Samples(object):
             else:
                 plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
 
-            return [lmn[0], lex[0], lci]
+            plotting_objects = [lmn, lex, lci]
+        
+        # Form a list of the matplotlib objects that were plotted
+        plotting_objects = [obj[0] if (type(obj) is list and obj is not None)
+                            else obj for obj in plotting_objects]
+        return plotting_objects
 
 
     def diagnostics(self):
