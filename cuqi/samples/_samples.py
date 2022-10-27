@@ -408,8 +408,9 @@ class Samples(object):
     def plot_ci(self, percent=95, exact=None, *args, plot_envelope_kwargs=None, **kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
+
         Parameters
-        ---------
+        ----------
         percent : int
             The percent credibility to plot (i.e. 95, 99 etc.)
         
@@ -417,7 +418,21 @@ class Samples(object):
             The exact value (for comparison)
         plot_envelope_kwargs : dict, default {}
             Keyword arguments for the plot_envelope method
-        
+
+        Returns
+        -------
+        plotting_objects : list
+            If 1D plots are generated, the list contains 
+            :class:`~matplotlib.lines.Line2D` object of the mean plot, 
+            :class:`~matplotlib.lines.Line2D` object of the exact value plot,
+            and :class:`~matplotlib.collections.PolyCollection`
+            or :class:`~matplotlib.container.ErrorbarContainer`
+            object of the ci envelope plot, respectively.
+
+            If 2D plots are generated, the list contains
+            :class:`~matplotlib.collections.PolyCollection` objects for
+            the mean, exact value, ci lower bound, ci upper bound, and the 
+            ci width, respectively.
         """
         
         # Compute statistics
@@ -481,7 +496,7 @@ class Samples(object):
             im_lo = self.geometry.plot(lo_conf)
             plt.title("Lower credibility interval limit")
 
-            return im_mn, im_ex, im_lo, im_up, im_wd
+            return [im_mn[0], im_ex[0], im_lo[0], im_up[0], im_wd[0]]
         else:
             # Create variables for returned values from geometry plotting methods
             lci, lmn, lex = None, None, None
@@ -500,7 +515,7 @@ class Samples(object):
             else:
                 plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
 
-            return lmn, lex, lci
+            return [lmn[0], lex[0], lci]
 
 
     def diagnostics(self):
