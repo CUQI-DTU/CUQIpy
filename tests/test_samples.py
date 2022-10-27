@@ -1,6 +1,7 @@
 import numpy as np
 import cuqi
 import pytest
+import matplotlib
 
 from cuqi import geometry
 
@@ -194,6 +195,39 @@ def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
         import matplotlib.pyplot as plt
         plt.figure()
         samples.plot_ci(plot_par=plot_par)
+
+
+@pytest.mark.parametrize("geometry",
+                         [cuqi.geometry.Discrete(4),
+                          cuqi.geometry.KLExpansion(np.linspace(0, 1, 4)),
+                          cuqi.geometry.Continuous2D((2, 2))])
+@pytest.mark.parametrize("plot_par", [False, True])
+def test_plot_ci_returned_values(geometry, plot_par):
+    """Test that the correct matplotlib object types are returned by plot_ci."""
+    # Create samples and plot ci
+    np.random.seed(0)
+    samples = cuqi.samples.Samples(np.random.randn(
+        geometry.par_dim, 10), geometry=geometry)
+    plot_objs = samples.plot_ci(
+        100, plot_par=plot_par, exact=np.random.randn(geometry.par_dim))
+
+    # Check that the correct matplotlib object types are returned:
+    # 2D plots
+    if len(plot_objs) == 5 and not plot_par: 
+        for obj in plot_objs:
+            assert isinstance(obj, matplotlib.collections.PolyCollection)
+
+    # Discrete plots
+    elif plot_par or isinstance(geometry, cuqi.geometry.Discrete):
+        assert isinstance(plot_objs[0], matplotlib.lines.Line2D)
+        assert isinstance(plot_objs[1], matplotlib.lines.Line2D)
+        assert isinstance(plot_objs[2], matplotlib.container.ErrorbarContainer)
+
+    # 1D plots
+    elif plot_par or isinstance(geometry, cuqi.geometry.Discrete):  
+        assert isinstance(plot_objs[0], matplotlib.lines.Line2D)
+        assert isinstance(plot_objs[1], matplotlib.lines.Line2D)
+        assert isinstance(plot_objs[2], matplotlib.collections.PolyCollection)
 
 
 @pytest.mark.parametrize("geom, map, imap, supported",
