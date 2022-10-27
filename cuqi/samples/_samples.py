@@ -456,27 +456,36 @@ class Samples(object):
             kwargs["plot_par"] = False
 
         if (type(self.geometry) is Continuous2D or type(self.geometry) is Image2D) and not kwargs["plot_par"]:
+
+            # Create variables for returned values from geometry plotting methods
+            im_mn, im_ex, im_lo, im_up, im_wd = None, None, None, None, None
+
             plt.figure()
             #fig.add_subplot(2,2,1)
-            self.geometry.plot(mean, *args, **kwargs)
+            im_mn = self.geometry.plot(mean, *args, **kwargs)
             plt.title("Sample mean")
             if exact is not None:
                 #fig.add_subplot(2,2,3)
                 plt.figure()
-                self.geometry.plot(exact, *args, **kwargs)
+                im_ex = self.geometry.plot(exact, *args, **kwargs)
                 plt.title("Exact")
             #fig.add_subplot(2,2,2)
             plt.figure()
-            self.geometry.plot(up_conf-lo_conf)
+            im_wd = self.geometry.plot(up_conf-lo_conf)
             plt.title("Width of credibility interval")
             plt.figure()
-            self.geometry.plot(up_conf)
+            im_up = self.geometry.plot(up_conf)
             plt.title("Upper credibility interval limit")
             #fig.add_subplot(2,2,4)
             plt.figure()
-            self.geometry.plot(lo_conf)
+            im_lo = self.geometry.plot(lo_conf)
             plt.title("Lower credibility interval limit")
+
+            return im_mn, im_ex, im_lo, im_up, im_wd
         else:
+            # Create variables for returned values from geometry plotting methods
+            lci, lmn, lex = None, None, None
+
             lci = self.geometry.plot_envelope(
                 lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
             
@@ -490,6 +499,9 @@ class Samples(object):
                            "Mean", "Exact", "Credibility Interval"])
             else:
                 plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
+
+            return lmn, lex, lci
+
 
     def diagnostics(self):
         # Geweke test
