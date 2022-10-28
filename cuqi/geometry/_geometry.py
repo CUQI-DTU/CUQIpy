@@ -643,8 +643,10 @@ class KLExpansion(Continuous1D):
 
     Parameters
     -----------
-    grid : array-like
-        One dimensional regular grid on which the random field is defined.
+    grid : array-like or None
+        One dimensional regular grid on which the random field is defined. If
+        grid is None, the user will need to set the grid attribute after
+        initialization to be able to fully use the KLExpansion functionalities.
 
     decay_rate : float, default 2.5
         The decay rate of the basis functions.
