@@ -196,10 +196,10 @@ def test_KL_expansion(num_modes):
     f_expected = _inverse_sin_discrete_transform_KL(
         p, N, decay_rate, normalizer)
 
-    assert np.allclose(f_geom, f_expected) and\
-        len(geom.coefs) == geom.par_dim and\
-        geom.par_dim == geom.num_modes and\
-        len(geom.grid) == geom.fun_dim
+    assert np.allclose(f_geom, f_expected)
+    assert len(geom.coefs) == geom.par_dim
+    assert geom.par_dim == geom.num_modes
+    assert len(geom.grid) == geom.fun_dim
 
 
 def test_KLExpansion_set_grid():
