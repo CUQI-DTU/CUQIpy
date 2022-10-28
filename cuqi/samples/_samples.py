@@ -430,9 +430,10 @@ class Samples(object):
             object of the ci envelope plot, respectively.
 
             If 2D plots are generated, the list contains
-            :class:`~matplotlib.collections.PolyCollection` objects for
-            the mean, exact value, ci lower bound, ci upper bound, and the 
-            ci width, respectively.
+            :class:`~matplotlib.collections.PolyCollection` or 
+            :class:`~matplotlib.image.AxesImage` objects
+            for the mean, exact value, ci lower bound, ci upper
+            bound, and the ci width, respectively.
         """
         
         # Compute statistics
