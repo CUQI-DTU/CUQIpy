@@ -200,7 +200,8 @@ def test_plot_ci_par_func(is_par, plot_par, compute_on_par, geometry):
 @pytest.mark.parametrize("geometry",
                          [cuqi.geometry.Discrete(4),
                           cuqi.geometry.KLExpansion(np.linspace(0, 1, 4)),
-                          cuqi.geometry.Continuous2D((2, 2))])
+                          cuqi.geometry.Continuous2D((2, 2)),
+                          cuqi.geometry.Image2D((2, 2))])
 @pytest.mark.parametrize("plot_par", [False, True])
 def test_plot_ci_returned_values(geometry, plot_par):
     """Test that the correct matplotlib object types are returned by plot_ci."""
@@ -212,10 +213,15 @@ def test_plot_ci_returned_values(geometry, plot_par):
         100, plot_par=plot_par, exact=np.random.randn(geometry.par_dim))
 
     # Check that the correct matplotlib object types are returned:
-    # 2D plots
-    if len(plot_objs) == 5 and not plot_par: 
+    # Continuous 2D plots
+    if isinstance(geometry, cuqi.geometry.Continuous2D) and not plot_par: 
         for obj in plot_objs:
             assert isinstance(obj, matplotlib.collections.PolyCollection)
+
+    # Image 2D plots
+    elif isinstance(geometry, cuqi.geometry.Image2D) and not plot_par: 
+        for obj in plot_objs:
+            assert isinstance(obj, matplotlib.image.AxesImage)
 
     # Discrete plots
     elif plot_par or isinstance(geometry, cuqi.geometry.Discrete):
@@ -223,7 +229,7 @@ def test_plot_ci_returned_values(geometry, plot_par):
         assert isinstance(plot_objs[1], matplotlib.lines.Line2D)
         assert isinstance(plot_objs[2], matplotlib.container.ErrorbarContainer)
 
-    # 1D plots
+    # Continuous 1D plots
     elif plot_par or isinstance(geometry, cuqi.geometry.Discrete):  
         assert isinstance(plot_objs[0], matplotlib.lines.Line2D)
         assert isinstance(plot_objs[1], matplotlib.lines.Line2D)
