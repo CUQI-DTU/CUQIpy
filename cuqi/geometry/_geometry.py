@@ -685,6 +685,8 @@ class KLExpansion(Continuous1D):
 
     @property
     def coefs(self):
+        """Computes the deterministic part of the expansion coefficients.
+        Returns None if self.num_modes is 0."""
         # Return None if self.num_modes is 0,
         # that is when num_modes is not provided and
         # the grid is None (fun_dim is None).
@@ -701,6 +703,7 @@ class KLExpansion(Continuous1D):
 
     @property
     def num_modes(self):
+        """Number of expansion modes to use in the KL expansion."""
         # If grid is not set, interpret grid dimension as 0.
         grid_dim = self.fun_dim if self.fun_dim is not None else 0
 
