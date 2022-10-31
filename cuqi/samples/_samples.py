@@ -408,8 +408,9 @@ class Samples(object):
     def plot_ci(self, percent=95, exact=None, *args, plot_envelope_kwargs=None, **kwargs):
         """
         Plots the credibility interval for the samples according to the geometry.
+
         Parameters
-        ---------
+        ----------
         percent : int
             The percent credibility to plot (i.e. 95, 99 etc.)
         
@@ -417,7 +418,22 @@ class Samples(object):
             The exact value (for comparison)
         plot_envelope_kwargs : dict, default {}
             Keyword arguments for the plot_envelope method
-        
+
+        Returns
+        -------
+        plotting_objects : list
+            If 1D plots are generated, the list contains 
+            :class:`~matplotlib.lines.Line2D` object of the mean plot, 
+            :class:`~matplotlib.lines.Line2D` object of the exact value plot,
+            and :class:`~matplotlib.collections.PolyCollection`
+            or :class:`~matplotlib.container.ErrorbarContainer`
+            object of the ci envelope plot, respectively.
+
+            If 2D plots are generated, the list contains
+            :class:`~matplotlib.collections.PolyCollection` or 
+            :class:`~matplotlib.image.AxesImage` objects
+            for the mean, exact value, ci lower bound, ci upper
+            bound, and the ci width, respectively.
         """
         
         # Compute statistics
@@ -456,27 +472,36 @@ class Samples(object):
             kwargs["plot_par"] = False
 
         if (type(self.geometry) is Continuous2D or type(self.geometry) is Image2D) and not kwargs["plot_par"]:
+
+            # Create variables for returned values from geometry plotting methods
+            im_mn, im_ex, im_lo, im_up, im_wd = None, None, None, None, None
+
             plt.figure()
             #fig.add_subplot(2,2,1)
-            self.geometry.plot(mean, *args, **kwargs)
+            im_mn = self.geometry.plot(mean, *args, **kwargs)
             plt.title("Sample mean")
             if exact is not None:
                 #fig.add_subplot(2,2,3)
                 plt.figure()
-                self.geometry.plot(exact, *args, **kwargs)
+                im_ex = self.geometry.plot(exact, *args, **kwargs)
                 plt.title("Exact")
             #fig.add_subplot(2,2,2)
             plt.figure()
-            self.geometry.plot(up_conf-lo_conf)
+            im_wd = self.geometry.plot(up_conf-lo_conf)
             plt.title("Width of credibility interval")
             plt.figure()
-            self.geometry.plot(up_conf)
+            im_up = self.geometry.plot(up_conf)
             plt.title("Upper credibility interval limit")
             #fig.add_subplot(2,2,4)
             plt.figure()
-            self.geometry.plot(lo_conf)
+            im_lo = self.geometry.plot(lo_conf)
             plt.title("Lower credibility interval limit")
+
+            plotting_objects = [im_mn, im_ex, im_lo, im_up, im_wd]
         else:
+            # Create variables for returned values from geometry plotting methods
+            lci, lmn, lex = None, None, None
+
             lci = self.geometry.plot_envelope(
                 lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
             
@@ -490,6 +515,16 @@ class Samples(object):
                            "Mean", "Exact", "Credibility Interval"])
             else:
                 plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
+
+            plotting_objects = [lmn, lex, lci]
+        
+        # Form a list of the matplotlib objects that were plotted
+        # Note that in 1D case, `self.geometry.plot` returns a list of
+        # one object that we need to extract, hence we use indexing: obj[0].
+        plotting_objects = [obj[0] if (type(obj) is list and obj is not None)
+                            else obj for obj in plotting_objects]
+        return plotting_objects
+
 
     def diagnostics(self):
         # Geweke test
