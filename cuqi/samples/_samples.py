@@ -519,6 +519,8 @@ class Samples(object):
             plotting_objects = [lmn, lex, lci]
         
         # Form a list of the matplotlib objects that were plotted
+        # Note that in 1D case, `self.geometry.plot` returns a list of
+        # one object that we need to extract, hence we use indexing: obj[0].
         plotting_objects = [obj[0] if (type(obj) is list and obj is not None)
                             else obj for obj in plotting_objects]
         return plotting_objects
