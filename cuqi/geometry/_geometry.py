@@ -618,6 +618,7 @@ class _DefaultGeometry(Continuous1D):
 #     def par2fun(self, p):
 #         return self.mean + self.L.T@p
     
+
 class KLExpansion(Continuous1D):
     """
     Class representation of the random field in the sine basis
@@ -642,25 +643,37 @@ class KLExpansion(Continuous1D):
 
     Parameters
     -----------
-    grid : array-like
-        One dimensional regular grid on which the random field is defined.
+    grid : array-like or None
+        One dimensional regular grid on which the random field is defined. If
+        grid is None, the user will need to set the grid attribute after
+        initialization to be able to fully use the KLExpansion functionalities.
 
     decay_rate : float, default 2.5
         The decay rate of the basis functions.
 
     normalizer : float, default 1.0
         A factor of the basis functions shown in the formula above.
+
+    num_modes : int, default None
+        Number of expansion modes to use in the KL expansion. If `num_modes` is 
+        None or larger than the number of grid points, all modes will be used.
+
     """
-    
+
     # init function defining parameters for the KL expansion
-    def __init__(self, grid,  decay_rate=2.5, normalizer=12.0, axis_labels=None, **kwargs):
+    def __init__(self, grid=None, decay_rate=2.5, normalizer=12.0, num_modes=None, axis_labels=None, **kwargs):
 
         super().__init__(grid, axis_labels, **kwargs)
 
         self._decay_rate = decay_rate  # decay rate of KL
         self._normalizer = normalizer  # normalizer factor
-        eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
-        self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+        self._num_modes = num_modes # number of modes 
+        self._coefs = None
+
+    @property
+    def par_shape(self):
+        """The shape of the parameter space"""
+        return (self.num_modes, )
 
     @property
     def decay_rate(self):
@@ -672,15 +685,52 @@ class KLExpansion(Continuous1D):
 
     @property
     def coefs(self):
+        """Computes the deterministic part of the expansion coefficients.
+        Returns None if self.num_modes is 0."""
+        # Return None if self.num_modes is 0,
+        # that is when num_modes is not provided and
+        # the grid is None (fun_dim is None).
+        if self.num_modes == 0:
+            return None
+
+        # If the coefficients are not computed, compute them.
+        if self._coefs is None or len(self._coefs) != self.num_modes:
+            eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
+            self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+
+        # Return the coefficients.
         return self._coefs
 
+    @property
+    def num_modes(self):
+        """Number of expansion modes to use in the KL expansion."""
+        # If grid is not set, interpret grid dimension as 0.
+        grid_dim = self.fun_dim if self.fun_dim is not None else 0
+
+        # If num_modes is not provided or larger than the number of grid points,
+        # all modes will be used.
+        if self._num_modes is None or self._num_modes > grid_dim:
+            return grid_dim
+        else:
+            return self._num_modes
+
     # computes the real function out of expansion coefs
-    def par2fun(self,p):
+    def par2fun(self, p):
+        # Check that the input is of the correct shape
+        if len(p) != self.par_dim:
+            raise ValueError(
+                "Input array p must have length {}".format(self.par_dim))
+
         modes = p*self.coefs/self.normalizer
+
+        # pad the remaining modes with zeros
+        modes = np.pad(modes, (0, self.fun_dim-self.par_dim),
+                       'constant', constant_values=0)
+
         real = idst(modes)/2
         return real
-    
-    def fun2par(self,funvals):
+
+    def fun2par(self, funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. ")
 
