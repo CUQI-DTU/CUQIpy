@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test_doc_CI
   pull_request:
   workflow_dispatch:
 
@@ -17,6 +18,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install hdf5-devel
           pip install -r requirements-dev.txt
       - name: Sphinx build
         run: |
