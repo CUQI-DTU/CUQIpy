@@ -73,9 +73,17 @@ class CUQIarray(np.ndarray):
             vals = self
 
         if isinstance(vals, np.ndarray):
-            return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)
-        else: 
-            return vals  
+            if vals.dtype == np.dtype('O'):
+                # if vals is of type np.ndarray, but the data type of the array
+                # is object (e.g. FEniCS function), then extract the object and
+                # return it. reshape(1) is needed to convert the shape from
+                # () to (1,).
+                return self.reshape(1)[0]
+            else:
+                # else, cast the np.ndarray to a CUQIarray
+                return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)
+        else:
+            return vals 
 
     @property
     def parameters(self):
