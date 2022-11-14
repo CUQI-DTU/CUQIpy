@@ -5,6 +5,7 @@ import scipy.optimize as opt
 import scipy.sparse as spa
 
 from cuqi.samples import CUQIarray
+from cuqi import config
 eps = np.finfo(float).eps
 
 try:
@@ -334,11 +335,17 @@ class PCGLS:
     Parameters
     ----------
     A : ndarray or callable f(x,*args).
-    b : ndarray.
-    x0 : ndarray. Initial guess.
-    P : ndarray. Preconditioner array in sparse format.
-    maxit : The maximum number of iterations.
-    tol : The numerical tolerance for convergence checks.
+        Function or array representing the forward model.
+    b : ndarray
+        Data vector.
+    x0 : ndarray
+        Initial guess.    
+    P : ndarray
+        Preconditioner array in sparse format.
+    maxit : int
+        The maximum number of iterations.
+    tol : float
+        The numerical tolerance for convergence checks.
     """    
     def __init__(self, A, b, x0, P, maxit, tol=1e-6, shift=0):
         self.A = A
@@ -354,7 +361,7 @@ class PCGLS:
         else:
             self.explicitA = False
         #
-        if self.dim < 1000:
+        if self.dim < config.MAX_DIM_INV:
             self.explicitPinv = True
             Pinv = spa.linalg.inv(P)
         else:
@@ -368,38 +375,22 @@ class PCGLS:
     def solve(self):
         # initial state
         x = self.x0.copy()
-        if self.explicitA:
-            r = self.b - (self.A @ x)
-            if self.explicitPinv:
-                s = self.Pinv.T @ (self.A.T @ r)
-            else:
-                s = self._apply_Pinv((self.A.T @ r), 2)
-        else:
-            r = self.b - self.A(x, 1)
-            if self.explicitPinv:
-                s = self.Pinv.T @ self.A(r, 2)
-            else:
-                s = self._apply_Pinv(self.A(r, 2), 2)
-
-        # initialization
+        r = self.b - self._apply_A(x, 1)
+        s = self._apply_Pinv(self._apply_A(r, 2), 2)
         p = s.copy()
+
+        # initial computations        
         norms0 = LA.norm(s)
         normx = LA.norm(x)
         gamma, xmax = norms0**2, normx
-    
+
         # main loop
         k, flag, indefinite = 0, 0, 0
         while (k < self.maxit) and (flag == 0):
             k += 1
             #
-            if self.explicitPinv:
-                t = self.Pinv @ p
-            else:
-                t = self._apply_Pinv(p, 1)
-            if self.explicitA:
-                q = self.A @ t
-            else:
-                q = self.A(t, 1)
+            t = self._apply_Pinv(p, 1)
+            q = self._apply_A(t, 1)
             #
             delta_cgls = LA.norm(q)**2
             if (delta_cgls < 0):
@@ -410,16 +401,7 @@ class PCGLS:
             #
             x += alpha_cgls*t
             r -= alpha_cgls*q
-            if self.explicitA:
-                if self.explicitPinv:
-                    s = self.Pinv.T @ (self.A.T @ r)
-                else:
-                    s = self._apply_Pinv((self.A.T @ r), 2)
-            else:
-                if self.explicitPinv:
-                    s = self.Pinv.T @ self.A(r, 2) 
-                else:
-                    s = self._apply_Pinv(self.A(r, 2), 2)
+            s = self._apply_Pinv(self._apply_A(r, 2), 2)
             #
             norms = LA.norm(s)
             gamma1 = gamma.copy()
@@ -443,17 +425,35 @@ class PCGLS:
 
         return x, k
 
-    def _apply_Pinv(self, x, flag):
-        if has_cholmod:
+    def _apply_A(self, x, flag):
+        # applies system operator A: forward or adjoint
+        if self.explicitA:
             if flag == 1:
-                precond = self.P.solve_A(x, use_LDLt_decomposition=False) 
+                evalu = self.A @ x
             elif flag == 2:
-                precond = self.P.solve_At(x, use_LDLt_decomposition=False) 
+                evalu = self.A.T @ x
         else:
+            evalu = self.A(x, flag)
+        return evalu
+
+    def _apply_Pinv(self, x, flag):
+        # applies the inverse of the preconditioner P: forward or adjoint (see Bjorck (1996) P. 294)
+        if self.explicitPinv:
             if flag == 1:
-                precond = spa.linalg.spsolve(self.P, x) 
+                precond = self.Pinv @ x
             elif flag == 2:
-                precond = spa.linalg.spsolve(self.P.T, x)
+                 precond = self.Pinv.T @ x
+        else:
+            if has_cholmod:
+                if flag == 1:
+                    precond = self.P.solve_A(x, use_LDLt_decomposition=False) 
+                elif flag == 2:
+                    precond = self.P.solve_At(x, use_LDLt_decomposition=False) 
+            else:
+                if flag == 1:
+                    precond = spa.linalg.spsolve(self.P, x) 
+                elif flag == 2:
+                    precond = spa.linalg.spsolve(self.P.T, x)
         return precond
 
 
