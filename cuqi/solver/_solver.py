@@ -348,34 +348,34 @@ class PCGLS:
         The numerical tolerance for convergence checks.
     """    
     def __init__(self, A, b, x0, P, maxit, tol=1e-6, shift=0):
-        self.A = A
-        self.b = b
-        self.x0 = x0
-        self.P = P
-        self.maxit = int(maxit)
-        self.tol = tol        
-        self.shift = shift
-        self.dim = len(x0)
+        self._A = A
+        self._b = b
+        self._x0 = x0
+        self._P = P
+        self._maxit = int(maxit)
+        self._tol = tol        
+        self._shift = shift
+        self._dim = len(x0)
         if not callable(A):
-            self.explicitA = True
+            self._explicitA = True
         else:
-            self.explicitA = False
+            self._explicitA = False
         #
-        if self.dim < config.MAX_DIM_INV:
-            self.explicitPinv = True
+        if self._dim < config.MAX_DIM_INV:
+            self._explicitPinv = True
             Pinv = spa.linalg.inv(P)
         else:
-            self.explicitPinv = False
+            self._explicitPinv = False
             Pinv = None # we do cholesky.solve or sparse.solve with P
             if has_cholmod:
                 # turn P into a cholesky object
                 P = cholesky(P, ordering_method='natural')
-        self.Pinv = Pinv # inverse of the preconditioner as a ndarray or function
+        self._Pinv = Pinv # inverse of the preconditioner as a ndarray or function
 
     def solve(self):
         # initial state
-        x = self.x0.copy()
-        r = self.b - self._apply_A(x, 1)
+        x = self._x0.copy()
+        r = self._b - self._apply_A(x, 1)
         s = self._apply_Pinv(self._apply_A(r, 2), 2)
         p = s.copy()
 
@@ -386,7 +386,7 @@ class PCGLS:
 
         # main loop
         k, flag, indefinite = 0, 0, 0
-        while (k < self.maxit) and (flag == 0):
+        while (k < self._maxit) and (flag == 0):
             k += 1
             #
             t = self._apply_Pinv(p, 1)
@@ -412,14 +412,14 @@ class PCGLS:
             # convergence
             normx = LA.norm(x)
             xmax = max(xmax, normx)
-            flag = (norms <= norms0*self.tol) or (normx*self.tol >= 1)
+            flag = (norms <= norms0*self._tol) or (normx*self._tol >= 1)
             # resNE = norms / norms0
 
         shrink = normx/xmax
         if indefinite:          
             flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
             ValueError('\n Negative curvature detected !')  
-        if shrink <= np.sqrt(self.tol):
+        if shrink <= np.sqrt(self._tol):
             flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
             ValueError('\n Instability likely !') 
 
@@ -427,33 +427,33 @@ class PCGLS:
 
     def _apply_A(self, x, flag):
         # applies system operator A: forward or adjoint
-        if self.explicitA:
+        if self._explicitA:
             if flag == 1:
-                evalu = self.A @ x
+                evalu = self._A @ x
             elif flag == 2:
-                evalu = self.A.T @ x
+                evalu = self._A.T @ x
         else:
-            evalu = self.A(x, flag)
+            evalu = self._A(x, flag)
         return evalu
 
     def _apply_Pinv(self, x, flag):
         # applies the inverse of the preconditioner P: forward or adjoint (see Bjorck (1996) P. 294)
-        if self.explicitPinv:
+        if self._explicitPinv:
             if flag == 1:
-                precond = self.Pinv @ x
+                precond = self._Pinv @ x
             elif flag == 2:
-                 precond = self.Pinv.T @ x
+                 precond = self._Pinv.T @ x
         else:
             if has_cholmod:
                 if flag == 1:
-                    precond = self.P.solve_A(x, use_LDLt_decomposition=False) 
+                    precond = self._P.solve_A(x, use_LDLt_decomposition=False) 
                 elif flag == 2:
-                    precond = self.P.solve_At(x, use_LDLt_decomposition=False) 
+                    precond = self._P.solve_At(x, use_LDLt_decomposition=False) 
             else:
                 if flag == 1:
-                    precond = spa.linalg.spsolve(self.P, x) 
+                    precond = spa.linalg.spsolve(self._P, x) 
                 elif flag == 2:
-                    precond = spa.linalg.spsolve(self.P.T, x)
+                    precond = spa.linalg.spsolve(self._P.T, x)
         return precond
 
 
