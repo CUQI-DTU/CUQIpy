@@ -101,24 +101,26 @@ class Sampler(ABC):
         loglike_eval = None
         acc_rate = None
         if isinstance(result,tuple):
-            #Unpack samples+loglike+acc_rate
+            #Unpack samples+loglike+acc_rate+proposedsamples
             s = result[0]
             if len(result)>1: loglike_eval = result[1]
             if len(result)>2: acc_rate = result[2]
-            if len(result)>3: raise TypeError("Expected tuple of at most 3 elements from sampling method.")
+            if len(result)>3: sp = result[3]
+            if len(result)>4: raise TypeError("Expected tuple of at most 4 elements from sampling method.")
         else:
             s = result
-                
+
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
             else:
                 s = s.flatten()
-        else:
-            s = Samples(s, self.geometry)#, geometry = self.geometry)
-            s.loglike_eval = loglike_eval
-            s.acc_rate = acc_rate
+        s = Samples(s, self.geometry)#, geometry = self.geometry)
+        s.loglike_eval = loglike_eval
+        s.acc_rate = acc_rate        
+        if len(result)>3:
+            s.samples_prop = sp
         return s
 
     @abstractmethod
