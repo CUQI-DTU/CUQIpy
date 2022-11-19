@@ -72,8 +72,8 @@ class SamplerNew(ABC):
 
     # ------------ Abstract properties ------------
 
-    @abstractmethod
     @property
+    @abstractmethod
     def current_point(self):
         """Return the current point of the sampler."""
         pass
