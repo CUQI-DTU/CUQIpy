@@ -5,6 +5,94 @@ import cuqi
 from cuqi.samples import Samples
 
 
+class SamplerNew(ABC):
+    """Abstract base class for all samplers."""
+
+    def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
+        self.target = target
+        self.callback = callback
+
+        # Choose initial point if not given
+        if initial_point is None:
+            initial_point = np.ones(self.dim)
+        
+        self._samples = [initial_point]
+
+    # ------------ Public methods ------------
+
+    def sample(self, Ns):
+        """ Sample Ns samples from the target density. """
+        initial_samples_len = len(self._samples)
+        for _ in range(Ns):
+            self.step()
+            self._samples.append(self.current_point)
+            self._call_callback(self.current_point, len(self._samples)-1)
+            self._print_progress(len(self._samples), Ns+initial_samples_len)
+
+    def warmup(self, Nb):
+        """ Warmup the sampler by sampling Nb samples. """
+        initial_samples_len = len(self._samples)
+        for _ in range(Nb):
+            self.step()
+            self.tune()
+            self._samples.append(self.current_point)
+            self._call_callback(self.current_point, len(self._samples)-1)
+            self._print_progress(len(self._samples), Nb+initial_samples_len)
+
+    def initial_point(self):
+        """Return the initial point of the sampler."""
+        return self._samples[0]
+
+    def get_samples(self):
+        """Return the samples. The internal data-structure for the samples is dynamic so this creates a copy."""
+        return Samples(np.array(self._samples), self.geometry)
+
+    # ------------ Public properties ------------
+    @property
+    def dim(self):
+        """ Dimension of the target density. """
+        return self.target.dim
+
+    @property
+    def geometry(self):
+        """ Geometry of the target density. """
+        return self.target.geometry
+
+    # ------------ Abstract methods ------------
+    
+    @abstractmethod
+    def step(self):
+        """Perform one step of the sampler."""
+        pass
+
+    @abstractmethod
+    def tune(self):
+        """Tune the sampler."""
+        pass
+
+    # ------------ Abstract properties ------------
+
+    @abstractmethod
+    @property
+    def current_point(self):
+        """Return the current point of the sampler."""
+        pass
+
+    # ------------ Private methods ------------
+    def _print_progress(self, s, Ns):
+        """Prints sampling progress"""
+        # Print sampling progress every 1% of samples and at the end
+        if (s % (max(Ns//100,1))) == 0 or s==Ns:
+            msg = f'Sampling {s} / {Ns}'
+            sys.stdout.write('\r'+msg)
+            if s==Ns:
+                sys.stdout.write('\n')
+
+    def _call_callback(self, sample, sample_index):
+        """ Calls the callback function. Assumes input is sample and sample index"""
+        if self.callback is not None:
+            self.callback(sample, sample_index)
+
 class Sampler(ABC):
 
     def __init__(self, target, x0=None, dim=None, callback=None):
