@@ -1,6 +1,89 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import ProposalBasedSampler
+from cuqi.sampler import ProposalBasedSampler, SamplerNew
+
+class MH(SamplerNew):
+    """ Metropolis-Hastings sampler. """
+    def __init__(
+        self,
+        target: cuqi.density.Density,
+        proposal: cuqi.distribution.Distribution = None,
+        scale: float = None,
+        **kwargs
+    ):
+        super().__init__(target, **kwargs)
+
+        # Default values
+        if proposal is None:
+            proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+        if scale is None:
+            scale = 0.1
+
+        self.proposal = proposal
+        self.scale = scale
+        self._current_point = self.initial_point
+        self._current_target_eval = self.target.logd(self._current_point)
+        self.acc = []
+        self._n_adapt = 0
+
+    def step(self):
+
+        # Extract previous state
+        x_t = self._current_point
+        target_eval_t = self._current_target_eval
+
+        # Propose new state
+        xi = self.proposal.sample(1)   # sample from the proposal
+        x_star = x_t + self.scale*xi.flatten() # MH proposal (TODO: Remove flatten)
+
+        # evaluate target
+        target_eval_star = self.target.logd(x_star)
+
+        # ratio and acceptance probability
+        ratio = target_eval_star - target_eval_t  # proposal is symmetric
+        alpha = min(0, ratio)
+
+        # accept/reject
+        u_theta = np.log(np.random.rand())
+        if (u_theta <= alpha):
+            self._current_point = x_star
+            self._current_target_eval = target_eval_star
+            self.acc.append(1)
+        else:
+            self.acc.append(0)
+
+    def tune(self):
+
+        i = self._n_adapt
+
+        # Number to adapt over
+        Na = 100
+        star_acc = 0.234    # target acceptance rate RW
+        lambd = self.scale
+
+        # Tune only every Na steps
+        if (len(self.acc) % Na != 0):
+            return
+
+        # Evaluate average acceptance rate
+        hat_acc = np.mean(self.acc[-Na:])
+
+        # d. compute new scaling parameter
+        zeta = 1/np.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
+        lambd = np.exp(np.log(lambd) + zeta*(hat_acc-star_acc))
+
+        # update parameters
+        self.scale = min(lambd, 1)
+
+        # update counter
+        self._n_adapt += 1
+
+    @property
+    def current_point(self):
+        return self._current_point
+
+    def get_status(self):
+        print(f"Averaged acceptance rate: {np.mean(self.acc)} (target 0.234), MCMC scale: {self.scale}")
 
 
 class MetropolisHastings(ProposalBasedSampler):

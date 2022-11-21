@@ -39,15 +39,16 @@ class SamplerNew(ABC):
             self._call_callback(self.current_point, len(self._samples)-1)
             self._print_progress(len(self._samples), Nb+initial_samples_len)
 
-    def initial_point(self):
-        """Return the initial point of the sampler."""
-        return self._samples[0]
-
     def get_samples(self):
         """Return the samples. The internal data-structure for the samples is dynamic so this creates a copy."""
         return Samples(np.array(self._samples), self.geometry)
 
     # ------------ Public properties ------------
+    @property
+    def initial_point(self):
+        """Return the initial point of the sampler."""
+        return self._samples[0]
+
     @property
     def dim(self):
         """ Dimension of the target density. """
