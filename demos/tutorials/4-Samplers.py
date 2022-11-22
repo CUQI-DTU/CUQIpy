@@ -23,12 +23,12 @@ sampler_old = cuqi.sampler.MetropolisHastings(target)
 
 # %%
 tic = time.time()
-sampler_old.sample_adapt(1000)
+samples_old = sampler_old.sample_adapt(1000)
 print(f"Time elapsed: {time.time() - tic:.2f} s")
 
 # %%
 tic = time.time()
-sampler.warmup(1000)
+samples = sampler.sample_adapt(1000)
 print(f"Time elapsed: {time.time() - tic:.2f} s")
 
 

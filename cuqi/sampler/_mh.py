@@ -85,6 +85,14 @@ class MH(SamplerNew):
     def get_status(self):
         print(f"Averaged acceptance rate: {np.mean(self.acc)} (target 0.234), MCMC scale: {self.scale}")
 
+    def reset(self):
+        self._samples = [self.initial_point]
+        self._current_point = self.initial_point
+        self._current_target_eval = self.target.logd(self._current_point)
+        self.acc = []
+        self._n_adapt = 0
+        self.scale = 0.1
+
 
 class MetropolisHastings(ProposalBasedSampler):
     """Metropolis Hastings sampler.

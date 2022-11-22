@@ -19,8 +19,24 @@ class SamplerNew(ABC):
         self._samples = [initial_point]
 
     # ------------ Public methods ------------
+    # Acting like the old sample method
+    def sample(self, N, Nb=0):
+        """ Sample N samples from the target density. With Nb burn-in samples. """
+        self.sample_new(N+Nb-1)
+        samples = self.get_samples()
+        self.reset() # Reset sampler
+        return samples.burnthin(Nb)
 
-    def sample(self, Ns):
+    # Acting like the old sample_adapt method
+    def sample_adapt(self, N, Nb=0):
+        """ Sample N samples from the target density. With Nb burn-in samples. """
+        self.warmup(Nb+N-1)
+        samples = self.get_samples()
+        self.reset()
+        return samples.burnthin(Nb)
+
+    # New sample method
+    def sample_new(self, Ns):
         """ Sample Ns samples from the target density. """
         initial_samples_len = len(self._samples)
         for _ in range(Ns):
@@ -29,6 +45,7 @@ class SamplerNew(ABC):
             self._call_callback(self.current_point, len(self._samples)-1)
             self._print_progress(len(self._samples), Ns+initial_samples_len)
 
+    # New "Sample_adapt" method
     def warmup(self, Nb):
         """ Warmup the sampler by sampling Nb samples. """
         initial_samples_len = len(self._samples)
@@ -69,6 +86,11 @@ class SamplerNew(ABC):
     @abstractmethod
     def tune(self):
         """Tune the sampler."""
+        pass
+
+    @abstractmethod
+    def reset(self):
+        """Reset the sampler."""
         pass
 
     # ------------ Abstract properties ------------
