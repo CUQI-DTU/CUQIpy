@@ -294,7 +294,36 @@ class _StackedJointDistribution(JointDistribution, Distribution):
         return self.logd(stacked_input)
     
     def _sample(self, Ns=1):
-        raise TypeError("StackedJointDistribution does not support sampling.")
+        raise TypeError(f"{self.__class__.__name__} does not support sampling.")
 
     def __repr__(self):
         return "_Stacked"+super().__repr__()
+
+class MultipleLikelihoodPosterior(JointDistribution, Distribution):
+
+    def __init__(self, *densities: Density):
+        super().__init__(*densities)
+
+        # Check that there is only a single distribution and multiple likelihoods
+        if len(self._distributions) != 1:
+            raise ValueError(f"MultipleLikelihoodPosterior requires exactly one distribution.")
+        if len(self._likelihoods) < 2:
+            raise ValueError(f"MultipleLikelihoodPosterior requires at least two likelihoods.")
+
+    @property
+    def geometry(self):
+        return self._distributions[0].geometry
+
+    @property
+    def dim(self):
+        return self._distributions[0].dim
+
+    def logpdf(self, *args, **kwargs):
+        return self.logd(*args, **kwargs)
+
+    def _sample(self, Ns=1):
+        raise TypeError(f"{self.__class__.__name__} does not support sampling.")
+
+    def __repr__(self):
+        # Remove first line of super repr and add "MultipleLikelihoodPosterior( to the start
+        return "MultipleLikelihoodPosterior(\n" + "\n".join(super().__repr__().split("\n")[1:])
