@@ -189,8 +189,12 @@ class JointDistribution:
         n_likelihood = len(self._likelihoods)
 
         # Cant reduce if there are multiple distributions or likelihoods
-        if n_dist > 1 or n_likelihood > 1:
+        if n_dist > 1:
             return self
+
+        # If exactly one distribution and multiple likelihoods reduce
+        if n_dist == 1 and n_likelihood > 1:
+            return MultipleLikelihoodPosterior(*self._densities)
         
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
