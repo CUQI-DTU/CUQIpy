@@ -98,7 +98,7 @@ joint2 = cuqi.distribution.JointDistribution(x, y, d)
 print(joint2)
 
 # %%
-# The posterior :math:`p(\mathbf{x}|\mathbf{y}=\mathbf{y}^\mathrm{obs},d=\mathbf{d}^\mathrm{obs})`
+# The posterior :math:`p(\mathbf{x}|\mathbf{y}=\mathbf{y}^\mathrm{obs},\mathbf{d}=\mathbf{d}^\mathrm{obs})`
 # is obtained by conditioning on the observed data as follows.
 
 posterior2 = joint2(y=y_obs, d=d_obs)
