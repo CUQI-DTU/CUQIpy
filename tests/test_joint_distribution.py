@@ -241,3 +241,28 @@ def test_extra_parameter_no_prior():
     # Joint distribution p(y,x,z)
     with pytest.raises(ValueError, match=r"Missing prior for \['b'\]"):
         cuqi.distribution.JointDistribution(y,x,z)
+
+
+def test_JointDistribution_reduce_MultipleLikelihoodPosterior():
+    """ This tests if the joint distribution can be reduced to MultipleLikelihoodPosterior """
+
+    J, data = hierarchical_joint()
+
+    # Posterior w.r.t z is with multiple likelihoods if all other parameters are fixed
+    # for this J
+    posterior_z = J(y=data, d=0.1, l=0.1, x=data)
+
+    # Check we get the right class
+    assert isinstance(posterior_z, cuqi.distribution.MultipleLikelihoodPosterior)
+
+    # Check the dimension
+    assert posterior_z.dim == 1
+
+    # Check the "prior" in multiple likelihood posterior matches z
+    assert posterior_z.prior.mean == J.get_density("z").mean
+    assert posterior_z.prior.std == J.get_density("z").std
+
+    # Check logd can be evaluated (tolerance is high since new data every time)
+    assert np.allclose(posterior_z.logd(1), -5000, atol=10)
+
+
