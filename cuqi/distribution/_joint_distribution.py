@@ -305,6 +305,22 @@ class _StackedJointDistribution(JointDistribution, Distribution):
 
 
 class MultipleLikelihoodPosterior(JointDistribution, Distribution):
+    """ A posterior distribution with multiple likelihoods but a single prior.
+
+    Parameters
+    ----------
+    densities : :class:`Distribution` or :class:`~cuqi.likelihood.Likelihood`
+        The densities that make up the Posterior. Must only include
+        a single distribution and at least two Likelihoods.
+
+    Notes
+    -----    
+    This acts like a regular distribution with a single parameter vector. Behind-the-scenes
+    it is a joint distribution with multiple likelihoods and a single prior. This is mostly
+    intended to be used by samplers that are not able to handle joint distributions. 
+    See :class:`JointDistribution` for more details on the joint distribution.   
+    
+    """
 
     def __init__(self, *densities: Density):
         super().__init__(*densities)
@@ -317,28 +333,34 @@ class MultipleLikelihoodPosterior(JointDistribution, Distribution):
 
     @property
     def geometry(self):
+        """ The geometry of the distribution. """
         return self._distributions[0].geometry
 
     @property
     def dim(self):
+        """ Return the dimension of the distribution. """
         return self._distributions[0].dim
 
     @property
     def prior(self):
+        """ Return the prior distribution that makes up the posterior. """
         return self._distributions[0]
 
     @property
     def models(self):
+        """ Return the forward models that make up the posterior. """
         return [likelihood.model for likelihood in self._likelihoods]
 
     @property
     def likelihoods(self):
+        """ Return the likelihoods that make up the posterior. """
         return self._likelihoods
 
     def logpdf(self, *args, **kwargs):
         return self.logd(*args, **kwargs)
 
     def gradient(self, *args, **kwargs):
+        """ Return the gradient of the un-normalized log density function. """
         grad = self.prior.gradient(*args, **kwargs)
         for likelihood in self.likelihoods:
             grad += likelihood.gradient(*args, **kwargs)
