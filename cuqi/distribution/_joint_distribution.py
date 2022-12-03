@@ -303,6 +303,7 @@ class _StackedJointDistribution(JointDistribution, Distribution):
     def __repr__(self):
         return "_Stacked"+super().__repr__()
 
+
 class MultipleLikelihoodPosterior(JointDistribution, Distribution):
 
     def __init__(self, *densities: Density):
@@ -322,8 +323,26 @@ class MultipleLikelihoodPosterior(JointDistribution, Distribution):
     def dim(self):
         return self._distributions[0].dim
 
+    @property
+    def prior(self):
+        return self._distributions[0]
+
+    @property
+    def models(self):
+        return [likelihood.model for likelihood in self._likelihoods]
+
+    @property
+    def likelihoods(self):
+        return self._likelihoods
+
     def logpdf(self, *args, **kwargs):
         return self.logd(*args, **kwargs)
+
+    def gradient(self, *args, **kwargs):
+        grad = self.prior.gradient(*args, **kwargs)
+        for likelihood in self.likelihoods:
+            grad += likelihood.gradient(*args, **kwargs)
+        return grad
 
     def _sample(self, Ns=1):
         raise TypeError(f"{self.__class__.__name__} does not support sampling.")
