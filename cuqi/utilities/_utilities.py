@@ -173,9 +173,12 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
     # corresponding geometry par2fun map is not identity
     # (e.g. funvalues=paramters**2), because wrt entries 
     # are interpreted as function value.
-    if isinstance(wrt, CUQIarray) or isinstance(direction, CUQIarray):
-        raise NotImplementedError("approx_derivative is not implemented"+
-                                  "for inputs of type CUQIarray")
+
+    if isinstance(wrt, CUQIarray):
+        wrt = wrt.to_numpy()
+    if isinstance(direction, CUQIarray):
+        direction = direction.to_numpy()
+    
     wrt = np.asfarray(wrt)
     f0 = func(wrt)
     Matr = np.zeros([len(wrt), len(f0)])
