@@ -66,7 +66,7 @@ class Lognormal(Distribution):
     def logpdf(self, x):
         return np.log(self.pdf(x))
 
-    def gradient(self, val, **kwargs):
+    def _gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} "
