@@ -54,14 +54,14 @@ class Likelihood(Density):
         self.distribution.use_FD = value
 
     @property
-    def FD_tol(self):
-        """ Return FD_tol of the likelihood from the underlying distribution """
-        return self.distribution.FD_tol
+    def FD_epsilon(self):
+        """ Return FD_epsilon of the likelihood from the underlying distribution """
+        return self.distribution.FD_epsilon
 
-    @FD_tol.setter
-    def FD_tol(self, value):
-        """ Set FD_tol of the underlying distribution of the likelihood """
-        self.distribution.FD_tol = value
+    @FD_epsilon.setter
+    def FD_epsilon(self, value):
+        """ Set FD_epsilon of the underlying distribution of the likelihood """
+        self.distribution.FD_epsilon = value
 
     @property
     def _constant(self):
