@@ -44,6 +44,26 @@ class Likelihood(Density):
         self.distribution.name = value
 
     @property
+    def use_FD(self):
+        """ Return use_FD of the likelihood from the underlying distribution """
+        return self.distribution.use_FD
+
+    @use_FD.setter
+    def use_FD(self, value):
+        """ Set use_FD of the underlying distribution of the likelihood """
+        self.distribution.use_FD = value
+
+    @property
+    def FD_tol(self):
+        """ Return FD_tol of the likelihood from the underlying distribution """
+        return self.distribution.FD_tol
+
+    @FD_tol.setter
+    def FD_tol(self, value):
+        """ Set FD_tol of the underlying distribution of the likelihood """
+        self.distribution.FD_tol = value
+
+    @property
     def _constant(self):
         return self.distribution._constant
 
@@ -51,7 +71,7 @@ class Likelihood(Density):
         """Return the log-likelihood function at given value"""
         return self.distribution(*args, **kwargs).logd(self.data)
 
-    def gradient(self, *args, **kwargs):
+    def _gradient(self, *args, **kwargs):
         """Return gradient of the log-likelihood function at given value"""
         return self.distribution.gradient(self.data, *args, **kwargs)
 
@@ -163,6 +183,8 @@ class UserDefinedLikelihood(object):
         """Returns value of likelihood function"""
         return self.logpdf_func(*args, **kwargs)
 
+    #TODO: Change gradient to _gradient when this class is subclassed from
+    # Density.
     def gradient(self, *args, **kwargs):
         """Return gradient of likelihood function"""
         return self.gradient_func(*args, **kwargs)
