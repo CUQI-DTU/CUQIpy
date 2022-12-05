@@ -181,14 +181,14 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
     
     wrt = np.asfarray(wrt)
     f0 = func(wrt)
-    Matr = np.zeros([len(wrt), len(f0)])
+    Matr = np.zeros([infer_len(wrt), infer_len(f0)])
     dx = np.zeros(len(wrt))
     for i in range(len(wrt)):
         dx[i] = epsilon
         Matr[i] = (func(wrt+dx) - f0)/epsilon
         dx[i] = 0.0
     if direction is None:
-        if len(f0) == 1:
+        if infer_len(f0) == 1:
             return Matr.reshape(len(wrt))
         else:
             return Matr.T
