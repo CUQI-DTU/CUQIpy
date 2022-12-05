@@ -176,7 +176,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
 
     if isinstance(wrt, CUQIarray):
         wrt = wrt.to_numpy()
-    if isinstance(direction, CUQIarray):
+    if direction is not None and isinstance(direction, CUQIarray):
         direction = direction.to_numpy()
     
     wrt = np.asfarray(wrt)
