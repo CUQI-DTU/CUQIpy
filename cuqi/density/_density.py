@@ -26,12 +26,14 @@ class Density(ABC):
     - get_parameter_names(self). Returns a list of the names of the parameters of the density.
 
     """
-    def __init__(self, name: Optional[str] = None):
+    def __init__(self, name: Optional[str] = None,  use_FD=False, FD_tol=1e-8):
         if not isinstance(name, str) and name is not None:
             raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
         self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
+        self.use_FD = use_FD # Use finite difference approximation for the logd gradient
+        self.FD_tol = FD_tol # Tolerance for the finite difference approximation
 
     @property
     def name(self):
@@ -78,9 +80,24 @@ class Density(ABC):
             args = [kwargs[name] for name in par_names]            
 
         return self._logd(*args) + self._constant
+
+    def gradient(self, *args, **kwargs):
+        """ Returns the gradient of the log density at x. """
+        
+        # Use FD approximation if requested
+        if self.use_FD:
+            return cuqi.utilities.approx_derivative(
+                self.logd, epsilon=self.FD_tol)
+
+        # Otherwise use the implemented gradient
+        return self._gradient(*args, **kwargs)
    
     @abstractmethod
     def _logd(self):
+        pass
+
+    @abstractmethod
+    def _gradient(self):
         pass
 
     @abstractmethod
@@ -132,6 +149,14 @@ class EvaluatedDensity(Density):
 
     def _logd(self):
         return self.value
+
+    def gradient(self, *args, **kwargs):
+        raise NotImplementedError(
+            f"gradient is not implemented for {self.__class__.__name__}.")
+
+    def _gradient(self):
+        raise NotImplementedError(
+            f"_gradient is not implemented for {self.__class__.__name__}.")
 
     def _condition(self, *args, **kwargs):
         return self
