@@ -613,7 +613,7 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
 
     # Compute FD gradient
     posterior.use_FD = True
-    posterior.FD_tol = 1e-7
+    posterior.FD_epsilon = 1e-7
     g_FD = posterior.gradient(x_i)
 
     # Assert that the exact and FD gradient are close,
