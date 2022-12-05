@@ -558,3 +558,65 @@ def test_Gaussian_Cov_sample(C):
     rng = np.random.RandomState(0)
     samples = x.sample(rng=rng)
     assert np.allclose(samples, np.array([3.12670137, 0.70926018, 1.73476791, 3.97187978, 3.31016035]))
+
+
+@pytest.mark.parametrize("dist",
+                         [cuqi.distribution.Gaussian(np.zeros(2), np.eye(2)),
+                          cuqi.distribution.Beta(np.ones(2)*2, 5),
+                          cuqi.distribution.Lognormal(np.ones(2)*.1, 4),
+                          cuqi.distribution.Gaussian(np.zeros(2),
+                                                     np.array([[1.0, 0.7],
+                                                               [0.7,  1.]])),
+                          cuqi.distribution.GMRF(np.zeros(2), 0.1, 1)])
+def test_enable_FD_gradient_distributions(dist):
+    """Test that the distribution FD gradient is close to the exact gradient"""
+    x = np.array([0.1, 0.3])
+
+    # Exact gradient
+    g_exact = dist.gradient(x)
+
+    # FD gradient
+    dist.use_FD = True
+    g_FD = dist.gradient(x)
+
+    # Assert that the FD gradient is close to the exact gradient
+    # but not exactly equal to it
+    assert np.allclose(g_exact, g_FD) and np.all(g_exact != g_FD)
+
+
+@pytest.mark.parametrize("x",
+                         [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6)),
+                          cuqi.distribution.Beta(np.ones(6)*2, 5),
+                          cuqi.distribution.Lognormal(np.ones(6)*.1, 4),
+                          cuqi.distribution.GMRF(np.zeros(6), 0.1, 1)])
+@pytest.mark.parametrize("y",
+                         [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6)),
+                          cuqi.distribution.Lognormal(np.zeros(6), 4)])
+@pytest.mark.parametrize("x_i", [np.array([0.1, 0.3, 6, 12, 1, 2]),
+                                 np.array([0.1, 0.3, 0.5, 6, 3, 1])])
+def test_enable_FD_gradient_posterior(x, y, x_i):
+    """ Test that the posterior exact gradient and FD gradient are close."""
+
+    # Create a model
+    model = cuqi.testproblem.Deconvolution1D(dim=6).model
+
+    # Create likelihood
+    y.mean = model
+    data = y(x_i).sample()
+    likelihood = y(y=data)
+
+    # Create posterior
+    posterior = cuqi.distribution.Posterior(likelihood, x)
+
+    # Compute exact gradient
+    g_exact = posterior.gradient(x_i)
+
+    # Compute FD gradient
+    posterior.use_FD = True
+    posterior.FD_tol = 1e-7
+    g_FD = posterior.gradient(x_i)
+
+    # Assert that the exact and FD gradient are close,
+    # but not exactly equal (since we use a different method)
+    assert np.allclose(g_exact, g_FD) and np.all(g_exact != g_FD)\
+        or (np.all(np.isnan(g_exact)) and np.all(np.isnan(g_FD)))
