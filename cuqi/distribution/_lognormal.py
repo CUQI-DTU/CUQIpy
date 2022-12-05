@@ -66,7 +66,7 @@ class Lognormal(Distribution):
     def logpdf(self, x):
         return np.log(self.pdf(x))
 
-    def _gradient(self, val, **kwargs):
+    def _gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} "
@@ -76,8 +76,8 @@ class Lognormal(Distribution):
             return np.diag(1/val)@(-1+self._normal.gradient(np.log(val)))
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self._normal.mean
-            dev = np.log(val) - model.forward(**kwargs)
-            return  model.gradient(self._normal.prec@dev, **kwargs) # Jac(x).T@(self._normal.prec@dev)
+            dev = np.log(val) - model.forward(*args, **kwargs)
+            return  model.gradient(self._normal.prec@dev, *args, **kwargs) # Jac(x).T@(self._normal.prec@dev)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self._normal.mean)))
 
