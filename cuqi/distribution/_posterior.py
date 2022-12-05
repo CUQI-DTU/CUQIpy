@@ -1,7 +1,5 @@
 from cuqi.geometry import _DefaultGeometry, _get_identity_geometries
 from cuqi.distribution import Distribution
-from cuqi.utilities import approx_derivative
-import numpy as np
 
 # ========================================================================
 class Posterior(Distribution):
@@ -16,7 +14,7 @@ class Posterior(Distribution):
     prior: Prior distribution, cuqi.distribution.Distribution.
 
     """
-    def __init__(self, likelihood, prior, use_FD=False, **kwargs):
+    def __init__(self, likelihood, prior, **kwargs):
 
         if len(likelihood.get_parameter_names()) > 1:
             raise ValueError("Likelihood must only have one parameter.")
@@ -25,7 +23,6 @@ class Posterior(Distribution):
 
         self.likelihood = likelihood
         self.prior = prior 
-        self.use_FD = use_FD
         super().__init__(**kwargs)
 
     @property
@@ -82,10 +79,7 @@ class Posterior(Distribution):
     def get_parameter_names(self):
         return self.prior.get_parameter_names()
 
-    def gradient(self, x):
-        # Use FD approximation if requested
-        if self.use_FD:
-            return approx_derivative(self.logpdf, x.view(np.ndarray))
+    def _gradient(self, x):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries() and\
            not hasattr(self.geometry, 'gradient'):
