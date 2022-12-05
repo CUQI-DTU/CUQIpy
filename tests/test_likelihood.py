@@ -111,3 +111,31 @@ def test_likelihood_conditioning(dist, mean, cov, data):
     assert likelihood(**cov_dict).logd(**mean_dict) == log_val
     assert likelihood(**param_dict).logd() == log_val # This becomes EvaluatedDensity. Throws warning on the stack size (since we pass name to EvaluatedDensity)
 
+
+@pytest.mark.parametrize("y",
+                         [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6)),
+                          cuqi.distribution.Lognormal(np.zeros(6), 4)])
+@pytest.mark.parametrize("x_i", [np.array([0.1, 0.3, 6, 12, 1, 2]),
+                                 np.array([0.1, 0.3, 0.5, 6, 3, 1])])
+def test_enable_FD_gradient(y, x_i):
+    """ Test that the likelihood exact gradient and FD gradient are close."""
+
+    # Create a model
+    model = cuqi.testproblem.Deconvolution1D(dim=6).model
+
+    # Create likelihood
+    y.mean = model
+    data = y(x_i).sample()
+    likelihood = y(y=data)
+
+    # Compute exact gradient
+    g_exact = likelihood.gradient(x_i)
+
+    # Compute FD gradient
+    likelihood.use_FD = True
+    likelihood.FD_tol = 1e-7
+    g_FD = likelihood.gradient(x_i)
+
+    # Assert that the exact and FD gradient are close,
+    # but not exactly equal (since we use a different method)
+    assert np.allclose(g_exact, g_FD) and np.all(g_exact != g_FD)
