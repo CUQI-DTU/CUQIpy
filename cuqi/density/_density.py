@@ -16,6 +16,12 @@ class Density(ABC):
     name: str
         Name of the random variable associated with the density.
 
+    use_FD: bool
+        Use finite difference approximation for the logd gradient
+
+    FD_epsilon: float
+        Spacing for the finite difference approximation
+
     Notes
     -----
     Subclasses must implement the following:
@@ -26,14 +32,14 @@ class Density(ABC):
     - get_parameter_names(self). Returns a list of the names of the parameters of the density.
 
     """
-    def __init__(self, name: Optional[str] = None,  use_FD=False, FD_tol=1e-8):
+    def __init__(self, name: Optional[str] = None,  use_FD=False, FD_epsilon=1e-8):
         if not isinstance(name, str) and name is not None:
             raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
         self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
         self.use_FD = use_FD # Use finite difference approximation for the logd gradient
-        self.FD_tol = FD_tol # Tolerance for the finite difference approximation
+        self.FD_epsilon = FD_epsilon # Spacing for the finite difference approximation
 
     @property
     def name(self):
@@ -87,7 +93,7 @@ class Density(ABC):
         # Use FD approximation if requested
         if self.use_FD:
             return cuqi.utilities.approx_derivative(
-                self.logd, *args, **kwargs, epsilon=self.FD_tol)
+                self.logd, *args, **kwargs, epsilon=self.FD_epsilon)
 
         # Otherwise use the implemented gradient
         return self._gradient(*args, **kwargs)
