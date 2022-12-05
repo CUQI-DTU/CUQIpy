@@ -189,7 +189,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
         dx[i] = 0.0
     if direction is None:
         if infer_len(f0) == 1:
-            return Matr.reshape(len(wrt))
+            return Matr.reshape(infer_len(wrt))
         else:
             return Matr.T
     else:
