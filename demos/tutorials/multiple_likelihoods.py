@@ -247,7 +247,7 @@ z_joint = cuqi.distribution.JointDistribution(theta,y1,y2)(y1=data1, y2=data2)
 print(z_joint)
 
 # %%
-# We see that in this case we obtain a :class:`MultipleLikelihoodPosterior` 
+# We see that in this case we obtain a :class:`SingleVariablePosterior` 
 # object, which represents the posterior distribution of the parameters `theta`
 # given the data `y1` and `y2`. The posterior distribution in this case is 
 # proportional to the product of the two likelihoods and the prior.
