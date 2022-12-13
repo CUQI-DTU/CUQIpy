@@ -189,8 +189,12 @@ class JointDistribution:
         n_likelihood = len(self._likelihoods)
 
         # Cant reduce if there are multiple distributions or likelihoods
-        if n_dist > 1 or n_likelihood > 1:
+        if n_dist > 1:
             return self
+
+        # If exactly one distribution and multiple likelihoods reduce
+        if n_dist == 1 and n_likelihood > 1:
+            return SingleVariablePosterior(*self._densities)
         
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
@@ -294,7 +298,90 @@ class _StackedJointDistribution(JointDistribution, Distribution):
         return self.logd(stacked_input)
     
     def _sample(self, Ns=1):
-        raise TypeError("StackedJointDistribution does not support sampling.")
+        raise TypeError(f"{self.__class__.__name__} does not support sampling.")
 
     def __repr__(self):
         return "_Stacked"+super().__repr__()
+
+
+class SingleVariablePosterior(JointDistribution, Distribution):
+    """ A posterior distribution for a single random variable. There can be multiple likelihoods and priors.
+
+    Parameters
+    ----------
+    densities : :class:`Distribution` or :class:`~cuqi.likelihood.Likelihood`
+        The densities that make up the Posterior. Must include
+        at least three densities. For a simple Likelihood and prior
+        use :class:`Posterior` instead.
+
+    Notes
+    -----    
+    This acts like a regular distribution with a single parameter vector. Behind-the-scenes
+    it is a joint distribution with multiple likelihoods and priors. This is mostly
+    intended to be used by samplers that are not able to handle joint distributions. 
+    See :class:`JointDistribution` for more details on the joint distribution.   
+    
+    """
+
+    def __init__(self, *densities: Density):
+        super().__init__(*densities)
+
+        self._check_densities_have_same_parameter()
+
+    @property
+    def geometry(self):
+        """ The geometry of the distribution. """
+        return self.priors[0].geometry
+
+    @property
+    def dim(self):
+        """ Return the dimension of the distribution. """
+        return self.priors[0].dim
+
+    @property
+    def priors(self):
+        """ Return the prior distributions of the posterior. """
+        return self._distributions
+
+    @property
+    def likelihoods(self):
+        """ Return the likelihoods of the posterior. """
+        return self._likelihoods
+
+    @property
+    def models(self):
+        """ Return the forward models that make up the posterior. """
+        return [likelihood.model for likelihood in self.likelihoods]
+
+    def logpdf(self, *args, **kwargs):
+        return self.logd(*args, **kwargs)
+
+    def gradient(self, *args, **kwargs):
+        """ Return the gradient of the un-normalized log density function. """
+        return sum(density.gradient(*args, **kwargs) for density in self._densities)      
+
+    def _sample(self, Ns=1):
+        raise TypeError(f"{self.__class__.__name__} does not support direct sampling.")
+
+    def _check_densities_have_same_parameter(self):
+        """ Checks the densities if they are for one parameter only and that there are at least 3 densities. """
+
+        if len(self._densities) < 3:
+            raise ValueError(f"{self.__class__.__name__} requires at least three densities. For a single likelihood and prior use Posterior instead.")
+        
+        if len(self.likelihoods) == 0 or len(self.priors) == 0:
+            raise ValueError(f"{self.__class__.__name__} must have a likelihood and prior.")
+
+        # Check that there is only a single parameter
+        par_names = self.get_parameter_names()
+        if len(set(par_names)) > 1:
+            raise ValueError(f"{self.__class__.__name__} requires all densities to have the same parameter name.")
+
+        # Check geometry matches for all distributions
+        for dist in self._distributions:
+            if dist.geometry != self.geometry:
+                raise ValueError(f"{self.__class__.__name__} requires all distributions to have the same geometry.")
+
+    def __repr__(self):
+        # Remove first line of super repr and add class name to the start
+        return f"{self.__class__.__name__}(\n" + "\n".join(super().__repr__().split("\n")[1:])
