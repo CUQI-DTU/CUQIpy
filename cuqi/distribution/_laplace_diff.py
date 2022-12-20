@@ -65,6 +65,10 @@ class Laplace_diff(Distribution):
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
+        # Check if location parameter is non-zero vector (not supported)
+        if callable(location) or np.linalg.norm(location) > 0:
+            raise ValueError("Non-zero location parameter not supported.")
+
     def pdf(self, x):
         Dx = self._diff_op @ (x-self.location)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
