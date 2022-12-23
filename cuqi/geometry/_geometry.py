@@ -737,6 +737,10 @@ class KLExpansion(Continuous1D):
             raise ValueError(
                 "Input array funvals must have length {}".format(self.fun_dim))
         
+        warnings.warn(f"fun2par for {self.__class__} is a projection on "+
+                         "the KL expansion coefficients space where only "+
+                         f"the first self.num_modes={self.num_modes} "+
+                         "coefficients are returned.")
         # Note, the scaling by 2*self.fun_dim is not needed if scipy.
         # fft.dst and scipy.fft.idst are used in fun2par and par2fun,
         # instead of using scipy.fftpack.dst and scipy.fftpack.idst.
