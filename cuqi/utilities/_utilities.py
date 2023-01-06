@@ -185,7 +185,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
     else:
         return Matr@direction
 
-def approx_gradient(func, x, dim, epsilon= 0.000001):
+def approx_gradient(func, x, epsilon= 0.000001):
     """Approximates the gradient of callable scalar function `func` evaluated at point `x`. The approximation is done using finite differences with
     step size `epsilon`."""
 
