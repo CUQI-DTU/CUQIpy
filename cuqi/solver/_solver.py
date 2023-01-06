@@ -3,8 +3,16 @@ from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt
 import scipy.sparse as spa
+
 from cuqi.samples import CUQIarray
+from cuqi import config
 eps = np.finfo(float).eps
+
+try:
+    from sksparse.cholmod import cholesky
+    has_cholmod = True
+except ImportError:
+    has_cholmod = False
 
 
 class L_BFGS_B(object):
@@ -274,8 +282,7 @@ class CGLS(object):
         # main loop
         k, flag, indefinite = 0, 0, 0
         while (k < self.maxit) and (flag == 0):
-            k += 1  
-
+            k += 1
             if self.explicitA:
                 q = self.A @ p
             else:
@@ -318,6 +325,136 @@ class CGLS(object):
             ValueError('\n Instability likely !') 
     
         return x, k
+
+
+class PCGLS:
+    """Conjugate Gradient method for least squares problems with preconditioning
+    
+    See Bjorck (1996) - Numerical Methods for Least Squares Problems. Pag 294.
+
+    Parameters
+    ----------
+    A : ndarray or callable f(x,*args).
+        Function or array representing the forward model.
+    b : ndarray
+        Data vector.
+    x0 : ndarray
+        Initial guess.    
+    P : ndarray
+        Preconditioner array in sparse format.
+    maxit : int
+        The maximum number of iterations.
+    tol : float
+        The numerical tolerance for convergence checks.
+    """    
+    def __init__(self, A, b, x0, P, maxit, tol=1e-6, shift=0):
+        self._A = A
+        self._b = b
+        self._x0 = x0
+        self._P = P
+        self._maxit = int(maxit)
+        self._tol = tol        
+        self._shift = shift
+        self._dim = len(x0)
+        if not callable(A):
+            self._explicitA = True
+        else:
+            self._explicitA = False
+        #
+        if self._dim < config.MAX_DIM_INV:
+            self._explicitPinv = True
+            Pinv = spa.linalg.inv(P)
+        else:
+            self._explicitPinv = False
+            Pinv = None # we do cholesky.solve or sparse.solve with P
+            if has_cholmod:
+                # turn P into a cholesky object
+                P = cholesky(P, ordering_method='natural')
+        self._Pinv = Pinv # inverse of the preconditioner as a ndarray or function
+
+    def solve(self):
+        # initial state
+        x = self._x0.copy()
+        r = self._b - self._apply_A(x, 1)
+        s = self._apply_Pinv(self._apply_A(r, 2), 2)
+        p = s.copy()
+
+        # initial computations        
+        norms0 = LA.norm(s)
+        normx = LA.norm(x)
+        gamma, xmax = norms0**2, normx
+
+        # main loop
+        k, flag, indefinite = 0, 0, 0
+        while (k < self._maxit) and (flag == 0):
+            k += 1
+            #
+            t = self._apply_Pinv(p, 1)
+            q = self._apply_A(t, 1)
+            #
+            delta_cgls = LA.norm(q)**2
+            if (delta_cgls < 0):
+                indefinite = True
+            elif (delta_cgls == 0):
+                delta_cgls = eps
+            alpha_cgls = gamma / delta_cgls
+            #
+            x += alpha_cgls*t
+            r -= alpha_cgls*q
+            s = self._apply_Pinv(self._apply_A(r, 2), 2)
+            #
+            norms = LA.norm(s)
+            gamma1 = gamma.copy()
+            gamma = norms**2
+            beta = gamma / gamma1
+            p = s + beta*p
+
+            # convergence
+            normx = LA.norm(x)
+            xmax = max(xmax, normx)
+            flag = (norms <= norms0*self._tol) or (normx*self._tol >= 1)
+            # resNE = norms / norms0
+
+        shrink = normx/xmax
+        if indefinite:          
+            flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
+            ValueError('\n Negative curvature detected !')  
+        if shrink <= np.sqrt(self._tol):
+            flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
+            ValueError('\n Instability likely !') 
+
+        return x, k
+
+    def _apply_A(self, x, flag):
+        # applies system operator A: forward or adjoint
+        if self._explicitA:
+            if flag == 1:
+                evalu = self._A @ x
+            elif flag == 2:
+                evalu = self._A.T @ x
+        else:
+            evalu = self._A(x, flag)
+        return evalu
+
+    def _apply_Pinv(self, x, flag):
+        # applies the inverse of the preconditioner P: forward or adjoint (see Bjorck (1996) P. 294)
+        if self._explicitPinv:
+            if flag == 1:
+                precond = self._Pinv @ x
+            elif flag == 2:
+                 precond = self._Pinv.T @ x
+        else:
+            if has_cholmod:
+                if flag == 1:
+                    precond = self._P.solve_A(x, use_LDLt_decomposition=False) 
+                elif flag == 2:
+                    precond = self._P.solve_At(x, use_LDLt_decomposition=False) 
+            else:
+                if flag == 1:
+                    precond = spa.linalg.spsolve(self._P, x) 
+                elif flag == 2:
+                    precond = spa.linalg.spsolve(self._P.T, x)
+        return precond
 
 
 
