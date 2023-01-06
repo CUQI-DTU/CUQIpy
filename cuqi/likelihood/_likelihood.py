@@ -44,24 +44,14 @@ class Likelihood(Density):
         self.distribution.name = value
 
     @property
-    def use_FD(self):
-        """ Return use_FD of the likelihood from the underlying distribution """
-        return self.distribution.use_FD
-
-    @use_FD.setter
-    def use_FD(self, value):
-        """ Set use_FD of the underlying distribution of the likelihood """
-        self.distribution.use_FD = value
+    def FD_enabled(self):
+        """ Return FD_enabled of the likelihood from the underlying distribution """
+        return self.distribution.FD_enabled
 
     @property
     def FD_epsilon(self):
         """ Return FD_epsilon of the likelihood from the underlying distribution """
         return self.distribution.FD_epsilon
-
-    @FD_epsilon.setter
-    def FD_epsilon(self, value):
-        """ Set FD_epsilon of the underlying distribution of the likelihood """
-        self.distribution.FD_epsilon = value
 
     @property
     def _constant(self):
@@ -144,6 +134,15 @@ class Likelihood(Density):
     # Overload parent to add type hint.
     def __call__(self, *args, **kwargs) -> Union[Likelihood, EvaluatedDensity]:
         return super().__call__(*args, **kwargs)
+
+    def enable_FD(self, epsilon=1e-8):
+        """ Call enable_FD of the underlying distribution """
+        self.distribution.enable_FD(epsilon)
+
+    def disable_FD(self):
+        """ Call disable_FD of the underlying distribution """
+        self.distribution.disable_FD()
+
 
 class UserDefinedLikelihood(object):
     """ Class to wrap user-defined likelihood functions.
