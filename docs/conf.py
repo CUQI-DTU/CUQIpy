@@ -84,14 +84,16 @@ html_static_path = ['_static']
 
 
 html_logo = "../logo.png"
+
+#TODO: The option 'logo' is to be removed once pydata-sphinx-theme 
+# makes their theme compatible with sphinx 6.0.0 and later.
 html_theme_options = {
     'collapse_navigation': False,
     'navigation_depth': 3,
     "show_prev_next": False,
-   "logo": { #TODO: This option (logo) is a temp fix for a bug
-             # in the pydata theme when Sphinx 6 is used.
-      "image_light": "logo-light.png",
-      "image_dark": "logo-dark.png",
+    "logo": {
+      "image_light": "https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png",
+      "image_dark": "https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png",
    }
 }
 
