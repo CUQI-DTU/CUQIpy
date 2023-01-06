@@ -363,7 +363,7 @@ def test_InverseGamma(a, location, scale, x, func):
         assert np.all(np.isclose(IGD.logpdf(x),np.sum(sp.stats.invgamma.logpdf(x, a=a, loc=location, scale=scale)))) and np.all(np.isclose(IGD.logpdf(x),np.sum(np.log(my_pdf(x, IGD.shape, IGD.location, IGD.scale)))))
 
     elif func == "gradient":
-        FD_gradient = cuqi.utilities.first_order_finite_difference_gradient(IGD.logpdf, x, IGD.dim, epsilon=0.000000001)
+        FD_gradient = cuqi.utilities.approx_gradient(IGD.logpdf, x, epsilon=0.000000001)
         #Assert that the InverseGamma gradient is close to the FD approximation or both gradients are nan.
         assert (np.all(np.isclose(IGD.gradient(x),FD_gradient,rtol=1e-3)) or
           (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(IGD.gradient(x)))))
@@ -548,7 +548,7 @@ def test_beta(): #TODO. Make more tests
     assert np.allclose(BD.logpdf(x), np.log(my_pdf(x, alpha, beta)))
     
     # GRADIENT
-    FD_gradient = cuqi.utilities.first_order_finite_difference_gradient(BD.logpdf, x, BD.dim, epsilon=0.000000001)
+    FD_gradient = cuqi.utilities.approx_gradient(BD.logpdf, x, epsilon=0.000000001)
     assert np.allclose(BD.gradient(x),FD_gradient,rtol=1e-3) or (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(BD.gradient(x))))
 
 
