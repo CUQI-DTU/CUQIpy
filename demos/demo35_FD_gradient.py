@@ -15,7 +15,7 @@ MH_samples.plot_ci(95,exact=TP.exactSolution)
 
 #%% Sample from the posterior using MALA
 plt.figure()
-posterior.use_FD = True
+posterior.enable_FD()
 MALA_sampler = cuqi.sampler.MALA(posterior, 0.0001)
 MALA_samples = MALA_sampler.sample_adapt(1000)
 MALA_samples.plot_ci(95,exact=TP.exactSolution)
