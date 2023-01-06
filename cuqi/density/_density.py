@@ -16,12 +16,6 @@ class Density(ABC):
     name: str
         Name of the random variable associated with the density.
 
-    use_FD: bool
-        Use finite difference approximation for the logd gradient
-
-    FD_epsilon: float
-        Spacing for the finite difference approximation
-
     Notes
     -----
     Subclasses must implement the following:
@@ -32,14 +26,13 @@ class Density(ABC):
     - get_parameter_names(self). Returns a list of the names of the parameters of the density.
 
     """
-    def __init__(self, name: Optional[str] = None,  use_FD=False, FD_epsilon=1e-8):
+    def __init__(self, name: Optional[str] = None):
         if not isinstance(name, str) and name is not None:
             raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
         self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
-        self.use_FD = use_FD # Use finite difference approximation for the logd gradient
-        self.FD_epsilon = FD_epsilon # Spacing for the finite difference approximation
+        self.disable_FD() # Disable FD approximation of the logd gradient by default.
 
     @property
     def name(self):
@@ -60,6 +53,16 @@ class Density(ABC):
     def _is_copy(self):
         """ Returns True if this is a copy of another density, e.g. by conditioning. """
         return hasattr(self, '_original_density') and self._original_density is not None
+
+    @property
+    def FD_enabled(self):
+        """ Returns True if finite difference approximation of the logd gradient is enabled. """
+        return self._FD_enabled
+
+    @property
+    def FD_epsilon(self):
+        """ Spacing for the finite difference approximation of the logd gradient. """
+        return self._FD_epsilon
 
     def logd(self, *args, **kwargs):
         """ Evaluates the un-normalized log density function given a set of parameters.
@@ -91,7 +94,7 @@ class Density(ABC):
         """ Returns the gradient of the log density at x. """
         
         # Use FD approximation if requested
-        if self.use_FD:
+        if self.FD_enabled:
             return cuqi.utilities.approx_derivative(
                 self.logd, *args, **kwargs, epsilon=self.FD_epsilon)
 
@@ -136,6 +139,19 @@ class Density(ABC):
         
         """
         return self._condition(*args, **kwargs)
+
+    def enable_FD(self, epsilon=1e-8):
+        """ Enable finite difference approximation for logd gradient. Note
+        That if enabled, the FD approximation will be used even if the 
+        _gradient method is implemented. """
+        self._FD_enabled = True
+        self._FD_epsilon = epsilon
+
+    def disable_FD(self):
+        """ Disable finite difference approximation for logd gradient. """
+        self._FD_enabled = False
+        self._FD_epsilon = None
+
 
 class EvaluatedDensity(Density):
     """ An evaluated density representing a constant number exposed through the logd method.
