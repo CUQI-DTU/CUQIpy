@@ -87,7 +87,12 @@ html_logo = "../logo.png"
 html_theme_options = {
     'collapse_navigation': False,
     'navigation_depth': 3,
-    "show_prev_next": False
+    "show_prev_next": False,
+   "logo": { #TODO: This option (logo) is a temp fix for a bug
+             # in the pydata theme when Sphinx 6 is used.
+      "image_light": "logo-light.png",
+      "image_dark": "logo-dark.png",
+   }
 }
 
 def setup(app):
