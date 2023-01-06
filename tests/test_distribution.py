@@ -576,7 +576,7 @@ def test_enable_FD_gradient_distributions(dist):
     g_exact = dist.gradient(x)
 
     # FD gradient
-    dist.use_FD = True
+    dist.enable_FD()
     g_FD = dist.gradient(x)
 
     # Assert that the FD gradient is close to the exact gradient
@@ -612,8 +612,7 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
     g_exact = posterior.gradient(x_i)
 
     # Compute FD gradient
-    posterior.use_FD = True
-    posterior.FD_epsilon = 1e-7
+    posterior.enable_FD(1e-7)
     g_FD = posterior.gradient(x_i)
 
     # Assert that the exact and FD gradient are close,

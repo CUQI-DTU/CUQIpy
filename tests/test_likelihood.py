@@ -132,8 +132,7 @@ def test_enable_FD_gradient(y, x_i):
     g_exact = likelihood.gradient(x_i)
 
     # Compute FD gradient
-    likelihood.use_FD = True
-    likelihood.FD_epsilon = 1e-7
+    likelihood.enable_FD(1e-7)
     g_FD = likelihood.gradient(x_i)
 
     # Assert that the exact and FD gradient are close,
