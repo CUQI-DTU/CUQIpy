@@ -6,6 +6,7 @@ from scipy.sparse import issparse, diags
 from scipy.sparse import linalg as spslinalg
 from dataclasses import dataclass
 from abc import ABCMeta
+import copy
 
 
 def force_ndarray(value,flatten=False):
@@ -97,17 +98,6 @@ def get_writeable_properties(cls, stop_at_class=object):
         writeable_properties += get_writeable_properties(base)
     return writeable_properties
 
-def first_order_finite_difference_gradient(func, x, dim, epsilon= 0.000001):
-    FD_gradient = np.empty(dim)
- 
-    for i in range(dim):
-        eps_vec = np.zeros(dim)
-        eps_vec[i] = epsilon
-        x_plus_eps = x + eps_vec
-        FD_gradient[i] = (func(x_plus_eps) - func(x))/epsilon
-        
-    return FD_gradient
-
 @dataclass
 class ProblemInfo:
     """Problem info dataclass. Gives a convenient way to store data defined in test-problems."""
@@ -194,3 +184,24 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(np.flo
             return Matr.T
     else:
         return Matr@direction
+
+def approx_gradient(func, x, dim, epsilon= 0.000001):
+    """Approximates the gradient of callable scalar function `func` evaluated at point `x`. The approximation is done using finite differences with
+    step size `epsilon`."""
+
+    #TODO: use approx_derivative after making it data structure agnostic
+    #return approx_derivative(func, x, None, epsilon=epsilon)
+ 
+    if isinstance(x, Number):
+        return (func(x+epsilon) - func(x))/epsilon
+
+    FD_gradient = copy.deepcopy(x)*0.0
+    eps_vec = copy.deepcopy(x)*0.0
+
+    for i, x_i in enumerate(x):
+        eps_vec[i] = epsilon
+        x_plus_eps = x + eps_vec
+        FD_gradient[i] = (func(x_plus_eps) - func(x))/epsilon
+        eps_vec[i] = 0.0
+        
+    return FD_gradient
