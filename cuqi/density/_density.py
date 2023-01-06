@@ -95,7 +95,7 @@ class Density(ABC):
         
         # Use FD approximation if requested
         if self.FD_enabled:
-            return cuqi.utilities.approx_derivative(
+            return cuqi.utilities.approx_gradient(
                 self.logd, *args, **kwargs, epsilon=self.FD_epsilon)
 
         # Otherwise use the implemented gradient
