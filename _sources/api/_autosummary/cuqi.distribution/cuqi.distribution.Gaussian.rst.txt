@@ -1,0 +1,52 @@
+Gaussian
+========
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Gaussian
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Gaussian.__init__
+      ~Gaussian.cdf
+      ~Gaussian.compute_cov
+      ~Gaussian.get_conditioning_variables
+      ~Gaussian.get_mutable_variables
+      ~Gaussian.get_parameter_names
+      ~Gaussian.gradient
+      ~Gaussian.logd
+      ~Gaussian.logpdf
+      ~Gaussian.pdf
+      ~Gaussian.sample
+      ~Gaussian.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Gaussian.cov
+      ~Gaussian.dim
+      ~Gaussian.geometry
+      ~Gaussian.is_cond
+      ~Gaussian.logdet
+      ~Gaussian.mean
+      ~Gaussian.name
+      ~Gaussian.prec
+      ~Gaussian.rank
+      ~Gaussian.sqrtcov
+      ~Gaussian.sqrtprec
+      ~Gaussian.sqrtprecTimesMean
+   
+   

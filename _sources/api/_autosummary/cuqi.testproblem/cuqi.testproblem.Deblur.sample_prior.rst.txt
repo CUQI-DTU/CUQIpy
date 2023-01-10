@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.sample\_prior
+=====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.sample_prior

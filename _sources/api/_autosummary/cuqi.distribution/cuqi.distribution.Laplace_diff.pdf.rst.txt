@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace\_diff.pdf
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace_diff.pdf

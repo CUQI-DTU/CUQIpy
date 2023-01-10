@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson\_1D.\_\_init\_\_
+=========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Poisson_1D.__init__

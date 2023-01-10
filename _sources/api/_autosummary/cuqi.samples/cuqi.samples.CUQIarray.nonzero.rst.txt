@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.nonzero
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.nonzero

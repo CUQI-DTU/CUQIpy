@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson\_1D.sample\_posterior
+==============================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Poisson_1D.sample_posterior

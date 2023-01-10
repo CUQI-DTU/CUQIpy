@@ -1,0 +1,39 @@
+MetropolisHastings
+==================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: MetropolisHastings
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MetropolisHastings.__init__
+      ~MetropolisHastings.sample
+      ~MetropolisHastings.sample_adapt
+      ~MetropolisHastings.single_update
+      ~MetropolisHastings.step
+      ~MetropolisHastings.step_tune
+      ~MetropolisHastings.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MetropolisHastings.dim
+      ~MetropolisHastings.geometry
+      ~MetropolisHastings.proposal
+      ~MetropolisHastings.target
+   
+   

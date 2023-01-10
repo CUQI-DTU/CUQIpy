@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.\_\_init\_\_
+====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.__init__

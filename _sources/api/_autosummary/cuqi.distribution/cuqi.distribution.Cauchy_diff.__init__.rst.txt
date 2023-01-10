@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy\_diff.\_\_init\_\_
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy_diff.__init__

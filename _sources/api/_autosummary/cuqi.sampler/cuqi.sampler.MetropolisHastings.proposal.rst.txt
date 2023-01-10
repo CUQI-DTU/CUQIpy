@@ -1,0 +1,6 @@
+cuqi.sampler.MetropolisHastings.proposal
+========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MetropolisHastings.proposal

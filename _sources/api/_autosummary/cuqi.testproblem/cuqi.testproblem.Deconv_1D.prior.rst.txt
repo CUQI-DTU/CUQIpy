@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconv\_1D.prior
+=================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deconv_1D.prior

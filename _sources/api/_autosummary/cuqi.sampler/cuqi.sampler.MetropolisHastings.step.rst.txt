@@ -1,0 +1,6 @@
+cuqi.sampler.MetropolisHastings.step
+====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MetropolisHastings.step

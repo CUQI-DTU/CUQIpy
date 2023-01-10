@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.pdf
+============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.pdf

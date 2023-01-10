@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.dtype
+============================
+
+.. currentmodule:: cuqi.samples
+
+.. autoattribute:: CUQIarray.dtype

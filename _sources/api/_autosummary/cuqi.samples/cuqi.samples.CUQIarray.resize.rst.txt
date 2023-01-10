@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.resize
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.resize

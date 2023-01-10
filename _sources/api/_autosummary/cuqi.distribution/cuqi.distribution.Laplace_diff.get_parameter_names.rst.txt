@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace\_diff.get\_parameter\_names
+=====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace_diff.get_parameter_names

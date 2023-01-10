@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel\_1D.ML
+============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel_1D.ML

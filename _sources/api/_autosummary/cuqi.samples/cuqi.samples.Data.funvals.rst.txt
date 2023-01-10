@@ -1,0 +1,6 @@
+cuqi.samples.Data.funvals
+=========================
+
+.. currentmodule:: cuqi.samples
+
+.. autoproperty:: Data.funvals

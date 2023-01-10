@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.__init__

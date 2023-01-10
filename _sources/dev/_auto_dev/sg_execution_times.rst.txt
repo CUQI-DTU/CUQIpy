@@ -1,0 +1,12 @@
+
+:orphan:
+
+.. _sphx_glr_dev__auto_dev_sg_execution_times:
+
+Computation times
+=================
+**00:00.012** total execution time for **dev__auto_dev** files:
+
++-------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_dev__auto_dev_JointDistribution.py` (``JointDistribution.py``) | 00:00.012 | 0.0 MB |
++-------------------------------------------------------------------------------+-----------+--------+

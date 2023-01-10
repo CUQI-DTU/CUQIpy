@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat\_1D.get\_components
+=========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Heat_1D.get_components

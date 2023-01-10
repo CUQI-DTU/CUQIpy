@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.plot
+===========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.plot

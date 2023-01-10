@@ -1,0 +1,6 @@
+first\_order\_finite\_difference\_gradient
+==========================================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: first_order_finite_difference_gradient

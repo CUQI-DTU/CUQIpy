@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.set\_data
+=================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.set_data

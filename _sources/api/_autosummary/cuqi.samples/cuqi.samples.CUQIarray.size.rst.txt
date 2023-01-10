@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.size
+===========================
+
+.. currentmodule:: cuqi.samples
+
+.. autoattribute:: CUQIarray.size

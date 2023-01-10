@@ -1,0 +1,41 @@
+Laplace\_diff
+=============
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Laplace_diff
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Laplace_diff.__init__
+      ~Laplace_diff.get_conditioning_variables
+      ~Laplace_diff.get_mutable_variables
+      ~Laplace_diff.get_parameter_names
+      ~Laplace_diff.logd
+      ~Laplace_diff.logpdf
+      ~Laplace_diff.pdf
+      ~Laplace_diff.sample
+      ~Laplace_diff.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Laplace_diff.dim
+      ~Laplace_diff.geometry
+      ~Laplace_diff.is_cond
+      ~Laplace_diff.name
+   
+   

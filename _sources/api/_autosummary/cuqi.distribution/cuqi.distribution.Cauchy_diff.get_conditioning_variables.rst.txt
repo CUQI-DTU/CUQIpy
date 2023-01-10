@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy\_diff.get\_conditioning\_variables
+===========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy_diff.get_conditioning_variables

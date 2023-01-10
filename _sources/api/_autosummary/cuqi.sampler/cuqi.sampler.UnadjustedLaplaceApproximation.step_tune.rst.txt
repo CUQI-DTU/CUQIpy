@@ -1,0 +1,6 @@
+cuqi.sampler.UnadjustedLaplaceApproximation.step\_tune
+======================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UnadjustedLaplaceApproximation.step_tune

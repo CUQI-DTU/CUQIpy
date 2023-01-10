@@ -1,0 +1,42 @@
+Cauchy\_diff
+============
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Cauchy_diff
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Cauchy_diff.__init__
+      ~Cauchy_diff.get_conditioning_variables
+      ~Cauchy_diff.get_mutable_variables
+      ~Cauchy_diff.get_parameter_names
+      ~Cauchy_diff.gradient
+      ~Cauchy_diff.logd
+      ~Cauchy_diff.logpdf
+      ~Cauchy_diff.pdf
+      ~Cauchy_diff.sample
+      ~Cauchy_diff.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Cauchy_diff.dim
+      ~Cauchy_diff.geometry
+      ~Cauchy_diff.is_cond
+      ~Cauchy_diff.name
+   
+   

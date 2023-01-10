@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.compress
+===============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.compress

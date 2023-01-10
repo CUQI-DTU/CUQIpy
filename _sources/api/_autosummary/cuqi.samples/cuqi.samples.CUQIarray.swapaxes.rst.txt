@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.swapaxes
+===============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.swapaxes

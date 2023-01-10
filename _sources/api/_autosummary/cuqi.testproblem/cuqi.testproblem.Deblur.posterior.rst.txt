@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.posterior
+=================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deblur.posterior

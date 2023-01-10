@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace\_diff.\_\_init\_\_
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace_diff.__init__

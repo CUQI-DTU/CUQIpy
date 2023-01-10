@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.model
+=============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deblur.model

@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconv\_1D.model
+=================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deconv_1D.model

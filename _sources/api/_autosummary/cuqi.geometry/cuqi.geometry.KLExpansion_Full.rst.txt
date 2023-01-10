@@ -1,0 +1,40 @@
+KLExpansion\_Full
+=================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: KLExpansion_Full
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~KLExpansion_Full.__init__
+      ~KLExpansion_Full.fun2par
+      ~KLExpansion_Full.par2fun
+      ~KLExpansion_Full.plot
+      ~KLExpansion_Full.plot_envelope
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~KLExpansion_Full.coefs
+      ~KLExpansion_Full.fun_dim
+      ~KLExpansion_Full.fun_shape
+      ~KLExpansion_Full.grid
+      ~KLExpansion_Full.par_dim
+      ~KLExpansion_Full.par_shape
+      ~KLExpansion_Full.variables
+   
+   

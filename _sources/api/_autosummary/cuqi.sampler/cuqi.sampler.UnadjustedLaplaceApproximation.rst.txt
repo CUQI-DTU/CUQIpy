@@ -1,0 +1,37 @@
+UnadjustedLaplaceApproximation
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: UnadjustedLaplaceApproximation
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UnadjustedLaplaceApproximation.__init__
+      ~UnadjustedLaplaceApproximation.sample
+      ~UnadjustedLaplaceApproximation.sample_adapt
+      ~UnadjustedLaplaceApproximation.step
+      ~UnadjustedLaplaceApproximation.step_tune
+      ~UnadjustedLaplaceApproximation.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UnadjustedLaplaceApproximation.dim
+      ~UnadjustedLaplaceApproximation.geometry
+      ~UnadjustedLaplaceApproximation.target
+   
+   

@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.argmax
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.argmax

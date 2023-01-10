@@ -1,0 +1,6 @@
+cuqi.samples.Data.parameters
+============================
+
+.. currentmodule:: cuqi.samples
+
+.. autoproperty:: Data.parameters

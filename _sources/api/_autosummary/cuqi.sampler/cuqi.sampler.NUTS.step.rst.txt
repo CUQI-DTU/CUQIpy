@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.step
+======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.step

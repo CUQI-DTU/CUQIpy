@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.MAP
+===========================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.MAP

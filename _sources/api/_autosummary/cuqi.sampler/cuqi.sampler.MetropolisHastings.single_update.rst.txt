@@ -1,0 +1,6 @@
+cuqi.sampler.MetropolisHastings.single\_update
+==============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MetropolisHastings.single_update

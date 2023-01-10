@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.sample\_posterior
+=========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.sample_posterior

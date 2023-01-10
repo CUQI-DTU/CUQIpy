@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.ML
+==========================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.ML

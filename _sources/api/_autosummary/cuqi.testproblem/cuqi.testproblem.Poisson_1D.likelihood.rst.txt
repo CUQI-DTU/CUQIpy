@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson\_1D.likelihood
+=======================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Poisson_1D.likelihood

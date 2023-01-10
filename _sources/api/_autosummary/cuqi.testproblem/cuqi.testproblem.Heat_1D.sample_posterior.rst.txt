@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat\_1D.sample\_posterior
+===========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Heat_1D.sample_posterior

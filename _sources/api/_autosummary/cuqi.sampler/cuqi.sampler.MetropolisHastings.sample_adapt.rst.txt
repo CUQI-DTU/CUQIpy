@@ -1,0 +1,6 @@
+cuqi.sampler.MetropolisHastings.sample\_adapt
+=============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MetropolisHastings.sample_adapt

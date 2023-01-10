@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.argpartition
+===================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.argpartition

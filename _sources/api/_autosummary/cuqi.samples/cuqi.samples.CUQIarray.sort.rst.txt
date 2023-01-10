@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.sort
+===========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.sort

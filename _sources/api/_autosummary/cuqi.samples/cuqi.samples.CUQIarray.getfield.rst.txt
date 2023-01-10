@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.getfield
+===============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.getfield

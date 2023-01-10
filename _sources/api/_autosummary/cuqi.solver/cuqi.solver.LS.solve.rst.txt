@@ -1,0 +1,6 @@
+cuqi.solver.LS.solve
+====================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: LS.solve

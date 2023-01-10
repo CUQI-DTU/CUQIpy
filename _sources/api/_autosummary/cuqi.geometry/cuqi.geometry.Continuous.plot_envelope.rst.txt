@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous.plot\_envelope
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Continuous.plot_envelope

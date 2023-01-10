@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel\_1D.MAP
+=============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel_1D.MAP

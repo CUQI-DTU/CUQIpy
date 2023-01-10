@@ -1,0 +1,33 @@
+EvaluatedDensity
+================
+
+.. currentmodule:: cuqi.density
+
+.. autoclass:: EvaluatedDensity
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~EvaluatedDensity.__init__
+      ~EvaluatedDensity.get_parameter_names
+      ~EvaluatedDensity.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~EvaluatedDensity.dim
+      ~EvaluatedDensity.name
+   
+   

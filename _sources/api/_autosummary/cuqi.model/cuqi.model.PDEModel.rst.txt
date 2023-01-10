@@ -1,0 +1,33 @@
+PDEModel
+========
+
+.. currentmodule:: cuqi.model
+
+.. autoclass:: PDEModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PDEModel.__init__
+      ~PDEModel.forward
+      ~PDEModel.gradient
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PDEModel.domain_dim
+      ~PDEModel.range_dim
+   
+   

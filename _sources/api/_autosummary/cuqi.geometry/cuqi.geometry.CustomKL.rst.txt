@@ -1,0 +1,44 @@
+CustomKL
+========
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: CustomKL
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CustomKL.__init__
+      ~CustomKL.fun2par
+      ~CustomKL.par2fun
+      ~CustomKL.plot
+      ~CustomKL.plot_envelope
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CustomKL.eigval
+      ~CustomKL.eigvec
+      ~CustomKL.fun_dim
+      ~CustomKL.fun_shape
+      ~CustomKL.grid
+      ~CustomKL.mean
+      ~CustomKL.par_dim
+      ~CustomKL.par_shape
+      ~CustomKL.std
+      ~CustomKL.trunc_term
+      ~CustomKL.variables
+   
+   

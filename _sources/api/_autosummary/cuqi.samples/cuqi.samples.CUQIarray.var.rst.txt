@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.var
+==========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.var

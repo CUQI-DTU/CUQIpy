@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.flags
+============================
+
+.. currentmodule:: cuqi.samples
+
+.. autoattribute:: CUQIarray.flags

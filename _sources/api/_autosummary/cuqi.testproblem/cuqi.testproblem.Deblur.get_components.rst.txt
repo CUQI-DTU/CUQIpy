@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.get\_components
+=======================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deblur.get_components

@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel\_1D.set\_data
+===================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel_1D.set_data

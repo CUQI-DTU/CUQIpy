@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconv\_1D.MAP
+===============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconv_1D.MAP

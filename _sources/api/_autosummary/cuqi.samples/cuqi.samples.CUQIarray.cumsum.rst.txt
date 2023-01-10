@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.cumsum
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.cumsum

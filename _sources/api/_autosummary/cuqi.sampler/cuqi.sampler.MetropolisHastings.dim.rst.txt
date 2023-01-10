@@ -1,0 +1,6 @@
+cuqi.sampler.MetropolisHastings.dim
+===================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MetropolisHastings.dim

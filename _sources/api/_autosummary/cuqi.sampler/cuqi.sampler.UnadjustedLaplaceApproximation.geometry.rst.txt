@@ -1,0 +1,6 @@
+cuqi.sampler.UnadjustedLaplaceApproximation.geometry
+====================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: UnadjustedLaplaceApproximation.geometry

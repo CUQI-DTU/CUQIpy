@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.newbyteorder
+===================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.newbyteorder

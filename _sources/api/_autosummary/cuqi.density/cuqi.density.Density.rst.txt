@@ -1,0 +1,33 @@
+Density
+=======
+
+.. currentmodule:: cuqi.density
+
+.. autoclass:: Density
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Density.__init__
+      ~Density.get_parameter_names
+      ~Density.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Density.dim
+      ~Density.name
+   
+   

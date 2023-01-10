@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconv\_1D.sample\_posterior
+=============================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconv_1D.sample_posterior

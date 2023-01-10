@@ -1,0 +1,6 @@
+cuqi.sampler.MetropolisHastings.geometry
+========================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MetropolisHastings.geometry

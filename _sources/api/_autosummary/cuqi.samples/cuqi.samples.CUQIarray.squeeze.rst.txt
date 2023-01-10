@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.squeeze
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.squeeze

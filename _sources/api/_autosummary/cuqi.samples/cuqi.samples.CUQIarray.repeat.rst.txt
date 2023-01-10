@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.repeat
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.repeat

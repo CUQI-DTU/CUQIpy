@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat\_1D.\_\_init\_\_
+======================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Heat_1D.__init__

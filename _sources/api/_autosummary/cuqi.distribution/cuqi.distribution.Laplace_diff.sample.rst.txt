@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace\_diff.sample
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace_diff.sample

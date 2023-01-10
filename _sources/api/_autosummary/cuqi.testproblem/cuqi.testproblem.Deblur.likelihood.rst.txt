@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.likelihood
+==================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deblur.likelihood

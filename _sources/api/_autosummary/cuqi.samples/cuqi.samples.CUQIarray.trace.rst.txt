@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.trace
+============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.trace

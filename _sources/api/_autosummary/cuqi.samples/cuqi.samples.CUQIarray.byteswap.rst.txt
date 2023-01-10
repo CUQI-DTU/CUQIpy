@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.byteswap
+===============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.byteswap

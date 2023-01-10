@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.tobytes
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.tobytes

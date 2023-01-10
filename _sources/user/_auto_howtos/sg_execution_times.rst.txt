@@ -1,0 +1,16 @@
+
+:orphan:
+
+.. _sphx_glr_user__auto_howtos_sg_execution_times:
+
+Computation times
+=================
+**00:34.303** total execution time for **user__auto_howtos** files:
+
++---------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_user__auto_howtos_Deconvolution2D.py` (``Deconvolution2D.py``)               | 00:33.137 | 0.0 MB |
++---------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_user__auto_howtos_TimeDependentLinearPDE.py` (``TimeDependentLinearPDE.py``) | 00:01.165 | 0.0 MB |
++---------------------------------------------------------------------------------------------+-----------+--------+
+| :ref:`sphx_glr_user__auto_howtos_custom_model.py` (``custom_model.py``)                     | 00:00.000 | 0.0 MB |
++---------------------------------------------------------------------------------------------+-----------+--------+

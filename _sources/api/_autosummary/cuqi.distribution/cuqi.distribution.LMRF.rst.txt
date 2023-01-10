@@ -1,0 +1,41 @@
+LMRF
+====
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: LMRF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LMRF.__init__
+      ~LMRF.get_conditioning_variables
+      ~LMRF.get_mutable_variables
+      ~LMRF.get_parameter_names
+      ~LMRF.logd
+      ~LMRF.logpdf
+      ~LMRF.pdf
+      ~LMRF.sample
+      ~LMRF.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LMRF.dim
+      ~LMRF.geometry
+      ~LMRF.is_cond
+      ~LMRF.name
+   
+   

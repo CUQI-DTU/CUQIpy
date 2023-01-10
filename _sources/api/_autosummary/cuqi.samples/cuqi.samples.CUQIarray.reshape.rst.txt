@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.reshape
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.reshape

@@ -1,0 +1,43 @@
+solver
+======
+
+Module path: cuqi.solver
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.solver
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.solver
+    :nosignatures:
+    :recursive:
+
+   
+      CGLS
+      LM
+      LS
+      L_BFGS_B
+      PDHG
+      maximize
+      minimize
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat\_1D.set\_data
+===================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Heat_1D.set_data

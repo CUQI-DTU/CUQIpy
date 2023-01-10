@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.real
+===========================
+
+.. currentmodule:: cuqi.samples
+
+.. autoattribute:: CUQIarray.real

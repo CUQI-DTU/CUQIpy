@@ -1,0 +1,6 @@
+cuqi.sampler.Linear\_RTO.dim
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Linear_RTO.dim

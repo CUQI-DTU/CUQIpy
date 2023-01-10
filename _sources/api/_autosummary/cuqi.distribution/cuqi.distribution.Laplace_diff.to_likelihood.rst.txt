@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace\_diff.to\_likelihood
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Laplace_diff.to_likelihood

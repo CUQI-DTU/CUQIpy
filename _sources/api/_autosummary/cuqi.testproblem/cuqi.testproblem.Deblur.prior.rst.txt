@@ -1,0 +1,6 @@
+cuqi.testproblem.Deblur.prior
+=============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deblur.prior

@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconv\_1D.UQ
+==============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconv_1D.UQ

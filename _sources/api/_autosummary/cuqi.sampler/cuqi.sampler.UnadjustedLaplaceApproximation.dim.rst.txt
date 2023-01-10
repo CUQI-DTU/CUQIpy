@@ -1,0 +1,6 @@
+cuqi.sampler.UnadjustedLaplaceApproximation.dim
+===============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: UnadjustedLaplaceApproximation.dim

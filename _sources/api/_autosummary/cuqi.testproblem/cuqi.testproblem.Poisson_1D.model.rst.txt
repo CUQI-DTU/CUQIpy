@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson\_1D.model
+==================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Poisson_1D.model

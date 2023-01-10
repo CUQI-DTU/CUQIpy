@@ -1,0 +1,41 @@
+Deblur
+======
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoclass:: Deblur
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Deblur.MAP
+      ~Deblur.ML
+      ~Deblur.UQ
+      ~Deblur.__init__
+      ~Deblur.get_components
+      ~Deblur.sample_posterior
+      ~Deblur.sample_prior
+      ~Deblur.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Deblur.data
+      ~Deblur.likelihood
+      ~Deblur.model
+      ~Deblur.posterior
+      ~Deblur.prior
+   
+   

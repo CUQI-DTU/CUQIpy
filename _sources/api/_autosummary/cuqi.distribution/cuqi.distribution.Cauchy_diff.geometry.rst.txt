@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy\_diff.geometry
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Cauchy_diff.geometry

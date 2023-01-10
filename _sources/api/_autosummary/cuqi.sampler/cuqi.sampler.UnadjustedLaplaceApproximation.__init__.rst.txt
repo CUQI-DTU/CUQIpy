@@ -1,0 +1,6 @@
+cuqi.sampler.UnadjustedLaplaceApproximation.\_\_init\_\_
+========================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UnadjustedLaplaceApproximation.__init__

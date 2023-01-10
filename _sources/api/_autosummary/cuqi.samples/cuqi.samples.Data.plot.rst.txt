@@ -1,0 +1,6 @@
+cuqi.samples.Data.plot
+======================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Data.plot

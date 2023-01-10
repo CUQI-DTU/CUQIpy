@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson\_1D.MAP
+================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Poisson_1D.MAP

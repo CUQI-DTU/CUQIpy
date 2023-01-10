@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.tofile
+=============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.tofile

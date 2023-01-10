@@ -1,0 +1,44 @@
+Posterior
+=========
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Posterior
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Posterior.__init__
+      ~Posterior.get_conditioning_variables
+      ~Posterior.get_mutable_variables
+      ~Posterior.get_parameter_names
+      ~Posterior.gradient
+      ~Posterior.logd
+      ~Posterior.logpdf
+      ~Posterior.pdf
+      ~Posterior.sample
+      ~Posterior.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Posterior.data
+      ~Posterior.dim
+      ~Posterior.geometry
+      ~Posterior.is_cond
+      ~Posterior.model
+      ~Posterior.name
+   
+   

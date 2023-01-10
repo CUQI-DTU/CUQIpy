@@ -1,0 +1,6 @@
+cuqi.samples.Data.\_\_init\_\_
+==============================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Data.__init__

@@ -1,0 +1,43 @@
+JointGaussianSqrtPrec
+=====================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: JointGaussianSqrtPrec
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~JointGaussianSqrtPrec.__init__
+      ~JointGaussianSqrtPrec.get_conditioning_variables
+      ~JointGaussianSqrtPrec.get_mutable_variables
+      ~JointGaussianSqrtPrec.get_parameter_names
+      ~JointGaussianSqrtPrec.logd
+      ~JointGaussianSqrtPrec.logpdf
+      ~JointGaussianSqrtPrec.pdf
+      ~JointGaussianSqrtPrec.sample
+      ~JointGaussianSqrtPrec.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~JointGaussianSqrtPrec.dim
+      ~JointGaussianSqrtPrec.geometry
+      ~JointGaussianSqrtPrec.is_cond
+      ~JointGaussianSqrtPrec.name
+      ~JointGaussianSqrtPrec.sqrtprec
+      ~JointGaussianSqrtPrec.sqrtprecTimesMean
+   
+   

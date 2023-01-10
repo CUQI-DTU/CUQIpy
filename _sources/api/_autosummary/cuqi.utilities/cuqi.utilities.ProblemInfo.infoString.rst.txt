@@ -1,0 +1,6 @@
+cuqi.utilities.ProblemInfo.infoString
+=====================================
+
+.. currentmodule:: cuqi.utilities
+
+.. autoattribute:: ProblemInfo.infoString

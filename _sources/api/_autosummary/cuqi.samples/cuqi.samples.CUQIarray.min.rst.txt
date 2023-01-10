@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.min
+==========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.min

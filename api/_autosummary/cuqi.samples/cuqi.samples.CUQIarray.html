@@ -1,0 +1,871 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>CUQIarray &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/clipboard.min.js"></script>
+    <script src="../../../_static/copybutton.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/_autosummary/cuqi.samples/cuqi.samples.CUQIarray';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="cuqi.samples.CUQIarray.__init__" href="cuqi.samples.CUQIarray.__init__.html" />
+    <link rel="prev" title="samples" href="../cuqi.samples.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../user/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../dev/index.html">
+                        Contributor's Guide
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../user/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        API reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../dev/index.html">
+                        Contributor's Guide
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item"><nav class="bd-links" id="bd-docs-nav" aria-label="Section navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">
+    Section Navigation
+  </p>
+  <div class="bd-toc-item navbar-nav">
+    <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../cuqi.html">cuqi</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cuqi.config.html">config</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.data.html">data</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.astronaut.html">astronaut</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.camera.html">camera</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.cat.html">cat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.grains.html">grains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.imresize.html">imresize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.p_power.html">p_power</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.rgb2gray.html">rgb2gray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.satellite.html">satellite</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.shepp_logan.html">shepp_logan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.data/cuqi.data.threephases.html">threephases</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.density.html">density</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.density/cuqi.density.Density.html">Density</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.density/cuqi.density.EvaluatedDensity.html">EvaluatedDensity</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.diagnostics.html">diagnostics</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.diagnostics/cuqi.diagnostics.Geweke.html">Geweke</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.diagnostics/cuqi.diagnostics.spectrum.html">spectrum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.diagnostics/cuqi.diagnostics.spectrum0.html">spectrum0</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.distribution.html">distribution</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Beta.html">Beta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Cauchy_diff.html">Cauchy_diff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Distribution.html">Distribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.DistributionGallery.html">DistributionGallery</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.GMRF.html">GMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Gamma.html">Gamma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Gaussian.html">Gaussian</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.InverseGamma.html">InverseGamma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.JointDistribution.html">JointDistribution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.JointGaussianSqrtPrec.html">JointGaussianSqrtPrec</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.LMRF.html">LMRF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Laplace.html">Laplace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Laplace_diff.html">Laplace_diff</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Lognormal.html">Lognormal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Normal.html">Normal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Posterior.html">Posterior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.Uniform.html">Uniform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.distribution/cuqi.distribution.UserDefinedDistribution.html">UserDefinedDistribution</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.geometry.html">geometry</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Continuous.html">Continuous</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Continuous1D.html">Continuous1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Continuous2D.html">Continuous2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.CustomKL.html">CustomKL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Discrete.html">Discrete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Geometry.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Image2D.html">Image2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.KLExpansion.html">KLExpansion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.KLExpansion_Full.html">KLExpansion_Full</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.MappedGeometry.html">MappedGeometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.geometry/cuqi.geometry.StepExpansion.html">StepExpansion</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.likelihood.html">likelihood</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.likelihood/cuqi.likelihood.Likelihood.html">Likelihood</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.likelihood/cuqi.likelihood.UserDefinedLikelihood.html">UserDefinedLikelihood</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.model.html">model</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-8"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.LinearModel.html">LinearModel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.Model.html">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.model/cuqi.model.PDEModel.html">PDEModel</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.operator.html">operator</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-9"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.FirstOrderFiniteDifference.html">FirstOrderFiniteDifference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.Operator.html">Operator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.PrecisionFiniteDifference.html">PrecisionFiniteDifference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.operator/cuqi.operator.SecondOrderFiniteDifference.html">SecondOrderFiniteDifference</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.pde.html">pde</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-10"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.LinearPDE.html">LinearPDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.PDE.html">PDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.SteadyStateLinearPDE.html">SteadyStateLinearPDE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.pde/cuqi.pde.TimeDependentLinearPDE.html">TimeDependentLinearPDE</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.problem.html">problem</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-11"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.problem/cuqi.problem.BayesianProblem.html">BayesianProblem</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.sampler.html">sampler</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-12"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.CWMH.html">CWMH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.Conjugate.html">Conjugate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.ConjugateApprox.html">ConjugateApprox</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.Gibbs.html">Gibbs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.Linear_RTO.html">Linear_RTO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.MALA.html">MALA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.MetropolisHastings.html">MetropolisHastings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.NUTS.html">NUTS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.ProposalBasedSampler.html">ProposalBasedSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.Sampler.html">Sampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.ULA.html">ULA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.UnadjustedLaplaceApproximation.html">UnadjustedLaplaceApproximation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.sampler/cuqi.sampler.pCN.html">pCN</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../cuqi.samples.html">samples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-13"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">CUQIarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.samples.Data.html">Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cuqi.samples.Samples.html">Samples</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.solver.html">solver</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-14"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.CGLS.html">CGLS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.LM.html">LM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.LS.html">LS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.L_BFGS_B.html">L_BFGS_B</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.PDHG.html">PDHG</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.maximize.html">maximize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.solver/cuqi.solver.minimize.html">minimize</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.testproblem.html">testproblem</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-15"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Abel_1D.html">Abel_1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Deblur.html">Deblur</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Deconv_1D.html">Deconv_1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Deconvolution1D.html">Deconvolution1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Deconvolution2D.html">Deconvolution2D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Heat_1D.html">Heat_1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.Poisson_1D.html">Poisson_1D</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.testproblem/cuqi.testproblem.WangCubic.html">WangCubic</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../cuqi.utilities.html">utilities</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-16"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.approx_derivative.html">approx_derivative</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.first_order_finite_difference_gradient.html">first_order_finite_difference_gradient</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.force_ndarray.html">force_ndarray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_direct_attributes.html">get_direct_attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_indirect_variables.html">get_indirect_variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_non_default_args.html">get_non_default_args</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_writeable_attributes.html">get_writeable_attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.get_writeable_properties.html">get_writeable_properties</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.infer_len.html">infer_len</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.sparse_cholesky.html">sparse_cholesky</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../cuqi.utilities/cuqi.utilities.ProblemInfo.html">ProblemInfo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</nav>
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <section id="cuqiarray">
+<h1>CUQIarray<a class="headerlink" href="#cuqiarray" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="cuqi.samples.CUQIarray">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cuqi.samples.</span></span><span class="sig-name descname"><span class="pre">CUQIarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_par</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cuqi.samples.CUQIarray" title="Permalink to this definition">#</a></dt>
+<dd><p>A class to represent data arrays, subclassed from numpy array, along with geometry and plotting</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_array</strong> (<em>ndarray</em>) – A numpy array holding the parameter or function values.</p></li>
+<li><p><strong>is_par</strong> (<em>bool</em><em>, </em><em>default True</em>) – Boolean flag whether input_array is to be interpreted as parameter (True) or function values (False).</p></li>
+<li><p><strong>geometry</strong> (<a class="reference internal" href="../cuqi.geometry/cuqi.geometry.Geometry.html#cuqi.geometry.Geometry" title="cuqi.geometry.Geometry"><em>cuqi.geometry.Geometry</em></a><em>, </em><em>default None</em>) – Contains the geometry related of the data</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuqi.samples.CUQIarray.funvals">
+<span class="sig-name descname"><span class="pre">funvals</span></span><a class="headerlink" href="#cuqi.samples.CUQIarray.funvals" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns itself as function values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuqi.samples.CUQIarray" title="cuqi.samples.CUQIarray">CUQIarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cuqi.samples.CUQIarray.parameters">
+<span class="sig-name descname"><span class="pre">parameters</span></span><a class="headerlink" href="#cuqi.samples.CUQIarray.parameters" title="Permalink to this definition">#</a></dt>
+<dd><p>Returns itself as parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cuqi.samples.CUQIarray" title="cuqi.samples.CUQIarray">CUQIarray</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">:meth:`plot`:</span> <span class="pre">Plots</span> <span class="pre">the</span> <span class="pre">data</span> <span class="pre">as</span> <span class="pre">function</span> <span class="pre">or</span> <span class="pre">parameters.</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cuqi.samples.CUQIarray.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cuqi.samples.CUQIarray.__init__" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.__init__.html#cuqi.samples.CUQIarray.__init__" title="cuqi.samples.CUQIarray.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.all.html#cuqi.samples.CUQIarray.all" title="cuqi.samples.CUQIarray.all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span></code></a>([axis, out, keepdims, where])</p></td>
+<td><p>Returns True if all elements evaluate to True.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.any.html#cuqi.samples.CUQIarray.any" title="cuqi.samples.CUQIarray.any"><code class="xref py py-obj docutils literal notranslate"><span class="pre">any</span></code></a>([axis, out, keepdims, where])</p></td>
+<td><p>Returns True if any of the elements of <cite>a</cite> evaluate to True.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.argmax.html#cuqi.samples.CUQIarray.argmax" title="cuqi.samples.CUQIarray.argmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">argmax</span></code></a>([axis, out, keepdims])</p></td>
+<td><p>Return indices of the maximum values along the given axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.argmin.html#cuqi.samples.CUQIarray.argmin" title="cuqi.samples.CUQIarray.argmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">argmin</span></code></a>([axis, out, keepdims])</p></td>
+<td><p>Return indices of the minimum values along the given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.argpartition.html#cuqi.samples.CUQIarray.argpartition" title="cuqi.samples.CUQIarray.argpartition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">argpartition</span></code></a>(kth[, axis, kind, order])</p></td>
+<td><p>Returns the indices that would partition this array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.argsort.html#cuqi.samples.CUQIarray.argsort" title="cuqi.samples.CUQIarray.argsort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">argsort</span></code></a>([axis, kind, order])</p></td>
+<td><p>Returns the indices that would sort this array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.astype.html#cuqi.samples.CUQIarray.astype" title="cuqi.samples.CUQIarray.astype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">astype</span></code></a>(dtype[, order, casting, subok, copy])</p></td>
+<td><p>Copy of the array, cast to a specified type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.byteswap.html#cuqi.samples.CUQIarray.byteswap" title="cuqi.samples.CUQIarray.byteswap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">byteswap</span></code></a>([inplace])</p></td>
+<td><p>Swap the bytes of the array elements</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.choose.html#cuqi.samples.CUQIarray.choose" title="cuqi.samples.CUQIarray.choose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">choose</span></code></a>(choices[, out, mode])</p></td>
+<td><p>Use an index array to construct a new array from a set of choices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.clip.html#cuqi.samples.CUQIarray.clip" title="cuqi.samples.CUQIarray.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a>([min, max, out])</p></td>
+<td><p>Return an array whose values are limited to <code class="docutils literal notranslate"><span class="pre">[min,</span> <span class="pre">max]</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.compress.html#cuqi.samples.CUQIarray.compress" title="cuqi.samples.CUQIarray.compress"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compress</span></code></a>(condition[, axis, out])</p></td>
+<td><p>Return selected slices of this array along given axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.conj.html#cuqi.samples.CUQIarray.conj" title="cuqi.samples.CUQIarray.conj"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conj</span></code></a>()</p></td>
+<td><p>Complex-conjugate all elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.conjugate.html#cuqi.samples.CUQIarray.conjugate" title="cuqi.samples.CUQIarray.conjugate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">conjugate</span></code></a>()</p></td>
+<td><p>Return the complex conjugate, element-wise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.copy.html#cuqi.samples.CUQIarray.copy" title="cuqi.samples.CUQIarray.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>([order])</p></td>
+<td><p>Return a copy of the array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.cumprod.html#cuqi.samples.CUQIarray.cumprod" title="cuqi.samples.CUQIarray.cumprod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumprod</span></code></a>([axis, dtype, out])</p></td>
+<td><p>Return the cumulative product of the elements along the given axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.cumsum.html#cuqi.samples.CUQIarray.cumsum" title="cuqi.samples.CUQIarray.cumsum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cumsum</span></code></a>([axis, dtype, out])</p></td>
+<td><p>Return the cumulative sum of the elements along the given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.diagonal.html#cuqi.samples.CUQIarray.diagonal" title="cuqi.samples.CUQIarray.diagonal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">diagonal</span></code></a>([offset, axis1, axis2])</p></td>
+<td><p>Return specified diagonals.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.dot.html#cuqi.samples.CUQIarray.dot" title="cuqi.samples.CUQIarray.dot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dot</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.dump.html#cuqi.samples.CUQIarray.dump" title="cuqi.samples.CUQIarray.dump"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dump</span></code></a>(file)</p></td>
+<td><p>Dump a pickle of the array to the specified file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.dumps.html#cuqi.samples.CUQIarray.dumps" title="cuqi.samples.CUQIarray.dumps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dumps</span></code></a>()</p></td>
+<td><p>Returns the pickle of the array as a string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.fill.html#cuqi.samples.CUQIarray.fill" title="cuqi.samples.CUQIarray.fill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill</span></code></a>(value)</p></td>
+<td><p>Fill the array with a scalar value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.flatten.html#cuqi.samples.CUQIarray.flatten" title="cuqi.samples.CUQIarray.flatten"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten</span></code></a>([order])</p></td>
+<td><p>Return a copy of the array collapsed into one dimension.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.getfield.html#cuqi.samples.CUQIarray.getfield" title="cuqi.samples.CUQIarray.getfield"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getfield</span></code></a>(dtype[, offset])</p></td>
+<td><p>Returns a field of the given array as a certain type.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.item.html#cuqi.samples.CUQIarray.item" title="cuqi.samples.CUQIarray.item"><code class="xref py py-obj docutils literal notranslate"><span class="pre">item</span></code></a>(*args)</p></td>
+<td><p>Copy an element of an array to a standard Python scalar and return it.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.itemset.html#cuqi.samples.CUQIarray.itemset" title="cuqi.samples.CUQIarray.itemset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">itemset</span></code></a>(*args)</p></td>
+<td><p>Insert scalar into an array (scalar is cast to array's dtype, if possible)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.max.html#cuqi.samples.CUQIarray.max" title="cuqi.samples.CUQIarray.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a>([axis, out, keepdims, initial, where])</p></td>
+<td><p>Return the maximum along a given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.mean.html#cuqi.samples.CUQIarray.mean" title="cuqi.samples.CUQIarray.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a>([axis, dtype, out, keepdims, where])</p></td>
+<td><p>Returns the average of the array elements along given axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.min.html#cuqi.samples.CUQIarray.min" title="cuqi.samples.CUQIarray.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>([axis, out, keepdims, initial, where])</p></td>
+<td><p>Return the minimum along a given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.newbyteorder.html#cuqi.samples.CUQIarray.newbyteorder" title="cuqi.samples.CUQIarray.newbyteorder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">newbyteorder</span></code></a>([new_order])</p></td>
+<td><p>Return the array with the same data viewed with a different byte order.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.nonzero.html#cuqi.samples.CUQIarray.nonzero" title="cuqi.samples.CUQIarray.nonzero"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nonzero</span></code></a>()</p></td>
+<td><p>Return the indices of the elements that are non-zero.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.partition.html#cuqi.samples.CUQIarray.partition" title="cuqi.samples.CUQIarray.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>(kth[, axis, kind, order])</p></td>
+<td><p>Rearranges the elements in the array in such a way that the value of the element in kth position is in the position it would be in a sorted array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.plot.html#cuqi.samples.CUQIarray.plot" title="cuqi.samples.CUQIarray.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>([plot_par])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.prod.html#cuqi.samples.CUQIarray.prod" title="cuqi.samples.CUQIarray.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a>([axis, dtype, out, keepdims, initial, ...])</p></td>
+<td><p>Return the product of the array elements over the given axis</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.ptp.html#cuqi.samples.CUQIarray.ptp" title="cuqi.samples.CUQIarray.ptp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ptp</span></code></a>([axis, out, keepdims])</p></td>
+<td><p>Peak to peak (maximum - minimum) value along a given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.put.html#cuqi.samples.CUQIarray.put" title="cuqi.samples.CUQIarray.put"><code class="xref py py-obj docutils literal notranslate"><span class="pre">put</span></code></a>(indices, values[, mode])</p></td>
+<td><p>Set <code class="docutils literal notranslate"><span class="pre">a.flat[n]</span> <span class="pre">=</span> <span class="pre">values[n]</span></code> for all <cite>n</cite> in indices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.ravel.html#cuqi.samples.CUQIarray.ravel" title="cuqi.samples.CUQIarray.ravel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ravel</span></code></a>([order])</p></td>
+<td><p>Return a flattened array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.repeat.html#cuqi.samples.CUQIarray.repeat" title="cuqi.samples.CUQIarray.repeat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">repeat</span></code></a>(repeats[, axis])</p></td>
+<td><p>Repeat elements of an array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.reshape.html#cuqi.samples.CUQIarray.reshape" title="cuqi.samples.CUQIarray.reshape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reshape</span></code></a>(shape[, order])</p></td>
+<td><p>Returns an array containing the same data with a new shape.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.resize.html#cuqi.samples.CUQIarray.resize" title="cuqi.samples.CUQIarray.resize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resize</span></code></a>(new_shape[, refcheck])</p></td>
+<td><p>Change shape and size of array in-place.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.round.html#cuqi.samples.CUQIarray.round" title="cuqi.samples.CUQIarray.round"><code class="xref py py-obj docutils literal notranslate"><span class="pre">round</span></code></a>([decimals, out])</p></td>
+<td><p>Return <cite>a</cite> with each element rounded to the given number of decimals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.searchsorted.html#cuqi.samples.CUQIarray.searchsorted" title="cuqi.samples.CUQIarray.searchsorted"><code class="xref py py-obj docutils literal notranslate"><span class="pre">searchsorted</span></code></a>(v[, side, sorter])</p></td>
+<td><p>Find indices where elements of v should be inserted in a to maintain order.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.setfield.html#cuqi.samples.CUQIarray.setfield" title="cuqi.samples.CUQIarray.setfield"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setfield</span></code></a>(val, dtype[, offset])</p></td>
+<td><p>Put a value into a specified place in a field defined by a data-type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.setflags.html#cuqi.samples.CUQIarray.setflags" title="cuqi.samples.CUQIarray.setflags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setflags</span></code></a>([write, align, uic])</p></td>
+<td><p>Set array flags WRITEABLE, ALIGNED, WRITEBACKIFCOPY, respectively.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.sort.html#cuqi.samples.CUQIarray.sort" title="cuqi.samples.CUQIarray.sort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort</span></code></a>([axis, kind, order])</p></td>
+<td><p>Sort an array in-place.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.squeeze.html#cuqi.samples.CUQIarray.squeeze" title="cuqi.samples.CUQIarray.squeeze"><code class="xref py py-obj docutils literal notranslate"><span class="pre">squeeze</span></code></a>([axis])</p></td>
+<td><p>Remove axes of length one from <cite>a</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.std.html#cuqi.samples.CUQIarray.std" title="cuqi.samples.CUQIarray.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a>([axis, dtype, out, ddof, keepdims, where])</p></td>
+<td><p>Returns the standard deviation of the array elements along given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.sum.html#cuqi.samples.CUQIarray.sum" title="cuqi.samples.CUQIarray.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a>([axis, dtype, out, keepdims, initial, where])</p></td>
+<td><p>Return the sum of the array elements over the given axis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.swapaxes.html#cuqi.samples.CUQIarray.swapaxes" title="cuqi.samples.CUQIarray.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a>(axis1, axis2)</p></td>
+<td><p>Return a view of the array with <cite>axis1</cite> and <cite>axis2</cite> interchanged.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.take.html#cuqi.samples.CUQIarray.take" title="cuqi.samples.CUQIarray.take"><code class="xref py py-obj docutils literal notranslate"><span class="pre">take</span></code></a>(indices[, axis, out, mode])</p></td>
+<td><p>Return an array formed from the elements of <cite>a</cite> at the given indices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.tobytes.html#cuqi.samples.CUQIarray.tobytes" title="cuqi.samples.CUQIarray.tobytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tobytes</span></code></a>([order])</p></td>
+<td><p>Construct Python bytes containing the raw data bytes in the array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.tofile.html#cuqi.samples.CUQIarray.tofile" title="cuqi.samples.CUQIarray.tofile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tofile</span></code></a>(fid[, sep, format])</p></td>
+<td><p>Write array to a file as text or binary (default).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.tolist.html#cuqi.samples.CUQIarray.tolist" title="cuqi.samples.CUQIarray.tolist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tolist</span></code></a>()</p></td>
+<td><p>Return the array as an <code class="docutils literal notranslate"><span class="pre">a.ndim</span></code>-levels deep nested list of Python scalars.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.tostring.html#cuqi.samples.CUQIarray.tostring" title="cuqi.samples.CUQIarray.tostring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tostring</span></code></a>([order])</p></td>
+<td><p>A compatibility alias for <cite>tobytes</cite>, with exactly the same behavior.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.trace.html#cuqi.samples.CUQIarray.trace" title="cuqi.samples.CUQIarray.trace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trace</span></code></a>([offset, axis1, axis2, dtype, out])</p></td>
+<td><p>Return the sum along diagonals of the array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.transpose.html#cuqi.samples.CUQIarray.transpose" title="cuqi.samples.CUQIarray.transpose"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transpose</span></code></a>(*axes)</p></td>
+<td><p>Returns a view of the array with axes transposed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.var.html#cuqi.samples.CUQIarray.var" title="cuqi.samples.CUQIarray.var"><code class="xref py py-obj docutils literal notranslate"><span class="pre">var</span></code></a>([axis, dtype, out, ddof, keepdims, where])</p></td>
+<td><p>Returns the variance of the array elements, along given axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.view.html#cuqi.samples.CUQIarray.view" title="cuqi.samples.CUQIarray.view"><code class="xref py py-obj docutils literal notranslate"><span class="pre">view</span></code></a>([dtype][, type])</p></td>
+<td><p>New view of array with the same data.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.T.html#cuqi.samples.CUQIarray.T" title="cuqi.samples.CUQIarray.T"><code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code></a></p></td>
+<td><p>View of the transposed array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.base.html#cuqi.samples.CUQIarray.base" title="cuqi.samples.CUQIarray.base"><code class="xref py py-obj docutils literal notranslate"><span class="pre">base</span></code></a></p></td>
+<td><p>Base object if memory is from some other object.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.ctypes.html#cuqi.samples.CUQIarray.ctypes" title="cuqi.samples.CUQIarray.ctypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ctypes</span></code></a></p></td>
+<td><p>An object to simplify the interaction of the array with the ctypes module.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.data.html#cuqi.samples.CUQIarray.data" title="cuqi.samples.CUQIarray.data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">data</span></code></a></p></td>
+<td><p>Python buffer object pointing to the start of the array's data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.dtype.html#cuqi.samples.CUQIarray.dtype" title="cuqi.samples.CUQIarray.dtype"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dtype</span></code></a></p></td>
+<td><p>Data-type of the array's elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.flags.html#cuqi.samples.CUQIarray.flags" title="cuqi.samples.CUQIarray.flags"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flags</span></code></a></p></td>
+<td><p>Information about the memory layout of the array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.flat.html#cuqi.samples.CUQIarray.flat" title="cuqi.samples.CUQIarray.flat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flat</span></code></a></p></td>
+<td><p>A 1-D iterator over the array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.funvals.html#cuqi.samples.CUQIarray.funvals" title="cuqi.samples.CUQIarray.funvals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">funvals</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.imag.html#cuqi.samples.CUQIarray.imag" title="cuqi.samples.CUQIarray.imag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">imag</span></code></a></p></td>
+<td><p>The imaginary part of the array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.itemsize.html#cuqi.samples.CUQIarray.itemsize" title="cuqi.samples.CUQIarray.itemsize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">itemsize</span></code></a></p></td>
+<td><p>Length of one array element in bytes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.nbytes.html#cuqi.samples.CUQIarray.nbytes" title="cuqi.samples.CUQIarray.nbytes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nbytes</span></code></a></p></td>
+<td><p>Total bytes consumed by the elements of the array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.ndim.html#cuqi.samples.CUQIarray.ndim" title="cuqi.samples.CUQIarray.ndim"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ndim</span></code></a></p></td>
+<td><p>Number of array dimensions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.parameters.html#cuqi.samples.CUQIarray.parameters" title="cuqi.samples.CUQIarray.parameters"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parameters</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.real.html#cuqi.samples.CUQIarray.real" title="cuqi.samples.CUQIarray.real"><code class="xref py py-obj docutils literal notranslate"><span class="pre">real</span></code></a></p></td>
+<td><p>The real part of the array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.shape.html#cuqi.samples.CUQIarray.shape" title="cuqi.samples.CUQIarray.shape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></a></p></td>
+<td><p>Tuple of array dimensions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.size.html#cuqi.samples.CUQIarray.size" title="cuqi.samples.CUQIarray.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a></p></td>
+<td><p>Number of elements in the array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="cuqi.samples.CUQIarray.strides.html#cuqi.samples.CUQIarray.strides" title="cuqi.samples.CUQIarray.strides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strides</span></code></a></p></td>
+<td><p>Tuple of bytes to step in each dimension when traversing an array.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+            </article>
+            
+            
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#cuqi.samples.CUQIarray">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     CUQIarray
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#cuqi.samples.CUQIarray.funvals">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CUQIarray.funvals
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#cuqi.samples.CUQIarray.parameters">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CUQIarray.parameters
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#cuqi.samples.CUQIarray.__init__">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       CUQIarray.__init__()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../../../_sources/api/_autosummary/cuqi.samples/cuqi.samples.CUQIarray.rst.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, CUQI Project, Technical University of Denmark (DTU).<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 6.1.2.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

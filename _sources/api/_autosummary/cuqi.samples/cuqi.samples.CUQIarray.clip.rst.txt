@@ -1,0 +1,6 @@
+cuqi.samples.CUQIarray.clip
+===========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: CUQIarray.clip
