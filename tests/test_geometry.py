@@ -380,7 +380,10 @@ def test_KLExpansion_projection():
 
     # Project signal to the KL basis and back
     p = geom.fun2par(signal)
+    assert(len(p) == num_modes)
+
     signal_proj = geom.par2fun(p)
+    assert(len(signal_proj) == N)
 
     # Check that the projection is accurate
     rel_err = np.linalg.norm(signal-signal_proj)/np.linalg.norm(signal)
