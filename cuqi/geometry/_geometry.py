@@ -8,6 +8,7 @@ import scipy.sparse as sparse
 import operator
 from functools import reduce
 import warnings
+from cuqi._cuqi_global_vars import _disable_warning_msg
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
@@ -732,7 +733,24 @@ class KLExpansion(Continuous1D):
 
     def fun2par(self, funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
-        raise NotImplementedError("fun2par not implemented. ")
+        # Check that the input is of the correct shape
+        if len(funvals) != self.fun_dim:
+            raise ValueError(
+                "Input array funvals must have length {}".format(self.fun_dim))
+        
+        warnings.warn(f"fun2par for {self.__class__} is a projection on " +
+                      "the KL expansion coefficients space where only " +
+                      f"the first self.num_modes={self.num_modes} " +
+                      "coefficients are returned. " +
+                      _disable_warning_msg("cuqi.geometry")+"\n")
+
+        # Note, the scaling by 2*self.fun_dim is not needed if scipy.
+        # fft.dst and scipy.fft.idst are used in fun2par and par2fun,
+        # instead of using scipy.fftpack.dst and scipy.fftpack.idst.
+        p = dst(funvals*2)[:self.par_dim]\
+            *self.normalizer/(self.coefs*2*self.fun_dim)
+
+        return p
 
 class KLExpansion_Full(Continuous1D):
     '''
