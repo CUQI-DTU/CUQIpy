@@ -558,3 +558,19 @@ def test_Gaussian_Cov_sample(C):
     rng = np.random.RandomState(0)
     samples = x.sample(rng=rng)
     assert np.allclose(samples, np.array([3.12670137, 0.70926018, 1.73476791, 3.97187978, 3.31016035]))
+
+def test_Cauchy_diff_should_not_allow_non_zero_location():
+    """" Cauchy_diff should not allow non-zero location. """
+    with pytest.raises(ValueError):
+        cuqi.distribution.Cauchy_diff(np.ones(5), 1)
+
+    with pytest.raises(ValueError):
+        cuqi.distribution.Cauchy_diff(lambda x: x, 1)
+
+def test_Laplace_diff_should_not_allow_non_zero_location():
+    """" Laplace_diff should not allow non-zero location. """
+    with pytest.raises(ValueError):
+        cuqi.distribution.Laplace_diff(np.ones(5), 1)
+
+    with pytest.raises(ValueError):
+        cuqi.distribution.Laplace_diff(lambda x: x, 1)
