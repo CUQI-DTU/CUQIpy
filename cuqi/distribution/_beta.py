@@ -69,7 +69,7 @@ class Beta(Distribution):
     def _sample(self, N=1, rng=None):
         return sps.beta.rvs(a=self.alpha, b=self.beta, size=(N,self.dim), random_state=rng).T
 
-    def gradient(self, x):
+    def _gradient(self, x):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))

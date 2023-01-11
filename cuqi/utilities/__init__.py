@@ -6,7 +6,7 @@ from ._utilities import (
     get_indirect_variables,
     get_writeable_attributes,
     get_writeable_properties,
-    first_order_finite_difference_gradient,
+    approx_gradient,
     ProblemInfo,
     sparse_cholesky,
     approx_derivative,

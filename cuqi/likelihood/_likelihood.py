@@ -44,6 +44,16 @@ class Likelihood(Density):
         self.distribution.name = value
 
     @property
+    def FD_enabled(self):
+        """ Return FD_enabled of the likelihood from the underlying distribution """
+        return self.distribution.FD_enabled
+
+    @property
+    def FD_epsilon(self):
+        """ Return FD_epsilon of the likelihood from the underlying distribution """
+        return self.distribution.FD_epsilon
+
+    @property
     def _constant(self):
         return self.distribution._constant
 
@@ -51,7 +61,7 @@ class Likelihood(Density):
         """Return the log-likelihood function at given value"""
         return self.distribution(*args, **kwargs).logd(self.data)
 
-    def gradient(self, *args, **kwargs):
+    def _gradient(self, *args, **kwargs):
         """Return gradient of the log-likelihood function at given value"""
         return self.distribution.gradient(self.data, *args, **kwargs)
 
@@ -125,6 +135,15 @@ class Likelihood(Density):
     def __call__(self, *args, **kwargs) -> Union[Likelihood, EvaluatedDensity]:
         return super().__call__(*args, **kwargs)
 
+    def enable_FD(self, epsilon=1e-8):
+        """ Call enable_FD of the underlying distribution """
+        self.distribution.enable_FD(epsilon)
+
+    def disable_FD(self):
+        """ Call disable_FD of the underlying distribution """
+        self.distribution.disable_FD()
+
+
 class UserDefinedLikelihood(object):
     """ Class to wrap user-defined likelihood functions.
 
@@ -163,6 +182,8 @@ class UserDefinedLikelihood(object):
         """Returns value of likelihood function"""
         return self.logpdf_func(*args, **kwargs)
 
+    #TODO: Change gradient to _gradient when this class is subclassed from
+    # Density.
     def gradient(self, *args, **kwargs):
         """Return gradient of likelihood function"""
         return self.gradient_func(*args, **kwargs)

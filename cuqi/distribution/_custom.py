@@ -61,7 +61,7 @@ class UserDefinedDistribution(Distribution):
         else:
             raise Exception("logpdf_func is not defined.")
     
-    def gradient(self, x):
+    def _gradient(self, x):
         if self.gradient_func is not None:
             return self.gradient_func(x)
         else:

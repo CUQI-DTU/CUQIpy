@@ -1,5 +1,6 @@
 import cuqi
 import pytest
+import numpy as np
 
 def test_density_variable_name_detection():
     """Test that the density variable name is detected correctly at different levels of the python stack. """
@@ -59,8 +60,10 @@ def test_density_name_consistency():
     # Ensure that the name is changed for the other conditioned densities.
     assert x2.name == 'y'
     assert x3.name == 'y'
-    
 
-
-
-    
+def test_evaluated_density_gradient():
+    """ Test that the gradient of the evaluated density is not implemented. """
+    x = cuqi.distribution.Gaussian(np.zeros(2), np.eye(2))
+    x = x(np.zeros(2)+.1)
+    with pytest.raises(NotImplementedError, match=r"gradient is not implemented"):
+        x.gradient()

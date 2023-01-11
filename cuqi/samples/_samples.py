@@ -92,7 +92,15 @@ class CUQIarray(np.ndarray):
         else:
             vals = self
         return type(self)(vals,is_par=True,geometry=self.geometry)
-    
+
+    def to_numpy(self):
+        """Return a numpy array of the CUQIarray"""
+        try:
+            return self.view(np.ndarray)
+        except:
+            raise ValueError(
+                f"Cannot convert {self.__class__.__name__} to numpy array")
+
     def plot(self, plot_par=False, **kwargs):
         if plot_par:
             kwargs["is_par"]=True

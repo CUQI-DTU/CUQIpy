@@ -62,7 +62,7 @@ class InverseGamma(Distribution):
     def cdf(self, x):
         return np.prod(sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
-    def gradient(self, val, **kwargs):
+    def _gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
