@@ -8,7 +8,7 @@ import scipy.sparse as sparse
 import operator
 from functools import reduce
 import warnings
-from cuqi._cuqi_global_vars import _disable_warning_msg
+from cuqi._messages import _disable_warning_msg
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
