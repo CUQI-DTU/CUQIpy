@@ -3,6 +3,7 @@ from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
 from scipy.signal import fftconvolve
+from scipy.ndimage import convolve1d
 
 import cuqi
 from cuqi.model import LinearModel
@@ -213,9 +214,10 @@ class Deconvolution1D(BayesianProblem):
     prior : cuqi.distribution.Distribution, Default Gaussian
         Distribution of the prior+
 
-    use_matrix : bool, Default False
-        If True, the convolution operator is represented as a matrix.
-        This uses more memory and another deconvolution method.
+    use_legacy : bool, Default False
+        If True, use the legacy matrix representation of the forward model.
+        This uses more memory but is faster for small problems.
+        
 
     """
     def __init__(self,
@@ -223,21 +225,30 @@ class Deconvolution1D(BayesianProblem):
         PSF="gauss",
         PSF_param=None,
         PSF_size=None,
+        BC="periodic",
         phantom="gauss",
         phantom_param=None,
         noise_type="gaussian",
         noise_std=0.05,
         prior=None,
-        use_matrix=False,
+        use_legacy=True,
         ):
         
         # Set up forward model
-        if use_matrix:
-            A = _getCirculantMatrix(dim,PSF,PSF_param)
-            model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
+        if use_legacy: # Legacy matrix representation
+            if BC != "periodic":
+                raise ValueError("Legacy matrix representation only supports periodic boundary conditions")
+            A = _getCirculantMatrix(dim, PSF, PSF_param)
+            model = cuqi.model.LinearModel(A, range_geometry=Continuous1D(dim), domain_geometry=Continuous1D(dim))
         else:
-            A = _getCirculantMatrix(dim,PSF,PSF_param)
-            model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))  
+            Afun = _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC)
+
+            # Create matrix from Afun
+            Id = np.eye(dim)
+            A = np.array([Afun(Id[:, i]) for i in range(dim)])
+            A = csc_matrix(A) # make it sparse
+
+            model = cuqi.model.LinearModel(A, range_geometry=Continuous1D(dim), domain_geometry=Continuous1D(dim))  
 
         # Set up exact solution
         if isinstance(phantom, np.ndarray):
@@ -279,6 +290,80 @@ class Deconvolution1D(BayesianProblem):
         self.exactSolution = x_exact
         self.exactData = y_exact
         self.infoString = "Noise type: Additive {} with std: {}".format(noise_type.capitalize(),noise_std)
+
+def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
+
+    # Boundary condition translation
+    if BC.lower() == "zero":
+        mode = "constant"
+    elif BC.lower() == "periodic":
+        mode = "wrap"
+    elif BC.lower() == "Neumann":
+        mode = "symmetric"
+    elif BC.lower() == "Mirror":
+        mode = "reflect"
+    elif BC.lower() == "Nearest":
+        mode = "edge"
+    else:
+        raise ValueError("Unknown boundary condition")
+    
+    # PSF setup
+    if isinstance(PSF, np.ndarray):
+        if PSF.ndim != 1:
+            raise ValueError("PSF must be a 1D array")
+        P = PSF
+    elif isinstance(PSF, str):
+        if PSF.lower() == "gauss":
+            P = _GaussPSF_1D(PSF_size, PSF_param)
+        elif PSF.lower() == "moffat":
+            P = _MoffatPSF_1D(PSF_size, PSF_param)
+        elif PSF.lower() == "defocus":
+            P = _DefocusPSF_1D(PSF_size, PSF_param)
+        else:
+            raise ValueError("Unknown PSF type")
+    
+    # Convolution matrix
+    return lambda x: convolve1d(x, P, mode=mode)
+
+
+def _GaussPSF_1D(PSF_size, PSF_param):   
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = np.exp( -0.5*((x**2)/(PSF_param**2)) )
+    PSF /= PSF.sum()
+
+    # find the center
+    center = np.where(PSF == PSF.max())[0][0]
+    return PSF, center.astype(int)
+
+def _MoffatPSF_1D(PSF_size, PSF_param, beta=1):
+    # Set up grid points to evaluate the Gaussian function
+    x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
+
+    # Compute the Gaussian, and normalize the PSF.
+    PSF = ( 1 + (x**2)/(PSF_param**2) )**(-beta)
+    PSF = PSF / PSF.sum()
+
+    # find the center
+    center = np.where(PSF == PSF.max())[0][0]
+    return PSF, center.astype(int)
+
+def _DefocusPSF_1D(PSF_size, PSF_param):    
+    center = np.fix(int(PSF_size/2))
+    if (PSF_param == 0):    
+        # the PSF is a delta function and so the blurring matrix is I
+        PSF = np.zeros(PSF_size)
+        PSF[center] = 1
+    else:
+        PSF = np.ones(PSF_size) / (np.pi * PSF_param**2)
+        k = np.arange(1, PSF_size+1)
+        aa = (k-center)**2
+        idx = np.array((aa > (PSF_param**2)))
+        PSF[idx] = 0
+    PSF = PSF / PSF.sum()
+    return PSF, center.astype(int)
 
 def _getCirculantMatrix(dim,kernel,kernel_param):
     """
