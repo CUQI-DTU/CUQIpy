@@ -148,46 +148,64 @@ class Deconvolution1D(BayesianProblem):
     :math:`\mathbf{x}` is a sharp (clean) signal and
     :math:`\mathbf{A}` is a convolution operator.
 
+    The convolution operator is defined by specifying a point spread function and
+    boundary conditions and is computed (matrix-free) via scipy.ndimage.convolve1D,
+    or using a matrix representation if the use-matrix flag is set to True.
+
+    The inputs are padded to fit the boundary conditions.
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve1d.html
+
     Parameters
     ------------
     dim : int
         size of the (dim,dim) deconvolution problem
 
-    kernel : string or ndarray
-        Determines type of the underlying kernel
-        'Gauss' - a Gaussian function
-        'sinc' or 'prolate' - a sinc function
-        'vonMises' - a periodic version of the Gauss function
-        ndarray - a custom kernel.
+    PSF : string or ndarray
+        | Determines type of the underlying point spread function (PSF).
+        | 'Gauss' - a Gaussian function
+        | 'sinc' or 'prolate' - a sinc function
+        | 'vonMises' - a periodic version of the Gauss function
+        | ndarray - a custom PSF.
 
-    kernel_param : scalar
-        A parameter that determines the shape of the kernel;
-        the larger the parameter, the slower the initial
-        decay of the singular values of A.
-        Ignored if kernel is a ndarray.
+    PSF_param : scalar
+        | A parameter that determines the shape of the PSF;
+        | the larger the parameter, the larger the blur on the signal.
+        | Ignored if PSF is a ndarray.
+
+    PSF_size : int
+        | The size of the PSF.
+        | Ignored if PSF is a ndarray.
+
+    BC : string
+        | Boundary conditions for the convolution.
+        | 'zero' - zero boundary conditions
+        | 'periodic' - periodic boundary conditions
+        | 'Neumann' - Neumann boundary conditions
+        | 'Mirror' - Mirrored boundary conditions
+        | 'Nearest' - Replicates last element of boundary
 
     phantom : string or ndarray
-        The phantom that is sampled to produce x
-        'Gauss' - a Gaussian function
-        'sinc' - a sinc function
-        'vonMises' - a periodic version of the Gauss function
-        'square' - a "top hat" function
-        'hat' - a triangular hat function
-        'bumps' - two bumps
-        'derivGauss' - the first derivative of Gauss function
-        'pc' - Piece-wise constant phantom
-        ndarray - a custom phantom
+        | The phantom that is sampled to produce the exact solution (signal).
+        | 'Gauss' - a Gaussian function
+        | 'sinc' - a sinc function
+        | 'vonMises' - a periodic version of the Gauss function
+        | 'square' - a "top hat" function
+        | 'hat' - a triangular hat function
+        | 'bumps' - two bumps
+        | 'derivGauss' - the first derivative of Gauss function
+        | 'pc' - Piece-wise constant phantom
+        | ndarray - a custom phantom
 
     phantom_param : scalar
-        A parameter that determines the width of the central 
-        "bump" of the function; the larger the parameter,
-        the narrower the "bump."  
-        Does not apply to phantom = 'bumps' or ndarray.
+        | A parameter that determines the width of the central 
+        | "bump" of the function; the larger the parameter,
+        | the narrower the "bump."  
+        | Does not apply to phantom = 'bumps' or ndarray.
 
     noise_type : string
-        The type of noise
-        "Gaussian" - Gaussian white noise¨
-        "scaledGaussian" - Scaled (by data) Gaussian noise
+        | The type of noise
+        | "Gaussian" - Gaussian white noise¨
+        | "scaledGaussian" - Scaled (by data) Gaussian noise
 
     noise_std : scalar
         Standard deviation of the noise
@@ -198,8 +216,9 @@ class Deconvolution1D(BayesianProblem):
     """
     def __init__(self,
         dim=128,
-        kernel="gauss",
-        kernel_param=None,
+        PSF="gauss",
+        PSF_param=None,
+        PSF_size=None,
         phantom="gauss",
         phantom_param=None,
         noise_type="gaussian",
@@ -209,7 +228,7 @@ class Deconvolution1D(BayesianProblem):
         ):
         
 
-        A = _getCirculantMatrix(dim,kernel,kernel_param)
+        A = _getCirculantMatrix(dim,PSF,PSF_param)
         model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
 
         # Set up exact solution

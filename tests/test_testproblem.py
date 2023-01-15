@@ -17,7 +17,7 @@ from scipy.ndimage import convolve
     (36,"vonmises",37,7.7606),
 ])
 def test_Deconvolution_MatrixNorm_regression(dim,kernel,kernel_param,expected):
-    tp = cuqi.testproblem.Deconvolution1D(dim=dim,kernel=kernel,kernel_param=kernel_param)
+    tp = cuqi.testproblem.Deconvolution1D(dim=dim,PSF=kernel,PSF_param=kernel_param)
     assert np.linalg.norm(tp.model.get_matrix()) == approx(expected,rel=1e-4)
 
 @pytest.mark.parametrize("dim,phantom,phantom_param,expected",[
@@ -64,18 +64,18 @@ def test_Deconvolution_custom_kernel():
     grid = np.linspace(-1, 1, 128)
     kernel = np.exp(-(15*grid)**2)
 
-    TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=kernel, phantom="pc")
+    TP = cuqi.testproblem.Deconvolution1D(dim=128, PSF=kernel, phantom="pc")
 
     # Test expected value
     assert np.linalg.norm(TP.exactData) == pytest.approx(83.40353338231859)
 
     # Test raising of error if kernel is not 1D
     with pytest.raises(ValueError, match=r"kernel must be a 1D array"):
-        TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=np.ones((128, 128)))
+        TP = cuqi.testproblem.Deconvolution1D(dim=128, PSF=np.ones((128, 128)))
 
     # Test raising of error if kernel is not same length as dim
     with pytest.raises(ValueError, match=r"kernel must be a 1D array of length dim"):
-        TP = cuqi.testproblem.Deconvolution1D(dim=128, kernel=np.ones(125))
+        TP = cuqi.testproblem.Deconvolution1D(dim=128, PSF=np.ones(125))
 
 def test_Deconvolution_custom_phantom():
     """ Tests using a custom phantom. """
