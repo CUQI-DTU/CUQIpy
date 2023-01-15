@@ -211,7 +211,11 @@ class Deconvolution1D(BayesianProblem):
         Standard deviation of the noise
 
     prior : cuqi.distribution.Distribution, Default Gaussian
-        Distribution of the prior
+        Distribution of the prior+
+
+    use_matrix : bool, Default False
+        If True, the convolution operator is represented as a matrix.
+        This uses more memory and another deconvolution method.
 
     """
     def __init__(self,
@@ -224,12 +228,16 @@ class Deconvolution1D(BayesianProblem):
         noise_type="gaussian",
         noise_std=0.05,
         prior=None,
-        data=None,
+        use_matrix=False,
         ):
         
-
-        A = _getCirculantMatrix(dim,PSF,PSF_param)
-        model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
+        # Set up forward model
+        if use_matrix:
+            A = _getCirculantMatrix(dim,PSF,PSF_param)
+            model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))
+        else:
+            A = _getCirculantMatrix(dim,PSF,PSF_param)
+            model = cuqi.model.LinearModel(A,range_geometry=Continuous1D(dim),domain_geometry=Continuous1D(dim))  
 
         # Set up exact solution
         if isinstance(phantom, np.ndarray):
@@ -259,8 +267,7 @@ class Deconvolution1D(BayesianProblem):
             raise NotImplementedError("This noise type is not implemented")
         
         # Generate data
-        if data is None:
-            data = data_dist(x_exact).sample()
+        data = data_dist(x_exact).sample()
 
         # Likelihood
         likelihood = data_dist.to_likelihood(data)
