@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
@@ -527,3 +528,76 @@ class PDEModel(Model):
     def __repr__(self) -> str:
         return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
+
+class JointLinearModel: #TODO: Extend to non-linear models
+    """ A joint model of multiple inputs defined via a combination of linear models.
+
+
+    Parameters
+    ----------
+    models : List[LinearModel]
+        List of models to be combined.
+
+    type : str
+        Type of combination. Currently only "sum" is implemented.
+        
+    """
+    def __init__(self, models: List[LinearModel], type: str = "sum"):
+
+        if type != "sum":
+            raise NotImplementedError("Only sum type is implemented.")
+
+        self.models = models
+        self.shift = 0 # Initial shift
+
+    def __call__(self, **kwargs):
+        """ Evaluate the model at the given parameters. """
+
+        # Evaluation happens in a joint shallow copy of the JointLinearModel
+        new_model = copy(self)              # Shallow copy of self
+        new_model.models = self.models[:]   # Shallow copy of models in list
+
+        # Go through each keyword argument and each model
+        for kwarg, value in kwargs.items():
+            for model in new_model.models:
+
+                # Evaluate model if kwarg matches _non_default_args
+                if kwarg in cuqi.utilities.get_non_default_args(model):
+
+                    # make dict of kwarg and value
+                    new_model.shift += model(value)
+                    #new_model.shift += model(**{kwarg: value}) #Model needs to support this
+                    
+                    # Remove model from list since it has been evaluated
+                    new_model.models.remove(model)
+
+        if len(new_model.models) == 0: # Model has been evaluated fully
+            return new_model.shift
+
+        if len(new_model.models) == 1: # Single model left, return it (including shift which is the other evaluated models)
+            new_model.models[0].shift = new_model.shift
+            return new_model.models[0]
+
+        return new_model # Else return the JointLinearModel
+
+    @property
+    def _non_default_args(self):
+        """ Return non-default args of all models. """
+
+        # Return non-default args of all models
+        L = [cuqi.utilities.get_non_default_args(model) for model in self.models]
+
+        # Make a single list
+        single_L = [item for sublist in L for item in sublist]
+
+        # Combine list of lists into one list (no duplicates)
+        return list(set(single_L))
+
+    def __len__(self):
+        return self.models[0].range_dim
+
+    def __repr__(self) -> str:
+        msg = f"JointLinearModel of {len(self.models)} models. Parameters: {self._non_default_args}. Models:\n"
+        for model in self.models:
+            msg += f"  {model}\n"
+        return msg

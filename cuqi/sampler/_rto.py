@@ -142,6 +142,8 @@ class Linear_RTO(Sampler):
     
     @property
     def data(self):
+        if hasattr(self.target.model, 'shift'): # if model has a shift take it into account
+            return self.target.data - self.target.model.shift
         return self.target.data
 
     def _sample(self, N, Nb):   

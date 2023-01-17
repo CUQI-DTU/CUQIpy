@@ -126,7 +126,10 @@ class UnadjustedLaplaceApproximation(Sampler):
 
         # Pre-computations
         self._model = self.target.likelihood.model   
-        self._data = self.target.likelihood.data
+        if hasattr(self.target.model, 'shift'): # if model has a shift take it into account
+            self._data = self.target.likelihood.data - self.target.model.shift
+        else:
+            self._data = self.target.likelihood.data
         self._m = len(self._data)
         self._L1 = self.target.likelihood.distribution.sqrtprec
 
