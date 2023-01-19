@@ -12,6 +12,21 @@ class Samples(MultiVector):
     pass
 
 class TimeSeries(MultiVector):
+    """
+    Abstract base class for time series.
+
+    times: Time points of the time series.
+    values: Values of the time series.
+    """
+    pass
+
+class TimeDependantPDESolution(TimeSeries):
+    """
+    Abstract base class for time series of PDEs.
+
+    rejected_times: Time points of the time series that were rejected.
+    local_errors: Estimated local errors of the time steps.
+    """
     pass
 
 class CUQIarray2(ABC):
