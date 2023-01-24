@@ -226,7 +226,7 @@ class TimeDependentLinearPDE(LinearPDE):
 
     def solve(self):
         """Solve PDE by time-stepping"""
-
+        #TODO: use time-stepping class
         if self.method == 'forward_euler':
             for idx, t in enumerate(self.time_steps[:-1]):
                 dt = self.time_steps[idx+1] - t

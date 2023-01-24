@@ -1,7 +1,9 @@
 # do not import numpy
-
-
+from __future__ import annotations
 from abc import ABC, abstractmethod
+import numpy as np
+from typing import Optional
+import cuqi
 
 class TimeIntegrator(ABC):
     """
@@ -21,22 +23,118 @@ class TimeIntegrator(ABC):
     __init__
     step
     assemble_step
-    solve_step
+    propagate_step (solve)
     observe_step
     approximate_local_error
+
+    Design Notes:
+    - The time integrator can be called TimeStep
     """
     pass
+#    def __init__(self, initial_condition, initial_time_step, time_step_selector, observer):
+#        self._initial_condition = initial_condition
+#        self._initial_time_step = initial_time_step
+#        self.time_step_selector = time_step_selector
+#        self._solution = None # create solution object
+#        self.observer = observer
+#        self.method = 'forward_euler' # this option to be removed
+#
+#        self._current_time = None
+#	
+#
+#
+#
+#
+#    def step(self):
+#        """Take one time step."""
+#        self._assemble_step()
+#        self._propagate_step()
+#        self._observe_step()
+#        self._approximate_local_error()
+#
+#    def _propagate_step(self):
+#        """From current time solution, compute the next time solution."""
+#        if self.method == 'forward_euler':
+#            for idx, t in enumerate(self.time_steps[:-1]):
+#                dt = self.time_steps[idx+1] - t
+#                self.assemble_step(t)
+#                if idx == 0:
+#                    u = self.initial_condition
+#                u = (dt*self.diff_op + np.eye(len(u)))@u + dt*self.rhs  # from u at time t, gives u at t+dt
+#            info = None
+#
+#        if self.method == 'backward_euler':
+#            for idx, t in enumerate(self.time_steps[1:]):
+#                dt = t - self.time_steps[idx]
+#                self.assemble_step(t)
+#                if idx == 0:
+#                    u = self.initial_condition
+#                A = np.eye(len(u)) - dt*self.diff_op
+#                # from u at time t-dt, gives u at t
+#                u, info = self._solve_linear_system(
+#                    A, u + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+#
+#        return u, info
+
+#Auto generated method:
+#@staticmethod
+#def create_time_step_selector(time_step_selector, initial_time_step, time_steps):
+#    """Create a time step selector object."""
+#    if time_step_selector is None:
+#	time_step_selector = StaticTimeStepSelector(initial_time_step)
+#    elif isinstance(time_step_selector, str):
+#	if time_step_selector == 'static':
+#	    time_step_selector = StaticTimeStepSelector(initial_time_step)
+#	elif time_step_selector == 'adaptive':
+#	    time_step_selector = AdaptiveTimeStepSelector(time_steps)
+#	else:
+#	    raise ValueError('Unknown time step selector.')
+#    elif not isinstance(time_step_selector, TimeStepSelector):
+#	raise TypeError('Unknown time step selector.')
+#    return time_step_selector
+
 
 class AlphaMethod(TimeIntegrator):
-    pass
+    def __init__(self, alpha = 0):
+        self.alpha = alpha
+        pass
 
-class ImplicitEuler(AlphaMethod):
-    pass
+    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op):
+        """Propagate the solution using the explicit Euler method.
+	
+	Design Notes:
+	u can be sol obj if multiple time steps are required to compute the next time step."""
+        I = np.eye(len(u))
+        u = (diff_op + I)@u + dt*rhs
+        return u
 
-class ExplicitEuler(AlphaMethod):
-    pass
+class BackwardEuler(AlphaMethod):
+    def __init__(self):
+        pass
+
+    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op):
+        """Propagate the solution using the explicit Euler method.
+	
+	Design Notes:
+	u can be sol obj if multiple time steps are required to compute the next time step."""
+        I = np.eye(len(u))
+        A = I - dt*diff_op
+        u_next, info = self._solve_linear_system(
+                A, u + dt*rhs, self._linalg_solve, self._linalg_solve_kwargs)
+        return u_next, info
+
+class ForwardEuler(AlphaMethod):
+    def __init__(self):
+        pass
+
+    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op):
+        """Propagate the solution using the explicit Euler method.
+	
+	Design Notes:
+	u can be sol obj if multiple time steps are required to compute the next time step."""
+        I = np.eye(len(u))
+        u_next = (diff_op + I)@u + dt*rhs
+        return u_next, None
 
 class StormerVerlet(TimeIntegrator):
     pass
-
-
