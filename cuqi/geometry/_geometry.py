@@ -8,6 +8,7 @@ import scipy.sparse as sparse
 import operator
 from functools import reduce
 import warnings
+from cuqi._messages import _disable_warning_msg
 
 class Geometry(ABC):
     """A class that represents the geometry of the range, domain, observation, or other sets.
@@ -731,8 +732,44 @@ class KLExpansion(Continuous1D):
         return real
 
     def fun2par(self, funvals):
-        """The function to parameter map used to map function values back to parameters, if available."""
-        raise NotImplementedError("fun2par not implemented. ")
+        """The function to parameter map used to map function values back to
+        parameters. In this class (the `KLExpansion`), `fun2par` projects the
+        function on the KL expansion coefficient space. Hence this is not
+        always the inverse of `par2fun` but it is the closest estimation of the
+        function on the KL expansion coefficient space."""
+
+        # Check that the input is of the correct shape
+        if len(funvals) != self.fun_dim:
+            raise ValueError(
+                "Input array funvals must have length {}".format(self.fun_dim))
+        
+        warnings.warn(
+            f"fun2par for {self.__class__} is a projection on "
+            + "the KL expansion coefficients space where only "
+            + f"the first self.num_modes={self.num_modes} "
+            + "coefficients are returned. "
+            + _disable_warning_msg("cuqi.geometry")
+            + "\n"
+        )
+
+        # par2fun scales the input parameters then applies the inverse
+        # discrete sine transform of type 2 (IDST-II). Here we apply the
+        # inverse of the par2fun map and truncate the expansion
+        # coefficients to the number of modes.
+        # This includes applying the discrete sine transform of type 2 (DST-II)
+        # to the function values to obtain the expansion coefficients.
+        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.fftpack.dst.html
+
+        # Note that here we have a scaling by 2*self.fun_dim that does
+        # not correspond to the scaling in par2fun. This is needed
+        # because it is not accounted for in the scipy.fftpack implementation.
+        # However, if we use, for example, scipy.fft instead of scipy.fftpack,
+        # then this scaling is not needed.
+
+        p = dst(funvals*2)[:self.par_dim]\
+            *self.normalizer/(self.coefs*2*self.fun_dim)
+
+        return p
 
 class KLExpansion_Full(Continuous1D):
     '''

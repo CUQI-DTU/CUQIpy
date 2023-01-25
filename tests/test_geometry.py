@@ -361,3 +361,30 @@ def test_create_CustomKL_geometry():
 	   geom.trunc_term==trunc_term
 	
 
+def test_KLExpansion_projection():
+    """Check KLExpansion geometry projection performed by the method fun2par)"""
+    # Set up a KLExpansion geometry
+    num_modes = 95
+    N = 100
+    L = 1.0
+    grid = np.linspace(0,1,N)
+
+    geom = cuqi.geometry.KLExpansion(grid, num_modes=num_modes,
+     decay_rate=1.5,
+     normalizer=12.0)
+
+    # Create a signal 
+    signal =1/30*(1-np.cos(2*np.pi*(L-grid)/(L)))\
+                    +1/30*np.exp(-2*(10*(grid-0.5))**2)+\
+                     1/30*np.exp(-2*(10*(grid-0.8))**2)
+
+    # Project signal to the KL basis and back
+    p = geom.fun2par(signal)
+    assert(len(p) == num_modes)
+
+    signal_proj = geom.par2fun(p)
+    assert(len(signal_proj) == N)
+
+    # Check that the projection is accurate
+    rel_err = np.linalg.norm(signal-signal_proj)/np.linalg.norm(signal)
+    assert np.isclose(rel_err, 0.0, atol=1e-5)
