@@ -4,8 +4,9 @@ from ._pde import (
     SteadyStateLinearPDE,
     TimeDependentLinearPDE
 )
-from _time_integrator import (
+from ._time_integrator import (
     TimeIntegrator,
     ForwardEuler,
     BackwardEuler,
-    AlphaMethod)
+    AlphaMethod,
+    get_integrator_object)
