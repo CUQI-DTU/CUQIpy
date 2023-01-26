@@ -99,42 +99,45 @@ class AlphaMethod(TimeIntegrator):
         self.alpha = alpha
         pass
 
-    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op):
-        """Propagate the solution using the explicit Euler method.
-	
-	Design Notes:
-	u can be sol obj if multiple time steps are required to compute the next time step."""
-        I = np.eye(len(u))
-        u = (diff_op + I)@u + dt*rhs
-        return u
 
 class BackwardEuler(AlphaMethod):
     def __init__(self):
         pass
-
-    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op):
+    #TODO: update signature to remove solve_linear_system
+    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op, solve_linear_system):
         """Propagate the solution using the explicit Euler method.
 	
 	Design Notes:
 	u can be sol obj if multiple time steps are required to compute the next time step."""
         I = np.eye(len(u))
         A = I - dt*diff_op
-        u_next, info = self._solve_linear_system(
-                A, u + dt*rhs, self._linalg_solve, self._linalg_solve_kwargs)
+        u_next, info = solve_linear_system(
+                A, u + dt*rhs)
         return u_next, info
 
 class ForwardEuler(AlphaMethod):
     def __init__(self):
         pass
 
-    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op):
+    def propagate(self, u: cuqi.samples.CUQIarray, dt, rhs: cuqi.samples.CUQIarray, diff_op, solve_linear_system=None):
         """Propagate the solution using the explicit Euler method.
 	
 	Design Notes:
 	u can be sol obj if multiple time steps are required to compute the next time step."""
         I = np.eye(len(u))
-        u_next = (diff_op + I)@u + dt*rhs
+        u_next = (dt*diff_op + I)@u + dt*rhs
         return u_next, None
 
 class StormerVerlet(TimeIntegrator):
     pass
+
+
+def get_integrator_object(value):
+    if value.lower() == 'forward_euler':
+        integrator = ForwardEuler()
+    elif value.lower() == 'backward_euler':
+        integrator = BackwardEuler()
+    else:
+        raise ValueError(
+            "method can be set to either `forward_euler` or `backward_euler`")
+    return integrator
