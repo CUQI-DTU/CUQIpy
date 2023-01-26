@@ -3,6 +3,7 @@ import scipy
 from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
+from ._time_integrator import ForwardEuler, BackwardEuler, get_integrator_object
 
 class PDE(ABC):
     """
@@ -122,9 +123,9 @@ class LinearPDE(PDE):
         self._linalg_solve = linalg_solve
         self._linalg_solve_kwargs = linalg_solve_kwargs
 
-    def _solve_linear_system(self, A, b, linalg_solve, kwargs):
+    def _solve_linear_system(self, A, b):
         """Helper function that solves the linear system `A*x=b` using the provided solve method `linalg_solve` and its keyword arguments `kwargs`. It then returns the output in the format: `solution`, `info`"""
-        returned_values = linalg_solve(A, b, **kwargs)
+        returned_values = self._linalg_solve(A, b, **self._linalg_solve_kwargs)
         if isinstance(returned_values, tuple):
             solution = returned_values[0]
             info = returned_values[1:]
@@ -162,7 +163,7 @@ class SteadyStateLinearPDE(LinearPDE):
         if not hasattr(self, "diff_op") or not hasattr(self, "rhs"):
             raise Exception("PDE is not assembled.")
 
-        return self._solve_linear_system(self.diff_op, self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+        return self._solve_linear_system(self.diff_op, self.rhs)
 
 
     def observe(self, solution):
@@ -211,10 +212,7 @@ class TimeDependentLinearPDE(LinearPDE):
 
     @method.setter
     def method(self, value):
-        if value.lower() != 'forward_euler' and value.lower() != 'backward_euler':
-            raise ValueError(
-                "method can be set to either `forward_euler` or `backward_euler`")
-        self._method = value
+        self._method = get_integrator_object(value)
 
     def assemble(self, parameter):
         """Assemble PDE"""
@@ -227,25 +225,14 @@ class TimeDependentLinearPDE(LinearPDE):
     def solve(self):
         """Solve PDE by time-stepping"""
         #TODO: use time-stepping class
-        if self.method == 'forward_euler':
-            for idx, t in enumerate(self.time_steps[:-1]):
-                dt = self.time_steps[idx+1] - t
-                self.assemble_step(t)
-                if idx == 0:
-                    u = self.initial_condition
-                u = (dt*self.diff_op + np.eye(len(u)))@u + dt*self.rhs  # from u at time t, gives u at t+dt
-            info = None
 
-        if self.method == 'backward_euler':
-            for idx, t in enumerate(self.time_steps[1:]):
-                dt = t - self.time_steps[idx]
-                self.assemble_step(t)
-                if idx == 0:
-                    u = self.initial_condition
-                A = np.eye(len(u)) - dt*self.diff_op
-                # from u at time t-dt, gives u at t
-                u, info = self._solve_linear_system(
-                    A, u + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+        for idx, t in enumerate(self.time_steps[:-1]):
+            dt = self.time_steps[idx+1] - t
+            self.assemble_step(t)
+            if idx == 0:
+                u = self.initial_condition
+            u, _ = self.method.propagate(u, dt, self.rhs, self.diff_op, self._solve_linear_system)
+        info = None
 
         return u, info
 
