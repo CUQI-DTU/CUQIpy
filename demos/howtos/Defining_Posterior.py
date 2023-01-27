@@ -176,3 +176,5 @@ print(posterior3)
 # is then as simple as
 
 posterior3.logd(q=1, l=1, s=1, x=np.ones(A.domain_dim))
+
+# %%
