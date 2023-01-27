@@ -243,8 +243,8 @@ def test_extra_parameter_no_prior():
         cuqi.distribution.JointDistribution(y,x,z)
 
 
-def test_JointDistribution_reduce_SingleVariablePosterior():
-    """ This tests if the joint distribution can be reduced to SingleVariablePosterior """
+def test_JointDistribution_reduce_MultipleLikelihoodPosterior():
+    """ This tests if the joint distribution can be reduced to MultipleLikelihoodPosterior """
 
     J, data = hierarchical_joint()
 
@@ -259,14 +259,14 @@ def test_JointDistribution_reduce_SingleVariablePosterior():
     assert posterior_z.dim == 1
 
     # Check the "prior" in multiple likelihood posterior matches z
-    assert posterior_z.prior[0].mean == J.get_density("z").mean
-    assert posterior_z.prior[0].std == J.get_density("z").std
+    assert posterior_z.prior.mean == J.get_density("z").mean
+    assert posterior_z.prior.std == J.get_density("z").std
 
     # Check logd can be evaluated (tolerance is high since new data every time)
     assert np.allclose(posterior_z.logd(1), -5000, atol=10)
 
-def test_SingleVariablePosterior_should_raise_if_two_densities():
-    """ This tests if the SingleVariablePosterior raises if it has two densities. """
+def test_MultipleLikelihoodPosterior_should_raise_if_two_densities():
+    """ This tests if the MultipleLikelihoodPosterior raises if it has two densities. """
 
     # Define distributions for Bayesian model
     y = cuqi.distribution.Normal(lambda x: x, 1)
@@ -281,32 +281,32 @@ def test_SingleVariablePosterior_should_raise_if_two_densities():
     # Check we get the right class
     assert isinstance(P, cuqi.distribution.Posterior)
 
-    # Check that we cannot create SingleVariablePosterior
+    # Check that we cannot create MultipleLikelihoodPosterior
     with pytest.raises(ValueError, match=r"requires at least three densities"):
         cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x)
 
 
-def test_SingleVariablePosterior_should_raise_if_no_likelihood():
-    """ This tests if the SingleVariablePosterior raises if no likelihood is given."""
+def test_MultipleLikelihoodPosterior_should_raise_if_no_likelihood():
+    """ This tests if the MultipleLikelihoodPosterior raises if no likelihood is given."""
 
     # Define distributions for Bayesian model
     y1 = cuqi.distribution.Normal(lambda x: x, 1)
     y2 = cuqi.distribution.Normal(lambda x: x+1, 1)
     x = cuqi.distribution.Normal(0, 1)
  
-    # Check that we cannot create SingleVariablePosterior
+    # Check that we cannot create MultipleLikelihoodPosterior
     with pytest.raises(ValueError, match=r"must have a likelihood and prior"):
         cuqi.distribution.MultipleLikelihoodPosterior(y1, y2, x)
 
-def test_SingleVariablePosterior_should_raise_if_names_do_not_match():
-    """ This tests if the SingleVariablePosterior raises if the names do not match."""
+def test_MultipleLikelihoodPosterior_should_raise_if_names_do_not_match():
+    """ This tests if the MultipleLikelihoodPosterior raises if the names do not match."""
 
     # Define distributions for Bayesian model
     y = cuqi.distribution.Normal(lambda x: x, 1)
     x = cuqi.distribution.Normal(0, 1)
     z = cuqi.distribution.Normal(0, 1)
  
-    # Check that we cannot create SingleVariablePosterior
+    # Check that we cannot create MultipleLikelihoodPosterior
     with pytest.raises(ValueError, match=r"the same parameter name"):
         cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x, z)
 
