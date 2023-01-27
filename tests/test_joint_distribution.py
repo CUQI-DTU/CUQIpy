@@ -253,14 +253,14 @@ def test_JointDistribution_reduce_SingleVariablePosterior():
     posterior_z = J(y=data, d=0.1, l=0.1, x=data)
 
     # Check we get the right class
-    assert isinstance(posterior_z, cuqi.distribution.SingleVariablePosterior)
+    assert isinstance(posterior_z, cuqi.distribution.MultipleLikelihoodPosterior)
 
     # Check the dimension
     assert posterior_z.dim == 1
 
     # Check the "prior" in multiple likelihood posterior matches z
-    assert posterior_z.priors[0].mean == J.get_density("z").mean
-    assert posterior_z.priors[0].std == J.get_density("z").std
+    assert posterior_z.prior[0].mean == J.get_density("z").mean
+    assert posterior_z.prior[0].std == J.get_density("z").std
 
     # Check logd can be evaluated (tolerance is high since new data every time)
     assert np.allclose(posterior_z.logd(1), -5000, atol=10)
@@ -283,7 +283,7 @@ def test_SingleVariablePosterior_should_raise_if_two_densities():
 
     # Check that we cannot create SingleVariablePosterior
     with pytest.raises(ValueError, match=r"requires at least three densities"):
-        cuqi.distribution.SingleVariablePosterior(y.to_likelihood(1), x)
+        cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x)
 
 
 def test_SingleVariablePosterior_should_raise_if_no_likelihood():
@@ -296,7 +296,7 @@ def test_SingleVariablePosterior_should_raise_if_no_likelihood():
  
     # Check that we cannot create SingleVariablePosterior
     with pytest.raises(ValueError, match=r"must have a likelihood and prior"):
-        cuqi.distribution.SingleVariablePosterior(y1, y2, x)
+        cuqi.distribution.MultipleLikelihoodPosterior(y1, y2, x)
 
 def test_SingleVariablePosterior_should_raise_if_names_do_not_match():
     """ This tests if the SingleVariablePosterior raises if the names do not match."""
@@ -308,5 +308,5 @@ def test_SingleVariablePosterior_should_raise_if_names_do_not_match():
  
     # Check that we cannot create SingleVariablePosterior
     with pytest.raises(ValueError, match=r"the same parameter name"):
-        cuqi.distribution.SingleVariablePosterior(y.to_likelihood(1), x, z)
+        cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x, z)
 

@@ -194,7 +194,7 @@ class JointDistribution:
 
         # If exactly one distribution and multiple likelihoods reduce
         if n_dist == 1 and n_likelihood > 1:
-            return SingleVariablePosterior(*self._densities)
+            return MultipleLikelihoodPosterior(*self._densities)
         
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
@@ -304,8 +304,8 @@ class _StackedJointDistribution(JointDistribution, Distribution):
         return "_Stacked"+super().__repr__()
 
 
-class SingleVariablePosterior(JointDistribution, Distribution):
-    """ A posterior distribution for a single random variable. There can be multiple likelihoods and priors.
+class MultipleLikelihoodPosterior(JointDistribution, Distribution):
+    """ A posterior distribution with multiple likelihoods and a single prior.
 
     Parameters
     ----------
@@ -317,31 +317,30 @@ class SingleVariablePosterior(JointDistribution, Distribution):
     Notes
     -----    
     This acts like a regular distribution with a single parameter vector. Behind-the-scenes
-    it is a joint distribution with multiple likelihoods and priors. This is mostly
-    intended to be used by samplers that are not able to handle joint distributions. 
+    it is a joint posterior distribution with multiple likelihoods and a single prior.
+    This is mostly intended to be used by samplers that are not able to handle joint distributions. 
     See :class:`JointDistribution` for more details on the joint distribution.   
     
     """
 
     def __init__(self, *densities: Density):
         super().__init__(*densities)
-
         self._check_densities_have_same_parameter()
 
     @property
     def geometry(self):
         """ The geometry of the distribution. """
-        return self.priors[0].geometry
+        return self.prior.geometry
 
     @property
     def dim(self):
         """ Return the dimension of the distribution. """
-        return self.priors[0].dim
+        return self.prior.dim
 
     @property
-    def priors(self):
-        """ Return the prior distributions of the posterior. """
-        return self._distributions
+    def prior(self):
+        """ Return the prior distribution of the posterior. """
+        return self._distributions[0]
 
     @property
     def likelihoods(self):
@@ -369,18 +368,13 @@ class SingleVariablePosterior(JointDistribution, Distribution):
         if len(self._densities) < 3:
             raise ValueError(f"{self.__class__.__name__} requires at least three densities. For a single likelihood and prior use Posterior instead.")
         
-        if len(self.likelihoods) == 0 or len(self.priors) == 0:
+        if len(self.likelihoods) == 0 or len(self.prior) == 0:
             raise ValueError(f"{self.__class__.__name__} must have a likelihood and prior.")
 
         # Check that there is only a single parameter
         par_names = self.get_parameter_names()
         if len(set(par_names)) > 1:
             raise ValueError(f"{self.__class__.__name__} requires all densities to have the same parameter name.")
-
-        # Check geometry matches for all distributions
-        for dist in self._distributions:
-            if dist.geometry != self.geometry:
-                raise ValueError(f"{self.__class__.__name__} requires all distributions to have the same geometry.")
 
     def __repr__(self):
         # Remove first line of super repr and add class name to the start
