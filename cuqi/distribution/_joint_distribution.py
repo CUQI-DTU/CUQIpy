@@ -368,7 +368,7 @@ class MultipleLikelihoodPosterior(JointDistribution, Distribution):
         if len(self._densities) < 3:
             raise ValueError(f"{self.__class__.__name__} requires at least three densities. For a single likelihood and prior use Posterior instead.")
         
-        if len(self.likelihoods) == 0 or len(self.prior) == 0:
+        if len(self.likelihoods) == 0:
             raise ValueError(f"{self.__class__.__name__} must have a likelihood and prior.")
 
         # Check that there is only a single parameter
