@@ -8,5 +8,5 @@ from ._time_integrator import (
     TimeIntegrator,
     ForwardEuler,
     BackwardEuler,
-    AlphaMethod,
-    get_integrator_object)
+    ThetaMethod,
+    Trapezoidal)
