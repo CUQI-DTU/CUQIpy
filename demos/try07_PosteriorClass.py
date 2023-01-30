@@ -13,7 +13,7 @@ from cuqi.samples import Samples
 #
 
 
-test_problem = cuqi.testproblem.Deblur()
+test_problem = cuqi.testproblem._Deblur()
 norm_f = np.linalg.norm(test_problem.exactSolution)
 
 # RHS: measured data

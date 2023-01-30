@@ -265,7 +265,7 @@ def test_ULA_regression(copy_reference):
 
     np.random.seed(0)
     # %% Create CUQI test problem
-    test = cuqi.testproblem.Deblur()
+    test = cuqi.testproblem._Deblur()
     n = test.model.domain_dim
     h = test.meshsize
     
@@ -405,12 +405,12 @@ def test_NUTS_regression(copy_reference):
 
     assert(np.allclose(samples.samples, samples_orig["arr_0"]))
 
-def _Gibbs_joint_hier_model():
+def _Gibbs_joint_hier_model(use_legacy=False, noise_std=0.01):
     """ Define a Gibbs sampler based on a joint distribution from a hierarchical model. Used for testing Gibbs sampler. """
     np.random.seed(0)
     
     # Model and data
-    A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(phantom='square')
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(phantom='square', use_legacy=use_legacy, noise_std=noise_std)
     n = A.domain_dim
 
     # Define distributions
@@ -440,7 +440,8 @@ def test_Gibbs_regression(copy_reference):
     if not sys.platform.startswith('win'):
         pytest.skip("NUTS regression test is not implemented for this platform")
 
-    sampler = _Gibbs_joint_hier_model()
+    # Legacy deconvolution test problem to match reference results
+    sampler = _Gibbs_joint_hier_model(use_legacy=True, noise_std=0.05)
 
     # Run sampler
     samples = sampler.sample(Ns=100, Nb=20)

@@ -14,7 +14,7 @@ from cuqi.samples import CUQIarray
 
 
 #=============================================================================
-class Deblur(BayesianProblem):
+class _Deblur(BayesianProblem):
     """
     1D Deblur test problem.
 
@@ -73,6 +73,9 @@ class Deblur(BayesianProblem):
 
     """
     def __init__(self, dim = 128, bounds = [0, 1], blur_size = 48, noise_std = 0.1, prior=None):
+        
+        Warning("DEPRECATED: Use Deconvolution1D instead.")
+        
         # mesh
         mesh = np.linspace(bounds[0], bounds[1], dim)
         meshsize = mesh[1] - mesh[0]
@@ -226,12 +229,12 @@ class Deconvolution1D(BayesianProblem):
         PSF_param=None,
         PSF_size=None,
         BC="periodic",
-        phantom="gauss",
+        phantom="sinc",
         phantom_param=None,
         noise_type="gaussian",
-        noise_std=0.05,
+        noise_std=0.01,
         prior=None,
-        use_legacy=True,
+        use_legacy=False,
         ):
         
         # Set up forward model
@@ -306,7 +309,10 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
         mode = "edge"
     else:
         raise ValueError("Unknown boundary condition")
-    
+
+    if PSF_size is None:
+        PSF_size = dim
+   
     # PSF setup
     if isinstance(PSF, np.ndarray):
         if PSF.ndim != 1:
@@ -314,11 +320,11 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
         P = PSF
     elif isinstance(PSF, str):
         if PSF.lower() == "gauss":
-            P = _GaussPSF_1D(PSF_size, PSF_param)
+            P, _ = _GaussPSF_1D(PSF_size, PSF_param)
         elif PSF.lower() == "moffat":
-            P = _MoffatPSF_1D(PSF_size, PSF_param)
+            P, _ = _MoffatPSF_1D(PSF_size, PSF_param)
         elif PSF.lower() == "defocus":
-            P = _DefocusPSF_1D(PSF_size, PSF_param)
+            P, _ = _DefocusPSF_1D(PSF_size, PSF_param)
         else:
             raise ValueError("Unknown PSF type")
     
@@ -326,7 +332,10 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
     return lambda x: convolve1d(x, P, mode=mode)
 
 
-def _GaussPSF_1D(PSF_size, PSF_param):   
+def _GaussPSF_1D(PSF_size, PSF_param):
+    if PSF_param is None:
+        PSF_param = 10
+
     # Set up grid points to evaluate the Gaussian function
     x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
 
@@ -339,6 +348,10 @@ def _GaussPSF_1D(PSF_size, PSF_param):
     return PSF, center.astype(int)
 
 def _MoffatPSF_1D(PSF_size, PSF_param, beta=1):
+
+    if PSF_param is None:
+        PSF_param = 10
+
     # Set up grid points to evaluate the Gaussian function
     x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
 
@@ -350,7 +363,11 @@ def _MoffatPSF_1D(PSF_size, PSF_param, beta=1):
     center = np.where(PSF == PSF.max())[0][0]
     return PSF, center.astype(int)
 
-def _DefocusPSF_1D(PSF_size, PSF_param):    
+def _DefocusPSF_1D(PSF_size, PSF_param):
+
+    if PSF_param is None:
+        PSF_param = 10
+
     center = np.fix(int(PSF_size/2))
     if (PSF_param == 0):    
         # the PSF is a delta function and so the blurring matrix is I
@@ -923,7 +940,7 @@ class Abel_1D(BayesianProblem):
         self.exactData = y_exact
 
 
-class Deconv_1D(BayesianProblem):
+class _Deconv_1D(BayesianProblem):
     """
     1D Deconvolution test problem. Discreate linear problem from blurring kernel.
 
@@ -979,6 +996,9 @@ class Deconv_1D(BayesianProblem):
 
     """
     def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=100):
+        
+        Warning("DEPRECATED: Use Deconvolution1D instead.")
+        
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
         grid = np.linspace(0, endpoint, N)

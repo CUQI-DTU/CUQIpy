@@ -6,7 +6,7 @@ import cuqi
 import matplotlib.pyplot as plt
 
 # %% Create CUQI test problem
-test = cuqi.testproblem.Deblur()
+test = cuqi.testproblem._Deblur()
 n = test.model.domain_dim
 h = test.meshsize
 

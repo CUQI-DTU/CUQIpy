@@ -26,7 +26,8 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     np.random.seed(19937)
 
     # Generate TP using this seed (for data consistency)
-    TP = TP_type(dim=prior.dim, phantom=phantom)
+    # Legacy convolution is used for consistency with the reference data.
+    TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=True, noise_std=0.05) 
 
     # set the prior of testproblem
     TP.prior = prior
