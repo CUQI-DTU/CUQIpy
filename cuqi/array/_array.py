@@ -26,6 +26,8 @@ class TimeDependantPDESolution(TimeSeries):
 
     rejected_times: Time points of the time series that were rejected.
     local_errors: Estimated local errors of the time steps.
+    u_list: List of solutions at the time points.
+    t_list: List of time steps.
     """
     pass
 
