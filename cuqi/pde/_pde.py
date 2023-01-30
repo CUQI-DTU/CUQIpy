@@ -3,7 +3,7 @@ import scipy
 from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
-from ._time_integrator import ForwardEuler, BackwardEuler, get_integrator_object
+from ._time_integrator import ForwardEuler, BackwardEuler
 
 class PDE(ABC):
     """
@@ -93,7 +93,7 @@ class PDE(ABC):
         return self._grids_equal
 
 
-class LinearPDE(PDE):
+class LinearPDE(PDE, ABC):
     """
     Parametrized Linear PDE base class
 
@@ -200,25 +200,17 @@ class TimeDependentLinearPDE(LinearPDE):
     See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
     """
 
-    def __init__(self, PDE_form, time_steps, method='forward_euler', **kwargs):
+    def __init__(self, PDE_form, time_steps, method=ForwardEuler(), **kwargs):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
         self.method = method
 
-    @property
-    def method(self):
-        return self._method
-
-    @method.setter
-    def method(self, value):
-        self._method = get_integrator_object(value)
-
     def assemble(self, parameter):
         """Assemble PDE"""
         self._parameter = parameter
 
-    def assemble_step(self, t):
+    def assemble_time_dependant_step(self, t):
         """Assemble time step at time t"""
         self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t)
 
@@ -228,7 +220,8 @@ class TimeDependentLinearPDE(LinearPDE):
 
         for idx, t in enumerate(self.time_steps[:-1]):
             dt = self.time_steps[idx+1] - t
-            self.assemble_step(t)
+            self.assemble_time_dependant_step(t)
+            # can do self.observe_time_dependant_step(t) here
             if idx == 0:
                 u = self.initial_condition
             u, _ = self.method.propagate(u, dt, self.rhs, self.diff_op, self._solve_linear_system)
