@@ -1,14 +1,14 @@
 class Observer():
     pass
 
-class SteadyObserver(observer):
+class SteadyObserver(Observer):
     """
     Attributes:
     observation_operator: Observation operator (lambda function or x coordinates).
     observed_solution: Observed solution (CUQIarray)."""
     pass
 
-class TimeDependantObserver(observer):
+class TimeDependantObserver(Observer):
     """
     Attributes:
     observation_operator: Observation operator (lambda function or x and t coordinates).
