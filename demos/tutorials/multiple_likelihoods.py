@@ -239,16 +239,15 @@ samples.compute_ess()
 # Create the posterior 
 # ~~~~~~~~~~~~~~~~~~~~~
 
-z_joint = cuqi.distribution.JointDistribution(theta,y1,y2)(y1=data1, y2=data2)._as_stacked() 
-# Note: _as_stacked() is needed to stack the random variables but it is a
-# temporary hack that will be not needed in the future.
+z_joint = cuqi.distribution.JointDistribution(theta,y1,y2)(y1=data1, y2=data2)
+
 
 # %%
 # We print the joint distribution `z_joint`:
 print(z_joint)
 
 # %%
-# We see that in this case we obtain a :class:`_StackedJointDistribution` 
+# We see that in this case we obtain a :class:`MultipleLikelihoodPosterior` 
 # object, which represents the posterior distribution of the parameters `theta`
 # given the data `y1` and `y2`. The posterior distribution in this case is 
 # proportional to the product of the two likelihoods and the prior.
@@ -260,11 +259,6 @@ print(z_joint)
 # Sample from the posterior
 sampler = cuqi.sampler.MetropolisHastings(z_joint)
 samples = sampler.sample_adapt(8000)
-
-# Set the samples geometry
-# Note: this step is will be not needed in the future as samples geometry will
-# be automatically determined.
-samples.geometry=theta.geometry 
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
