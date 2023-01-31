@@ -182,8 +182,6 @@ class UserDefinedLikelihood(object):
         """Returns value of likelihood function"""
         return self.logpdf_func(*args, **kwargs)
 
-    #TODO: Change gradient to _gradient when this class is subclassed from
-    # Density.
     def gradient(self, *args, **kwargs):
         """Return gradient of likelihood function"""
         return self.gradient_func(*args, **kwargs)
