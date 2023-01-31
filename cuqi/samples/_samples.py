@@ -94,7 +94,10 @@ class CUQIarray(np.ndarray):
         return type(self)(vals,is_par=True,geometry=self.geometry)
 
     def to_numpy(self):
-        """Return a numpy array of the CUQIarray"""
+        """Return a numpy array of the CUQIarray data. If is_par is True, then 
+        the parameters are returned as numpy.ndarray. If is_par is False, then 
+        the function values are returned instead.
+        """
         try:
             return self.view(np.ndarray)
         except:
