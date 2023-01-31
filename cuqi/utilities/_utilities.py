@@ -164,19 +164,26 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(float)
     # (e.g. funvalues=paramters**2), because wrt entries 
     # are interpreted as function value.
 
-    if isinstance(wrt, CUQIarray):
-        wrt = wrt.to_numpy()
-    if direction is not None and isinstance(direction, CUQIarray):
-        direction = direction.to_numpy()
-    
+    if isinstance(wrt, CUQIarray) or isinstance(direction, CUQIarray):
+         raise NotImplementedError("approx_derivative is not implemented"+
+                                   "for inputs of type CUQIarray")
+
+    # We compute the Jacobian matrix of func using forward differences.
+    # If the function is scalar-valued, we compute the gradient instead.
+    # If the direction is provided, we compute the direction-Jacobian product.
     wrt = np.asfarray(wrt)
     f0 = func(wrt)
     Matr = np.zeros([infer_len(wrt), infer_len(f0)])
     dx = np.zeros(len(wrt))
+
+    # Compute the Jacobian matrix (transpose)
     for i in range(len(wrt)):
         dx[i] = epsilon
         Matr[i] = (func(wrt+dx) - f0)/epsilon
         dx[i] = 0.0
+
+    # Return the Jacobian matrix (or the gradient)
+    # or the direction-Jacobian product
     if direction is None:
         if infer_len(f0) == 1:
             return Matr.reshape(infer_len(wrt))
@@ -188,16 +195,16 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(float)
 def approx_gradient(func, x, epsilon= 0.000001):
     """Approximates the gradient of callable scalar function `func` evaluated at point `x`. The approximation is done using finite differences with
     step size `epsilon`."""
-
-    #TODO: use approx_derivative after making it data structure agnostic
-    #return approx_derivative(func, x, None, epsilon=epsilon)
- 
+    
+    # Derivative of a scalar function using forward differences
     if isinstance(x, Number):
         return (func(x+epsilon) - func(x))/epsilon
 
+    # Initialize variables
     FD_gradient = x*0.0
     eps_vec = x*0.0
 
+    # Compute the gradient using forward differences component by component
     x_len = infer_len(x)
     for i in range(x_len):
         eps_vec[i] = epsilon
