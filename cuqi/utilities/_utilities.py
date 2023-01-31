@@ -165,7 +165,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(float)
     # are interpreted as function value.
 
     if isinstance(wrt, CUQIarray) or isinstance(direction, CUQIarray):
-         raise NotImplementedError("approx_derivative is not implemented"+
+        raise NotImplementedError("approx_derivative is not implemented"+
                                    "for inputs of type CUQIarray")
 
     # We compute the Jacobian matrix of func using forward differences.
