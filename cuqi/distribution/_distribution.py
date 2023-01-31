@@ -190,8 +190,9 @@ class Distribution(Density, ABC):
     def _gradient(self, *args, **kwargs):
         raise NotImplementedError(
             f"_gradient is not implemented for {self.__class__.__name__}. " +
-            "Consider setting the property use_FD to True to use finite " +
-            "differences to approximate the gradient.")
+            "Consider enabling finite difference approximation of the " +
+            f"gradient by calling the {self.__class__.__name__} method " +
+            "enable_FD().")
 
     def sample(self,N=1,*args,**kwargs):
         #Make sure all values are specified, if not give error
