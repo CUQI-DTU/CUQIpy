@@ -32,6 +32,7 @@ class Density(ABC):
         self.name = name
         self._constant = 0 # Precomputed constant to add to the log probability.
         self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
+        self.disable_FD() # Disable FD approximation of the logd gradient by default.
 
     @property
     def name(self):
@@ -52,6 +53,16 @@ class Density(ABC):
     def _is_copy(self):
         """ Returns True if this is a copy of another density, e.g. by conditioning. """
         return hasattr(self, '_original_density') and self._original_density is not None
+
+    @property
+    def FD_enabled(self):
+        """ Returns True if finite difference approximation of the logd gradient is enabled. """
+        return self._FD_enabled
+
+    @property
+    def FD_epsilon(self):
+        """ Spacing for the finite difference approximation of the logd gradient. """
+        return self._FD_epsilon
 
     def logd(self, *args, **kwargs):
         """ Evaluates the un-normalized log density function given a set of parameters.
@@ -78,9 +89,24 @@ class Density(ABC):
             args = [kwargs[name] for name in par_names]            
 
         return self._logd(*args) + self._constant
+
+    def gradient(self, *args, **kwargs):
+        """ Returns the gradient of the log density at x. """
+        
+        # Use FD approximation if requested
+        if self.FD_enabled:
+            return cuqi.utilities.approx_gradient(
+                self.logd, *args, **kwargs, epsilon=self.FD_epsilon)
+
+        # Otherwise use the implemented gradient
+        return self._gradient(*args, **kwargs)
    
     @abstractmethod
     def _logd(self):
+        pass
+
+    @abstractmethod
+    def _gradient(self):
         pass
 
     @abstractmethod
@@ -114,6 +140,19 @@ class Density(ABC):
         """
         return self._condition(*args, **kwargs)
 
+    def enable_FD(self, epsilon=1e-8):
+        """ Enable finite difference approximation for logd gradient. Note
+        that if enabled, the FD approximation will be used even if the 
+        _gradient method is implemented. """
+        self._FD_enabled = True
+        self._FD_epsilon = epsilon
+
+    def disable_FD(self):
+        """ Disable finite difference approximation for logd gradient. """
+        self._FD_enabled = False
+        self._FD_epsilon = None
+
+
 class EvaluatedDensity(Density):
     """ An evaluated density representing a constant number exposed through the logd method.
 
@@ -132,6 +171,14 @@ class EvaluatedDensity(Density):
 
     def _logd(self):
         return self.value
+
+    def gradient(self, *args, **kwargs):
+        raise NotImplementedError(
+            f"gradient is not implemented for {self.__class__.__name__}.")
+
+    def _gradient(self):
+        raise NotImplementedError(
+            f"_gradient is not implemented for {self.__class__.__name__}.")
 
     def _condition(self, *args, **kwargs):
         return self

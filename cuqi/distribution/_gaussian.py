@@ -294,7 +294,7 @@ class Gaussian(Distribution):
         cov = self.compute_cov() # Ensure that we have the full covariance matrix
         return sps.multivariate_normal.cdf(x1, self.mean, cov)
 
-    def gradient(self, val, *args, **kwargs):
+    def _gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries() and \
            not hasattr(self.geometry, 'gradient'):

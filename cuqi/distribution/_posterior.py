@@ -79,7 +79,7 @@ class Posterior(Distribution):
     def get_parameter_names(self):
         return self.prior.get_parameter_names()
 
-    def gradient(self, x):
+    def _gradient(self, x):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries() and\
            not hasattr(self.geometry, 'gradient'):
