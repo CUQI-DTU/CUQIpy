@@ -153,8 +153,8 @@ class Deconvolution1D(BayesianProblem):
     :math:`\mathbf{A}` is a convolution operator.
 
     The convolution operator is defined by specifying a point spread function and
-    boundary conditions and is computed (matrix-free) via scipy.ndimage.convolve1D,
-    or using a matrix representation if the use-matrix flag is set to True.
+    boundary conditions and is computed via scipy.ndimage.convolve1D. By default,
+    the matrix representation of the convolution operator is computed and stored.
 
     The inputs are padded to fit the boundary conditions.
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.convolve1d.html
@@ -166,10 +166,12 @@ class Deconvolution1D(BayesianProblem):
 
     PSF : string or ndarray
         | Determines type of the underlying point spread function (PSF).
-        | 'Gauss' - a Gaussian function
-        | 'sinc' or 'prolate' - a sinc function
-        | 'vonMises' - a periodic version of the Gauss function
-        | ndarray - a custom PSF.
+        | 'Gauss' - a 1D Gaussian blur function
+        | 'Moffat' - a 1D Moffat blur function
+        | 'Defocus' - an out-of-focus 1D blur function
+        | 'sinc' or 'prolate' - a sinc function (LEGACY only)
+        | 'vonMises' - a periodic version of the Gauss function (LEGACY only)
+        | ndarray - a custom PSF represented as a 1D ndarray.
 
     PSF_param : scalar
         | A parameter that determines the shape of the PSF;
@@ -209,13 +211,14 @@ class Deconvolution1D(BayesianProblem):
     noise_type : string
         | The type of noise
         | "Gaussian" - Gaussian white noise¨
-        | "scaledGaussian" - Scaled (by data) Gaussian noise
+        | "scaledGaussian" - Scaled (by data) Gaussian noise. Here noise is scaled
+        | by each data point individually.
 
     noise_std : scalar
         Standard deviation of the noise
 
     prior : cuqi.distribution.Distribution, Default Gaussian
-        Distribution of the prior+
+        Distribution of the prior
 
     use_legacy : bool, Default False
         If True, use the legacy matrix representation of the forward model.

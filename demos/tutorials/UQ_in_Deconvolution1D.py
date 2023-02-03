@@ -1,9 +1,10 @@
 """
-One-dimensional deconvolution
+Uncertainty Quantification in one-dimensional deconvolution
 =============================
 
-    This tutorial walks through the process of solving a simple deconvolution problem
-    in a Bayesian setting.
+    This tutorial walks through the process of solving a simple 1D 
+    deconvolution problem in a Bayesian setting. It also shows how
+    to define such a convolution model in CUQIpy.
 
 """
 # %%
@@ -35,13 +36,14 @@ import matplotlib.pyplot as plt
 # method.
 
 # Forward model and data
-A, y_data, info = cuqi.testproblem.Deconvolution1D.get_components(use_legacy=False)
+A, y_data, info = cuqi.testproblem.Deconvolution1D.get_components()
 
 # %%
-# There are many parameters that can be set when creating the test problem. In this case
-# we will use the default parameters. The :func:`get_components` method returns the
-# forward model, synthetic data, and a :class:`~ProblemInfo` object that contains
-# information about the test problem.
+# There are many parameters that can be set when creating the test problem. For more details
+# see the :class:`cuqi.testproblem.Deconvolution1D` documentation. In this case, we will use
+# the default parameters. The :func:`get_components` method returns the forward model, 
+# synthetic data, and a :class:`~ProblemInfo` object that contains information about the 
+# test problem.
 #
 # Let's take a look at the forward model
 
