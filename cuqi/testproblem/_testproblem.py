@@ -204,8 +204,8 @@ class Deconvolution1D(BayesianProblem):
 
     phantom_param : scalar
         | A parameter that determines the width of the central 
-        | "bump" of the function; the larger the parameter,
-        | the narrower the "bump."  
+        | peak of the function; the larger the parameter,
+        | the narrower the peak.  
         | Does not apply to phantom = 'bumps' or ndarray.
 
     noise_type : string

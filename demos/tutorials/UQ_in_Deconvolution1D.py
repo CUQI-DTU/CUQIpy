@@ -1,6 +1,6 @@
 """
 Uncertainty Quantification in one-dimensional deconvolution
-=============================
+===========================================================
 
     This tutorial walks through the process of solving a simple 1D 
     deconvolution problem in a Bayesian setting. It also shows how
