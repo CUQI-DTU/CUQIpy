@@ -61,11 +61,16 @@ print(A)
 
 y_data.plot(label="Synthetic data")
 info.exactSolution.plot(label="Exact solution")
+plt.title("Deconvolution 1D problem")
 plt.legend()
 
 # %%
 # Setting up the prior
 # --------------------
+#
+# We now need to define the prior distribution for the solution. In this case, we will use
+# a Gaussian Markov Random Field (GMRF) prior. For more details on the GMRF prior, see the
+# :class:`cuqi.distribution.GMRF` documentation.
 
 x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 200)
 
@@ -74,14 +79,25 @@ x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 200)
 # Setting up the likelihood
 # -------------------------
 #
+# We now need to define the likelihood. First let us take a look at the information provided
+# by the test problem.
 
 print(info.infoString)
+
+# %%
+# We see that the noise level is known and that the noise is Gaussian. We can use this
+# information to define the likelihood. In this case, we will use a :class:`~cuqi.distribution.Gaussian`
+# distribution.
 
 y = cuqi.distribution.Gaussian(A @ x, 0.01**2)
 
 # %%
 # Bayesian problem (Joint distribution)
 # -------------------------------------
+#
+# After defining the prior and likelihood, we can now define the Bayesian problem. The
+# Bayesian problem is defined by the joint distribution of the solution and the data.
+# This can be seen when we print the Bayesian problem.
 
 BP = cuqi.problem.BayesianProblem(y, x)
 
@@ -90,6 +106,8 @@ print(BP)
 # %%
 # Setting the data (posterior)
 # ----------------------------
+#
+# Now to set the data, we need to call the :func:`~cuqi.problem.BayesianProblem.set_data`
 
 BP.set_data(y=y_data)
 
@@ -98,6 +116,8 @@ print(BP)
 # %%
 # Sampling from the posterior
 # ---------------------------
+#
+# We can then use the automatic sampling method to sample from the posterior distribution.
 
 samples = BP.sample_posterior(1000)
 
