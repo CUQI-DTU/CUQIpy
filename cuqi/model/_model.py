@@ -341,6 +341,12 @@ class Model(object):
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return grad
+
+    def add_shift(self, shift):
+        """ Creates a new Model with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
+        new_model = copy(self)
+        new_model._forward_func = lambda *args, **kwargs: self.forward(*args, **kwargs) + shift
+        return new_model
     
     def __len__(self):
         return self.range_dim
@@ -464,6 +470,10 @@ class LinearModel(Model):
     def __matmul__(self, x):
         return self.forward(x)
 
+    def add_shift(self, shift):
+        """ Creates a ShiftedLinearModel with a fixed shift, i.e. model_shifted(x) = model(x) + shift. """
+        return ShiftedLinearModel(self._forward_func, self._adjoint_func, self.range_geometry, self.domain_geometry, shift)
+
     @property
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
@@ -471,7 +481,51 @@ class LinearModel(Model):
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
-        
+
+class ShiftedLinearModel(LinearModel):
+    """ Shifted linear model defined as x -> forward(x) + shift.
+
+    Note that the adjoint is defined as y -> adjoint(y), where 
+    adjoint is the adjoint of the forward function (forward)
+    NOT the shifted forward (forward + shift).
+
+    Parameters
+    ----------
+
+    forward : 2d ndarray or callable function.
+        The forward operator. If ndarray is given, the forward operator is assumed to be a matrix.
+
+    adjoint : 2d ndarray or callable function.
+        The adjoint operator. If ndarray is given, the adjoint operator is assumed to be a matrix.
+
+    range_geometry : cuqi.geometry.Geometry
+        The geometry representing the range.
+
+    domain_geometry : cuqi.geometry.Geometry
+        The geometry representing the domain.
+
+    shift : scalar or array_like
+        The shift to be added to the forward operator.
+
+    """
+
+    def __init__(self, forward, adjoint=None, range_geometry=None, domain_geometry=None, shift=None):
+        super().__init__(forward, adjoint, range_geometry, domain_geometry)
+        if shift is None:
+            raise ValueError("ShiftedLinearModel: shift must be specified")
+        self.shift = shift
+
+    def forward(self, *args, is_par=True, **kwargs):
+        return super().forward(*args, is_par=is_par, **kwargs) + self.shift
+
+    def __matmul__(self, x):
+        raise NotImplementedError("ShiftedLinearModel: Matrix multiplication not implemented")
+
+    @property
+    def T(self):
+        """Transpose of linear model. Returns a new linear model acting as the transpose."""
+        raise NotImplementedError("ShiftedLinearModel: Transpose of shifted model not implemented")
+    
 
 class PDEModel(Model):
     """
@@ -567,7 +621,7 @@ class JointModel:
     """
     def __init__(self, models: List[LinearModel]):
         self.models = models
-        self.shift = 0 # Initial shift
+        self._shift = 0 # Initial shift
 
     def __call__(self, **kwargs):
         """ Evaluate the model at the given parameters. """
@@ -584,18 +638,17 @@ class JointModel:
                 if kwarg in cuqi.utilities.get_non_default_args(model):
 
                     # make dict of kwarg and value
-                    new_model.shift += model(value)
+                    new_model._shift += model(value)
                     #new_model.shift += model(**{kwarg: value}) #Model needs to support this
                     
                     # Remove model from list since it has been evaluated
                     new_model.models.remove(model)
 
         if len(new_model.models) == 0: # Model has been evaluated fully
-            return new_model.shift
+            return new_model._shift
 
         if len(new_model.models) == 1: # Single model left, return it (including shift which is the other evaluated models)
-            new_model.models[0].shift = new_model.shift
-            return new_model.models[0]
+            return new_model.models[0].add_shift(new_model._shift)
 
         return new_model # Else return the JointModel
 

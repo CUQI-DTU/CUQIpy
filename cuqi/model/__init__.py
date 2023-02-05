@@ -1,1 +1,1 @@
-from ._model import Model, LinearModel, PDEModel, JointModel
+from ._model import Model, LinearModel, PDEModel, ShiftedLinearModel, JointModel
