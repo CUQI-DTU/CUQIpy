@@ -17,7 +17,7 @@ B = cuqi.model.LinearModel(lambda y: y, lambda z: z, 1, 1)
 
 # Suppose we want to define a joint linear model J: (x, y) -> z
 # as the sum of the two models A and B, i.e. J(x, y) = A(x) + B(y)
-J = cuqi.model.JointLinearModel([A, B], type="sum") # type sum is default
+J = cuqi.model.JointModel([A, B], type="sum") # type sum is default
 
 # We can inspect the model
 print(J)

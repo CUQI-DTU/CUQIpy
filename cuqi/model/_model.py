@@ -529,31 +529,50 @@ class PDEModel(Model):
         return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
 
-class JointLinearModel: #TODO: Extend to non-linear models
-    """ A joint model of multiple inputs defined via a combination of linear models.
+class JointModel:
+    """ A joint model defined by a list of models. The joint model is defined as the sum of the models.
 
+    Consider a list of models [model_1(x), model_2(y), ...]. The joint model is defined as
+
+    .. math::
+
+        model_{joint}(x, y) = model_1(x) + model_2(y) + ...
 
     Parameters
     ----------
     models : List[LinearModel]
         List of models to be combined.
 
-    type : str
-        Type of combination. Currently only "sum" is implemented.
+    Examples
+    --------
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi import LinearModel, JointModel
+
+        # Define two linear models
+        model_1 = Model(lambda x: x, 1, 1)
+        model_2 = Model(lambda y: y+1, 1, 1)
+
+        # Define a joint model
+        joint_model = JointModel([model_1, model_2])
+
+        # Evaluate the joint model
+        joint_model(x=1, y=2) # Returns 4
+
+        # Partial evaluation
+        joint_model(x=1) # Returns a new model with model_1(x) fixed
         
     """
-    def __init__(self, models: List[LinearModel], type: str = "sum"):
-
-        if type != "sum":
-            raise NotImplementedError("Only sum type is implemented.")
-
+    def __init__(self, models: List[LinearModel]):
         self.models = models
         self.shift = 0 # Initial shift
 
     def __call__(self, **kwargs):
         """ Evaluate the model at the given parameters. """
 
-        # Evaluation happens in a joint shallow copy of the JointLinearModel
+        # Evaluation happens in a shallow copy of the JointModel
         new_model = copy(self)              # Shallow copy of self
         new_model.models = self.models[:]   # Shallow copy of models in list
 
@@ -578,7 +597,7 @@ class JointLinearModel: #TODO: Extend to non-linear models
             new_model.models[0].shift = new_model.shift
             return new_model.models[0]
 
-        return new_model # Else return the JointLinearModel
+        return new_model # Else return the JointModel
 
     @property
     def _non_default_args(self):
