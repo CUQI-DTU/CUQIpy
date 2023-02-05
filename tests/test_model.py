@@ -444,3 +444,66 @@ def test_linear_model_allow_other_parameter_names():
     assert model_y@1 == 1
     assert model_z@1 == 1
     assert model_mat@np.ones(1) == np.ones(1)
+
+
+# Parametrize over models
+@pytest.mark.parametrize("model", [cuqi.testproblem.Deconvolution1D().model,
+                                   cuqi.testproblem.Heat_1D().model])
+def test_ShiftedModel_Correct_result(model):
+    """ Test creating a shifted linear model from a linear model """
+
+    # Random vectors
+    x = np.random.randn(model.domain_dim)
+    b = np.random.randn(model.range_dim)
+
+    A_shifted = model.add_shift(b)
+
+    # Dimension check
+    assert A_shifted.range_dim == model.range_dim
+
+    # Check that the shifted linear model is correct
+    assert np.allclose(A_shifted(x), model(x) + b)
+
+
+# Parametrize over models
+@pytest.mark.parametrize("model", [cuqi.testproblem.Deconvolution1D().model,
+                                   cuqi.testproblem.Heat_1D().model])
+def test_ShiftModel_Error_wrong_dim(model):
+    """ Test that the error messages are correct when shifting with wrong dimensions """
+
+    # Random vectors
+    x = np.random.randn(model.domain_dim)
+    b = np.random.randn(model.range_dim+1)
+
+    with pytest.raises(ValueError, match=r"dimension does not match"):
+        model.add_shift(b)
+
+def test_JointModel_Parameter_names():
+    """ Test that the parameter names are correct for a joint model """
+
+    # Create a joint model
+    model1 = cuqi.testproblem.Deconvolution1D().model
+    model2 = cuqi.testproblem.Heat_1D().model
+    model2._non_default_args = ['y'] # Change the parameter name
+    joint_model = cuqi.model.JointModel(model1, model2)
+
+    # Check that the parameter names are correct
+    assert joint_model._non_default_args == ['x', 'y']
+
+
+def test_JointModel_Partial_Evaluation():
+    """ Test that we can evaluate a joint model with partial input """
+
+    # Create a joint model
+    model1 = cuqi.testproblem.Deconvolution1D().model
+    model2 = cuqi.testproblem.Heat_1D().model
+    model2._non_default_args = ['y'] # Change the parameter name
+    joint_model = cuqi.model.JointModel(model1, model2)
+
+    # Evaluate the model with partial input
+    x = np.random.randn(model1.domain_dim)
+    y = np.random.randn(model2.domain_dim)
+
+    assert np.allclose(joint_model(x=x, y=y), model1(x)+model2(y))
+    assert np.allclose(joint_model(x=x)(y=y), model1(x)+model2(y))
+    assert np.allclose(joint_model(y=y)(x=x), model1(x)+model2(y))

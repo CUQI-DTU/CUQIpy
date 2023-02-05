@@ -602,8 +602,9 @@ class JointModel:
 
     Parameters
     ----------
-    models : List[LinearModel]
-        List of models to be combined.
+    models : Model
+        The models to include in the joint model.
+        Each model is passed as comma-separated arguments.
 
     Examples
     --------
@@ -627,8 +628,8 @@ class JointModel:
         joint_model(x=1) # Returns a new model with model_1(x) fixed
         
     """
-    def __init__(self, models: List[LinearModel]):
-        self.models = models
+    def __init__(self, *models: Model):
+        self.models = list(models)
         self._shift = 0 # Initial shift
 
     def __call__(self, **kwargs):
@@ -669,8 +670,8 @@ class JointModel:
         # Make a single list
         single_L = [item for sublist in L for item in sublist]
 
-        # Combine list of lists into one list (no duplicates)
-        return list(set(single_L))
+        # Remove duplicates but keep order of elements
+        return list(dict.fromkeys(single_L))
 
     def __len__(self):
         return self.models[0].range_dim

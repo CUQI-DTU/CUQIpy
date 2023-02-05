@@ -29,7 +29,7 @@ B = cuqi.model.LinearModel(lambda y: 5*y, lambda z: 5*z, 1, 1)
 # as the sum of the two models A and B, i.e. J(x, y) = A(x) + B(y)
 # In CUQIpy this is done by passing the two models to the JointModel class
 
-J = cuqi.model.JointModel([A, B])
+J = cuqi.model.JointModel(A, B)
 
 print(J)
 
@@ -74,7 +74,7 @@ new_model_x(x=1)
 
 C = cuqi.model.Model(lambda z: z**3, 1, 1)
 
-K = cuqi.model.JointModel([A, B, C])
+K = cuqi.model.JointModel(A, B, C)
 
 print(K)
 
