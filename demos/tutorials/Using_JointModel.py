@@ -67,3 +67,26 @@ print(new_model_x)
 new_model_x(x=1)
 
 # %%
+# Three models
+# ------------
+#
+# We can also define a joint model with three models
+
+C = cuqi.model.Model(lambda z: z**3, 1, 1)
+
+K = cuqi.model.JointModel([A, B, C])
+
+print(K)
+
+#%%
+# We can evaluate the model simply by calling it with specific inputs
+# Notice the added shift value of 5*2 when partially evaluating
+new_jointModel = K(y=2)
+
+print(new_jointModel)
+
+# %%
+# Finally we can evaluate this model also
+# We expect the result to be 1^2 + 5*2 + 3^3 = 38
+new_jointModel(x=1, z=3)
+# %%

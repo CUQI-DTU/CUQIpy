@@ -640,14 +640,13 @@ class JointModel:
 
         # Go through each keyword argument and each model
         for kwarg, value in kwargs.items():
-            for model in new_model.models:
-
+            for model in self.models:
+                
                 # Evaluate model if kwarg matches _non_default_args
                 if kwarg in cuqi.utilities.get_non_default_args(model):
 
-                    # make dict of kwarg and value
-                    new_model._shift += model(value)
-                    #new_model.shift += model(**{kwarg: value}) #Model needs to support this
+                    # make dict of kwarg and value and evaluate model
+                    new_model._shift += model(**{kwarg: value})
                     
                     # Remove model from list since it has been evaluated
                     new_model.models.remove(model)
@@ -680,4 +679,6 @@ class JointModel:
         msg = f"JointLinearModel of {len(self.models)} models. Parameters: {self._non_default_args}. Models:\n"
         for model in self.models:
             msg += f"  {model}\n"
+        if self._shift != 0:
+            msg += f"Shift:  {self._shift}"
         return msg
