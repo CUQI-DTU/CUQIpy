@@ -5,6 +5,7 @@ from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
+from cuqi.utilities import infer_len
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -344,6 +345,8 @@ class Model(object):
 
     def add_shift(self, shift):
         """ Creates a new Model with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
+        if infer_len(shift) != self.range_dim:
+            raise ValueError("Shift dimension does not match model range dimension.")
         new_model = copy(self)
         new_model._forward_func = lambda *args, **kwargs: self.forward(*args, **kwargs) + shift
         return new_model
@@ -472,6 +475,8 @@ class LinearModel(Model):
 
     def add_shift(self, shift):
         """ Creates a ShiftedLinearModel with a fixed shift, i.e. model_shifted(x) = model(x) + shift. """
+        if infer_len(shift) != self.range_dim:
+            raise ValueError("Shift dimension does not match model range dimension.")
         return ShiftedLinearModel(self._forward_func, self._adjoint_func, self.range_geometry, self.domain_geometry, shift)
 
     @property
@@ -517,6 +522,9 @@ class ShiftedLinearModel(LinearModel):
 
     def forward(self, *args, is_par=True, **kwargs):
         return super().forward(*args, is_par=is_par, **kwargs) + self.shift
+
+    def get_matrix(self):
+        raise NotImplementedError("ShiftedLinearModel: Method for getting matrix not implemented")
 
     def __matmul__(self, x):
         raise NotImplementedError("ShiftedLinearModel: Matrix multiplication not implemented")
