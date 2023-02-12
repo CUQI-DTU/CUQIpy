@@ -1,11 +1,11 @@
 """
-Defining and using Joint Models
-===============================
+Defining and using SumModel
+===========================
 
-CUQIpy supports the definition of joint models. Joint models are models that
-take multiple inputs and produce a single output. Joint models are defined as
+CUQIpy supports the definition of the sum of models. Sum models are models that
+take multiple inputs and produce a single output. Sum models are defined as
 the sum of two or more models. The following example shows how to define a
-joint model with two inputs and one output and how to evaluate the model.
+sum model with two inputs and one output and how to evaluate the model.
 
 
 """
@@ -15,7 +15,7 @@ joint model with two inputs and one output and how to evaluate the model.
 import cuqi
 
 # %%
-# Defining the joint model
+# Defining the sum model
 # ------------------------
 # 
 # Suppose we have two models A: x -> z and B: y -> z
@@ -25,9 +25,9 @@ A = cuqi.model.Model(lambda x: x**2, 1, 1)
 B = cuqi.model.LinearModel(lambda y: 5*y, lambda z: 5*z, 1, 1)
 
 # %%
-# The joint linear model J: (x, y) -> z is then defined
+# The sum linear model J: (x, y) -> z is then defined
 # as the sum of the two models A and B, i.e. J(x, y) = A(x) + B(y)
-# In CUQIpy this is done by passing the two models to the JointModel class
+# In CUQIpy this is done by passing the two models to the SumModel class
 
 J = cuqi.model.SumModel(A, B)
 
@@ -70,7 +70,7 @@ new_model_x(x=1)
 # Three models
 # ------------
 #
-# We can also define a joint model with three models
+# We can also define a sum model with three models
 
 C = cuqi.model.Model(lambda z: z**3, 1, 1)
 
@@ -81,12 +81,12 @@ print(K)
 #%%
 # We can evaluate the model simply by calling it with specific inputs
 # Notice the added shift value of 5*2 when partially evaluating
-new_jointModel = K(y=2)
+new_sumModel = K(y=2)
 
-print(new_jointModel)
+print(new_sumModel)
 
 # %%
 # Finally we can evaluate this model also
 # We expect the result to be 1^2 + 5*2 + 3^3 = 38
-new_jointModel(x=1, z=3)
+new_sumModel(x=1, z=3)
 # %%
