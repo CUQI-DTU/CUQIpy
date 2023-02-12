@@ -485,7 +485,7 @@ def test_JointModel_Parameter_names():
     model1 = cuqi.testproblem.Deconvolution1D().model
     model2 = cuqi.testproblem.Heat_1D().model
     model2._non_default_args = ['y'] # Change the parameter name
-    joint_model = cuqi.model.JointModel(model1, model2)
+    joint_model = cuqi.model.SumModel(model1, model2)
 
     # Check that the parameter names are correct
     assert joint_model._non_default_args == ['x', 'y']
@@ -498,7 +498,7 @@ def test_JointModel_Partial_Evaluation():
     model1 = cuqi.testproblem.Deconvolution1D().model
     model2 = cuqi.testproblem.Heat_1D().model
     model2._non_default_args = ['y'] # Change the parameter name
-    joint_model = cuqi.model.JointModel(model1, model2)
+    joint_model = cuqi.model.SumModel(model1, model2)
 
     # Evaluate the model with partial input
     x = np.random.randn(model1.domain_dim)

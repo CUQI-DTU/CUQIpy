@@ -591,19 +591,19 @@ class PDEModel(Model):
         return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
 
-class JointModel:
-    """ A joint model defined by a list of models. The joint model is defined as the sum of the models.
+class SumModel:
+    """ A sum model is defined by a list of models and represents the sum of the models.
 
-    Consider a list of models [model_1(x), model_2(y), ...]. The joint model is defined as
+    Consider a list of models [model_1(x), model_2(y), ...]. The sum model is defined as
 
     .. math::
 
-        model_{joint}(x, y) = model_1(x) + model_2(y) + ...
+        model_{sum}(x, y) = model_1(x) + model_2(y) + ...
 
     Parameters
     ----------
     models : Model
-        The models to include in the joint model.
+        The models to include in the sum model.
         Each model is passed as comma-separated arguments.
 
     Examples
@@ -612,20 +612,20 @@ class JointModel:
     .. code-block:: python
 
         import numpy as np
-        from cuqi import LinearModel, JointModel
+        from cuqi import LinearModel, SumModel
 
         # Define two linear models
         model_1 = Model(lambda x: x, 1, 1)
         model_2 = Model(lambda y: y+1, 1, 1)
 
-        # Define a joint model
-        joint_model = JointModel([model_1, model_2])
+        # Define a sum model
+        sum_model = SumModel([model_1, model_2])
 
-        # Evaluate the joint model
-        joint_model(x=1, y=2) # Returns 4
+        # Evaluate the sum model
+        sum_model(x=1, y=2) # Returns 4
 
         # Partial evaluation
-        joint_model(x=1) # Returns a new model with model_1(x) fixed
+        sum_model(x=1) # Returns a new model with model_1(x) fixed
         
     """
     def __init__(self, *models: Model):
@@ -635,7 +635,7 @@ class JointModel:
     def __call__(self, **kwargs):
         """ Evaluate the model at the given parameters. """
 
-        # Evaluation happens in a shallow copy of the JointModel
+        # Evaluation happens in a shallow copy of the SumModel
         new_model = copy(self)              # Shallow copy of self
         new_model.models = self.models[:]   # Shallow copy of models in list
 
@@ -658,7 +658,7 @@ class JointModel:
         if len(new_model.models) == 1: # Single model left, return it (including shift which is the other evaluated models)
             return new_model.models[0].add_shift(new_model._shift)
 
-        return new_model # Else return the JointModel
+        return new_model # Else return the SumModel
 
     @property
     def _non_default_args(self):
@@ -677,7 +677,7 @@ class JointModel:
         return self.models[0].range_dim
 
     def __repr__(self) -> str:
-        msg = f"JointLinearModel of {len(self.models)} models. Parameters: {self._non_default_args}. Models:\n"
+        msg = f"{self.__class__.__name__} of {len(self.models)} models. Parameters: {self._non_default_args}. Models:\n"
         for model in self.models:
             msg += f"  {model}\n"
         if self._shift != 0:
