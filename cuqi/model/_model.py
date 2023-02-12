@@ -594,11 +594,13 @@ class PDEModel(Model):
 class SumModel:
     """ A sum model is defined by a list of models and represents the sum of the models.
 
-    Consider a list of models [model_1(x), model_2(y), ...]. The sum model is defined as
+    Consider a list of models [model_1(x), model_2(y), model_3(x), ...]. The sum model is defined as
 
     .. math::
 
-        model_{sum}(x, y) = model_1(x) + model_2(y) + ...
+        model_{sum}(x, y) = model_1(x) + model_2(y) + model_3(x) + ...
+
+    As indicated, models with the same parameter can be used as part of the sum model.
 
     Parameters
     ----------
