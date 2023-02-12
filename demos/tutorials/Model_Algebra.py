@@ -1,12 +1,14 @@
 """
-Defining and using SumModel
-===========================
+Model Algebra
+=============
 
-CUQIpy supports the definition of the sum of models. Sum models are models that
-take multiple inputs and produce a single output. Sum models are defined as
-the sum of two or more models. The following example shows how to define a
-sum model with two inputs and one output and how to evaluate the model.
+CUQIpy supports algebraic operations on models. This is done by defining
+two or more models and then combining them using the algebraic operators
++ (addition), - (subtraction), * (multiplication) and / (division).
 
+Currently, the following operations are supported:
+
+- Addition of models
 
 """
 
@@ -15,8 +17,8 @@ sum model with two inputs and one output and how to evaluate the model.
 import cuqi
 
 # %%
-# Defining the sum model
-# ------------------------
+# The sum of two models
+# ---------------------
 # 
 # Suppose we have two models A: x -> z and B: y -> z
 # In this case we consider a regular Model and a LinearModel
@@ -29,14 +31,14 @@ B = cuqi.model.LinearModel(lambda y: 5*y, lambda z: 5*z, 1, 1)
 # as the sum of the two models A and B, i.e. J(x, y) = A(x) + B(y)
 # In CUQIpy this is done by passing the two models to the SumModel class
 
-J = cuqi.model.SumModel(A, B)
+J = A + B
 
-print(J)
 
 # %%
 # We can evaluate the model simply by calling it with specific inputs
 # In this case both A and B are identity functions, so J(x, y) = x^2 + 5*y
 # In this case J(x=1, y=2) = 1^2 + 5*2 = 11
+
 J(x=1, y=2)
 
 # %%
@@ -74,7 +76,7 @@ new_model_x(x=1)
 
 C = cuqi.model.Model(lambda z: z**3, 1, 1)
 
-K = cuqi.model.SumModel(A, B, C)
+K = A + B + C
 
 print(K)
 

@@ -1,4 +1,5 @@
-from typing import List
+from __future__ import annotations
+from typing import List, Union
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
@@ -343,12 +344,14 @@ class Model(object):
 
         return grad
 
-    def __add__(self, shift):
+    def __add__(self, shift) -> Union[Model, SumOfModels]:
         """ Creates a new Model with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
         if infer_len(shift) != self.range_dim:
             raise ValueError("Shift dimension does not match model range dimension.")
         if isinstance(shift, Model):
-            return SumModel(self, shift)
+            return SumOfModels(self, shift)
+        if isinstance(shift, SumOfModels):
+            return SumOfModels(self, *shift.models)
         new_model = copy(self)
         new_model._forward_func = lambda *args, **kwargs: self._forward_func(*args, **kwargs) + shift
         return new_model
@@ -475,12 +478,14 @@ class LinearModel(Model):
     def __matmul__(self, x):
         return self.forward(x)
 
-    def __add__(self, shift):
+    def __add__(self, shift) -> Union[Model, LinearModel, SumOfModels]:
         """ Creates a ShiftedLinearModel with a fixed shift, i.e. model_shifted(x) = model(x) + shift. """
         if infer_len(shift) != self.range_dim:
             raise ValueError("Shift dimension does not match model range dimension.")
         if isinstance(shift, Model):
-            return SumModel(self, shift)
+            return SumOfModels(self, shift)
+        if isinstance(shift, SumOfModels):
+            return SumOfModels(self, *shift.models)
         return ShiftedLinearModel(self._forward_func, self._adjoint_func, self.range_geometry, self.domain_geometry, shift)
 
     @property
@@ -595,8 +600,8 @@ class PDEModel(Model):
         return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
 
-class SumModel:
-    """ A sum model is defined by a list of models and represents the sum of the models.
+class SumOfModels:
+    """ A sum of models is defined by a list of models and represents the sum of the models.
 
     Consider a list of models [model_1(x), model_2(y), model_3(x), ...]. The sum model is defined as
 
@@ -638,8 +643,11 @@ class SumModel:
         self.models = list(models)
         self._shift = 0 # Initial shift
 
-    def __call__(self, **kwargs):
+    # Options for return is SumModel, Model or float
+    def __call__(self, *args, **kwargs) -> Union[SumOfModels, Model, float]:
         """ Evaluate the model at the given parameters. """
+
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs)
 
         # Evaluation happens in a shallow copy of the SumModel
         new_model = copy(self)              # Shallow copy of self
@@ -665,6 +673,29 @@ class SumModel:
             return new_model.models[0] + new_model._shift
 
         return new_model # Else return the SumModel
+    
+    def __add__(self, other) -> SumOfModels:
+        """ Add model or shift to the sum model. """
+        new_model = copy(self)
+        new_model.models = self.models[:]
+        if len(new_model.models) == 0:
+            new_model.models.append(other)
+            return new_model
+        if infer_len(other) != new_model.range_dim:
+            raise ValueError("SumModel: Models must have the same range dimension.")
+        if isinstance(other, Model):
+            new_model.models.append(other)
+        elif isinstance(other, SumOfModels):
+            new_model.models.extend(other.models)
+            new_model._shift += other._shift
+        else:
+            new_model._shift += other
+        return new_model
+
+    @property
+    def range_dim(self):
+        """ Return the range dimension of the sum model. """
+        return self.models[0].range_dim
 
     @property
     def _non_default_args(self):
@@ -678,6 +709,23 @@ class SumModel:
 
         # Remove duplicates but keep order of elements
         return list(dict.fromkeys(single_L))
+    
+    def _parse_args_add_to_kwargs(self, *args, **kwargs):
+        """ Private function that parses the input arguments of the model and adds them as keyword arguments matching the non default arguments of the forward function. """
+
+        if len(args) > 0:
+
+            if len(kwargs) > 0:
+                raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
+                
+            if len(args) != len(self._non_default_args):
+                raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model.")
+            
+            # Add args to kwargs following the order of non_default_args
+            for idx, arg in enumerate(args):
+                kwargs[self._non_default_args[idx]] = arg
+
+        return kwargs
 
     def __len__(self):
         return self.models[0].range_dim

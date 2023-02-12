@@ -478,10 +478,10 @@ def test_ShiftModel_Error_wrong_dim(model):
     with pytest.raises(ValueError, match=r"dimension does not match"):
         model + b
 
-def test_JointModel_Parameter_names():
-    """ Test that the parameter names are correct for a joint model """
+def test_SumOfModel_Parameter_names():
+    """ Test that the parameter names are correct for a sum model """
 
-    # Create a joint model
+    # Create a sum model
     model1 = cuqi.testproblem.Deconvolution1D().model
     model2 = cuqi.testproblem.Heat_1D().model
     model2._non_default_args = ['y'] # Change the parameter name
@@ -491,8 +491,8 @@ def test_JointModel_Parameter_names():
     assert joint_model._non_default_args == ['x', 'y']
 
 
-def test_JointModel_Partial_Evaluation():
-    """ Test that we can evaluate a joint model with partial input """
+def test_SumOfModels_Partial_Evaluation():
+    """ Test that we can evaluate a sum model with partial input """
 
     # Create a joint model
     model1 = cuqi.testproblem.Deconvolution1D().model
@@ -507,3 +507,29 @@ def test_JointModel_Partial_Evaluation():
     assert np.allclose(joint_model(x=x, y=y), model1(x)+model2(y))
     assert np.allclose(joint_model(x=x)(y=y), model1(x)+model2(y))
     assert np.allclose(joint_model(y=y)(x=x), model1(x)+model2(y))
+
+def test_Model_algebra_sum():
+    """ Test that we can sum models """
+
+    model1 = cuqi.testproblem.Deconvolution1D().model
+    model2 = cuqi.testproblem.Heat_1D().model
+
+    x = np.random.randn(model1.domain_dim)
+
+    # Check that the sum is correct for various combinations
+    assert np.allclose(
+        (model1    + model2)(x),
+         model1(x) + model2(x))
+    assert np.allclose(
+        (model1    + model2    + model1)(x),
+         model1(x) + model2(x) + model1(x))
+    assert np.allclose(
+        ((model1   + model2    + model1)   + model2)(x),
+         model1(x) + model2(x) + model1(x) + model2(x))
+    assert np.allclose(
+        ((model1    + model2    + model1    + model1)  + (model2    + model1    + model2))(x),
+         model1(x) + model2(x) + model1(x) + model1(x) +  model2(x) + model1(x) + model2(x))
+    assert np.allclose(
+        ((model1    + model2    + model1    + model2)  + (model2    + model1    + model2))(x),
+          model1(x) + model2(x) + model1(x) + model2(x) + model2(x) + model1(x) + model2(x))
+    
