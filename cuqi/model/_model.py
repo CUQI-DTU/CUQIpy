@@ -7,6 +7,7 @@ from scipy.linalg import solve
 from cuqi.samples import Samples, CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
 from cuqi.utilities import infer_len
+import numbers
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -346,7 +347,9 @@ class Model(object):
 
     def __add__(self, shift) -> Union[Model, SumOfModels]:
         """ Creates a new Model with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
-        if infer_len(shift) != self.range_dim:
+        if isinstance(shift, numbers.Number) and shift == 0:
+            return copy(self)
+        if not isinstance(shift, numbers.Number) and infer_len(shift) != self.range_dim:
             raise ValueError("Shift dimension does not match model range dimension.")
         if isinstance(shift, Model):
             return SumOfModels(self, shift)
@@ -361,8 +364,116 @@ class Model(object):
 
     def __repr__(self) -> str:
         return "CUQI {}: {} -> {}. Forward parameters: {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.get_non_default_args(self))
+
+class AffineModel(Model):
+    """ Model representing an affine operator, i.e. a linear operator with a fixed shift.
+
+    Parameters
+    ----------
+
+    linear_operator : 2d ndarray or callable function.
+        The linear operator. If ndarray is given, the operator is assumed to be a matrix.
+
+    shift : scalar or array_like
+        The shift to be added to the forward operator.
+
+    linear_operator_adjoint : callable function, optional
+        The adjoint of the linear operator. Used for computing gradients.
+
+    range_geometry : cuqi.geometry.Geometry
+        The geometry representing the range.
+
+    domain_geometry : cuqi.geometry.Geometry
+        The geometry representing the domain.
+
+    """
+
+    def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
+
+        if not callable(linear_operator):
+            forward_func = lambda x: self._matrix@x
+            adjoint_func = lambda y: self._matrix.T@y
+            matrix = linear_operator
+        else:
+            forward_func = linear_operator
+            adjoint_func = linear_operator_adjoint
+            matrix = None
+
+        #Check if input is callable
+        if not callable(adjoint_func):
+            raise TypeError("Adjoint of linear operator must be defined as a callable function of some kind")
+
+        # Use matrix to derive range_geometry and domain_geometry
+        if matrix is not None:
+            if range_geometry is None:
+                range_geometry = _DefaultGeometry(grid=matrix.shape[0])
+            if domain_geometry is None:
+                domain_geometry = _DefaultGeometry(grid=matrix.shape[1])  
+
+        #Initialize Model class
+        super().__init__(forward_func, range_geometry, domain_geometry)
+
+        #Add adjoint
+        self._adjoint_func = adjoint_func
+
+        #Store matrix privately
+        self._matrix = matrix
+
+        #Add gradient
+        self._gradient_func = lambda direction, wrt: self._adjoint_func(direction)
+
+        #Add shift
+        self._shift = shift
+
+    def forward(self, *args, is_par=True, **kwargs):
+        return super().forward(*args, is_par=is_par, **kwargs) + self._shift
     
-class LinearModel(Model):
+    def _forward_no_shift(self, *args, is_par=True, **kwargs):
+        """ Helper function for computing the forward operator without the shift. """
+        return super().forward(*args, is_par=is_par, **kwargs)
+    
+    def _adjoint_no_shift(self, y, is_par=True):
+        """ Helper function for computing the adjoint operator without the shift. """
+        return self._apply_func(self._adjoint_func,
+                        self.domain_geometry,
+                        self.range_geometry,
+                        y, is_par)
+
+    def get_matrix(self):
+        """ Returns the matrix representation of the linear operator. """
+
+        if self._matrix is not None: #Matrix exists so return it
+            return self._matrix
+        else:
+            #TODO: Can we compute this faster while still in sparse format?
+            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
+            e = np.zeros(self.domain_dim)
+            
+            # Stacks sparse matrices on csc matrix
+            for i in range(self.domain_dim):
+                e[i] = 1
+                col_vec = self.forward(e)
+                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
+                e[i] = 0
+
+            #Store matrix for future use
+            self._matrix = mat
+
+            return self._matrix   
+
+    def __add__(self, shift) -> Union[Model, LinearModel, SumOfModels]:
+        """ Creates an AffineModel with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
+        if isinstance(shift, numbers.Number) and shift == 0:
+            return copy(self)
+        if not isinstance(shift, numbers.Number) and infer_len(shift) != self.range_dim:
+            raise ValueError("Shift dimension does not match model range dimension.")
+        if isinstance(shift, Model):
+            return SumOfModels(self, shift)
+        if isinstance(shift, SumOfModels):
+            return SumOfModels(self, *shift.models)
+        return AffineModel(self._forward_func, self._shift + shift, self._adjoint_func, self.range_geometry, self.domain_geometry)
+
+class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
 
     Parameters
@@ -395,43 +506,10 @@ class LinearModel(Model):
     """
     # Linear forward model with forward and adjoint (transpose).
     
-    def __init__(self,forward,adjoint=None,range_geometry=None,domain_geometry=None):
-        #Assume forward is matrix if not callable (TODO: add more checks)
-        if not callable(forward):      
-            forward_func = lambda x: self._matrix@x
-            adjoint_func = lambda y: self._matrix.T@y
-            matrix = forward
-        else:
-            forward_func = forward
-            adjoint_func = adjoint
-            matrix = None
+    def __init__(self, forward, adjoint=None, range_geometry=None, domain_geometry=None):
 
-        #Check if input is callable
-        if callable(adjoint_func) is not True:
-            raise TypeError("Adjoint needs to be callable function of some kind")
-
-        # Use matrix to derive range_geometry and domain_geometry
-        if matrix is not None:
-            if range_geometry is None:
-                range_geometry = _DefaultGeometry(grid=matrix.shape[0])
-            if domain_geometry is None:
-                domain_geometry = _DefaultGeometry(grid=matrix.shape[1])  
-
-        #Initialize Model class
-        super().__init__(forward_func,range_geometry,domain_geometry)
-
-        #Add adjoint
-        self._adjoint_func = adjoint_func
-
-        #Store matrix privately
-        self._matrix = matrix
-
-        #Add gradient
-        self._gradient_func = lambda direction, wrt: self._adjoint_func(direction)
-
-        # if matrix is not None: 
-        #     assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-        #     assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+        #Initialize as AffineModel with shift=0
+        super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
 
     def adjoint(self, y, is_par=True):
         """ Adjoint of the model.
@@ -454,39 +532,8 @@ class LinearModel(Model):
                                 self.range_geometry,
                                 y, is_par)
 
-
-    def get_matrix(self):
-        if self._matrix is not None: #Matrix exists so return it
-            return self._matrix
-        else:
-            #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.domain_dim)
-            
-            # Stacks sparse matrices on csc matrix
-            for i in range(self.domain_dim):
-                e[i] = 1
-                col_vec = self.forward(e)
-                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
-                e[i] = 0
-
-            #Store matrix for future use
-            self._matrix = mat
-
-            return self._matrix
-
     def __matmul__(self, x):
         return self.forward(x)
-
-    def __add__(self, shift) -> Union[Model, LinearModel, SumOfModels]:
-        """ Creates a ShiftedLinearModel with a fixed shift, i.e. model_shifted(x) = model(x) + shift. """
-        if infer_len(shift) != self.range_dim:
-            raise ValueError("Shift dimension does not match model range dimension.")
-        if isinstance(shift, Model):
-            return SumOfModels(self, shift)
-        if isinstance(shift, SumOfModels):
-            return SumOfModels(self, *shift.models)
-        return ShiftedLinearModel(self._forward_func, self._adjoint_func, self.range_geometry, self.domain_geometry, shift)
 
     @property
     def T(self):
@@ -495,54 +542,6 @@ class LinearModel(Model):
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
-
-class ShiftedLinearModel(LinearModel):
-    """ Shifted linear model defined as x -> forward(x) + shift.
-
-    Note that the adjoint is defined as y -> adjoint(y), where 
-    adjoint is the adjoint of the forward function (forward)
-    NOT the shifted forward (forward + shift).
-
-    Parameters
-    ----------
-
-    forward : 2d ndarray or callable function.
-        The forward operator. If ndarray is given, the forward operator is assumed to be a matrix.
-
-    adjoint : 2d ndarray or callable function.
-        The adjoint operator. If ndarray is given, the adjoint operator is assumed to be a matrix.
-
-    range_geometry : cuqi.geometry.Geometry
-        The geometry representing the range.
-
-    domain_geometry : cuqi.geometry.Geometry
-        The geometry representing the domain.
-
-    shift : scalar or array_like
-        The shift to be added to the forward operator.
-
-    """
-
-    def __init__(self, forward, adjoint=None, range_geometry=None, domain_geometry=None, shift=None):
-        super().__init__(forward, adjoint, range_geometry, domain_geometry)
-        if shift is None:
-            raise ValueError("ShiftedLinearModel: shift must be specified")
-        self.shift = shift
-
-    def forward(self, *args, is_par=True, **kwargs):
-        return super().forward(*args, is_par=is_par, **kwargs) + self.shift
-
-    def get_matrix(self):
-        raise NotImplementedError("ShiftedLinearModel: Method for getting matrix not implemented")
-
-    def __matmul__(self, x):
-        raise NotImplementedError("ShiftedLinearModel: Matrix multiplication not implemented")
-
-    @property
-    def T(self):
-        """Transpose of linear model. Returns a new linear model acting as the transpose."""
-        raise NotImplementedError("ShiftedLinearModel: Transpose of shifted model not implemented")
-    
 
 class PDEModel(Model):
     """

@@ -1,1 +1,1 @@
-from ._model import Model, LinearModel, PDEModel, ShiftedLinearModel, SumOfModels
+from ._model import Model, LinearModel, PDEModel, AffineModel, SumOfModels

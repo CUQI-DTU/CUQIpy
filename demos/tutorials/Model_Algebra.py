@@ -45,7 +45,7 @@ J(x=1, y=2)
 # We can also partially evaluate the model
 # This returns a new model that is a function of the remaining input
 # in this case J(x=1) gives a new model taking y -> 1^2 + 5*y.
-# Notice, in this case that the model has been changed to a ShiftedLinearModel.
+# Notice, in this case that the model has been changed to a AffineModel.
 
 new_model_y = J(x=1)
 

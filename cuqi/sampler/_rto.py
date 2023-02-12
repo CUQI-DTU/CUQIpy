@@ -9,7 +9,7 @@ class Linear_RTO(Sampler):
     """
     Linear RTO (Randomize-Then-Optimize) sampler.
 
-    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is Linear.
+    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is affine.
 
     Parameters
     ------------
@@ -20,7 +20,7 @@ class Linear_RTO(Sampler):
         
         Here:
         data: is a m-dimensional numpy array containing the measured data.
-        model: is a m by n dimensional matrix or LinearModel representing the forward model.
+        model: is a m by n dimensional matrix, AffineModel or Linear representing the forward model.
         L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.
         P_mean: is the prior mean.
         P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
@@ -57,8 +57,8 @@ class Linear_RTO(Sampler):
                 model = cuqi.model.LinearModel(model)
 
             # Check model input
-            if not isinstance(model, cuqi.model.LinearModel):
-                raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
+            if not isinstance(model, cuqi.model.AffineModel):
+                raise TypeError("Model needs to be cuqi.model.AffineModel or matrix")
 
             # Likelihood
             L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
@@ -78,9 +78,9 @@ class Linear_RTO(Sampler):
         if not isinstance(target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 
-        # Check Linear model and Gaussian prior+likelihood
-        if not isinstance(self.model, cuqi.model.LinearModel):
-            raise TypeError("Model needs to be linear")
+        # Check Affine model and Gaussian prior+likelihood
+        if not isinstance(self.model, cuqi.model.AffineModel):
+            raise TypeError("Model needs to be affine or linear")
 
         if not hasattr(self.likelihood.distribution, "sqrtprec"):
             raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
@@ -117,12 +117,12 @@ class Linear_RTO(Sampler):
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
                 if flag == 1:
-                    out1 = L1 @ self.model.forward(x)
+                    out1 = L1 @ self.model._forward_no_shift(x) # Use forward function which excludes shift
                     out2 = L2 @ x
                     out  = np.hstack([out1, out2])
                 elif flag == 2:
                     idx = int(self.m)
-                    out1 = self.model.adjoint(L1.T@x[:idx])
+                    out1 = self.model._adjoint_no_shift(L1.T@x[:idx]) # Use adjoint function which excludes shift
                     out2 = L2.T @ x[idx:]
                     out  = out1 + out2                
                 return out   
@@ -142,9 +142,7 @@ class Linear_RTO(Sampler):
     
     @property
     def data(self):
-        if hasattr(self.target.model, 'shift'): # if model has a shift take it into account
-            return self.target.data - self.target.model.shift
-        return self.target.data
+        return self.target.data - self.target.model._shift # Include shift from AffineModel here
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        

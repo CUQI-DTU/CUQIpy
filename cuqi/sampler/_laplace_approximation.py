@@ -60,9 +60,9 @@ class UnadjustedLaplaceApproximation(Sampler):
         if not isinstance(self.target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 
-        # Check Linear model
-        if not isinstance(self.target.likelihood.model, cuqi.model.LinearModel):
-            raise TypeError("Model needs to be linear")
+        # Check affine model
+        if not isinstance(self.target.likelihood.model, cuqi.model.AffineModel):
+            raise TypeError("Model needs to be affine or linear")
 
         # Check Gaussian likelihood
         if not hasattr(self.target.likelihood.distribution, "sqrtprec"):
@@ -126,10 +126,7 @@ class UnadjustedLaplaceApproximation(Sampler):
 
         # Pre-computations
         self._model = self.target.likelihood.model   
-        if hasattr(self.target.model, 'shift'): # if model has a shift take it into account
-            self._data = self.target.likelihood.data - self.target.model.shift
-        else:
-            self._data = self.target.likelihood.data
+        self._data = self.target.likelihood.data - self.target.model._shift
         self._m = len(self._data)
         self._L1 = self.target.likelihood.distribution.sqrtprec
 
@@ -143,12 +140,12 @@ class UnadjustedLaplaceApproximation(Sampler):
         # Least squares form
         def M(x, flag):
             if flag == 1:
-                out1 = self._L1 @ self._model.forward(x)
+                out1 = self._L1 @ self._model._forward_no_shift(x)  # Use forward function which excludes shift
                 out2 = np.sqrt(1/self.target.prior.scale)*(self._L2 @ x)
                 out  = np.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
-                out1 = self._model.adjoint(self._L1.T@x[:idx])
+                out1 = self._model._adjoint_no_shift(self._L1.T@x[:idx])  # Use forward function which excludes shift
                 out2 = np.sqrt(1/self.target.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out 
