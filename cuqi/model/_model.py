@@ -354,7 +354,7 @@ class Model(object):
         if isinstance(shift, Model):
             return SumOfModels(self, shift)
         if isinstance(shift, SumOfModels):
-            return SumOfModels(self, *shift.models)
+            return SumOfModels(self, *shift._models)
         new_model = copy(self)
         new_model._forward_func = lambda *args, **kwargs: self._forward_func(*args, **kwargs) + shift
         return new_model
@@ -470,7 +470,7 @@ class AffineModel(Model):
         if isinstance(shift, Model):
             return SumOfModels(self, shift)
         if isinstance(shift, SumOfModels):
-            return SumOfModels(self, *shift.models)
+            return SumOfModels(self, *shift._models)
         return AffineModel(self._forward_func, self._shift + shift, self._adjoint_func, self.range_geometry, self.domain_geometry)
 
 class LinearModel(AffineModel):
@@ -622,14 +622,15 @@ class SumOfModels:
     .. code-block:: python
 
         import numpy as np
-        from cuqi import LinearModel, SumModel
+        from cuqi import LinearModel, SumOfModels
 
         # Define two linear models
         model_1 = Model(lambda x: x, 1, 1)
         model_2 = Model(lambda y: y+1, 1, 1)
 
-        # Define a sum model
-        sum_model = SumModel([model_1, model_2])
+        # Define the sum of the two models
+        # model_1 + model_2 also works
+        sum_model = SumOfModels(model_1, model_2)
 
         # Evaluate the sum model
         sum_model(x=1, y=2) # Returns 4
@@ -639,7 +640,7 @@ class SumOfModels:
         
     """
     def __init__(self, *models: Model):
-        self.models = list(models)
+        self._models = list(models)
         self._shift = 0 # Initial shift
 
     # Options for return is SumModel, Model or float
@@ -650,11 +651,11 @@ class SumOfModels:
 
         # Evaluation happens in a shallow copy of the SumModel
         new_model = copy(self)              # Shallow copy of self
-        new_model.models = self.models[:]   # Shallow copy of models in list
+        new_model._models = self._models[:]   # Shallow copy of models in list
 
         # Go through each keyword argument and each model
         for kwarg, value in kwargs.items():
-            for model in self.models:
+            for model in self._models:
                 
                 # Evaluate model if kwarg matches _non_default_args
                 if kwarg in cuqi.utilities.get_non_default_args(model):
@@ -663,29 +664,29 @@ class SumOfModels:
                     new_model._shift += model(**{kwarg: value})
                     
                     # Remove model from list since it has been evaluated
-                    new_model.models.remove(model)
+                    new_model._models.remove(model)
 
-        if len(new_model.models) == 0: # Model has been evaluated fully
+        if len(new_model._models) == 0: # Model has been evaluated fully
             return new_model._shift
 
-        if len(new_model.models) == 1: # Single model left, return it (including shift which is the other evaluated models)
-            return new_model.models[0] + new_model._shift
+        if len(new_model._models) == 1: # Single model left, return it (including shift which is the other evaluated models)
+            return new_model._models[0] + new_model._shift
 
         return new_model # Else return the SumModel
     
     def __add__(self, other) -> SumOfModels:
         """ Add model or shift to the sum model. """
         new_model = copy(self)
-        new_model.models = self.models[:]
-        if len(new_model.models) == 0:
-            new_model.models.append(other)
+        new_model._models = self._models[:]
+        if len(new_model._models) == 0:
+            new_model._models.append(other)
             return new_model
         if infer_len(other) != new_model.range_dim:
             raise ValueError("SumModel: Models must have the same range dimension.")
         if isinstance(other, Model):
-            new_model.models.append(other)
+            new_model._models.append(other)
         elif isinstance(other, SumOfModels):
-            new_model.models.extend(other.models)
+            new_model._models.extend(other._models)
             new_model._shift += other._shift
         else:
             new_model._shift += other
@@ -694,14 +695,29 @@ class SumOfModels:
     @property
     def range_dim(self):
         """ Return the range dimension of the sum model. """
-        return self.models[0].range_dim
+        return self._models[0].range_dim
+    
+    @property
+    def domain_dim(self):
+        """ Return the domain dimension of the sum model. """
+
+        # Extract domain dimensions of all models
+        domain_dims = [model.domain_dim for model in self._models]
+
+        # If only one parameter return domain dimension of model
+        if len(self._non_default_args) == 1:
+            if len(set(domain_dims)) > 1:
+                raise ValueError("SumOfModels: Models with same parameter must have the same domain dimension.")
+            return self._models[0].domain_dim
+        else: #If more than one parameter, return list of domain dimensions
+            return domain_dims
 
     @property
     def _non_default_args(self):
         """ Return non-default args of all models. """
 
         # Return non-default args of all models
-        L = [cuqi.utilities.get_non_default_args(model) for model in self.models]
+        L = [cuqi.utilities.get_non_default_args(model) for model in self._models]
 
         # Make a single list
         single_L = [item for sublist in L for item in sublist]
@@ -727,11 +743,11 @@ class SumOfModels:
         return kwargs
 
     def __len__(self):
-        return self.models[0].range_dim
+        return self._models[0].range_dim
 
     def __repr__(self) -> str:
-        msg = f"{self.__class__.__name__} of {len(self.models)} models. Parameters: {self._non_default_args}. Models:\n"
-        for model in self.models:
+        msg = f"{self.__class__.__name__} of {len(self._models)} models. Parameters: {self._non_default_args}. Models:\n"
+        for model in self._models:
             msg += f"  {model}\n"
         if self._shift != 0:
             msg += f"Shift:  {self._shift}"
