@@ -92,3 +92,21 @@ print(new_sumModel)
 # We expect the result to be 1^2 + 5*2 + 3^3 = 38
 new_sumModel(x=1, z=3)
 # %%
+# Two models with the same parameter
+# ----------------------------------
+#
+# If we have two models with the same parameter, we also define a sum model
+# with two models.
+
+A = cuqi.model.Model(lambda x: x**2, 1, 1)
+B = cuqi.model.Model(lambda x: 5*x, 1, 1)
+
+J = A + B
+
+# %%
+# We can evaluate the model simply by calling it with specific inputs
+# In this case both A and B are identity functions, so J(x) = x^2 + 5*x
+# In this case J(x=1) = 1^2 + 5*1 = 6
+
+J(x=1)
+# %%
