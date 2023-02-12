@@ -599,6 +599,8 @@ class PDEModel(Model):
         return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
 
+# TODO: Consider making a class for any combination of models
+# e.g. product of models, sum of models, etc.
 class SumOfModels:
     """ A sum of models is defined by a list of models and represents the sum of the models.
 
