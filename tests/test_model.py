@@ -456,7 +456,7 @@ def test_ShiftedModel_Correct_result(model):
     x = np.random.randn(model.domain_dim)
     b = np.random.randn(model.range_dim)
 
-    A_shifted = model.add_shift(b)
+    A_shifted = model + b
 
     # Dimension check
     assert A_shifted.range_dim == model.range_dim
@@ -476,7 +476,7 @@ def test_ShiftModel_Error_wrong_dim(model):
     b = np.random.randn(model.range_dim+1)
 
     with pytest.raises(ValueError, match=r"dimension does not match"):
-        model.add_shift(b)
+        model + b
 
 def test_JointModel_Parameter_names():
     """ Test that the parameter names are correct for a joint model """
@@ -485,7 +485,7 @@ def test_JointModel_Parameter_names():
     model1 = cuqi.testproblem.Deconvolution1D().model
     model2 = cuqi.testproblem.Heat_1D().model
     model2._non_default_args = ['y'] # Change the parameter name
-    joint_model = cuqi.model.SumModel(model1, model2)
+    joint_model = model1 + model2
 
     # Check that the parameter names are correct
     assert joint_model._non_default_args == ['x', 'y']
@@ -498,7 +498,7 @@ def test_JointModel_Partial_Evaluation():
     model1 = cuqi.testproblem.Deconvolution1D().model
     model2 = cuqi.testproblem.Heat_1D().model
     model2._non_default_args = ['y'] # Change the parameter name
-    joint_model = cuqi.model.SumModel(model1, model2)
+    joint_model = model1 + model2
 
     # Evaluate the model with partial input
     x = np.random.randn(model1.domain_dim)

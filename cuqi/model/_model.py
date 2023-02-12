@@ -343,14 +343,16 @@ class Model(object):
 
         return grad
 
-    def add_shift(self, shift):
+    def __add__(self, shift):
         """ Creates a new Model with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
         if infer_len(shift) != self.range_dim:
             raise ValueError("Shift dimension does not match model range dimension.")
+        if isinstance(shift, Model):
+            return SumModel(self, shift)
         new_model = copy(self)
-        new_model._forward_func = lambda *args, **kwargs: self.forward(*args, **kwargs) + shift
+        new_model._forward_func = lambda *args, **kwargs: self._forward_func(*args, **kwargs) + shift
         return new_model
-    
+        
     def __len__(self):
         return self.range_dim
 
@@ -473,16 +475,18 @@ class LinearModel(Model):
     def __matmul__(self, x):
         return self.forward(x)
 
-    def add_shift(self, shift):
+    def __add__(self, shift):
         """ Creates a ShiftedLinearModel with a fixed shift, i.e. model_shifted(x) = model(x) + shift. """
         if infer_len(shift) != self.range_dim:
             raise ValueError("Shift dimension does not match model range dimension.")
+        if isinstance(shift, Model):
+            return SumModel(self, shift)
         return ShiftedLinearModel(self._forward_func, self._adjoint_func, self.range_geometry, self.domain_geometry, shift)
 
     @property
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
-        transpose = LinearModel(self.adjoint,self.forward,self.domain_geometry,self.range_geometry)
+        transpose = LinearModel(self._adjoint_func, self._forward_func, self.domain_geometry, self.range_geometry)
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
@@ -658,7 +662,7 @@ class SumModel:
             return new_model._shift
 
         if len(new_model.models) == 1: # Single model left, return it (including shift which is the other evaluated models)
-            return new_model.models[0].add_shift(new_model._shift)
+            return new_model.models[0] + new_model._shift
 
         return new_model # Else return the SumModel
 
