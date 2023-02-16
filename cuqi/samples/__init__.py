@@ -1,1 +1,1 @@
-from ._samples import CUQIarray, Samples, Data
+from ._samples import Samples
