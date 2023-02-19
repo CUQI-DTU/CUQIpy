@@ -211,8 +211,9 @@ class Deconvolution1D(BayesianProblem):
     noise_type : string
         | The type of noise
         | "Gaussian" - Gaussian white noise¨
-        | "scaledGaussian" - Scaled (by data) Gaussian noise. Here noise is scaled
-        | by each data point individually.
+        | "scaledGaussian" - Gaussian noise with standard deviation
+        |                    scaled by magnitude of the data for each
+        |                    point.
 
     noise_std : scalar
         Standard deviation of the noise
@@ -335,39 +336,49 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
     return lambda x: convolve1d(x, P, mode=mode)
 
 
-def _GaussPSF_1D(PSF_size, PSF_param):
-    if PSF_param is None:
-        PSF_param = 10
-
-    # Set up grid points to evaluate the Gaussian function
+def _createPSF_1D(PSF_size, PSF_func):
+    """ Create a 1D normalized PSF of size PSF_size using the function PSF_func. """
+    # Set up grid points
     x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
 
-    # Compute the Gaussian, and normalize the PSF.
-    PSF = np.exp( -0.5*((x**2)/(PSF_param**2)) )
+    # Compute the PSF
+    PSF = PSF_func(x)
+
+    # Normalize the PSF.
     PSF /= PSF.sum()
 
     # find the center
     center = np.where(PSF == PSF.max())[0][0]
     return PSF, center.astype(int)
 
-def _MoffatPSF_1D(PSF_size, PSF_param, beta=1):
+def _GaussPSF_1D(PSF_size, PSF_param):
+    """ Create a 1D normalized Gaussian PSF of size PSF_size with standard deviation PSF_param. """
 
+    # Set default value for PSF_param
     if PSF_param is None:
         PSF_param = 10
 
-    # Set up grid points to evaluate the Gaussian function
-    x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
+    # Set up Gaussian function
+    PSF_func = lambda x: np.exp( -0.5*((x**2)/(PSF_param**2)) )
 
-    # Compute the Gaussian, and normalize the PSF.
-    PSF = ( 1 + (x**2)/(PSF_param**2) )**(-beta)
-    PSF = PSF / PSF.sum()
+    return _createPSF_1D(PSF_size, PSF_func)
 
-    # find the center
-    center = np.where(PSF == PSF.max())[0][0]
-    return PSF, center.astype(int)
+def _MoffatPSF_1D(PSF_size, PSF_param, beta=1):
+    """ Create a 1D normalized Moffat PSF of size PSF_size with standard deviation PSF_param. """
+
+    # Set default value for PSF_param
+    if PSF_param is None:
+        PSF_param = 10
+
+    # Set up Moffat function
+    PSF_func = lambda x: ( 1 + (x**2)/(PSF_param**2) )**(-beta)
+
+    return _createPSF_1D(PSF_size, PSF_func)
 
 def _DefocusPSF_1D(PSF_size, PSF_param):
+    """ Create a 1D normalized defocus PSF of size PSF_size with standard deviation PSF_param. """
 
+    # Set default value for PSF_param
     if PSF_param is None:
         PSF_param = 10
 
@@ -383,6 +394,7 @@ def _DefocusPSF_1D(PSF_size, PSF_param):
         idx = np.array((aa > (PSF_param**2)))
         PSF[idx] = 0
     PSF = PSF / PSF.sum()
+
     return PSF, center.astype(int)
 
 def _getCirculantMatrix(dim,kernel,kernel_param):
