@@ -619,6 +619,7 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
     # but not exactly equal (since we use a different method)
     assert np.allclose(g_exact, g_FD) and np.all(g_exact != g_FD)\
         or (np.all(np.isnan(g_exact)) and np.all(np.isnan(g_FD)))
+
 def test_Cauchy_diff_should_not_allow_non_zero_location():
     """" Cauchy_diff should not allow non-zero location. """
     with pytest.raises(ValueError):
