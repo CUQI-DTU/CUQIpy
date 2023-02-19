@@ -188,8 +188,8 @@ class Deconvolution1D(BayesianProblem):
         | Boundary conditions for the convolution.
         | 'zero' - zero boundary conditions
         | 'periodic' - periodic boundary conditions
-        | 'Neumann' - Neumann boundary conditions
-        | 'Mirror' - Mirrored boundary conditions
+        | 'Mirror' - Reflected around center of last pixel boundary conditions
+        | 'Reflect' - Reflected around edge of last pixel boundary conditions
         | 'Nearest' - Replicates last element of boundary
 
     phantom : string or ndarray, default 'sinc'
@@ -319,12 +319,12 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
         mode = "constant"
     elif BC.lower() == "periodic":
         mode = "wrap"
-    elif BC.lower() == "neumann":
-        mode = "symmetric"
     elif BC.lower() == "mirror":
+        mode = "mirror"
+    elif BC.lower() == "reflect":
         mode = "reflect"
     elif BC.lower() == "nearest":
-        mode = "edge"
+        mode = "nearest"
     else:
         raise ValueError("Unknown boundary condition")
 
@@ -511,6 +511,7 @@ def _getExactSolution(dim,phantom,phantom_param):
 
     elif phantom.lower() == "square":
         if phantom_param is None: phantom_param = 15
+        if phantom_param < 3: raise ValueError("The 'square' phantom_param must be larger than or equal to 3")
         x = np.zeros(dim)
         dimh = int(np.round(dim/2))
         w = int(np.round(dim/phantom_param))
@@ -519,6 +520,7 @@ def _getExactSolution(dim,phantom,phantom_param):
 
     elif phantom.lower() == "hat":
         if phantom_param is None: phantom_param = 15
+        if phantom_param < 3: raise ValueError("The 'hat' phantom_param must be larger than or equal to 3")
         x = np.zeros(dim)
         dimh = int(np.round(dim/2))
         w = int(np.round(dim/phantom_param))
