@@ -529,7 +529,7 @@ def _getExactSolution(dim,phantom,phantom_param):
         return x
 
     elif phantom.lower() == "bumps":
-        if phantom_param is None: warnings.warn("phantom_param is not used for phantom = 'bumps'")
+        if phantom_param is not None: warnings.warn("phantom_param is not used for phantom = 'bumps'")
         h = np.pi/dim
         a1 =   1; c1 = 12; t1 =  0.8
         a2 = 0.5; c2 =  5; t2 = -0.5
@@ -543,7 +543,7 @@ def _getExactSolution(dim,phantom,phantom_param):
         return x/np.max(x)
     
     elif phantom.lower() == 'pc':
-        if phantom_param is None: warnings.warn("phantom_param is not used for phantom = 'pc'")
+        if phantom_param is not None: warnings.warn("phantom_param is not used for phantom = 'pc'")
         mesh = np.linspace(0,1,dim)
         x_min, x_max = mesh[0], mesh[-1]
         vals = np.array([0, 2, 3, 2, 0, 1, 0])
