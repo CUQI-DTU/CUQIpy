@@ -11,6 +11,7 @@ from cuqi.distribution import Gaussian
 from cuqi.problem import BayesianProblem
 from cuqi.geometry import Geometry, MappedGeometry, StepExpansion, KLExpansion, KLExpansion_Full, CustomKL, Continuous1D, Continuous2D, Image2D
 from cuqi.samples import CUQIarray
+import warnings
 
 
 #=============================================================================
@@ -72,9 +73,9 @@ class _Deblur(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim = 128, bounds = [0, 1], blur_size = 48, noise_std = 0.1, prior=None):
+    def __init__(self, dim=128, bounds=[0, 1], blur_size=48, noise_std=0.1, prior=None):
         
-        Warning("DEPRECATED: Use Deconvolution1D instead.")
+        warnings.warn("DEPRECATED: Use Deconvolution1D instead.")
         
         # mesh
         mesh = np.linspace(bounds[0], bounds[1], dim)
@@ -161,28 +162,29 @@ class Deconvolution1D(BayesianProblem):
 
     Parameters
     ------------
-    dim : int
+    dim : int, default 128
         size of the (dim,dim) deconvolution problem
 
-    PSF : string or ndarray
+    PSF : string or ndarray, default 'Gauss'
         | Determines type of the underlying point spread function (PSF).
+        | Depending if use_legacy is True or False, the following options are available:
         | 'Gauss' - a 1D Gaussian blur function
-        | 'Moffat' - a 1D Moffat blur function
-        | 'Defocus' - an out-of-focus 1D blur function
+        | 'Moffat' - a 1D Moffat blur function (non-LEGACY only)
+        | 'Defocus' - an out-of-focus 1D blur function (non-LEGACY only)
         | 'sinc' or 'prolate' - a sinc function (LEGACY only)
         | 'vonMises' - a periodic version of the Gauss function (LEGACY only)
         | ndarray - a custom PSF represented as a 1D ndarray.
 
-    PSF_param : scalar
+    PSF_param : scalar, default depends on PSF
         | A parameter that determines the shape of the PSF;
         | the larger the parameter, the larger the blur on the signal.
         | Ignored if PSF is a ndarray.
 
-    PSF_size : int
+    PSF_size : int, default equal to dim
         | The size of the PSF.
         | Ignored if PSF is a ndarray.
 
-    BC : string
+    BC : string, default 'periodic'
         | Boundary conditions for the convolution.
         | 'zero' - zero boundary conditions
         | 'periodic' - periodic boundary conditions
@@ -190,7 +192,7 @@ class Deconvolution1D(BayesianProblem):
         | 'Mirror' - Mirrored boundary conditions
         | 'Nearest' - Replicates last element of boundary
 
-    phantom : string or ndarray
+    phantom : string or ndarray, default 'sinc'
         | The phantom that is sampled to produce the exact solution (signal).
         | 'Gauss' - a Gaussian function
         | 'sinc' - a sinc function
@@ -202,20 +204,19 @@ class Deconvolution1D(BayesianProblem):
         | 'pc' - Piece-wise constant phantom
         | ndarray - a custom phantom
 
-    phantom_param : scalar
-        | A parameter that determines the width of the central 
-        | peak of the function; the larger the parameter,
-        | the narrower the peak.  
-        | Does not apply to phantom = 'bumps' or ndarray.
+    phantom_param : scalar, default depends on phantom
+        | A parameter that determines the horizontal scaling of the
+        | function; the larger the parameter the more horizontally
+        | compressed. Does not apply to phantom = 'bumps', 'pc' or ndarray.
 
-    noise_type : string
+    noise_type : string, default 'gaussian'
         | The type of noise
-        | "Gaussian" - Gaussian white noise¨
+        | "Gaussian" - Additive Gaussian white noise¨
         | "scaledGaussian" - Gaussian noise with standard deviation
         |                    scaled by magnitude of the data for each
         |                    point.
 
-    noise_std : scalar
+    noise_std : scalar, default 0.01
         Standard deviation of the noise
 
     prior : cuqi.distribution.Distribution, Default Gaussian
@@ -223,7 +224,8 @@ class Deconvolution1D(BayesianProblem):
 
     use_legacy : bool, Default False
         If True, use the legacy matrix representation of the forward model.
-        This uses more memory but is faster for small problems.
+        The legacy representation has different choices for the PSF.
+        The data is scaled differently than the non-legacy representation.
         
 
     """
@@ -243,14 +245,24 @@ class Deconvolution1D(BayesianProblem):
         
         # Set up forward model
         if use_legacy: # Legacy matrix representation
+
             if BC != "periodic":
                 raise ValueError("Legacy matrix representation only supports periodic boundary conditions")
+
+            if PSF_size is not None:
+                raise ValueError("Legacy matrix representation does not support PSF_size")
+
             A = _getCirculantMatrix(dim, PSF, PSF_param)
+
             model = cuqi.model.LinearModel(A, range_geometry=Continuous1D(dim), domain_geometry=Continuous1D(dim))
-        else:
+
+        else: # New convolution operator based on scipy.ndimage.convolve1d
+
             Afun = _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC)
 
-            # Create matrix from Afun
+            # For efficiency, we create a sparse matrix representation of the forward model,
+            # instead of using the matrix-free representation. For 1D problems, there is
+            # no need to use the matrix-free representation, since the matrix is small.
             Id = np.eye(dim)
             A = np.array([Afun(Id[:, i]) for i in range(dim)])
             A = csc_matrix(A) # make it sparse
@@ -261,6 +273,8 @@ class Deconvolution1D(BayesianProblem):
         if isinstance(phantom, np.ndarray):
             if phantom.ndim != 1 or phantom.shape[0] != dim:
                 raise ValueError("phantom must be a 1D array of length dim")
+            if phantom_param is not None:
+                warnings.warn("phantom_param is ignored when phantom is a ndarray")
             x_exact = phantom
         elif isinstance(phantom, str):
             x_exact = _getExactSolution(dim, phantom, phantom_param)
@@ -305,11 +319,11 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
         mode = "constant"
     elif BC.lower() == "periodic":
         mode = "wrap"
-    elif BC.lower() == "Neumann":
+    elif BC.lower() == "neumann":
         mode = "symmetric"
-    elif BC.lower() == "Mirror":
+    elif BC.lower() == "mirror":
         mode = "reflect"
-    elif BC.lower() == "Nearest":
+    elif BC.lower() == "nearest":
         mode = "edge"
     else:
         raise ValueError("Unknown boundary condition")
@@ -397,19 +411,19 @@ def _DefocusPSF_1D(PSF_size, PSF_param):
 
     return PSF, center.astype(int)
 
-def _getCirculantMatrix(dim,kernel,kernel_param):
+def _getCirculantMatrix(dim, PSF, PSF_param):
     """
     GetCircMatrix  Create a circulant matrix for deconvolution examples
     
-    GetCircMatrix(dim,kernel,kernel_param)
+    _getCirculantMatrix(dim, PSF, PSF_param)
     
     Input:  dim = size of the circulant matrix A
-            kernel = string that determined type of the underlying kernel
+            PSF = string that determined type of the underlying PSF
                     'Gauss' - a Gaussian function
                     'sinc' or 'prolate' - a sinc function
                     'vonMises' - a periodic version of the Gauss function
-                    ndarray - a custom kernel.
-            kernel_param = a parameter that determines the shape of the kernel;
+                    ndarray - a custom PSF.
+            PSF_param = a parameter that determines the shape of the PSF;
                     the larger the parameter, to slower the initial decay
                     of the singular values of A
 
@@ -421,10 +435,11 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
     if not (dim % 2) == 0:
         raise NotImplementedError("Circulant matrix not implemented for odd numbers")
 
-    if isinstance(kernel, np.ndarray):
-        if kernel.ndim != 1 or kernel.shape[0] != dim:
+    if isinstance(PSF, np.ndarray):
+        if PSF_param is not None: warnings.warn("PSF_param is ignored when PSF is a ndarray")
+        if PSF.ndim != 1 or PSF.shape[0] != dim:
             raise ValueError("kernel must be a 1D array of length dim")
-        h = np.roll(kernel, -int(dim/2))
+        h = np.roll(PSF, -int(dim/2))
         #h = h/np.linalg.norm(h)**2 # TODO: Normalize
         hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
         return toeplitz(hflip,h) 
@@ -432,30 +447,30 @@ def _getCirculantMatrix(dim,kernel,kernel_param):
     dim_half = dim/2
     grid = np.arange(dim_half+1)/dim
 
-    if kernel.lower() == "gauss":
-        if kernel_param is None: kernel_param = 10
-        h = np.exp(-(kernel_param*grid)**2)
+    if PSF.lower() == "gauss":
+        if PSF_param is None: PSF_param = 10
+        h = np.exp(-(PSF_param*grid)**2)
         h = np.concatenate((h,np.flipud(h[1:-1])))
         hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
         return toeplitz(hflip,h)    
 
-    elif kernel.lower() == "sinc" or kernel.lower() == "prolate":
-        if kernel_param is None: kernel_param = 15
-        h = np.sinc(kernel_param*grid)
+    elif PSF.lower() == "sinc" or PSF.lower() == "prolate":
+        if PSF_param is None: PSF_param = 15
+        h = np.sinc(PSF_param*grid)
         h = np.concatenate((h,np.flipud(h[1:-1])))
         hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
         return toeplitz(hflip,h)
 
-    elif kernel.lower() == "vonmises":
-        if kernel_param is None: kernel_param = 5
+    elif PSF.lower() == "vonmises":
+        if PSF_param is None: PSF_param = 5
         h = np.exp(np.cos(2*np.pi*grid))
-        h = (h/h[0])**kernel_param
+        h = (h/h[0])**PSF_param
         h = np.concatenate((h,np.flipud(h[1:-1])))
         hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
         return toeplitz(hflip,h)
 
     else:
-        raise NotImplementedError("This kernel is not implemented")
+        raise NotImplementedError(f"PSF {PSF.lower()} is not implemented for the legacy convolution operator.")
 
 def _getExactSolution(dim,phantom,phantom_param):
     """
@@ -472,9 +487,9 @@ def _getExactSolution(dim,phantom,phantom_param):
                     'derivGauss' - the first derivative of Gauss function
                     'random' - random solution created according to the
                             prior specified in ???
-            param = a parameter that determines the width of the central
-                    "bump" of the function; the larger the parameter, the
-                    narrower the "bump."  Does not apply to phantom = 'bumps'.
+            param = A parameter that determines the horizontal scaling of the
+                    function; the larger the parameter the more horizontally
+                    compressed. Does not apply to phantom = 'bumps' or ndarray.
     
     Output: x = column vector, scaled such that max(x) = 1
 
@@ -512,6 +527,7 @@ def _getExactSolution(dim,phantom,phantom_param):
         return x
 
     elif phantom.lower() == "bumps":
+        if phantom_param is None: warnings.warn("phantom_param is not used for phantom = 'bumps'")
         h = np.pi/dim
         a1 =   1; c1 = 12; t1 =  0.8
         a2 = 0.5; c2 =  5; t2 = -0.5
@@ -525,6 +541,7 @@ def _getExactSolution(dim,phantom,phantom_param):
         return x/np.max(x)
     
     elif phantom.lower() == 'pc':
+        if phantom_param is None: warnings.warn("phantom_param is not used for phantom = 'pc'")
         mesh = np.linspace(0,1,dim)
         x_min, x_max = mesh[0], mesh[-1]
         vals = np.array([0, 2, 3, 2, 0, 1, 0])
@@ -1012,7 +1029,7 @@ class _Deconv_1D(BayesianProblem):
     """
     def __init__(self, dim=128, endpoint=1, kernel=None, blur_size=48, field_type=None, field_params=None, KL_map=None, KL_imap=None, SNR=100):
         
-        Warning("DEPRECATED: Use Deconvolution1D instead.")
+        warnings.warn("DEPRECATED: Use Deconvolution1D instead.")
         
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
