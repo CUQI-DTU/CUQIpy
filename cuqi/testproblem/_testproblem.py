@@ -202,12 +202,13 @@ class Deconvolution1D(BayesianProblem):
         | 'bumps' - two bumps
         | 'derivGauss' - the first derivative of Gauss function
         | 'pc' - Piece-wise constant phantom
+        | 'skyscraper' - Piece-wise constant phantom with multiple peaks
         | ndarray - a custom phantom
 
     phantom_param : scalar, default depends on phantom
         | A parameter that determines the horizontal scaling of the
         | function; the larger the parameter the more horizontally
-        | compressed. Does not apply to phantom = 'bumps', 'pc' or ndarray.
+        | compressed. Does not apply to phantom = 'bumps', 'pc', 'skyscraper' or ndarray.
 
     noise_type : string, default 'gaussian'
         | The type of noise
@@ -472,7 +473,7 @@ def _getCirculantMatrix(dim, PSF, PSF_param):
     else:
         raise NotImplementedError(f"PSF {PSF.lower()} is not implemented for the legacy convolution operator.")
 
-def _getExactSolution(dim,phantom,phantom_param):
+def _getExactSolution(dim, phantom, phantom_param):
     """
     GetExactSolution  Create a periodic solution
     
@@ -485,8 +486,8 @@ def _getExactSolution(dim,phantom,phantom_param):
                     'hat' - a triangular hat function
                     'bumps' - two bumps
                     'derivGauss' - the first derivative of Gauss function
-                    'random' - random solution created according to the
-                            prior specified in ???
+                    'pc' - Piece-wise constant phantom with one tall peak and one wide peak
+                    'skyscraper' - Piece-wise constant phantom with multiple peaks of varying height
             param = A parameter that determines the horizontal scaling of the
                     function; the larger the parameter the more horizontally
                     compressed. Does not apply to phantom = 'bumps' or ndarray.
@@ -553,6 +554,21 @@ def _getExactSolution(dim,phantom,phantom_param):
         f_signal = lambda x: np.piecewise(x, conds(x), vals)
         x = f_signal(mesh)
         return x
+
+    elif phantom.lower() == 'skyscraper':
+        if phantom_param is not None: warnings.warn("phantom_param is not used for phantom = 'skyscraper'")
+        x_min = 0 
+        x_max = 1
+        vals = np.array([0, 1.5, 0, 1.3, 0, 0.75, 0, 0.25, 0, 1, 0])
+        conds = lambda x: [(x_min <= x) & (x < 0.10), (0.10 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.20),  \
+                        (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.35), (0.35 <= x) & (x < 0.38),\
+                        (0.38  <= x) & (x < 0.45), (0.45 <= x) & (x < 0.55), \
+                        (0.55  <= x) & (x < 0.75), (0.75 <= x) & (x < 0.8), (0.8 <= x) & (x <= x_max)]
+        f_fun = lambda x: np.piecewise(x, conds(x), vals)
+        mesh = np.linspace(x_min, x_max, dim)
+        x = f_fun(mesh)
+        return x
+
 
     else:
         raise NotImplementedError("This phantom is not implemented")
