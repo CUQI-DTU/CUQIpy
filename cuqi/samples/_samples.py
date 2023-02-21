@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry, Continuous2D, Image2D
+from cuqi.array import CUQIarray
 from copy import copy
 import arviz # Plotting tool
 
