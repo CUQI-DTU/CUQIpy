@@ -17,7 +17,8 @@ from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
 from cuqi.sampler import CWMH
 from cuqi.problem import BayesianProblem
-from cuqi.samples import Samples, CUQIarray
+from cuqi.samples import Samples
+from cuqi.array import CUQIarray
 
 
 #%%

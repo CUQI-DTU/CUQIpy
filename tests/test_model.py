@@ -1,4 +1,4 @@
-from cuqi.samples import CUQIarray
+from cuqi.array import CUQIarray
 from cuqi.geometry import Continuous1D
 import numpy as np
 import scipy as sp

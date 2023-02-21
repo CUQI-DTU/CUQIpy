@@ -11,7 +11,7 @@ from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
-from cuqi.samples import CUQIarray
+from cuqi.array import CUQIarray
 
 from copy import copy
 

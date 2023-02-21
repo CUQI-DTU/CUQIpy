@@ -4,7 +4,7 @@ from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt
 import scipy.sparse as spa
 
-from cuqi.samples import CUQIarray
+from cuqi.array import CUQIarray
 from cuqi import config
 eps = np.finfo(float).eps
 

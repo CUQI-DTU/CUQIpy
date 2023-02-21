@@ -1,4 +1,4 @@
-from cuqi.samples import CUQIarray
+from cuqi.array import CUQIarray
 import numpy as np
 import inspect
 from numbers import Number
