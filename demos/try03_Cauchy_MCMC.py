@@ -17,7 +17,7 @@ import cuqi
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = cuqi.testproblem.Deblur(dim=30)
+test = cuqi.testproblem._Deblur(dim=30)
 n = test.model.domain_dim
 tt = test.mesh
 h = test.meshsize

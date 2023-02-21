@@ -12,7 +12,7 @@ import cuqi
 model_deconv, data_deconv, problem_info_deconv = cuqi.testproblem.Deconvolution1D.get_components()
 
 #%% Deblur Test problem 
-model_deblur, data_deblur, problem_info_deblur = cuqi.testproblem.Deblur.get_components()
+model_deblur, data_deblur, problem_info_deblur = cuqi.testproblem._Deblur.get_components()
 
 #%%  Poisson_1D Test problem
 KL_map = lambda x: np.exp(x)

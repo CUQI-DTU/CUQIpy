@@ -12,7 +12,7 @@ import cuqi
 
 # %%
 # Load cuqi deblur model and data
-TP = cuqi.testproblem.Deblur()
+TP = cuqi.testproblem._Deblur()
 model = TP.model #Deblur model
 data = TP.data #Data from deblur problem
 cov = TP.likelihood.distribution.cov

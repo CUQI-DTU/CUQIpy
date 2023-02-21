@@ -7,7 +7,7 @@ import cuqi
 
 # %%
 # Load cuqi deblur model and data
-TP = cuqi.testproblem.Deblur()
+TP = cuqi.testproblem._Deblur()
 n = TP.model.domain_dim
 m = TP.model.range_dim
 x_true = TP.exactSolution

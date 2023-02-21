@@ -1,11 +1,11 @@
 from ._testproblem import (
-    Deblur,
+    _Deblur,
     Deconvolution1D,
     Deconvolution2D,
     Poisson_1D,
     Heat_1D,
     Abel_1D,
-    Deconv_1D,
+    _Deconv_1D,
     WangCubic,
     _getCirculantMatrix,
     _getExactSolution

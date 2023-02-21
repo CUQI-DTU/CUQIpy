@@ -20,7 +20,7 @@ noise_std = 0.05
 # Test problem
 tp = cuqi.testproblem.Deconvolution1D(
     dim = dim,
-    kernel=kernel[0],
+    PSF=kernel[0],
     phantom=phantom[3],
     noise_type=noise_type[0],
     noise_std = noise_std
