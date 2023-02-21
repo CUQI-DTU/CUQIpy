@@ -61,9 +61,9 @@ def test_model_allow_DefaultGeometry():
                                                [5, 2, 6]]).T),
                            cuqi.samples.Samples),
 
-                          (cuqi.samples.CUQIarray(np.array([1, 3, 4]),
+                          (cuqi.array.CUQIarray(np.array([1, 3, 4]),
                             geometry=cuqi.geometry.Continuous1D(3)),
-                           cuqi.samples.CUQIarray)])
+                           cuqi.array.CUQIarray)])
 def test_forward(x, expected_type):
     """For different types of input to the model forward method, assert we are obtaining the correct output type"""
     A = np.array([[1, 0, 0],[0, 3, .1]])
@@ -86,9 +86,9 @@ def test_forward(x, expected_type):
                                                [5, 2]])),                
                            cuqi.samples.Samples),
 
-                          (cuqi.samples.CUQIarray(np.array([1, 3]),
+                          (cuqi.array.CUQIarray(np.array([1, 3]),
                             geometry=cuqi.geometry.Continuous1D(2)),
-                           cuqi.samples.CUQIarray)])
+                           cuqi.array.CUQIarray)])
 def test_adjoint(x, expected_type):
     """For different types of input to the model adjoint method, assert we are obtaining the correct output type"""
     A = np.array([[1, 0, 0],[0, 3, .1]])
@@ -109,9 +109,9 @@ def test_adjoint(x, expected_type):
                                                [2, 6]]).T),
                            cuqi.samples.Samples),
 
-                          (cuqi.samples.CUQIarray(np.array([3, 4]),
+                          (cuqi.array.CUQIarray(np.array([3, 4]),
                             geometry=cuqi.geometry.Continuous1D(2)),
-                           cuqi.samples.CUQIarray)])
+                           cuqi.array.CUQIarray)])
 def test_gradient(direction, expected_type):
     """For different types of input to the model gradient method, assert we are obtaining the correct output type"""
     A = np.array([[1, 0, 0],[0, 3, .1]])
@@ -246,7 +246,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
                                  lambda direction, x: np.diag(
                                      np.cos(x))@direction,
                                  np.array([1, 1, 4]),
-                                 cuqi.samples.CUQIarray(
+                                 cuqi.array.CUQIarray(
                                      np.array([1, 12**2, 8**2]), is_par=False, geometry=Continuous1D(3)), # Geometry will be updated
                                  cuqi.geometry.MappedGeometry(Continuous1D(
                                      3), map=lambda x:x**2, imap=lambda x:np.sqrt(x)),
@@ -272,7 +272,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
                                  lambda x: np.sin(x),
                                  lambda direction, x: np.diag(
                                      np.cos(x))@direction,
-                                 cuqi.samples.CUQIarray(
+                                 cuqi.array.CUQIarray(
                                      np.array([1, 1, 4]), is_par=False, geometry=Continuous1D(3)), # Geometry will be updated
                                  np.array([1, 12, 8]),
                                  cuqi.geometry.MappedGeometry(Continuous1D(

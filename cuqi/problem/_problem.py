@@ -228,7 +228,7 @@ class BayesianProblem(object):
         x_ML, solver_info = self._solve_max_point(self.likelihood, disp=disp, x0=x0)
 
         # Wrap the result in a CUQIarray and add solver info
-        x_ML = cuqi.samples.CUQIarray(x_ML, geometry=self.likelihood.geometry)
+        x_ML = cuqi.array.CUQIarray(x_ML, geometry=self.likelihood.geometry)
         x_ML.info = solver_info
 
         return x_ML
@@ -285,7 +285,7 @@ class BayesianProblem(object):
             x_MAP, solver_info = self._solve_max_point(self.posterior, disp=disp, x0=x0)
 
         # Wrap the result in a CUQIarray and add solver info
-        x_MAP = cuqi.samples.CUQIarray(x_MAP, geometry=self.posterior.geometry)
+        x_MAP = cuqi.array.CUQIarray(x_MAP, geometry=self.posterior.geometry)
         x_MAP.info = solver_info
         return x_MAP
 

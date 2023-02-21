@@ -272,19 +272,19 @@ def test_parameters_property(geom, map, imap, supported):
 
 def test_cuqiarray_default_geometry():
     """ Test that CUQIarray creates a default geometry when no geometry is passed"""
-    v = cuqi.samples.CUQIarray([0,1,2,3,4,5,6,7,8])
+    v = cuqi.array.CUQIarray([0,1,2,3,4,5,6,7,8])
     assert type(v.geometry) is cuqi.geometry._geometry._DefaultGeometry
 
 def test_cuqiarray_multidim():
     X = np.array([[1, 2], [3,4]])
     with pytest.raises(Exception) as e:
-        C = cuqi.samples.CUQIarray(X)
+        C = cuqi.array.CUQIarray(X)
     assert "input_array cannot be multidimensional when initializing CUQIarray as parameter (with is_par True)." in str(e.value) # this message
     assert e.type == ValueError  
 
 def test_cuqiarray_ispar_false_without_geometry():
     with pytest.raises(Exception) as e:
-        X = cuqi.samples.CUQIarray([1,2,3], is_par=False)
+        X = cuqi.array.CUQIarray([1,2,3], is_par=False)
     assert "geometry cannot be none when initializing a CUQIarray as function values (with is_par False)." in str(e.value) # this message
     assert e.type == ValueError   
 

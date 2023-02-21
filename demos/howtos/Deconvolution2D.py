@@ -25,7 +25,7 @@ from cuqi.problem import BayesianProblem
 # :math:`\mathbf{y}` and :math:`\mathbf{x}` are the data and unknown (solution to the inverse problem) respectively.
 #
 # A linear forward model like :math:`\mathbf{A}` is represented by a :class:`~cuqi.model.LinearModel`
-# and any data (like some observed data :math:`\mathbf{y}^\mathrm{obs}`) as a :class:`~cuqi.samples.CUQIarray`.
+# and any data (like some observed data :math:`\mathbf{y}^\mathrm{obs}`) as a :class:`~cuqi.array.CUQIarray`.
 #
 # The easiest way to get these two components is to use the built-in testproblems.
 # Let us extract the model and data for a 2D deconvolution.

@@ -93,7 +93,7 @@ class Model(object):
 
         Parameters
         ----------
-        x : ndarray or cuqi.samples.CUQIarray
+        x : ndarray or cuqi.array.CUQIarray
             The input value to be converted.
 
         geometry : cuqi.geometry.Geometry
@@ -105,7 +105,7 @@ class Model(object):
 
         Returns
         -------
-        ndarray or cuqi.samples.CUQIarray
+        ndarray or cuqi.array.CUQIarray
             The input value represented as a function.
         """
         if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
@@ -120,18 +120,18 @@ class Model(object):
 
         Parameters
         ----------
-        out : ndarray or cuqi.samples.CUQIarray
+        out : ndarray or cuqi.array.CUQIarray
             The output value to be converted.
 
         geometry : cuqi.geometry.Geometry
             The geometry representing the argument `out`.
 
         to_CUQIarray : bool
-            If True, the output is wrapped as a cuqi.samples.CUQIarray.
+            If True, the output is wrapped as a cuqi.array.CUQIarray.
 
         Returns
         -------
-        ndarray or cuqi.samples.CUQIarray
+        ndarray or cuqi.array.CUQIarray
             The output value represented as parameters.
         """ 
         out = geometry.fun2par(out)
@@ -156,7 +156,7 @@ class Model(object):
         func_domain_geometry : cuqi.geometry.Geometry
             The geometry representing the function `func` domain.
 
-        x : ndarray or cuqi.samples.CUQIarray
+        x : ndarray or cuqi.array.CUQIarray
             The input value to the operator.
 
         is_par : bool
@@ -165,7 +165,7 @@ class Model(object):
 
         Returns
         -------
-        ndarray or cuqi.samples.CUQIarray
+        ndarray or cuqi.array.CUQIarray
             The output of the function `func` converted to parameters.
         """ 
         # If input x is Samples we apply func for each sample
@@ -211,7 +211,7 @@ class Model(object):
 
         Parameters
         ----------
-        *args : ndarray or cuqi.samples.CUQIarray
+        *args : ndarray or cuqi.array.CUQIarray
             The model input.
 
         is_par : bool
@@ -223,7 +223,7 @@ class Model(object):
 
         Returns
         -------
-        ndarray or cuqi.samples.CUQIarray
+        ndarray or cuqi.array.CUQIarray
             The model output. Always returned as parameters.
         """
 
@@ -426,12 +426,12 @@ class LinearModel(Model):
 
         Parameters
         ----------
-        y : ndarray or cuqi.samples.CUQIarray
+        y : ndarray or cuqi.array.CUQIarray
             The adjoint model input.
 
         Returns
         -------
-        ndarray or cuqi.samples.CUQIarray
+        ndarray or cuqi.array.CUQIarray
             The adjoint model output. Always returned as parameters.
         """
         return self._apply_func(self._adjoint_func,
