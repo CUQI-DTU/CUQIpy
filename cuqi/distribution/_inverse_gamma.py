@@ -3,7 +3,10 @@ import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
-epsm = 1e18
+
+MAX_SCALE = 1e18 # maximum scale
+
+
 class InverseGamma(Distribution):
     """
     Multivariate inverse gamma distribution of independent random variables x_i. Each is distributed according to the PDF function
@@ -64,10 +67,7 @@ class InverseGamma(Distribution):
     def scale(self, value):
         value = force_ndarray(value, flatten=True)
         if not callable(value):
-            # check scale does not blow up
-            if any(value>epsm):
-                idx = value>epsm
-                value[idx] = epsm
+            value = _bound_scale(value)
         self._scale = value
 
     def logpdf(self, x):
@@ -93,3 +93,7 @@ class InverseGamma(Distribution):
 
     def _sample(self, N=1, rng=None):
         return sps.invgamma.rvs(a=self.shape, loc=self.location, scale=self.scale, size=(N,self.dim), random_state=rng).T
+
+def _bound_scale(scale):
+    """ Bound scale to avoid overflow """
+    return np.minimum(scale, MAX_SCALE)
