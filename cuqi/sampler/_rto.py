@@ -34,6 +34,10 @@ class Linear_RTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
+    precondition : bool
+        If True, the inner CGLS solver will use prior preconditioning.
+        If False, the inner CGLS solver will not use preconditioning.
+
     callback : callable, *Optional*
         If set this function will be called after every sample.
         The signature of the callback function is `callback(sample, sample_index)`,
@@ -41,7 +45,7 @@ class Linear_RTO(Sampler):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=1000, tol=1e-4, shift=0, priorcond=True, **kwargs):
+    def __init__(self, target, x0=None, maxit=10, tol=1e-6, precondition=False, **kwargs):
         
         # Accept tuple of inputs and construct posterior
         if isinstance(target, tuple) and len(target) == 5:
@@ -100,14 +104,13 @@ class Linear_RTO(Sampler):
         # Other parameters
         self.maxit = maxit
         self.tol = tol        
-        self.shift = shift
-        self.priorcond = priorcond
+        self.precondition = precondition
         
         L1 = self.likelihood.distribution.sqrtprec
         L2 = self.prior.sqrtprec
         L2mu = self.prior.sqrtprecTimesMean
-        if self.priorcond:
-            self.Precond = L2
+        if self.precondition: # If preconditioning, precondition with the prior sqrtprec
+            self.preconditioner = L2
 
         # pre-computations
         self.m = len(self.data)
@@ -155,10 +158,10 @@ class Linear_RTO(Sampler):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-            if self.priorcond:
-                sim = PCGLS(self.M, y, samples[:, s], self.Precond, self.maxit, self.tol, self.shift)     
+            if self.precondition:
+                sim = PCGLS(self.M, y, samples[:, s], self.preconditioner, self.maxit, self.tol)     
             else:
-                sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)     
+                sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol)     
 
             samples[:, s+1], _ = sim.solve()
 
