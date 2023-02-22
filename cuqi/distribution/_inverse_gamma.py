@@ -3,7 +3,7 @@ import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
-
+epsm = 1e18
 class InverseGamma(Distribution):
     """
     Multivariate inverse gamma distribution of independent random variables x_i. Each is distributed according to the PDF function
@@ -53,9 +53,23 @@ class InverseGamma(Distribution):
     def __init__(self, shape=None, location=None, scale=None, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
         self.shape = force_ndarray(shape, flatten=True)
-        self.location = force_ndarray(location, flatten=True)
-        self.scale = force_ndarray(scale, flatten=True)
-    
+        self.location = force_ndarray(location, flatten=True)        
+        self.scale = scale
+
+    @property
+    def scale(self):
+        return self._scale
+
+    @scale.setter
+    def scale(self, value):
+        value = force_ndarray(value, flatten=True)
+        if not callable(value):
+            # check scale does not blow up
+            if any(value>epsm):
+                idx = value>epsm
+                value[idx] = epsm
+        self._scale = value
+
     def logpdf(self, x):
         return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
@@ -77,6 +91,5 @@ class InverseGamma(Distribution):
             return (-self.shape-1)/(val - self.location) +\
                     self.scale/(val - self.location)**2
 
-
     def _sample(self, N=1, rng=None):
-        return sps.invgamma.rvs(a=self.shape, loc= self.location, scale = self.scale ,size=(N,self.dim), random_state=rng).T
+        return sps.invgamma.rvs(a=self.shape, loc=self.location, scale=self.scale, size=(N,self.dim), random_state=rng).T

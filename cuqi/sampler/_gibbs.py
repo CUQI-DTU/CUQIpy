@@ -69,7 +69,7 @@ class Gibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler], randscan=False):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -85,6 +85,8 @@ class Gibbs:
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
+        self.npar = len(self.par_names)
+        self.randscan = randscan
 
     # ------------ Public methods ------------
     def sample(self, Ns, Nb=0):
@@ -109,7 +111,10 @@ class Gibbs:
 
         # Sample phase
         for i in range(at_Ns, at_Ns+Ns):
-            current_samples = self.step(current_samples)
+            if self.randscan:
+                current_samples = self.step_rs(current_samples)
+            else:
+                current_samples = self.step(current_samples)
             self._store_samples(self.samples, current_samples, i)
             self._print_progress(i+1, at_Ns+Ns, 'Sample')
 
@@ -124,7 +129,6 @@ class Gibbs:
 
         # Sample from each conditional distribution
         for par_name in par_names:
-
             # Dict of all other parameters to condition on
             other_params = {par_name_: current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
 
@@ -139,10 +143,39 @@ class Gibbs:
         
         return current_samples
 
+    def step_rs(self, current_samples):
+        """ Randomly go through all parameters and sample them conditionally on each other """
+
+        # Extract par names
+        par_names = self.par_names
+
+        # pick an index uniformly at random
+        j = np.random.randint(0, self.npar, 1)[0]
+
+        # Sample from the j-th conditional distribution
+        par_name = par_names[j]
+
+        # Dict of all other parameters to condition on
+        other_params = {par_name_: current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
+
+        # Set up sampler for current conditional distribution
+        sampler = self.samplers[par_name](self.target(**other_params))
+
+        # Take a MCMC step
+        current_samples[par_name] = sampler.step(current_samples[par_name])
+
+        # Ensure even 1-dimensional samples are 1D arrays
+        current_samples[par_name] = current_samples[par_name].reshape(-1)
+        
+        return current_samples
+
     def step_tune(self, current_samples):
         """ Perform a single MCMC step for each parameter and tune the sampler """
         # Not implemented. No tuning happening here yet. Requires samplers to be able to be modified after initialization.
-        return self.step(current_samples)
+        if self.randscan:
+            return self.step_rs(current_samples)
+        else:
+            return self.step(current_samples)
 
     # ------------ Private methods ------------
     def _allocate_samples(self, Ns):

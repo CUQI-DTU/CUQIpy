@@ -5,5 +5,6 @@ from ._solver import (
     LS,
     CGLS,
     LM,
-    PDHG
+    PDHG,
+    PCGLS
 )
