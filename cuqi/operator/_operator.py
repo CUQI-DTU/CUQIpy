@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.sparse import diags, spdiags, eye, kron, vstack
+from scipy.sparse import spdiags, eye, kron, vstack
 
 # ========== Operator class ===========
 class Operator(object):
@@ -112,26 +112,21 @@ class FirstOrderFiniteDifference(Operator):
 
         # finite difference matrix
         one_vec = np.ones(N)
-        diagonals = np.vstack([-one_vec, one_vec])
+        diags = np.vstack([-one_vec, one_vec])
         if (self.bc_type == 'zero'):
             locs = [-1, 0]
-            Dmat = diags(diagonals, offsets=locs, shape=(N+1, N), format='csc', dtype=int)
-            # Dmat = spdiags(diagonals, locs, N+1, N)
-            # Dmat = Dmat[:-1, :] # zero BC at the left part
+            Dmat = spdiags(diags, locs, N+1, N)
         elif (self.bc_type == 'periodic'):
             locs = [-1, 0]
-            Dmat = diags(diagonals, offsets=locs, shape=(N+1, N), format='csc', dtype=int)
-            # Dmat = spdiags(diagonals, locs, N+1, N).tocsr()
+            Dmat = spdiags(diags, locs, N+1, N).tocsr()
             Dmat[-1, 0] = 1
             Dmat[0, -1] = -1
         elif (self.bc_type == 'neumann'):
             locs = [0, 1]
-            Dmat = diags(diagonals, offsets=locs, shape=(N-1, N), format='csc', dtype=int)
-            # Dmat = spdiags(diagonals, locs, N-1, N)
+            Dmat = spdiags(diags, locs, N-1, N)
         elif (self.bc_type == 'backward'):
             locs = [0, -1]
-            Dmat = diags(diagonals, offsets=locs, shape=(N, N), format='csc', dtype=int)
-            # Dmat = spdiags(diagonals, locs, N, N).tocsr()
+            Dmat = spdiags(diags, locs, N, N).tocsr()
             Dmat[0, 0] = 1
         elif (self.bc_type == 'none'):
             Dmat = eye(N)
@@ -262,5 +257,4 @@ class PrecisionFiniteDifference(Operator):
             self._matrix = (self._diff_op.T @ self._diff_op).tocsc()
         else:
             raise NotImplementedError
-
 
