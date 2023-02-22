@@ -65,7 +65,7 @@ if ndim == 1:
     plt.legend()
 elif ndim == 2:
     plt.figure()
-    cuqi.samples.CUQIarray(x_map, geometry=TP.model.domain_geometry).plot()
+    cuqi.array.CUQIarray(x_map, geometry=TP.model.domain_geometry).plot()
     plt.figure()
     plt.subplot(122); TP.exactSolution.plot()
 

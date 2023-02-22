@@ -5,7 +5,8 @@ from copy import copy
 from functools import partial
 from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
-from cuqi.samples import Samples, CUQIarray
+from cuqi.samples import Samples
+from cuqi.array import CUQIarray
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 import numpy as np # To be replaced by cuqi.array_api

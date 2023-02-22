@@ -10,7 +10,7 @@ In this example we show how to set up various Time Dependent Linear PDE models.
 import sys
 sys.path.append("..")
 import matplotlib.pyplot as plt
-from cuqi.samples import CUQIarray
+from cuqi.array import CUQIarray
 from cuqi.model import PDEModel
 from cuqi.geometry import Continuous1D
 from cuqi.pde import TimeDependentLinearPDE

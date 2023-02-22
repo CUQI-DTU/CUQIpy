@@ -21,7 +21,7 @@ class Likelihood(Density):
     distribution : ~cuqi.distribution.Distribution
         | Distribution to create likelihood from.
     
-    data : ~cuqi.samples.CUQIarray or array_like
+    data : ~cuqi.array.CUQIarray or array_like
         | Observation to create likelihood from.
 
     """

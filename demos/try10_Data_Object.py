@@ -17,7 +17,8 @@ from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
 from cuqi.sampler import CWMH
 from cuqi.problem import BayesianProblem
-from cuqi.samples import Samples, CUQIarray
+from cuqi.samples import Samples
+from cuqi.array import CUQIarray
 
 
 #%%
@@ -125,7 +126,7 @@ M = x_data.shape[0]
 true_init = 100*x*np.exp(-5*x)*np.sin(L-x)
 
 # Signal as cuqi Data object
-true_initC = cuqi.samples.CUQIarray(true_init, is_par=False, geometry=model.domain_geometry)
+true_initC = cuqi.array.CUQIarray(true_init, is_par=False, geometry=model.domain_geometry)
 
 # defining the heat equation as the forward map
 y_exactC = model.forward(true_initC)
@@ -167,7 +168,7 @@ y_stepC.plot()
 model_KL = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='KL').model
 
 #%%
-true_initKL = cuqi.samples.CUQIarray(true_init, is_par=False,  geometry=model_KL.domain_geometry)
+true_initKL = cuqi.array.CUQIarray(true_init, is_par=False,  geometry=model_KL.domain_geometry)
 
 # %% This should give an error as parameters are not available
 true_initKL.parameters

@@ -13,7 +13,7 @@ N = 128
 x_exact_im = cuqi.data.cat(N)
 range_geometry = cuqi.geometry.Image2D((N,N), order = "C")
 domain_geometry = cuqi.geometry.Image2D((N,N), order = "C")
-x_exact = cuqi.samples.CUQIarray(x_exact_im, is_par=False, geometry=domain_geometry) # CUQIarray to represent both vector and image
+x_exact = cuqi.array.CUQIarray(x_exact_im, is_par=False, geometry=domain_geometry) # CUQIarray to represent both vector and image
 x_exact.plot()
 plt.colorbar()
 
