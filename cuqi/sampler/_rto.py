@@ -177,6 +177,5 @@ class Linear_RTO(Sampler):
         return self._sample(N,Nb)
 
     def __call__(self, target): 
-        """ Reinitialize sampler with new target """ 
-        self.target = target 
-        return self
+        """ Reinitialize sampler with new target keeping the other parameters """ 
+        return self.__init__(target, x0=self.x0, maxit=self.maxit, tol=self.tol, precondition=self.precondition)
