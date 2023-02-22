@@ -30,8 +30,7 @@ Gibbs sampling
 # Setup
 # -----
 # We start by importing the necessary modules
-import sys
-sys.path.append("../..")
+
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
