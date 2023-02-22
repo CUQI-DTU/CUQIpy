@@ -19,7 +19,7 @@ from cuqi.sampler import Linear_RTO
 # =============================================================================
 # set-up the discrete convolution model
 # =============================================================================
-test = cuqi.testproblem.Deblur()
+test = cuqi.testproblem._Deblur()
 n = test.model.domain_dim
 tt = test.mesh
 h = test.meshsize

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import cuqi
 
 #%% %Cuqi deblur test problem
-tp = cuqi.testproblem.Deblur() #Default values
+tp = cuqi.testproblem._Deblur() #Default values
 
 #%% Plot true, blurred and noisy data
 plt.figure
