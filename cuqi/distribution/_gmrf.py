@@ -110,7 +110,6 @@ class GMRF(Distribution):
                 self.geometry = Image2D(num_nodes)
 
         self._prec_op = PrecisionFiniteDifference(num_nodes, bc_type=bc_type, order=order) 
-        # D.T W D
         self._diff_op = self._prec_op._diff_op      
                    
         # compute Cholesky and det
