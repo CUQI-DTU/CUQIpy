@@ -2,6 +2,7 @@ from math import isnan
 import cuqi
 import numpy as np
 import scipy as sp
+import scipy.stats as scipy_stats
 import scipy.sparse as sps
 
 from pytest import approx
@@ -635,3 +636,34 @@ def test_Laplace_diff_should_not_allow_non_zero_location():
 
     with pytest.raises(ValueError):
         cuqi.distribution.Laplace_diff(lambda x: x, 1)
+
+def test_Cauchy_against_scipy():
+    """ Test Cauchy distribution logpdf, cdf, pdf, gradient """
+
+    x = cuqi.distribution.Cauchy(np.random.randn(5), np.abs(np.random.rand(5)))
+
+    val = np.random.randn(5)
+
+    # Test logpdf
+    assert np.allclose(x.logpdf(val), np.sum(scipy_stats.cauchy.logpdf(val, loc=x.location, scale=x.scale)))
+
+    # Test pdf
+    assert np.allclose(x.pdf(val), np.prod(scipy_stats.cauchy.pdf(val, loc=x.location, scale=x.scale)))
+
+    # Test cdf
+    assert np.allclose(x.cdf(val), np.sum(scipy_stats.cauchy.cdf(val, loc=x.location, scale=x.scale)))
+
+    # Test gradient
+    assert np.allclose(x.gradient(val), cuqi.utilities.approx_derivative(x.logpdf, val))
+
+def test_Cauchy_out_of_range_values():
+    """ Test that the logpdf is -inf for values outside the support """
+
+    x = cuqi.distribution.Cauchy(np.random.randn(5), np.abs(np.random.rand(5)))
+
+    x.scale[0] = 0 # This is not a valid scale
+
+    val = np.random.randn(5)
+
+    # Test logpdf
+    assert np.allclose(x.logpdf(val), -np.inf)
