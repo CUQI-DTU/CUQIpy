@@ -34,6 +34,15 @@ class Cauchy(Distribution):
         x = cuqi.distribution.Cauchy(location, scale)
         x.logpdf(0) # -1.1447298858494002
 
+    .. code-block:: python
+
+        # % Generate a multivariate Cauchy distribution
+        import cuqi
+        location = [0, 0]
+        scale  = [1, 1]
+        x = cuqi.distribution.Cauchy(location, scale)
+        x.logpdf([0, 0]) # -2.2894597716988003
+
     """
 
     def __init__(self, location=None, scale=None, is_symmetric=True, **kwargs):
@@ -92,7 +101,8 @@ class Cauchy(Distribution):
             return x*np.nan
         
         #Compute the gradient
-        return -2*(x-self.location)/(self.scale**2*(1+((x-self.location)/self.scale)**2))
+        x_translated = x-self.location
+        return -2*(x_translated)/(self.scale**2*(1+((x_translated)/self.scale)**2))
     
     def _sample(self, N=1, rng=None):
         return sps.cauchy.rvs(loc=self.location, scale=self.scale, size=(N,self.dim), random_state=rng).T
