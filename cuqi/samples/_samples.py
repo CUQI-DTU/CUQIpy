@@ -38,10 +38,11 @@ class Samples(object):
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
-    def __init__(self, samples, geometry=None, is_par=True):
+    def __init__(self, samples, geometry=None, is_par=True, fun_as_array=False):
         self.geometry = geometry
         self.is_par = is_par
         self.samples = samples
+        self._fun_as_array = fun_as_array
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
@@ -76,12 +77,12 @@ class Samples(object):
     @property
     def funvals(self):
         """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself."""
-        self._check_funvals_supported()
+        fun_as_array = self._check_funvals_supported()
         if self.is_par is True:
             _funvals = np.empty((self.geometry.fun_dim, self.Ns))
             for i, s in enumerate(self):
-                _funvals[:, i] = self.geometry.par2fun(s)
-            return Samples(_funvals, is_par=False, geometry=self.geometry)
+                _funvals[:, i] = self.geometry.par2fun(s, fun_as_1D_array=fun_as_array)
+            return Samples(_funvals, is_par=False, geometry=self.geometry, fun_as_array=fun_as_array)
         else:
             return self
 
@@ -143,7 +144,7 @@ class Samples(object):
         new_samples.samples = self.samples[...,Nb::Nt]
         return new_samples
 
-    def plot_mean(self,*args,**kwargs):
+    def plot_mean(self,**kwargs):
         """Plot pointwise mean of the samples
 
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
@@ -152,7 +153,7 @@ class Samples(object):
         mean = self.mean()
 
         # Plot mean according to geometry
-        ax =  self.geometry.plot(mean, *args, **kwargs)
+        ax =  self.geometry.plot(mean, is_par=self.is_par, fun_as_1D_array=self._fun_as_array, **kwargs)
         plt.title('Sample mean')
         return ax
 
@@ -178,7 +179,7 @@ class Samples(object):
         variance = self.variance()
 
         # Plot variance according to geometry
-        ax = self.geometry.plot(variance, *args, **kwargs)
+        ax = self.geometry.plot(variance, is_par=self.is_par, fun_as_1D_array=self._fun_as_array, *args, **kwargs)
         plt.title('Sample variance')
         return ax
 
@@ -645,5 +646,8 @@ class Samples(object):
         return ax
 
     def _check_funvals_supported(self):
+        if self.geometry.fun_as_array:
+            return True
         if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
             raise ValueError(f"Creating a Samples object with function values of samples is not supported for the provided  geometry: {type(self.geometry)}. Currently, the geometry `fun_shape` must be a tuple of length 1, e.g. `(6,)`.")
+        return False
