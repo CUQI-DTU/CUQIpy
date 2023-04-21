@@ -38,10 +38,10 @@ class Cauchy(Distribution):
 
         # % Generate a multivariate Cauchy distribution
         import cuqi
-        location = [0, 0]
-        scale  = [1, 1]
+        location = [0, 1]
+        scale  = [1, 3]
         x = cuqi.distribution.Cauchy(location, scale)
-        x.logpdf([0, 0]) # -2.2894597716988003
+        x.logpdf([0, 0]) # -3.4934325760247367
 
     """
 
