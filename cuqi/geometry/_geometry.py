@@ -74,7 +74,7 @@ class Geometry(ABC):
         self._variables = value
         self._ids = range(self.par_dim)
 
-    def plot(self, values, is_par=True, plot_par=False, **kwargs):
+    def plot(self, values, is_par=True, plot_par=False, fun_as_1D_array=False, **kwargs):
         """
         Plots a function over the set defined by the geometry object.
             
@@ -97,12 +97,12 @@ class Geometry(ABC):
 
         if plot_par:
             geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
-            return geom.plot(values, **kwargs)
+            return geom.plot(values, fun_as_1D_array=fun_as_1D_array, **kwargs)
 
         if is_par:
-            values = self.par2fun(values)
+            values = self.par2fun(values, fun_as_1D_array=fun_as_1D_array)
 
-        return self._plot(values, **kwargs)
+        return self._plot(values, fun_as_1D_array=fun_as_1D_array, **kwargs)
 
     def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
         """
