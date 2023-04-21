@@ -102,7 +102,7 @@ class Cauchy(Distribution):
         
         #Compute the gradient
         x_translated = x-self.location
-        return -2*(x_translated)/(self.scale**2*(1+((x_translated)/self.scale)**2))
+        return -2*x_translated/(self.scale**2*(1+(x_translated/self.scale)**2))
     
     def _sample(self, N=1, rng=None):
         return sps.cauchy.rvs(loc=self.location, scale=self.scale, size=(N,self.dim), random_state=rng).T
