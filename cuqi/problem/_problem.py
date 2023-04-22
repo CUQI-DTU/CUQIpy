@@ -332,7 +332,7 @@ class BayesianProblem(object):
 
         # For Laplace_diff we use our awesome unadjusted Laplace approximation!
         elif self._check_posterior(self, Laplace_diff, Gaussian):
-            return self._sampleUnadjustedLaplaceApproximation(Ns, callback)
+            return self._sampleUGLA(Ns, callback)
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
@@ -539,8 +539,8 @@ class BayesianProblem(object):
         
         return x_s
 
-    def _sampleUnadjustedLaplaceApproximation(self, Ns, callback=None):
-        print("Using Unadjusted Laplace Approximation sampler")
+    def _sampleUGLA(self, Ns, callback=None):
+        print("Using UGLA sampler")
         print("burn-in: 20%")
 
         # Start timing
@@ -548,7 +548,7 @@ class BayesianProblem(object):
 
         # Sample
         Nb = int(0.2*Ns)
-        sampler = cuqi.sampler.UnadjustedLaplaceApproximation(self.posterior, callback=callback)
+        sampler = cuqi.sampler.UGLA(self.posterior, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing
@@ -724,9 +724,9 @@ class BayesianProblem(object):
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
 
-            # Laplace_diff prior, Gaussian likelihood, Linear model -> UnadjustedLaplaceApproximation
+            # Laplace_diff prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, Laplace_diff, Gaussian, LinearModel):
-                sampling_strategy[par_name] = cuqi.sampler.UnadjustedLaplaceApproximation
+                sampling_strategy[par_name] = cuqi.sampler.UGLA
 
             else:
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")

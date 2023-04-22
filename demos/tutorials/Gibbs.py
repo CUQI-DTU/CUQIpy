@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, Laplace_diff
-from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UnadjustedLaplaceApproximation, ConjugateApprox
+from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
 
@@ -231,12 +231,12 @@ print(posterior_Ld)
 # Gibbs Sampler (with Laplace prior)
 # ----------------------------------
 #
-# Using the same approach as ealier we can define a Gibbs sampler
+# Using the same approach as earlier we can define a Gibbs sampler
 # for this new hierarchical model. The only difference is that we
 # now need to use a different sampler for :math:`\mathbf{x}` because
 # the ``Linear_RTO`` sampler only works for Gaussian distributions.
 #
-# In this case we use the UnadjustedLaplaceApproximation sampler
+# In this case we use the UGLA (Unadjusted Laplace Approximation) sampler
 # for :math:`\mathbf{x}`. We also use an approximate Conjugate
 # sampler for :math:`d` which approximately samples from the
 # posterior distribution of :math:`d` conditional on the other
@@ -245,7 +245,7 @@ print(posterior_Ld)
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': UnadjustedLaplaceApproximation,
+    'x': UGLA,
     'd': ConjugateApprox,
     'l': Conjugate
 }
