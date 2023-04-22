@@ -173,7 +173,8 @@ samples = BP.sample_posterior(1000)
 # Let is first look at the estimated noise level
 # and compare it with the true noise level
 
-samples["s"].plot_trace(lines=(("s", {}, 1/0.01**2),))
+#samples["s"].plot_trace(lines=(("s", {}, 1/0.01**2),))
+samples["s"].plot_trace(exact=1/0.01**2)
 
 # %%
 # We see that the estimated noise level is close to the true noise level. Let's
@@ -184,3 +185,10 @@ samples["x"].plot_ci(exact=info.exactSolution)
 
 
 # %%
+# We can even plot traces of "x" for a few cases and compare
+samples["x"].plot_trace(exact=info.exactSolution)
+
+# %%
+# And finally noting the UQ method does not analysis and shows a selected number of plots
+BP.UQ(exact={"x": info.exactSolution, "s": 1/0.01**2})
+

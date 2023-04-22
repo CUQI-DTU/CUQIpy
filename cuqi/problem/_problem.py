@@ -417,11 +417,7 @@ class BayesianProblem(object):
 
         # Plot traces for single parameters
         if samples.shape[0] == 1:
-            if exact is not None:
-                par_name = samples.geometry.variables[0]
-                samples.plot_trace(lines=((par_name, {}, exact),))
-            else:
-                samples.plot_trace()
+            samples.plot_trace(exact=exact)
         else: # Else plot credible intervals
             samples.plot_ci(exact=exact)
 
