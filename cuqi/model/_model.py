@@ -23,12 +23,20 @@ class Model(object):
     domain_geometry : integer or cuqi.geometry.Geometry
         If integer is given a _DefaultGeometry is created with dimension of the integer.
 
-    gradient : callable function
+    gradient : callable function, optional
         The direction-Jacobian product of the forward operator Jacobian with 
         respect to the forward operator input, evaluated at a point (`wrt`).
         The signature of the gradient function should be (`direction`, `wrt`),
         where `direction` is the direction by which the Jacobian matrix is
         multiplied and `wrt` is the point at which the Jacobian is computed.
+
+    jacobian : callable function, optional
+        The Jacobian of the forward operator with respect to the forward operator input,
+        evaluated at a point (`wrt`). The signature of the Jacobian function should be (`wrt`).
+        The Jacobian function should return a 2D ndarray of shape (range_dim, domain_dim).
+        The Jacobian function is used to specify the gradient function (vector-Jacobian product)
+        automatically and thus the gradient function should not be specified when the Jacobian
+        function is specified.
 
     Attributes
     -----------
@@ -44,15 +52,26 @@ class Model(object):
     :meth:`range_dim` the dimension of the range.
     :meth:`domain_dim` the dimension of the domain.
     """
-    def __init__(self, forward, range_geometry, domain_geometry, gradient=None):
+    def __init__(self, forward, range_geometry, domain_geometry, gradient=None, jacobian=None):
 
         #Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function of some kind")
         
+        # Check if only one of gradient and jacobian is given
+        if (gradient is not None) and (jacobian is not None):
+            raise TypeError("Only one of gradient and jacobian should be specified")
+        
         #Check if input is callable
         if (gradient is not None) and (callable(gradient) is not True):
             raise TypeError("Gradient needs to be callable function of some kind")
+        
+        if (jacobian is not None) and (callable(jacobian) is not True):
+            raise TypeError("Jacobian needs to be callable function of some kind")
+        
+        # Use jacobian function to specify gradient function (vector-Jacobian product)
+        if jacobian is not None:
+            gradient = lambda direction, wrt: direction@jacobian(wrt)
  
         #Store forward func
         self._forward_func = forward
