@@ -236,7 +236,7 @@ print(posterior_Ld)
 # now need to use a different sampler for :math:`\mathbf{x}` because
 # the ``Linear_RTO`` sampler only works for Gaussian distributions.
 #
-# In this case we use the UGLA (Unadjusted Laplace Approximation) sampler
+# In this case we use the UGLA (Unadjusted Gaussian Laplace Approximation) sampler
 # for :math:`\mathbf{x}`. We also use an approximate Conjugate
 # sampler for :math:`d` which approximately samples from the
 # posterior distribution of :math:`d` conditional on the other

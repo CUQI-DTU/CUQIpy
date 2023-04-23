@@ -70,7 +70,7 @@ class UGLA(Sampler):
 
         # Check that prior is Laplace_diff
         if not isinstance(self.target.prior, cuqi.distribution.Laplace_diff):
-            raise ValueError('Unadjusted Laplace approximation (UGLA) requires Laplace_diff prior')
+            raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires Laplace_diff prior')
 
         # Modify initial guess since Sampler sets it to ones.       
         if x0 is not None:
