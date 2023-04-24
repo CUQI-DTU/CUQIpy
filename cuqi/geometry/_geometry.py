@@ -74,7 +74,15 @@ class Geometry(ABC):
         self._variables = value
         self._ids = range(self.par_dim)
 
-    def plot(self, values, is_par=True, plot_par=False, fun_as_1D_array=False, **kwargs):
+    @property
+    def has_alt_fun_rpr(self):
+        """Flag to indicate whether the geometry has an alternative function 
+        representation. In particular, a 1D array representation of the function
+        that can be useful for example in computing sample statistics on 
+        function values. Default is False."""
+        return False
+    
+    def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
         Plots a function over the set defined by the geometry object.
             
@@ -97,12 +105,12 @@ class Geometry(ABC):
 
         if plot_par:
             geom = Discrete(self.par_dim) #par_dim is size of the parameter space.
-            return geom.plot(values, fun_as_1D_array=fun_as_1D_array, **kwargs)
+            return geom.plot(values, **kwargs)
 
         if is_par:
-            values = self.par2fun(values, fun_as_1D_array=fun_as_1D_array)
+            values = self.par2fun(values)
 
-        return self._plot(values, fun_as_1D_array=fun_as_1D_array, **kwargs)
+        return self._plot(values, **kwargs)
 
     def plot_envelope(self, lo_values, hi_values, is_par=True, plot_par=False, **kwargs):
         """
@@ -138,14 +146,22 @@ class Geometry(ABC):
 
         return self._plot_envelope(lo_values,hi_values, **kwargs)
 
-    def par2fun(self,par):
+    def par2fun(self, par):
         """The parameter to function map used to map parameters to function values in e.g. plotting."""
         return par
 
-    def fun2par(self,funvals):
+    def fun2par(self, funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par not implemented. Must be implemented specifically for each geometry.")
 
+    def fun2alt_fun_rpr(self, funvals):
+        """The function to alternative function representation map used to map function values to an alternative representation, if available."""
+        raise NotImplementedError("fun2alt_fun_rpr not implemented. Must be implemented specifically for each geometry.")
+    
+    def alt_fun_rpr2fun(self, alt_fun_rpr):
+        """The alternative function representation to function map used to map an alternative function representation to function values, if available."""
+        raise NotImplementedError("alt_fun_rpr2fun not implemented. Must be implemented specifically for each geometry.")
+    
     @abstractmethod
     def _plot(self):
         pass

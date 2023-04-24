@@ -38,11 +38,11 @@ class Samples(object):
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
-    def __init__(self, samples, geometry=None, is_par=True, fun_as_array=False):
+    def __init__(self, samples, geometry=None, is_par=True, fun_as_alt_fun_rpr=False):
         self.geometry = geometry
         self.is_par = is_par
         self.samples = samples
-        self._fun_as_array = fun_as_array
+        self._fun_as_alt_fun_rpr = fun_as_alt_fun_rpr
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
@@ -75,14 +75,34 @@ class Samples(object):
         self._is_par = value
 
     @property
+    def _funvals_supported(self):
+        if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
+            return False
+
+    @property
+    def _alt_fun_rpr_supported(self):
+        return self.geometry.has_alt_fun_rpr
+
+    @property
     def funvals(self):
         """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself."""
-        fun_as_array = self._check_funvals_supported()
+        if not self._funvals_supported and not self._alt_fun_rpr_supported:
+            raise ValueError("Cannot convert the samples to function values. The geometry does not support 1D array representation of the function value.")
+
         if self.is_par is True:
             _funvals = np.empty((self.geometry.fun_dim, self.Ns))
+            if self._funvals_supported:
+                par2fun = self.geometry.par2fun
+            else:
+                par2fun = self.geometry.par2alt_fun_rpr
+
             for i, s in enumerate(self):
-                _funvals[:, i] = self.geometry.par2fun(s, fun_as_1D_array=fun_as_array)
-            return Samples(_funvals, is_par=False, geometry=self.geometry, fun_as_array=fun_as_array)
+                _funvals[:, i] = par2fun(s)
+
+            fun_as_alt_fun_rpr = not self._funvals_supported and self._alt_fun_rpr_supported
+            return Samples(_funvals, is_par=False,
+                           geometry=self.geometry,
+                           fun_as_alt_fun_rpr=fun_as_alt_fun_rpr)
         else:
             return self
 
@@ -644,10 +664,3 @@ class Samples(object):
         ax =  arviz.plot_violin(datadict, **kwargs)
 
         return ax
-
-    def _check_funvals_supported(self):
-        if self.geometry.fun_as_array:
-            return True
-        if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
-            raise ValueError(f"Creating a Samples object with function values of samples is not supported for the provided  geometry: {type(self.geometry)}. Currently, the geometry `fun_shape` must be a tuple of length 1, e.g. `(6,)`.")
-        return False
