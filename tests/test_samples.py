@@ -256,7 +256,7 @@ def test_parameters_property(geom, map, imap, supported):
     samples = cuqi.samples.Samples(val, geometry=mapped_geom)
 
     if not supported:
-        with pytest.raises(ValueError, match=r"Creating a Samples object with function values of samples is not supported for the provided  geometry"):
+        with pytest.raises(ValueError, match=r"Cannot convert the samples to function values"):
             funvals = samples.funvals
     else:
         # Compute function values and from the function values

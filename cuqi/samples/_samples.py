@@ -71,13 +71,18 @@ class Samples(object):
     @is_par.setter
     def is_par(self, value):
         if value is False:
-            self._check_funvals_supported()
+            if not self._funvals_supported and not self._alt_fun_rpr_supported:
+                raise ValueError(
+                    "Cannot set is_par to False. The geometry does not support"+
+                    " 1D array representation of the function value.")
         self._is_par = value
 
     @property
     def _funvals_supported(self):
         if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
             return False
+        else:
+            return True
 
     @property
     def _alt_fun_rpr_supported(self):
