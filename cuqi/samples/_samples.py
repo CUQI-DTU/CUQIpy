@@ -93,16 +93,16 @@ class Samples(object):
         """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself."""
         if not self._funvals_supported and not self._alt_fun_rpr_supported:
             raise ValueError("Cannot convert the samples to function values. The geometry does not support 1D array representation of the function value.")
-
+        fun_dim = self.geometry.fun_dim if self._funvals_supported else self.geometry.alt_fun_rpr_dim
         if self.is_par is True:
-            _funvals = np.empty((self.geometry.fun_dim, self.Ns))
-            if self._funvals_supported:
-                par2fun = self.geometry.par2fun
-            else:
-                par2fun = self.geometry.par2alt_fun_rpr
-
+            _funvals = np.empty((fun_dim, self.Ns))
+            funvals_supported = self._funvals_supported
+ 
             for i, s in enumerate(self):
-                _funvals[:, i] = par2fun(s)
+                if funvals_supported:
+                    _funvals[:, i] = self.geometry.par2fun(s)
+                else:
+                    _funvals[:, i] = self.geometry.fun2alt_fun_rpr(self.geometry.par2fun(s))
 
             fun_as_alt_fun_rpr = not self._funvals_supported and self._alt_fun_rpr_supported
             return Samples(_funvals, is_par=False,
@@ -169,7 +169,7 @@ class Samples(object):
         new_samples.samples = self.samples[...,Nb::Nt]
         return new_samples
 
-    def plot_mean(self, *args, **kwargs):
+    def plot_mean(self, is_par=True, **kwargs):
         """Plot pointwise mean of the samples
 
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
@@ -177,8 +177,12 @@ class Samples(object):
         """
         mean = self.mean()
 
+        if self._fun_as_alt_fun_rpr:
+            mean = self.geometry.alt_fun_rpr2fun(mean)
+            is_par = False
+
         # Plot mean according to geometry
-        ax =  self.geometry.plot(mean, *args, **kwargs)
+        ax =  self.geometry.plot(mean, is_par=is_par, **kwargs)
         plt.title('Sample mean')
         return ax
 
@@ -195,7 +199,7 @@ class Samples(object):
         plt.title('Pointwise sample median')
         return ax
 
-    def plot_variance(self,*args,**kwargs):
+    def plot_variance(self, is_par=True, **kwargs):
         """Plot pointwise variance of the samples
 
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
@@ -203,8 +207,12 @@ class Samples(object):
         """
         variance = self.variance()
 
+        if self._fun_as_alt_fun_rpr:
+            variance = self.geometry.alt_fun_rpr2fun(variance)
+            is_par = False
+
         # Plot variance according to geometry
-        ax = self.geometry.plot(variance, *args, **kwargs)
+        ax = self.geometry.plot(variance, is_par=is_par, **kwargs)
         plt.title('Sample variance')
         return ax
 
