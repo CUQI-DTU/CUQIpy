@@ -164,7 +164,7 @@ class Samples(object):
         new_samples.samples = self.samples[...,Nb::Nt]
         return new_samples
 
-    def plot_mean(self,**kwargs):
+    def plot_mean(self, *args, **kwargs):
         """Plot pointwise mean of the samples
 
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
@@ -173,7 +173,7 @@ class Samples(object):
         mean = self.mean()
 
         # Plot mean according to geometry
-        ax =  self.geometry.plot(mean, is_par=self.is_par, fun_as_1D_array=self._fun_as_array, **kwargs)
+        ax =  self.geometry.plot(mean, *args, **kwargs)
         plt.title('Sample mean')
         return ax
 
@@ -199,7 +199,7 @@ class Samples(object):
         variance = self.variance()
 
         # Plot variance according to geometry
-        ax = self.geometry.plot(variance, is_par=self.is_par, fun_as_1D_array=self._fun_as_array, *args, **kwargs)
+        ax = self.geometry.plot(variance, *args, **kwargs)
         plt.title('Sample variance')
         return ax
 
