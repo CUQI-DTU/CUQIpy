@@ -55,6 +55,7 @@ def test_samples_plot_autocorrelation(kwargs):
 @pytest.mark.parametrize("kwargs",[
                         ({}),
                         ({"combined":False,"tight_layout":False}),
+                        ({"exact":[1, 1]}) # Check exact can be compared with
                         ])
 def test_samples_plot_trace(kwargs):
     # Make basic distribution and sample
