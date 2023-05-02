@@ -75,11 +75,10 @@ class Geometry(ABC):
         self._ids = range(self.par_dim)
 
     @property
-    def has_alt_fun_rpr(self):
-        """Flag to indicate whether the geometry has an alternative function 
-        representation. In particular, a 1D array representation of the function
-        that can be useful for example in computing sample statistics on 
-        function values. Default is False."""
+    def has_fun_vec(self):
+        """Flag to indicate whether the geometry can represent the function 
+        value as a vector. This can be useful, for example, in computing
+        sample statistics on function values. Default is False."""
         return False
     
     def plot(self, values, is_par=True, plot_par=False, **kwargs):
@@ -152,15 +151,15 @@ class Geometry(ABC):
 
     def fun2par(self, funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
-        raise NotImplementedError("fun2par not implemented. Must be implemented specifically for each geometry.")
+        raise NotImplementedError("fun2par is not implemented. Must be implemented specifically for each geometry.")
 
-    def fun2alt_fun_rpr(self, funvals):
-        """The function to alternative function representation map used to map function values to an alternative representation, if available."""
-        raise NotImplementedError("fun2alt_fun_rpr not implemented. Must be implemented specifically for each geometry.")
+    def fun2fun_vec(self, funvals):
+        """Maps function values to a vector representation, if available."""
+        raise NotImplementedError("fun2fun_vec is not implemented. Must be implemented specifically for each geometry.")
     
-    def alt_fun_rpr2fun(self, alt_fun_rpr):
-        """The alternative function representation to function map used to map an alternative function representation to function values, if available."""
-        raise NotImplementedError("alt_fun_rpr2fun not implemented. Must be implemented specifically for each geometry.")
+    def fun_vec2fun(self, fun_vec):
+        """Maps function vector representation, if available, to function values."""
+        raise NotImplementedError("fun_vec2fun is not implemented. Must be implemented specifically for each geometry.")
     
     @abstractmethod
     def _plot(self):
