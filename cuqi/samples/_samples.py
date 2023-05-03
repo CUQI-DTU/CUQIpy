@@ -70,7 +70,7 @@ class Samples(object):
     @is_par.setter
     def is_par(self, value):
         if value is False:
-            if not self._funvals_directly_supported and not self._alt_fun_rpr_supported:
+            if not self._funvals_directly_supported and not self.geometry.has_fun_vec:
                 raise ValueError(
                     "Cannot set is_par to False. The geometry does not support"+
                     " 1D array representation of the function value.")
@@ -304,7 +304,7 @@ class Samples(object):
             sample_indices = self._select_random_indices(Np, Ns)
         
         ###
-        
+
         return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
 
 
