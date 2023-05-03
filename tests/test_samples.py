@@ -21,13 +21,17 @@ def test_samples_plot(geom,is_par,plot_par):
     s = x.sample(10)
 
     #Verify plotting of single and multiple samples
-    s.plot(is_par=is_par,plot_par=plot_par)
-    s.plot(0,is_par=is_par,plot_par=plot_par)
+    s.plot(plot_par=plot_par)
+    s.plot(0,plot_par=plot_par)
     #s.plot_chain() #No default selection of chain
     s.plot_chain(0)
     if dim > 2:
-        s.plot([0,2],is_par=is_par,plot_par=plot_par)
+        s.plot([0,2],plot_par=plot_par)
         s.plot_chain([0,2])
+
+    # Verify passing is_par raises error
+    with pytest.raises(ValueError,match=r"Cannot pass is_par as a plotting argument"):
+        s.plot(is_par=is_par,plot_par=plot_par)
 
 @pytest.mark.parametrize("kwargs",[
                         ({}),
