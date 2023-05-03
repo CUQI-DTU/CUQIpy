@@ -667,3 +667,27 @@ def test_Cauchy_out_of_range_values():
 
     # Test logpdf
     assert np.allclose(x.logpdf(val), -np.inf)
+
+def test_Gaussian_sqrtprec_must_be_square():
+    """ Test Gaussian distribution raises ValueError if sqrtprec (sparse and dense) is not square """
+    N = 10; M = 5
+
+    # Create non square sqrtprec as sparse (later converted to dense)
+    sqrtprec = sp.sparse.csr_matrix(np.random.randn(N, M))
+
+    with pytest.raises(ValueError, match="sqrtprec must be square"):
+        cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec)
+
+    with pytest.raises(ValueError, match="sqrtprec must be square"):
+        cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense())
+
+def test_Gaussian_from_sparse_sqrtprec():
+    """ Test Gaussian distribution from sparse sqrtprec is equal to dense sqrtprec """
+    N = 10; M = 5
+
+    sqrtprec = sp.sparse.spdiags(np.random.randn(N), 0, N, N)
+
+    y_from_sparse = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec)
+    y_from_dense = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense())
+
+    assert y_from_dense.logpdf(np.ones(N)) == y_from_sparse.logpdf(np.ones(N))

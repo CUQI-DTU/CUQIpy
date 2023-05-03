@@ -654,6 +654,15 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
         else:
             sqrtprec = np.diag(sqrtprec)
 
+    # check if sqrtprec matrix is square
+    elif sqrtprec.ndim == 2 and sqrtprec.shape[0] != sqrtprec.shape[1]:
+        raise ValueError("sqrtprec must be square")     
+
+    # sqrtprec is sparse diagonal
+    elif spa.isspmatrix_dia(sqrtprec):
+        logdet = np.sum(-np.log(sqrtprec.data**2))
+        rank = dim
+
     # sqrtprec diagonal
     elif np.count_nonzero(sqrtprec-np.diag(sqrtprec.diagonal())) == 0:
         stdinv = sqrtprec.diagonal()
