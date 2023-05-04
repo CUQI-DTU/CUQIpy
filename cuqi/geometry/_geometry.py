@@ -637,6 +637,10 @@ class MappedGeometry(_WrappedGeometry):
         super().__init__(geometry)
         self.map = map
         self.imap = imap
+    
+    @property
+    def has_funvec(self):
+        return self.geometry.has_funvec
 
     def par2fun(self,p):
         return self.map(self.geometry.par2fun(p))
@@ -645,6 +649,12 @@ class MappedGeometry(_WrappedGeometry):
         if self.imap is None:
             raise ValueError("imap is not defined. This is needed for fun2par.")
         return self.geometry.fun2par(self.imap(f))
+    
+    def fun2funvec(self, fun):
+        return self.geometry.fun2funvec(fun)
+    
+    def funvec2fun(self, funvec):
+        return self.geometry.funvec2fun(funvec)
 
     def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())
