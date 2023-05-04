@@ -1,3 +1,5 @@
+from __future__ import annotations
+from typing import List, Union
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
@@ -5,6 +7,8 @@ from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
+from cuqi.utilities import infer_len
+import numbers
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -341,14 +345,138 @@ class Model(object):
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return grad
-    
+
+    def __add__(self, shift) -> Union[Model, SumOfModels]:
+        """ Creates a new Model with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
+        if isinstance(shift, numbers.Number) and shift == 0:
+            return copy(self)
+        if not isinstance(shift, numbers.Number) and infer_len(shift) != self.range_dim:
+            raise ValueError("Shift dimension does not match model range dimension.")
+        if isinstance(shift, Model):
+            return SumOfModels(self, shift)
+        if isinstance(shift, SumOfModels):
+            return SumOfModels(self, *shift._models)
+        new_model = copy(self)
+        new_model._forward_func = lambda *args, **kwargs: self._forward_func(*args, **kwargs) + shift
+        return new_model
+        
     def __len__(self):
         return self.range_dim
 
     def __repr__(self) -> str:
         return "CUQI {}: {} -> {}. Forward parameters: {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.get_non_default_args(self))
+
+class AffineModel(Model):
+    """ Model representing an affine operator, i.e. a linear operator with a fixed shift.
+
+    Parameters
+    ----------
+
+    linear_operator : 2d ndarray or callable function.
+        The linear operator. If ndarray is given, the operator is assumed to be a matrix.
+
+    shift : scalar or array_like
+        The shift to be added to the forward operator.
+
+    linear_operator_adjoint : callable function, optional
+        The adjoint of the linear operator. Used for computing gradients.
+
+    range_geometry : cuqi.geometry.Geometry
+        The geometry representing the range.
+
+    domain_geometry : cuqi.geometry.Geometry
+        The geometry representing the domain.
+
+    """
+
+    def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
+
+        if not callable(linear_operator):
+            forward_func = lambda x: self._matrix@x
+            adjoint_func = lambda y: self._matrix.T@y
+            matrix = linear_operator
+        else:
+            forward_func = linear_operator
+            adjoint_func = linear_operator_adjoint
+            matrix = None
+
+        #Check if input is callable
+        if not callable(adjoint_func):
+            raise TypeError("Adjoint of linear operator must be defined as a callable function of some kind")
+
+        # Use matrix to derive range_geometry and domain_geometry
+        if matrix is not None:
+            if range_geometry is None:
+                range_geometry = _DefaultGeometry(grid=matrix.shape[0])
+            if domain_geometry is None:
+                domain_geometry = _DefaultGeometry(grid=matrix.shape[1])  
+
+        #Initialize Model class
+        super().__init__(forward_func, range_geometry, domain_geometry)
+
+        #Add adjoint
+        self._adjoint_func = adjoint_func
+
+        #Store matrix privately
+        self._matrix = matrix
+
+        #Add gradient
+        self._gradient_func = lambda direction, wrt: self._adjoint_func(direction)
+
+        #Add shift
+        self._shift = shift
+
+    def forward(self, *args, is_par=True, **kwargs):
+        return super().forward(*args, is_par=is_par, **kwargs) + self._shift
     
-class LinearModel(Model):
+    def _forward_no_shift(self, *args, is_par=True, **kwargs):
+        """ Helper function for computing the forward operator without the shift. """
+        return super().forward(*args, is_par=is_par, **kwargs)
+    
+    def _adjoint_no_shift(self, y, is_par=True):
+        """ Helper function for computing the adjoint operator without the shift. """
+        return self._apply_func(self._adjoint_func,
+                        self.domain_geometry,
+                        self.range_geometry,
+                        y, is_par)
+
+    def get_matrix(self):
+        """ Returns the matrix representation of the linear operator. """
+
+        if self._matrix is not None: #Matrix exists so return it
+            return self._matrix
+        else:
+            #TODO: Can we compute this faster while still in sparse format?
+            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
+            e = np.zeros(self.domain_dim)
+            
+            # Stacks sparse matrices on csc matrix
+            for i in range(self.domain_dim):
+                e[i] = 1
+                col_vec = self.forward(e)
+                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
+                e[i] = 0
+
+            #Store matrix for future use
+            self._matrix = mat
+
+            return self._matrix   
+
+    def __add__(self, shift) -> Union[Model, LinearModel, SumOfModels]:
+        """ Creates an AffineModel with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
+        if isinstance(shift, numbers.Number) and shift == 0:
+            return copy(self)
+        if not isinstance(shift, numbers.Number) and infer_len(shift) != self.range_dim:
+            raise ValueError("Shift dimension does not match model range dimension.")
+        if isinstance(shift, Model):
+            return SumOfModels(self, shift)
+        if isinstance(shift, SumOfModels):
+            return SumOfModels(self, *shift._models)
+        new_model = copy(self)
+        new_model._shift = self._shift + shift
+        return new_model
+
+class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
 
     Parameters
@@ -381,43 +509,10 @@ class LinearModel(Model):
     """
     # Linear forward model with forward and adjoint (transpose).
     
-    def __init__(self,forward,adjoint=None,range_geometry=None,domain_geometry=None):
-        #Assume forward is matrix if not callable (TODO: add more checks)
-        if not callable(forward):      
-            forward_func = lambda x: self._matrix@x
-            adjoint_func = lambda y: self._matrix.T@y
-            matrix = forward
-        else:
-            forward_func = forward
-            adjoint_func = adjoint
-            matrix = None
+    def __init__(self, forward, adjoint=None, range_geometry=None, domain_geometry=None):
 
-        #Check if input is callable
-        if callable(adjoint_func) is not True:
-            raise TypeError("Adjoint needs to be callable function of some kind")
-
-        # Use matrix to derive range_geometry and domain_geometry
-        if matrix is not None:
-            if range_geometry is None:
-                range_geometry = _DefaultGeometry(grid=matrix.shape[0])
-            if domain_geometry is None:
-                domain_geometry = _DefaultGeometry(grid=matrix.shape[1])  
-
-        #Initialize Model class
-        super().__init__(forward_func,range_geometry,domain_geometry)
-
-        #Add adjoint
-        self._adjoint_func = adjoint_func
-
-        #Store matrix privately
-        self._matrix = matrix
-
-        #Add gradient
-        self._gradient_func = lambda direction, wrt: self._adjoint_func(direction)
-
-        # if matrix is not None: 
-        #     assert(self.range_dim  == matrix.shape[0]), "The parameter 'forward' dimensions are inconsistent with the parameter 'range_geometry'"
-        #     assert(self.domain_dim == matrix.shape[1]), "The parameter 'forward' dimensions are inconsistent with parameter 'domain_geometry'"
+        #Initialize as AffineModel with shift=0
+        super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
 
     def adjoint(self, y, is_par=True):
         """ Adjoint of the model.
@@ -440,38 +535,16 @@ class LinearModel(Model):
                                 self.range_geometry,
                                 y, is_par)
 
-
-    def get_matrix(self):
-        if self._matrix is not None: #Matrix exists so return it
-            return self._matrix
-        else:
-            #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.domain_dim)
-            
-            # Stacks sparse matrices on csc matrix
-            for i in range(self.domain_dim):
-                e[i] = 1
-                col_vec = self.forward(e)
-                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
-                e[i] = 0
-
-            #Store matrix for future use
-            self._matrix = mat
-
-            return self._matrix
-
     def __matmul__(self, x):
         return self.forward(x)
 
     @property
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
-        transpose = LinearModel(self.adjoint,self.forward,self.domain_geometry,self.range_geometry)
+        transpose = LinearModel(self._adjoint_func, self._forward_func, self.domain_geometry, self.range_geometry)
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
-        
 
 class PDEModel(Model):
     """
@@ -528,3 +601,158 @@ class PDEModel(Model):
     def __repr__(self) -> str:
         return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
         
+
+# TODO: Consider making a class for any combination of models
+# e.g. product of models, sum of models, etc.
+class SumOfModels:
+    """ A sum of models is defined by a list of models and represents the sum of the models.
+
+    Consider a list of models [model_1(x), model_2(y), model_3(x), ...]. The sum model is defined as
+
+    .. math::
+
+        model_{sum}(x, y) = model_1(x) + model_2(y) + model_3(x) + ...
+
+    As indicated, models with the same parameter can be used as part of the sum model.
+
+    Parameters
+    ----------
+    models : Model
+        The models to include in the sum model.
+        Each model is passed as comma-separated arguments.
+
+    Examples
+    --------
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi import LinearModel, SumOfModels
+
+        # Define two linear models
+        model_1 = Model(lambda x: x, 1, 1)
+        model_2 = Model(lambda y: y+1, 1, 1)
+
+        # Define the sum of the two models
+        # model_1 + model_2 also works
+        sum_model = SumOfModels(model_1, model_2)
+
+        # Evaluate the sum model
+        sum_model(x=1, y=2) # Returns 4
+
+        # Partial evaluation
+        sum_model(x=1) # Returns a new model with model_1(x) fixed
+        
+    """
+    def __init__(self, *models: Model):
+        self._models = list(models)
+        self._shift = 0 # Initial shift
+
+    # Options for return is SumModel, Model or float
+    def __call__(self, *args, **kwargs) -> Union[SumOfModels, Model, float]:
+        """ Evaluate the model at the given parameters. """
+
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs)
+
+        # Evaluation happens in a shallow copy of the SumModel
+        new_model = copy(self)              # Shallow copy of self
+        new_model._models = self._models[:]   # Shallow copy of models in list
+
+        # Go through each keyword argument and each model
+        for kwarg, value in kwargs.items():
+            for model in self._models:        
+                # Evaluate model if kwarg matches _non_default_args
+                if kwarg in cuqi.utilities.get_non_default_args(model):
+
+                    # make dict of kwarg and value and evaluate model
+                    new_model._shift += model(**{kwarg: value})
+                    
+                    # Remove model from list since it has been evaluated
+                    new_model._models.remove(model)
+
+        if len(new_model._models) == 0: # Model has been evaluated fully
+            return new_model._shift
+
+        if len(new_model._models) == 1: # Single model left, return it (including shift which is the other evaluated models)
+            return new_model._models[0] + new_model._shift
+
+        return new_model # Else return the SumModel
+    
+    def __add__(self, other) -> SumOfModels:
+        """ Add model or shift to the sum model. """
+        new_model = copy(self)
+        new_model._models = self._models[:]
+        if len(new_model._models) == 0:
+            new_model._models.append(other)
+            return new_model
+        if infer_len(other) != new_model.range_dim:
+            raise ValueError("SumModel: Models must have the same range dimension.")
+        if isinstance(other, Model):
+            new_model._models.append(other)
+        elif isinstance(other, SumOfModels):
+            new_model._models.extend(other._models)
+            new_model._shift += other._shift
+        else:
+            new_model._shift += other
+        return new_model
+
+    @property
+    def range_dim(self):
+        """ Return the range dimension of the sum model. """
+        return self._models[0].range_dim
+    
+    @property
+    def domain_dim(self):
+        """ Return the domain dimension of the sum model. """
+
+        # Extract domain dimensions of all models
+        domain_dims = [model.domain_dim for model in self._models]
+
+        # If only one parameter return domain dimension of model
+        if len(self._non_default_args) == 1:
+            if len(set(domain_dims)) > 1:
+                raise ValueError("SumOfModels: Models with same parameter must have the same domain dimension.")
+            return self._models[0].domain_dim
+        else: #If more than one parameter, return list of domain dimensions
+            return domain_dims
+
+    @property
+    def _non_default_args(self):
+        """ Return non-default args of all models. """
+
+        # Return non-default args of all models
+        L = [cuqi.utilities.get_non_default_args(model) for model in self._models]
+
+        # Make a single list
+        single_L = [item for sublist in L for item in sublist]
+
+        # Remove duplicates but keep order of elements
+        return list(dict.fromkeys(single_L))
+    
+    def _parse_args_add_to_kwargs(self, *args, **kwargs):
+        """ Private function that parses the input arguments of the model and adds them as keyword arguments matching the non default arguments of the forward function. """
+
+        if len(args) > 0:
+
+            if len(kwargs) > 0:
+                raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
+                
+            if len(args) != len(self._non_default_args):
+                raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model.")
+            
+            # Add args to kwargs following the order of non_default_args
+            for idx, arg in enumerate(args):
+                kwargs[self._non_default_args[idx]] = arg
+
+        return kwargs
+
+    def __len__(self):
+        return self._models[0].range_dim
+
+    def __repr__(self) -> str:
+        msg = f"{self.__class__.__name__} of {len(self._models)} models. Parameters: {self._non_default_args}. Models:\n"
+        for model in self._models:
+            msg += f"  {model}\n"
+        if self._shift != 0:
+            msg += f"Shift:  {self._shift}"
+        return msg
