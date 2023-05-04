@@ -100,7 +100,7 @@ class Samples(object):
             elif self.geometry.has_funvec:
                 par2fun = lambda par: self.geometry.fun2funvec(self.geometry.par2fun(par))
                 fun_dim = self.geometry.funvec_dim
-                pass
+
             else:
                 raise ValueError("Cannot convert the samples to function values. The geometry does not support 1D array representation of the function value.")
             
@@ -117,9 +117,15 @@ class Samples(object):
     def parameters(self):
         """If `self.is_par` is False, returns a new Samples object of sample parameters by applying :meth:`self.geometry.fun2par` on each sample. Otherwise, returns the Samples object itself."""
         if self.is_par is False:
+            if self._funvals_directly_supported:
+                fun2par = self.geometry.fun2par
+
+            elif self.geometry.has_funvec:
+                fun2par = lambda funvec: self.geometry.fun2par(self.geometry.funvec2fun(funvec))
+
             _parameters = np.empty((self.geometry.par_dim, self.Ns))
             for i, s in enumerate(self):
-                _parameters[:, i] = self.geometry.fun2par(s)
+                _parameters[:, i] = fun2par(s)
             return Samples(_parameters, is_par=True, geometry=self.geometry)
         else:
             return self
@@ -128,15 +134,23 @@ class Samples(object):
     def _geometry_dim(self):
         if self.is_par:
             return self.geometry.par_dim
-        else:
+        elif self._funvals_directly_supported:
             return self.geometry.fun_dim
-
+        elif self.geometry.has_funvec:
+            return self.geometry.funvec_dim
+        else:
+            raise ValueError("Cannot determine geometry dimension.")
+        
     @property
     def _geometry_shape(self):
         if self.is_par:
             return self.geometry.par_shape
-        else:
+        elif self._funvals_directly_supported:
             return self.geometry.fun_shape
+        elif self.geometry.has_funvec:
+            return self.geometry.funvec_shape
+        else:
+            raise ValueError("Cannot determine geometry shape.")
 
     @geometry.setter
     def geometry(self,inGeometry):
@@ -298,14 +312,18 @@ class Samples(object):
         Np = 5 # Number of samples to plot if Ns > 5
 
         self.update_plotting_dict(kwargs)
+        if kwargs['is_par'] or self._funvals_directly_supported:
+            convert = lambda x: x
+        elif self._is_funvec:
+            convert = self.geometry.funvec2fun
 
         if sample_indices is None:
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
         
-        ###
+        plot_samples = [convert(self.samples[:,idx]) for idx in sample_indices]
 
-        return self.geometry.plot(self.samples[:,sample_indices],*args,**kwargs)
+        return self.geometry.plot(plot_samples,*args,**kwargs)
 
 
     def plot_chain(self, variable_indices=None, *args, **kwargs):
