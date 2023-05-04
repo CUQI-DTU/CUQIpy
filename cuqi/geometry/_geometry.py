@@ -493,6 +493,14 @@ class Image2D(Geometry):
     @property
     def par_shape(self):
         return self._par_shape
+    
+    @property
+    def has_funvec(self):
+        return True
+    
+    @property
+    def funvec_shape(self):
+        return self.par_shape
 
     def par2fun(self, pars):
         # If geometry is only used for visualization, do nothing
@@ -506,6 +514,14 @@ class Image2D(Geometry):
         # Else, convert image into parameter vector
         return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
 
+    def funvec2fun(self, funvec):
+        """Maps function vector representation, if available, to function values."""    
+        return self.par2fun(funvec)
+        
+    def fun2funvec(self, funvals):
+        """Maps function values to a vector representation, if available."""
+        return self.fun2par(funvals)
+    
     def _vector_to_image(self, vectors):
         """ Converts a vector or multiple vectors into an image. """
         # Reshape to image (also for multiple parameter vectors). TODO: #327
