@@ -471,7 +471,9 @@ class AffineModel(Model):
             return SumOfModels(self, shift)
         if isinstance(shift, SumOfModels):
             return SumOfModels(self, *shift._models)
-        return AffineModel(self._forward_func, self._shift + shift, self._adjoint_func, self.range_geometry, self.domain_geometry)
+        new_model = copy(self)
+        new_model._shift = self._shift + shift
+        return new_model
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -657,8 +659,7 @@ class SumOfModels:
 
         # Go through each keyword argument and each model
         for kwarg, value in kwargs.items():
-            for model in self._models:
-                
+            for model in self._models:        
                 # Evaluate model if kwarg matches _non_default_args
                 if kwarg in cuqi.utilities.get_non_default_args(model):
 
