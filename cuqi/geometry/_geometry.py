@@ -75,7 +75,7 @@ class Geometry(ABC):
         self._ids = range(self.par_dim)
 
     @property
-    def has_fun_vec(self):
+    def has_funvec(self):
         """Flag to indicate whether the geometry can represent the function 
         value as a vector. This can be useful, for example, in computing
         sample statistics on function values. Default is False."""
@@ -153,13 +153,13 @@ class Geometry(ABC):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par is not implemented. Must be implemented specifically for each geometry.")
 
-    def fun2fun_vec(self, funvals):
+    def fun2funvec(self, funvals):
         """Maps function values to a vector representation, if available."""
-        raise NotImplementedError("fun2fun_vec is not implemented. Must be implemented specifically for each geometry.")
+        raise NotImplementedError("fun2funvec is not implemented. Must be implemented specifically for each geometry.")
     
-    def fun_vec2fun(self, fun_vec):
+    def funvec2fun(self, funvec):
         """Maps function vector representation, if available, to function values."""
-        raise NotImplementedError("fun_vec2fun is not implemented. Must be implemented specifically for each geometry.")
+        raise NotImplementedError("funvec2fun is not implemented. Must be implemented specifically for each geometry.")
     
     @abstractmethod
     def _plot(self):
