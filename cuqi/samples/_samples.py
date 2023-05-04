@@ -5,6 +5,7 @@ from cuqi.geometry import _DefaultGeometry, Continuous2D, Image2D
 from cuqi.array import CUQIarray
 from copy import copy
 import arviz # Plotting tool
+from numbers import Number
 
 
 class Samples(object):
@@ -321,7 +322,13 @@ class Samples(object):
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
         
+        if isinstance(sample_indices, Number):
+            sample_indices = [sample_indices]
+
         plot_samples = [convert(self.samples[:,idx]) for idx in sample_indices]
+
+        if isinstance(plot_samples[0], np.ndarray):
+            plot_samples = np.array(plot_samples).T
 
         return self.geometry.plot(plot_samples,*args,**kwargs)
 
