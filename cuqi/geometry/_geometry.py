@@ -47,6 +47,28 @@ class Geometry(ABC):
         return reduce(operator.mul, self.fun_shape) # math.prod(self.fun_shape) for Python 3.8+
 
     @property
+    def funvec_shape(self):
+        """The shape of the geometry (shape of the vector representation of the
+        function value)."""
+        if not hasattr(self,'_funvec_shape') or self._funvec_shape is None:
+            # Attempt to infer dimension
+            funvecvals = self.fun2funvec(self.par2fun(np.ones(self.par_dim)))
+            if hasattr(funvecvals, 'shape'):
+                self._funvec_shape = funvecvals.shape
+                if len(self._funvec_shape) != 1:
+                    raise ValueError("funvec_shape must be a 1D tuple.")
+            else:
+                warnings.warn("Could not infer function space shape.")
+                self._funvec_shape = None
+        return self._funvec_shape        
+
+    @property
+    def funvec_dim(self):
+        """The dimension of the geometry (function space). """
+        if self.funvec_shape is None: return None
+        return reduce(operator.mul, self.funvec_shape) 
+    
+    @property
     def variables(self):
         #No variable names set, generate variable names from dim
         if not hasattr(self,"_variables"):
