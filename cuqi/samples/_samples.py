@@ -70,7 +70,7 @@ class Samples(object):
     @is_par.setter
     def is_par(self, value):
         if value is False:
-            if not self._funvals_directly_supported and not self.geometry.has_fun_vec:
+            if not self._funvals_directly_supported and not self.geometry.has_funvec:
                 raise ValueError(
                     "Cannot set is_par to False. The geometry does not support"+
                     " 1D array representation of the function value.")
@@ -84,10 +84,10 @@ class Samples(object):
             return True
     
     @property
-    def _is_fun_vec(self):
+    def _is_funvec(self):
         return not self.is_par and\
                not self._funvals_directly_supported and\
-               self.geometry.has_fun_vec
+               self.geometry.has_funvec
 
     @property
     def funvals(self):
@@ -97,9 +97,9 @@ class Samples(object):
                 par2fun = self.geometry.par2fun
                 fun_dim = self.geometry.fun_dim
 
-            elif self.geometry.has_fun_vec:
-                par2fun = lambda par: self.geometry.fun2fun_vec(self.geometry.par2fun(par))
-                fun_dim = self.geometry.fun_vec_dim
+            elif self.geometry.has_funvec:
+                par2fun = lambda par: self.geometry.fun2funvec(self.geometry.par2fun(par))
+                fun_dim = self.geometry.funvec_dim
                 pass
             else:
                 raise ValueError("Cannot convert the samples to function values. The geometry does not support 1D array representation of the function value.")
@@ -190,8 +190,8 @@ class Samples(object):
 
         mean = self.mean()
 
-        if self._is_fun_vec:
-            mean = self.geometry.fun_vec2fun(mean)
+        if self._is_funvec:
+            mean = self.geometry.funvec2fun(mean)
 
         # Plot mean according to geometry
         ax =  self.geometry.plot(mean, *args, **kwargs)
@@ -208,8 +208,8 @@ class Samples(object):
 
         median = self.median()
 
-        if self._is_fun_vec:
-            median = self.geometry.fun_vec2fun(median)
+        if self._is_funvec:
+            median = self.geometry.funvec2fun(median)
 
         # Plot median according to geometry
         ax =  self.geometry.plot(median, *args, **kwargs)
@@ -226,8 +226,8 @@ class Samples(object):
 
         variance = self.variance()
 
-        if self._is_fun_vec:
-            variance = self.geometry.fun_vec2fun(variance)
+        if self._is_funvec:
+            variance = self.geometry.funvec2fun(variance)
 
         # Plot variance according to geometry
         ax = self.geometry.plot(variance, *args, **kwargs)
@@ -244,8 +244,8 @@ class Samples(object):
 
         ci_width = self.ci_width(percent)
 
-        if self._is_fun_vec:
-            ci_width = self.geometry.fun_vec2fun(ci_width)
+        if self._is_funvec:
+            ci_width = self.geometry.funvec2fun(ci_width)
 
         # Plot width of credibility intervals according to geometry
         ax = self.geometry.plot(ci_width, *args, **kwargs)
@@ -285,8 +285,8 @@ class Samples(object):
         # Compute std assuming samples are index in last dimension of nparray
         std = np.std(self.samples,axis=-1)
 
-        if self._is_fun_vec:
-            std = self.geometry.fun_vec2fun(std)
+        if self._is_funvec:
+            std = self.geometry.funvec2fun(std)
 
         # Plot mean according to geometry
         ax = self.geometry.plot(std, *args, **kwargs)
