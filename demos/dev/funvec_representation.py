@@ -2,7 +2,7 @@
 funvec variable representation supported by CUQIpy Geometry classes
 ====================================================================
 
-    In this demo we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and the function value representation). This representation, called funvec, is a vector represnetation of the function values. The function values generally can be an n-dimensional array or any other type of object. When possible, funvec is used to represent the function values as a vector (1D) array. funvec, is meant to be used internally by other CUQIpy classes and is not expected to be of interest to the typical user. In particular, funvec is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. 
+    In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and the function value representation). This representation, called funvec, is a vector represnetation of the function values. The function values generally can be an n-dimensional array or any other type of object. When possible, funvec is used to represent the function values as a vector (1D) array. funvec, is meant to be used internally by other CUQIpy classes and is not expected to be of interest to the typical user. In particular, funvec is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. 
 """
 # %%
 # Import the necessary modules
