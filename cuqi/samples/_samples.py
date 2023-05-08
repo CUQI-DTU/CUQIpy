@@ -71,6 +71,8 @@ class Samples(object):
     @is_par.setter
     def is_par(self, value):
         if value is False:
+            # Check if the geometry supports 1D array representation
+            # of the function value
             if not self._funvals_directly_supported and not self.geometry.has_funvec:
                 raise ValueError(
                     "Cannot set is_par to False. The geometry does not support"+
@@ -79,6 +81,8 @@ class Samples(object):
 
     @property
     def _funvals_directly_supported(self):
+        """Returns True if the geometry function value representation is
+        a 1D array. Otherwise, returns False."""
         if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
             return False
         else:
@@ -86,6 +90,9 @@ class Samples(object):
     
     @property
     def _is_funvec(self):
+        """Returns True if the samples values are vector representations 
+        of the function values (obtained through the geometry method
+        `fun2funvec`). Otherwise, returns False."""
         return not self.is_par and\
                not self._funvals_directly_supported and\
                self.geometry.has_funvec
@@ -93,7 +100,11 @@ class Samples(object):
     @property
     def funvals(self):
         """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself.""" 
+
+        # If the samples are parameters, convert them to function values
         if self.is_par is True:
+
+            #Set the conversion method par2fun and the function value dimension
             if self._funvals_directly_supported:
                 par2fun = self.geometry.par2fun
                 fun_dim = self.geometry.fun_dim
@@ -105,29 +116,41 @@ class Samples(object):
             else:
                 raise ValueError("Cannot convert the samples to function values. The geometry does not support 1D array representation of the function value.")
             
+            # Convert the samples to function values
             _funvals = np.empty((fun_dim, self.Ns))
             for i, par in enumerate(self):
                 _funvals[:, i] = par2fun(par)
-
+            
+            # Create and return a new Samples object of function values
             return Samples(_funvals, is_par=False,
                            geometry=self.geometry)
+        
+        # If the samples are function values, return the Samples object itself
         else:
             return self
 
     @property
     def parameters(self):
         """If `self.is_par` is False, returns a new Samples object of sample parameters by applying :meth:`self.geometry.fun2par` on each sample. Otherwise, returns the Samples object itself."""
+
+        # If the samples are function values, convert them to parameters
         if self.is_par is False:
+            # Set the conversion method fun2par 
             if self._funvals_directly_supported:
                 fun2par = self.geometry.fun2par
 
             elif self.geometry.has_funvec:
                 fun2par = lambda funvec: self.geometry.fun2par(self.geometry.funvec2fun(funvec))
-
+            
+            # Convert the samples to parameter values
             _parameters = np.empty((self.geometry.par_dim, self.Ns))
             for i, s in enumerate(self):
                 _parameters[:, i] = fun2par(s)
+
+            # Create and return a new Samples object of parameters
             return Samples(_parameters, is_par=True, geometry=self.geometry)
+        
+        # If the samples are parameters, return the Samples object itself
         else:
             return self
 
@@ -313,26 +336,23 @@ class Samples(object):
         Np = 5 # Number of samples to plot if Ns > 5
 
         self.update_plotting_dict(kwargs)
-        if kwargs['is_par'] or self._funvals_directly_supported:
-            convert = lambda x: x
-        elif self._is_funvec:
-            convert = self.geometry.funvec2fun
 
         if sample_indices is None:
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
-        
-        if isinstance(sample_indices, Number):
-            sample_indices = [sample_indices]
+        plot_samples = self.samples[:,sample_indices]
 
-        plot_samples = [convert(self.samples[:,idx]) for idx in sample_indices]
-
-        if isinstance(plot_samples[0], np.ndarray):
-            plot_samples = np.array(plot_samples).T
+        if self._is_funvec:
+            if len(plot_samples.shape)==1:
+                plot_samples = plot_samples.reshape(-1,1)
+                
+            plot_samples = [self.geometry.funvec2fun(plot_samples[:,idx])
+                            for idx in range(plot_samples.shape[1])]
+            if isinstance(plot_samples[0], np.ndarray):
+                plot_samples = np.array(plot_samples).T
 
         return self.geometry.plot(plot_samples,*args,**kwargs)
-
-
+        
     def plot_chain(self, variable_indices=None, *args, **kwargs):
         dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
