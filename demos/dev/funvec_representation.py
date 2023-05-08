@@ -58,14 +58,14 @@ samples_1D_funvals = samples_1D.funvals
 samples_2D_funvals = samples_2D.funvals
 
 # %%
-# query the `shape` of the `funvals`` for both geometries
+# query the `shape` of the `funvals` for both geometries
 print(samples_1D_funvals.shape)
 print(samples_2D_funvals.shape)
 
 # %%
 # Note that the `funvals` `shape` for the 2D geometry is (9, 5) and not (3, 3, 5).
-# To understand why this is the case, we query the `funvals` samples' 
-# `_funvals_directly_supported` property.
+# To understand why this is the case, we query the `funvals` 
+# samples'`_funvals_directly_supported` property.
 print(samples_1D_funvals._funvals_directly_supported)
 print(samples_2D_funvals._funvals_directly_supported)
 
@@ -77,8 +77,9 @@ print(samples_2D_funvals._funvals_directly_supported)
 #
 # However, `Samples` class can use `fun2funvec` methods of the geometry to convert to 
 # function value to a vector representation of the these values. In the `Image2D`
-# geometry, this is done by flattening the 2D array of function values, thus
-# we see that the shape of the funvals is (9, 5) and not (3, 3, 5).
+# geometry, this is done by flattening the 2D array of the function value 
+# representation, thus we see that the shape of the funvals is (9, 5) and not
+# (3, 3, 5).
 # 
 # The flag `is_funvec` is used to indicate whether the samples `funvals` are in 
 # funvec representation or not (i.e. obtained using `fun2funvec` methods or not). 
@@ -128,4 +129,4 @@ samples_2D_funvals.plot_variance()
 plt.colorbar()
 
 # %%
-# Note that in both cases the mean and variance computed on parameter values are not the same as the ones computed on function values. This is because computing the mean and variance on the parameter values then converting the results to a function value is not equivalent to computing the mean and variance on the function values in this case, due to the nonlinear mapping `lambda x: x**2`. Also not that internally, the mean and variance computed on the function values are computed on the vector representation of the function values, then plotted as functions (2D image in this case).
+# Note that in both cases the mean and variance computed on parameter values are not the same as the ones computed on function values. This is because computing the mean and variance on the parameter values then converting the results to a function value is not equivalent to computing the mean and variance directly on the function values in this case, due to the nonlinear mapping `lambda x: x**2`. Also note that, internally, the mean and variance computed on the function values are computed on the vector representation of the function values, then plotted as functions (2D image in this case).
