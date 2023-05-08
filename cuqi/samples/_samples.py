@@ -341,7 +341,8 @@ class Samples(object):
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
         plot_samples = self.samples[:,sample_indices]
-
+        
+        # If samples are funvecs, we need to convert them to funs
         if self._is_funvec:
             if len(plot_samples.shape)==1:
                 plot_samples = plot_samples.reshape(-1,1)
@@ -351,6 +352,7 @@ class Samples(object):
             if isinstance(plot_samples[0], np.ndarray):
                 plot_samples = np.array(plot_samples).T
 
+        # Plot samples according to geometry
         return self.geometry.plot(plot_samples,*args,**kwargs)
         
     def plot_chain(self, variable_indices=None, *args, **kwargs):
