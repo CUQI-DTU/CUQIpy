@@ -64,7 +64,8 @@ class Geometry(ABC):
 
     @property
     def funvec_dim(self):
-        """The dimension of the geometry (function space). """
+        """The dimension of the geometry (dimension of the vector representation
+        of the function value). """
         if self.funvec_shape is None: return None
         return reduce(operator.mul, self.funvec_shape) 
     
@@ -176,7 +177,7 @@ class Geometry(ABC):
         raise NotImplementedError("fun2par is not implemented. Must be implemented specifically for each geometry.")
 
     def fun2funvec(self, funvals):
-        """Maps function values to a vector representation, if available."""
+        """Maps function values to a vector representation of the function values, if available."""
         raise NotImplementedError("fun2funvec is not implemented. Must be implemented specifically for each geometry.")
     
     def funvec2fun(self, funvec):
@@ -519,7 +520,7 @@ class Image2D(Geometry):
         return self.par2fun(funvec)
         
     def fun2funvec(self, funvals):
-        """Maps function values to a vector representation, if available."""
+        """Maps function values to a vector representation of the function values, if available."""
         return self.fun2par(funvals)
     
     def _vector_to_image(self, vectors):
