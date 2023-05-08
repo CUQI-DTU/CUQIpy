@@ -180,7 +180,7 @@ class Samples(object):
     def geometry(self,inGeometry):
         self._geometry = inGeometry
 
-    def update_plotting_dict(self, plotting_dict):
+    def _update_plotting_dict(self, plotting_dict):
         """Updates the plotting dictionary by setting the is_par attribute
         of plotting_dict to the value of self.is_par"""
         if "is_par" in plotting_dict.keys():
@@ -224,7 +224,7 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self.update_plotting_dict(kwargs)
+        self._update_plotting_dict(kwargs)
 
         mean = self.mean()
 
@@ -242,7 +242,7 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self.update_plotting_dict(kwargs)
+        self._update_plotting_dict(kwargs)
 
         median = self.median()
 
@@ -260,7 +260,7 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self.update_plotting_dict(kwargs)
+        self._update_plotting_dict(kwargs)
 
         variance = self.variance()
 
@@ -278,7 +278,7 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self.update_plotting_dict(kwargs)
+        self._update_plotting_dict(kwargs)
 
         ci_width = self.ci_width(percent)
 
@@ -319,7 +319,7 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self.update_plotting_dict(kwargs)
+        self._update_plotting_dict(kwargs)
         # Compute std assuming samples are index in last dimension of nparray
         std = np.std(self.samples,axis=-1)
 
@@ -335,7 +335,7 @@ class Samples(object):
         Ns = self.Ns
         Np = 5 # Number of samples to plot if Ns > 5
 
-        self.update_plotting_dict(kwargs)
+        self._update_plotting_dict(kwargs)
 
         if sample_indices is None:
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
@@ -422,8 +422,8 @@ class Samples(object):
         # is_par is determined automatically from self.is_par 
         # Depending on the value of self.is_par, the computed statistics below
         # (mean, lo_conf,up_conf) are either parameter values or function values
-        self.update_plotting_dict(kwargs)
-        self.update_plotting_dict(pe_kwargs)
+        self._update_plotting_dict(kwargs)
+        self._update_plotting_dict(pe_kwargs)
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
         if not self.is_par:
