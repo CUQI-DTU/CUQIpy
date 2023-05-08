@@ -6,27 +6,28 @@ import matplotlib.pyplot as plt
 from cuqi import geometry
 from cuqi.samples import Samples
 
-
-@pytest.mark.parametrize("is_par,plot_par",	[(True,False),(True,True),(False,False),(False,True)])
+@pytest.mark.parametrize("to_funvals,plot_par",	[(True,False),(True,True),(False,False),(False,True)])
 @pytest.mark.parametrize("geom",[
 						(cuqi.geometry.Discrete(1)),
-						(cuqi.geometry.Discrete(1)),
 						(cuqi.geometry.Discrete(3)),
-						(cuqi.geometry.Continuous1D(1)),
 						(cuqi.geometry.Continuous1D(1)),
 						(cuqi.geometry.Continuous1D(3)),
                         (cuqi.geometry.Image2D((3,3))),
 						])
-def test_samples_plot(geom, is_par, plot_par):
+def test_samples_plot(geom, to_funvals, plot_par):
+    # Make basic distribution and sample
     dim = geom.par_dim
     x = cuqi.distribution.Normal(np.zeros(dim),np.ones(dim),geometry=geom)
     s = x.sample(10)
-    if not is_par:
+
+    # Convert to funvals if requested
+    if to_funvals:
         s = s.funvals
 
-    # Verify asking for plot_par when samples are funvals raises error
-    if not is_par and plot_par:
-        with pytest.raises(Exception,match=r"Plot par is true, but is_par is false"):
+    # Verify that asking for plotting in the parameter space when samples
+    # are funvals raises error
+    if to_funvals and plot_par:
+        with pytest.raises(Exception, match=r"Plot par is true, but is_par is false"):
             s.plot(plot_par=plot_par)
         return
     
@@ -39,12 +40,13 @@ def test_samples_plot(geom, is_par, plot_par):
         s.plot([0,2],plot_par=plot_par)
         s.plot_chain([0,2])
     
-    # Verify passing is_par raises error
+    # Verify passing is_par raises error (because is_par is determined by
+    # the type of the samples)
     with pytest.raises(ValueError,match=r"Cannot pass is_par as a plotting argument"):
-        s.plot(is_par=is_par,plot_par=plot_par)
+        s.plot(is_par=not to_funvals,plot_par=plot_par)
 
-@pytest.mark.parametrize("funvals, plot_par", [(True,False),(True,True),(False,False),(False,True)])
-@pytest.mark.parametrize("plot_method, value_type_supported",
+@pytest.mark.parametrize("to_funvals, plot_par", [(True,False),(True,True),(False,False),(False,True)])
+@pytest.mark.parametrize("plot_method, plot_par_supported",
                          [(Samples.plot_autocorrelation, False),
                           (Samples.plot_trace, False),
                           (Samples.plot_violin, False),
@@ -62,35 +64,42 @@ def test_samples_plot(geom, is_par, plot_par):
                              cuqi.geometry.Image2D((3,3)),
                              map=lambda x: x**2+2))
 						])
-def test_samples_plot_methods(geom, funvals, plot_par, plot_method, value_type_supported):
+def test_samples_plot_methods(geom, to_funvals, plot_par, plot_method, plot_par_supported):
+    """Test Samples class plotting methods"""
+
+    # Make basic distribution and sample
     np.random.seed(0)
     dim = geom.par_dim
     x = cuqi.distribution.Normal(np.zeros(dim),np.ones(dim),geometry=geom)
     s = x.sample(10)
-    if funvals:
+
+    # Convert to funvals if requested
+    if to_funvals:
         s = s.funvals
 
     # Verify asking for plot_par when samples are funvals raises error
-    if funvals and plot_par:
-        if value_type_supported:
+    if to_funvals and plot_par:
+        if plot_par_supported:
+            # The case of plotting methods that support plot_par
             with pytest.raises(Exception, match=r"Plot par is true, but is_par is false"):
                 plot_method(s, plot_par=plot_par)
             return
         else:
+            # The case of plotting methods that do not support plot_par
             with pytest.raises(TypeError, match=r"got an unexpected keyword argument"):
                 plot_method(s, plot_par=plot_par)
             return
     
     # Verify passing is_par raises error
-    if value_type_supported:
+    if plot_par_supported:
         with pytest.raises(ValueError,match=r"Cannot pass is_par as a plotting argument"):
-            plot_method(s, is_par=not funvals, plot_par=plot_par)
+            plot_method(s, is_par=not to_funvals)
     else:
         with pytest.raises(TypeError,match=r"got an unexpected keyword argument"):
-            plot_method(s, is_par=not funvals, plot_par=plot_par)
+            plot_method(s, is_par=not to_funvals)
     
     #Verify plotting method works
-    if not value_type_supported:
+    if not plot_par_supported:
         plot_method(s)
     else:
         plot_method(s, plot_par=plot_par)
@@ -202,10 +211,13 @@ def test_ess():
                                           cuqi.geometry.Image2D((4,3)), map=lambda x: x**2+1)])
 def test_samples_funvals(geometry):
     """Test that the function values are computed correctly."""
+    # Generate some random samples
     Ns = 10
     samples = cuqi.samples.Samples(
         np.random.randn(geometry.par_dim, Ns), geometry=geometry)
 
+    # Determine the method to convert from parameter to function values
+    # and the dimension of the function values
     if samples._funvals_directly_supported:
         par2fun = geometry.par2fun
         dim = geometry.fun_dim
@@ -213,10 +225,12 @@ def test_samples_funvals(geometry):
         par2fun = lambda par: geometry.fun2funvec(geometry.par2fun(par))
         dim = geometry.funvec_dim
 
+    # Compute the function values
     funvals = np.empty((dim, Ns))
     for i, s in enumerate(samples):
         funvals[:, i] = par2fun(s)
 
+    # Check that the funvals property is implemented correctly
     assert np.allclose(samples.funvals.samples, funvals)
 
 
