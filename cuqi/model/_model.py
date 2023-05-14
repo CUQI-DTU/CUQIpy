@@ -557,18 +557,16 @@ class PDEModel(Model):
     :meth:`range_dim` the dimension of the range.
     :meth:`domain_dim` the dimension of the domain.
     """
-    def __init__(self, PDE, range_geometry, domain_geometry):
-        #....
-        if not isinstance(PDE,cuqi.pde.PDE):
+    def __init__(self, PDE: cuqi.pde.PDE, range_geometry, domain_geometry):
+
+        if not isinstance(PDE, cuqi.pde.PDE):
             raise ValueError("PDE needs to be a cuqi PDE.")
 
-        super().__init__(self._forward_func, range_geometry, domain_geometry)
+        super().__init__(self._forward_func, range_geometry, domain_geometry, gradient=self._gradient_func)
 
         self.pde = PDE
-        if hasattr(self.pde, "gradient_wrt_parameter"):
-            self._gradient_func = self.pde.gradient_wrt_parameter
 
-    def _forward_func(self,x):
+    def _forward_func(self, x):
         
         self.pde.assemble(parameter=x)
 
@@ -577,6 +575,15 @@ class PDEModel(Model):
         obs = self.pde.observe(sol)
 
         return obs
+    
+    def _gradient_func(self, direction, wrt):
+        """ Compute direction-Jacobian product (gradient) of the model. """
+        if hasattr(self.pde, "gradient_wrt_parameter"):
+            return self.pde.gradient_wrt_parameter(direction, wrt)
+        elif hasattr(self.pde, "jacobian_wrt_parameter"):
+            return direction@self.pde.jacobian_wrt_parameter(wrt)
+        else:
+            raise NotImplementedError("Gradient is not implemented for this model.")
 
     # Add the underlying PDE class name to the repr.
     def __repr__(self) -> str:
