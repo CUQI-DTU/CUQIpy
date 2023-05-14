@@ -38,25 +38,60 @@ class Model(object):
         automatically and thus the gradient function should not be specified when the Jacobian
         function is specified.
 
-    Attributes
-    -----------
-    range_geometry : cuqi.geometry.Geometry
-        The geometry representing the range.
+    Example
+    -------
 
-    domain_geometry : cuqi.geometry.Geometry
-        The geometry representing the domain.
+    Consider a forward model :math:`F: \mathbb{R}^2 \rightarrow \mathbb{R}` defined by the following forward operator:
 
-    Methods
-    -----------
-    :meth:`forward` the forward operator.
-    :meth:`range_dim` the dimension of the range.
-    :meth:`domain_dim` the dimension of the domain.
+    .. math::
+
+        F(x) = 10x_2 - 10x_1^3 + 5x_1^2 + 6x_1
+
+    The jacobian matrix of the forward operator is given by:
+
+    .. math::
+
+        J_F(x) = \\begin{bmatrix} -30x_1^2 + 10x_1 + 6 & 10 \\end{bmatrix}
+
+    The forward model can be defined as follows:
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi.model import Model
+
+        def forward(x):
+            return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
+
+        def jacobian(x): # Can use "x" or "wrt" as the input argument name
+            return np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
+
+        model = Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian)
+
+    Alternatively, the gradient information in the forward model can be defined by direction-Jacobian product using the gradient keyword argument.
+
+    This may be more efficient if forming the Jacobian matrix is expensive.
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi.model import Model
+
+        def forward(x):
+            return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
+
+        def gradient(direction, wrt):
+            # Direction-Jacobian product direction@jacobian(wrt)
+            return direction@np.array([[-30*wrt[0]**2 + 10*wrt[0] + 6, 10]])
+
+        model = Model(forward, range_geometry=1, domain_geometry=2, gradient=gradient)
+
     """
     def __init__(self, forward, range_geometry, domain_geometry, gradient=None, jacobian=None):
 
         #Check if input is callable
         if callable(forward) is not True:
-            raise TypeError("Forward needs to be callable function of some kind")
+            raise TypeError("Forward needs to be callable function.")
         
         # Check if only one of gradient and jacobian is given
         if (gradient is not None) and (jacobian is not None):
@@ -64,10 +99,10 @@ class Model(object):
         
         #Check if input is callable
         if (gradient is not None) and (callable(gradient) is not True):
-            raise TypeError("Gradient needs to be callable function of some kind")
+            raise TypeError("Gradient needs to be callable function.")
         
         if (jacobian is not None) and (callable(jacobian) is not True):
-            raise TypeError("Jacobian needs to be callable function of some kind")
+            raise TypeError("Jacobian needs to be callable function.")
         
         # Use jacobian function to specify gradient function (vector-Jacobian product)
         if jacobian is not None:
@@ -278,7 +313,7 @@ class Model(object):
         return self.forward(*args, **kwargs)
 
     def gradient(self, direction, wrt, is_direction_par=True, is_wrt_par=True):
-        """ Gradient of the forward operator.
+        """ Gradient of the forward operator (Direction-Jacobian product)
 
         For non-linear models the gradient is computed using the
         forward operator and the Jacobian of the forward operator.
