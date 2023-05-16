@@ -169,7 +169,7 @@ CUQIpy Plugins
 
 A number of plugins are available as separate packages that expand the functionality of CUQIpy:
 
-   - `CUQIpy-CIL: <https://github.com/CUQI-DTU/CUQIpy-CIL>`_   A plugin for the Core Imaging Library `(CIL) <https://ccpi.ac.uk/cil/>`_ providing access to forward models for X-ray computed tomography.
+   - `CUQIpy-CIL: <https://github.com/CUQI-DTU/CUQIpy-CIL>`_ A plugin for the Core Imaging Library `(CIL) <https://ccpi.ac.uk/cil/>`_ providing access to forward models for X-ray computed tomography.
 
    - `CUQIpy-FEniCS: <https://github.com/CUQI-DTU/CUQIpy-FEniCS>`_ A plugin providing access to the finite element modelling tool `FEniCS <https://fenicsproject.org>`_, which is used for solving PDE-based inverse problems.
 
