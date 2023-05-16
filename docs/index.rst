@@ -15,7 +15,7 @@ in a Bayesian inference framework. CUQIpy provides a simple high-level
 interface to perform UQ analysis of inverse problems, while still
 allowing full control of the models and methods. The package comes equipped with a number of predefined distributions,
 samplers, models and test problems and is built to be easily further
-extended when needed.
+extended when needed. A number of `CUQIpy Plugins`_ are available as separate packages that expand the functionality of CUQIpy.
 
 
 This software package is part of the `CUQI
@@ -28,7 +28,8 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 :ref:`Installation <install>` |
 :doc:`Tutorials <user/_auto_tutorials/index>` |
 :doc:`How-To Guides <user/_auto_howtos/index>` |
-`Source Repository <https://github.com/CUQI-DTU/CUQIpy>`_
+`Source Repository <https://github.com/CUQI-DTU/CUQIpy>`_ |
+`CUQIpy Plugins`_
 
 
 
@@ -160,6 +161,20 @@ Image deconvolution with uncertainty quantification
 .. image:: _static/img/deconv2D_post_std.png
    :width: 49.5%
    :alt: Posterior standard deviation
+
+
+
+CUQIpy Plugins
+--------------
+
+A number of plugins are available as separate packages that expand the functionality of CUQIpy:
+
+   - `CUQIpy-CIL: <https://github.com/CUQI-DTU/CUQIpy-CIL>`_   A plugin for the Core Imaging Library `(CIL) <https://ccpi.ac.uk/cil/>`_ providing access to forward models for X-ray computed tomography.
+
+   - `CUQIpy-FEniCS: <https://github.com/CUQI-DTU/CUQIpy-FEniCS>`_ A plugin providing access to the finite element modelling tool `FEniCS <https://fenicsproject.org>`_, which is used for solving PDE-based inverse problems.
+
+   - `CUQIpy-PyTorch: <https://github.com/CUQI-DTU/CUQIpy-PyTorch>`_ A plugin providing access to the automatic differentiation framework of `PyTorch <https://pytorch.org>`_ within CUQIpy. It allows gradient-based sampling methods without manually providing derivative information of distributions and forward models.
+
 
 Contributors
 ------------
