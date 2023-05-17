@@ -346,7 +346,7 @@ class Model(object):
         return self.range_dim
 
     def __repr__(self) -> str:
-        return "CUQI {}: {} -> {}. Forward parameters: {}".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.get_non_default_args(self))
+        return "CUQI {}: {} -> {}.\n    Forward parameters: {}.".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.get_non_default_args(self))
     
 class LinearModel(Model):
     """Model based on a Linear forward operator.
@@ -526,5 +526,5 @@ class PDEModel(Model):
 
     # Add the underlying PDE class name to the repr.
     def __repr__(self) -> str:
-        return super().__repr__()+". PDE: {}".format(self.pde.__class__.__name__)
+        return super().__repr__()+"\n    PDE: {}.".format(self.pde.__class__.__name__)
         
