@@ -245,7 +245,7 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
     # 6 Compare the obtained solution with previously stored solution
     solution_file = copy_reference("data/Heat1D_5solutions.npz")
     expected_sols = np.load(solution_file)
-    assert(np.allclose(sol, expected_sols[expected_sol]))
+    assert(np.allclose(sol[:,-1], expected_sols[expected_sol]))
 
 @pytest.mark.xfail(reason="Test fails due to difficult to compare values (1e-6 to 1e-42)")
 def test_TimeDependentLinearPDE_wave1D(copy_reference):
