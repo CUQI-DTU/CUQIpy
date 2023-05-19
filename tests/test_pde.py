@@ -188,7 +188,17 @@ def test_observe():
                               'initial_condition', 'sol3'),
                              ('backward_euler', 'fixed', 'source_term1', 'sol4'),
                              ('backward_euler', 'fixed', 'source_term2', 'sol5')])
-def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, parametrization, expected_sol):
+@pytest.mark.parametrize("grid_obs, time_obs, observation_map, expected_obs",
+                         [(None, None, None, 'obs1'),
+                          (None, None, lambda x: x**2, 'obs2'),
+                          ('half_grid', None, None, 'obs3'),
+                          ('half_grid', 'every_5', None, 'obs4'),
+                          (None, 'every_5', lambda x: x**2, 'obs5'),
+                          (np.array([3,4.9]), np.array([0.9, 1]), lambda x: x**2, 'obs6')])
+def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
+                                       parametrization, expected_sol,
+                                       grid_obs, time_obs, observation_map,
+                                       expected_obs):
     """ Compute the final time solution of a 1D heat equation and
         compare it with previously stored solution (for 5 different set up choices).
     """
@@ -197,6 +207,7 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
     L = 5  # 1D domain length
     max_time = 1  # Final time
     dx = L/(dim+1)   # Space step size
+    grid_sol = np.linspace(dx, L-dx, dim)  # Solution grid
 
     if method == 'forward_euler':
         cfl = 5/11  # The cfl condition to have a stable solution
@@ -234,9 +245,19 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
         elif parametrization == 'source_term2':
             parameters = np.ones(dim)
 
+    # 4. Set up the observation parameters
+    if grid_obs == 'half_grid':
+        grid_obs = grid_sol[int(dim/2):]
+
+    if time_obs == 'every_5':
+        time_obs = time_steps[::5]
+
     # 4. Create a PDE object
     PDE = cuqi.pde.TimeDependentLinearPDE(
-        PDE_form, time_steps, method=method)
+        PDE_form, time_steps, method=method,
+        grid_sol=grid_sol,
+        grid_obs=grid_obs, time_obs=time_obs,
+        observation_map=observation_map)
 
     # 5 Solve the PDE
     PDE.assemble(parameters)
@@ -246,6 +267,36 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps, param
     solution_file = copy_reference("data/Heat1D_5solutions.npz")
     expected_sols = np.load(solution_file)
     assert(np.allclose(sol[:,-1], expected_sols[expected_sol]))
+
+    # Assert that the observed solution is correct
+    obs_sol = PDE.observe(sol)
+    if time_obs is None:
+        time_obs = [time_steps[-1]]
+    if grid_obs is None:
+        grid_obs = grid_sol
+
+    idx_x = [True if x in grid_obs else False for x in grid_sol] 
+    idx_t = [True if t in time_obs else False for t in time_steps]
+
+    if sum(idx_x) == 0 or sum(idx_t) == 0:
+        expected_observed_sol = scipy.interpolate.RectBivariateSpline(
+            grid_sol, time_steps, sol)(grid_obs, time_obs
+        )
+    else:
+        expected_observed_sol = sol[idx_x,:][:,idx_t]
+
+    if observation_map is not None:
+        expected_observed_sol = observation_map(expected_observed_sol)
+    
+    # load expected observed solution
+    obs_sol_file = copy_reference("data/Heat1D_data/Heat1D_obs_sol_"\
+                                  +expected_sol+"_"\
+                                  +expected_obs+".npz")
+    expected_observed_sol_from_file = np.load(obs_sol_file)["obs_sol"]                                    
+
+    assert(np.allclose(obs_sol, expected_observed_sol))
+    assert(np.allclose(obs_sol, expected_observed_sol_from_file))
+
 
 @pytest.mark.xfail(reason="Test fails due to difficult to compare values (1e-6 to 1e-42)")
 def test_TimeDependentLinearPDE_wave1D(copy_reference):
