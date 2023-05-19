@@ -199,11 +199,14 @@ class TimeDependentLinearPDE(LinearPDE):
     See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
     """
 
-    def __init__(self, PDE_form, time_steps, method='forward_euler', **kwargs):
+    def __init__(self, PDE_form, time_steps, time_obs=None, method='forward_euler', **kwargs):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
         self.method = method
+        if time_obs is None:
+            time_obs = time_steps[-1]
+        self._time_obs = time_obs
 
     @property
     def method(self):
@@ -226,35 +229,38 @@ class TimeDependentLinearPDE(LinearPDE):
 
     def solve(self):
         """Solve PDE by time-stepping"""
+        # initialize time-dependent solution
+        self.assemble_step(self.time_steps[0])
+        u = np.empty((len(self.initial_condition), len(self.time_steps)))
+        u[:, 0] = self.initial_condition
 
         if self.method == 'forward_euler':
             for idx, t in enumerate(self.time_steps[:-1]):
                 dt = self.time_steps[idx+1] - t
                 self.assemble_step(t)
-                if idx == 0:
-                    u = self.initial_condition
-                u = (dt*self.diff_op + np.eye(len(u)))@u + dt*self.rhs  # from u at time t, gives u at t+dt
+                u_pre = u[:, idx]
+                u[:, idx+1] = (dt*self.diff_op + np.eye(len(u_pre)))@u_pre + dt*self.rhs  # from u at time t, gives u at t+dt
             info = None
 
         if self.method == 'backward_euler':
             for idx, t in enumerate(self.time_steps[1:]):
                 dt = t - self.time_steps[idx]
                 self.assemble_step(t)
-                if idx == 0:
-                    u = self.initial_condition
-                A = np.eye(len(u)) - dt*self.diff_op
+                u_pre = u[:, idx]
+                A = np.eye(len(u_pre)) - dt*self.diff_op
                 # from u at time t-dt, gives u at t
-                u, info = self._solve_linear_system(
-                    A, u + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+                u[:, idx+1], info = self._solve_linear_system(
+                    A, u_pre + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
 
         return u, info
 
     def observe(self, solution):
             
-        if self.grids_equal:
-            solution_obs = solution
+        if self.grids_equal and np.all(self.time_steps[-2:-1] == self._time_obs):
+            solution_obs = solution[:, -1]
         else:
-            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
+            solution_obs = scipy.interpolate.RectBivariateSpline(
+                self.grid_sol, self.time_steps)(self.grid_obs, self._time_obs)
 
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs)
