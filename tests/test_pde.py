@@ -181,20 +181,22 @@ def test_observe():
     assert(np.all(np.isclose(observed_sol, expected_observed_sol)))
 
 
-@pytest.mark.parametrize("method, time_steps, parametrization, expected_sol",
-                         [('forward_euler', 'fixed', 'initial_condition', 'sol1'),
-                          ('backward_euler', 'fixed', 'initial_condition', 'sol2'),
-                             ('backward_euler', 'varying',
-                              'initial_condition', 'sol3'),
-                             ('backward_euler', 'fixed', 'source_term1', 'sol4'),
-                             ('backward_euler', 'fixed', 'source_term2', 'sol5')])
-@pytest.mark.parametrize("grid_obs, time_obs, observation_map, expected_obs",
-                         [(None, 'last', None, 'obs1'),
-                          (None, 'last', lambda x: x**2, 'obs2'),
-                          ('half_grid', 'LAST', None, 'obs3'),
-                          ('half_grid', 'every_5', None, 'obs4'),
-                          (None, 'every_5', lambda x: x**2, 'obs5'),
-                          (np.array([3,4.9]), np.array([0.9, 1]), lambda x: x**2, 'obs6')])
+@pytest.mark.parametrize(
+    "method, time_steps, parametrization, expected_sol",
+    [('forward_euler', 'fixed', 'initial_condition', 'sol1'),
+     ('backward_euler', 'fixed', 'initial_condition', 'sol2'),
+     ('backward_euler', 'varying',
+      'initial_condition', 'sol3'),
+     ('backward_euler', 'fixed', 'source_term1', 'sol4'),
+     ('backward_euler', 'fixed', 'source_term2', 'sol5')])
+@pytest.mark.parametrize(
+    "grid_obs, time_obs, observation_map, expected_obs",
+    [(None, 'last', None, 'obs1'),
+     (None, 'last', lambda x: x**2, 'obs2'),
+     ('half_grid', 'LAST', None, 'obs3'),
+     ('half_grid', 'every_5', None, 'obs4'),
+     (None, 'every_5', lambda x: x**2, 'obs5'),
+     (np.array([3, 4.9]), np.array([0.9, 1]), lambda x: x**2, 'obs6')])
 def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
                                        parametrization, expected_sol,
                                        grid_obs, time_obs, observation_map,
@@ -266,9 +268,9 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
     # 7. Compare the obtained solution with previously stored solution
     solution_file = copy_reference("data/Heat1D_data/Heat1D_5solutions.npz")
     expected_sols = np.load(solution_file)
-    assert(np.allclose(sol[:,-1], expected_sols[expected_sol]))
+    assert (np.allclose(sol[:, -1], expected_sols[expected_sol]))
 
-    # 8. Compute the observed solution and compare it with previously 
+    # 8. Compute the observed solution and compare it with previously
     # stored solution
 
     # compute the observed solution using the PDE object
@@ -280,34 +282,34 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
     if grid_obs is None:
         grid_obs = grid_sol
 
-    idx_x = [True if x in grid_obs else False for x in grid_sol] 
+    idx_x = [True if x in grid_obs else False for x in grid_sol]
     idx_t = [True if t in time_obs else False for t in time_steps]
 
     if sum(idx_x) != len(grid_obs) or sum(idx_t) != len(time_obs):
         expected_observed_sol = scipy.interpolate.RectBivariateSpline(
             grid_sol, time_steps, sol)(grid_obs, time_obs
-        )
+                                       )
     else:
-        expected_observed_sol = sol[idx_x,:][:,idx_t]
+        expected_observed_sol = sol[idx_x, :][:, idx_t]
 
     if observation_map is not None:
         expected_observed_sol = observation_map(expected_observed_sol)
 
     if len(PDE._time_obs) == 1:
         expected_observed_sol = expected_observed_sol.squeeze()
-    
-    # load expected observed solution (for comparison) 
+
+    # load expected observed solution (for comparison)
     # Skip sol1 due to its large size (not stored in file to save space)
     if expected_sol != 'sol1':
-        obs_sol_file = copy_reference("data/Heat1D_data/Heat1D_obs_sol_"\
-                                      +expected_sol+"_"\
-                                      +expected_obs+".npz")
+        obs_sol_file = copy_reference("data/Heat1D_data/Heat1D_obs_sol_"
+                                      + expected_sol+"_"
+                                      + expected_obs+".npz")
         expected_observed_sol_from_file = np.load(obs_sol_file)["obs_sol"]
 
         if len(PDE._time_obs) == 1:
             expected_observed_sol_from_file = \
                 expected_observed_sol_from_file.squeeze()
-    
+
     # Compare the observed solution with the two expected observed solution
     # (computed and loaded from file)
     assert (np.allclose(obs_sol, expected_observed_sol))
