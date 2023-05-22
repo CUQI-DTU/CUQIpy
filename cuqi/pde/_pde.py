@@ -266,9 +266,14 @@ class TimeDependentLinearPDE(LinearPDE):
         return u, info
 
     def observe(self, solution):
-            
+
+        # If observation grid is the same as solution grid and observation time
+        # is the last time step then no need to interpolate
         if self.grids_equal and np.all(self.time_steps[-1:] == self._time_obs):
             solution_obs = solution[..., -1]
+
+        # Interpolate solution in time and space to the observation
+        # time and space
         else:
             # Raise error if solution is 2D or 3D in space 
             if len(solution.shape) > 2:
@@ -279,11 +284,13 @@ class TimeDependentLinearPDE(LinearPDE):
                                  "observation_map and pass grid_obs and "+
                                  "time_obs as None.")
             
-            # Interpolate solution in space and time to the observation grid
+            # Interpolate solution in space and time to the observation
+            # time and space
             solution_obs = scipy.interpolate.RectBivariateSpline(
                 self.grid_sol, self.time_steps, solution)(self.grid_obs,
                                                           self._time_obs)
 
+        # Apply observation map
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs)
         
