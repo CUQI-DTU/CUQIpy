@@ -252,24 +252,29 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
     if time_obs == 'every_5':
         time_obs = time_steps[::5]
 
-    # 4. Create a PDE object
+    # 5. Create a PDE object
     PDE = cuqi.pde.TimeDependentLinearPDE(
         PDE_form, time_steps, method=method,
         grid_sol=grid_sol,
         grid_obs=grid_obs, time_obs=time_obs,
         observation_map=observation_map)
 
-    # 5 Solve the PDE
+    # 6. Solve the PDE
     PDE.assemble(parameters)
     sol, info = PDE.solve()
 
-    # 6 Compare the obtained solution with previously stored solution
+    # 7. Compare the obtained solution with previously stored solution
     solution_file = copy_reference("data/Heat1D_data/Heat1D_5solutions.npz")
     expected_sols = np.load(solution_file)
     assert(np.allclose(sol[:,-1], expected_sols[expected_sol]))
 
-    # Assert that the observed solution is correct
+    # 8. Compute the observed solution and compare it with previously 
+    # stored solution
+
+    # compute the observed solution using the PDE object
     obs_sol = PDE.observe(sol)
+
+    # compute the expected observed solution (for comparison)
     if isinstance(time_obs, str) and time_obs.lower() == 'last':
         time_obs = time_steps[-1:]
     if grid_obs is None:
@@ -287,9 +292,11 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
 
     if observation_map is not None:
         expected_observed_sol = observation_map(expected_observed_sol)
+
+    if len(PDE._time_obs) == 1:
+        expected_observed_sol = expected_observed_sol.squeeze()
     
-    # load expected observed solution and assert that the computed
-    # solution is correct
+    # load expected observed solution (for comparison) 
     # Skip sol1 due to its large size (not stored in file to save space)
     if expected_sol != 'sol1':
         obs_sol_file = copy_reference("data/Heat1D_data/Heat1D_obs_sol_"\
@@ -298,14 +305,15 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
         expected_observed_sol_from_file = np.load(obs_sol_file)["obs_sol"]
 
         if len(PDE._time_obs) == 1:
-            expected_observed_sol = \
-                expected_observed_sol.squeeze()
             expected_observed_sol_from_file = \
                 expected_observed_sol_from_file.squeeze()
+    
+    # Compare the observed solution with the two expected observed solution
+    # (computed and loaded from file)
+    assert (np.allclose(obs_sol, expected_observed_sol))
 
-        assert (np.allclose(obs_sol, expected_observed_sol))
+    if expected_sol != 'sol1':
         assert (np.allclose(obs_sol, expected_observed_sol_from_file))
-
     else:
         assert expected_sol == 'sol1'
 
