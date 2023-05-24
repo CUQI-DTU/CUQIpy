@@ -39,10 +39,11 @@ class Samples(object):
     :meth:`burnthin`: Removes burn-in and thins samples.
     :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
-    def __init__(self, samples, geometry=None, is_par=True):
+    def __init__(self, samples, geometry=None, is_par=True, is_vec=True):
         self.geometry = geometry
         self.is_par = is_par
         self.samples = samples
+        self.is_vec = is_vec
 
     def __iter__(self):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
@@ -70,111 +71,105 @@ class Samples(object):
     
     @is_par.setter
     def is_par(self, value):
-        if value is False:
-            # Check if the geometry supports 1D array representation
-            # of the function value
-            if not self._funvals_directly_supported and not self.geometry.has_funvec:
-                raise ValueError(
-                    "Cannot set is_par to False. The geometry does not support"+
-                    " 1D array representation of the function value.")
         self._is_par = value
 
     @property
-    def _funvals_directly_supported(self):
-        """Returns True if the geometry function value representation is
-        a 1D array. Otherwise, returns False."""
-        if self.geometry.fun_shape is None or len(self.geometry.fun_shape) != 1:
-            return False
-        else:
-            return True
-    
-    @property
-    def _is_funvec(self):
-        """Returns True if the samples values are vector representations 
-        of the function values (obtained through the geometry method
-        `fun2funvec`). Otherwise, returns False."""
-        return not self.is_par and\
-               not self._funvals_directly_supported and\
-               self.geometry.has_funvec
-
-    @property
     def funvals(self):
-        """If `self.is_par` is True, returns a new Samples object of sample function values by applying :meth:`self.geometry.par2fun` on each sample. Otherwise, returns the Samples object itself.""" 
+        """Returns a new Samples object of sample function values. If samples are already function values, the Samples object itself is returned.""" 
 
-        # If the samples are parameters, convert them to function values
-        if self.is_par is True:
-
-            #Set the conversion method par2fun and the function value dimension
-            if self._funvals_directly_supported:
-                par2fun = self.geometry.par2fun
-                fun_dim = self.geometry.fun_dim
-
-            elif self.geometry.has_funvec:
-                par2fun = lambda par: self.geometry.fun2funvec(self.geometry.par2fun(par))
-                fun_dim = self.geometry.funvec_dim
-
-            else:
-                raise ValueError("Cannot convert the samples to function values. The geometry does not support 1D array representation of the function value.")
-            
-            # Convert the samples to function values
-            _funvals = np.empty((fun_dim, self.Ns))
-            for i, par in enumerate(self):
-                _funvals[:, i] = par2fun(par)
-            
-            # Create and return a new Samples object of function values
-            return Samples(_funvals, is_par=False,
-                           geometry=self.geometry)
-        
-        # If the samples are function values, return the Samples object itself
-        else:
+        # Return self if the samples are function values
+        if not self.is_par and not self.is_vec:
             return self
+        
+        # Set conversion method either par2fun or vec2fun
+        if self.is_par:
+            convert = self.geometry.par2fun
+        else:
+            convert = self.geometry.vec2fun
+
+        # Convert the samples to function values
+        
+        # If the function representation is an array, return funvals samples as an array, else, return a list of function values
+        if self.geometry.fun_is_array:
+            funvals = np.empty(self.geometry.fun_shape+(self.Ns,))
+            for i, value in enumerate(self):
+                funvals[..., i] = convert(value)
+        else:
+            funvals = [convert(value) for value in self]
+
+        # Check if the function values are in vector representations after
+        # conversion
+        if isinstance(funvals, np.ndarray) and len(funvals.shape) <= 2:
+            is_vec = True 
+        else:
+            is_vec = False
+
+        # Create and return a new Samples object of function values
+        return Samples(funvals, is_par=False, is_vec=is_vec,
+                       geometry=self.geometry)
+            
+    @property
+    def vector(self):
+        """Returns a new Samples object of samples in vector form. If samples are already in vector form (e.g. samples of parameter values, or samples of function values that are already converted to vector format), the Samples object itself is returned."""
+
+        # Return self if the samples are in vector form
+        if self.is_vec or self.is_par:
+            return self
+
+        # In the remaining case, the samples are function values
+        # Set conversion method to fun2vec 
+        convert = self.geometry.fun2vec
+
+        # Convert the samples to vector form
+        vecvals = np.empty((self.geometry.funvec_dim, self.Ns))
+        for i, value in enumerate(self):
+            vecvals[:, i] = convert(value)
+
+        # Create and return a new Samples object of vector samples
+        return Samples(vecvals, is_par=self.is_par, is_vec=True,
+                       geometry=self.geometry)
 
     @property
     def parameters(self):
-        """If `self.is_par` is False, returns a new Samples object of sample parameters by applying :meth:`self.geometry.fun2par` on each sample. Otherwise, returns the Samples object itself."""
+        """If `self.is_par` is False, returns a new Samples object of sample parameters by converting the function values to parameters. If `self.is_par` is True, returns the Samples object itself."""
 
-        # If the samples are function values, convert them to parameters
-        if self.is_par is False:
-            # Set the conversion method fun2par 
-            if self._funvals_directly_supported:
-                fun2par = self.geometry.fun2par
-
-            elif self.geometry.has_funvec:
-                fun2par = lambda funvec: self.geometry.fun2par(self.geometry.funvec2fun(funvec))
-            
-            # Convert the samples to parameter values
-            _parameters = np.empty((self.geometry.par_dim, self.Ns))
-            for i, s in enumerate(self):
-                _parameters[:, i] = fun2par(s)
-
-            # Create and return a new Samples object of parameters
-            return Samples(_parameters, is_par=True, geometry=self.geometry)
-        
-        # If the samples are parameters, return the Samples object itself
-        else:
+        # Return self if the samples are parameters
+        if self.is_par:
             return self
+        
+        # Set conversion method fun2par or vec2fun(fun2par(...))
+        if not self.is_vec:
+            convert = self.geometry.fun2par
+        else:
+            convert = \
+                lambda vec: self.geometry.fun2par(self.geometry.vec2fun(vec))
+            
+        # Convert the samples to parameter values
+        parameters = np.empty((self.geometry.par_dim, self.Ns))
+        for i, value in enumerate(self):
+            parameters[:, i] = convert(value)
+
+        # Create and return a new Samples object of parameters
+        return Samples(parameters, is_par=True, is_vec=True,
+                       geometry=self.geometry)
 
     @property
     def _geometry_dim(self):
         if self.is_par:
             return self.geometry.par_dim
-        elif self._funvals_directly_supported:
-            return self.geometry.fun_dim
-        elif self.geometry.has_funvec:
+        elif self.is_vec:
             return self.geometry.funvec_dim
         else:
-            raise ValueError("Cannot determine geometry dimension.")
+            return self.geometry.fun_dim
         
     @property
     def _geometry_shape(self):
         if self.is_par:
             return self.geometry.par_shape
-        elif self._funvals_directly_supported:
-            return self.geometry.fun_shape
-        elif self.geometry.has_funvec:
+        elif self.is_vec:
             return self.geometry.funvec_shape
         else:
-            raise ValueError("Cannot determine geometry shape.")
+            return self.geometry.fun_shape
 
     @geometry.setter
     def geometry(self,inGeometry):
@@ -227,9 +222,10 @@ class Samples(object):
         self._update_plotting_dict(kwargs)
 
         mean = self.mean()
-
-        if self._is_funvec:
-            mean = self.geometry.funvec2fun(mean)
+        
+        # If value is function in vector form, convert to function values
+        if not self.is_par and self.is_vec:
+            mean = self.geometry.vec2fun(mean)
 
         # Plot mean according to geometry
         ax =  self.geometry.plot(mean, *args, **kwargs)
@@ -246,8 +242,9 @@ class Samples(object):
 
         median = self.median()
 
-        if self._is_funvec:
-            median = self.geometry.funvec2fun(median)
+        # If value is function in vector form, convert to function values
+        if not self.is_par and self.is_vec:
+            median = self.geometry.vec2fun(median)
 
         # Plot median according to geometry
         ax =  self.geometry.plot(median, *args, **kwargs)
@@ -264,8 +261,9 @@ class Samples(object):
 
         variance = self.variance()
 
-        if self._is_funvec:
-            variance = self.geometry.funvec2fun(variance)
+        # If value is function in vector form, convert to function values
+        if not self.is_par and self.is_vec:
+            variance = self.geometry.vec2fun(variance)
 
         # Plot variance according to geometry
         ax = self.geometry.plot(variance, *args, **kwargs)
@@ -282,8 +280,9 @@ class Samples(object):
 
         ci_width = self.ci_width(percent)
 
-        if self._is_funvec:
-            ci_width = self.geometry.funvec2fun(ci_width)
+        # If value is function in vector form, convert to function values
+        if not self.is_par and self.is_vec:
+            ci_width = self.geometry.vec2fun(ci_width)
 
         # Plot width of credibility intervals according to geometry
         ax = self.geometry.plot(ci_width, *args, **kwargs)
@@ -323,8 +322,9 @@ class Samples(object):
         # Compute std assuming samples are index in last dimension of nparray
         std = np.std(self.samples,axis=-1)
 
-        if self._is_funvec:
-            std = self.geometry.funvec2fun(std)
+        # If value is function in vector form, convert to function values
+        if not self.is_par and self.is_vec:
+            std = self.geometry.vec2fun(std)
 
         # Plot mean according to geometry
         ax = self.geometry.plot(std, *args, **kwargs)
@@ -342,12 +342,13 @@ class Samples(object):
             sample_indices = self._select_random_indices(Np, Ns)
         plot_samples = self.samples[:,sample_indices]
         
-        # If samples are funvecs, we need to convert them to funs
-        if self._is_funvec:
+        # If samples are functions in vector form,
+        # we need to convert them to function values
+        if not self.is_par and self.is_vec:
             if len(plot_samples.shape)==1:
                 plot_samples = plot_samples.reshape(-1,1)
                 
-            plot_samples = [self.geometry.funvec2fun(plot_samples[:,idx])
+            plot_samples = [self.geometry.vec2fun(plot_samples[:,idx])
                             for idx in range(plot_samples.shape[1])]
             if isinstance(plot_samples[0], np.ndarray):
                 plot_samples = np.array(plot_samples).T
