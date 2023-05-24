@@ -1425,10 +1425,9 @@ class WangCubic(BayesianProblem):
         # forward model and gradient
         def forward(x):
             return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
-        def gradient(direction, x):
-            # Jacobian.T @ direction
-            return np.vstack([-30*x[0]**2 + 10*x[0] + 6, 10]) @ direction
-        model = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, gradient=gradient)
+        def jacobian(x):
+            return np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
+        model = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian)
 
         # define prior
         if prior is None:

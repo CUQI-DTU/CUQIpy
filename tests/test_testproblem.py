@@ -199,4 +199,10 @@ def test_Deconvolution2D_convolve(BC_MAP, PSF, PSF_size):
     # Compare adjoint
     assert np.allclose(adjoint(y), TP.model.adjoint(y).funvals)
 
+def test_WangCubic():
+    """ Test the WangCubic testproblem with simple regression test"""
+    TP = cuqi.testproblem.WangCubic()
+    assert TP.posterior.logd([0.7, 1.3]) == approx(-119.4710156)
+    assert np.allclose(TP.posterior.gradient([0.7, 1.3]), np.array([[26.174, -153.5]]))
+
     
