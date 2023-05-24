@@ -52,7 +52,7 @@ class Geometry(ABC):
         function value)."""
         if not hasattr(self,'_funvec_shape') or self._funvec_shape is None:
             # Attempt to infer dimension
-            funvecvals = self.fun2funvec(self.par2fun(np.ones(self.par_dim)))
+            funvecvals = self.fun2vec(self.par2fun(np.ones(self.par_dim)))
             if hasattr(funvecvals, 'shape'):
                 self._funvec_shape = funvecvals.shape
                 if len(self._funvec_shape) != 1:
@@ -96,13 +96,17 @@ class Geometry(ABC):
             raise ValueError(variables_value_err_msg) 
         self._variables = value
         self._ids = range(self.par_dim)
-
+    
     @property
-    def has_funvec(self):
-        """Flag to indicate whether the geometry can represent the function 
-        value as a vector. This can be useful, for example, in computing
-        sample statistics on function values. Default is False."""
-        return False
+    def fun_is_array(self):
+        """Flag to indicate whether the function value is an array. This can be
+        useful to query when converting samples to function values."""
+        if isinstance(self.fun_shape, tuple) and \
+           all([isinstance(i, int) for i in self.fun_shape]):
+            return True
+        else:
+            return False
+
     
     def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
@@ -176,13 +180,18 @@ class Geometry(ABC):
         """The function to parameter map used to map function values back to parameters, if available."""
         raise NotImplementedError("fun2par is not implemented. Must be implemented specifically for each geometry.")
 
-    def fun2funvec(self, funvals):
+    def fun2vec(self, funvals):
         """Maps function values to a vector representation of the function values, if available."""
-        raise NotImplementedError("fun2funvec is not implemented. Must be implemented specifically for each geometry.")
+        if self.fun_is_array and len(self.fun_shape) == 1:
+            return funvals
+        else:
+            raise NotImplementedError("fun2vec is not implemented. Must be implemented specifically for each geometry.")
     
-    def funvec2fun(self, funvec):
+    def vec2fun(self, funvec):
         """Maps function vector representation, if available, to function values."""
-        raise NotImplementedError("funvec2fun is not implemented. Must be implemented specifically for each geometry.")
+        if self.fun_is_array and len(self.fun_shape) == 1:
+            return funvec
+        raise NotImplementedError("vec2fun is not implemented. Must be implemented specifically for each geometry.")
     
     @abstractmethod
     def _plot(self):
@@ -496,10 +505,6 @@ class Image2D(Geometry):
         return self._par_shape
     
     @property
-    def has_funvec(self):
-        return True
-    
-    @property
     def funvec_shape(self):
         return self.par_shape
 
@@ -515,11 +520,11 @@ class Image2D(Geometry):
         # Else, convert image into parameter vector
         return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
 
-    def funvec2fun(self, funvec):
+    def vec2fun(self, funvec):
         """Maps function vector representation, if available, to function values."""    
         return self.par2fun(funvec)
         
-    def fun2funvec(self, funvals):
+    def fun2vec(self, funvals):
         """Maps function values to a vector representation of the function values, if available."""
         return self.fun2par(funvals)
     
@@ -638,10 +643,6 @@ class MappedGeometry(_WrappedGeometry):
         super().__init__(geometry)
         self.map = map
         self.imap = imap
-    
-    @property
-    def has_funvec(self):
-        return self.geometry.has_funvec
 
     def par2fun(self,p):
         return self.map(self.geometry.par2fun(p))
@@ -651,11 +652,11 @@ class MappedGeometry(_WrappedGeometry):
             raise ValueError("imap is not defined. This is needed for fun2par.")
         return self.geometry.fun2par(self.imap(f))
     
-    def fun2funvec(self, fun):
-        return self.geometry.fun2funvec(fun)
+    def fun2vec(self, fun):
+        return self.geometry.fun2vec(fun)
     
-    def funvec2fun(self, funvec):
-        return self.geometry.funvec2fun(funvec)
+    def vec2fun(self, funvec):
+        return self.geometry.vec2fun(funvec)
 
     def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())
