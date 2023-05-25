@@ -7,6 +7,7 @@ from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
+from cuqi.randomvariable import RandomVariable
 from cuqi.geometry import _DefaultGeometry, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 import numpy as np # To be replaced by cuqi.array_api
@@ -383,3 +384,51 @@ class Distribution(Density, ABC):
             return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
+        
+    # The following methods define algebraic operations on distributions
+    # The return type is a RandomVariable instance
+        
+    def as_random_variable(self):
+        """Return a RandomVariable instance of this distribution"""
+        return RandomVariable(self)
+    
+    def __add__(self, other) -> RandomVariable:
+        return self.as_random_variable().__add__(other)
+    
+    def __radd__(self, other) -> RandomVariable:
+        return self.as_random_variable().__radd__(other)
+    
+    def __sub__(self, other) -> RandomVariable:
+        return self.as_random_variable().__sub__(other)
+    
+    def __rsub__(self, other) -> RandomVariable:
+        return self.as_random_variable().__rsub__(other)
+    
+    def __mul__(self, other) -> RandomVariable:
+        return self.as_random_variable().__mul__(other)
+    
+    def __rmul__(self, other) -> RandomVariable:
+        return self.as_random_variable().__rmul__(other)
+
+    def __truediv__(self, other) -> RandomVariable:
+        return self.as_random_variable().__truediv__(other)
+    
+    def __rtruediv__(self, other) -> RandomVariable:
+        return self.as_random_variable().__rtruediv__(other)
+    
+    def __matmul__(self, other) -> RandomVariable:
+        return self.as_random_variable().__matmul__(other)
+    
+    def __rmatmul__(self, other) -> RandomVariable:
+        return self.as_random_variable().__rmatmul__(other)
+    
+    def __neg__(self) -> RandomVariable:
+        return self.as_random_variable().__neg__()
+    
+    def __pow__(self, other) -> RandomVariable:
+        return self.as_random_variable().__pow__(other)
+    
+    def __getitem__(self, key) -> RandomVariable:
+        return self.as_random_variable().__getitem__(key)
+    
+
