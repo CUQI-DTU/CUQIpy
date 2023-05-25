@@ -4,7 +4,7 @@ from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
-
+from cuqi.utilities import if_dist_force_rv
 class Cauchy_diff(Distribution):
     """Cauchy distribution on the difference between neighboring nodes.
 
@@ -50,8 +50,8 @@ class Cauchy_diff(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
-        self.location = location
-        self.scale = scale
+        self.location = if_dist_force_rv(location)
+        self.scale = if_dist_force_rv(scale)
         self._bc_type = bc_type
         self._physical_dim = physical_dim
 

@@ -10,6 +10,12 @@ from abc import ABCMeta
 import copy
 
 
+def if_dist_force_rv(dist):
+    """ Convert a distribution to a random variable else return the input """
+    if isinstance(dist, cuqi.distribution.Distribution):
+        return dist.as_random_variable()
+    return dist
+
 def force_ndarray(value,flatten=False):
     if isinstance(value, cuqi.distribution.Distribution):
         return value.as_random_variable()

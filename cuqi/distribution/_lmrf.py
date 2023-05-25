@@ -1,6 +1,7 @@
 from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 import numpy as np
+from cuqi.utilities import if_dist_force_rv
 
 class LMRF(Distribution):
     """
@@ -16,7 +17,7 @@ class LMRF(Distribution):
     def __init__(self, mean, prec, partition_size, physical_dim, bc_type, **kwargs):
         super().__init__(**kwargs)
         self.mean = mean.reshape(len(mean), 1)
-        self.prec = prec
+        self.prec = if_dist_force_rv(prec)
         self._partition_size = partition_size          # partition size
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim

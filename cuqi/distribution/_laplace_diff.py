@@ -2,6 +2,7 @@ import numpy as np
 from cuqi.geometry import _DefaultGeometry, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
+from cuqi.utilities import if_dist_force_rv
 
 class Laplace_diff(Distribution):
     """Laplace distribution on the difference between neighboring nodes.
@@ -47,8 +48,8 @@ class Laplace_diff(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
 
-        self.location = location
-        self.scale = scale
+        self.location = if_dist_force_rv(location)
+        self.scale = if_dist_force_rv(scale)
         self._bc_type = bc_type
         self._physical_dim = physical_dim
 
