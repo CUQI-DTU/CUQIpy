@@ -471,6 +471,9 @@ class Distribution(Density, ABC):
     def __neg__(self) -> RandomVariable:
         return self.as_random_variable().__neg__()
     
+    def __abs__(self) -> RandomVariable:
+        return self.as_random_variable().__abs__()
+    
     def __pow__(self, other) -> RandomVariable:
         return self.as_random_variable().__pow__(other)
     
