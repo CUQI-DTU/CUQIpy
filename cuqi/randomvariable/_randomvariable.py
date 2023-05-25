@@ -59,7 +59,7 @@ class RandomVariable:
 
     def __init__(self, distribution, operations=None, operations_string=None):
         """ Create random variable from distribution """
-        if distribution.name is None:
+        if distribution.name is None or distribution.name == "distribution":
             raise ValueError(
                 "Unable to create random variable from distribution without name. Ensure "
                 "distribution is defined as a variable, e.g. x = Gaussian(0, 1) or provide "
