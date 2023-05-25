@@ -1,5 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
+from cuqi.utilities import if_dist_force_rv
 
 class Uniform(Distribution):
 
@@ -17,8 +18,8 @@ class Uniform(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs)       
 
         # Init specific to this distribution
-        self.low = low
-        self.high = high      
+        self.low = if_dist_force_rv(low)
+        self.high = if_dist_force_rv(high)
 
     def logpdf(self, x):
         # First check whether x is outside bounds.

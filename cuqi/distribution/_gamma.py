@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.special import loggamma, gammainc
 from cuqi.distribution import Distribution
+from cuqi.utilities import if_dist_force_rv
 
 class Gamma(Distribution):
 
@@ -9,8 +10,8 @@ class Gamma(Distribution):
         super().__init__(is_symmetric=is_symmetric,**kwargs) 
 
         # Init specific to this distribution
-        self.shape = shape
-        self.rate = rate     
+        self.shape = if_dist_force_rv(shape)
+        self.rate = if_dist_force_rv(rate)     
 
     @property
     def scale(self):

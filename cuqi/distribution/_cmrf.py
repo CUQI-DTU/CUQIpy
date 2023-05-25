@@ -4,7 +4,8 @@ from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.utilities import force_ndarray
-
+from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
+from cuqi.utilities import if_dist_force_rv
 
 class CMRF(Distribution):
     """Cauchy distribution on the difference between neighboring nodes.
@@ -48,8 +49,8 @@ class CMRF(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         
-        self.location = location
-        self.scale = scale
+        self.location = if_dist_force_rv(location)
+        self.scale = if_dist_force_rv(scale)
         self._bc_type = bc_type
 
         # Ensure geometry has shape

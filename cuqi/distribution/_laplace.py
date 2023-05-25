@@ -1,5 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
+from cuqi.utilities import if_dist_force_rv
 
 class Laplace(Distribution):
     """ Laplace distribution. 
@@ -31,8 +32,8 @@ class Laplace(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
-        self.location = location
-        self.prec = prec
+        self.location = if_dist_force_rv(location)
+        self.prec = if_dist_force_rv(prec)
   
     def logpdf(self, x):
         if isinstance(x, (float,int)):
