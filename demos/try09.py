@@ -44,7 +44,7 @@ x0 = np.random.randn(n)
 # Exact  MAP
 prior2 = cuqi.distribution.Gaussian(np.zeros(n), np.sqrt(var), np.eye(n))
 TP.prior = prior2
-x_MAP_exact = TP.MAP()
+x_MAP_exact = TP.map()
 print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.norm(x_true))
 
 #%% L_BFGS_B MAP
@@ -117,7 +117,7 @@ plt.show()
 
 prob = cuqi.problem.BayesianProblem(likelihood, prior)
 # %%
-MAP_prob = prob.MAP()
+MAP_prob = prob.map()
 # %%
 print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_true)/np.linalg.norm(x_true))
 # %%
@@ -125,7 +125,7 @@ print('relative error BFGS MAP:', np.linalg.norm(MAP_prob-x_MAP_BFGS)/np.linalg.
 # %%
 
 # %%
-ML_prob = prob.ML()
+ML_prob = prob.ml()
 # %%
 print('relative error BFGS ML:', np.linalg.norm(ML_prob-x_true)/np.linalg.norm(x_true))
 # %%

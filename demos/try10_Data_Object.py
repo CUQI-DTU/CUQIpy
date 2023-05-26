@@ -84,7 +84,7 @@ likelihood = data_dist.to_likelihood(data)
 IP = BayesianProblem(likelihood, prior)
 
 #%%
-x_MAP = IP.MAP() 
+x_MAP = IP.map() 
 
 # Plot
 phantomC.plot()

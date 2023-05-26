@@ -28,7 +28,7 @@ elif (pr == 'cauchy'):
 x0 = np.random.randn(n)
 TP.prior = prior
 if (pr == 'gaussian'):
-    x_MAP = TP.MAP()
+    x_MAP = TP.map()
 else:
     # Solve posterior problem using BFGS
     def f(x): return -TP.posterior.logd(x)

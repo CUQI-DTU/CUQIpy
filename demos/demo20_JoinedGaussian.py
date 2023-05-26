@@ -42,4 +42,4 @@ plt.figure(); results_X2.plot_ci(95,exact=TP.exactSolution); plt.title("Posterio
 plt.figure(); results_X.plot_ci(95,exact=TP.exactSolution); plt.title("Posterior with X (joined)"); plt.ylim([-0.5,1.5])
 # %%
 # Maximum a posteriori estimation (logpdf is not implemented, so throws an error.)
-#x_MAP = TP.MAP()
+#x_MAP = TP.map()

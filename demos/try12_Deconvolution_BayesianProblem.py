@@ -57,7 +57,7 @@ samples.plot_autocorrelation()
 samples.plot_pair()
 
 # %% MAP ESTIMATE
-x_map, info = TP.MAP()
+x_map, info = TP.map()
 
 if ndim == 1:
     plt.plot(x_map, label="MAP")

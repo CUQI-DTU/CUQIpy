@@ -65,7 +65,7 @@ class _Deblur(BayesianProblem):
 
     Methods
     ----------
-    MAP()
+    map()
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
@@ -637,7 +637,7 @@ class Poisson_1D(BayesianProblem):
 
     Methods
     ----------
-    MAP()
+    map()
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
@@ -785,7 +785,7 @@ class Heat_1D(BayesianProblem):
 
     Methods
     ----------
-    MAP()
+    map()
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
@@ -919,7 +919,7 @@ class Abel_1D(BayesianProblem):
 
     Methods
     ----------
-    MAP()
+    map()
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
@@ -1037,7 +1037,7 @@ class _Deconv_1D(BayesianProblem):
 
     Methods
     ----------
-    MAP()
+    map()
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined.
 
@@ -1199,7 +1199,7 @@ class Deconvolution2D(BayesianProblem):
 
     Methods
     -------
-    MAP()
+    map()
         Compute MAP estimate of posterior.
         NB: Requires prior to be defined
 

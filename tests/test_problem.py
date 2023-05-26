@@ -67,10 +67,10 @@ def test_BayesianProblem_hier_errors():
         BP.sample_posterior(10)
 
     with pytest.raises(ValueError, match=r"Unable to extract prior"): # Should rly be posterior
-        BP.MAP()
+        BP.map()
 
     with pytest.raises(ValueError, match=r"Unable to extract likelihood"):
-        BP.ML()
+        BP.ml()
 
     with pytest.raises(ValueError, match=r"Unable to extract likelihood"):
         BP.data
@@ -122,8 +122,8 @@ def test_BayesianProblem_geometry_consistency():
     assert BP.posterior.geometry == domain_geometry
     assert BP.sample_posterior(10).geometry == domain_geometry
     #assert BP.sample_prior(10).geometry == domain_geometry # This fails because prior is sampled directly. TODO (should be domain_geometry)
-    assert BP.MAP().geometry == domain_geometry
-    assert BP.ML().geometry == domain_geometry
+    assert BP.map().geometry == domain_geometry
+    assert BP.ml().geometry == domain_geometry
 
 
 

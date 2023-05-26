@@ -98,7 +98,7 @@ class BayesianProblem(object):
         BP = cuqi.problem.BayesianProblem(y, x).set_data(y=y_data)
 
         # Compute MAP estimate
-        x_MAP = BP.MAP()
+        x_MAP = BP.map()
 
         # Compute samples from posterior
         x_samples = BP.sample_posterior(1000)
@@ -199,7 +199,7 @@ class BayesianProblem(object):
             raise ValueError(f"Unable to extract posterior for this problem. Current target is: \n {self._target}")
         return self._target
 
-    def ML(self, disp=True, x0=None) -> CUQIarray:
+    def ml(self, disp=True, x0=None) -> CUQIarray:
         """ Compute the Maximum Likelihood (ML) estimate of the posterior.
         
         Parameters
@@ -232,9 +232,9 @@ class BayesianProblem(object):
         x_ML.info = solver_info
 
         return x_ML
+    
 
-
-    def MAP(self, disp=True, x0=None) -> CUQIarray:
+    def map(self, disp=True, x0=None) -> CUQIarray:
         """ Compute the Maximum A Posteriori (MAP) estimate of the posterior.
         
         Parameters
@@ -459,7 +459,7 @@ class BayesianProblem(object):
         n = self.prior.dim 
         x_s = np.zeros((n,Ns))
 
-        x_map = self.MAP(disp=False) #Compute MAP estimate
+        x_map = self.map(disp=False) #Compute MAP estimate
         C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
         L = np.linalg.cholesky(C)
         for s in range(Ns):
@@ -523,7 +523,7 @@ class BayesianProblem(object):
 
         # MAP
         #print("Computing MAP ESTIMATE")
-        #x_map, _ = self.MAP()
+        #x_map, _ = self.map()
         
         MCMC = cuqi.sampler.NUTS(self.posterior, callback=callback)
         
