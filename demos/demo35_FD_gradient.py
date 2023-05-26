@@ -10,7 +10,7 @@ posterior = TP.posterior
 
 #%% Sample from the posterior using Metropolis-Hastings
 print('Sampling from the posterior using Metropolis-Hastings:')
-MH_sampler = cuqi.sampler.MetropolisHastings(posterior)
+MH_sampler = cuqi.sampler.MH(posterior)
 MH_samples = MH_sampler.sample_adapt(1000)
 MH_samples.plot_ci(95,exact=TP.exactSolution)
 
