@@ -8,8 +8,8 @@ this case, but it can be readily extended to more functions) for the same
 Bayesian parameter `theta`, which represents the conductivity parameters in a
 1D Poisson problem. Each likelihood is associated with a different model set
 up. The models we use here are obtained from the test problem 
-:class:`cuqi.testproblem.Poisson_1D`. See the class
-:class:`cuqi.testproblem.Poisson_1D` documentation for more details about the
+:class:`cuqi.testproblem.Poisson1D`. See the class
+:class:`cuqi.testproblem.Poisson1D` documentation for more details about the
 forward model.
 """
 # %% 
@@ -71,7 +71,7 @@ if set_up == "multi_observation":
 source1 = lambda xs: magnitude*np.sin(xs*2*np.pi/endpoint)+magnitude
 
 # Obtain the forward model from the test problem
-model1, data1, problemInfo1 = cuqi.testproblem.Poisson_1D.get_components(
+model1, data1, problemInfo1 = cuqi.testproblem.Poisson1D.get_components(
     dim=dim,
     endpoint=endpoint,
     field_type=field_type,
@@ -110,7 +110,7 @@ else:
 	source2 = source1
 
 # Obtain the forward model from the test problem
-model2, data2, problemInfo2 = cuqi.testproblem.Poisson_1D.get_components(
+model2, data2, problemInfo2 = cuqi.testproblem.Poisson1D.get_components(
     dim=dim,
     endpoint=endpoint,
     field_type=field_type,

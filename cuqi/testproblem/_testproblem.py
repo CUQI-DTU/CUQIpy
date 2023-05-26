@@ -575,7 +575,7 @@ def _getExactSolution(dim, phantom, phantom_param):
         raise NotImplementedError("This phantom is not implemented")
 
 
-class Poisson_1D(BayesianProblem):
+class Poisson1D(BayesianProblem):
     """
     1D Poisson test problem. Discretized 1D Poisson equation (steady-state linear PDE).
 
@@ -620,7 +620,7 @@ class Poisson_1D(BayesianProblem):
     data : ndarray
         Generated (noisy) data
 
-    model : cuqi.model.PDEModel_1D
+    model : cuqi.model.PDEModel
         Poisson 1D model
 
     prior : cuqi.distribution.Distribution
@@ -720,7 +720,7 @@ class Poisson_1D(BayesianProblem):
         self.exactSolution = x_exact
         self.exactData = y_exact
 
-class Heat_1D(BayesianProblem):
+class Heat1D(BayesianProblem):
     """
     1D Heat test problem. Discretized Heat equation (time-dependent linear PDE).
 
@@ -768,7 +768,7 @@ class Heat_1D(BayesianProblem):
     data : ndarray
         Generated (noisy) data
 
-    model : cuqi.model.PDEModel_1D
+    model : cuqi.model.PDEModel
         Heat 1D model
 
     prior : cuqi.distribution.Distribution
@@ -873,7 +873,7 @@ class Heat_1D(BayesianProblem):
         self.infoString = f"Noise type: Additive i.i.d. noise with mean zero and signal to noise ratio: {SNR}"
 
 
-class Abel_1D(BayesianProblem):
+class Abel1D(BayesianProblem):
     """
     1D Abel test problem. 1D model of rotationally symmetric computed tomography.
 

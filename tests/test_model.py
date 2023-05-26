@@ -370,7 +370,7 @@ def test_model_parameter_name_switch():
 def test_model_parameter_name_switch_errors():
     """ Check that an error is raised if dim does not match or if distribution has no name """
 
-    model = cuqi.testproblem.Poisson_1D().model # domain_dim != range_dim
+    model = cuqi.testproblem.Poisson1D().model # domain_dim != range_dim
 
     y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim-1), 1)
 

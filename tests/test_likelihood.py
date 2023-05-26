@@ -14,7 +14,7 @@ def test_likelihood_log_and_grad():
     likelihood.gradient(probInfo.exactSolution)
 
 def test_likelihood_attributes():
-    model, data, _ = cuqi.testproblem.Poisson_1D.get_components(dim=128, field_type="Step")
+    model, data, _ = cuqi.testproblem.Poisson1D.get_components(dim=128, field_type="Step")
     likelihood = cuqi.distribution.Gaussian(model,1).to_likelihood(data)
 
     # dim of domain
