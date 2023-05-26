@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, InverseGamma, Laplace_diff, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, Gamma, Cauchy_diff
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, Cauchy_diff
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -330,8 +330,8 @@ class BayesianProblem(object):
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
             return self._sampleLinearRTO(Ns, callback)
 
-        # For Laplace_diff we use our awesome unadjusted Laplace approximation!
-        elif self._check_posterior(self, Laplace_diff, Gaussian):
+        # For LMRF we use our awesome unadjusted Laplace approximation!
+        elif self._check_posterior(self, LMRF, Gaussian):
             return self._sampleUGLA(Ns, callback)
 
         # If we have gradients, use NUTS!
@@ -342,10 +342,6 @@ class BayesianProblem(object):
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior(self, (Gaussian, GMRF), Gaussian):
             return self._samplepCN(Ns, callback)
-
-        # For the remainder of valid cases we use CWMH
-        elif self._check_posterior(self, LMRF):
-            return self._sampleCWMH(Ns, callback)
 
         else:
             raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
@@ -717,16 +713,16 @@ class BayesianProblem(object):
             if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
-            # Gamma prior, Laplace_diff likelihood -> ConjugateApprox
-            elif self._check_posterior(cond_target, Gamma, Laplace_diff):
+            # Gamma prior, LMRF likelihood -> ConjugateApprox
+            elif self._check_posterior(cond_target, Gamma, LMRF):
                 sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
 
             # Gaussian prior, Gaussian likelihood, Linear model -> Linear_RTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
 
-            # Laplace_diff prior, Gaussian likelihood, Linear model -> UGLA
-            elif self._check_posterior(cond_target, Laplace_diff, Gaussian, LinearModel):
+            # LMRF prior, Gaussian likelihood, Linear model -> UGLA
+            elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.UGLA
 
             else:

@@ -6,7 +6,7 @@ import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
 
-from cuqi.distribution import Gaussian, Cauchy_diff, Laplace_diff
+from cuqi.distribution import Gaussian, Cauchy_diff, LMRF
 from cuqi.distribution import GMRF, LMRF, Laplace, Beta, InverseGamma, Lognormal
 from cuqi.sampler import NUTS, CWMH
 
@@ -24,13 +24,13 @@ if ndim == 2: par = 1 #2d
 if ndim == 1: Ns = 1000
 if ndim == 2: Ns = 500
 
-# %% Prior choices (Main ones of interest: Gaussian, GMR, Cauchy_diff, Laplace_diff:
+# %% Prior choices (Main ones of interest: Gaussian, GMR, Cauchy_diff, LMRF:
 # Working choices
 #TP.prior = Gaussian(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
 #TP.prior = GMRF(np.zeros(n), 1/par**2, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 
 TP.prior = Cauchy_diff(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry)
-#TP.prior = Laplace_diff(location=np.zeros(n), scale=0.01, bc_type="neumann", physical_dim=ndim, geometry=TP.model.domain_geometry)
+#TP.prior = LMRF(location=np.zeros(n), scale=0.01, bc_type="neumann", physical_dim=ndim, geometry=TP.model.domain_geometry)
 
 # Bad choices (ignore) both 1D and 2D
 #TP.prior = Beta(2*np.ones(n), 5*np.ones(n)) #Might need tuning

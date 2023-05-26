@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, GMRF, Cauchy_diff, Laplace_diff, LMRF, Gamma
+from cuqi.distribution import Gaussian, GMRF, Cauchy_diff, LMRF, Gamma
 from cuqi.problem import BayesianProblem
 from cuqi.density import Density
 
@@ -14,8 +14,7 @@ from cuqi.density import Density
                          [
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
-                             (Deconvolution1D, "square", LMRF(np.zeros(128), 100, 128, 1, "zero"), 100),
-                             (Deconvolution1D, "square", Laplace_diff(np.zeros(128), 0.005), 100),
+                             (Deconvolution1D, "square", LMRF(np.zeros(128), 0.005), 100),
                              (Deconvolution1D, "square", Cauchy_diff(np.zeros(128), 0.01), 50),
                          ])
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
@@ -43,7 +42,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
 
     # Load reference file into temp folder and load
     ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
-    #if isinstance(prior, Laplace_diff): #Put the case you want to update for here.
+    #if isinstance(prior, LMRF): #Put the case you want to update for here.
     #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
     ref_file = copy_reference(f"data/{ref_fname}.npz")
     ref = np.load(ref_file)
@@ -86,12 +85,12 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             ],
             50
         ),
-        # Case 2: Laplace_diff with Gamma hyperpriors on both noise and prior precision
+        # Case 2: LMRF with Gamma hyperpriors on both noise and prior precision
         (
             Deconvolution1D,
             "square",
             [
-                Laplace_diff(np.zeros(128), lambda d: 1/d, name="x"),
+                LMRF(np.zeros(128), lambda d: 1/d, name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],

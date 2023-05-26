@@ -629,13 +629,13 @@ def test_Cauchy_diff_should_not_allow_non_zero_location():
     with pytest.raises(ValueError):
         cuqi.distribution.Cauchy_diff(lambda x: x, 1)
 
-def test_Laplace_diff_should_not_allow_non_zero_location():
-    """" Laplace_diff should not allow non-zero location. """
+def test_LMRF_should_not_allow_non_zero_location():
+    """" LMRF should not allow non-zero location. """
     with pytest.raises(ValueError):
-        cuqi.distribution.Laplace_diff(np.ones(5), 1)
+        cuqi.distribution.LMRF(np.ones(5), 1)
 
     with pytest.raises(ValueError):
-        cuqi.distribution.Laplace_diff(lambda x: x, 1)
+        cuqi.distribution.LMRF(lambda x: x, 1)
 
 def test_Cauchy_against_scipy():
     """ Test Cauchy distribution logpdf, cdf, pdf, gradient """
