@@ -3,7 +3,7 @@ import cuqi
 import matplotlib.pyplot as plt
 
 #%% Create test problem
-TP = cuqi.testproblem.Heat_1D(dim=60, max_time=0.01, field_type='Step')
+TP = cuqi.testproblem.Heat1D(dim=60, max_time=0.01, field_type='Step')
 
 #%% Get the posterior
 posterior = TP.posterior
