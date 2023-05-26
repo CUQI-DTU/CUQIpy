@@ -189,5 +189,5 @@ samples["x"].plot_trace(exact=info.exactSolution)
 
 # %%
 # And finally we note that the UQ method does this analysis automatically and shows a selected number of plots
-BP.UQ(exact={"x": info.exactSolution, "s": 1/0.01**2})
+BP.uq(exact={"x": info.exactSolution, "s": 1/0.01**2})
 

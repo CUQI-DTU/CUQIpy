@@ -375,7 +375,7 @@ class BayesianProblem(object):
         # Now sample prior problem
         return prior_problem.sample_posterior(Ns, callback)
 
-    def UQ(self, Ns=1000, exact=None) -> cuqi.samples.Samples:
+    def uq(self, Ns=1000, exact=None) -> cuqi.samples.Samples:
         """ Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.
         
         Parameters

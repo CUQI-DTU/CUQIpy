@@ -23,12 +23,12 @@ A  = LinearModel(Amat)                          # y = Ax. Model for inverse prob
 x  = Gaussian(np.zeros(n), 0.1)                 # x ~ N(0,0.1)
 y  = Gaussian(A@x, 0.05)                        # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)   # Bayesian problem given observed data
-samples = IP.UQ(exact=x_exact)                  # Run UQ analysis
+samples = IP.uq(exact=x_exact)                  # Run UQ analysis
 
 # %%
 # Wrap into CUQI "testproblem".
 TP = cuqi.testproblem.Deconvolution1D(prior=x, phantom="square")
-TP.UQ()
+TP.uq()
 
 # %%
 # switch prior
@@ -37,7 +37,7 @@ A  = LinearModel(Amat)                                  # y = Ax. Model for inve
 x  = Laplace_diff(np.zeros(n), 0.01, bc_type='zero')    # x ~ Laplace_diff(0,0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
-samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
+samples = IP.uq(exact=x_exact)                          # Run UQ analysis
 
 # %%
 # switch prior again
@@ -46,7 +46,7 @@ A  = LinearModel(Amat)                                  # y = Ax. Model for inve
 x  = Cauchy_diff(np.zeros(n), 0.01, bc_type='zero')     # x ~ Cauchy_diff(0,0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
-samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
+samples = IP.uq(exact=x_exact)                          # Run UQ analysis
 
 # %% Hierarchical Bayesian models
 # Set up Bayesian model for inverse problem,
@@ -56,7 +56,7 @@ l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
 x  = Gaussian(np.zeros(n), 0.1)                          # x ~ N(0, 0.1)
 y  = Gaussian(A@x, lambda l: 1/l)                        # y ~ N(Ax, l^-1)
 IP = BayesianProblem(y, x, l).set_data(y=y_data)         # Bayesian problem given observed data
-samples = IP.UQ(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+samples = IP.uq(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
 
 # %% Hierarchical Bayesian models
 # Set up Bayesian model for inverse problem,
@@ -67,7 +67,7 @@ l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
 x  = Gaussian(np.zeros(n), cov=lambda d: 1/d)            # x ~ N(0, d^-1)
 y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
 IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
-samples = IP.UQ(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+samples = IP.uq(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
 
 # %% Hierarchical Bayesian models (switch prior)
 # Set up Bayesian model for inverse problem with a different prior
@@ -77,7 +77,7 @@ l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
 x  = Laplace_diff(np.zeros(n), lambda d: 1/d)            # x ~ Laplace_diff(0, d^{-1}), Zero BC
 y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
 IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
-samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+samples = IP.uq(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
 
 # %% Hierarchical Bayesian models (Not implemented choices)
 try:
@@ -87,6 +87,6 @@ try:
     x  = Cauchy_diff(np.zeros(n), lambda d: 1/d)             # x ~ Cauchy_diff(0, d^{-1}), Zero BC
     y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
     IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
-    samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
+    samples = IP.uq(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
 except NotImplementedError as e:
     print(e)

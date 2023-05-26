@@ -17,7 +17,7 @@ model, data, probInfo = Deconvolution1D.get_components(dim=n, phantom="Square")
 prior = Gaussian(mean=np.zeros(n), sqrtcov=0.2, name="x")
 likelihood = Gaussian(mean=model, sqrtcov=0.05, name="y").to_likelihood(data)
 IP = BayesianProblem(likelihood, prior)
-IP.UQ(exact=probInfo.exactSolution)
+IP.uq(exact=probInfo.exactSolution)
 
 # %% Posterior
 posterior = cuqi.distribution.Posterior(likelihood, prior)

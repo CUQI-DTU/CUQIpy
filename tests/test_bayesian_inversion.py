@@ -120,9 +120,9 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
 
     # Sample posterior using UQ method
     if len(priors) == 1: # No hyperparameters
-        samples = BP.UQ(Ns=Ns, exact=probInfo.exactSolution)
+        samples = BP.uq(Ns=Ns, exact=probInfo.exactSolution)
     else:
-        samples = BP.UQ(Ns=Ns, exact={priors[0].name: probInfo.exactSolution})
+        samples = BP.uq(Ns=Ns, exact={priors[0].name: probInfo.exactSolution})
 
     # No regression test yet, just check that the samples are the right shape
     if isinstance(samples, dict): # Gibbs case

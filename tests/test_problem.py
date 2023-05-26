@@ -61,7 +61,7 @@ def test_BayesianProblem_hier_errors():
         BP.sample_prior(10)
 
     with pytest.raises(NotImplementedError, match=r"Unable to determine sampling strategy"):
-        BP.UQ()
+        BP.uq()
 
     with pytest.raises(NotImplementedError, match=r"Unable to determine sampling strategy"):
         BP.sample_posterior(10)
