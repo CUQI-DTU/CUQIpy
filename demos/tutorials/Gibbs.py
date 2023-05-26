@@ -34,7 +34,7 @@ Gibbs sampling
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, Laplace_diff
+from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, LMRF
 from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
@@ -204,19 +204,19 @@ samples['l'].plot_trace(figsize=(8,2))
 #
 # .. math::
 #
-#     \mathbf{x} \sim \text{Laplace_diff}(\mathbf{0}, d^{-1}),
+#     \mathbf{x} \sim \text{LMRF}(\mathbf{0}, d^{-1}),
 #
 # which means that :math:`x_i-x_{i-1} \sim \mathrm{Laplace}(0, d^{-1})`.
 #
-# This prior is implemented in CUQIpy as the ``Laplace_diff`` distribution.
+# This prior is implemented in CUQIpy as the ``LMRF`` distribution.
 # To update our model we simply need to replace the ``GMRF`` distribution
-# with the ``Laplace_diff`` distribution. Note that the Laplace distribution
+# with the ``LMRF`` distribution. Note that the Laplace distribution
 # is defined via a scale parameter, so we invert the parameter :math:`d`.
 #
 # This laplace distribution and new posterior can be defined as follows:
 
 # Define new distribution for x
-x = Laplace_diff(np.zeros(n), lambda d: 1/d)
+x = LMRF(np.zeros(n), lambda d: 1/d)
 
 # Define new joint distribution with piecewise constant prior
 joint_Ld = JointDistribution(d, l, x, y)

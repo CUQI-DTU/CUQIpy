@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 TP = cuqi.testproblem.Deconvolution2D(phantom=cuqi.data.grains())
 
 # Define prior
-TP.prior = cuqi.distribution.Laplace_diff(location=np.zeros(TP.model.domain_dim),
+TP.prior = cuqi.distribution.LMRF(location=np.zeros(TP.model.domain_dim),
                                           scale=0.01,
                                           bc_type="neumann",
                                           physical_dim=2,
@@ -107,7 +107,7 @@ Ns = 500
 
 # Define test problem and prior
 TP = cuqi.testproblem.Deconvolution1D(phantom="square") # Default values
-TP.prior = cuqi.distribution.Laplace_diff(np.zeros(TP.model.domain_dim), 0.01) # Set prior
+TP.prior = cuqi.distribution.LMRF(np.zeros(TP.model.domain_dim), 0.01) # Set prior
 
 # Create callback function for progress plotting (Burn-in is 20% by default so we allocate 120% of samples)
 callback = make_callback_function(fig, TP, int(1.2*Ns))

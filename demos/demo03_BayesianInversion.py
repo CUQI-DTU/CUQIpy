@@ -35,7 +35,7 @@ P1 = cuqi.distribution.GMRF(np.zeros(n), 25, 1, 'zero', name="x")
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-P2 = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann', name="x")
+P2 = cuqi.distribution.CMRF(loc, scale, 'neumann', name="x")
 
 #%% Generate and display some prior samples
 sp1 = P1.sample(5)

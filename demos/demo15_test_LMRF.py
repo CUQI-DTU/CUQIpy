@@ -12,7 +12,7 @@ mean = np.zeros(N)
 prec = 1.0
 dom = 1
 BCs = 'neumann'
-x = cuqi.distribution.LMRF(mean, prec, N, dom, BCs)
+x = cuqi.distribution.LMRF(mean, prec, BCs)
 print(x.logd(np.array([3,4])))
 #%%
 location = 0

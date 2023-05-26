@@ -39,7 +39,7 @@ def likelihood_logpdf(x): return test.likelihood.logd(x)
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+prior = cuqi.distribution.CMRF(loc, scale, 'neumann')
 def prior_logpdf(x): return prior.logd(x)
 
 # =============================================================================

@@ -47,8 +47,8 @@ TP.prior = cuqi.distribution.Gaussian(
     cov=1
 )
 
-# Laplace_diff prior (promotes piece-wise constant regions)
-TP.prior = cuqi.distribution.Laplace_diff(
+# LMRF prior (promotes piece-wise constant regions)
+TP.prior = cuqi.distribution.LMRF(
     location=np.zeros(TP.model.domain_dim),
     scale=0.01,
     physical_dim=2 # Indicates that the prior should be in 2D.

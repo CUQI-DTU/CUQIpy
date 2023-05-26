@@ -25,7 +25,7 @@ samples_bt.plot_pair(marginals=True)
 # %% Try the plotting tools with 4 variable distribution
 import numpy as np
 #dist4 = cuqi.distribution.Gaussian(np.array([1,2,3,4]),1)
-dist4 = cuqi.distribution.LMRF(np.array([1,2,3,4,5,6]), 1, 6, 1, 'zero')
+dist4 = cuqi.distribution.LMRF(np.zeros(6), 1, 'zero')
 sampler4 = cuqi.sampler.MH(dist4)
 samples4 = sampler4.sample_adapt(50000)
 samples4.geometry = cuqi.geometry.Discrete(["a","b","c","d","e","f"])

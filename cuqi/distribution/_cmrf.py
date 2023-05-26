@@ -5,7 +5,7 @@ from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
 
-class Cauchy_diff(Distribution):
+class CMRF(Distribution):
     """Cauchy distribution on the difference between neighboring nodes.
 
     For 1D `(physical_dim=1)`, the Cauchy difference distribution assumes that
@@ -42,7 +42,7 @@ class Cauchy_diff(Distribution):
 
         import cuqi
         import numpy as np
-        prior = cuqi.distribution.Cauchy_diff(location=np.zeros(128), scale=0.1)
+        prior = cuqi.distribution.CMRF(location=np.zeros(128), scale=0.1)
  
     """
    
@@ -60,7 +60,7 @@ class Cauchy_diff(Distribution):
             num_nodes = (N, N)
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
-            print("Warning: 2D Cauchy_diff is still experimental. Use at own risk.")
+            print("Warning: 2D CMRF is still experimental. Use at own risk.")
         elif physical_dim == 1:
             num_nodes = self.dim
         else:
@@ -89,7 +89,7 @@ class Cauchy_diff(Distribution):
             warnings.warn('Gradient not implemented for {}'.format(type(self.location)))
 
     def _sample(self,N=1,rng=None):
-        raise NotImplementedError("'Cauchy_diff.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
+        raise NotImplementedError("'CMRF.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
     #     return 1/np.pi * np.atan((x-self.loc)/self.scale)

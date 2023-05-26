@@ -12,7 +12,7 @@ class UGLA(Sampler):
     Samples an approximate posterior where the prior is approximated
     by a Gaussian distribution. The likelihood must be Gaussian.
 
-    Currently only works for Laplace_diff priors.
+    Currently only works for LMRF priors.
 
     The inner solver is Conjugate Gradient Least Squares (CGLS) solver.
 
@@ -68,9 +68,9 @@ class UGLA(Sampler):
         if not hasattr(self.target.likelihood.distribution, "sqrtprec"):
             raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
 
-        # Check that prior is Laplace_diff
-        if not isinstance(self.target.prior, cuqi.distribution.Laplace_diff):
-            raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires Laplace_diff prior')
+        # Check that prior is LMRF
+        if not isinstance(self.target.prior, cuqi.distribution.LMRF):
+            raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires LMRF prior')
 
         # Modify initial guess since Sampler sets it to ones.       
         if x0 is not None:
@@ -115,7 +115,7 @@ class UGLA(Sampler):
         D = self.target.prior._diff_op
         n = D.shape[0]
 
-        # Gaussian approximation of Laplace_diff prior as function of x_k
+        # Gaussian approximation of LMRF prior as function of x_k
         def Lk_fun(x_k):
             dd =  1/np.sqrt((D @ x_k)**2 + self.beta*np.ones(n))
             W = sp.sparse.diags(dd)
