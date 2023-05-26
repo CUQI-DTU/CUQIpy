@@ -56,7 +56,7 @@ samples = TP.sample_posterior(200)
 samples.plot_ci(exact=TP.exactSolution)
 
 # %%
-TP.prior = cuqi.distribution.Laplace_diff(
+TP.prior = cuqi.distribution.LMRF(
     location=np.zeros(TP.model.domain_dim),
     scale=0.001,
     physical_dim=2
