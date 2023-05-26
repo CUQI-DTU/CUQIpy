@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import pCN, MetropolisHastings, NUTS
+from cuqi.sampler import pCN, MH, NUTS
 from cuqi.distribution import DistributionGallery
 
 #%%
@@ -81,7 +81,7 @@ Ns = int(5e3)      # number of samples
 Nb = int(0.5*Ns)   # burn-in
 
 # MH
-MCMC = MetropolisHastings(dist)
+MCMC = MH(dist)
 ti = time.time()
 x_s_MH = MCMC.sample_adapt(Ns, Nb)
 print('Elapsed time MH:', time.time() - ti, '\n')
