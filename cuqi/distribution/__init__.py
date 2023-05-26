@@ -1,7 +1,7 @@
 from ._distribution import Distribution
 from ._beta import Beta
 from ._cauchy import Cauchy
-from ._cauchy_diff import Cauchy_diff
+from ._cmrf import CMRF
 from ._gamma import Gamma
 from ._gaussian import Gaussian, JointGaussianSqrtPrec
 from ._gmrf import GMRF

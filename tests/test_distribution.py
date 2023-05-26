@@ -621,13 +621,13 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
     assert np.allclose(g_exact, g_FD) and np.all(g_exact != g_FD)\
         or (np.all(np.isnan(g_exact)) and np.all(np.isnan(g_FD)))
 
-def test_Cauchy_diff_should_not_allow_non_zero_location():
-    """" Cauchy_diff should not allow non-zero location. """
+def test_CMRF_should_not_allow_non_zero_location():
+    """" CMRF should not allow non-zero location. """
     with pytest.raises(ValueError):
-        cuqi.distribution.Cauchy_diff(np.ones(5), 1)
+        cuqi.distribution.CMRF(np.ones(5), 1)
 
     with pytest.raises(ValueError):
-        cuqi.distribution.Cauchy_diff(lambda x: x, 1)
+        cuqi.distribution.CMRF(lambda x: x, 1)
 
 def test_LMRF_should_not_allow_non_zero_location():
     """" LMRF should not allow non-zero location. """

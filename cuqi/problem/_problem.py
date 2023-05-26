@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, Cauchy_diff
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -577,7 +577,7 @@ class BayesianProblem(object):
             if disp: print("Optimizing with approximate gradients.") 
 
         # Compute point estimate
-        if self._check_posterior(self, Cauchy_diff, must_have_gradient=True): # Use L-BFGS-B for Cauchy_diff prior as it has better performance for this multi-modal posterior
+        if self._check_posterior(self, CMRF, must_have_gradient=True): # Use L-BFGS-B for CMRF prior as it has better performance for this multi-modal posterior
             if disp: print(f"Using scipy.optimize.L_BFGS_B on negative log of {density.__class__.__name__}")
             if disp: print("x0: ones vector")
             solver = cuqi.solver.L_BFGS_B(func, x0, gradfunc=gradfunc)

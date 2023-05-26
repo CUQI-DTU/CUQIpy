@@ -151,7 +151,7 @@ def test_Abel():
 @pytest.mark.parametrize("prior",[
     (cuqi.distribution.Gaussian(np.zeros(128**2), 1, name="x")),
     #(cuqi.distribution.LMRF(np.zeros(128**2), 1, "zeros")),
-    #(cuqi.distribution.Cauchy_diff(np.zeros(128**2), 1, "zeros")),
+    #(cuqi.distribution.CMRF(np.zeros(128**2), 1, "zeros")),
 ])
 def test_Deconvolution2D_Sampling_prior(prior): 
     tp = cuqi.testproblem.Deconvolution2D(prior=prior)

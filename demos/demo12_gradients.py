@@ -21,7 +21,7 @@ if (pr == 'gaussian'):
 elif (pr == 'cauchy'):
     h = 1/n
     delta = 0.3
-    prior = cuqi.distribution.Cauchy_diff(np.zeros(n), delta*h, 'neumann')
+    prior = cuqi.distribution.CMRF(np.zeros(n), delta*h, 'neumann')
 
 # %%
 # Compare with MAP computed using BayesianProblem (within the testproblem)

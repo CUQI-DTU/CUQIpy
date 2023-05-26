@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, GMRF, Cauchy_diff, LMRF, Gamma
+from cuqi.distribution import Gaussian, GMRF, CMRF, LMRF, Gamma
 from cuqi.problem import BayesianProblem
 from cuqi.density import Density
 
@@ -15,12 +15,12 @@ from cuqi.density import Density
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
                              (Deconvolution1D, "square", LMRF(np.zeros(128), 0.005), 100),
-                             (Deconvolution1D, "square", Cauchy_diff(np.zeros(128), 0.01), 50),
+                             (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50),
                          ])
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     # SKIP NUTS test if not windows (for now)
-    if isinstance(prior, Cauchy_diff) and not sys.platform.startswith('win'):
-        pytest.skip("NUTS(Cauchy_diff) regression test is not implemented for this platform")
+    if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
+        pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
 
     np.random.seed(19937)
 

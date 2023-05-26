@@ -4,7 +4,7 @@ sys.path.append("..")
 import numpy as np
 import cuqi
 from cuqi.model import LinearModel
-from cuqi.distribution import Gaussian, LMRF, Cauchy_diff, Gamma
+from cuqi.distribution import Gaussian, LMRF, CMRF, Gamma
 from cuqi.problem import BayesianProblem
 
 # %% Minimal example
@@ -43,7 +43,7 @@ samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
 # switch prior again
 # Set up Bayesian model for inverse problem
 A  = LinearModel(Amat)                                  # y = Ax. Model for inverse problem
-x  = Cauchy_diff(np.zeros(n), 0.01, bc_type='zero')     # x ~ Cauchy_diff(0,0.01), Zero BC
+x  = CMRF(np.zeros(n), 0.01, bc_type='zero')     # x ~ CMRF(0,0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
 samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
@@ -84,7 +84,7 @@ try:
     A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
     d  = Gamma(1, 1e-2)                                      # d ~ Gamma(1, 10^-2)
     l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
-    x  = Cauchy_diff(np.zeros(n), lambda d: 1/d)             # x ~ Cauchy_diff(0, d^{-1}), Zero BC
+    x  = CMRF(np.zeros(n), lambda d: 1/d)             # x ~ CMRF(0, d^{-1}), Zero BC
     y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
     IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
     samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
