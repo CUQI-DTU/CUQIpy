@@ -1,6 +1,9 @@
 from __future__ import annotations
 from typing import List, Any
-
+from ._ast import RandomVariableNode
+import operator
+import cuqi
+from sortedcollections import OrderedSet
 
 class RandomVariable:
     """ Random variable defined by a base distribution with potential algebraic operations applied to it.
@@ -57,146 +60,127 @@ class RandomVariable:
 
     """
 
-    def __init__(self, distribution, operations=None, operations_string=None):
+    def __init__(self, distributions: set, tree: RandomVariableNode = None):
         """ Create random variable from distribution """
-        if distribution.name is None or distribution.name == "distribution":
-            raise ValueError(
-                "Unable to create random variable from distribution without name. Ensure "
-                "distribution is defined as a variable, e.g. x = Gaussian(0, 1) or provide "
-                "a name, e.g. Gaussian(0, 1, name='x')"
-            )
+        # Convert to list if single distribution
+        if not isinstance(distributions, OrderedSet):
+            distributions = OrderedSet([distributions])
         
-        self._distribution = distribution
+        # Check that distributions have names
+        for distribution in distributions:
+            if distribution.name is None or distribution.name == "distribution":
+                raise ValueError(
+                    "Unable to create random variable from distribution without name. Ensure "
+                    "distribution is defined as a variable, e.g. x = Gaussian(0, 1) or provide "
+                    "a name, e.g. Gaussian(0, 1, name='x')"
+                )
+        
+        self._distributions = distributions
         """ The distribution from which the random variable originates. """
 
-        self._operations = operations or []
-        """ List of operations to apply to random variable. """
-
-        self._operations_string = operations_string
-        """ String representation of operations on random variable. """
+        if tree is None:
+            if len(distributions) > 1:
+                raise ValueError("Cannot create random variable from multiple distributions")
+            tree = RandomVariableNode(next(iter(distributions)).name)
+        
+        self._tree = tree
+        """ The tree representation of the random variable. """
 
     def __call__(self, *args, **kwargs) -> Any:
         """ Evaluate random variable at a given parameter value. """
         if args and kwargs:
             raise ValueError("Cannot pass both positional and keyword arguments to RandomVariable")
-
-        if len(args) > 1 or len(kwargs) > 1:
-            raise ValueError("Cannot pass more than one argument to RandomVariable")
         
-        value = self._parse_args_and_kwargs(*args, **kwargs)
+        if args:
+            kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
-        # Apply operations to value sequentially
-        for operation in self._operations:
-            value = operation(value)
-
-        return value
+        return self._tree(**kwargs)
 
     @property
-    def operations_string(self) -> str:
-        """ String representation of operations on random variable. """
-        return self._operations_string or self.parameter_name   
-        
-    @operations_string.setter
-    def operations_string(self, value):
-        self._operations_string = value
-
-    @property
-    def parameter_name(self) -> str:
+    def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
-        return self._distribution.name  # type: ignore
+        return [distribution.name for distribution in self._distributions]
     
     @property
     def _non_default_args(self) -> List[str]:
         """List of non-default arguments to distribution. This is used to return the correct
         arguments when evaluating the random variable.
         """
-        return [self._distribution.name] # type: ignore
+        return self.parameter_names
     
-    def _parse_args_and_kwargs(self, *args, **kwargs):
-        """ Parse args and kwargs to get input value for random variable. """
-        if args:
-            return args[0]
+    def _parse_args_add_to_kwargs(self, args, kwargs) -> dict:
+        """ Parse args and add to kwargs if any. Arguments follow self.parameter_names order. """
+        if len(args) != len(self.parameter_names):
+            raise ValueError(f"Expected {len(self.parameter_names)} arguments, got {len(args)}")
         
-        for key, value in kwargs.items():
-            if key in self._non_default_args:
-                return value
-            
-        expected_param = self._non_default_args[0]
-        raise ValueError(f"Must pass either a positional or keyword argument that matches the expected parameter: {expected_param}")
+        # Add args to kwargs
+        for arg, name in zip(args, self.parameter_names):
+            kwargs[name] = arg
+        
+        return kwargs
 
     def __repr__(self):
+        # Create strings for parameter name ~ distribution pairs
+        parameter_strings = [f"{name} ~ {distribution}" for name, distribution in zip(self.parameter_names, self._distributions)]
+        # Join strings with newlines
+        parameter_strings = "\n".join(parameter_strings)
+        # Add initial newline and indentations
+        parameter_strings = "\n".join(["\t"+line for line in parameter_strings.split("\n")])
+        # Print parameter strings with newlines
         return (f"RandomVariable\n"
-                f"Original: {self.parameter_name} ~ {self._distribution}\n"
-                f"Transformations: {self.operations_string}")
-
-    def _lazy_apply_operation(self, operation, operation_string_lambda):
+                f"Distributions: \n{parameter_strings}\n"
+                f"Transformations: {self._tree}")
+   
+    def _apply_operation(self, operation, other=None) -> 'RandomVariable':
         """
-        Apply a new operation to this random variable, returning a new random variable.
-
-        This function is "lazy" in that it doesn't actually perform the operation,
-        but instead records it in a list of operations to be applied later.
-        
-        The new random variable will share the same underlying distribution, but will have 
-        a modified list of operations and a modified string representation reflecting 
-        the new operation.
-
-        Args:
-            operation (callable): A function that represents the new operation. This function 
-                should take one argument (the value to be operated on) and return the result 
-                of the operation.
-
-            operation_string_lambda (callable): A function that takes the current operation 
-                string and returns the new operation string. This function should reflect 
-                the new operation being added.
-
-        Returns:
-            RandomVariable: A new random variable with the added operation.
+        Apply a specified operation to this RandomVariable.
         """
-        new_operations = self._operations + [operation]
-        new_operations_string = operation_string_lambda(self.operations_string)
-        return RandomVariable(self._distribution, new_operations, new_operations_string)
+        if isinstance(other, cuqi.distribution.Distribution):
+            other = other.as_random_variable()
+        if other is None:
+            return RandomVariable(self._distributions, operation(self._tree))
+        elif isinstance(other, RandomVariable):
+            return RandomVariable(self._distributions | other._distributions, operation(self._tree, other._tree))
+        return RandomVariable(self._distributions, operation(self._tree, other))
 
-    # Following methods redefine arithmetic operations for the RandomVariable. 
-    # They return a new RandomVariable with the respective operation added to its transformation list.
-    
-    def __add__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x + other, lambda s: f"{s} + {other}")
+    def __add__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.add, other)
 
-    def __radd__(self, other) -> RandomVariable:
+    def __radd__(self, other) -> 'RandomVariable':
         return self.__add__(other)
 
-    def __sub__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x - other, lambda s: f"{s} - {other}")
+    def __sub__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.sub, other)
 
-    def __rsub__(self, other) -> RandomVariable:
+    def __rsub__(self, other) -> 'RandomVariable':
         return self.__sub__(other)
 
-    def __mul__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x * other, lambda s: f"({s}) * {other}")
+    def __mul__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.mul, other)
 
-    def __rmul__(self, other) -> RandomVariable:
+    def __rmul__(self, other) -> 'RandomVariable':
         return self.__mul__(other)
 
-    def __truediv__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x / other, lambda s: f"({s}) / {other}")
+    def __truediv__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.truediv, other)
 
-    def __rtruediv__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: other / x, lambda s: f"{other} / ({s})")
+    def __rtruediv__(self, other) -> 'RandomVariable':
+        return self._apply_operation(lambda x, y: operator.truediv(y, x), other)
 
-    def __matmul__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x @ other, lambda s: f"({s}) @ {other}")
+    def __matmul__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.matmul, other)
 
-    def __rmatmul__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: other @ x, lambda s: f"{other} @ ({s})")
+    def __rmatmul__(self, other) -> 'RandomVariable':
+        return self._apply_operation(lambda x, y: operator.matmul(y, x), other)
 
-    def __neg__(self) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: -x, lambda s: f"-({s})")
+    def __neg__(self) -> 'RandomVariable':
+        return self._apply_operation(operator.neg)
 
-    def __abs__(self) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: abs(x), lambda s: f"abs({s})")
+    def __abs__(self) -> 'RandomVariable':
+        return self._apply_operation(abs)
 
-    def __pow__(self, other) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x ** other, lambda s: f"({s}) ^ {other}")
+    def __pow__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.pow, other)
 
-    def __getitem__(self, i) -> RandomVariable:
-        return self._lazy_apply_operation(lambda x: x[i], lambda s: f"({s})[{i}]")
+    def __getitem__(self, other) -> 'RandomVariable':
+        return self._apply_operation(operator.getitem, other)

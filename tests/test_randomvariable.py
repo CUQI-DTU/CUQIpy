@@ -102,4 +102,46 @@ def test_randomvariable_works_with_distribution_conditioning(operations):
     # Check conditioning works and provides the expected result
     assert np.allclose(y_cond_x.cov, operations(val))
 
+@pytest.mark.parametrize("operations", [
+    lambda x, y, z: x + y,
+    lambda x, y, z: x * y,
+    lambda x, y, z: x / y,
+    lambda x, y, z: x ** y,
+    lambda x, y, z: x @ y,
+    lambda x, y, z: x + y + z,
+    lambda x, y, z: x * y * z,
+    lambda x, y, z: x / y / z,
+    lambda x, y, z: x ** y ** z,
+    lambda x, y, z: x + y * z,
+    lambda x, y, z: x * y + z,
+    lambda x, y, z: x + y @ z,
+    lambda x, y, z: x @ y + z,
+    lambda x, y, z: x[0]+z,
+    lambda x, y, z: abs(x[0])+z,
+    lambda x, y, z: (x + y) * z,
+    lambda x, y, z: (x - y) / z,
+    lambda x, y, z: x ** (y + z),
+    lambda x, y, z: abs(x) + abs(y * z),
+    lambda x, y, z: (x + y) * (z + 1) - x * y,
+    lambda x, y, z: x / (y ** z) + (x * y) ** z,
+    lambda x, y, z: abs(x) * (abs(y) + abs(z)),
+    lambda x, y, z: abs(x * y) + abs(y * z) + abs(z * x),
+    lambda x, y, z: x * y + y * z + z * x,
+])
+def test_randomvariable_algebra_works_on_joint_space(operations):
+    """ Test that algebraic operations on random variables work in joint space """
+    x = cuqi.distribution.Gaussian(0, 1)
+    y = cuqi.distribution.Gaussian(0, 1)
+    z = cuqi.distribution.Gaussian(0, 1)
 
+    # Define a random variable in joint space
+    rv = operations(x, y, z)
+
+    # Check that the random variable is a random variable
+    assert isinstance(rv, cuqi.randomvariable.RandomVariable)
+
+    # Check operations work
+    val_x = abs(np.random.randn(x.dim))+1
+    val_y = abs(np.random.randn(y.dim))+1
+    val_z = abs(np.random.randn(z.dim))+1
+    assert np.allclose(rv(x=val_x, y=val_y, z=val_z), operations(val_x, val_y, val_z))

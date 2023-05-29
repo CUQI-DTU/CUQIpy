@@ -438,6 +438,11 @@ class Distribution(Density, ABC):
         """Return a RandomVariable instance of this distribution"""
         return RandomVariable(self)
     
+    @property
+    def rv(self):
+        """Return a RandomVariable instance of this distribution"""
+        return self.as_random_variable()
+    
     def __add__(self, other) -> RandomVariable:
         return self.as_random_variable().__add__(other)
     
