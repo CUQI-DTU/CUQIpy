@@ -11,6 +11,7 @@ Random variables
 # First, we import the necessary packages.
 
 import cuqi
+from cuqi.distribution import Gaussian, Gamma
 
 # %%
 # Random variables are born from distributions.

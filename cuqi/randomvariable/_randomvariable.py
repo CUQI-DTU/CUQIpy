@@ -95,7 +95,11 @@ class RandomVariable:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
         return self._tree(**kwargs)
-
+    
+    def sample(self):
+        """ Sample random variable. """
+        return self(**{distribution.name: distribution.sample() for distribution in self._distributions})
+         
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """

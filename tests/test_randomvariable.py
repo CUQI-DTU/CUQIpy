@@ -145,3 +145,44 @@ def test_randomvariable_algebra_works_on_joint_space(operations):
     val_y = abs(np.random.randn(y.dim))+1
     val_z = abs(np.random.randn(z.dim))+1
     assert np.allclose(rv(x=val_x, y=val_y, z=val_z), operations(val_x, val_y, val_z))
+
+@pytest.mark.parametrize("operations", [
+    lambda x, y, z: x + y,
+    lambda x, y, z: x * y,
+    lambda x, y, z: x / y,
+    lambda x, y, z: x ** y,
+    lambda x, y, z: x + y + z,
+    lambda x, y, z: x * y * z,
+    lambda x, y, z: x / y / z,
+    lambda x, y, z: x ** y ** z,
+    lambda x, y, z: x + y * z,
+    lambda x, y, z: x * y + z,
+    lambda x, y, z: (x + y) * z,
+    lambda x, y, z: (x - y) / z,
+    lambda x, y, z: x ** (y + z),
+    lambda x, y, z: abs(x) + abs(y * z),
+    lambda x, y, z: (x + y) * (z + 1) - x * y,
+    lambda x, y, z: x / (y ** z) + (x * y) ** z,
+    lambda x, y, z: abs(x) * (abs(y) + abs(z)),
+    lambda x, y, z: abs(x * y) + abs(y * z) + abs(z * x),
+    lambda x, y, z: x * y + y * z + z * x,
+])
+def test_randomvariable_sample(operations):
+    """ Test that random variable sampling works """
+    x = cuqi.distribution.Gaussian(0, 1)
+    y = cuqi.distribution.Gaussian(0, 1)
+    z = cuqi.distribution.Gaussian(0, 1)
+
+    # Define a random variable in joint space
+    rv = operations(x, y, z)
+
+    # Fix rng and sample
+    np.random.seed(0)
+    result = rv.sample()
+
+    # Check that the result compares to the expected result
+    np.random.seed(0)
+    expected_result = operations(x.sample(), y.sample(), z.sample())
+
+    assert np.allclose(result, expected_result)
+

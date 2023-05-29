@@ -130,7 +130,7 @@ class NegateNode(UnaryNode):
         return -self.child(**kwargs)
     
     def __repr__(self):
-        child = f"({self.child})" if isinstance(self.child, BinaryNode) else str(self.child)
+        child = f"({self.child})" if isinstance(self.child, (BinaryNode, UnaryNode)) else str(self.child)
         return f"-{child}"
 
 class AbsNode(UnaryNode):
