@@ -1,9 +1,10 @@
 from __future__ import annotations
 from typing import List, Any
 from ._ast import RandomVariableNode
+from ._orderedset import OrderedSet
 import operator
 import cuqi
-from sortedcollections import OrderedSet
+
 
 class RandomVariable:
     """ Random variable defined by a base distribution with potential algebraic operations applied to it.
