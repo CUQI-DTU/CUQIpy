@@ -213,10 +213,14 @@ class TimeDependentLinearPDE(LinearPDE):
         # Set time_obs
         if time_obs is None:
             raise ValueError("time_obs cannot be None")
-        elif isinstance(time_obs, str) and time_obs.lower() == 'final':
-            time_obs = time_steps[-1:]
-        elif isinstance(time_obs, str) and time_obs.lower() == 'all':
-            time_obs = time_steps
+        elif isinstance(time_obs, str):
+            if time_obs.lower() == 'final':
+                time_obs = time_steps[-1:]
+            elif time_obs.lower() == 'all':
+                time_obs = time_steps
+            else:
+                raise ValueError("if time_obs is a string, it can only be set "
+                                 +"to `final` or `all`")
         self._time_obs = time_obs
 
     @property
