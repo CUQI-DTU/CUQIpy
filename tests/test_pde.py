@@ -193,7 +193,7 @@ def test_observe():
     "grid_obs, time_obs, observation_map, expected_obs",
     [(None, 'final', None, 'obs1'),
      (None, 'final', lambda x: x**2, 'obs2'),
-     ('half_grid', 'LINAL', None, 'obs3'),
+     ('half_grid', 'FINAL', None, 'obs3'),
      ('half_grid', 'every_5', None, 'obs4'),
      (None, 'every_5', lambda x: x**2, 'obs5'),
      (np.array([3, 4.9]), np.array([0.9, 1]), lambda x: x**2, 'obs6')])
