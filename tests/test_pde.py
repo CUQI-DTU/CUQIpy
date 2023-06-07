@@ -191,9 +191,9 @@ def test_observe():
      ('backward_euler', 'fixed', 'source_term2', 'sol5')])
 @pytest.mark.parametrize(
     "grid_obs, time_obs, observation_map, expected_obs",
-    [(None, 'last', None, 'obs1'),
-     (None, 'last', lambda x: x**2, 'obs2'),
-     ('half_grid', 'LAST', None, 'obs3'),
+    [(None, 'final', None, 'obs1'),
+     (None, 'final', lambda x: x**2, 'obs2'),
+     ('half_grid', 'LINAL', None, 'obs3'),
      ('half_grid', 'every_5', None, 'obs4'),
      (None, 'every_5', lambda x: x**2, 'obs5'),
      (np.array([3, 4.9]), np.array([0.9, 1]), lambda x: x**2, 'obs6')])
@@ -277,7 +277,7 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
     obs_sol = PDE.observe(sol)
 
     # compute the expected observed solution (for comparison)
-    if isinstance(time_obs, str) and time_obs.lower() == 'last':
+    if isinstance(time_obs, str) and time_obs.lower() == 'final':
         time_obs = time_steps[-1:]
     if grid_obs is None:
         grid_obs = grid_sol
