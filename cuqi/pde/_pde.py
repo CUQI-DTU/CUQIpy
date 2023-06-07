@@ -191,7 +191,7 @@ class TimeDependentLinearPDE(LinearPDE):
         An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time
         
     time_obs : array_like or str
-        If passed as an array_like, it is an array of the times at which the solution is observed. If passed as a string it can be set to `last` to observe at the last time step. or `all` to observe at all time steps. Default is `last`.
+        If passed as an array_like, it is an array of the times at which the solution is observed. If passed as a string it can be set to `final` to observe at the final time step, or `all` to observe at all time steps. Default is `final`.
 
     method: str
         Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`.
@@ -204,7 +204,7 @@ class TimeDependentLinearPDE(LinearPDE):
     See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
     """
 
-    def __init__(self, PDE_form, time_steps, time_obs='last', method='forward_euler', **kwargs):
+    def __init__(self, PDE_form, time_steps, time_obs='final', method='forward_euler', **kwargs):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
@@ -213,7 +213,7 @@ class TimeDependentLinearPDE(LinearPDE):
         # Set time_obs
         if time_obs is None:
             raise ValueError("time_obs cannot be None")
-        elif isinstance(time_obs, str) and time_obs.lower() == 'last':
+        elif isinstance(time_obs, str) and time_obs.lower() == 'final':
             time_obs = time_steps[-1:]
         elif isinstance(time_obs, str) and time_obs.lower() == 'all':
             time_obs = time_steps
@@ -268,7 +268,7 @@ class TimeDependentLinearPDE(LinearPDE):
     def observe(self, solution):
 
         # If observation grid is the same as solution grid and observation time
-        # is the last time step then no need to interpolate
+        # is the final time step then no need to interpolate
         if self.grids_equal and np.all(self.time_steps[-1:] == self._time_obs):
             solution_obs = solution[..., -1]
 
