@@ -84,6 +84,8 @@ class PDE(ABC):
 
     @grid_obs.setter
     def grid_obs(self,value):
+        if value is None:
+            value = self.grid_sol
         self._grids_equal = self._compare_grid(value,self.grid_sol)
         self._grid_obs = value
 
@@ -186,7 +188,10 @@ class TimeDependentLinearPDE(LinearPDE):
         Callable function with signature `PDE_form(parameter, t)` where `parameter` is the Bayesian parameter and `t` is the time at which the PDE form is evaluated. The function returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. The types of `differential_operator` and `source_term` are determined by what the method :meth:`linalg_solve` accepts as linear operator and right-hand side, respectively. The type of `initial_condition` should be the same type as the solution returned by :meth:`linalg_solve`.
 
     time_steps : ndarray 
-        An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time.
+        An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time
+        
+    time_obs : array_like or str
+        If passed as an array_like, it is an array of the times at which the solution is observed. If passed as a string it can be set to `final` to observe at the final time step, or `all` to observe at all time steps. Default is `final`.
 
     method: str
         Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`.
@@ -199,11 +204,24 @@ class TimeDependentLinearPDE(LinearPDE):
     See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
     """
 
-    def __init__(self, PDE_form, time_steps, method='forward_euler', **kwargs):
+    def __init__(self, PDE_form, time_steps, time_obs='final', method='forward_euler', **kwargs):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
         self.method = method
+
+        # Set time_obs
+        if time_obs is None:
+            raise ValueError("time_obs cannot be None")
+        elif isinstance(time_obs, str):
+            if time_obs.lower() == 'final':
+                time_obs = time_steps[-1:]
+            elif time_obs.lower() == 'all':
+                time_obs = time_steps
+            else:
+                raise ValueError("if time_obs is a string, it can only be set "
+                                 +"to `final` or `all`")
+        self._time_obs = time_obs
 
     @property
     def method(self):
@@ -226,37 +244,62 @@ class TimeDependentLinearPDE(LinearPDE):
 
     def solve(self):
         """Solve PDE by time-stepping"""
+        # initialize time-dependent solution
+        self.assemble_step(self.time_steps[0])
+        u = np.empty((len(self.initial_condition), len(self.time_steps)))
+        u[:, 0] = self.initial_condition
 
         if self.method == 'forward_euler':
             for idx, t in enumerate(self.time_steps[:-1]):
                 dt = self.time_steps[idx+1] - t
                 self.assemble_step(t)
-                if idx == 0:
-                    u = self.initial_condition
-                u = (dt*self.diff_op + np.eye(len(u)))@u + dt*self.rhs  # from u at time t, gives u at t+dt
+                u_pre = u[:, idx]
+                u[:, idx+1] = (dt*self.diff_op + np.eye(len(u_pre)))@u_pre + dt*self.rhs  # from u at time t, gives u at t+dt
             info = None
 
         if self.method == 'backward_euler':
             for idx, t in enumerate(self.time_steps[1:]):
                 dt = t - self.time_steps[idx]
                 self.assemble_step(t)
-                if idx == 0:
-                    u = self.initial_condition
-                A = np.eye(len(u)) - dt*self.diff_op
+                u_pre = u[:, idx]
+                A = np.eye(len(u_pre)) - dt*self.diff_op
                 # from u at time t-dt, gives u at t
-                u, info = self._solve_linear_system(
-                    A, u + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
+                u[:, idx+1], info = self._solve_linear_system(
+                    A, u_pre + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
 
         return u, info
 
     def observe(self, solution):
-            
-        if self.grids_equal:
-            solution_obs = solution
-        else:
-            solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
 
+        # If observation grid is the same as solution grid and observation time
+        # is the final time step then no need to interpolate
+        if self.grids_equal and np.all(self.time_steps[-1:] == self._time_obs):
+            solution_obs = solution[..., -1]
+
+        # Interpolate solution in time and space to the observation
+        # time and space
+        else:
+            # Raise error if solution is 2D or 3D in space 
+            if len(solution.shape) > 2:
+                raise ValueError("Interpolation of solutions of 2D and 3D "+ 
+                                 "space dimensions based on the provided "+
+                                 "grid_obs and time_obs are not supported. "+
+                                 "You can, instead, pass a custom "+
+                                 "observation_map and pass grid_obs and "+
+                                 "time_obs as None.")
+            
+            # Interpolate solution in space and time to the observation
+            # time and space
+            solution_obs = scipy.interpolate.RectBivariateSpline(
+                self.grid_sol, self.time_steps, solution)(self.grid_obs,
+                                                          self._time_obs)
+
+        # Apply observation map
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs)
-            
+        
+        # squeeze if only one time observation
+        if len(self._time_obs) == 1:
+            solution_obs = solution_obs.squeeze()
+
         return solution_obs
