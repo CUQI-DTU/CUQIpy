@@ -49,9 +49,9 @@ A, y_obs, info = Deconvolution2D.get_components()
 # to another are in the horizontal and vertical directions.
 # 
 # This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.LMRF`.
-# Notice we have to specify the physical dimensions of the unknown.
+# Notice we have to specify the geometry of the unknown.
 
-x = LMRF(scale=0.1, geometry=A.domain_geometry)
+x = LMRF(location=0, scale=0.1, geometry=A.domain_geometry)
 
 # %%
 # Step 3: Likelihood model

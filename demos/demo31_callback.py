@@ -14,6 +14,7 @@ TP = cuqi.testproblem.Deconvolution2D(phantom=cuqi.data.grains())
 
 # Define prior
 TP.prior = cuqi.distribution.LMRF(
+    location=0,
     scale=0.01,
     bc_type="neumann",
     geometry=TP.model.domain_geometry
@@ -107,7 +108,7 @@ Ns = 500
 
 # Define test problem and prior
 TP = cuqi.testproblem.Deconvolution1D(phantom="square") # Default values
-TP.prior = cuqi.distribution.LMRF(0.01, geometry=TP.model.domain_geometry) # Set prior
+TP.prior = cuqi.distribution.LMRF(0, 0.01, geometry=TP.model.domain_geometry) # Set prior
 
 # Create callback function for progress plotting (Burn-in is 20% by default so we allocate 120% of samples)
 callback = make_callback_function(fig, TP, int(1.2*Ns))

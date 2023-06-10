@@ -30,7 +30,7 @@ if ndim == 2: Ns = 500
 #TP.prior = GMRF(np.zeros(n), 1/par**2, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 
 TP.prior = CMRF(location=np.zeros(n), scale=0.01, bc_type="zero", physical_dim=ndim, geometry=TP.model.domain_geometry)
-#TP.prior = LMRF(scale=0.01, bc_type="neumann", geometry=TP.model.domain_geometry)
+#TP.prior = LMRF(location=0, scale=0.01, bc_type="neumann", geometry=TP.model.domain_geometry)
 
 # Bad choices (ignore) both 1D and 2D
 #TP.prior = Beta(2*np.ones(n), 5*np.ones(n)) #Might need tuning

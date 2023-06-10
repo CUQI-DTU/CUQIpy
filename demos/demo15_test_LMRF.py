@@ -7,11 +7,12 @@ import matplotlib.pyplot as plt
 import scipy
 import cuqi.operator
 #%%
+location = 0
 N = 2
 prec = 1.0
 dom = 1
 BCs = 'neumann'
-x = cuqi.distribution.LMRF(prec, BCs, dim=N)
+x = cuqi.distribution.LMRF(location, prec, BCs, dim=N)
 print(x.logd(np.array([3,4])))
 #%%
 location = 0

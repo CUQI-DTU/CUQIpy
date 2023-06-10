@@ -2,6 +2,7 @@ import numpy as np
 from cuqi.geometry import _DefaultGeometry, Image2D, Continuous2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class LMRF(Distribution):
     """Laplace distribution on the difference between neighboring nodes.
@@ -18,8 +19,13 @@ class LMRF(Distribution):
 
     It is possible to define boundary conditions using the `bc_type` parameter.
 
+    The location parameter is a shift of the :math:`\mathbf{x}`.
+
     Parameters
     ----------
+    location : scalar or ndarray
+        The location parameter of the distribution.
+
     scale : scalar
         The scale parameter of the distribution.
 
@@ -35,13 +41,14 @@ class LMRF(Distribution):
 
         import cuqi
         import numpy as np
-        prior = cuqi.distribution.LMRF(scale=0.1, dim=128)
+        prior = cuqi.distribution.LMRF(location=0, scale=0.1, dim=128)
  
     """
-    def __init__(self, scale, bc_type="zero", physical_dim=None, **kwargs):
+    def __init__(self, location, scale, bc_type="zero", physical_dim=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
+        self.location = location
         self.scale = scale
         self._bc_type = bc_type
 
@@ -75,14 +82,18 @@ class LMRF(Distribution):
 
     @property
     def location(self):
-        return np.zeros(self.dim)
+        return self._location
+    
+    @location.setter
+    def location(self, value):
+        self._location = force_ndarray(value, flatten=True)
 
     def pdf(self, x):
-        Dx = self._diff_op @ x  # np.diff(X)
+        Dx = self._diff_op @ (x-self.location)  # np.diff(X)
         return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
 
     def logpdf(self, x):
-        Dx = self._diff_op @ x
+        Dx = self._diff_op @ (x-self.location)
         return len(Dx)*(-(np.log(2)+np.log(self.scale))) - np.linalg.norm(Dx, ord=1, axis=0)/self.scale
 
     def _sample(self,N=1,rng=None):
