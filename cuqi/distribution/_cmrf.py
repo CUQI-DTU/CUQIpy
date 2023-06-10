@@ -4,6 +4,8 @@ from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
+from cuqi.utilities import force_ndarray
+
 
 class CMRF(Distribution):
     """Cauchy distribution on the difference between neighboring nodes.
@@ -53,24 +55,43 @@ class CMRF(Distribution):
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+
+        # Ensure geometry has shape
+        if not self.geometry.fun_shape or self.geometry.par_dim == 1:
+            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with geometry or dim greater than 1.")
+
+        # Default physical_dim to geometry's dimension if not provided
+        physical_dim = len(self.geometry.fun_shape) if physical_dim is None else physical_dim
+
+        # Ensure provided physical dimension is either 1 or 2
+        if physical_dim not in [1, 2]:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        # Check for geometry mismatch
+        if not isinstance(self.geometry, _DefaultGeometry) and physical_dim != len(self.geometry.fun_shape):
+            raise ValueError(f"Specified physical dimension {physical_dim} does not match geometry's dimension {len(self.geometry.fun_shape)}")
+
         self._physical_dim = physical_dim
 
-        if physical_dim == 2:
+        # If physical_dim is 2 and geometry is _DefaultGeometry, replace it with Image2D
+        if self._physical_dim == 2:
             N = int(np.sqrt(self.dim))
             num_nodes = (N, N)
             if isinstance(self.geometry, _DefaultGeometry):
                 self.geometry = Image2D(num_nodes)
-            print("Warning: 2D CMRF is still experimental. Use at own risk.")
-        elif physical_dim == 1:
+        else:  # self._physical_dim == 1
             num_nodes = self.dim
-        else:
-            raise ValueError("Only physical dimension 1 or 2 supported.")
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
-        # Check if location parameter is non-zero vector (not supported)
-        if callable(location) or np.linalg.norm(location) > 0:
-            raise ValueError("Non-zero location parameter not supported.")
+    @property
+    def location(self):
+        return self._location
+    
+    @location.setter
+    def location(self, value):
+        self._location = force_ndarray(value, flatten=True)
+
 
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)
