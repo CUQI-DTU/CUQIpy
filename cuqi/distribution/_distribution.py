@@ -92,17 +92,21 @@ class Distribution(Density, ABC):
 
     @property
     def dim(self):
-        """ Return the dimension of the distribution.
-        
-        The dimension is automatically inferred from the mutable variables of the distribution.
-
+        """ Return the dimension of the distribution based on the geometry.
+    
         If the dimension can not be inferred, None is returned.
 
-        Subclassing distributions can choose to overwrite this property if different behavior is desired.
         """
+        return self.geometry.par_dim
 
+    def _infer_dim_of_mutable_variables(self):
+        """ Infer the dimension of the mutable variables of the distribution. """
         # Get all mutable variables
         mutable_vars = self.get_mutable_variables()
+
+        # Check if mutable_vars is empty, no dimension can be inferred
+        if not mutable_vars:
+            return None
 
         # Loop over mutable variables and get range dimension of each and get the maximum
         max_len = max([infer_len(getattr(self, var)) for var in mutable_vars])
@@ -111,15 +115,27 @@ class Distribution(Density, ABC):
 
     @property
     def geometry(self):
-        if self.dim != self._geometry.par_dim:
-            if isinstance(self._geometry,_DefaultGeometry):
-                self.geometry = self.dim
-            else:
-                raise Exception("Distribution Geometry attribute is not consistent with the distribution dimension ('dim')")
+        """ Return the geometry of the distribution.
+
+        The geometry can be automatically inferred from the mutable variables of the distribution.
+
+        """ 
+
+        inferred_dim = self._infer_dim_of_mutable_variables()
+
+        # If inconsistent geometry dimensions, raise an exception
+        if inferred_dim and self._geometry.par_dim and self._geometry.par_dim != inferred_dim:
+            raise Exception("Inconsistent distribution geometry attribute and inferred dimension from distribution variables.")
+    
+        # If Geometry dimension is None, update it with the inferred dimension
+        if inferred_dim and self._geometry.par_dim is None: 
+            self.geometry = inferred_dim
+
         # Check if dist has a name, if so we provide it to the geometry
         # We do not use self.name to potentially infer it from python stack.
-        if self._name is not None: 
+        if self._name: 
             self._geometry._variable_name = self._name
+
         return self._geometry
 
     @geometry.setter
