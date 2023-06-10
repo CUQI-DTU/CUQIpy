@@ -230,6 +230,28 @@ def test_sampler_CustomInput_Linear_RTO():
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
 
+def test_sampler_scalar_mean_Gaussian_Linear_RTO():
+
+    model = np.eye(2) # Identity model
+
+    P = cuqi.distribution.Gaussian(0, 1, dim=2)
+    L = cuqi.distribution.Gaussian(model,np.array([[1,0.5],[0.5,3]]))
+
+    # Data
+    data = np.array([5,6])
+
+    # Posterior
+    target = (data, model, L.sqrtprec, P.mean, P.sqrtprec)
+
+    # Parameters
+    Ns = 200   # number of samples
+    Nb = 20   # burn-in
+
+    # Sampling
+    s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
+
+    assert np.allclose(s_RTO.shape,(P.dim,Ns))
+
 
 def test_ULA_UserDefinedDistribution():
     expected_samples = \
