@@ -57,9 +57,8 @@ samples.plot_ci(exact=TP.exactSolution)
 
 # %%
 TP.prior = cuqi.distribution.LMRF(
-    location=np.zeros(TP.model.domain_dim),
     scale=0.001,
-    physical_dim=2
+    geometry=TP.model.domain_geometry
 )
 
 samples = TP.sample_posterior(200)

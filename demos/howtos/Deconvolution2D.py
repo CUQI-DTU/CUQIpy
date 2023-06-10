@@ -51,7 +51,7 @@ A, y_obs, info = Deconvolution2D.get_components()
 # This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.LMRF`.
 # Notice we have to specify the physical dimensions of the unknown.
 
-x = LMRF(location=np.zeros(A.domain_dim), scale=0.1, physical_dim=2)
+x = LMRF(scale=0.1, geometry=A.domain_geometry)
 
 # %%
 # Step 3: Likelihood model

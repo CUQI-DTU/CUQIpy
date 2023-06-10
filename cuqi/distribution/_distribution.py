@@ -71,7 +71,7 @@ class Distribution(Density, ABC):
     mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
 
     """
-    def __init__(self, name=None, geometry=None, is_symmetric=None):
+    def __init__(self, name=None, geometry=None, is_symmetric=None, dim=None):
         """ Initialize the core properties of the distribution.
         
         Parameters
@@ -84,11 +84,19 @@ class Distribution(Density, ABC):
 
         is_symmetric : bool, default None
             Indicator if distribution is symmetric.
+
+        dim : int or None
+            Dimension of distribution. Cannot be passed together with geometry.
                         
         """
         super().__init__(name=name)
         self.is_symmetric = is_symmetric
-        self.geometry = geometry
+        if dim and geometry:
+            raise ValueError(f"Cannot specify both 'dim' and 'geometry'.")
+        if dim:
+            self.geometry = dim
+        else:
+            self.geometry = geometry
 
     @property
     def dim(self):
@@ -124,9 +132,12 @@ class Distribution(Density, ABC):
         inferred_dim = self._infer_dim_of_mutable_variables()
 
         # If inconsistent geometry dimensions, raise an exception
-        if inferred_dim and self._geometry.par_dim and self._geometry.par_dim != inferred_dim:
-            raise Exception("Inconsistent distribution geometry attribute and inferred dimension from distribution variables.")
-    
+        if inferred_dim and self._geometry.par_dim and inferred_dim > 1 and self._geometry.par_dim != inferred_dim:
+            raise Exception(
+                f"Inconsistent distribution geometry attribute {self._geometry} and inferred "
+                f"dimension from distribution variables {inferred_dim}."
+            )
+        
         # If Geometry dimension is None, update it with the inferred dimension
         if inferred_dim and self._geometry.par_dim is None: 
             self.geometry = inferred_dim

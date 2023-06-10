@@ -629,14 +629,6 @@ def test_CMRF_should_not_allow_non_zero_location():
     with pytest.raises(ValueError):
         cuqi.distribution.CMRF(lambda x: x, 1)
 
-def test_LMRF_should_not_allow_non_zero_location():
-    """" LMRF should not allow non-zero location. """
-    with pytest.raises(ValueError):
-        cuqi.distribution.LMRF(np.ones(5), 1)
-
-    with pytest.raises(ValueError):
-        cuqi.distribution.LMRF(lambda x: x, 1)
-
 def test_Cauchy_against_scipy():
     """ Test Cauchy distribution logpdf, cdf, pdf, gradient """
 

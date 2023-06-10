@@ -8,11 +8,10 @@ import scipy
 import cuqi.operator
 #%%
 N = 2
-mean = np.zeros(N)
 prec = 1.0
 dom = 1
 BCs = 'neumann'
-x = cuqi.distribution.LMRF(mean, prec, BCs)
+x = cuqi.distribution.LMRF(prec, BCs, dim=N)
 print(x.logd(np.array([3,4])))
 #%%
 location = 0

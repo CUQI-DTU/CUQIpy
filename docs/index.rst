@@ -127,11 +127,10 @@ Image deconvolution with uncertainty quantification
    # Step 1: Model and data, y = Ax
    A, y_data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
 
-   # Step 2: Prior, x ~ LMRF(0, 0.01)
-   x = LMRF(location=np.zeros(A.domain_dim),
-                  scale=0.01,
-                  bc_type='neumann',
-                  physical_dim=2)
+   # Step 2: Prior, x ~ LMRF(0.01)
+   x = LMRF(scale=0.01,
+            bc_type='neumann',
+            geometry=A.domain_geometry)
 
    # Step 3: Likelihood, y ~ N(Ax, 0.0036^2)
    y = Gaussian(mean=A@x, cov=0.0036**2)

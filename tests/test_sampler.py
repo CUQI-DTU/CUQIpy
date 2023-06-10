@@ -358,7 +358,7 @@ def test_MALA_regression(copy_reference):
     (Gaussian(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
     (Gaussian(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
     (Gaussian(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
-    (LMRF(np.zeros(128), 0.1),"_sampleUGLA", np.arange(1,12)),   # 20% burn-in + initial guess
+    (LMRF(0.1, dim=128),"_sampleUGLA", np.arange(1,12)),   # 20% burn-in + initial guess
     ])
 def test_TP_callback(prior, sample_method, expected):
     """ Test that the callback function is called with the correct sample index by comparing to the expected output.

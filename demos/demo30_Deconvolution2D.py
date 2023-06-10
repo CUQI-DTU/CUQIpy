@@ -49,9 +49,8 @@ TP.prior = cuqi.distribution.Gaussian(
 
 # LMRF prior (promotes piece-wise constant regions)
 TP.prior = cuqi.distribution.LMRF(
-    location=np.zeros(TP.model.domain_dim),
     scale=0.01,
-    physical_dim=2 # Indicates that the prior should be in 2D.
+    geometry=TP.model.domain_geometry # Prior geometry should match domain geometry of model
 )
 
 # For Gaussians with correlation structure (see further below)
