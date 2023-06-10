@@ -1,5 +1,6 @@
 import cuqi
 import pytest
+import numpy as np
 
 
 #TODO. Make tests for all distributions going through their input variables
@@ -183,5 +184,34 @@ def test_logd_positional_and_kwargs():
     assert x.logd(3, s=7, x=13) == logd
     assert x.logd(3, 7, x=13) == logd
 
+def test_dim_geometry_compatibility():
+    """ Test the compatibility of dim and geometry attributes """
+    dist = cuqi.distribution.Gaussian()
+    assert dist.dim == dist.geometry.par_dim
+
+def test_geometry_inference_from_dim():
+    """ Test that the geometry attribute is correctly inferred from dim """
+    dist = cuqi.distribution.Gaussian(dim=5)
+    assert dist.dim == 5
+    assert dist.geometry.par_dim == 5
+
+def test_geometry_inference_from_variables():
+    """ Test that the geometry attribute is correctly inferred from variables """
+    dist = cuqi.distribution.Gaussian(mean=np.ones(5))
+    assert dist.dim == 5
+    assert dist.geometry.par_dim == 5
+
+def test_geometry_setting():
+    """ Test that geometry attribute can be set and is correctly reflected in dim """
+    dist = cuqi.distribution.Gaussian()
+    dist.geometry = cuqi.geometry.Continuous1D(np.ones(5))
+    assert dist.dim == 5
+    assert dist.geometry.par_dim == 5
+
+def test_dim_geometry_conflict():
+    """ Test that an error is raised when both dim and geometry are specified """
+    with pytest.raises(ValueError, match=r"Cannot specify both 'dim' and 'geometry'."):
+        dist = cuqi.distribution.Gaussian(dim=3, geometry=cuqi.geometry.Continuous1D(np.ones(5)))
+        
 
 
