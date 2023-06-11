@@ -154,7 +154,7 @@ class Distribution(Density, ABC):
             kwargs = self._parse_args_add_to_kwargs(cond_vars, *args, **kwargs)
 
             # Check if all conditioning variables are specified
-            if not all([key in kwargs for key in cond_vars]):
+            if not all([key in kwargs for key in cond_vars]) or len(kwargs) < len(cond_vars)+1:
                 raise ValueError(f"{self.logd.__qualname__}: To evaluate the log density all conditioning variables must be specified. Conditioning variables are: {cond_vars}")
 
             # Extract exactly the conditioning variables from kwargs
