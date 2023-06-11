@@ -48,7 +48,7 @@ class CMRF(Distribution):
  
     """
    
-    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
+    def __init__(self, location, scale, bc_type="zero", physical_dim=None, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs) 
         

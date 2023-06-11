@@ -3,7 +3,7 @@ from scipy.sparse import diags, eye
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import dft
 from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
-from cuqi.utilities import sparse_cholesky, force_ndarray
+from cuqi.utilities import sparse_cholesky
 from cuqi import config
 from cuqi.operator import PrecisionFiniteDifference
 from cuqi.distribution import Distribution

@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry, Image2D, Continuous2D
+from cuqi.geometry import _DefaultGeometry, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
@@ -40,7 +40,6 @@ class LMRF(Distribution):
     .. code-block:: python
 
         import cuqi
-        import numpy as np
         prior = cuqi.distribution.LMRF(location=0, scale=0.1, dim=128)
  
     """
