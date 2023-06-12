@@ -188,12 +188,6 @@ class Distribution(Density, ABC):
         """
         pass
 
-    def gradient(self, *args, **kwargs):
-        """ Returns the gradient of the log density at x. """
-        if self.is_cond:
-            raise ValueError(f"Cannot compute gradient of conditional distribution. Missing conditioning variables: {self.get_conditioning_variables()}")
-        return super().gradient(*args, **kwargs)
-
     def _gradient(self, *args, **kwargs):
         raise NotImplementedError(
             f"_gradient is not implemented for {self.__class__.__name__}. " +

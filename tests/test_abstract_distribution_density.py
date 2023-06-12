@@ -165,13 +165,6 @@ def test_sample_conditional_err_handling():
     with pytest.raises(ValueError, match=r"Missing conditioning variables:"):
         x.sample()
 
-def test_gradient_conditional_err_handling():
-    """ Test if conditional distributions correctly identify errors when sampling """
-    x = cuqi.distribution.Gaussian(0, lambda s:s)
-
-    # Test that we raise error if we don't provide all parameters
-    with pytest.raises(ValueError, match=r"Missing conditioning variables:"):
-        x.gradient(0)
 
 def test_cond_positional_and_kwargs():
     """ Test conditioning for both positional and kwargs """
