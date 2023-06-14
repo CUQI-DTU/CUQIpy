@@ -66,18 +66,22 @@ class Samples(object):
         return self._geometry
 
     @property
-    def is_par(self):
-        return self._is_par
+    def is_vec(self):
+        return self._is_vec
     
-    @is_par.setter
-    def is_par(self, value):
-        self._is_par = value
+    @is_vec.setter
+    def is_vec(self, value):
+        if self.is_par and not value:
+            raise ValueError("Cannot set is_vec to False when is_par is True")
+        self._is_vec = value
 
     @property
     def funvals(self):
         """Returns a new Samples object of sample function values. If samples are already function values, the Samples object itself is returned.""" 
 
         # Return self if the samples are function values
+        # i.e. not parameters or vector representations
+        # of function values
         if not self.is_par and not self.is_vec:
             return self
         
@@ -89,7 +93,8 @@ class Samples(object):
 
         # Convert the samples to function values
         
-        # If the function representation is an array, return funvals samples as an array, else, return a list of function values
+        # If the function representation is an array, return funvals samples
+        # as an array, else, return a list of function values 
         if self.geometry.fun_is_array:
             funvals = np.empty(self.geometry.fun_shape+(self.Ns,))
             for i, value in enumerate(self):
@@ -155,27 +160,27 @@ class Samples(object):
 
     @property
     def _geometry_dim(self):
-        if self.is_par:
+        if self.is_par: # if parameters
             return self.geometry.par_dim
-        elif self.is_vec:
+        elif self.is_vec: # if not parameters but vector representation of function
             return self.geometry.funvec_dim
-        else:
+        else: # if function values
             return self.geometry.fun_dim
         
     @property
     def _geometry_shape(self):
-        if self.is_par:
+        if self.is_par: # if parameters
             return self.geometry.par_shape
-        elif self.is_vec:
+        elif self.is_vec: # if not parameters but vector representation of function
             return self.geometry.funvec_shape
-        else:
+        else: # if function values
             return self.geometry.fun_shape
 
     @geometry.setter
     def geometry(self,inGeometry):
         self._geometry = inGeometry
 
-    def _update_plotting_dict(self, plotting_dict):
+    def _process_is_par_kwarg(self, plotting_dict):
         """Updates the plotting dictionary by setting the is_par attribute
         of plotting_dict to the value of self.is_par"""
         if "is_par" in plotting_dict.keys():
@@ -183,6 +188,16 @@ class Samples(object):
                 "Cannot pass is_par as a plotting argument. "+
                 "is_par is determined automatically by the samples object.")
         plotting_dict["is_par"] = self.is_par
+
+
+    def _convert_to_funvals_if_needed(self, value):
+        """Converts the input value to function values if the value is a vector 
+        representation of function values"""
+        if not self.is_par and self.is_vec:
+            return self.geometry.vec2fun(value)
+        else:
+            return value
+
 
     def burnthin(self, Nb, Nt=1):
         """
@@ -219,13 +234,12 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self._update_plotting_dict(kwargs)
+        self._process_is_par_kwarg(kwargs)
 
         mean = self.mean()
         
-        # If value is function in vector form, convert to function values
-        if not self.is_par and self.is_vec:
-            mean = self.geometry.vec2fun(mean)
+        # If mean is function in vector form, convert to function values
+        mean = self._convert_to_funvals_if_needed(mean)
 
         # Plot mean according to geometry
         ax =  self.geometry.plot(mean, *args, **kwargs)
@@ -238,13 +252,12 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self._update_plotting_dict(kwargs)
+        self._process_is_par_kwarg(kwargs)
 
         median = self.median()
 
-        # If value is function in vector form, convert to function values
-        if not self.is_par and self.is_vec:
-            median = self.geometry.vec2fun(median)
+        # If median is function in vector form, convert to function values
+        median = self._convert_to_funvals_if_needed(median)
 
         # Plot median according to geometry
         ax =  self.geometry.plot(median, *args, **kwargs)
@@ -257,13 +270,12 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self._update_plotting_dict(kwargs)
+        self._process_is_par_kwarg(kwargs)
 
         variance = self.variance()
 
-        # If value is function in vector form, convert to function values
-        if not self.is_par and self.is_vec:
-            variance = self.geometry.vec2fun(variance)
+        # If variance is function in vector form, convert to function values
+        variance = self._convert_to_funvals_if_needed(variance)
 
         # Plot variance according to geometry
         ax = self.geometry.plot(variance, *args, **kwargs)
@@ -276,13 +288,12 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self._update_plotting_dict(kwargs)
+        self._process_is_par_kwarg(kwargs)
 
         ci_width = self.ci_width(percent)
 
-        # If value is function in vector form, convert to function values
-        if not self.is_par and self.is_vec:
-            ci_width = self.geometry.vec2fun(ci_width)
+        # If ci_width is function in vector form, convert to function values
+        ci_width = self._convert_to_funvals_if_needed(ci_width)
 
         # Plot width of credibility intervals according to geometry
         ax = self.geometry.plot(ci_width, *args, **kwargs)
@@ -318,15 +329,14 @@ class Samples(object):
         Positional and keyword arguments are passed to the underlying `self.geometry.plot` method.
         See documentation of `self.geometry` for options.
         """
-        self._update_plotting_dict(kwargs)
+        self._process_is_par_kwarg(kwargs)
         # Compute std assuming samples are index in last dimension of nparray
         std = np.std(self.samples,axis=-1)
+        
+        # If std is function in vector form, convert to function values
+        std = self._convert_to_funvals_if_needed(std)
 
-        # If value is function in vector form, convert to function values
-        if not self.is_par and self.is_vec:
-            std = self.geometry.vec2fun(std)
-
-        # Plot mean according to geometry
+        # Plot std according to geometry
         ax = self.geometry.plot(std, *args, **kwargs)
         plt.title('Sample standard deviation')
         return ax
@@ -335,7 +345,7 @@ class Samples(object):
         Ns = self.Ns
         Np = 5 # Number of samples to plot if Ns > 5
 
-        self._update_plotting_dict(kwargs)
+        self._process_is_par_kwarg(kwargs)
 
         if sample_indices is None:
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
@@ -345,13 +355,19 @@ class Samples(object):
         # If samples are functions in vector form,
         # we need to convert them to function values
         if not self.is_par and self.is_vec:
-            if len(plot_samples.shape)==1:
-                plot_samples = plot_samples.reshape(-1,1)
-                
-            plot_samples = [self.geometry.vec2fun(plot_samples[:,idx])
-                            for idx in range(plot_samples.shape[1])]
-            if isinstance(plot_samples[0], np.ndarray):
-                plot_samples = np.array(plot_samples).T
+            plot_samples = Samples(plot_samples, 
+                                   self.geometry,
+                                   is_par=self.is_par,
+                                   is_vec=self.is_vec).funvals.samples
+
+#        if not self.is_par and self.is_vec:
+#            if len(plot_samples.shape)==1:
+#                plot_samples = plot_samples.reshape(-1,1)
+#                
+#            plot_samples = [self.geometry.vec2fun(plot_samples[:,idx])
+#                            for idx in range(plot_samples.shape[1])]
+#            if isinstance(plot_samples[0], np.ndarray):
+#                plot_samples = np.array(plot_samples).T
 
         # Plot samples according to geometry
         return self.geometry.plot(plot_samples,*args,**kwargs)
@@ -423,8 +439,8 @@ class Samples(object):
         # is_par is determined automatically from self.is_par 
         # Depending on the value of self.is_par, the computed statistics below
         # (mean, lo_conf,up_conf) are either parameter values or function values
-        self._update_plotting_dict(kwargs)
-        self._update_plotting_dict(pe_kwargs)
+        self._process_is_par_kwarg(kwargs)
+        self._process_is_par_kwarg(pe_kwargs)
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
         if not self.is_par:
