@@ -49,6 +49,12 @@ class Samples(object):
         """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
         if hasattr(self.samples.T, "__iter__"):
             return self.samples.T.__iter__()
+        
+    def __getitem__(self, i):
+        return Samples(self.samples[..., i],
+                       geometry=self.geometry,
+                       is_par=self.is_par,
+                       is_vec=self.is_vec)
 
     @property
     def shape(self):
@@ -350,27 +356,11 @@ class Samples(object):
         if sample_indices is None:
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
-        plot_samples = self.samples[:,sample_indices]
+        plot_samples = self[sample_indices]
         
-        # If samples are functions in vector form,
-        # we need to convert them to function values
-        if not self.is_par and self.is_vec:
-            plot_samples = Samples(plot_samples, 
-                                   self.geometry,
-                                   is_par=self.is_par,
-                                   is_vec=self.is_vec).funvals.samples
-
-#        if not self.is_par and self.is_vec:
-#            if len(plot_samples.shape)==1:
-#                plot_samples = plot_samples.reshape(-1,1)
-#                
-#            plot_samples = [self.geometry.vec2fun(plot_samples[:,idx])
-#                            for idx in range(plot_samples.shape[1])]
-#            if isinstance(plot_samples[0], np.ndarray):
-#                plot_samples = np.array(plot_samples).T
-
         # Plot samples according to geometry
-        return self.geometry.plot(plot_samples,*args,**kwargs)
+        return self.geometry.plot(plot_samples.funvals.samples,
+                                  *args,**kwargs)
         
     def plot_chain(self, variable_indices=None, *args, **kwargs):
         dim = self._geometry_dim
