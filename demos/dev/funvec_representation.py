@@ -2,7 +2,7 @@
 Support vector representation of function values in CUQIpy geometries and samples
 ====================================================================================
 
-In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and the function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D) array. In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. 
+In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D array). In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. 
 """
 # %%
 # Import the necessary modules
@@ -39,6 +39,12 @@ print(geom_2D.fun_is_array)
 # Query the `shape` of the function value representation for both geometries
 print(geom_1D.fun_shape)
 print(geom_2D.fun_shape)
+
+# %%
+# Query the `shape` of the vector representation of the function values for both
+# geometries
+print(geom_1D.funvec_shape)
+print(geom_2D.funvec_shape)
 
 # %%
 # Create random samples corresponding to each geometry
@@ -162,7 +168,6 @@ print("samples_1D.plot_mean")
 plt.figure()
 samples_1D.plot_mean(color='r')
 print("samples_1D.funvals.plot_mean")
-plt.figure()
 samples_1D.funvals.plot_mean(color='b', linestyle='--')
 
 # %%
@@ -171,7 +176,6 @@ print("samples_1D.plot_variance")
 plt.figure()
 samples_1D.plot_variance(color='r')
 print("samples_1D.funvals.plot_variance")
-plt.figure()
 samples_1D.funvals.plot_variance(color='b', linestyle='--')
 
 # %%
@@ -181,7 +185,7 @@ samples_1D.funvals.plot_variance(color='b', linestyle='--')
 
 # %%
 # Computing statistics on parameter and on function values for samples (the 2D geometry case)
-# ----------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------
 
 # %%
 # Compute mean on parameter values, function values, and vector representation
