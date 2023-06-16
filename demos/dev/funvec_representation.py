@@ -12,15 +12,15 @@ import cuqi
 import numpy as np
 import matplotlib.pyplot as plt
 
-# %% 
+# %%
 # Create a 1D and a mapped 2D geometries
 # --------------------------------------
 
-#%%
+# %%
 # Create a continuous 1D geometry
 geom_1D = cuqi.geometry.Continuous1D(10)
 
-#%%
+# %%
 # Create a mapped 2D Image geometry
 geom_2D = cuqi.geometry.MappedGeometry(
     cuqi.geometry.Image2D((3, 3)),
@@ -31,11 +31,11 @@ geom_2D = cuqi.geometry.MappedGeometry(
 print(geom_1D.fun_is_array)
 print(geom_2D.fun_is_array)
 
-#%%
-# This property indicates whether the function value representation is an 
-# array (not necessarily a 1D array) or not. 
+# %%
+# This property indicates whether the function value representation is an
+# array (not necessarily a 1D array) or not.
 
-#%%
+# %%
 # Query the `shape` of the function value representation for both geometries
 print(geom_1D.fun_shape)
 print(geom_2D.fun_shape)
@@ -44,13 +44,13 @@ print(geom_2D.fun_shape)
 # Create random samples corresponding to each geometry
 # ----------------------------------------------------
 
-#%%
+# %%
 # Create samples of random parameter values for each geometry
 samples_1D = cuqi.samples.Samples(np.random.rand(10, 5), geometry=geom_1D)
 samples_2D = cuqi.samples.Samples(np.random.rand(9, 5), geometry=geom_2D)
 
 # %%
-# Obtain the corresponding samples of function values (`funvals`)  
+# Obtain the corresponding samples of function values (`funvals`)
 # ---------------------------------------------------------------
 
 samples_1D.funvals
@@ -68,7 +68,7 @@ print(samples_1D.funvals.shape)
 print("samples_2D.funvals.shape")
 print(samples_2D.funvals.shape)
 
-# %% 
+# %%
 # Note that for the 2D geometry, the `shape` of the `funvals` is (3, 3, 5). This
 # is because the function value representation is a 2D array.
 
@@ -82,10 +82,10 @@ print(samples_2D.funvals.vector.shape)
 
 # %%
 # Now for both geometries, the samples in the converted Samples object is a two
-# dimensional arrays. In this case, executing the `funvals` property leads to 
+# dimensional arrays. In this case, executing the `funvals` property leads to
 # calling the `par2fun` method of the geometry to convert the parameter values
 # to function values. Then executing the `vector` property leads to calling the
-# `fun2vec` method of the geometry (if implemented) to convert the function 
+# `fun2vec` method of the geometry (if implemented) to convert the function
 # values to a vector representation of these values.
 
 # %%
@@ -96,8 +96,8 @@ print(samples_1D.vector.shape)
 print("samples_2D.vector.shape")
 print(samples_2D.vector.shape)
 
-# %% 
-# For samples_1D, we query the `is_par` and `is_vec` properties for all 
+# %%
+# For samples_1D, we query the `is_par` and `is_vec` properties for all
 # representations of the samples
 
 print("samples_1D.is_par")
@@ -124,7 +124,7 @@ print(samples_1D.funvals.vector.is_vec)
 # Note that for this 1D geometry, the `is_vec` property is always `True`. This
 # is because the function value representation is a 1D array.
 
-# %% 
+# %%
 # We do the same for samples_2D
 
 print("samples_2D.is_par")
@@ -148,9 +148,9 @@ print("samples_2D.funvals.vector.is_vec")
 print(samples_2D.funvals.vector.is_vec)
 
 # %%
-# Note that the property `samples_2D.funvals.is_vec` is false, but after 
-# converting the function values to a vector representation using the `vector` 
-# property, the property `samples_2D.vector.funvals.vector.is_vec` is true. 
+# Note that the property `samples_2D.funvals.is_vec` is false, but after
+# converting the function values to a vector representation using the `vector`
+# property, the property `samples_2D.vector.funvals.vector.is_vec` is true.
 
 # %%
 # Computing statistics on parameter and on function values for samples (the 1D geometry case)
@@ -174,17 +174,17 @@ print("samples_1D.funvals.plot_variance")
 plt.figure()
 samples_1D.funvals.plot_variance(color='b', linestyle='--')
 
-# %% 
+# %%
 # Note that in both cases the mean and the variance computed on parameter values
 # are the same as the ones computed on function values. This is because the map
-# from parameter values to function values is identity in this case. 
+# from parameter values to function values is identity in this case.
 
 # %%
 # Computing statistics on parameter and on function values for samples (the 2D geometry case)
 # ----------------------------------------------------------------------------------------------------
 
 # %%
-# Compute mean on parameter values, function values, and vector representation 
+# Compute mean on parameter values, function values, and vector representation
 # of function values
 print("samples_2D.plot_mean")
 plt.figure()
@@ -202,7 +202,7 @@ samples_2D.funvals.vector.plot_mean()
 plt.colorbar()
 
 # %%
-# Compute variance on parameter values, function values, and vector representation 
+# Compute variance on parameter values, function values, and vector representation
 # of function values
 print("samples_2D.plot_variance")
 plt.figure()
@@ -221,10 +221,10 @@ plt.colorbar()
 
 # %%
 # Note that in both cases the mean and variance computed on parameter values are
-# not the same as the ones computed on function values. This is because 
-# computing the mean and variance on the parameter values then converting the 
-# results to a function value is not equivalent to computing the mean and 
-# variance directly on the function values in this case, due to the nonlinear 
+# not the same as the ones computed on function values. This is because
+# computing the mean and variance on the parameter values then converting the
+# results to a function value is not equivalent to computing the mean and
+# variance directly on the function values in this case, due to the nonlinear
 # mapping `lambda x: x**2`. Also note that, in this case, we are able to compute
 # the statistics directly on the function values, but in some geometries, this
 # may not be possible and we may need to use the vector representation of the
