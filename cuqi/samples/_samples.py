@@ -45,16 +45,21 @@ class Samples(object):
         self.samples = samples
         self.is_vec = is_vec
 
-    def __iter__(self):
-        """Returns iterator for the class to enable looping over cuqi.samples.Samples object"""
-        if hasattr(self.samples.T, "__iter__"):
-            return self.samples.T.__iter__()
-        
-    def __getitem__(self, i):
-        return Samples(self.samples[..., i],
+    def _sub_samples(self, indices):
+        """Returns a new Samples object with the samples indexed by indices."""
+        sub_samples = self.samples[..., indices]
+        if isinstance(indices, Number):
+            sub_samples = sub_samples[..., np.newaxis]
+
+        return Samples(sub_samples,
                        geometry=self.geometry,
                        is_par=self.is_par,
                        is_vec=self.is_vec)
+
+    def __iter__(self):
+        """Returns an iterator over the samples"""
+        for i in range(self.Ns):
+            yield self.samples[..., i]
 
     @property
     def shape(self):
@@ -134,7 +139,7 @@ class Samples(object):
         # Convert the samples to vector form
         vecvals = np.empty((self.geometry.funvec_dim, self.Ns))
         for i, value in enumerate(self):
-            vecvals[:, i] = convert(value)
+            vecvals[..., i] = convert(value)
 
         # Create and return a new Samples object of vector samples
         return Samples(vecvals, is_par=self.is_par, is_vec=True,
@@ -356,7 +361,7 @@ class Samples(object):
         if sample_indices is None:
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
-        plot_samples = self[sample_indices]
+        plot_samples = self._sub_samples(sample_indices)
         
         # Plot samples according to geometry
         return self.geometry.plot(plot_samples.funvals.samples,
