@@ -362,10 +362,16 @@ class Samples(object):
             if Ns>Np: print("Plotting {} randomly selected samples".format(Np))
             sample_indices = self._select_random_indices(Np, Ns)
         plot_samples = self._sub_samples(sample_indices)
-        
+
+        # If samples are function values in vector form, convert to function
+        # values
+        if not self.is_par and self.is_vec:
+            plot_samples = plot_samples.funvals.samples
+        else:
+            plot_samples = plot_samples.samples
+
         # Plot samples according to geometry
-        return self.geometry.plot(plot_samples.funvals.samples,
-                                  *args,**kwargs)
+        return self.geometry.plot(plot_samples, *args, **kwargs)
         
     def plot_chain(self, variable_indices=None, *args, **kwargs):
         dim = self._geometry_dim
