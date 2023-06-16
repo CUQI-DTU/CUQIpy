@@ -252,4 +252,10 @@ plt.figure()
 samples_2D.funvals.vector.plot([1, 2, 3, 4])
 
 # %%
-# The results are the same in all the three cases. Note that for the first case, the default behavior of the `plot` method is to convert the samples to the function values and then plot them.
+# The results are the same in all the three cases. Note that for the first case,
+# the default behavior of the `plot` method is to convert the samples to the
+# function values and then plot them. If one is interested in plotting the
+# original parameter values, one can pass `plot_par=True` to the `plot` method.
+print("samples_2D.plot([1, 2, 3, 4], plot_par=True)")
+plt.figure()
+samples_2D.plot([1, 2, 3, 4], plot_par=True)
