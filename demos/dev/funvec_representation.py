@@ -2,7 +2,7 @@
 Support vector representation of function values in CUQIpy geometries and samples
 ====================================================================================
 
-In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and the function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D) array. It is meant to be used internally by other CUQIpy classes and is not expected to be of interest to the typical user. In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. 
+In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and the function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D) array. In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. 
 """
 # %%
 # Import the necessary modules
@@ -153,8 +153,7 @@ print(samples_2D.funvals.vector.is_vec)
 # property, the property `samples_2D.vector.funvals.vector.is_vec` is true. 
 
 # %%
-# Computing statistics on parameter and on function values for samples (the 1D
-# geometry case)
+# Computing statistics on parameter and on function values for samples (the 1D geometry case)
 # --------------------------------------------------------------------------------------------
 
 # %%
@@ -181,8 +180,7 @@ samples_1D.funvals.plot_variance(color='b', linestyle='--')
 # from parameter values to function values is identity in this case. 
 
 # %%
-# Computing statistics on parameter and on function values for samples
-# (the 2D geometry case)
+# Computing statistics on parameter and on function values for samples (the 2D geometry case)
 # ----------------------------------------------------------------------------------------------------
 
 # %%
@@ -232,8 +230,11 @@ plt.colorbar()
 # may not be possible and we may need to use the vector representation of the
 # function values to compute the statistics.
 
+# %%
 # Plotting samples
 # ------------------------------------
+
+# %%
 # Plot samples from `samples_2D`:
 print("samples_2D.plot")
 plt.figure()
