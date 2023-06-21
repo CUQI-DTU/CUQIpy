@@ -533,7 +533,7 @@ class Image2D(Geometry):
         # Reshape to image (also for multiple parameter vectors). TODO: #327
         image = vectors.reshape(self._im_shape+(-1,), order=self.order) 
         #Squeeze to return single image if only one parameter vector was given
-        image = image.squeeze()
+        image = image.squeeze(axis=2) if image.shape[2] == 1 else image
         return image
     
     def _plot(self, values, **kwargs):
