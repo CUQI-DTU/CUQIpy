@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry, Continuous2D, Image2D
 from cuqi.array import CUQIarray
+from cuqi.utilities import force_ndarray
 from copy import copy
 import arviz # Plotting tool
 from numbers import Number
@@ -597,13 +598,16 @@ class Samples(object):
 
         return axis
 
-    def plot_trace(self, variable_indices=None, combined=True, tight_layout=True, **kwargs):
+    def plot_trace(self, variable_indices=None, exact=None, combined=True, tight_layout=True, **kwargs):
         """Creates a traceplot of the samples consisting of 1) a histogram/density plot of the samples and 2) an MCMC chain plot.
         
         Parameters
         ----------
         variable_indices : list, optional
             List of variable indices to plot the autocorrelation for. If no input is given and less than 5 variables exist all are plotted and with more 5 are randomly chosen.
+
+        exact : array-like, optional
+            Exact solution to compare with the samples.
 
         combined : bool, default=True
             Flag for combining multiple chains into a single chain. If False, chains will be
@@ -631,6 +635,29 @@ class Samples(object):
 
         # Convert to arviz InferenceData object
         datadict = self.to_arviz_inferencedata(variable_indices)
+
+        # If exact solution is given, add it via lines argument to arviz using the variable names
+        if exact is not None:
+
+            # Convert exact to ndarray (in case single parameter etc.)
+            exact = force_ndarray(exact, flatten=True)
+
+            # Attempt to extract variables of the exact solution if given in full dimension
+            if len(exact) == dim:
+                exact = exact[variable_indices]
+
+            # If exact is given in reduced dimension, check that the number of variables match
+            if len(variable_indices) != len(exact):
+                raise ValueError(f"The shape of the exact argument {exact.shape} must match the number of variables to be plotted by variable indices {variable_indices.shape}.")
+            
+            # Extract variable names
+            par_names = [self.geometry.variables[i] for i in variable_indices]
+
+            # Arviz style adding lines to traceplot
+            if "lines" in kwargs:
+                raise ValueError("The lines argument is already defined in kwargs. Please remove it to use the exact keyword argument.")
+            
+            kwargs["lines"] = tuple([(par_names[i], {}, exact[i]) for i in range(len(par_names))])
 
         # Plot using arviz
         ax =  arviz.plot_trace(datadict, combined=combined, **kwargs)

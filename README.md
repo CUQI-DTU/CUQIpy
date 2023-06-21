@@ -28,14 +28,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution2D
 from cuqi.data import grains
-from cuqi.distribution import Laplace_diff, Gaussian
+from cuqi.distribution import LMRF, Gaussian
 from cuqi.problem import BayesianProblem
 
 # Step 1: Model and data, y = Ax
 A, y_data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
 
-# Step 2: Prior, x ~ Laplace_diff(0, 0.01)
-x = Laplace_diff(location=np.zeros(A.domain_dim),
+# Step 2: Prior, x ~ LMRF(0, 0.01)
+x = LMRF(location=np.zeros(A.domain_dim),
                  scale=0.01,
                  bc_type='neumann',
                  physical_dim=2)

@@ -3,7 +3,7 @@ import numpy as np
 
 import sys
 
-from cuqi.distribution import Gaussian, Cauchy_diff, Gaussian, Laplace_diff, GMRF, LMRF
+from cuqi.distribution import Gaussian, CMRF, Gaussian, LMRF, GMRF
 from cuqi.sampler import pCN
 
 import pytest
@@ -16,7 +16,7 @@ def test_CWMH_modify_proposal():
     x0 = 0.5*np.ones(n)
 
     # Set up target
-    target_dist = cuqi.distribution.Cauchy_diff(np.zeros(n), 0.5, 'neumann')
+    target_dist = cuqi.distribution.CMRF(np.zeros(n), 0.5, 'neumann')
     def target(x): return target_dist.pdf(x)
 
     # Set up proposals
@@ -85,7 +85,7 @@ def test_RWMH_sample_regression():
 
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    MCMC2 = cuqi.sampler.MetropolisHastings( dist,proposal = ref,scale =scale, x0=x0)
+    MCMC2 = cuqi.sampler.MH( dist,proposal = ref,scale =scale, x0=x0)
 
     # run sampler
     Ns = int(1e1)      # number of samples
@@ -140,7 +140,7 @@ def test_sampler_geometry_assignment():
     x0 = 0.5*np.ones(n)
 
     # Set up target
-    target = cuqi.distribution.Cauchy_diff(np.zeros(n), 0.5, 'neumann')
+    target = cuqi.distribution.CMRF(np.zeros(n), 0.5, 'neumann')
     target.geometry = cuqi.geometry.Continuous2D((1,2))
 
     # Set up proposals
@@ -166,7 +166,7 @@ def test_sampler_UserDefined_basic():
     Ns = 500   # number of samples
     Nb = 100   # burn-in
 
-    s_MH = cuqi.sampler.MetropolisHastings(distX).sample_adapt(Ns,Nb)
+    s_MH = cuqi.sampler.MH(distX).sample_adapt(Ns,Nb)
     s_CWMH = cuqi.sampler.CWMH(distX).sample_adapt(Ns,Nb)
     s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns,Nb)
 
@@ -279,7 +279,7 @@ def test_ULA_regression(copy_reference):
     loc = np.zeros(n)
     delta = 1
     scale = delta*h
-    prior = cuqi.distribution.Cauchy_diff(loc, scale, 'neumann')
+    prior = cuqi.distribution.CMRF(loc, scale, 'neumann')
     
     # %% Create the posterior and the sampler
     posterior = cuqi.distribution.Posterior(likelihood, prior)
@@ -358,7 +358,7 @@ def test_MALA_regression(copy_reference):
     (Gaussian(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
     (Gaussian(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
     (Gaussian(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
-    (Laplace_diff(np.zeros(128), 0.1),"_sampleUnadjustedLaplaceApproximation", np.arange(1,12)), # 20% burn-in + initial guess
+    (LMRF(np.zeros(128), 0.1),"_sampleUGLA", np.arange(1,12)),   # 20% burn-in + initial guess
     ])
 def test_TP_callback(prior, sample_method, expected):
     """ Test that the callback function is called with the correct sample index by comparing to the expected output.

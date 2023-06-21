@@ -3,7 +3,7 @@ import cuqi
 from cuqi.sampler import ProposalBasedSampler
 
 
-class MetropolisHastings(ProposalBasedSampler):
+class MH(ProposalBasedSampler):
     """Metropolis Hastings sampler.
 
     Allows sampling of a target distribution by random-walk sampling of a proposal distribution along with an accept/reject step.
@@ -48,7 +48,7 @@ class MetropolisHastings(ProposalBasedSampler):
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.MetropolisHastings(target, scale=1)
+        sampler = cuqi.sampler.MH(target, scale=1)
 
         # Sample
         samples = sampler.sample(2000)

@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, InverseGamma, Laplace_diff, GMRF, Lognormal, Posterior, LMRF, Beta, JointDistribution, Gamma
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -330,9 +330,9 @@ class BayesianProblem(object):
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
             return self._sampleLinearRTO(Ns, callback)
 
-        # For Laplace_diff we use our awesome unadjusted Laplace approximation!
-        elif self._check_posterior(self, Laplace_diff, Gaussian):
-            return self._sampleUnadjustedLaplaceApproximation(Ns, callback)
+        # For LMRF we use our awesome unadjusted Laplace approximation!
+        elif self._check_posterior(self, LMRF, Gaussian):
+            return self._sampleUGLA(Ns, callback)
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
@@ -342,10 +342,6 @@ class BayesianProblem(object):
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior(self, (Gaussian, GMRF), Gaussian):
             return self._samplepCN(Ns, callback)
-
-        # For the remainder of valid cases we use CWMH
-        elif self._check_posterior(self, LMRF):
-            return self._sampleCWMH(Ns, callback)
 
         else:
             raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
@@ -417,11 +413,7 @@ class BayesianProblem(object):
 
         # Plot traces for single parameters
         if samples.shape[0] == 1:
-            if exact is not None:
-                par_name = samples.geometry.variables[0]
-                samples.plot_trace(lines=((par_name, {}, exact),))
-            else:
-                samples.plot_trace()
+            samples.plot_trace(exact=exact)
         else: # Else plot credible intervals
             samples.plot_ci(exact=exact)
 
@@ -539,8 +531,8 @@ class BayesianProblem(object):
         
         return x_s
 
-    def _sampleUnadjustedLaplaceApproximation(self, Ns, callback=None):
-        print("Using Unadjusted Laplace Approximation sampler")
+    def _sampleUGLA(self, Ns, callback=None):
+        print("Using UGLA sampler")
         print("burn-in: 20%")
 
         # Start timing
@@ -548,7 +540,7 @@ class BayesianProblem(object):
 
         # Sample
         Nb = int(0.2*Ns)
-        sampler = cuqi.sampler.UnadjustedLaplaceApproximation(self.posterior, callback=callback)
+        sampler = cuqi.sampler.UGLA(self.posterior, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing
@@ -567,9 +559,6 @@ class BayesianProblem(object):
         disp : bool
             display info messages? (True or False).
         """
-
-        if disp: print(f"Using scipy.optimize.fmin_l_bfgs_b on negative log of {density.__class__.__name__}")
-        if disp: print("x0: ones vector")
         
         # Get the function to minimize (negative log-likelihood or negative log-posterior)
         def func(x): return -density.logd(x)
@@ -588,7 +577,15 @@ class BayesianProblem(object):
             if disp: print("Optimizing with approximate gradients.") 
 
         # Compute point estimate
-        solver = cuqi.solver.L_BFGS_B(func, x0, gradfunc=gradfunc)
+        if self._check_posterior(self, CMRF, must_have_gradient=True): # Use L-BFGS-B for CMRF prior as it has better performance for this multi-modal posterior
+            if disp: print(f"Using scipy.optimize.L_BFGS_B on negative log of {density.__class__.__name__}")
+            if disp: print("x0: ones vector")
+            solver = cuqi.solver.L_BFGS_B(func, x0, gradfunc=gradfunc)
+        else:
+            if disp: print(f"Using scipy.optimize.minimize on negative log of {density.__class__.__name__}")
+            if disp: print("x0: ones vector")
+            solver = cuqi.solver.minimize(func, x0, gradfunc=gradfunc)
+
         x_MAP, solver_info = solver.solve()
 
         # Add info on solver choice
@@ -716,17 +713,17 @@ class BayesianProblem(object):
             if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
-            # Gamma prior, Laplace_diff likelihood -> ConjugateApprox
-            elif self._check_posterior(cond_target, Gamma, Laplace_diff):
+            # Gamma prior, LMRF likelihood -> ConjugateApprox
+            elif self._check_posterior(cond_target, Gamma, LMRF):
                 sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
 
             # Gaussian prior, Gaussian likelihood, Linear model -> Linear_RTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
 
-            # Laplace_diff prior, Gaussian likelihood, Linear model -> UnadjustedLaplaceApproximation
-            elif self._check_posterior(cond_target, Laplace_diff, Gaussian, LinearModel):
-                sampling_strategy[par_name] = cuqi.sampler.UnadjustedLaplaceApproximation
+            # LMRF prior, Gaussian likelihood, Linear model -> UGLA
+            elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):
+                sampling_strategy[par_name] = cuqi.sampler.UGLA
 
             else:
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")

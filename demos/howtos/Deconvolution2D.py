@@ -9,7 +9,7 @@ In this example we show how to quantify the uncertainty of a solution to a 2D de
 
 import numpy as np
 from cuqi.testproblem import Deconvolution2D
-from cuqi.distribution import Gaussian, Laplace_diff
+from cuqi.distribution import Gaussian, LMRF
 from cuqi.problem import BayesianProblem
 # %%
 # Step 1: Deterministic model
@@ -48,10 +48,10 @@ A, y_obs, info = Deconvolution2D.get_components()
 # where :math:`\delta` is the scale parameter defining how likely jumps from one pixel value
 # to another are in the horizontal and vertical directions.
 # 
-# This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.Laplace_diff`.
+# This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.LMRF`.
 # Notice we have to specify the physical dimensions of the unknown.
 
-x = Laplace_diff(location=np.zeros(A.domain_dim), scale=0.1, physical_dim=2)
+x = LMRF(location=np.zeros(A.domain_dim), scale=0.1, physical_dim=2)
 
 # %%
 # Step 3: Likelihood model

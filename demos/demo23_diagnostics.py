@@ -5,7 +5,7 @@ import cuqi
 import numpy as np
 # %% 2-dimensional distribution with circular shape
 dist = cuqi.distribution.DistributionGallery("CalSom91")
-sampler = cuqi.sampler.MetropolisHastings(dist)
+sampler = cuqi.sampler.MH(dist)
 samples1 = sampler.sample_adapt(50000)
 samples2 = sampler.sample_adapt(50000)
 # %%

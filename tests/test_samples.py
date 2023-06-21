@@ -131,7 +131,7 @@ def test_samples_plot_methods(geom, to_funvals, plot_par,
 def test_samples_plot_autocorrelation(kwargs):
     # Make basic distribution and sample
     dist = cuqi.distribution.DistributionGallery("CalSom91")
-    sampler = cuqi.sampler.MetropolisHastings(dist)
+    sampler = cuqi.sampler.MH(dist)
     samples = sampler.sample_adapt(1000)
 
     # Switch to discrete geometry (easiest for "variable" names)
@@ -150,11 +150,12 @@ def test_samples_plot_autocorrelation(kwargs):
 @pytest.mark.parametrize("kwargs",[
                         ({}),
                         ({"combined":False,"tight_layout":False}),
+                        ({"exact":[1, 1]}) # Check exact can be compared with
                         ])
 def test_samples_plot_trace(kwargs):
     # Make basic distribution and sample
     dist = cuqi.distribution.DistributionGallery("CalSom91")
-    sampler = cuqi.sampler.MetropolisHastings(dist)
+    sampler = cuqi.sampler.MH(dist)
     samples = sampler.sample_adapt(1000)
 
     # Switch to discrete geometry (easiest for "variable" names)
@@ -180,7 +181,7 @@ def test_samples_plot_trace(kwargs):
 def test_samples_plot_pair(kwargs):
     # Make basic distribution and sample
     dist = cuqi.distribution.Gaussian(np.array([1,2,3,4]),1)
-    sampler = cuqi.sampler.MetropolisHastings(dist)
+    sampler = cuqi.sampler.MH(dist)
     samples = sampler.sample_adapt(1000)
     samples.geometry = cuqi.geometry.Discrete(["a","b","c","d"])
 
@@ -217,7 +218,7 @@ def test_rhat_geometry():
 
 def test_ess():
     dist = cuqi.distribution.DistributionGallery("CalSom91")
-    sampler = cuqi.sampler.MetropolisHastings(dist)
+    sampler = cuqi.sampler.MH(dist)
     samples = sampler.sample_adapt(500)
     assert samples.compute_ess().shape == samples.geometry.par_shape
 
@@ -254,7 +255,7 @@ def test_samples_funvals(geometry):
                                           cuqi.geometry.Image2D((1,2)), map=lambda x: x**2+1)])
 def test_compute_ci(percent, compute_on_par, geometry):
     dist = cuqi.distribution.DistributionGallery("CalSom91")
-    sampler = cuqi.sampler.MetropolisHastings(dist)
+    sampler = cuqi.sampler.MH(dist)
     par_samples = sampler.sample_adapt(500)
     par_samples.geometry = geometry
     
@@ -395,7 +396,7 @@ def test_cuqiarray_ispar_false_without_geometry():
 def test_violin_plot():
     """ Test that the violin plot is generated correctly. """
     dist = cuqi.distribution.DistributionGallery("CalSom91")
-    sampler = cuqi.sampler.MetropolisHastings(dist)
+    sampler = cuqi.sampler.MH(dist)
     samples = sampler.sample_adapt(1000)
     samples.geometry = cuqi.geometry.Discrete(["alpha","beta"])
 

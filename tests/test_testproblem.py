@@ -93,7 +93,7 @@ def test_Deconvolution_custom_phantom():
         TP = cuqi.testproblem.Deconvolution1D(dim=128, phantom=np.ones(125))
 
 
-@pytest.mark.parametrize("model_class", [cuqi.testproblem.Poisson_1D, cuqi.testproblem.Heat_1D])
+@pytest.mark.parametrize("model_class", [cuqi.testproblem.Poisson1D, cuqi.testproblem.Heat1D])
 @pytest.mark.parametrize("observation_map, expected_grid_equal",
                          [(None, True),
                           (lambda x: x[np.where(x > np.pi/2)], False)])
@@ -117,7 +117,7 @@ def test_Poisson():
     dx = L/(N-1)
     x = np.linspace(dx/2,L-dx/2,N)
     true_kappa = np.exp( 5*x*np.exp(-2*x)*np.sin(L-x) )
-    model = cuqi.testproblem.Poisson_1D(dim=N, endpoint=L, source=f, field_type="KL", map=map).model
+    model = cuqi.testproblem.Poisson1D(dim=N, endpoint=L, source=f, field_type="KL", map=map).model
 
     assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(6.183419642601269)
     assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(5.195849938761418)
@@ -129,7 +129,7 @@ def test_Heat():
     dx = L/(N+1)
     x = np.linspace(dx,L,N,endpoint=False)
     true_kappa = x*np.exp(-2*x)*np.sin(L-x)
-    model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, field_type="KL").model
+    model = cuqi.testproblem.Heat1D(dim=N, endpoint=L, field_type="KL").model
 
     assert np.linalg.norm(model.forward(true_kappa, is_par=False)) == approx(0.5476375563249378)
     assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(0.548657107830281)
@@ -141,7 +141,7 @@ def test_Abel():
     tvec = np.linspace(h/2, L-h/2, N)
     true_image = np.sin(tvec*np.pi)*np.exp(-2*tvec)
     KL_map = lambda x: 10*x
-    model = cuqi.testproblem.Abel_1D(dim=N, endpoint=L, field_type="KL", KL_map=KL_map).model
+    model = cuqi.testproblem.Abel1D(dim=N, endpoint=L, field_type="KL", KL_map=KL_map).model
 
     assert np.linalg.norm(model.forward(true_image, is_par=False)) == approx(4.580752014966276)
     assert np.linalg.norm(model.forward(np.ones(model.domain_dim))) == approx(9.37456136258068)
@@ -150,8 +150,8 @@ def test_Abel():
 #TODO. Add tests for custom PSF
 @pytest.mark.parametrize("prior",[
     (cuqi.distribution.Gaussian(np.zeros(128**2), 1, name="x")),
-    #(cuqi.distribution.Laplace_diff(np.zeros(128**2), 1, "zeros")),
-    #(cuqi.distribution.Cauchy_diff(np.zeros(128**2), 1, "zeros")),
+    #(cuqi.distribution.LMRF(np.zeros(128**2), 1, "zeros")),
+    #(cuqi.distribution.CMRF(np.zeros(128**2), 1, "zeros")),
 ])
 def test_Deconvolution2D_Sampling_prior(prior): 
     tp = cuqi.testproblem.Deconvolution2D(prior=prior)
@@ -198,5 +198,11 @@ def test_Deconvolution2D_convolve(BC_MAP, PSF, PSF_size):
     
     # Compare adjoint
     assert np.allclose(adjoint(y), TP.model.adjoint(y).funvals)
+
+def test_WangCubic():
+    """ Test the WangCubic testproblem with simple regression test"""
+    TP = cuqi.testproblem.WangCubic()
+    assert TP.posterior.logd([0.7, 1.3]) == approx(-119.4710156)
+    assert np.allclose(TP.posterior.gradient([0.7, 1.3]), np.array([[26.174, -153.5]]))
 
     

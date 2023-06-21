@@ -34,8 +34,8 @@ Gibbs sampling
 import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, Laplace_diff
-from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UnadjustedLaplaceApproximation, ConjugateApprox
+from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, LMRF
+from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
 
@@ -204,19 +204,19 @@ samples['l'].plot_trace(figsize=(8,2))
 #
 # .. math::
 #
-#     \mathbf{x} \sim \text{Laplace_diff}(\mathbf{0}, d^{-1}),
+#     \mathbf{x} \sim \text{LMRF}(\mathbf{0}, d^{-1}),
 #
 # which means that :math:`x_i-x_{i-1} \sim \mathrm{Laplace}(0, d^{-1})`.
 #
-# This prior is implemented in CUQIpy as the ``Laplace_diff`` distribution.
+# This prior is implemented in CUQIpy as the ``LMRF`` distribution.
 # To update our model we simply need to replace the ``GMRF`` distribution
-# with the ``Laplace_diff`` distribution. Note that the Laplace distribution
+# with the ``LMRF`` distribution. Note that the Laplace distribution
 # is defined via a scale parameter, so we invert the parameter :math:`d`.
 #
 # This laplace distribution and new posterior can be defined as follows:
 
 # Define new distribution for x
-x = Laplace_diff(np.zeros(n), lambda d: 1/d)
+x = LMRF(np.zeros(n), lambda d: 1/d)
 
 # Define new joint distribution with piecewise constant prior
 joint_Ld = JointDistribution(d, l, x, y)
@@ -231,12 +231,12 @@ print(posterior_Ld)
 # Gibbs Sampler (with Laplace prior)
 # ----------------------------------
 #
-# Using the same approach as ealier we can define a Gibbs sampler
+# Using the same approach as earlier we can define a Gibbs sampler
 # for this new hierarchical model. The only difference is that we
 # now need to use a different sampler for :math:`\mathbf{x}` because
 # the ``Linear_RTO`` sampler only works for Gaussian distributions.
 #
-# In this case we use the UnadjustedLaplaceApproximation sampler
+# In this case we use the UGLA (Unadjusted Gaussian Laplace Approximation) sampler
 # for :math:`\mathbf{x}`. We also use an approximate Conjugate
 # sampler for :math:`d` which approximately samples from the
 # posterior distribution of :math:`d` conditional on the other
@@ -245,7 +245,7 @@ print(posterior_Ld)
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': UnadjustedLaplaceApproximation,
+    'x': UGLA,
     'd': ConjugateApprox,
     'l': Conjugate
 }

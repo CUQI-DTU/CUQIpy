@@ -14,7 +14,7 @@ np.random.seed(0)
 import cuqi
 from cuqi.testproblem import Deconvolution1D
 from cuqi.model import LinearModel
-from cuqi.distribution import Gaussian, Laplace_diff, Cauchy_diff
+from cuqi.distribution import Gaussian, LMRF, CMRF
 from cuqi.sampler import CWMH
 from cuqi.problem import BayesianProblem
 from cuqi.samples import Samples
@@ -117,7 +117,7 @@ L = 1
 T = 0.2
 skip = 1
 
-model = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type=None).model
+model = cuqi.testproblem.Heat1D(dim=N, endpoint=L, max_time=T, field_type=None).model
 x = model.domain_geometry.grid
 x_data = x[::skip]
 M = x_data.shape[0]
@@ -144,7 +144,7 @@ y_exactC.plot()
 y_exactC.plot(plot_par=True)
 
 # %%  Now heat with step 
-model_step = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='Step').model
+model_step = cuqi.testproblem.Heat1D(dim=N, endpoint=L, max_time=T, field_type='Step').model
 
 # %%
 model_step.domain_geometry
@@ -165,7 +165,7 @@ y_stepC = model_step(true_stepC)
 y_stepC.plot()
 
 # %%  Heat with KL
-model_KL = cuqi.testproblem.Heat_1D(dim=N, endpoint=L, max_time=T, field_type='KL').model
+model_KL = cuqi.testproblem.Heat1D(dim=N, endpoint=L, max_time=T, field_type='KL').model
 
 #%%
 true_initKL = cuqi.array.CUQIarray(true_init, is_par=False,  geometry=model_KL.domain_geometry)

@@ -1,4 +1,4 @@
-from cuqi.distribution import Posterior, Laplace_diff, Gamma
+from cuqi.distribution import Posterior, LMRF, Gamma
 import numpy as np
 import scipy as sp
 
@@ -9,7 +9,7 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
     by a conjugate pair.
 
     Currently supported pairs are:
-    - (Laplace_diff, Gamma): Approximated by (Gaussian, Gamma)
+    - (LMRF, Gamma): Approximated by (Gaussian, Gamma)
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
@@ -17,7 +17,7 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
 
     
     def __init__(self, target: Posterior):
-        if not isinstance(target.likelihood.distribution, Laplace_diff):
+        if not isinstance(target.likelihood.distribution, LMRF):
             raise ValueError("Conjugate sampler only works with Laplace diff likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
@@ -31,7 +31,7 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
         D = self.target.likelihood.distribution._diff_op
         n = D.shape[0]
 
-        # Gaussian approximation of Laplace_diff prior as function of x_k
+        # Gaussian approximation of LMRF prior as function of x_k
         # See Uribe et al. (2022) for details
         # Current has a zero mean assumption on likelihood! TODO
         beta=1e-5

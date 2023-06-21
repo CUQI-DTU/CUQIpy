@@ -370,7 +370,7 @@ def test_model_parameter_name_switch():
 def test_model_parameter_name_switch_errors():
     """ Check that an error is raised if dim does not match or if distribution has no name """
 
-    model = cuqi.testproblem.Poisson_1D().model # domain_dim != range_dim
+    model = cuqi.testproblem.Poisson1D().model # domain_dim != range_dim
 
     y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim-1), 1)
 
@@ -444,3 +444,30 @@ def test_linear_model_allow_other_parameter_names():
     assert model_y@1 == 1
     assert model_z@1 == 1
     assert model_mat@np.ones(1) == np.ones(1)
+
+def test_model_allows_jacobian_or_gradient():
+    """ Test that either Jacobian or gradient (vector-jacobian product) can be specified and that it gives the same result. """
+    # This is the Wang Cubic test problem model
+    def forward(x):
+        return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
+    def jacobian(x):
+        return np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
+    def gradient(dir, wrt):
+        return dir@jacobian(wrt)
+    
+    # Check not both can be specified
+    with pytest.raises(TypeError, match=r"Only one of gradient and jacobian"):
+        model = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian, gradient=gradient)
+
+    # Check that we can specify jacobian
+    model_jac = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian)
+
+    # Check that we can specify gradient
+    model_grad = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, gradient=gradient)
+
+    # Check that we can evaluate the model gradient and get the same result as the jacobian
+    wrt = np.random.randn(1)
+    dir = np.random.randn(1)
+
+    assert np.allclose(model_grad.gradient(dir, wrt), model_jac.gradient(dir, wrt))
+
