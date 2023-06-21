@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry, Image2D
+from cuqi.geometry import _DefaultGeometry1D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
@@ -63,7 +63,7 @@ class LMRF(Distribution):
             raise ValueError("Only physical dimension 1 or 2 supported.")
 
         # Check for geometry mismatch
-        if not isinstance(self.geometry, _DefaultGeometry) and physical_dim != len(self.geometry.fun_shape):
+        if not isinstance(self.geometry, _DefaultGeometry1D) and physical_dim != len(self.geometry.fun_shape):
             raise ValueError(f"Specified physical dimension {physical_dim} does not match geometry's dimension {len(self.geometry.fun_shape)}")
 
         self._physical_dim = physical_dim
@@ -72,7 +72,7 @@ class LMRF(Distribution):
         if self._physical_dim == 2:
             N = int(np.sqrt(self.dim))
             num_nodes = (N, N)
-            if isinstance(self.geometry, _DefaultGeometry):
+            if isinstance(self.geometry, _DefaultGeometry1D):
                 self.geometry = Image2D(num_nodes)
         else:  # self._physical_dim == 1
             num_nodes = self.dim

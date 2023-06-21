@@ -5,7 +5,7 @@ import numpy as np
 
 @pytest.mark.parametrize("scale_value", [0.1, lambda s: s])
 def test_LMRF_should_not_allow_None_or_scalar_geometry(scale_value):
-    with pytest.raises(ValueError, match="geometry or dim"):
+    with pytest.raises(ValueError, match="supported geometry"):
         LMRF(0, scale=scale_value)
 
 @pytest.mark.parametrize("physical_dim", [-1, 0, 3])
@@ -24,7 +24,7 @@ def test_LMRF_default_geometry_is_replaced_when_physical_dim_is_2():
 
 @pytest.mark.parametrize("scale_value", [0.1, lambda s: s])
 def test_CMRF_should_not_allow_None_or_scalar_geometry(scale_value):
-    with pytest.raises(ValueError, match="geometry or dim"):
+    with pytest.raises(ValueError, match="supported geometry"):
         CMRF(0, scale=scale_value)
 
 @pytest.mark.parametrize("physical_dim", [-1, 0, 3])

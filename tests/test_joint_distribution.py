@@ -180,7 +180,7 @@ def test_stacked_joint_distribution():
     assert Js.dim == sum(J.dim)
 
     # Check the geometry
-    assert Js.geometry == cuqi.geometry._DefaultGeometry(Js.dim)
+    assert Js.geometry == cuqi.geometry._DefaultGeometry1D(Js.dim)
 
     # Check you can evaluate the log density function with a single vector
     Js.logd(np.ones(Js.dim))

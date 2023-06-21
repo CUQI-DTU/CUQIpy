@@ -2,7 +2,7 @@ import numpy as np
 from scipy.sparse import diags, eye
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import dft
-from cuqi.geometry import _DefaultGeometry, Image2D, _get_identity_geometries
+from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
 from cuqi.utilities import sparse_cholesky
 from cuqi import config
 from cuqi.operator import PrecisionFiniteDifference
@@ -106,7 +106,7 @@ class GMRF(Distribution):
         
         num_nodes = tuple(self._partition_size for _ in range(physical_dim))
         if physical_dim == 2: #TODO. Remove once _DefaultGeometry is implemented for 2D.
-            if isinstance(self.geometry, _DefaultGeometry):
+            if isinstance(self.geometry, _DefaultGeometry1D):
                 self.geometry = Image2D(num_nodes)
 
         self._prec_op = PrecisionFiniteDifference(num_nodes, bc_type=bc_type, order=order) 

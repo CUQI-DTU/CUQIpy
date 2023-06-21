@@ -597,10 +597,12 @@ class MappedGeometry(_WrappedGeometry):
         return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())
 
 class _DefaultGeometry(Geometry):
+    """ Default geometry base class. """
     pass
 
 
 class _DefaultGeometry1D(Continuous1D, _DefaultGeometry):
+    """ Default 1D geometry based on Continuous1D. """
     def __init__(self, grid=None, axis_labels=None):
         super().__init__(grid, axis_labels)
 
@@ -609,6 +611,7 @@ class _DefaultGeometry1D(Continuous1D, _DefaultGeometry):
         return self._all_values_equal(obj)
     
 class _DefaultGeometry2D(Image2D, _DefaultGeometry):
+    """ Default 2D geometry based on Image2D. """
     def __init__(self, im_shape=None, visual_only=False):
         super().__init__(im_shape, visual_only=visual_only)
 

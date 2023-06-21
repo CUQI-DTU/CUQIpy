@@ -4,7 +4,7 @@ from copy import copy
 from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
-from cuqi.geometry import Geometry, _DefaultGeometry
+from cuqi.geometry import Geometry, _DefaultGeometry1D
 import numpy as np # for splitting array. Can avoid.
 
 class JointDistribution:
@@ -279,7 +279,7 @@ class _StackedJointDistribution(JointDistribution, Distribution):
 
     @property
     def geometry(self):
-        return _DefaultGeometry(self.dim)
+        return _DefaultGeometry1D(self.dim)
 
     def logd(self, stacked_input):
         """ Return the un-normalized log density function stacked joint density. """

@@ -54,10 +54,10 @@ def test_Discrete_geometry(variables,expected_variables,expected_shape,expected_
 	   and (geom.par_dim == expected_dim))
 
 @pytest.mark.parametrize("geom1,geom2,truth_value",
-                         [(cuqi.geometry._DefaultGeometry(2),cuqi.geometry.Continuous1D(2), True),
+                         [(cuqi.geometry._DefaultGeometry1D(2),cuqi.geometry.Continuous1D(2), True),
 			  (cuqi.geometry.Continuous1D(2),cuqi.geometry.Continuous2D((1,2)), False),
-			  (cuqi.geometry._DefaultGeometry(np.array([0,1])),cuqi.geometry.Continuous1D(2), True),
-			  (cuqi.geometry.Continuous1D(2),cuqi.geometry._DefaultGeometry(3), False),
+			  (cuqi.geometry._DefaultGeometry1D(np.array([0,1])),cuqi.geometry.Continuous1D(2), True),
+			  (cuqi.geometry.Continuous1D(2),cuqi.geometry._DefaultGeometry1D(3), False),
 			  (cuqi.geometry.Discrete(2),cuqi.geometry.Discrete(["v0","v1"]), True),
 			  (cuqi.geometry.Discrete(2),cuqi.geometry.Continuous1D(2), False)])
 def test_geometry_equivalence(geom1,geom2,truth_value):
@@ -89,8 +89,8 @@ def test_geometry_plot(geom,lo_val,hi_val,is_par,plot_par):
 	geom.plot_envelope(lo_val,hi_val,is_par=is_par,plot_par=plot_par)
 
 def test_geometry_variables_generator_default():
-	g1 = cuqi.geometry._DefaultGeometry(5)
-	g2 = cuqi.geometry._DefaultGeometry(5)
+	g1 = cuqi.geometry._DefaultGeometry1D(5)
+	g2 = cuqi.geometry._DefaultGeometry1D(5)
 	g1.variables #Extract variables (they are generated in g1, but not in g2)
 	assert g1==g2 #g2 has no _variables yet, but during check its generated.
 
@@ -388,3 +388,5 @@ def test_KLExpansion_projection():
     # Check that the projection is accurate
     rel_err = np.linalg.norm(signal-signal_proj)/np.linalg.norm(signal)
     assert np.isclose(rel_err, 0.0, atol=1e-5)
+
+# TODO. Add tests for _DefaultGeometry2D and add tests for default initialiations

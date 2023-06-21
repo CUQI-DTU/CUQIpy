@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry
+from cuqi.geometry import _DefaultGeometry1D
 
 
 class CUQIarray(np.ndarray):
@@ -49,7 +49,7 @@ class CUQIarray(np.ndarray):
         if is_par and (obj.ndim>1):
             raise ValueError("input_array cannot be multidimensional when initializing CUQIarray as parameter (with is_par True).")
         if geometry is None:
-            geometry = _DefaultGeometry(grid=obj.__len__())
+            geometry = _DefaultGeometry1D(grid=obj.__len__())
         obj.geometry = geometry
         # Finally, we must return the newly created object:
         return obj
