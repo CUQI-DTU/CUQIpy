@@ -134,7 +134,7 @@ def test_logd_err_handling():
     x = cuqi.distribution.Gaussian(cov=lambda s:s)
 
     # Test that we raise error if we don't provide all parameters
-    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables must be specified"):
+    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables and main"):
         x.logd(x=3)
 
     # Test that we raise error if we provide parameters that are not specified
@@ -146,7 +146,7 @@ def test_logd_err_handling_single_cond_var():
     x = cuqi.distribution.Gaussian(0, cov=lambda s:s)
 
     # Test that we raise error if we don't provide all parameters
-    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables must be specified"):
+    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables and main"):
         x.logd(3) # Should expect error since we have not specified s
 
     # Too many arguments
