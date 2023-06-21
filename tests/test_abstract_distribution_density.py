@@ -134,12 +134,37 @@ def test_logd_err_handling():
     x = cuqi.distribution.Gaussian(cov=lambda s:s)
 
     # Test that we raise error if we don't provide all parameters
-    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables must be specified"):
+    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables and main"):
         x.logd(x=3)
 
     # Test that we raise error if we provide parameters that are not specified
     with pytest.raises(ValueError, match=r"do not match keyword arguments"):
         x.logd(mean=3, s=7, x=13, y=1)
+
+def test_logd_err_handling_single_cond_var():
+    """ This tests if logp correctly identifies errors in the input """
+    x = cuqi.distribution.Gaussian(0, cov=lambda s:s)
+
+    # Test that we raise error if we don't provide all parameters
+    with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables and main"):
+        x.logd(3) # Should expect error since we have not specified s
+
+    # Too many arguments
+    with pytest.raises(ValueError, match=r"Unable to parse"):
+        x.logd(1, 3, 5)
+
+    # Should not expect error since we have specified s (2 arguments)
+    x.logd(1, 3)
+    x.logd(s=1, x=1) 
+
+def test_sample_conditional_err_handling():
+    """ Test if conditional distributions correctly identify errors when sampling """
+    x = cuqi.distribution.Gaussian(0, lambda s:s)
+
+    # Test that we raise error if we don't provide all parameters
+    with pytest.raises(ValueError, match=r"Missing conditioning variables:"):
+        x.sample()
+
 
 def test_cond_positional_and_kwargs():
     """ Test conditioning for both positional and kwargs """
