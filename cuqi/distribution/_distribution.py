@@ -413,6 +413,11 @@ class Distribution(Density, ABC):
                         raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                     kwargs[ordered_keys[index]] = arg
         return kwargs
+    
+    def _ensure_geometry_has_shape(self):
+        """ Raise error if geometry does not have a shape. """
+        if self.geometry.par_shape is None:
+            raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
 
     def __repr__(self) -> str:
         if self.is_cond is True:

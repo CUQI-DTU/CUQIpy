@@ -118,6 +118,8 @@ class Gaussian(Distribution):
             self._mutable_vars = ['mean', 'sqrtprec']
             self.sqrtprec = sqrtprec
 
+        #self._ensure_geometry_has_shape()
+
     @property
     def mean(self):
         """ Mean of the distribution """
