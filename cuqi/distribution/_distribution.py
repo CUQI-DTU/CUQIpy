@@ -130,10 +130,17 @@ class Distribution(Density, ABC):
         """ 
 
         inferred_dim = self._infer_dim_of_mutable_variables()
+        geometry_dim = self._geometry.par_dim
+
+        is_inferred_multivariate = inferred_dim > 1
+
+        # Flag indicating whether distribution geometry matches inferred dimension
+        geometry_matches_inferred_dim = (geometry_dim == inferred_dim) if (geometry_dim and inferred_dim) else True
 
         # If inconsistent geometry dimensions, raise an exception
-        if inferred_dim and self._geometry.par_dim and inferred_dim > 1 and self._geometry.par_dim != inferred_dim:
-            raise Exception(
+        # If scalar inferred dimension, we allow geometry to take precedence
+        if is_inferred_multivariate and not geometry_matches_inferred_dim:
+            raise TypeError(
                 f"Inconsistent distribution geometry attribute {self._geometry} and inferred "
                 f"dimension from distribution variables {inferred_dim}."
             )
