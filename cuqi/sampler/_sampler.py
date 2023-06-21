@@ -55,7 +55,7 @@ class Sampler(ABC):
         if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
             geom =  self.target.geometry
         else:
-            geom = cuqi.geometry._DefaultGeometry(self.dim)
+            geom = cuqi.geometry._DefaultGeometry1D(self.dim)
         return geom
 
     @property 
