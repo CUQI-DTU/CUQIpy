@@ -5,7 +5,7 @@ from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
-from cuqi.geometry import Geometry, _DefaultGeometry1D, _get_identity_geometries
+from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D, _get_identity_geometries
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -114,7 +114,9 @@ class Model(object):
         self._gradient_func = gradient
          
         #Store range_geometry
-        if isinstance(range_geometry, int):
+        if isinstance(range_geometry, tuple):
+            self.range_geometry = _DefaultGeometry2D(range_geometry)
+        elif isinstance(range_geometry, int):
             self.range_geometry = _DefaultGeometry1D(grid=range_geometry)
         elif isinstance(range_geometry, Geometry):
             self.range_geometry = range_geometry
@@ -124,7 +126,9 @@ class Model(object):
             raise TypeError("The parameter 'range_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
         #Store domain_geometry
-        if isinstance(domain_geometry, int):
+        if isinstance(domain_geometry, tuple):
+            self.domain_geometry = _DefaultGeometry2D(domain_geometry)
+        elif isinstance(domain_geometry, int):
             self.domain_geometry = _DefaultGeometry1D(grid=domain_geometry)
         elif isinstance(domain_geometry, Geometry):
             self.domain_geometry = domain_geometry
