@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from cuqi import geometry
 from cuqi.samples import Samples
 
-@pytest.mark.parametrize("to_funvals,plot_par",	[(True,False),(True,True),(False,False),(False,True)])
+@pytest.mark.parametrize("to_funvals, plot_par",
+    [(True,False),(True,True),(False,False),(False,True)])
 @pytest.mark.parametrize("geom",[
 						(cuqi.geometry.Discrete(1)),
 						(cuqi.geometry.Discrete(3)),
@@ -34,6 +35,14 @@ def test_samples_plot(geom, to_funvals, plot_par):
     #Verify plotting of single and multiple samples
     s.plot(plot_par=plot_par)
     s.plot(0,plot_par=plot_par)
+
+    # Raise error when calling plot_chain if the samples are not in vector form
+    if not s.is_vec:
+        with pytest.raises(Exception, match=r"Cannot perform plot_chain"):
+            s.plot_chain()
+        # Convert the samples to vector form
+        s = s.vector
+    
     #s.plot_chain() #No default selection of chain
     s.plot_chain(0)
     if dim > 2:
@@ -46,16 +55,16 @@ def test_samples_plot(geom, to_funvals, plot_par):
         s.plot(is_par=not to_funvals,plot_par=plot_par)
 
 @pytest.mark.parametrize("to_funvals, plot_par", [(True,False),(True,True),(False,False),(False,True)])
-@pytest.mark.parametrize("plot_method, plot_par_supported",
-                         [(Samples.plot_autocorrelation, False),
-                          (Samples.plot_trace, False),
-                          (Samples.plot_violin, False),
-                          (Samples.plot_pair, False),
-                          (Samples.plot_std, True),
-                          (Samples.plot_mean, True),
-                          (Samples.plot_median, True),
-                          (Samples.plot_variance, True),
-                          (Samples.plot_ci_width, True)])
+@pytest.mark.parametrize("plot_method, plot_par_supported, arviz",
+                         [(Samples.plot_autocorrelation, False, True),
+                          (Samples.plot_trace, False, True),
+                          (Samples.plot_violin, False, True),
+                          (Samples.plot_pair, False, True),
+                          (Samples.plot_std, True, False),
+                          (Samples.plot_mean, True, False),
+                          (Samples.plot_median, True, False),
+                          (Samples.plot_variance, True, False),
+                          (Samples.plot_ci_width, True, False)])
 @pytest.mark.parametrize("geom",[
 						(cuqi.geometry.Discrete(3)),
 						(cuqi.geometry.Continuous1D(4)),
@@ -64,7 +73,9 @@ def test_samples_plot(geom, to_funvals, plot_par):
                              cuqi.geometry.Image2D((3,3)),
                              map=lambda x: x**2+2))
 						])
-def test_samples_plot_methods(geom, to_funvals, plot_par, plot_method, plot_par_supported):
+def test_samples_plot_methods(geom, to_funvals, plot_par,
+                              plot_method, plot_par_supported,
+                              arviz):
     """Test Samples class plotting methods"""
 
     # Make basic distribution and sample
@@ -77,6 +88,14 @@ def test_samples_plot_methods(geom, to_funvals, plot_par, plot_method, plot_par_
     if to_funvals:
         s = s.funvals
 
+    # Verify that using an arviz based method when the samples are not in
+    # vector form raises error
+    if arviz and not s.is_vec:
+        with pytest.raises(Exception, match=r"Samples are not in a vector representation"):
+            plot_method(s)
+        # Convert the samples to vector form
+        s = s.vector
+  
     # Verify asking for plot_par when samples are funvals raises error
     if to_funvals and plot_par:
         if plot_par_supported:
@@ -216,22 +235,13 @@ def test_samples_funvals(geometry):
     samples = cuqi.samples.Samples(
         np.random.randn(geometry.par_dim, Ns), geometry=geometry)
 
-    # Determine the method to convert from parameter to function values
-    # and the dimension of the function values
-    if samples._funvals_directly_supported:
-        par2fun = geometry.par2fun
-        dim = geometry.fun_dim
-    else:
-        par2fun = lambda par: geometry.fun2funvec(geometry.par2fun(par))
-        dim = geometry.funvec_dim
-
     # Compute the function values
-    funvals = np.empty((dim, Ns))
+    funvals_vec = np.empty((geometry.funvec_dim, Ns))
     for i, s in enumerate(samples):
-        funvals[:, i] = par2fun(s)
+        funvals_vec[:, i] = geometry.fun2vec(geometry.par2fun(s))
 
     # Check that the funvals property is implemented correctly
-    assert np.allclose(samples.funvals.samples, funvals)
+    assert np.allclose(samples.funvals.vector.samples, funvals_vec)
 
 
 @pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
@@ -355,13 +365,13 @@ def test_parameters_property(geom, map, imap, supported):
     else:
         # Compute function values and from the function values
         # compute the parameters:
-        funvals = samples.funvals
-        parameters = funvals.parameters
+        funvals_vec = samples.funvals.vector
+        parameters = funvals_vec.funvals.parameters
 
-        # Assert that the parameters and the function values are different
-        # and that extracting the function values and going back to the parameters
-        # is done correctly.
-        assert not np.allclose(parameters.samples, funvals.samples) and\
+        # Assert that the parameters and the function values (in vector 
+        # representation) are different and that extracting the function values
+        # and going back to the parameters is done correctly.
+        assert not np.allclose(parameters.samples, funvals_vec.samples) and\
             np.allclose(parameters.samples, val)
 
 def test_cuqiarray_default_geometry():
@@ -393,3 +403,15 @@ def test_violin_plot():
 
     assert ax[0].get_title() == "alpha"
     assert ax[1].get_title() == "beta"
+
+@pytest.mark.parametrize("method", [Samples.mean,
+                                    Samples.variance,
+                                    Samples.std,
+                                    Samples.std,
+                                    Samples.ci_width])
+def test_computing_statistics_on_arbitrary_objects_raises_error(method):
+    """ Test that computing statistics on arbitrary objects (np.matrix object for example) raises an error. """
+
+    samples = cuqi.samples.Samples([object(), object()])
+    with pytest.raises(TypeError, match=r"Cannot compute statistics"):
+        method(samples)
