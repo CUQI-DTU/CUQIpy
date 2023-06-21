@@ -248,10 +248,10 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
             parameters = np.ones(dim)
 
     # 4. Set up the observation parameters
-    if grid_obs == 'half_grid':
+    if isinstance(grid_obs, str) and grid_obs == 'half_grid':
         grid_obs = grid_sol[int(dim/2):]
 
-    if time_obs == 'every_5':
+    if isinstance(time_obs, str) and time_obs == 'every_5':
         time_obs = time_steps[::5]
 
     # 5. Create a PDE object
