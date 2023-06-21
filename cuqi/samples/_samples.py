@@ -200,7 +200,6 @@ class Samples(object):
                 "is_par is determined automatically by the samples object.")
         plotting_dict["is_par"] = self.is_par
 
-
     def _convert_to_funvals_if_needed(self, value):
         """Converts the input value to function values if the value is a vector 
         representation of function values"""
@@ -208,7 +207,38 @@ class Samples(object):
             return self.geometry.vec2fun(value)
         else:
             return value
+        
+    def _compute_numpy_stats(self, method, *args, **kwargs):
+        """Apply the numpy method `method` to `self.samples`. Additional 
+        arguments `args` and keyword arguments `kwargs` are passed to the numpy
+        method `method`."""
 
+        # Compute the statistics and catch TypeError if the samples does
+        # not have the correct data type
+        try:
+            stats = method(self.samples, *args, **kwargs)
+        except TypeError as e:
+            raise TypeError(
+                f"Cannot compute statistics for the given samples. "+
+                f"Only numpy arrays are supported. "+
+                "Consider using the property vector to convert the "+
+                "samples to vector representation, e.g. my_samples.vector, "+
+                "to be able to compute statistics on the samples.\n"
+                +str(e))
+            
+        return stats
+    
+    def _raise_error_if_not_vec(self, method_name):
+        """Raises an error if the samples are not in vector form when calling a
+        method that requires the samples to be in vector form."""
+
+        # Raise an error if the samples are not in vector form
+        if not self.is_vec:
+            raise ValueError(
+                "Cannot perform "+method_name+" on samples that are not in "+
+                "vector form. Consider using the property vector to convert "+
+                "the samples to vector representation, e.g. my_samples.vector, "+
+                "before calling "+method_name+".")
 
     def burnthin(self, Nb, Nt=1):
         """
@@ -313,26 +343,31 @@ class Samples(object):
 
     def mean(self):
         """Compute mean of the samples."""
-        return np.mean(self.samples, axis=-1)
+        return self._compute_numpy_stats(np.mean, axis=-1)
 
     def median(self):
         """Compute pointwise median of the samples"""
-        return np.median(self.samples, axis=-1)
+        return self._compute_numpy_stats(np.median, axis=-1)
 
     def variance(self):
         """Compute pointwise variance of the samples"""
-        return np.var(self.samples, axis=-1)
+        return self._compute_numpy_stats(np.var, axis=-1)
 
     def compute_ci(self, percent=95):
         """Compute pointwise credibility intervals of the samples."""
         lb = (100-percent)/2
         up = 100-lb
-        return np.percentile(self.samples, [lb, up], axis=-1)
+        return self._compute_numpy_stats(
+            np.percentile, [lb, up], axis=-1) 
 
     def ci_width(self, percent = 95):
         """Compute width of the pointwise credibility intervals of the samples"""
         lo_conf, up_conf = self.compute_ci(percent)
         return up_conf-lo_conf
+    
+    def std(self):
+        """Compute pointwise standard deviation of the samples"""
+        return self._compute_numpy_stats(np.std, axis=-1)
 
     def plot_std(self,*args,**kwargs):
         """Plot pointwise standard deviation of the samples
@@ -342,7 +377,7 @@ class Samples(object):
         """
         self._process_is_par_kwarg(kwargs)
         # Compute std assuming samples are index in last dimension of nparray
-        std = np.std(self.samples,axis=-1)
+        std = self.std()
         
         # If std is function in vector form, convert to function values
         std = self._convert_to_funvals_if_needed(std)
@@ -374,6 +409,9 @@ class Samples(object):
         return self.geometry.plot(plot_samples, *args, **kwargs)
         
     def plot_chain(self, variable_indices=None, *args, **kwargs):
+
+        self._raise_error_if_not_vec(self.plot_chain.__name__)
+
         dim = self._geometry_dim
         Nv = 5 # Max number of variables to plot if none are chosen
         # If no variables are given we randomly select some at random
@@ -389,6 +427,9 @@ class Samples(object):
         return lines
     
     def hist_chain(self,variable_indices,*args,**kwargs):
+
+        self._raise_error_if_not_vec(self.hist_chain.__name__)
+
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
         variables = np.array(self.geometry.variables) #Convert to np array for better slicing
@@ -648,6 +689,14 @@ class Samples(object):
 
     def to_arviz_inferencedata(self, variable_indices=None):
         """ Return arviz InferenceData object of samples for the given variable indices"""
+        # If samples are not in a vector representation, i.e. the samples is
+        # not a 2D numpy array, we cannot convert to arviz InferenceData object
+        if not self.is_vec:
+            raise ValueError("Samples are not in a vector representation. "+ 
+                "Cannot convert to arviz InferenceData object. Consider using "+
+                "the `Samples` property `vector` to convert to vector "+
+                "representation.")
+
         # If no variable indices given we convert all
         if variable_indices is None:
             variable_indices = np.arange(self._geometry_dim)
