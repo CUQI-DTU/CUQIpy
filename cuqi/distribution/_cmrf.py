@@ -58,7 +58,7 @@ class CMRF(Distribution):
 
         # Ensure geometry has shape
         if not self.geometry.fun_shape or self.geometry.par_dim == 1:
-            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with geometry or dim greater than 1.")
+            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (with fun_shape) or dim greater than 1.")
 
         # Default physical_dim to geometry's dimension if not provided
         physical_dim = len(self.geometry.fun_shape) if physical_dim is None else physical_dim
