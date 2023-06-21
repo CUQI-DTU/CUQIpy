@@ -8,6 +8,8 @@ from ._geometry import (
     Discrete,
     MappedGeometry,
     _DefaultGeometry,
+    _DefaultGeometry1D,
+    _DefaultGeometry2D,
     KLExpansion,
     KLExpansion_Full,
     CustomKL,

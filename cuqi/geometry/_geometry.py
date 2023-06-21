@@ -596,13 +596,24 @@ class MappedGeometry(_WrappedGeometry):
     def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())
 
+class _DefaultGeometry(Geometry):
+    pass
 
-class _DefaultGeometry(Continuous1D):
+
+class _DefaultGeometry1D(Continuous1D, _DefaultGeometry):
     def __init__(self, grid=None, axis_labels=None):
         super().__init__(grid, axis_labels)
 
     def __eq__(self, obj):
         if not isinstance(obj, (self.__class__,Continuous1D)): return False
+        return self._all_values_equal(obj)
+    
+class _DefaultGeometry2D(Image2D, _DefaultGeometry):
+    def __init__(self, im_shape=None, visual_only=False):
+        super().__init__(im_shape, visual_only=visual_only)
+
+    def __eq__(self, obj):
+        if not isinstance(obj, (self.__class__,Image2D)): return False
         return self._all_values_equal(obj)
 
 # class DiscreteField(Discrete):

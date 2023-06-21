@@ -7,7 +7,7 @@ from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
-from cuqi.geometry import _DefaultGeometry, Geometry
+from cuqi.geometry import _DefaultGeometry1D, _DefaultGeometry2D, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 import numpy as np # To be replaced by cuqi.array_api
 
@@ -158,8 +158,10 @@ class Distribution(Density, ABC):
 
     @geometry.setter
     def geometry(self,value):
-        if isinstance(value, (int,np.integer)) or value is None:
-            self._geometry = _DefaultGeometry(grid=value)
+        if isinstance(value, tuple) and len(value) == 2:
+            self._geometry = _DefaultGeometry2D(value)           
+        elif isinstance(value, (int,np.integer)) or value is None:
+            self._geometry = _DefaultGeometry1D(grid=value)
         elif isinstance(value, Geometry):
             self._geometry = value
         else:
