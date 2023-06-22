@@ -216,7 +216,7 @@ samples['l'].plot_trace(figsize=(8,2))
 # This laplace distribution and new posterior can be defined as follows:
 
 # Define new distribution for x
-x = LMRF(0, lambda d: 1/d, dim=n)
+x = LMRF(0, lambda d: 1/d, geometry=n)
 
 # Define new joint distribution with piecewise constant prior
 joint_Ld = JointDistribution(d, l, x, y)

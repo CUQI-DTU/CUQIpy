@@ -6,12 +6,12 @@ def test_density_variable_name_detection():
     """Test that the density variable name is detected correctly at different levels of the python stack. """
 
     # Test that the density variable name is detected correctly at current level.
-    x = cuqi.distribution.Gaussian()
+    x = cuqi.distribution.Gaussian(geometry=1)
     assert x.name == 'x'
 
     # Test that variable name is detected correctly 1 level deep.
     def inner_name():
-        y = cuqi.distribution.Gaussian()
+        y = cuqi.distribution.Gaussian(geometry=1)
         assert y.name == 'y'
     inner_name()
 
@@ -21,7 +21,7 @@ def test_density_variable_name_detection():
             self.max_recursion = max_recursion
         def __call__(self, current_recursion=0):
             if current_recursion == self.max_recursion:
-                z = cuqi.distribution.Gaussian()
+                z = cuqi.distribution.Gaussian(geometry=1)
                 assert z.name == 'z'
             else:
                 self(current_recursion + 1)
@@ -30,7 +30,7 @@ def test_density_variable_name_detection():
 def test_variable_name_accross_frames():
     """ Test variable name can be inferred across multiple stack frames. """
 
-    h = cuqi.distribution.Gaussian() # Name should be 'h'
+    h = cuqi.distribution.Gaussian(geometry=1) # Name should be 'h'
 
     def recursive_return_dist(dist, recursions):
         if recursions == 0:
@@ -42,7 +42,7 @@ def test_variable_name_accross_frames():
 
 def test_density_name_consistency():
 
-    x = cuqi.distribution.Gaussian()
+    x = cuqi.distribution.Gaussian(geometry=1)
     x2 = x(mean=1)
     x3 = x2(cov=1)
 

@@ -12,7 +12,7 @@ N = 2
 prec = 1.0
 dom = 1
 BCs = 'neumann'
-x = cuqi.distribution.LMRF(location, prec, BCs, dim=N)
+x = cuqi.distribution.LMRF(location, prec, BCs, geometry=N)
 print(x.logd(np.array([3,4])))
 #%%
 location = 0

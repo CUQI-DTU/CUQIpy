@@ -34,7 +34,7 @@ TP.UQ()
 # switch prior
 # Set up Bayesian model for inverse problem
 A  = LinearModel(Amat)                                  # y = Ax. Model for inverse problem
-x  = LMRF(0, 0.01, dim=n, bc_type='zero')               # x ~ LMRF(0, 0.01), Zero BC
+x  = LMRF(0, 0.01, geometry=n, bc_type='zero')               # x ~ LMRF(0, 0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
 samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
@@ -43,7 +43,7 @@ samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
 # switch prior again
 # Set up Bayesian model for inverse problem
 A  = LinearModel(Amat)                                  # y = Ax. Model for inverse problem
-x  = CMRF(0, 0.01, dim=n, bc_type='zero')               # x ~ CMRF(0,0.01), Zero BC
+x  = CMRF(0, 0.01, geometry=n, bc_type='zero')               # x ~ CMRF(0,0.01), Zero BC
 y  = Gaussian(A@x, 0.05)                                # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=y_data)           # Bayesian problem given observed data
 samples = IP.UQ(exact=x_exact)                          # Run UQ analysis
@@ -74,7 +74,7 @@ samples = IP.UQ(Ns = 2000, exact={"x":x_exact, "l":400}) # Run UQ analysis
 A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
 d  = Gamma(1, 1e-2)                                      # d ~ Gamma(1, 10^-2)
 l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
-x  = LMRF(0, lambda d: 1/d, dim=n)                       # x ~ LMRF(0, d^{-1}), Zero BC
+x  = LMRF(0, lambda d: 1/d, geometry=n)                       # x ~ LMRF(0, d^{-1}), Zero BC
 y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
 IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
 samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis
@@ -84,7 +84,7 @@ try:
     A  = LinearModel(Amat)                                   # y = Ax. Model for inverse problem
     d  = Gamma(1, 1e-2)                                      # d ~ Gamma(1, 10^-2)
     l  = Gamma(1, 1e-2)                                      # l ~ Gamma(1, 10^-2)
-    x  = CMRF(0, lambda d: 1/d, dim=n)                       # x ~ CMRF(0, d^{-1}), Zero BC
+    x  = CMRF(0, lambda d: 1/d, geometry=n)                       # x ~ CMRF(0, d^{-1}), Zero BC
     y  = Gaussian(A@x, cov=lambda l: 1/l)                    # y ~ N(Ax, l^-1)
     IP = BayesianProblem(y, x, d, l).set_data(y=y_data)      # Bayesian problem given observed data
     samples = IP.UQ(Ns = 1000, exact={"x":x_exact, "l":400}) # Run UQ analysis

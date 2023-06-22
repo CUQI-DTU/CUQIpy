@@ -7,7 +7,7 @@ from cuqi.utilities import force_ndarray
 class LMRF(Distribution):
     """Laplace distribution on the difference between neighboring nodes.
 
-    For 1D `(physical_dim=1)`, the Laplace difference distribution assumes that
+    For 1D, the Laplace difference distribution assumes that
 
     .. math::
 
@@ -15,7 +15,7 @@ class LMRF(Distribution):
 
     where :math:`b` is the scale parameter.
 
-    For 2D `(physical_dim=2)` the differences are defined in both horizontal and vertical directions.
+    For 2D the differences are defined in both horizontal and vertical directions.
 
     It is possible to define boundary conditions using the `bc_type` parameter.
 
@@ -40,10 +40,10 @@ class LMRF(Distribution):
     .. code-block:: python
 
         import cuqi
-        prior = cuqi.distribution.LMRF(location=0, scale=0.1, dim=128)
+        prior = cuqi.distribution.LMRF(location=0, scale=0.1, geometry=128)
  
     """
-    def __init__(self, location, scale, bc_type="zero", physical_dim=None, **kwargs):
+    def __init__(self, location, scale, bc_type="zero", **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
@@ -56,25 +56,18 @@ class LMRF(Distribution):
             raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (with fun_shape) or dim greater than 1.")
 
         # Default physical_dim to geometry's dimension if not provided
-        physical_dim = len(self.geometry.fun_shape) if physical_dim is None else physical_dim
+        physical_dim = len(self.geometry.fun_shape)
 
         # Ensure provided physical dimension is either 1 or 2
         if physical_dim not in [1, 2]:
             raise ValueError("Only physical dimension 1 or 2 supported.")
 
-        # Check for geometry mismatch
-        if not isinstance(self.geometry, _DefaultGeometry1D) and physical_dim != len(self.geometry.fun_shape):
-            raise ValueError(f"Specified physical dimension {physical_dim} does not match geometry's dimension {len(self.geometry.fun_shape)}")
-
         self._physical_dim = physical_dim
 
-        # If physical_dim is 2 and geometry is _DefaultGeometry, replace it with Image2D
         if self._physical_dim == 2:
             N = int(np.sqrt(self.dim))
             num_nodes = (N, N)
-            if isinstance(self.geometry, _DefaultGeometry1D):
-                self.geometry = Image2D(num_nodes)
-        else:  # self._physical_dim == 1
+        else: 
             num_nodes = self.dim
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)

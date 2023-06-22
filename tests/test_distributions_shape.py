@@ -51,7 +51,7 @@ def prepare_dist(dist):
 
     # Define distributions
     dist_from_vec = dist(first_param * np.ones(5), second_param)
-    dist_from_dim = dist(first_param, second_param, dim=5)
+    dist_from_dim = dist(first_param, second_param, geometry=5)
 
     # If distribution is still conditional it needs more parameters
     if dist_from_vec.is_cond:

@@ -71,7 +71,7 @@ class Distribution(Density, ABC):
     mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
 
     """
-    def __init__(self, name=None, geometry=None, is_symmetric=None, dim=None):
+    def __init__(self, name=None, geometry=None, is_symmetric=None):
         """ Initialize the core properties of the distribution.
         
         Parameters
@@ -84,19 +84,11 @@ class Distribution(Density, ABC):
 
         is_symmetric : bool, default None
             Indicator if distribution is symmetric.
-
-        dim : int or None
-            Dimension of distribution. Cannot be passed together with geometry.
                         
         """
         super().__init__(name=name)
         self.is_symmetric = is_symmetric
-        if dim and geometry:
-            raise ValueError(f"Cannot specify both 'dim' and 'geometry'.")
-        if dim:
-            self.geometry = dim
-        else:
-            self.geometry = geometry
+        self.geometry = geometry
 
     @property
     def dim(self):
@@ -414,9 +406,10 @@ class Distribution(Density, ABC):
                     kwargs[ordered_keys[index]] = arg
         return kwargs
     
-    def _ensure_geometry_has_shape(self):
-        """ Raise error if geometry does not have a shape. """
-        if self.geometry.par_shape is None:
+    def check_geometry_consistency(self):
+        """ Checks that the geometry of the distribution is consistent with inferred dimension """
+
+        if self.geometry.par_shape is None: # Getter of geometry is invoked here also
             raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
 
     def __repr__(self) -> str:

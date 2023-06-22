@@ -79,13 +79,13 @@ def test_likelihood_UserDefined():
     assert likelihood.geometry == model.domain_geometry
 
 @pytest.mark.parametrize("dist",[
-    cuqi.distribution.Gaussian(),
-    cuqi.distribution.Gaussian(lambda x: x, lambda s: s),
-    cuqi.distribution.Gaussian(cuqi.model.Model(lambda x: x, 2, 2), lambda s:s)
+    cuqi.distribution.Gaussian(geometry=2),
+    cuqi.distribution.Gaussian(lambda x: x, lambda s: s, geometry=2),
+    cuqi.distribution.Gaussian(cuqi.model.Model(lambda x: x, 2, 2), lambda s:s, geometry=2)
 ])
 @pytest.mark.parametrize("mean, cov, data",[
     (np.zeros(2), np.eye(2), np.ones(2)),
-    (np.zeros(3), np.eye(3), np.random.rand(3)),
+    (np.ones(2), 0.1*np.eye(2), np.random.rand(2)),
 ])
 def test_likelihood_conditioning(dist, mean, cov, data):
     """ Test conditioning on parameters of likelihood for Gaussian """
