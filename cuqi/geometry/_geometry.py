@@ -414,6 +414,12 @@ class Continuous2D(Continuous):
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
 
+    def par2fun(self, par):
+        return par.reshape(self.fun_shape)
+
+    def fun2par(self, fun):
+        return fun.ravel()
+
 class Image2D(Geometry):
     """ A class that represents a 2D image.
 
