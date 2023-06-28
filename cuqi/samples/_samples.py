@@ -59,8 +59,12 @@ class Samples(object):
 
     def __iter__(self):
         """Returns an iterator over the samples"""
-        for i in range(self.Ns):
-            yield self.samples[..., i]
+        if isinstance(self.samples, list):
+            for i in range(self.Ns):
+                yield self.samples[i]
+        else:
+            for i in range(self.Ns):
+                yield self.samples[..., i]
 
     @property
     def shape(self):
@@ -69,7 +73,10 @@ class Samples(object):
     @property
     def Ns(self):
         """Return number of samples"""
-        return self.samples.shape[-1]
+        if isinstance(self.samples, list):
+            return len(self.samples)
+        else:
+            return self.samples.shape[-1]
 
     @property
     def geometry(self):
@@ -218,15 +225,12 @@ class Samples(object):
         # not have the correct data type
         try:
             stats = method(self.samples, *args, **kwargs)
-        except TypeError as e:
-            raise TypeError(
-                f"Cannot compute statistics for the given samples. "+
-                f"Only numpy arrays are supported. "+
-                "Consider using the property vector to convert the "+
-                "samples to vector representation, e.g. my_samples.vector, "+
-                "to be able to compute statistics on the samples.\n"
-                +str(e))
-            
+
+        except Exception as e:
+            msg = f"{self.__module__} added message: Cannot compute statistics for the given samples. Only numpy arrays are supported. Consider using the property vector to convert the samples to vector representation, e.g. my_samples.vector, to be able to compute statistics on the samples. See below for the original error message:\n"
+            e.args = (msg + e.args[0],) + e.args[1:]
+            raise e
+   
         return stats
     
     def _raise_error_if_not_vec(self, method_name):
