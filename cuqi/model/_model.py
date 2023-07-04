@@ -114,7 +114,7 @@ class Model(object):
         self._gradient_func = gradient
          
         #Store range_geometry
-        if isinstance(range_geometry, tuple):
+        if isinstance(range_geometry, tuple) and len(range_geometry) == 2:
             self.range_geometry = _DefaultGeometry2D(range_geometry)
         elif isinstance(range_geometry, int):
             self.range_geometry = _DefaultGeometry1D(grid=range_geometry)
@@ -123,7 +123,7 @@ class Model(object):
         elif range_geometry is None:
             raise AttributeError("The parameter 'range_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
         else:
-            raise TypeError("The parameter 'range_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
+            raise TypeError("The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
 
         #Store domain_geometry
         if isinstance(domain_geometry, tuple) and len(domain_geometry) == 2:
