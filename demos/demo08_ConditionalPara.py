@@ -44,7 +44,7 @@ z(sigma=2).sample()
 mean = lambda sigma,gamma: sigma+gamma
 std  = lambda delta,gamma: np.sqrt(delta+gamma)
 
-z = cuqi.distribution.Normal(mean,std)
+z = cuqi.distribution.Normal(mean,std, geometry=1)
 Z = z(sigma=3,gamma=-2)
 Z = Z(delta=5)
 Z.sample()
@@ -77,7 +77,7 @@ d = cuqi.distribution.Gamma(shape=n/2+alpha,rate=lambda x: .5*x.T@(L@x)+beta)
 # Define prior
 mean_func = lambda l,d: np.linalg.solve(l*A.T@A+d*L,l*A.T@b)
 cov_func  = lambda l,d: np.linalg.inv(l*A.T@A+d*L)
-x = cuqi.distribution.Gaussian(mean=mean_func,cov=cov_func)
+x = cuqi.distribution.Gaussian(mean=mean_func,cov=cov_func, geometry=n)
 
 # Preallocate sample vectors
 ls = np.zeros(n_samp+1)
