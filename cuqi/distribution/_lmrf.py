@@ -32,9 +32,6 @@ class LMRF(Distribution):
     bc_type : string
         The boundary conditions of the difference operator.
 
-    physical_dim : int
-        The physical dimension of what the distribution represents (can take the values 1 or 2).
-
     Example
     -------
     .. code-block:: python
