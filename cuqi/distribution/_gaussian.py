@@ -118,7 +118,7 @@ class Gaussian(Distribution):
             self._mutable_vars = ['mean', 'sqrtprec']
             self.sqrtprec = sqrtprec
 
-        self.check_geometry_consistency()
+        self._check_geometry_consistency()
 
     @property
     def mean(self):

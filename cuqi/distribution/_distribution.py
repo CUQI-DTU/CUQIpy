@@ -141,11 +141,14 @@ class Distribution(Density, ABC):
         if inferred_dim and self._geometry.par_dim is None: 
             self.geometry = inferred_dim
 
+        if self._geometry.par_shape is None:
+            raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
+
         # Check if dist has a name, if so we provide it to the geometry
         # We do not use self.name to potentially infer it from python stack.
         if self._name: 
             self._geometry._variable_name = self._name
-
+            
         return self._geometry
 
     @geometry.setter
@@ -406,11 +409,9 @@ class Distribution(Density, ABC):
                     kwargs[ordered_keys[index]] = arg
         return kwargs
     
-    def check_geometry_consistency(self):
-        """ Checks that the geometry of the distribution is consistent with inferred dimension """
-
-        if self.geometry.par_shape is None: # Getter of geometry is invoked here also
-            raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
+    def _check_geometry_consistency(self):
+        """ Checks that the geometry of the distribution is consistent by calling the geometry property. """
+        self.geometry
 
     def __repr__(self) -> str:
         if self.is_cond is True:
