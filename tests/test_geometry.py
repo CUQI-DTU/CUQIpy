@@ -389,4 +389,8 @@ def test_KLExpansion_projection():
     rel_err = np.linalg.norm(signal-signal_proj)/np.linalg.norm(signal)
     assert np.isclose(rel_err, 0.0, atol=1e-5)
 
-# TODO. Add tests for _DefaultGeometry2D and add tests for default initialiations
+def test_DefaultGeometry2D_should_be_image2D():
+    geom2D = cuqi.geometry._DefaultGeometry2D((100, 100))
+
+    assert isinstance(geom2D, cuqi.geometry.Image2D)
+   
