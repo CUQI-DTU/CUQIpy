@@ -126,7 +126,7 @@ class Model(object):
             raise TypeError("The parameter 'range_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
 
         #Store domain_geometry
-        if isinstance(domain_geometry, tuple):
+        if isinstance(domain_geometry, tuple) and len(domain_geometry) == 2:
             self.domain_geometry = _DefaultGeometry2D(domain_geometry)
         elif isinstance(domain_geometry, int):
             self.domain_geometry = _DefaultGeometry1D(grid=domain_geometry)
