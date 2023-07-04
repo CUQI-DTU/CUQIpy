@@ -25,8 +25,8 @@ def test_CWMH_modify_proposal():
     #def proposal1(x, sigma): return np.random.normal(x, sigma)
     #def proposal2(x, sigma): return np.random.normal(x, 2*sigma)
 
-    proposal1 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
-    proposal2 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:2*scale )
+    proposal1 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=n)
+    proposal2 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:2*scale, geometry=n)
 
 
     # Set up sampler
@@ -61,7 +61,7 @@ def test_CWMH_sample_regression():
     # Define proposal
     # def proposal(x, sigma): return np.random.normal(x, sigma)
     #proposal = cuqi.distribution.Normal(np.zeros(len(mean)),1 )
-    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=2)
 
     # Set up sampler
     MCMC = cuqi.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
@@ -144,7 +144,7 @@ def test_sampler_geometry_assignment():
     target.geometry = cuqi.geometry.Continuous2D((1,2))
 
     # Set up proposals
-    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=n)
 
     # Set up sampler
     MCMC_sampler = cuqi.sampler.CWMH(target, proposal, scale, x0)
