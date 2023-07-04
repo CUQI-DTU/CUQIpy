@@ -410,7 +410,7 @@ class Distribution(Density, ABC):
         return kwargs
     
     def _check_geometry_consistency(self):
-        """ Checks that the geometry of the distribution is consistent by calling the geometry property. """
+        """ Checks that the geometry of the distribution is consistent by calling the geometry property. Should be called at the end of __init__ of subclasses. """
         self.geometry
 
     def __repr__(self) -> str:
