@@ -50,7 +50,7 @@ class LMRF(Distribution):
 
         # Ensure geometry has shape
         if not self.geometry.fun_shape or self.geometry.par_dim == 1:
-            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (with fun_shape) or dim greater than 1.")
+            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (geometry of which the with fun_shape is not None) and has parameter dimension greater than 1.")
 
         # Default physical_dim to geometry's dimension if not provided
         physical_dim = len(self.geometry.fun_shape)
