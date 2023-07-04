@@ -135,7 +135,7 @@ class Model(object):
         elif domain_geometry is None:
             raise AttributeError("The parameter 'domain_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
         else:
-            raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
+            raise TypeError("The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
 
         # Store non_default_args of the forward operator for faster caching when checking for those arguments.
         self._non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
