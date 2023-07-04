@@ -1,6 +1,6 @@
 import pytest
 from cuqi.distribution import LMRF, CMRF
-from cuqi.geometry import Image2D, Geometry
+from cuqi.geometry import Image2D, Geometry, _DefaultGeometry2D
 import numpy as np
 
 class Image3D(Geometry):
@@ -34,7 +34,7 @@ def test_LMRF_mismatched_location_and_geometry_raises_error():
 
 def test_LMRF_default_geometry_is_replaced_when_physical_dim_is_2():
     lmrf = LMRF(0, scale=0.2, geometry=(4,4))
-    assert isinstance(lmrf.geometry, Image2D)
+    assert isinstance(lmrf.geometry, _DefaultGeometry2D)
 
 @pytest.mark.parametrize("scale_value", [0.1, lambda s: s])
 def test_CMRF_should_not_allow_None_or_scalar_geometry(scale_value):
@@ -53,7 +53,7 @@ def test_CMRF_mismatched_location_and_geometry_raises_error():
 
 def test_CMRF_default_geometry_is_replaced_when_physical_dim_is_2():
     cmrf = CMRF(0, scale=0.2, geometry=(4,4))
-    assert isinstance(cmrf.geometry, Image2D)
+    assert isinstance(cmrf.geometry, _DefaultGeometry2D)
 
 def test_LMRF_dim_vs_ndarray_location():
     lmrf1 = LMRF(0, scale=0.2, geometry=(4,4))
