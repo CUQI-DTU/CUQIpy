@@ -124,7 +124,7 @@ class Distribution(Density, ABC):
         inferred_dim = self._infer_dim_of_mutable_variables()
         geometry_dim = self._geometry.par_dim
 
-        is_inferred_multivariate = inferred_dim > 1 if inferred_dim else False
+        is_inferred_multivariate = inferred_dim > 1 if inferred_dim is not None else False
 
         # Flag indicating whether distribution geometry matches inferred dimension
         geometry_matches_inferred_dim = (geometry_dim == inferred_dim) if (geometry_dim and inferred_dim) else True
