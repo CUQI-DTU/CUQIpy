@@ -5,7 +5,7 @@ from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
-from cuqi.geometry import Geometry, _DefaultGeometry, _get_identity_geometries
+from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D, _get_identity_geometries
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -114,24 +114,28 @@ class Model(object):
         self._gradient_func = gradient
          
         #Store range_geometry
-        if isinstance(range_geometry, int):
-            self.range_geometry = _DefaultGeometry(grid=range_geometry)
+        if isinstance(range_geometry, tuple) and len(range_geometry) == 2:
+            self.range_geometry = _DefaultGeometry2D(range_geometry)
+        elif isinstance(range_geometry, int):
+            self.range_geometry = _DefaultGeometry1D(grid=range_geometry)
         elif isinstance(range_geometry, Geometry):
             self.range_geometry = range_geometry
         elif range_geometry is None:
             raise AttributeError("The parameter 'range_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
         else:
-            raise TypeError("The parameter 'range_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
+            raise TypeError("The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
 
         #Store domain_geometry
-        if isinstance(domain_geometry, int):
-            self.domain_geometry = _DefaultGeometry(grid=domain_geometry)
+        if isinstance(domain_geometry, tuple) and len(domain_geometry) == 2:
+            self.domain_geometry = _DefaultGeometry2D(domain_geometry)
+        elif isinstance(domain_geometry, int):
+            self.domain_geometry = _DefaultGeometry1D(grid=domain_geometry)
         elif isinstance(domain_geometry, Geometry):
             self.domain_geometry = domain_geometry
         elif domain_geometry is None:
             raise AttributeError("The parameter 'domain_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
         else:
-            raise TypeError("The parameter 'domain_geometry' should be of type 'int' or 'cuqi.geometry.Geometry'.")
+            raise TypeError("The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
 
         # Store non_default_args of the forward operator for faster caching when checking for those arguments.
         self._non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
@@ -164,7 +168,7 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             The input value represented as a function.
         """
-        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry):
+        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry1D):
             return x.funvals
         elif is_par:
             return geometry.par2fun(x)
@@ -454,9 +458,9 @@ class LinearModel(Model):
         # Use matrix to derive range_geometry and domain_geometry
         if matrix is not None:
             if range_geometry is None:
-                range_geometry = _DefaultGeometry(grid=matrix.shape[0])
+                range_geometry = _DefaultGeometry1D(grid=matrix.shape[0])
             if domain_geometry is None:
-                domain_geometry = _DefaultGeometry(grid=matrix.shape[1])  
+                domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])  
 
         #Initialize Model class
         super().__init__(forward_func,range_geometry,domain_geometry)

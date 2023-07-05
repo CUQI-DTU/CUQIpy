@@ -41,19 +41,10 @@ class UserDefinedDistribution(Distribution):
         if sample_func is not None and not callable(sample_func): raise ValueError("sample_func should be callable.")
         if gradient_func is not None and not callable(gradient_func): raise ValueError("grad_func should be callable.")
         
-        self.dim = dim
+        self.geometry = dim # Store dimension by calling setter for geometry (creates default geometry)
         self.logpdf_func = logpdf_func
         self.sample_func = sample_func
         self.gradient_func = gradient_func
-
-
-    @property
-    def dim(self):
-        return self._dim
-
-    @dim.setter
-    def dim(self, value):
-        self._dim = value
 
     def logpdf(self, x):
         if self.logpdf_func is not None:
@@ -79,6 +70,12 @@ class UserDefinedDistribution(Distribution):
                 return out
         else:
             raise Exception("sample_func is not defined. Sampling can be performed by passing the density to a sampler from the 'sampler' module.")
+
+    @property
+    def _mutable_vars(self):
+        """ Returns the mutable variables of the distribution. """
+        # Currently mutable variables are not supported for user-defined distributions.
+        return []
 
     def get_conditioning_variables(self):
         """ Returns the conditioning variables of the distribution. """

@@ -62,7 +62,7 @@ class CWMH(ProposalBasedSampler):
         fail_msg = "Proposal should be either None, cuqi.distribution.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
 
         if value is None:
-            self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+            self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=self.dim)
 
         elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
             self._proposal = value

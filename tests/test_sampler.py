@@ -25,8 +25,8 @@ def test_CWMH_modify_proposal():
     #def proposal1(x, sigma): return np.random.normal(x, sigma)
     #def proposal2(x, sigma): return np.random.normal(x, 2*sigma)
 
-    proposal1 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
-    proposal2 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:2*scale )
+    proposal1 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=n)
+    proposal2 =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:2*scale, geometry=n)
 
 
     # Set up sampler
@@ -61,7 +61,7 @@ def test_CWMH_sample_regression():
     # Define proposal
     # def proposal(x, sigma): return np.random.normal(x, sigma)
     #proposal = cuqi.distribution.Normal(np.zeros(len(mean)),1 )
-    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=2)
 
     # Set up sampler
     MCMC = cuqi.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
@@ -144,7 +144,7 @@ def test_sampler_geometry_assignment():
     target.geometry = cuqi.geometry.Continuous2D((1,2))
 
     # Set up proposals
-    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale )
+    proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=n)
 
     # Set up sampler
     MCMC_sampler = cuqi.sampler.CWMH(target, proposal, scale, x0)
@@ -224,6 +224,28 @@ def test_sampler_CustomInput_Linear_RTO():
     # Parameters
     Ns = 2000   # number of samples
     Nb = 200   # burn-in
+
+    # Sampling
+    s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
+
+    assert np.allclose(s_RTO.shape,(P.dim,Ns))
+
+def test_sampler_scalar_mean_Gaussian_Linear_RTO():
+
+    model = np.eye(2) # Identity model
+
+    P = cuqi.distribution.Gaussian(0, 1, geometry=2)
+    L = cuqi.distribution.Gaussian(model,np.array([[1,0.5],[0.5,3]]))
+
+    # Data
+    data = np.array([5,6])
+
+    # Posterior
+    target = (data, model, L.sqrtprec, P.mean, P.sqrtprec)
+
+    # Parameters
+    Ns = 200   # number of samples
+    Nb = 20   # burn-in
 
     # Sampling
     s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
@@ -358,7 +380,7 @@ def test_MALA_regression(copy_reference):
     (Gaussian(np.zeros(128), 0.1), "_sampleNUTS", np.arange(1,12)),      # 20% burn-in + initial guess
     (Gaussian(np.zeros(128), 0.1), "_samplepCN", np.arange(1,12)),       # 20% burn-in + initial guess
     (Gaussian(np.zeros(128), 0.1), "_sampleCWMH", np.arange(1,12)),      # 20% burn-in + initial guess
-    (LMRF(np.zeros(128), 0.1),"_sampleUGLA", np.arange(1,12)),   # 20% burn-in + initial guess
+    (LMRF(0, 0.1, geometry=128),"_sampleUGLA", np.arange(1,12)),   # 20% burn-in + initial guess
     ])
 def test_TP_callback(prior, sample_method, expected):
     """ Test that the callback function is called with the correct sample index by comparing to the expected output.

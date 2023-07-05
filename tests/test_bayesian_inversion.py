@@ -14,7 +14,7 @@ from cuqi.density import Density
                          [
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
-                             (Deconvolution1D, "square", LMRF(np.zeros(128), 0.005), 100),
+                             (Deconvolution1D, "square", LMRF(0, 0.005, geometry=128), 100),
                              (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50),
                          ])
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
@@ -90,7 +90,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "square",
             [
-                LMRF(np.zeros(128), lambda d: 1/d, name="x"),
+                LMRF(0, lambda d: 1/d, geometry=128, name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],

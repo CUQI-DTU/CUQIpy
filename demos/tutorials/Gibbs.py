@@ -204,7 +204,7 @@ samples['l'].plot_trace(figsize=(8,2))
 #
 # .. math::
 #
-#     \mathbf{x} \sim \text{LMRF}(\mathbf{0}, d^{-1}),
+#     \mathbf{x} \sim \text{LMRF}(d^{-1}),
 #
 # which means that :math:`x_i-x_{i-1} \sim \mathrm{Laplace}(0, d^{-1})`.
 #
@@ -216,7 +216,7 @@ samples['l'].plot_trace(figsize=(8,2))
 # This laplace distribution and new posterior can be defined as follows:
 
 # Define new distribution for x
-x = LMRF(np.zeros(n), lambda d: 1/d)
+x = LMRF(0, lambda d: 1/d, geometry=n)
 
 # Define new joint distribution with piecewise constant prior
 joint_Ld = JointDistribution(d, l, x, y)

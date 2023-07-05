@@ -148,7 +148,7 @@ print(f"Posterior geometry: {posterior.geometry}")
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
 x = Gaussian(np.zeros(n), lambda d: 1/d*In)
-y = Gaussian(lambda x: A@x, lambda l: 1/l*Im)
+y = Gaussian(lambda x: A@x, lambda l: 1/l*Im, geometry=m)
 
 # Define joint distribution p(d,l,x,y)
 joint_hier = JointDistribution(d, l, x, y)

@@ -1,12 +1,13 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry, Image2D
+from cuqi.geometry import _DefaultGeometry1D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class LMRF(Distribution):
     """Laplace distribution on the difference between neighboring nodes.
 
-    For 1D `(physical_dim=1)`, the Laplace difference distribution assumes that
+    For 1D, the Laplace difference distribution assumes that
 
     .. math::
 
@@ -14,7 +15,7 @@ class LMRF(Distribution):
 
     where :math:`b` is the scale parameter.
 
-    For 2D `(physical_dim=2)` the differences are defined in both horizontal and vertical directions.
+    For 2D the differences are defined in both horizontal and vertical directions.
 
     It is possible to define boundary conditions using the `bc_type` parameter.
 
@@ -31,43 +32,50 @@ class LMRF(Distribution):
     bc_type : string
         The boundary conditions of the difference operator.
 
-    physical_dim : int
-        The physical dimension of what the distribution represents (can take the values 1 or 2).
-
     Example
     -------
     .. code-block:: python
 
         import cuqi
-        import numpy as np
-        prior = cuqi.distribution.LMRF(location=np.zeros(128), scale=0.1)
+        prior = cuqi.distribution.LMRF(location=0, scale=0.1, geometry=128)
  
     """
-    def __init__(self, location, scale, bc_type="zero", physical_dim=1, **kwargs):
+    def __init__(self, location, scale, bc_type="zero", **kwargs):
         # Init from abstract distribution class
-        super().__init__(**kwargs) 
+        super().__init__(**kwargs)
 
         self.location = location
         self.scale = scale
         self._bc_type = bc_type
+
+        # Ensure geometry has shape
+        if not self.geometry.fun_shape or self.geometry.par_dim == 1:
+            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (geometry of which the fun_shape is not None) and has parameter dimension greater than 1.")
+
+        # Default physical_dim to geometry's dimension if not provided
+        physical_dim = len(self.geometry.fun_shape)
+
+        # Ensure provided physical dimension is either 1 or 2
+        if physical_dim not in [1, 2]:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
         self._physical_dim = physical_dim
 
-        if physical_dim == 2:
+        if self._physical_dim == 2:
             N = int(np.sqrt(self.dim))
             num_nodes = (N, N)
-            if isinstance(self.geometry, _DefaultGeometry):
-                self.geometry = Image2D(num_nodes)
-
-        elif physical_dim == 1:
+        else: 
             num_nodes = self.dim
-        else:
-            raise ValueError("Only physical dimension 1 or 2 supported.")
 
         self._diff_op = FirstOrderFiniteDifference(num_nodes=num_nodes, bc_type=bc_type)
 
-        # Check if location parameter is non-zero vector (not supported)
-        if callable(location) or np.linalg.norm(location) > 0:
-            raise ValueError("Non-zero location parameter not supported.")
+    @property
+    def location(self):
+        return self._location
+    
+    @location.setter
+    def location(self, value):
+        self._location = force_ndarray(value, flatten=True)
 
     def pdf(self, x):
         Dx = self._diff_op @ (x-self.location)  # np.diff(X)

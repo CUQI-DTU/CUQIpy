@@ -130,9 +130,15 @@ class UGLA(Sampler):
         self._m = len(self._data)
         self._L1 = self.target.likelihood.distribution.sqrtprec
 
+        # If prior location is scalar, repeat it to match dimensions
+        if len(self.target.prior.location) == 1:
+            self._priorloc = np.repeat(self.target.prior.location, self.dim)
+        else:
+            self._priorloc = self.target.prior.location
+
         # Initial Laplace approx
         self._L2 = Lk_fun(self.x0)
-        self._L2mu = self._L2@self.target.prior.location
+        self._L2mu = self._L2@self._priorloc
         self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
         #self.n = len(self.x0)
@@ -160,7 +166,7 @@ class UGLA(Sampler):
 
             # Update Laplace approximation
             self._L2 = Lk_fun(samples[:, s])
-            self._L2mu = self._L2@self.target.prior.location
+            self._L2mu = self._L2@self._priorloc
             self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
             # Sample from approximate posterior

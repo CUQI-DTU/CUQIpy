@@ -41,31 +41,43 @@ class Posterior(Distribution):
     def geometry(self, value):
         # Compare model and prior
         if self.model is not None and self.model.domain_geometry != self.prior.geometry:
-            if isinstance(self.prior.geometry,_DefaultGeometry):
+            if isinstance(self.prior.geometry, _DefaultGeometry):
                 pass #We allow default geometry in prior
             else:
                 raise ValueError("Geometry from likelihood (model.domain_geometry) does not match prior geometry")
 
         # Compare value and prior
         if self.model is None and value is not None and value != self.prior.geometry:
-            if isinstance(self.prior.geometry,_DefaultGeometry):
+            if isinstance(self.prior.geometry, _DefaultGeometry):
                 pass #We allow default geometry in prior
             else:
                 raise ValueError("Posterior and prior geometries are inconsistent.")
 
         # Compare model and value
         if self.model is not None and value is not None and value != self.model.domain_geometry:
-            if isinstance(self.model.domain_geometry,_DefaultGeometry):
+            if isinstance(self.model.domain_geometry, _DefaultGeometry):
                 pass #Allow default model geometry
             else:
                 raise ValueError("Set geometry does not match with model geometry.")
-
+            
+        # Compare likelihood and prior
+        if self.likelihood.geometry != self.prior.geometry:
+            if isinstance(self.prior.geometry, _DefaultGeometry):
+                pass #We allow default geometry in prior
+            elif isinstance(self.likelihood.geometry, _DefaultGeometry):
+                pass #We allow default geometry in likelihood
+            else:
+                raise ValueError("Likelihood and prior geometries are inconsistent.")
+        
         # If value is set, its consistant with prior (and prior is consistant with model)
-        # If value is not set, take from model (if exists) or from prior as last resort
-        if value is not None:
+        # Likelihood and prior are consistant.
+        # If value is not set, take from model (if exists) or from likelihood or prior as last resort
+        if value is not None and not isinstance(value, _DefaultGeometry):
             self._geometry = value
-        elif self.model is not None:
+        elif self.model is not None and not isinstance(self.model.domain_geometry, _DefaultGeometry):
             self._geometry = self.model.domain_geometry
+        elif not isinstance(self.likelihood.geometry, _DefaultGeometry):
+            self._geometry = self.likelihood.geometry
         else:
             self._geometry = self.prior.geometry
             

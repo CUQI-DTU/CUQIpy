@@ -48,7 +48,7 @@ m = A.range_dim
 d = Gamma(1, 1e-4)
 l = Gamma(1, 1e-4)
 x = Gaussian(np.zeros(n), lambda d: 1/d)
-y = Gaussian(lambda x: A@x, lambda l: 1/l)
+y = Gaussian(lambda x: A@x, lambda l: 1/l, geometry=m)
 
 # %%
 # Define joint distribution p(d,l,x,y)

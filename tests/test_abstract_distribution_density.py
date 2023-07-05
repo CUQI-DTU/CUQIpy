@@ -1,15 +1,17 @@
 import cuqi
 import pytest
+import numpy as np
 
+geom = {"geometry": 1}
 
 #TODO. Make tests for all distributions going through their input variables
 @pytest.mark.parametrize("dist, expected",[
-    (cuqi.distribution.Gaussian(), ["mean", "cov"]),
-    (cuqi.distribution.Gaussian(mean=1), ["cov"]),
-    (cuqi.distribution.Gaussian(cov=1), ["mean"]),
-    (cuqi.distribution.Gaussian(mean=lambda m: m, cov=lambda c:c), ["m", "c"]),
-    (cuqi.distribution.Gaussian(mean=1, cov=lambda c:c), ["c"]),
-    (cuqi.distribution.Gaussian(mean=lambda m:m, cov=1), ["m"]),
+    (cuqi.distribution.Gaussian(**geom), ["mean", "cov"]),
+    (cuqi.distribution.Gaussian(mean=1, **geom), ["cov"]),
+    (cuqi.distribution.Gaussian(cov=1, **geom), ["mean"]),
+    (cuqi.distribution.Gaussian(mean=lambda m: m, cov=lambda c:c, **geom), ["m", "c"]),
+    (cuqi.distribution.Gaussian(mean=1, cov=lambda c:c, **geom), ["c"]),
+    (cuqi.distribution.Gaussian(mean=lambda m:m, cov=1, **geom), ["m"]),
 ])
 def test_conditioning_variables(dist, expected):
     assert dist.get_conditioning_variables() == expected
@@ -39,7 +41,7 @@ def test_conditioning_arg_as_mutable_var():
 
 def test_conditioning_on_main_parameter():
     """ This checks if we can condition on the main parameter in various ways. """
-    x = cuqi.distribution.Gaussian()
+    x = cuqi.distribution.Gaussian(geometry=1)
 
     # With keywords (name also automatically inferred)
     assert isinstance(x(mean=1, x=5), cuqi.likelihood.Likelihood)
@@ -62,12 +64,12 @@ def test_conditioning_both_args_kwargs():
 
 def test_conditioning_multiple_args():
     """ This tests if conditional variables are printed correctly if they appear in multiple mutable variables"""
-    dist = cuqi.distribution.Gaussian(mean=lambda x,y: x+y, cov=lambda y,z: y+z)
+    dist = cuqi.distribution.Gaussian(mean=lambda x,y: x+y, cov=lambda y,z: y+z, geometry=1)
     assert dist.get_conditioning_variables() == ["x","y","z"]
 
 def test_conditioning_partial_function():
     """ This tests the partial functions we define if only part of a callable is given. """
-    dist = cuqi.distribution.Gaussian(mean=lambda x,y: x+y, cov=lambda y,z: y+z)
+    dist = cuqi.distribution.Gaussian(mean=lambda x,y: x+y, cov=lambda y,z: y+z, geometry=1)
     dist2 = dist(x=1, y=2)
     assert dist2.get_conditioning_variables() == ["z"]
     assert dist2.mean == 3
@@ -75,7 +77,7 @@ def test_conditioning_partial_function():
 
 def test_conditioning_keeps_name():
     """ This tests if the name of the distribution is kept when conditioning. """
-    y = cuqi.distribution.Gaussian(lambda x:x)
+    y = cuqi.distribution.Gaussian(lambda x:x, geometry=1)
     
     assert y(x=1, cov=1).name == y.name
     assert y(x=1)(cov=1).name == y.name
@@ -89,7 +91,7 @@ def test_conditioning_class_flow():
     """ This tests the class flow of conditioning a conditional distribution in various ways """
 
     # Initial conditional distribution on parameter x and cov.
-    y = cuqi.distribution.Gaussian(lambda x:x)
+    y = cuqi.distribution.Gaussian(lambda x:x, geometry=1)
 
     # Conditioning on x is still conditional on cov
     assert y(x=1).is_cond
@@ -118,7 +120,7 @@ def test_logp_conditional():
     true_val = cuqi.distribution.Gaussian(3, 7).logd(13)
 
     # Distribution with no specified parameters
-    x = cuqi.distribution.Gaussian(cov=lambda s:s)
+    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
 
     # Test logp evaluates correctly in various cases
     assert x.logd(mean=3, s=7, x=13) == true_val
@@ -131,7 +133,7 @@ def test_logp_conditional():
 
 def test_logd_err_handling():
     """ This tests if logp correctly identifies errors in the input """
-    x = cuqi.distribution.Gaussian(cov=lambda s:s)
+    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
 
     # Test that we raise error if we don't provide all parameters
     with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables and main"):
@@ -168,7 +170,7 @@ def test_sample_conditional_err_handling():
 
 def test_cond_positional_and_kwargs():
     """ Test conditioning for both positional and kwargs """
-    x = cuqi.distribution.Gaussian(cov=lambda s:s)
+    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
 
     logd = x(mean=3, cov=7).logd(13)
 
@@ -194,7 +196,7 @@ def test_cond_positional_and_kwargs():
 
 def test_logd_positional_and_kwargs():
     """ Test logd for both positional and kwargs """
-    x = cuqi.distribution.Gaussian(cov=lambda s:s)
+    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
 
     logd = x(mean=3, s=7).logd(13)
 
@@ -208,5 +210,34 @@ def test_logd_positional_and_kwargs():
     assert x.logd(3, s=7, x=13) == logd
     assert x.logd(3, 7, x=13) == logd
 
+def test_dim_geometry_compatibility():
+    """ Test the compatibility of dim and geometry attributes """
+    dist = cuqi.distribution.Gaussian(geometry=(2,2))
+    assert dist.dim == dist.geometry.par_dim
+
+def test_geometry_inference_from_dim():
+    """ Test that the geometry attribute is correctly inferred from dim """
+    dist = cuqi.distribution.Gaussian(geometry=5)
+    assert dist.dim == 5
+    assert dist.geometry.par_dim == 5
+
+def test_geometry_inference_from_variables():
+    """ Test that the geometry attribute is correctly inferred from variables """
+    dist = cuqi.distribution.Gaussian(mean=np.ones(5))
+    assert dist.dim == 5
+    assert dist.geometry.par_dim == 5
+
+def test_geometry_setting():
+    """ Test that geometry attribute can be set and is correctly reflected in dim """
+    dist = cuqi.distribution.Gaussian(geometry=1)
+    dist.geometry = cuqi.geometry.Continuous1D(np.ones(5))
+    assert dist.dim == 5
+    assert dist.geometry.par_dim == 5
+
+def test_dim_geometry_conflict():
+    """ Test that an error is raised when both dim and geometry are specified """
+    with pytest.raises(TypeError, match=r"Inconsistent distribution geometry"):
+        dist = cuqi.distribution.Gaussian(np.zeros(2), geometry=cuqi.geometry.Continuous1D(np.ones(5)))
+        
 
 

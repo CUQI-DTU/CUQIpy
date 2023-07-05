@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Union
 from cuqi.model import Model
-from cuqi.utilities import get_non_default_args
-from cuqi.geometry import _DefaultGeometry
+from cuqi.utilities import get_non_default_args, _get_python_variable_name
+from cuqi.geometry import _DefaultGeometry1D
 from cuqi.density import Density, EvaluatedDensity
 import warnings
 from copy import copy
@@ -84,7 +84,7 @@ class Likelihood(Density):
     def geometry(self):
         """ Return geometry of likelihood """
         if self.model is None:
-            return _DefaultGeometry()
+            return _DefaultGeometry1D()
         if len(self.get_parameter_names()) > 1:
             warnings.warn(
                 f"Likelihood depends on multiple parameters {self.get_parameter_names()}.\n"
@@ -163,11 +163,24 @@ class UserDefinedLikelihood(object):
     
     """
 
-    def __init__(self, dim=None, logpdf_func=None, gradient_func=None, geometry=None):
+    def __init__(self, dim=None, logpdf_func=None, gradient_func=None, geometry=None, name=None):
         self.dim = dim
         self.logpdf_func = logpdf_func
         self.gradient_func = gradient_func
         self.geometry = geometry
+        self._name = name
+
+    @property
+    def model(self):
+        """ Return model of likelihood """
+        return None
+    
+    @property
+    def name(self):
+        """ Return name of likelihood """
+        if self._name is None:
+            self._name = _get_python_variable_name(self)
+        return self._name
 
     @property
     def dim(self):

@@ -118,6 +118,8 @@ class Gaussian(Distribution):
             self._mutable_vars = ['mean', 'sqrtprec']
             self.sqrtprec = sqrtprec
 
+        self._check_geometry_consistency()
+
     @property
     def mean(self):
         """ Mean of the distribution """
@@ -235,7 +237,8 @@ class Gaussian(Distribution):
 
     @property
     def sqrtprecTimesMean(self):
-        return (self.sqrtprec@self.mean).flatten()
+        mean = np.repeat(self.mean, self.dim) if len(self.mean) == 1 else self.mean
+        return (self.sqrtprec@mean).flatten()
 
     def compute_cov(self):
         """ Computes the covariance matrix regardless of the mutable variables. 

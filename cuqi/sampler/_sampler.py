@@ -55,7 +55,7 @@ class Sampler(ABC):
         if hasattr(self, 'target') and hasattr(self.target, 'geometry'):
             geom =  self.target.geometry
         else:
-            geom = cuqi.geometry._DefaultGeometry(self.dim)
+            geom = cuqi.geometry._DefaultGeometry1D(self.dim)
         return geom
 
     @property 
@@ -175,4 +175,4 @@ class ProposalBasedSampler(Sampler,ABC):
         elif not isinstance(geom2,cuqi.geometry._DefaultGeometry) and geom2 is not None: 
             return geom2
         else:
-            return cuqi.geometry._DefaultGeometry(self.dim)
+            return cuqi.geometry._DefaultGeometry1D(self.dim)

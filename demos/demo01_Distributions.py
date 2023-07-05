@@ -55,7 +55,7 @@ pX = cuqi.distribution.GMRF(mean, prec, dom, 'neumann', geometry = geometry)
 
 # evaluation of PDF
 Ns = 8
-xi = np.random.randn(geometry.par_dim, Ns)
+xi = np.random.randn(geometry.par_dim)
 Z = pX.pdf(xi)
 
 # call method to sample

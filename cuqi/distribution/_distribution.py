@@ -7,7 +7,7 @@ from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
-from cuqi.geometry import _DefaultGeometry, Geometry
+from cuqi.geometry import _DefaultGeometry1D, _DefaultGeometry2D, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 import numpy as np # To be replaced by cuqi.array_api
 
@@ -92,17 +92,21 @@ class Distribution(Density, ABC):
 
     @property
     def dim(self):
-        """ Return the dimension of the distribution.
-        
-        The dimension is automatically inferred from the mutable variables of the distribution.
-
+        """ Return the dimension of the distribution based on the geometry.
+    
         If the dimension can not be inferred, None is returned.
 
-        Subclassing distributions can choose to overwrite this property if different behavior is desired.
         """
+        return self.geometry.par_dim
 
+    def _infer_dim_of_mutable_variables(self):
+        """ Infer the dimension of the mutable variables of the distribution. """
         # Get all mutable variables
         mutable_vars = self.get_mutable_variables()
+
+        # Check if mutable_vars is empty, no dimension can be inferred
+        if not mutable_vars:
+            return None
 
         # Loop over mutable variables and get range dimension of each and get the maximum
         max_len = max([infer_len(getattr(self, var)) for var in mutable_vars])
@@ -111,21 +115,48 @@ class Distribution(Density, ABC):
 
     @property
     def geometry(self):
-        if self.dim != self._geometry.par_dim:
-            if isinstance(self._geometry,_DefaultGeometry):
-                self.geometry = self.dim
-            else:
-                raise Exception("Distribution Geometry attribute is not consistent with the distribution dimension ('dim')")
+        """ Return the geometry of the distribution.
+
+        The geometry can be automatically inferred from the mutable variables of the distribution.
+
+        """ 
+
+        inferred_dim = self._infer_dim_of_mutable_variables()
+        geometry_dim = self._geometry.par_dim
+
+        is_inferred_multivariate = inferred_dim > 1 if inferred_dim is not None else False
+
+        # Flag indicating whether distribution geometry matches inferred dimension
+        geometry_matches_inferred_dim = (geometry_dim == inferred_dim) if (geometry_dim and inferred_dim) else True
+
+        # If inconsistent geometry dimensions, raise an exception
+        # If scalar inferred dimension, we allow geometry to take precedence
+        if is_inferred_multivariate and not geometry_matches_inferred_dim:
+            raise TypeError(
+                f"Inconsistent distribution geometry attribute {self._geometry} and inferred "
+                f"dimension from distribution variables {inferred_dim}."
+            )
+        
+        # If Geometry dimension is None, update it with the inferred dimension
+        if inferred_dim and self._geometry.par_dim is None: 
+            self.geometry = inferred_dim
+
+        if self._geometry.par_shape is None:
+            raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
+
         # Check if dist has a name, if so we provide it to the geometry
         # We do not use self.name to potentially infer it from python stack.
-        if self._name is not None: 
+        if self._name: 
             self._geometry._variable_name = self._name
+            
         return self._geometry
 
     @geometry.setter
     def geometry(self,value):
-        if isinstance(value, (int,np.integer)) or value is None:
-            self._geometry = _DefaultGeometry(grid=value)
+        if isinstance(value, tuple) and len(value) == 2:
+            self._geometry = _DefaultGeometry2D(value)           
+        elif isinstance(value, (int,np.integer)) or value is None:
+            self._geometry = _DefaultGeometry1D(grid=value)
         elif isinstance(value, Geometry):
             self._geometry = value
         else:
@@ -388,6 +419,10 @@ class Distribution(Density, ABC):
                         raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                     kwargs[ordered_keys[index]] = arg
         return kwargs
+    
+    def _check_geometry_consistency(self):
+        """ Checks that the geometry of the distribution is consistent by calling the geometry property. Should be called at the end of __init__ of subclasses. """
+        self.geometry
 
     def __repr__(self) -> str:
         if self.is_cond is True:
