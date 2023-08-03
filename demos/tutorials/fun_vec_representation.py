@@ -83,12 +83,16 @@ smile = np.array([[0, 0, 0, 0, 0, 0, 0],
                     [1, 0, 0, 0, 0, 0, 1],
                     [1, 0, 0, 0, 0, 0, 1],
                     [0, 1, 1, 1, 1, 1, 0],
-                    [0, 0, 0, 0, 0, 0, 0]]).ravel()
-x = cuqi.distribution.Gaussian(smile, 0.01, geometry=geom_2D)
+                    [0, 0, 0, 0, 0, 0, 0]])
+x = cuqi.distribution.Gaussian(smile.ravel(), 0.01, geometry=geom_2D)
 samples_2D = x.sample(5)
 
 # %%
-# We plot a 2D sample for illustration (the sample with index 4 in this case)
+# We plot the smile for illustration 
+plt.imshow(smile, cmap='Greys_r')
+
+# %%
+# We plot a 2D sample (the sample with index 4 in this case)
 samples_2D.plot(4)
 
 
@@ -200,7 +204,16 @@ print(samples_2D.funvals.vector.is_vec)
 # --------------------------------------------------------------------------------------------
 
 # %%
-# Compute and plot mean on parameter values and on function values
+# Compute and plot mean on parameter values and on function values. Note 
+# that the default behavior of the `plot_mean` method is to compute the 
+# mean on the parameters then apply the `par2fun` map on the mean. Passing
+# the argument `plot_par=True` results in plotting the mean of the original 
+# parameter values (the KL expansion coefficients).
+
+print("samples_1D.plot_mean with plot_par=True")
+plt.figure()
+samples_1D.plot_mean(plot_par=True)
+
 print("samples_1D.plot_mean")
 plt.figure()
 samples_1D.plot_mean(color='r')
@@ -208,7 +221,18 @@ print("samples_1D.funvals.plot_mean")
 samples_1D.funvals.plot_mean(color='b', linestyle='--')
 
 # %%
+# Note that in the second figure, the mean in both cases is the same, i. e.,
+# applying the KL map
+# (the linear combination of the of the KL expansion basis vectors weighted by
+# the given KL coefficients) on the average KL coefficients is the same as
+# applying the KL map on each sample then computing the mean of the result.
+
+# %%
 # Compute variance on parameter values and on function values
+print("samples_1D.plot_variance with plot_par=True")
+plt.figure()
+samples_1D.plot_variance(plot_par=True)
+
 print("samples_1D.plot_variance")
 plt.figure()
 samples_1D.plot_variance(color='r')
@@ -216,11 +240,7 @@ print("samples_1D.funvals.plot_variance")
 samples_1D.funvals.plot_variance(color='b', linestyle='--')
 
 # %%
-# Note that the mean in both cases is the same, i. e., applying the KL map
-# (the linear combination of the of the KL expansion basis vectors weighted by
-# the given KL coefficients) on the average KL coefficients is the same as
-# applying the KL map on each sample then computing the mean of the result.
-# However, this does not apply to computing the variance. The results of
+# Here in the second figure, the results of
 # computing the variance differ in both cases. Additionally, computing the
 # variance of the parameters then applying the KL map can result in negative
 # values.
