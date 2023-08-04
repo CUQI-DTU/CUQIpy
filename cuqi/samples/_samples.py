@@ -545,9 +545,9 @@ class Samples(object):
                 else:
                     lex = self.geometry.plot(exact, *args, **kwargs)
                 plt.legend([lmn[0], lex[0], lci], [
-                           "Mean", "Exact", "Credibility Interval"])
+                           "Mean", "Exact", f"{percent}% Credibility Interval"])
             else:
-                plt.legend([lmn[0], lci], ["Mean", "Credibility Interval"])
+                plt.legend([lmn[0], lci], ["Mean", f"{percent}% Credibility Interval"])
 
             plotting_objects = [lmn, lex, lci]
         
