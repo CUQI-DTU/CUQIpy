@@ -414,11 +414,22 @@ class Continuous2D(Continuous):
                 axis.set_ylabel(self.axis_labels[1])
             axis.set_aspect('equal')
 
-    def par2fun(self, par):
-        return par.reshape(self.fun_shape)
+    def par2fun(self, pars):
+        # Reshape to 2D domain (also for multiple parameter vectors, e.g.
+        # Samples.samples).
+        funvals = pars.reshape(self.fun_shape+(-1,))
+        # Squeeze to return single evaluated function if only one parameter
+        # vector was given
+        return funvals.squeeze()
 
-    def fun2par(self, fun):
-        return fun.ravel()
+    def fun2par(self, funvals):
+        # Reshape to parameter vector (also for multiple function values,
+        # e.g. Samples.funvals.samples).
+        pars = funvals.reshape((self.par_dim,)+(-1,))
+        # Squeeze to return single parameter vector if only one 2D function
+        # value was given
+        return pars.squeeze()
+
 
 class Image2D(Geometry):
     """ A class that represents a 2D image.
