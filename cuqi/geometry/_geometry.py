@@ -415,6 +415,8 @@ class Continuous2D(Continuous):
             axis.set_aspect('equal')
 
     def par2fun(self, pars):
+        """Converts a parameter vector or multiple parameter vectors into a 2D
+         function value or multiple 2D function values."""
         # Reshape to 2D domain (also for multiple parameter vectors, e.g.
         # Samples.samples).
         funvals = pars.reshape(self.fun_shape+(-1,))
@@ -423,6 +425,8 @@ class Continuous2D(Continuous):
         return funvals.squeeze()
 
     def fun2par(self, funvals):
+        """Converts a 2D function value or multiple 2D function values into a
+        parameter vector or multiple parameter vectors."""
         # Reshape to parameter vector (also for multiple function values,
         # e.g. Samples.funvals.samples).
         pars = funvals.reshape((self.par_dim,)+(-1,))
