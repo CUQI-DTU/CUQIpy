@@ -70,8 +70,11 @@ print(geom_2D.funvec_shape)
 
 # %%
 # Create samples of random parameter values that correspond to each geometry.
-# For the 1D geometry, we create 5 random samples using `np.random.rand` function.
-samples_1D = cuqi.samples.Samples(np.random.rand(7, 5), geometry=geom_1D)
+# For the 1D geometry, we create 5 random samples from a Gaussian distribution
+# with a zero mean and a variance of 1. These samples are samples of the KL 
+# coefficients equipped with the KL geometry object. 
+x_kl = cuqi.distribution.Gaussian(np.zeros(geom_1D.par_dim), 1, geometry=geom_1D)
+samples_1D = x_kl.sample(5)
 
 # %%
 # For the 2D geometry, we create 5 random samples from a Gaussian distribution
