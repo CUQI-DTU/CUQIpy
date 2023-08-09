@@ -83,7 +83,16 @@ class CUQIarray(np.ndarray):
     @property
     def parameters(self):
         if self.is_par is False:
-            vals = self.geometry.fun2par(self)
+            if self.dtype == np.dtype('O'):
+                # If the current state if the CUQIarray is function values, and
+                # the data type of self is object (e.g. FEniCS function), then
+                # extract the object and save it. reshape(1) is needed to
+                # convert the shape from () to (1,).
+                funvals = self.reshape(1)[0]
+            else:
+                funvals = self
+            vals = self.geometry.fun2par(funvals)
+
         else:
             vals = self
         return type(self)(vals,is_par=True,geometry=self.geometry)

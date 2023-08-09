@@ -12,6 +12,8 @@ from cuqi.likelihood import Likelihood
 from cuqi.geometry import _DefaultGeometry
 from cuqi.utilities import ProblemInfo
 from cuqi.array import CUQIarray
+import warnings
+import matplotlib.pyplot as plt
 
 from copy import copy
 
@@ -371,7 +373,7 @@ class BayesianProblem(object):
         # Now sample prior problem
         return prior_problem.sample_posterior(Ns, callback)
 
-    def UQ(self, Ns=1000, exact=None) -> cuqi.samples.Samples:
+    def UQ(self, Ns=1000, percent=95, exact=None) -> cuqi.samples.Samples:
         """ Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.
         
         Parameters
@@ -382,6 +384,9 @@ class BayesianProblem(object):
         exact : ndarray or dict[str, ndarray], *Optional*
             Exact solution to the problem. If provided the summary will include a comparison to the exact solution.
             If a dict is provided, the keys should be the names of the variables and the values should be the exact solution for each variable.
+        
+        percent : float, *Optional*
+            The credible interval to plot. Defaults to 95%.
 
         Returns
         -------
@@ -396,16 +401,20 @@ class BayesianProblem(object):
         if isinstance(samples, dict):
             for key, value in samples.items():
                 if exact is not None and key in exact:
-                    self._plot_UQ_for_variable(value, exact=exact[key])
+                    self._plot_UQ_for_variable(
+                        value, percent=percent, exact=exact[key])
                 else:
-                    self._plot_UQ_for_variable(value, exact=None)
+                    self._plot_UQ_for_variable(
+                        value, percent=percent, exact=None)
         # Single parameter case
         else:
-            self._plot_UQ_for_variable(samples, exact=exact)
+            self._plot_UQ_for_variable(
+                samples, percent=percent, exact=exact)
 
         return samples
 
-    def _plot_UQ_for_variable(self, samples: cuqi.samples.Samples, exact=None):
+    def _plot_UQ_for_variable(
+            self, samples: cuqi.samples.Samples, percent=None, exact=None):
         """ Do a fitting UQ plot for a single variable given by samples. """
         # Potentially extract exact solution
         if exact is None and hasattr(self, 'exactSolution'):
@@ -415,7 +424,42 @@ class BayesianProblem(object):
         if samples.shape[0] == 1:
             samples.plot_trace(exact=exact)
         else: # Else plot credible intervals
-            samples.plot_ci(exact=exact)
+            # If plot_ci throws a NotImplementedError (likely coming from 
+            # _plot_envelope method), we try to plot the CI for the parameters
+            # instead and plot the mean and the variance using the function
+            # representation of the samples geometry.
+            try:
+                samples.plot_ci(percent=percent, exact=exact)
+            except NotImplementedError as nie:
+                warnings.warn(
+                    f"Unable to plot CI for samples with the underlying "+
+                     "geometry {samples.geometry}. Plotting the CI for the "+
+                     "parameters instead.")
+                self._alternative_plot_UQ_for_variable(
+                    samples, percent=percent, exact=exact)
+
+    def _alternative_plot_UQ_for_variable(
+            self, samples: cuqi.samples.Samples, percent=None, exact=None):
+        """ Alternative visualization for UQ analysis used when plot_ci
+        method fails for the given samples geometry. """
+        samples.plot_ci(percent=percent, exact=exact, plot_par=True)
+
+        plt.figure()
+        samples.plot_mean()
+        plt.title("Sample parameter mean converted\nto function representation")
+
+        plt.figure()
+        samples.funvals.vector.plot_mean()
+        plt.title("Sample mean of function representation")
+
+        plt.figure()
+        samples.plot_variance()
+        plt.title(
+            "Sample parameter variance converted\nto function representation")
+        
+        plt.figure()
+        samples.funvals.vector.plot_variance()
+        plt.title("Sample variance of function representation")
 
     def _sampleLinearRTO(self,Ns, callback=None):
         print("Using Linear_RTO sampler.")
