@@ -37,4 +37,14 @@ Note: Distribution requires a _logd and _sample method defined at the minimum.
         def mean(self, value):
             self._mean = force_ndarray(value) #This ensures that mean is a numpy array.     
 
-        
+
+On testing
+===========  
+
+Testing is done using the `pytest` module. Tests are defined in the `tests` 
+folder. Tests should be implemented for newly added features and for bug fixes.
+
+Some resources and comments on testing:
+
+* Introductory material on code testing from the CodeRefinery project: https://coderefinery.github.io/testing/
+* We advise using test fixtures for setup code ("arrange" code) https://docs.pytest.org/en/6.2.x/fixture.html

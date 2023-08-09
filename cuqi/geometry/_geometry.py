@@ -47,6 +47,29 @@ class Geometry(ABC):
         return reduce(operator.mul, self.fun_shape) # math.prod(self.fun_shape) for Python 3.8+
 
     @property
+    def funvec_shape(self):
+        """The shape of the geometry (shape of the vector representation of the
+        function value)."""
+        if not hasattr(self,'_funvec_shape') or self._funvec_shape is None:
+            # Attempt to infer dimension
+            funvecvals = self.fun2vec(self.par2fun(np.ones(self.par_dim)))
+            if hasattr(funvecvals, 'shape'):
+                self._funvec_shape = funvecvals.shape
+                if len(self._funvec_shape) != 1:
+                    raise ValueError("funvec_shape must be a 1D tuple.")
+            else:
+                warnings.warn("Could not infer function space shape.")
+                self._funvec_shape = None
+        return self._funvec_shape        
+
+    @property
+    def funvec_dim(self):
+        """The dimension of the geometry (dimension of the vector representation
+        of the function value). """
+        if self.funvec_shape is None: return None
+        return reduce(operator.mul, self.funvec_shape) 
+    
+    @property
     def variables(self):
         #No variable names set, generate variable names from dim
         if not hasattr(self,"_variables"):
@@ -73,7 +96,18 @@ class Geometry(ABC):
             raise ValueError(variables_value_err_msg) 
         self._variables = value
         self._ids = range(self.par_dim)
+    
+    @property
+    def fun_is_array(self):
+        """Flag to indicate whether the function value is an array. This can be
+        useful to query when converting samples to function values."""
+        if isinstance(self.fun_shape, tuple) and \
+           all([isinstance(i, int) for i in self.fun_shape]):
+            return True
+        else:
+            return False
 
+    
     def plot(self, values, is_par=True, plot_par=False, **kwargs):
         """
         Plots a function over the set defined by the geometry object.
@@ -138,14 +172,27 @@ class Geometry(ABC):
 
         return self._plot_envelope(lo_values,hi_values, **kwargs)
 
-    def par2fun(self,par):
+    def par2fun(self, par):
         """The parameter to function map used to map parameters to function values in e.g. plotting."""
         return par
 
-    def fun2par(self,funvals):
+    def fun2par(self, funvals):
         """The function to parameter map used to map function values back to parameters, if available."""
-        raise NotImplementedError("fun2par not implemented. Must be implemented specifically for each geometry.")
+        raise NotImplementedError("fun2par is not implemented. Must be implemented specifically for each geometry.")
 
+    def fun2vec(self, funvals):
+        """Maps function values to a vector representation of the function values, if available."""
+        if self.fun_is_array and len(self.fun_shape) == 1:
+            return funvals
+        else:
+            raise NotImplementedError("fun2vec is not implemented. Must be implemented specifically for each geometry.")
+    
+    def vec2fun(self, funvec):
+        """Maps function vector representation, if available, to function values."""
+        if self.fun_is_array and len(self.fun_shape) == 1:
+            return funvec
+        raise NotImplementedError("vec2fun is not implemented. Must be implemented specifically for each geometry.")
+    
     @abstractmethod
     def _plot(self):
         pass
@@ -456,6 +503,10 @@ class Image2D(Geometry):
     @property
     def par_shape(self):
         return self._par_shape
+    
+    @property
+    def funvec_shape(self):
+        return self.par_shape
 
     def par2fun(self, pars):
         # If geometry is only used for visualization, do nothing
@@ -469,12 +520,20 @@ class Image2D(Geometry):
         # Else, convert image into parameter vector
         return funvals.ravel(order=self.order) #Maybe use reshape((self.dim,), order=self.order)
 
+    def vec2fun(self, funvec):
+        """Maps function vector representation, if available, to function values."""    
+        return self.par2fun(funvec)
+        
+    def fun2vec(self, funvals):
+        """Maps function values to a vector representation of the function values, if available."""
+        return self.fun2par(funvals)
+    
     def _vector_to_image(self, vectors):
         """ Converts a vector or multiple vectors into an image. """
         # Reshape to image (also for multiple parameter vectors). TODO: #327
         image = vectors.reshape(self._im_shape+(-1,), order=self.order) 
         #Squeeze to return single image if only one parameter vector was given
-        image = image.squeeze()
+        image = image.squeeze(axis=2) if image.shape[2] == 1 else image
         return image
     
     def _plot(self, values, **kwargs):
@@ -592,6 +651,12 @@ class MappedGeometry(_WrappedGeometry):
         if self.imap is None:
             raise ValueError("imap is not defined. This is needed for fun2par.")
         return self.geometry.fun2par(self.imap(f))
+    
+    def fun2vec(self, fun):
+        return self.geometry.fun2vec(fun)
+    
+    def vec2fun(self, funvec):
+        return self.geometry.vec2fun(funvec)
 
     def __repr__(self) -> str:
         return "{}({})".format(self.__class__.__name__,self.geometry.__repr__())

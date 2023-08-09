@@ -2,32 +2,127 @@ import numpy as np
 import cuqi
 import pytest
 import matplotlib
-
+import matplotlib.pyplot as plt
 from cuqi import geometry
+from cuqi.samples import Samples
 
-
-@pytest.mark.parametrize("is_par,plot_par",	[(True,False),(True,True),(False,False)])
+@pytest.mark.parametrize("to_funvals, plot_par",
+    [(True,False),(True,True),(False,False),(False,True)])
 @pytest.mark.parametrize("geom",[
-						(cuqi.geometry.Discrete(1)),
 						(cuqi.geometry.Discrete(1)),
 						(cuqi.geometry.Discrete(3)),
 						(cuqi.geometry.Continuous1D(1)),
-						(cuqi.geometry.Continuous1D(1)),
 						(cuqi.geometry.Continuous1D(3)),
+                        (cuqi.geometry.Image2D((3,3))),
 						])
-def test_samples_plot(geom,is_par,plot_par):
+def test_samples_plot(geom, to_funvals, plot_par):
+    # Make basic distribution and sample
     dim = geom.par_dim
     x = cuqi.distribution.Normal(np.zeros(dim),np.ones(dim),geometry=geom)
     s = x.sample(10)
 
+    # Convert to funvals if requested
+    if to_funvals:
+        s = s.funvals
+
+    # Verify that asking for plotting in the parameter space when samples
+    # are funvals raises error
+    if to_funvals and plot_par:
+        with pytest.raises(Exception, match=r"Plot par is true, but is_par is false"):
+            s.plot(plot_par=plot_par)
+        return
+    
     #Verify plotting of single and multiple samples
-    s.plot(is_par=is_par,plot_par=plot_par)
-    s.plot(0,is_par=is_par,plot_par=plot_par)
+    s.plot(plot_par=plot_par)
+    s.plot(0,plot_par=plot_par)
+
+    # Raise error when calling plot_chain if the samples are not in vector form
+    if not s.is_vec:
+        with pytest.raises(Exception, match=r"Cannot perform plot_chain"):
+            s.plot_chain()
+        # Convert the samples to vector form
+        s = s.vector
+    
     #s.plot_chain() #No default selection of chain
     s.plot_chain(0)
     if dim > 2:
-        s.plot([0,2],is_par=is_par,plot_par=plot_par)
+        s.plot([0,2],plot_par=plot_par)
         s.plot_chain([0,2])
+    
+    # Verify passing is_par raises error (because is_par is determined by
+    # the type of the samples)
+    with pytest.raises(ValueError,match=r"Cannot pass is_par as a plotting argument"):
+        s.plot(is_par=not to_funvals,plot_par=plot_par)
+
+@pytest.mark.parametrize("to_funvals, plot_par", [(True,False),(True,True),(False,False),(False,True)])
+@pytest.mark.parametrize("plot_method, plot_par_supported, arviz",
+                         [(Samples.plot_autocorrelation, False, True),
+                          (Samples.plot_trace, False, True),
+                          (Samples.plot_violin, False, True),
+                          (Samples.plot_pair, False, True),
+                          (Samples.plot_std, True, False),
+                          (Samples.plot_mean, True, False),
+                          (Samples.plot_median, True, False),
+                          (Samples.plot_variance, True, False),
+                          (Samples.plot_ci_width, True, False)])
+@pytest.mark.parametrize("geom",[
+						(cuqi.geometry.Discrete(3)),
+						(cuqi.geometry.Continuous1D(4)),
+                        (cuqi.geometry.Image2D((4,4))),
+                        (cuqi.geometry.MappedGeometry(
+                             cuqi.geometry.Image2D((3,3)),
+                             map=lambda x: x**2+2))
+						])
+def test_samples_plot_methods(geom, to_funvals, plot_par,
+                              plot_method, plot_par_supported,
+                              arviz):
+    """Test Samples class plotting methods"""
+
+    # Make basic distribution and sample
+    np.random.seed(0)
+    dim = geom.par_dim
+    x = cuqi.distribution.Normal(np.zeros(dim),np.ones(dim),geometry=geom)
+    s = x.sample(10)
+
+    # Convert to funvals if requested
+    if to_funvals:
+        s = s.funvals
+
+    # Verify that using an arviz based method when the samples are not in
+    # vector form raises error
+    if arviz and not s.is_vec:
+        with pytest.raises(Exception, match=r"Samples are not in a vector representation"):
+            plot_method(s)
+        # Convert the samples to vector form
+        s = s.vector
+  
+    # Verify asking for plot_par when samples are funvals raises error
+    if to_funvals and plot_par:
+        if plot_par_supported:
+            # The case of plotting methods that support plot_par
+            with pytest.raises(Exception, match=r"Plot par is true, but is_par is false"):
+                plot_method(s, plot_par=plot_par)
+            return
+        else:
+            # The case of plotting methods that do not support plot_par
+            with pytest.raises(TypeError, match=r"got an unexpected keyword argument"):
+                plot_method(s, plot_par=plot_par)
+            return
+    
+    # Verify passing is_par raises error
+    if plot_par_supported:
+        with pytest.raises(ValueError,match=r"Cannot pass is_par as a plotting argument"):
+            plot_method(s, is_par=not to_funvals)
+    else:
+        with pytest.raises(TypeError,match=r"got an unexpected keyword argument"):
+            plot_method(s, is_par=not to_funvals)
+    
+    #Verify plotting method works
+    if not plot_par_supported:
+        plot_method(s)
+    else:
+        plot_method(s, plot_par=plot_par)
+
 
 @pytest.mark.parametrize("kwargs",[
                         ({}),
@@ -130,25 +225,34 @@ def test_ess():
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.MappedGeometry(
                                           cuqi.geometry.Continuous1D(2), map=lambda x: x**2),
-                                      cuqi.geometry.KLExpansion(np.arange(0, 1, .1))])
+                                      cuqi.geometry.KLExpansion(np.arange(0, 1, .1), num_modes=4),
+                                      cuqi.geometry.Image2D((3,3)),
+                                      cuqi.geometry.MappedGeometry(
+                                          cuqi.geometry.Image2D((4,3)), map=lambda x: x**2+1)])
 def test_samples_funvals(geometry):
     """Test that the function values are computed correctly."""
+    # Generate some random samples
     Ns = 10
     samples = cuqi.samples.Samples(
         np.random.randn(geometry.par_dim, Ns), geometry=geometry)
 
-    funvals = np.empty((geometry.par_dim, Ns))
+    # Compute the function values
+    funvals_vec = np.empty((geometry.funvec_dim, Ns))
     for i, s in enumerate(samples):
-        funvals[:, i] = geometry.par2fun(s)
+        funvals_vec[:, i] = geometry.fun2vec(geometry.par2fun(s))
 
-    assert np.allclose(samples.funvals.samples, funvals)
+    # Check that the funvals property is implemented correctly
+    assert np.allclose(samples.funvals.vector.samples, funvals_vec)
 
 
 @pytest.mark.parametrize("percent", [10, 50, 90, 95, 99])
 @pytest.mark.parametrize("compute_on_par", [False, True])
 @pytest.mark.parametrize("geometry", [cuqi.geometry.Discrete(2),
                                       cuqi.geometry.MappedGeometry(
-                                        cuqi.geometry.Continuous1D(2), map=lambda x: x**2)])
+                                        cuqi.geometry.Continuous1D(2), map=lambda x: x**2),
+                                      cuqi.geometry.Image2D((2,1)),
+                                      cuqi.geometry.MappedGeometry(
+                                          cuqi.geometry.Image2D((1,2)), map=lambda x: x**2+1)])
 def test_compute_ci(percent, compute_on_par, geometry):
     dist = cuqi.distribution.DistributionGallery("CalSom91")
     sampler = cuqi.sampler.MH(dist)
@@ -242,7 +346,7 @@ def test_plot_ci_returned_values(geometry, plot_par):
                           (cuqi.geometry.Continuous1D(15),
                            lambda x:x+12, lambda x:x-12, True),
                              (cuqi.geometry.Image2D((4, 5)), lambda x:x **
-                              2+1, lambda x:np.sqrt(x-1), False)
+                              2+1, lambda x:np.sqrt(x-1), True)
                           ])
 def test_parameters_property(geom, map, imap, supported):
     """Test that the Samples parameters property is computed correctly. And that an error is generated
@@ -257,18 +361,18 @@ def test_parameters_property(geom, map, imap, supported):
     samples = cuqi.samples.Samples(val, geometry=mapped_geom)
 
     if not supported:
-        with pytest.raises(ValueError, match=r"Creating a Samples object with function values of samples is not supported for the provided  geometry"):
+        with pytest.raises(ValueError, match=r"Cannot convert the samples to function values"):
             funvals = samples.funvals
     else:
         # Compute function values and from the function values
         # compute the parameters:
-        funvals = samples.funvals
-        parameters = funvals.parameters
+        funvals_vec = samples.funvals.vector
+        parameters = funvals_vec.funvals.parameters
 
-        # Assert that the parameters and the function values are different
-        # and that extracting the function values and going back to the parameters
-        # is done correctly.
-        assert not np.allclose(parameters.samples, funvals.samples) and\
+        # Assert that the parameters and the function values (in vector 
+        # representation) are different and that extracting the function values
+        # and going back to the parameters is done correctly.
+        assert not np.allclose(parameters.samples, funvals_vec.samples) and\
             np.allclose(parameters.samples, val)
 
 def test_cuqiarray_default_geometry():
@@ -300,3 +404,15 @@ def test_violin_plot():
 
     assert ax[0].get_title() == "alpha"
     assert ax[1].get_title() == "beta"
+
+@pytest.mark.parametrize("method", [Samples.mean,
+                                    Samples.variance,
+                                    Samples.std,
+                                    Samples.std,
+                                    Samples.ci_width])
+def test_computing_statistics_on_arbitrary_objects_raises_error(method):
+    """ Test that computing statistics on arbitrary objects (np.matrix object for example) raises an error. """
+
+    samples = cuqi.samples.Samples([object(), object()])
+    with pytest.raises(TypeError, match=r"Cannot compute statistics"):
+        method(samples)
