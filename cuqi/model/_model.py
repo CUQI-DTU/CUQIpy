@@ -6,6 +6,7 @@ from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D, _get_identity_geometries
+from cuqi.randomvariable._ast import RandomVariableNode, Node
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -307,6 +308,14 @@ class Model(object):
             new_model = copy(self)
             new_model._non_default_args = [x.name] # Defaults to x if distribution had no name
             return new_model
+        
+        # If input is a random variable, we handle it separately
+        if isinstance(x, cuqi.randomvariable.RandomVariable):
+            return self._handle_random_variable(x)
+        
+        # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
+        if isinstance(x, Node):
+            return NotImplemented
 
         # Else we apply the forward operator
         return self._apply_func(self._forward_func,
@@ -400,6 +409,21 @@ class Model(object):
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
         return grad
+    
+    def _handle_random_variable(self, x):
+        """ Private function that handles the case of the input being a random variable. """
+        # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
+        if not isinstance(x._tree, RandomVariableNode):
+            return NotImplemented
+        
+        # In leaf-type node case we simply change the parameter name of model to match the random variable name
+        dist = x._tree._distributions[0]
+        if dist.dim != self.domain_dim:
+            raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
+        
+        new_model = copy(self)
+        new_model._non_default_args = [dist.name]
+        return new_model
     
     def __len__(self):
         return self.range_dim
