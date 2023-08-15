@@ -42,7 +42,7 @@ X = Gaussian(0, 1)
 # variables in the following important ways:
 # 
 # 1. They are not immediately evaluated when defined. Instead, they are
-#    evaluated in a �lazy� fashion in the context needed.
+#    evaluated in a lazy fashion in the context needed.
 # 2. They define a probability distribution (single or multivariate)
 #    instead of a single value or vector.
 # 
@@ -76,7 +76,7 @@ print(Y)
 # Evaluating random variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# Currently, two �modes� of evaluation are supported for random variables:
+# Currently, two modes of evaluation are supported for random variables:
 # 
 # 1. Sampling
 # 2. Direct evaluation
@@ -116,7 +116,7 @@ Y(3)
 
 
 ######################################################################
-# **Note**. A third mode, �probability density evaluation� (e.g.�asking
+# **Note**. A third mode, probability density evaluation (e.g.asking
 # for ``Y.logd``) is planned for future versions.
 # 
 
@@ -162,8 +162,8 @@ z(x=1, y=2)
 # hierarchical modelling of Bayesian problems.
 # 
 # Consider for example a 1D deconvolution problem as described in the
-# CUQIpy tutorial �Uncertainty Quantification in one-dimensional
-# deconvolution�
+# CUQIpy tutorial Uncertainty Quantification in one-dimensional
+# deconvolution
 # 
 # Here we have a forward model :math:`\mathbf{A}` defined by the
 # expression :math:`\mathbf{y} = \mathbf{A}\mathbf{x}` where
