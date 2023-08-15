@@ -1,4 +1,5 @@
 from cuqi.array import CUQIarray
+import cuqi
 import numpy as np
 import inspect
 from numbers import Number
@@ -10,6 +11,8 @@ import copy
 
 
 def force_ndarray(value,flatten=False):
+    if isinstance(value, cuqi.distribution.Distribution):
+        return value.as_random_variable()
     if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:
             value = np.array(value)

@@ -3,7 +3,7 @@ from scipy.sparse import diags, eye
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import dft
 from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
-from cuqi.utilities import sparse_cholesky
+from cuqi.utilities import sparse_cholesky, force_ndarray
 from cuqi import config
 from cuqi.operator import PrecisionFiniteDifference
 from cuqi.distribution import Distribution
@@ -99,7 +99,7 @@ class GMRF(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
         self.mean = mean.reshape(len(mean), 1)
-        self.prec = prec
+        self.prec = force_ndarray(prec, flatten=True)
         self._partition_size = int(len(mean)**(1/physical_dim))
         self._bc_type = bc_type      # boundary conditions
         self._physical_dim = physical_dim
