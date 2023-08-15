@@ -141,7 +141,7 @@ class RandomVariable:
         Apply a specified operation to this RandomVariable.
         """
         if isinstance(other, cuqi.distribution.Distribution):
-            other = other.as_random_variable()
+            other = other._as_random_variable()
         if other is None:
             return RandomVariable(self._distributions, operation(self._tree))
         elif isinstance(other, RandomVariable):

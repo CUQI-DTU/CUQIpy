@@ -68,7 +68,7 @@ def test_algebra_on_randomvariables_can_be_combined_and_is_correct(operations):
 
 def test_randomvariable_returns_correct_parameter_name():
     z = cuqi.distribution.Gaussian(0, 1)
-    assert cuqi.utilities.get_non_default_args(z.as_random_variable()) == ["z"]
+    assert cuqi.utilities.get_non_default_args(z._as_random_variable()) == ["z"]
 
 @pytest.mark.parametrize("operations", [
     lambda x: x+1,

@@ -12,12 +12,12 @@ from abc import ABCMeta
 def if_dist_force_rv(dist):
     """ Convert a distribution to a random variable else return the input """
     if isinstance(dist, cuqi.distribution.Distribution):
-        return dist.as_random_variable()
+        return dist._as_random_variable()
     return dist
 
 def force_ndarray(value,flatten=False):
     if isinstance(value, cuqi.distribution.Distribution):
-        return value.as_random_variable()
+        return value._as_random_variable()
     if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:
             value = np.array(value)

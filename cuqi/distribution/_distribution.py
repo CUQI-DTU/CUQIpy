@@ -434,55 +434,55 @@ class Distribution(Density, ABC):
     # The following methods define algebraic operations on distributions
     # The return type is a RandomVariable instance
         
-    def as_random_variable(self):
+    def _as_random_variable(self):
         """Return a RandomVariable instance of this distribution"""
         return RandomVariable(self)
     
     @property
     def rv(self):
         """Return a RandomVariable instance of this distribution"""
-        return self.as_random_variable()
+        return self._as_random_variable()
     
     def __add__(self, other) -> RandomVariable:
-        return self.as_random_variable().__add__(other)
+        return self._as_random_variable().__add__(other)
     
     def __radd__(self, other) -> RandomVariable:
-        return self.as_random_variable().__radd__(other)
+        return self._as_random_variable().__radd__(other)
     
     def __sub__(self, other) -> RandomVariable:
-        return self.as_random_variable().__sub__(other)
+        return self._as_random_variable().__sub__(other)
     
     def __rsub__(self, other) -> RandomVariable:
-        return self.as_random_variable().__rsub__(other)
+        return self._as_random_variable().__rsub__(other)
     
     def __mul__(self, other) -> RandomVariable:
-        return self.as_random_variable().__mul__(other)
+        return self._as_random_variable().__mul__(other)
     
     def __rmul__(self, other) -> RandomVariable:
-        return self.as_random_variable().__rmul__(other)
+        return self._as_random_variable().__rmul__(other)
 
     def __truediv__(self, other) -> RandomVariable:
-        return self.as_random_variable().__truediv__(other)
+        return self._as_random_variable().__truediv__(other)
     
     def __rtruediv__(self, other) -> RandomVariable:
-        return self.as_random_variable().__rtruediv__(other)
+        return self._as_random_variable().__rtruediv__(other)
     
     def __matmul__(self, other) -> RandomVariable:
-        return self.as_random_variable().__matmul__(other)
+        return self._as_random_variable().__matmul__(other)
     
     def __rmatmul__(self, other) -> RandomVariable:
-        return self.as_random_variable().__rmatmul__(other)
+        return self._as_random_variable().__rmatmul__(other)
     
     def __neg__(self) -> RandomVariable:
-        return self.as_random_variable().__neg__()
+        return self._as_random_variable().__neg__()
     
     def __abs__(self) -> RandomVariable:
-        return self.as_random_variable().__abs__()
+        return self._as_random_variable().__abs__()
     
     def __pow__(self, other) -> RandomVariable:
-        return self.as_random_variable().__pow__(other)
+        return self._as_random_variable().__pow__(other)
     
     def __getitem__(self, key) -> RandomVariable:
-        return self.as_random_variable().__getitem__(key)
+        return self._as_random_variable().__getitem__(key)
     
 
