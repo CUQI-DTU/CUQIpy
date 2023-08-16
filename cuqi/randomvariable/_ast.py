@@ -195,7 +195,7 @@ class PowerNode(BinaryNodeWithParenthesis):
         return self.left(**kwargs) ** self.right(**kwargs)
 
 class GetItemNode(BinaryNode):
-    """ Node that represents the get item operation."""
+    """ Node that represents the get item operation. Here the left node is the object and the right node is the index. """
     def __call__(self, **kwargs):
         return self.left(**kwargs)[self.right(**kwargs)]
 
