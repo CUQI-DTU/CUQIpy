@@ -249,8 +249,15 @@ BP = BayesianProblem(d, s, x, y)
 print(BP)
 
 ######################################################################
-# Given the Bayesian problem we can now sample from the posterior
-# distribution using MCMC as follows:
+# Providing data to the Bayesian problem creates a posterior as shown.
+#
+
+BP.set_data(y=y_obs)
+print(BP)
+
+######################################################################
+# Given the Bayesian problem posterior we can now sample from
+# the posterior distribution using MCMC as follows:
 #
 
 samples = BP.sample_posterior(200)
