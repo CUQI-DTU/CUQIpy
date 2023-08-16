@@ -46,7 +46,7 @@ x = X.rv # Random variable
 #
 # In the context of CUQIpy, a distribution is a Python object which
 # represents a probability distribution. Probability distributions are defined
-# by their probability density function (PDF). They supported sampling from
+# by their probability density function (PDF). They support sampling from
 # the distribution and evaluating the PDF at a given point.
 #
 # In the context of CUQIpy, a random variable is a Python object which
@@ -83,22 +83,23 @@ y = (x + 10)**2
 
 ######################################################################
 # Note that for convenience algebraic operations are also supported on
-# distributions. For example we can also given we want to define a new
-# random variable :math:`z` with y as follows:
+# distributions. For example we can also define new
+# random variables :math:`z` and :math:`v` as follows:
 #
 # .. math::
 #
-#    x \sim \mathrm{Gaussian}(0,1) \\
-#    y = (z + 10)^2
+#    z &\sim \mathrm{Gaussian}(0,1) \\
+#    v &= (z + 10)^2
 #
 # We can achieve this in CUQIpy without invoking `.rv` as follows.
+
+z = Gaussian(0, 1)
+v = (z + 10)**2
+
+######################################################################
 # Noting that the distribution is automatically considered a random 
 # variable in the context of the algebraic operations.
 # This API may be subject to change.
-
-z = Gaussian(0, 1)
-y = (z + 10)**2
-
 
 
 ######################################################################
@@ -130,8 +131,8 @@ print(y)
 # transformations performed on it and can use this information to
 # transform the sample drawn from the original distribution.
 # 
-# This means for example that we can both draw a sample from :math:`X` and
-# :math:`Y` using the same syntax:
+# This means for example that we can both draw a sample from :math:`x` and
+# :math:`y` using the same syntax:
 # 
 
 print(x.sample())
@@ -154,10 +155,10 @@ y(3)
 
 
 ######################################################################
-# **Note**. A third mode, probability density evaluation (e.g.asking
+# **Note**. A third mode, probability density evaluation (e.g. asking
 # for ``y.logd``) is planned for future versions.
 #
-# Probability density evaluation is implemented and for Distributions
+# Probability density evaluation **is** implemented for Distributions:
 #
 
 X = Gaussian(0, 1) # Distribution
@@ -173,6 +174,8 @@ print(X.logd(0.5))
 # 
 # Random variables also support algebra between each other. For example we
 # can define two new variables :math:`x`, :math:`y` as follows:
+# (again using the fact that distributions support algebraic operations,
+# and create random variables in the context of these operations)
 # 
 
 x = Gamma(1, 1)
@@ -216,12 +219,9 @@ z(x=1, y=2)
 # follows:
 # 
 
-A, y_obs, info = Deconvolution1D.get_components(phantom="square", PSF_param=2)
+A, y_obs, info = Deconvolution1D.get_components(phantom="square")
 
 print(A)
-
-# Define n-dimensional zero vector
-x_zero = np.zeros(A.domain_dim)
 
 
 ######################################################################
@@ -241,7 +241,7 @@ x_zero = np.zeros(A.domain_dim)
 
 d = Gamma(1, 1e-4)
 s = Gamma(1, 1e-4)
-x = LMRF(x_zero, 1/d)
+x = LMRF(0, 1/d, geometry=A.domain_geometry)
 y = Gaussian(A @ x, 1/s)
 
 
@@ -265,11 +265,11 @@ print(BP)
 # the posterior distribution using MCMC as follows:
 #
 
-samples = BP.sample_posterior(200)
+samples = BP.sample_posterior(1000)
 
 ######################################################################
 # We can now plot a 95 credibility interval of the samples for x
 # from the posterior distribution as follows:
 #
 
-samples["x"].plot_ci()
+samples["x"].plot_ci(exact=info.exactSolution)
