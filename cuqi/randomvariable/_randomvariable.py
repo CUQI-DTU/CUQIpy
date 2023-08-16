@@ -14,6 +14,16 @@ class RandomVariable:
     The random variable can be viewed as a lazily evaluated array. This allows for the definition of
     Bayesian models in a natural way.
 
+    Parameters
+    ----------
+    distributions : Distribution or set of Distribution
+        The distribution from which the random variable originates. If multiple distributions are
+        provided, the random variable is defined by the abstract syntax tree representing the
+        algebraic operations on the distributions that define the random variable.
+
+    tree : RandomVariableNode, optional
+        The tree representation of the algebraic operations applied to the random variable.
+
     Example
     -------
 
@@ -35,7 +45,7 @@ class RandomVariable:
 
         x = Gaussian(0, 1)
 
-        x_rv = x.as_random_variable()  # returns a RandomVariable object
+        x_rv = x.rv  # returns a RandomVariable object
 
         print((x_rv+1)**2)  # returns a RandomVariable object with operation recorded
 
