@@ -171,7 +171,7 @@ class RandomVariable:
         return self._apply_operation(operator.sub, other)
 
     def __rsub__(self, other) -> 'RandomVariable':
-        return self.__sub__(other)
+        return self._apply_operation(lambda x, y: operator.sub(y, x), other)
 
     def __mul__(self, other) -> 'RandomVariable':
         return self._apply_operation(operator.mul, other)
