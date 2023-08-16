@@ -17,7 +17,7 @@ import numpy as np
 # Introduction
 # ~~~~~~~~~~~~
 # 
-# When defining a variable using the distribution module in CUQIpy it can
+# When defining a Distribution object in CUQIpy it can
 # be viewed as a random variable.
 # 
 # In contrast to regular deterministic variables, random variables are not
