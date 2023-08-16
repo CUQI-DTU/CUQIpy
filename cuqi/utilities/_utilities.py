@@ -9,25 +9,45 @@ from dataclasses import dataclass
 from abc import ABCMeta
 
 
-def if_dist_force_rv(dist):
-    """ Convert a distribution to a random variable else return the input """
-    if isinstance(dist, cuqi.distribution.Distribution):
-        return dist._as_random_variable()
-    return dist
+def to_cuqi_format(value, flatten=False, force_ndarray=True):
+    """ Parse parameter input and convert to CUQI format depending on input type.
 
-def force_ndarray(value,flatten=False):
+    Distribution parameters are converted to random variables.
+
+    By default, other inputs are converted to ndarrays.
+    
+    Parameters
+    ----------
+    value : any
+        The input value to be parsed.
+
+    flatten : bool
+        If True, the input value will be flattened to a 1D array if it is not already one.
+
+    force_ndarray : bool
+        If True, the input value will be converted to a numpy array if it is not already one.
+            
+    """
+
+    # If value is a distribution we convert it to a random variable
     if isinstance(value, cuqi.distribution.Distribution):
         return value._as_random_variable()
-    if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
-        if hasattr(value,'__len__') and len(value)>1:
-            value = np.array(value)
-        else:
-            value = np.array(value).reshape((1,1))
-            
-        if flatten is True:
-            value = value.flatten()
-    if isinstance(value,np.matrix): #Convert to array if matrix (matrix acts different on (n,) arrays)
-        value = value.A
+    
+    # If ndarray requested, parse and convert
+    if force_ndarray is True:
+        if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
+            if hasattr(value,'__len__') and len(value)>1:
+                value = np.array(value)
+            else:
+                value = np.array(value).reshape((1,1))
+                
+            if flatten is True:
+                value = value.flatten()
+        if isinstance(value,np.matrix): #Convert to array if matrix (matrix acts different on (n,) arrays)
+            value = value.A
+        return value
+    
+    # Else, return the input
     return value
 
 def infer_len(value):

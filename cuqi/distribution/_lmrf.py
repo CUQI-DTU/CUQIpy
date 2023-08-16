@@ -1,9 +1,7 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry1D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
-from cuqi.utilities import force_ndarray
-from cuqi.utilities import if_dist_force_rv
+from cuqi.utilities import to_cuqi_format
 
 class LMRF(Distribution):
     """Laplace distribution on the difference between neighboring nodes.
@@ -45,8 +43,8 @@ class LMRF(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
-        self.location = if_dist_force_rv(location)
-        self.scale = if_dist_force_rv(scale)
+        self.location = location
+        self.scale = scale
         self._bc_type = bc_type
 
         # Ensure geometry has shape
@@ -76,7 +74,15 @@ class LMRF(Distribution):
     
     @location.setter
     def location(self, value):
-        self._location = force_ndarray(value, flatten=True)
+        self._location = to_cuqi_format(value, flatten=True)
+
+    @property
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = to_cuqi_format(value, force_ndarray=False)
 
     def pdf(self, x):
         Dx = self._diff_op @ (x-self.location)  # np.diff(X)

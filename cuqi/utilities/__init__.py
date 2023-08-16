@@ -1,6 +1,5 @@
 from ._utilities import (
-    force_ndarray,
-    if_dist_force_rv,
+    to_cuqi_format,
     infer_len,
     get_non_default_args,
     get_direct_attributes,

@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import erf
 from cuqi.distribution import Distribution
-from cuqi.utilities import if_dist_force_rv
+from cuqi.utilities import to_cuqi_format
 
 class Normal(Distribution):
     """
@@ -32,8 +32,25 @@ class Normal(Distribution):
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
         # Init specific to this distribution
-        self.mean = if_dist_force_rv(mean)
-        self.std = if_dist_force_rv(std)
+        self.mean = mean
+        self.std = std
+
+    @property
+    def mean(self):
+        return self._mean
+    
+    @mean.setter
+    def mean(self, value):
+        self._mean = to_cuqi_format(value, force_ndarray=False)
+
+    @property
+    def std(self):
+        return self._std
+    
+    @std.setter
+    def std(self, value):
+        self._std = to_cuqi_format(value, force_ndarray=False)
+
 
     def pdf(self, x):
         return np.prod(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))

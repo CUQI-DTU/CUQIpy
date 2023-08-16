@@ -9,7 +9,7 @@ import scipy.linalg as splinalg
 
 from cuqi import config
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import force_ndarray, sparse_cholesky
+from cuqi.utilities import to_cuqi_format, sparse_cholesky
 from cuqi.distribution import Distribution
 
 # We potentially allow the use of sksparse.cholmod for sparse Cholesky
@@ -127,7 +127,7 @@ class Gaussian(Distribution):
 
     @mean.setter
     def mean(self, value):
-        self._mean = force_ndarray(value, flatten=True)
+        self._mean = to_cuqi_format(value, flatten=True)
 
     @property
     def cov(self):
@@ -140,7 +140,7 @@ class Gaussian(Distribution):
     def cov(self, value):
         if not 'cov' in self._mutable_vars:
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
-        value = force_ndarray(value)
+        value = to_cuqi_format(value)
         self._cov = value       
         if (value is not None) and (not callable(value)):  
             if self.dim > config.MIN_DIM_SPARSE:
@@ -164,7 +164,7 @@ class Gaussian(Distribution):
     def prec(self, value):
         if not 'prec' in self._mutable_vars:
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
-        value = force_ndarray(value)
+        value = to_cuqi_format(value)
         self._prec = value
         self._cov = None # Reset covariance (in case it was computed before)
         if (value is not None) and (not callable(value)):  
@@ -188,7 +188,7 @@ class Gaussian(Distribution):
     def sqrtcov(self, value):
         if not 'sqrtcov' in self._mutable_vars:
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
-        value = force_ndarray(value)
+        value = to_cuqi_format(value)
         self._sqrtcov = value
         self._cov = None # Reset covariance (in case it was computed before)      
         if (value is not None) and (not callable(value)):  
@@ -211,7 +211,7 @@ class Gaussian(Distribution):
     def sqrtprec(self, value):
         if not 'sqrtprec' in self._mutable_vars:
             raise ValueError(f"Mutable variables are {self._mutable_vars}")        
-        value = force_ndarray(value)
+        value = to_cuqi_format(value)
         self._sqrtprec = value
         self._cov = None # Reset covariance (in case it was computed before)
         if (value is not None) and (not callable(value)):  
@@ -743,9 +743,9 @@ class JointGaussianSqrtPrec(Distribution):
 
         # Force to numpy arrays
         for i in range(len(means)):
-            means[i] = force_ndarray(means[i],flatten=True)
+            means[i] = to_cuqi_format(means[i], flatten=True)
         for i in range(len(sqrtprecs)):
-            sqrtprecs[i] = force_ndarray(sqrtprecs[i])
+            sqrtprecs[i] = to_cuqi_format(sqrtprecs[i])
 
         # Check dimension match TODO: move to setter methods for means and sqrtprecs
         dim1 = len(means[0])

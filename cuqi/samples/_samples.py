@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry1D, Continuous2D, Image2D
 from cuqi.array import CUQIarray
-from cuqi.utilities import force_ndarray
+from cuqi.utilities import to_cuqi_format
 from copy import copy
 import arviz # Plotting tool
 from numbers import Number
@@ -644,7 +644,7 @@ class Samples(object):
         if exact is not None:
 
             # Convert exact to ndarray (in case single parameter etc.)
-            exact = force_ndarray(exact, flatten=True)
+            exact = to_cuqi_format(exact, force_ndarray=True, flatten=True)
 
             # Attempt to extract variables of the exact solution if given in full dimension
             if len(exact) == dim:

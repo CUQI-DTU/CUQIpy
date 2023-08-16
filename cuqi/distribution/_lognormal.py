@@ -2,7 +2,7 @@ import numpy as np
 from cuqi.geometry import _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.distribution import Gaussian
-from cuqi.utilities import if_dist_force_rv
+from cuqi.utilities import to_cuqi_format
 import warnings
 
 class Lognormal(Distribution):
@@ -38,8 +38,8 @@ class Lognormal(Distribution):
     """
     def __init__(self, mean, cov, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self.mean = if_dist_force_rv(mean)
-        self.cov = if_dist_force_rv(cov)
+        self.mean = to_cuqi_format(mean, force_ndarray=False)
+        self.cov = to_cuqi_format(cov, force_ndarray=False)
         self._normal = Gaussian(self.mean, self.cov)
 
     @property

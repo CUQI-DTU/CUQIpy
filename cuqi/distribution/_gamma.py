@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import loggamma, gammainc
 from cuqi.distribution import Distribution
-from cuqi.utilities import if_dist_force_rv
+from cuqi.utilities import to_cuqi_format
 
 class Gamma(Distribution):
 
@@ -10,8 +10,24 @@ class Gamma(Distribution):
         super().__init__(is_symmetric=is_symmetric,**kwargs) 
 
         # Init specific to this distribution
-        self.shape = if_dist_force_rv(shape)
-        self.rate = if_dist_force_rv(rate)     
+        self.shape = shape
+        self.rate = rate
+
+    @property
+    def shape(self):
+        return self._shape
+    
+    @shape.setter
+    def shape(self, value):
+        self._shape = to_cuqi_format(value, force_ndarray=False)
+
+    @property
+    def rate(self):
+        return self._rate
+    
+    @rate.setter
+    def rate(self, value):
+        self._rate = to_cuqi_format(value, force_ndarray=False)
 
     @property
     def scale(self):

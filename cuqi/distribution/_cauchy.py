@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import force_ndarray
+from cuqi.utilities import to_cuqi_format
 from cuqi.distribution import Distribution
 
 class Cauchy(Distribution):
@@ -57,7 +57,7 @@ class Cauchy(Distribution):
     
     @location.setter
     def location(self, value):
-        self._location = force_ndarray(value, flatten=True)
+        self._location = to_cuqi_format(value, flatten=True)
 
     @property
     def scale(self):
@@ -66,7 +66,7 @@ class Cauchy(Distribution):
     
     @scale.setter
     def scale(self, value):
-        self._scale = force_ndarray(value, flatten=True)
+        self._scale = to_cuqi_format(value, flatten=True)
 
     def _is_out_of_bounds(self, x):
         """ Check if x is out of bounds """
