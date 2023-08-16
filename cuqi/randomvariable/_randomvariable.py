@@ -100,7 +100,7 @@ class RandomVariable:
         """ The tree representation of the random variable. """
 
     def __call__(self, *args, **kwargs) -> Any:
-        """ Evaluate random variable at a given parameter value. """
+        """ Evaluate random variable at a given parameter value. For example, for random variable `X`, `X(1)` gives `1` and `(X+1)(1)` gives `2` """
         if args and kwargs:
             raise ValueError("Cannot pass both positional and keyword arguments to RandomVariable")
         
