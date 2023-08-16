@@ -1,7 +1,16 @@
+"""
+CUQIpy specific implementation of an abstract syntax tree (AST) for random variables.
+
+The main purpose of this AST is to allow for a simple and intuitive way of implementing
+algebraic operations on random variables. The AST is used to record the operations
+and then evaluate them when needed by traversing the tree with the __call__ method.
+"""
 convert_to_node = lambda x: x if isinstance(x, Node) else ValueNode(x)
 
 class Node:
+    """ Base class for all nodes in the abstract syntax tree.  """
     def __call__(self, **kwargs):
+        """ Evaluate node at a given parameter value. This will traverse the tree and evaluate given the recorded operations. """
         raise NotImplementedError()
 
     def __add__(self, other):
@@ -50,6 +59,15 @@ class Node:
         return MatMulNode(convert_to_node(other), self)    
 
 class RandomVariableNode(Node):
+    """ Node that represents a random variable.
+    
+    Parameters
+    ----------
+    name : str
+        Name of the random variable. Used for printing and to retrieve the given input value
+        of the random variable in the kwargs dictionary when evaluating the tree. 
+        
+    """
     def __init__(self, name):
         self.name = name
 
@@ -60,6 +78,14 @@ class RandomVariableNode(Node):
         return self.name
 
 class ValueNode(Node):
+    """ Node that represents a constant value. The value can be any python object.
+    
+    Parameters
+    ----------
+    value : object
+        Value of the node.
+        
+    """
     def __init__(self, value):
         self.value = value
 
@@ -68,7 +94,6 @@ class ValueNode(Node):
 
     def __repr__(self):
         return str(self.value)
-
 
 class BinaryNode(Node):
     op = None
