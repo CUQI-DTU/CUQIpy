@@ -156,7 +156,12 @@ y(3)
 ######################################################################
 # **Note**. A third mode, probability density evaluation (e.g.asking
 # for ``y.logd``) is planned for future versions.
-# 
+#
+# Probability density evaluation is implemented and for Distributions
+#
+
+X = Gaussian(0, 1) # Distribution
+print(X.logd(0.5)) 
 
 
 ######################################################################
