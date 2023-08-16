@@ -63,7 +63,9 @@ class RandomVariable:
 
     def __init__(self, distributions: set, tree: RandomVariableNode = None):
         """ Create random variable from distribution """
-        # Convert to list if single distribution
+        # Convert single distribution to OrderedSet.
+        # We use ordered set to ensure that the order of the distributions is preserved.
+        # which in turn ensures that the parameter names are always in the same order.
         if not isinstance(distributions, OrderedSet):
             distributions = OrderedSet([distributions])
         
