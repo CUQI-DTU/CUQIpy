@@ -3,7 +3,8 @@ Random variables in CUQIpy
 --------------------------
 
 This tutorial introduces the concept of random variables and how to use
-them in ``cuqipy``.
+them in ``CUQIpy``. At this point in time random variables are still
+experimental and the API is subject to change.
 
 """
 
@@ -18,58 +19,95 @@ import numpy as np
 # ~~~~~~~~~~~~
 # 
 # When defining a Distribution object in CUQIpy it can
-# be viewed as a random variable.
+# be viewed/converted to a random variable after it has been defined.
 # 
 # In contrast to regular deterministic variables, random variables are not
 # defined by a single value but by a probability distribution.
 # 
-# Consider the following example defining a random variable :math:`X` with
-# a Gaussian (normal) distribution:
+# Consider the following example defining a random variable :math:`x` from
+# a Gaussian (normal) distribution X:
 # 
 # .. math::
 # 
-# 
-#    X \sim \mathrm{Gaussian}(0,1)
+#    x \sim \mathrm{Gaussian}(0,1)
 # 
 # This can be defined in CUQIpy as follows:
 # 
 
-X = Gaussian(0, 1)
+X = Gaussian(0, 1) # Distribution
+
+x = X.rv # Random variable
+
+######################################################################
+# The difference between distributions and random variables can be subtle.
+# From a mathematical point of view, a random variable is a function from
+# a probability space to a measurable space, while a distribution is a
+# measure on a measurable space.
+#
+# In the context of CUQIpy, a distribution is a Python object which
+# represents a probability distribution. Probability distributions are defined
+# by their probability density function (PDF). They supported sampling from
+# the distribution and evaluating the PDF at a given point.
+#
+# In the context of CUQIpy, a random variable is a Python object which
+# represents a random variable for the purpose of defining a Bayesian
+# problem. Random variables are defined by their underlying distribution
+# and the algebraic operations performed on them.
 
 
 ######################################################################
-# Random variables (and distributions) act different than regular Python
+# Random variables act different than regular Python
 # variables in the following important ways:
 # 
 # 1. They are not immediately evaluated when defined. Instead, they are
 #    evaluated in a lazy fashion in the context needed.
-# 2. They define a probability distribution (single or multivariate)
+# 2. They contain a probability distribution (single or multivariate)
 #    instead of a single value or vector.
 # 
 # Despite these differences, random variables can be used in the same way
 # as regular variables in most cases.
 # 
-# For example suppose we want to define a new variable :math:`Y` as
+# For example suppose we want to define a new variable :math:`y` as
 # follows:
 # 
 # .. math::
 # 
 # 
-#    Y = (X + 10)^2
+#    y = (x + 10)^2
 # 
 # This can be done in CUQIpy as follows:
 # 
 
-Y = (X + 10)**2
+y = (x + 10)**2
 
 
 ######################################################################
-# Calling print on ``Y`` reveals that it is a random variable which has
+# Note that for convenience algebraic operations are also supported on
+# distributions. For example we can also given we want to define a new
+# random variable :math:`z` with y as follows:
+#
+# .. math::
+#
+#    x \sim \mathrm{Gaussian}(0,1) \\
+#    y = (z + 10)^2
+#
+# We can achieve this in CUQIpy without invoking `.rv` as follows.
+# Noting that the distribution is automatically considered a random 
+# variable in the context of the algebraic operations.
+# This API may be subject to change.
+
+z = Gaussian(0, 1)
+y = (z + 10)**2
+
+
+
+######################################################################
+# Calling print on ``y`` reveals that it is a random variable which has
 # recorded the operations performed on it and maintains a reference to the
-# original random variable ``X``.
+# original random variable ``x``.
 # 
 
-print(Y)
+print(y)
 
 
 ######################################################################
@@ -96,9 +134,9 @@ print(Y)
 # :math:`Y` using the same syntax:
 # 
 
-print(X.sample())
+print(x.sample())
 
-print(Y.sample())
+print(y.sample())
 
 
 ######################################################################
@@ -109,15 +147,15 @@ print(Y.sample())
 # transformations performed on it. This is done using the ``__call__``
 # method (which is called when using the ``()`` operator) in Python.
 # 
-# For example we can evaluate :math:`Y` at value ``X=3`` as follows:
+# For example we can evaluate :math:`y` at value ``x=3`` as follows:
 # 
 
-Y(3)
+y(3)
 
 
 ######################################################################
 # **Note**. A third mode, probability density evaluation (e.g.asking
-# for ``Y.logd``) is planned for future versions.
+# for ``y.logd``) is planned for future versions.
 # 
 
 
@@ -129,7 +167,7 @@ Y(3)
 # addition, subtraction, multiplication, division, exponentiation, etc.
 # 
 # Random variables also support algebra between each other. For example we
-# can define two new random variables :math:`x`, :math:`y` as follows:
+# can define two new variables :math:`x`, :math:`y` as follows:
 # 
 
 x = Gamma(1, 1)
@@ -137,8 +175,7 @@ y = Gaussian(0, 1)
 
 
 ######################################################################
-# We can then define a new random variable :math:`z` as as the sum of
-# :math:`x` and :math:`y^2`:
+# We can then define a new random variable :math:`z` as follows:
 # 
 
 z = x + (y**2+x**2)*0.1
@@ -210,3 +247,17 @@ y = Gaussian(A @ x, 1/s)
 
 BP = BayesianProblem(d, s, x, y)
 print(BP)
+
+######################################################################
+# Given the Bayesian problem we can now sample from the posterior
+# distribution using MCMC as follows:
+#
+
+samples = BP.sample_posterior(200)
+
+######################################################################
+# We can now plot a 95 credibility interval of the samples from the
+# posterior distribution as follows:
+#
+
+samples.plot_ci()
