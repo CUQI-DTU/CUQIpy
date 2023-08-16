@@ -1,5 +1,5 @@
 class OrderedSet:
-    """A set that keeps its elements in the order they were added.
+    """A set (i.e. unique elements) that keeps its elements in the order they were added.
 
     This is a minimal implementation of an ordered set, using a dictionary for storage.
     """
