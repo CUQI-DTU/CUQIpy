@@ -15,7 +15,7 @@ class OrderedSet:
         """Add an item to the set. 
 
         If the item is already in the set, it does nothing.
-        The item is stored as a key in the dictionary, with None as its value.
+        Otherwise, the item is stored as a key in the dictionary, with None as its value.
         """
         self.dict[item] = None
 
