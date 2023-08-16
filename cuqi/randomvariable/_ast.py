@@ -4,6 +4,31 @@ CUQIpy specific implementation of an abstract syntax tree (AST) for random varia
 The main purpose of this AST is to allow for a simple and intuitive way of implementing
 algebraic operations on random variables. The AST is used to record the operations
 and then evaluate them when needed by traversing the tree with the __call__ method.
+
+For example, the following code
+
+    x = RandomVariableNode('x')
+    y = RandomVariableNode('y')
+    z = 2*x + 3*y
+
+will create the following AST:
+
+    AddNode(
+        MultiplyNode(
+            ValueNode(2),
+            RandomVariableNode('x')
+        ),
+        MultiplyNode(
+            ValueNode(3),
+            RandomVariableNode('y')
+        )
+    )
+
+which can be evaluated by calling the __call__ method:
+
+    z(x=1, y=2) # returns 8
+
+
 """
 convert_to_node = lambda x: x if isinstance(x, Node) else ValueNode(x)
 
@@ -96,21 +121,43 @@ class ValueNode(Node):
         return str(self.value)
 
 class BinaryNode(Node):
-    op = None
+    """ Base class for all binary nodes in the abstract syntax tree.
+    
+    The op_symbol attribute is used for printing the operation in the __repr__ method.
+    
+    Parameters
+    ----------
+    left : Node
+        Left child node to the binary operation.
+        
+    right : Node
+        Right child node to the binary operation.
+        
+    """
+    op_symbol = None
     def __init__(self, left: Node, right: Node):
         self.left = left
         self.right = right
 
     def __repr__(self):
-        return f"{self.left} {self.op} {self.right}"
+        return f"{self.left} {self.op_symbol} {self.right}"
     
 class BinaryNodeWithParenthesis(BinaryNode):
+    """ Base class for all binary nodes in the abstract syntax tree that should be printed with parenthesis."""
     def __repr__(self):
         left = f"({self.left})" if isinstance(self.left, BinaryNode) else str(self.left)
         right = f"({self.right})" if isinstance(self.right, BinaryNode) else str(self.right)
-        return f"{left} {self.op} {right}"
+        return f"{left} {self.op_symbol} {right}"
 
 class UnaryNode(Node):
+    """ Base class for all unary nodes in the abstract syntax tree.
+
+    Parameters
+    ----------
+    child : Node
+        The direct child node on which the unary operation is performed.
+
+    """
     def __init__(self, child: Node):
         self.child = child
 
@@ -118,31 +165,37 @@ class UnaryNode(Node):
         raise NotImplementedError()
 
 class AddNode(BinaryNode):
-    op = '+'
+    """ Node that represents the addition operation."""
+    op_symbol = '+'
     def __call__(self, **kwargs):
         return self.left(**kwargs) + self.right(**kwargs)
 
 class SubtractNode(BinaryNode):
-    op = '-'
+    """ Node that represents the subtraction operation."""
+    op_symbol = '-'
     def __call__(self, **kwargs):
         return self.left(**kwargs) - self.right(**kwargs)
 
 class MultiplyNode(BinaryNodeWithParenthesis):
-    op = '*'
+    """ Node that represents the multiplication operation."""
+    op_symbol = '*'
     def __call__(self, **kwargs):
         return self.left(**kwargs) * self.right(**kwargs)
 
 class DivideNode(BinaryNodeWithParenthesis):
-    op = '/'
+    """ Node that represents the division operation."""
+    op_symbol = '/'
     def __call__(self, **kwargs):
         return self.left(**kwargs) / self.right(**kwargs)
 
 class PowerNode(BinaryNodeWithParenthesis):
-    op = '^'
+    """ Node that represents the power operation."""
+    op_symbol = '^'
     def __call__(self, **kwargs):
         return self.left(**kwargs) ** self.right(**kwargs)
 
 class GetItemNode(BinaryNode):
+    """ Node that represents the get item operation."""
     def __call__(self, **kwargs):
         return self.left(**kwargs)[self.right(**kwargs)]
 
@@ -151,6 +204,7 @@ class GetItemNode(BinaryNode):
         return f"{left}[{self.right}]"
 
 class NegateNode(UnaryNode):
+    """ Node that represents the negation operation."""
     def __call__(self, **kwargs):
         return -self.child(**kwargs)
     
@@ -159,6 +213,7 @@ class NegateNode(UnaryNode):
         return f"-{child}"
 
 class AbsNode(UnaryNode):
+    """ Node that represents the absolute value operation."""
     def __call__(self, **kwargs):
         return abs(self.child(**kwargs))
 
@@ -166,6 +221,7 @@ class AbsNode(UnaryNode):
         return f"abs({self.child})"
     
 class MatMulNode(BinaryNodeWithParenthesis):
-    op = '@'
+    """ Node that represents the matrix multiplication operation."""
+    op_symbol = '@'
     def __call__(self, **kwargs):
         return self.left(**kwargs) @ self.right(**kwargs)
