@@ -263,8 +263,8 @@ print(BP)
 samples = BP.sample_posterior(200)
 
 ######################################################################
-# We can now plot a 95 credibility interval of the samples from the
-# posterior distribution as follows:
+# We can now plot a 95 credibility interval of the samples for x
+# from the posterior distribution as follows:
 #
 
-samples.plot_ci()
+samples["x"].plot_ci()
