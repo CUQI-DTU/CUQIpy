@@ -152,13 +152,14 @@ class RandomVariable:
         """
         Apply a specified operation to this RandomVariable.
         """
+        # Distributions are handled as random variables in the context of algebraic operations
         if isinstance(other, cuqi.distribution.Distribution):
             other = other._as_random_variable()
-        if other is None:
+        if other is None: # unary operation case
             return RandomVariable(self._distributions, operation(self._tree))
-        elif isinstance(other, RandomVariable):
+        elif isinstance(other, RandomVariable): # binary operation case with another random variable that has distributions
             return RandomVariable(self._distributions | other._distributions, operation(self._tree, other._tree))
-        return RandomVariable(self._distributions, operation(self._tree, other))
+        return RandomVariable(self._distributions, operation(self._tree, other)) # binary operation case with any other object (constant)
 
     def __add__(self, other) -> 'RandomVariable':
         return self._apply_operation(operator.add, other)
