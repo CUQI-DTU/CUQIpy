@@ -104,7 +104,7 @@ class NUTS(Sampler):
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N, Nb)
-      
+
     def _sample(self, N, Nb):
         # Reset run diagnostic attributes
         self._reset_run_diagnostic_attributes()
