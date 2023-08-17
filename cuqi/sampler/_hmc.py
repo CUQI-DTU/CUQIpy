@@ -64,14 +64,50 @@ class NUTS(Sampler):
         self.max_depth = max_depth
         self.adapt_step_size = adapt_step_size
         self.opt_acc_rate = opt_acc_rate
-    
+
+        # NUTS run diagnostic
+        # number of tree nodes created each NUTS iteration
+        self._num_tree_node = 0
+        # Create lists to store NUTS run diagnostics
+        self._create_run_diagnostic_attributes()
+
+    def _create_run_diagnostic_attributes(self):
+        """A method to create attributes to store NUTS run diagnostic."""
+        self._reset_run_diagnostic_attributes()
+
+    def _reset_run_diagnostic_attributes(self):
+        """A method to reset attributes to store NUTS run diagnostic."""
+        # NUTS iterations
+        self.iteration_list = []
+        # List to store number of tree nodes created each NUTS iteration
+        self.num_tree_node_list = []
+        # List of step size used in each NUTS iteration 
+        self.epsilon_list = []
+        # List of burn-in step size suggestion during adaptation 
+        # only used when adaptation is done
+        # remains fixed after adaptation (after burn-in)
+        self.epsilon_bar_list = []
+
+    def _update_run_diagnostic_attributes(self, k, n_tree, eps, eps_bar):
+        """A method to update attributes to store NUTS run diagnostic."""
+        # Store the current iteration number k
+        self.iteration_list.append(k)
+        # Store the number of tree nodes created in iteration k
+        self.num_tree_node_list.append(n_tree)
+        # Store the step size used in iteration k
+        self.epsilon_list.append(eps)
+        # Store the step size suggestion during adaptation in iteration k
+        self.epsilon_bar_list.append(eps_bar)
+
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
         return self.target.logd(x), self.target.gradient(x)
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N, Nb)
-        
+      
     def _sample(self, N, Nb):
+        # Reset run diagnostic attributes
+        self._reset_run_diagnostic_attributes()
         
         if self.adapt_step_size is True and Nb == 0:
             raise ValueError("Adaptive step size is True but number of burn-in steps is 0. Please set Nb > 0.")
@@ -101,6 +137,9 @@ class NUTS(Sampler):
 
         # run NUTS
         for k in range(1, Ns):
+            # reset number of tree nodes for each iteration
+            self._num_tree_node = 0
+
             theta_k, joint_k = theta[:, k-1], joint_eval[k-1] # initial position (parameters)
             r_k = self._Kfun(1, 'sample') # resample momentum vector
             Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
@@ -160,6 +199,10 @@ class NUTS(Sampler):
             
             if np.isnan(joint_eval[k]):
                 raise NameError('NaN potential func')
+            
+            # update run diagnostic attributes
+            self._update_run_diagnostic_attributes(
+                k, self._num_tree_node, epsilon, epsilon_bar)
 
         # apply burn-in 
         theta = theta[:, Nb:]
@@ -211,6 +254,9 @@ class NUTS(Sampler):
     #=========================================================================
     # @functools.lru_cache(maxsize=128)
     def _BuildTree(self, theta, r, grad, Ham, log_u, v, j, epsilon, Delta_max=1000):
+        # Increment the number of tree nodes counter
+        self._num_tree_node += 1
+
         if (j == 0):     # base case
             # single leapfrog step in the direction v
             theta_prime, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, v*epsilon)
