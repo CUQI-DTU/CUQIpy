@@ -703,14 +703,11 @@ class BayesianProblem(object):
 
         return L and P and M and D and G
 
-    def _sampleGibbs(self, Ns, callback=None):
+    def _sampleGibbs(self, Ns, Nb, callback=None):
         """ This is a helper function for sampling from the posterior using Gibbs sampler. """
 
-        # Set burn-in ratio
-        burn_in_ratio = 0.2
-
         print("Using Gibbs sampler")
-        print(f"burn-in: {int(burn_in_ratio*100)}%")
+        print(f"burn-in: {int(Nb/Ns*100)}%")
         print("")
 
         if callback is not None:
@@ -718,9 +715,6 @@ class BayesianProblem(object):
 
         # Start timing
         ti = time.time()
-
-        # Burn-in
-        Nb = int(burn_in_ratio*Ns)
 
         # Sampling strategy
         sampling_strategy = self._determine_sampling_strategy()
