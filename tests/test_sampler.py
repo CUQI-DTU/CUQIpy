@@ -398,7 +398,7 @@ def test_TP_callback(prior, sample_method, expected):
 
     # Sampler
     sample_method = getattr(TP, sample_method)
-    sample_method(10, callback=callback)
+    sample_method(10, Nb=2, callback=callback)
 
     assert np.array_equal(Ns_list, expected)
 
