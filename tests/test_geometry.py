@@ -4,15 +4,25 @@ import cuqi
 import pytest
 from cuqi.geometry import Continuous2D, Continuous1D
 
-@pytest.mark.parametrize("geomClass,grid,expected_grid,expected_par_shape,expected_fun_shape,expected_dim",
-                         [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),(1,),1),
-			  (cuqi.geometry.Continuous1D,(1,),np.array([0]),(1,),(1,),1),
-			  (cuqi.geometry.Continuous1D, 1, np.array([0]),(1,),(1,),1),
-			  (cuqi.geometry.Continuous1D, [1,2,3,4],np.array([1,2,3,4]),(4,),(4,),4),
-			  (cuqi.geometry.Continuous1D, 5,np.array([0,1,2,3,4]),(5,),(5,),5),
-			  (cuqi.geometry.Continuous2D,(1,1),(np.array([0]),np.array([0])),(1,),(1,1),1),
-			  (cuqi.geometry.Continuous2D,([1,2,3],1), (np.array([1,2,3]), np.array([0])), (3,),(3,1), 3)
-			  ])
+
+@pytest.mark.parametrize(
+    "geomClass,grid,expected_grid,expected_par_shape,expected_fun_shape,expected_dim",
+    [(cuqi.geometry.Continuous1D, (1), np.array([0]), (1,), (1,), 1),
+     (cuqi.geometry.Continuous1D, (1,),
+      np.array([0]), (1,), (1,), 1),
+     (cuqi.geometry.Continuous1D, 1,
+      np.array([0]), (1,), (1,), 1),
+     (cuqi.geometry.Continuous1D, [1, 2, 3, 4], np.array(
+         [1, 2, 3, 4]), (4,), (4,), 4),
+     (cuqi.geometry.Continuous1D, 5, np.array(
+         [0, 1, 2, 3, 4]), (5,), (5,), 5),
+     (cuqi.geometry.Continuous2D, (1, 1),
+      (np.array([0]), np.array([0])), (1,), (1, 1), 1),
+     (cuqi.geometry.Continuous2D, ([1, 2, 3], 1), (np.array(
+         [1, 2, 3]), np.array([0])), (3,), (3, 1), 3),
+     (cuqi.geometry.Continuous2D, (2, 2), (np.array(
+         [0, 1]), np.array([0, 1])), (4,), (2, 2), 4)
+     ])
 def test_Continuous_geometry(geomClass,grid,expected_grid,expected_par_shape, expected_fun_shape,expected_dim):
     geom = geomClass(grid=grid)
     assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
@@ -394,3 +404,57 @@ def test_DefaultGeometry2D_should_be_image2D():
 
     assert isinstance(geom2D, cuqi.geometry.Image2D)
    
+
+@pytest.fixture
+def geom2D_funvals():
+    """Returns two different function values for a continuous 2D geometry"""
+    geom2D = cuqi.geometry.Continuous2D((3, 3))
+    def func1(x, y): return x*y
+    def func2(x, y): return x**2*y**2
+    XX, YY = np.meshgrid(geom2D.grid[0], geom2D.grid[1])
+    funval1 = cuqi.array.CUQIarray(
+        func1(XX, YY), is_par=False, geometry=geom2D)
+    funval2 = cuqi.array.CUQIarray(
+        func2(XX, YY), is_par=False, geometry=geom2D)
+    return funval1, funval2
+
+
+def test_Continuous2D_par2fun_and_fun2par_correctness(geom2D_funvals):
+    """Check the correctness of the par2fun and fun2par methods for a continuous
+    2D geometry"""
+    funval1, funval2 = geom2D_funvals
+    geom2D = funval1.geometry
+
+    # Checks for one function value
+    assert (funval1.shape == (3, 3))
+    assert (funval1.parameters.shape == (9,))
+    assert (funval1.parameters.funvals.shape == (3, 3))
+    assert np.allclose(funval1, funval1.parameters.funvals)
+
+    # Checks for an array of more than one function values
+    # create the array
+    multiple_funvals = np.stack((funval1, funval2), axis=-1)
+    assert (multiple_funvals.shape == (3, 3, 2))
+
+    # convert to parameters
+    multiple_funvals_topar = geom2D.fun2par(multiple_funvals)
+    assert np.allclose(multiple_funvals_topar[:, 0], funval1.parameters)
+    assert np.allclose(multiple_funvals_topar[:, 1], funval2.parameters)
+
+    # convert back to function values
+    multiple_funvals_topar_tofun = geom2D.par2fun(multiple_funvals_topar)
+    assert np.allclose(multiple_funvals_topar_tofun, multiple_funvals)
+
+
+def test_Continuous2D_plot_multiple_funvals_pass(geom2D_funvals):
+    """Check the correctness of the plot method for a continuous 2D geometry
+    when multiple function values are given"""
+    funval1, funval2 = geom2D_funvals
+    geom2D = funval1.geometry
+    multiple_funvals = np.stack((funval1, funval2), axis=-1)
+    assert (multiple_funvals.shape == (3, 3, 2))
+    # Test plotting passes
+    geom2D.plot(multiple_funvals, is_par=False)
+    # Convert to parameters then plot
+    multiple_funvals_topar = geom2D.fun2par(multiple_funvals)
+    geom2D.plot(multiple_funvals_topar, is_par=True)
