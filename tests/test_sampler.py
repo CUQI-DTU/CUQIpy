@@ -397,8 +397,14 @@ def test_TP_callback(prior, sample_method, expected):
         Ns_list.append(n)
 
     # Sampler
-    sample_method = getattr(TP, sample_method)
-    sample_method(10, Nb=2, callback=callback)
+    sample_method_handle = getattr(TP, sample_method)
+    
+    # if sampler is MapCholesky, we do not pass burn-in
+    # otherwise we pass burn-in Nb
+    if sample_method == "_sampleMapCholesky":
+        sample_method_handle(10, callback=callback)
+    else:
+        sample_method_handle(10, Nb=2, callback=callback)
 
     assert np.array_equal(Ns_list, expected)
 
