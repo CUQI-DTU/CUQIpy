@@ -333,7 +333,7 @@ class BayesianProblem(object):
 
         # For Gaussian small-scale we can use direct sampling
         if self._check_posterior(self, Gaussian, Gaussian, LinearModel, config.MAX_DIM_INV) and not self._check_posterior(self, GMRF):
-            return self._sampleMapCholesky(Ns, Nb, callback)
+            return self._sampleMapCholesky(Ns, callback)
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
@@ -490,7 +490,7 @@ class BayesianProblem(object):
 
         return samples
 
-    def _sampleMapCholesky(self, Ns, Nb, callback=None):
+    def _sampleMapCholesky(self, Ns, callback=None):
         print(f"Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
         print("No burn-in needed for direct sampling.")
 
