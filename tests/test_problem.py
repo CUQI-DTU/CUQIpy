@@ -148,4 +148,3 @@ def test_passing_burnin_to_UQ_method(capfd):
     # Check that correct burnin is used
     assert "50%" in out
     assert "Sample 15 / 15" in out
-
