@@ -126,9 +126,26 @@ def test_BayesianProblem_geometry_consistency():
     assert BP.ML().geometry == domain_geometry
 
 
+def test_passing_burnin_to_UQ_method(capfd):
+    """ Test that passing burnin to UQ method works correctly"""
+    # Create simple forward model
+    fwd_model = cuqi.model.Model(lambda x: x, 1, 1)
 
-    
-    
+    # Create prior and data distributions
+    x = cuqi.distribution.Gaussian(0, 1)
+    y = cuqi.distribution.Gaussian(fwd_model(x), 1)
 
+    # Create BayesianProblem and set data
+    BP = cuqi.problem.BayesianProblem(x, y)
+    BP.set_data(y=1)
 
+    # Apply UQ method with burnin
+    samples = BP.UQ(Ns=10, Nb=5) 
+
+    # Read output
+    out, err = capfd.readouterr()
+
+    # Check that correct burnin is used
+    assert "50%" in out
+    assert "Sample 15 / 15" in out
 
