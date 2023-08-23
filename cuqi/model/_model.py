@@ -172,15 +172,14 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             `x` represented as a function.
         """
-        if isinstance(x, CUQIarray) and not isinstance(x.geometry, _DefaultGeometry1D):
+        # Convert to function representation
+        # if x is CUQIarray and geometry are consistent, we obtain funvals
+        # directly
+        if isinstance(x, CUQIarray) and  x.geometry == geometry:
             x = x.funvals
-
+        # Otherwise we use the geometry par2fun method
         elif is_par:
             x = geometry.par2fun(x)
-
-        # Convert to numpy array if still CUQIarray
-        if isinstance(x, CUQIarray):
-            x = x.to_numpy() 
 
         return x
 
@@ -209,13 +208,15 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             The value `val` represented as parameters.
         """
-        # Convert val to parameters if in function representation
-        if isinstance(val, CUQIarray):
-            val = val.parameters.to_numpy()
-
+        # Convert to parameters
+        # if val is CUQIarray and geometry are consistent, we obtain parameters
+        # directly
+        if isinstance(val, CUQIarray) and val.geometry == geometry:
+            val = val.parameters
+        # Otherwise we use the geometry fun2par method
         elif not is_par:
             val = geometry.fun2par(val)
-        
+
         # Wrap val in CUQIarray if requested
         if to_CUQIarray:
             val = CUQIarray(val, is_par=True, geometry=geometry)
