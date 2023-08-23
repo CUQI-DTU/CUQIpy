@@ -175,10 +175,9 @@ class Model(object):
         if isinstance(x, CUQIarray) and not isinstance(x.geometry, _DefaultGeometry1D):
             x = x.funvals
 
-
         elif is_par:
             x = geometry.par2fun(x)
-        
+
         # Convert to numpy array if still CUQIarray
         if isinstance(x, CUQIarray):
             x = x.to_numpy() 
@@ -212,13 +211,14 @@ class Model(object):
         """
         # Convert val to parameters if in function representation
         if isinstance(val, CUQIarray):
-            val = val.parameters
+            val = val.parameters.to_numpy()
+
         elif not is_par:
             val = geometry.fun2par(val)
         
-            # Wrap val in CUQIarray if requested
-            if to_CUQIarray:
-                val = CUQIarray(val, is_par=True, geometry=geometry)
+        # Wrap val in CUQIarray if requested
+        if to_CUQIarray:
+            val = CUQIarray(val, is_par=True, geometry=geometry)
 
         # Return val
         return val
@@ -403,8 +403,8 @@ class Model(object):
         is_direction_CUQIarray = type(direction) is CUQIarray
 
         direction = self._2fun(direction,
-                            self.range_geometry,
-                            is_par=is_direction_par)
+                               self.range_geometry,
+                               is_par=is_direction_par)
 
         grad = self._gradient_func(direction, wrt)
         grad_is_par = False # Assume gradient is function values
@@ -418,9 +418,9 @@ class Model(object):
 
         # we convert the computed gradient to parameters
         grad = self._2par(grad,
-                                self.domain_geometry,
-                                to_CUQIarray=is_direction_CUQIarray,
-                                is_par=grad_is_par)
+                          self.domain_geometry,
+                          to_CUQIarray=is_direction_CUQIarray,
+                          is_par=grad_is_par)
 
         return grad
     
@@ -450,7 +450,7 @@ class Model(object):
             not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
-        
+
     def __len__(self):
         return self.range_dim
 
