@@ -476,7 +476,7 @@ class BayesianProblem(object):
 
     def _sampleLinearRTO(self, Ns, Nb, callback=None):
         print("Using Linear_RTO sampler.")
-        print(f"burn-in: {int(Nb/Ns*100)}%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
 
         # Start timing
         ti = time.time()
@@ -533,7 +533,7 @@ class BayesianProblem(object):
     
     def _sampleCWMH(self, Ns, Nb, callback=None):
         print("Using Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
-        print(f"burn-in: {int(Nb/Ns*100)}%, scale: 0.05, x0: 0.5 (vector)")
+        print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
         # Dimension
         n = self.prior.dim
@@ -555,7 +555,7 @@ class BayesianProblem(object):
 
     def _samplepCN(self, Ns, Nb, callback=None):
         print("Using preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
-        print(f"burn-in: {int(Nb/Ns*100)}%, scale: 0.02")
+        print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.02")
 
         scale = 0.02
         #x0 = np.zeros(n)
@@ -571,7 +571,7 @@ class BayesianProblem(object):
 
     def _sampleNUTS(self, Ns, Nb, callback=None):
         print("Using No-U-Turn (NUTS) sampler")
-        print(f"burn-in: {int(Nb/Ns*100)}%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
 
         # MAP
         #print("Computing MAP ESTIMATE")
@@ -588,7 +588,7 @@ class BayesianProblem(object):
 
     def _sampleUGLA(self, Ns, Nb, callback=None):
         print("Using UGLA sampler")
-        print(f"burn-in: {int(Nb/Ns*100)}%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
 
         # Start timing
         ti = time.time()
@@ -707,7 +707,7 @@ class BayesianProblem(object):
         """ This is a helper function for sampling from the posterior using Gibbs sampler. """
 
         print("Using Gibbs sampler")
-        print(f"burn-in: {int(Nb/Ns*100)}%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
         print("")
 
         if callback is not None:
