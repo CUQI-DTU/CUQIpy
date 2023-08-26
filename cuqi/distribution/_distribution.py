@@ -436,13 +436,18 @@ class Distribution(Density, ABC):
         
     def __new__(cls, *args, **kwargs):
         """ Overload __new__ to return a random variable """
+        # Extract name out of kwargs
+        name = kwargs.pop("name", None)
+
         dist = super().__new__(cls)
         dist.__init__(*args, **kwargs)
         if config.MAKE_RV_BY_DEFAULT:
-            rv = RandomVariable(dist)
+            rv = RandomVariable(dist, name=name)
             dist._rv = rv # Add reference to rv
             return rv
         else:
+            if name is not None:
+                raise TypeError("Specifying name requires cuqi.config.MAKE_RV_BY_DEFAULT to be set to true.")
             return dist
       
     @property

@@ -72,7 +72,7 @@ class RandomVariable:
 
     """
 
-    def __init__(self, distributions: set, tree: RandomVariableNode = None):
+    def __init__(self, distributions: set, tree: RandomVariableNode = None, name=None):
         """ Create random variable from distribution """
         # Convert single distribution to OrderedSet.
         # We use ordered set to ensure that the order of the distributions is preserved.
@@ -89,7 +89,7 @@ class RandomVariable:
         self._original_variable = None
         """ Stores the original variable if this is a conditioned copy"""
 
-        self._name = None
+        self._name = name
 
 
     @property
