@@ -431,6 +431,12 @@ class Distribution(Density, ABC):
         else:
             return "CUQI {}.".format(self.__class__.__name__)
         
+    def __new__(cls, *args, **kwargs):
+        """ Overload __new__ to return a random variable """
+        dist = super().__new__(cls)
+        dist.__init__(*args, **kwargs)
+        return dist._as_random_variable()
+        
     # The following methods define algebraic operations on distributions
     # The return type is a RandomVariable instance
         

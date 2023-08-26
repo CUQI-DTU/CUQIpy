@@ -112,7 +112,14 @@ class RandomVariable:
     def sample(self):
         """ Sample random variable. """
         return self(**{distribution.name: distribution.sample() for distribution in self._distributions})
-         
+    
+    @property
+    def dist(self) -> cuqi.distribution.Distribution:
+        """ Distribution from which the random variable originates. """
+        if len(self._distributions) > 1:
+            raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
+        return next(iter(self._distributions))
+
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
