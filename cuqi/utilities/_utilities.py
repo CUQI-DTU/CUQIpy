@@ -90,8 +90,8 @@ def get_direct_attributes(dist):
 
 def get_indirect_variables(dist):
     attributes = []
-    for _, value in vars(dist).items():
-        if callable(value):
+    for key, value in vars(dist).items():
+        if callable(value) and not key == "_rv":
             keys = get_non_default_args(value)
             for key in keys:
                 if key not in attributes: #Ensure we did not already find this key

@@ -130,6 +130,11 @@ class RandomVariable:
 
         return self.tree(**kwargs)
     
+    def logd(self, *args, **kwargs):
+        if len(self._distributions) > 1 or not isinstance(self.tree, RandomVariableNode):
+            raise ValueError("Unable to evaluate log density of transformed random variables")
+        return self.dist.logd(*args, **kwargs)
+    
     def sample(self):
         """ Sample random variable. """
         return self(**{distribution.name: distribution.sample() for distribution in self._distributions})
