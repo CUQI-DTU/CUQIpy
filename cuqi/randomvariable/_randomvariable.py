@@ -4,6 +4,7 @@ from ._ast import RandomVariableNode
 from ._orderedset import OrderedSet
 import operator
 import cuqi
+from copy import copy
 
 
 class RandomVariable:
@@ -202,6 +203,22 @@ class RandomVariable:
         if self.is_transformed:
             raise NotImplementedError("Geometry not implemented for transformed random variables")
         return self.dist.geometry
+    
+    def condition(self, *args, **kwargs):
+        """ Condition random variable on fixed values """
+        if self.is_transformed:
+            raise NotImplementedError("Conditioning is not implemented for transformed random variables")
+        new_variable = self._make_copy()
+        new_variable._distributions = OrderedSet([self.dist(*args, **kwargs)])
+        return new_variable
+    
+    def _make_copy(self):
+        """ Returns a shallow copy of the density keeping a pointer to the original. """
+        new_variable = copy(self)
+        new_variable._distributions = copy(self._distributions)
+        new_variable._tree = copy(self._tree)
+        new_variable._original_variable = self
+        return new_variable
     
     @property
     def is_transformed(self):

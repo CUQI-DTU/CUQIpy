@@ -12,3 +12,9 @@ MAX_STACK_SEARCH_DEPTH = 1000
 
 MIN_DIM_SPARSE = 75
 """ Minimum dimension to start storing Nd-arrays as sparse for N>2. The minimum dimension is defined as MIN_DIM_SPARSE^N. """
+
+MAKE_RV_BY_DEFAULT = True
+""" Whether to make random variables by default when defining a distribution """
+
+ALLOW_NONE_SHAPE_DISTRIBUTIONS = False
+""" Whether to allow distributions to have undefined shape. """

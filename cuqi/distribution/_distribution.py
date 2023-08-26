@@ -3,6 +3,7 @@ from typing import Union
 from abc import ABC, abstractmethod
 from copy import copy
 from functools import partial
+import cuqi.config as config
 from cuqi.density import Density, EvaluatedDensity
 from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples
@@ -143,8 +144,9 @@ class Distribution(Density, ABC):
         if inferred_dim and self._geometry.par_dim is None: 
             self.geometry = inferred_dim
 
-        if self._geometry.par_shape is None:
-            raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
+        if not config.ALLOW_NONE_SHAPE_DISTRIBUTIONS:
+            if self._geometry.par_shape is None:
+                raise ValueError(f"{self.__class__.__name__}: Unable to automatically determine geometry of distribution. Please specify a geometry with the geometry keyword")
 
         # Check if dist has a name, if so we provide it to the geometry
         # We do not use self.name to potentially infer it from python stack.
@@ -401,7 +403,7 @@ class Distribution(Density, ABC):
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
         if not self.is_cond: # If not conditional we create a constant density
-            return EvaluatedDensity(self.logd(data), name=self.name)
+            return EvaluatedDensity(self.logd(data), rv=self.rv)
         return Likelihood(self, data)
 
     def _parse_args_add_to_kwargs(self, cond_vars, *args, **kwargs):
@@ -436,9 +438,12 @@ class Distribution(Density, ABC):
         """ Overload __new__ to return a random variable """
         dist = super().__new__(cls)
         dist.__init__(*args, **kwargs)
-        rv = RandomVariable(dist)
-        dist._rv = rv # Add reference to rv
-        return rv
+        if config.MAKE_RV_BY_DEFAULT:
+            rv = RandomVariable(dist)
+            dist._rv = rv # Add reference to rv
+            return rv
+        else:
+            return dist
       
     @property
     def rv(self):
