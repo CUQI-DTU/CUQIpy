@@ -177,9 +177,23 @@ class RandomVariable:
         # Add initial newline and indentations
         parameter_strings = "\n".join(["\t"+line for line in parameter_strings.split("\n")])
         # Print parameter strings with newlines
-        return (f"RandomVariable\n"
-                f"Distributions: \n{parameter_strings}\n"
-                f"Transformations: {self.tree}")
+        if self.is_transformed:
+            title = f"Transformed Random Variable"
+        else:
+            title = f""
+        if self.is_transformed:
+            body = (
+                f"\n"
+                f"Formula: {self.tree}\n"
+                f"Components: \n{parameter_strings}"
+                )
+        else:
+            body = parameter_strings.replace("\t","")
+        return title+body
+    
+    @property
+    def is_transformed(self):
+        return len(self._distributions) > 1 or not isinstance(self.tree, RandomVariableNode)
    
     def _apply_operation(self, operation, other=None) -> 'RandomVariable':
         """
