@@ -72,7 +72,7 @@ class Distribution(Density, ABC):
     mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
 
     """
-    def __init__(self, name=None, geometry=None, is_symmetric=None):
+    def __init__(self, rv=None, geometry=None, is_symmetric=None):
         """ Initialize the core properties of the distribution.
         
         Parameters
@@ -87,9 +87,10 @@ class Distribution(Density, ABC):
             Indicator if distribution is symmetric.
                         
         """
-        super().__init__(name=name)
+        super().__init__(rv=rv)
         self.is_symmetric = is_symmetric
         self.geometry = geometry
+        """ Used to reference the random variable created after init """
 
     @property
     def dim(self):
@@ -147,8 +148,8 @@ class Distribution(Density, ABC):
 
         # Check if dist has a name, if so we provide it to the geometry
         # We do not use self.name to potentially infer it from python stack.
-        if self._name: 
-            self._geometry._variable_name = self._name
+        if self._rv and self._rv._name: 
+            self._geometry._variable_name = self._rv._name
             
         return self._geometry
 
@@ -435,7 +436,9 @@ class Distribution(Density, ABC):
         """ Overload __new__ to return a random variable """
         dist = super().__new__(cls)
         dist.__init__(*args, **kwargs)
-        return dist._as_random_variable()
+        rv = dist._as_random_variable()
+        dist._rv = rv
+        return rv
         
     # The following methods define algebraic operations on distributions
     # The return type is a RandomVariable instance

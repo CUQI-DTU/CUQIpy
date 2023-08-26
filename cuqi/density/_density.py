@@ -26,28 +26,19 @@ class Density(ABC):
     - get_parameter_names(self). Returns a list of the names of the parameters of the density.
 
     """
-    def __init__(self, name: Optional[str] = None):
-        if not isinstance(name, str) and name is not None:
-            raise ValueError(f"{self.__init__.__qualname__}: Name must be a string or None")
-        self.name = name
+    def __init__(self, rv=None):
         self._constant = 0 # Precomputed constant to add to the log probability.
         self._original_density = None # Original density if this is a conditioned copy. Used to extract name.
         self.disable_FD() # Disable FD approximation of the logd gradient by default.
+        self._rv = rv
 
     @property
     def name(self):
         """ Name of the random variable associated with the density. """
-        if self._is_copy: # Extract the original density name
-            return self._original_density.name
-        if self._name is None: # If None extract the name from the stack
-            self._name = cuqi.utilities._get_python_variable_name(self)
-        return self._name
-
-    @name.setter
-    def name(self, name):
-        if self._is_copy:
-            raise ValueError("Cannot set name of conditioned density. Only the original density can have its name set.")
-        self._name = name
+        if hasattr(self, "_rv"):
+            return self._rv.name
+        raise TypeError(f"Unable to get name from associated random variable {self.rv}")
+    
 
     @property
     def _is_copy(self):
