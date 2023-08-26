@@ -192,6 +192,18 @@ class RandomVariable:
         return title+body
     
     @property
+    def dim(self):
+        if self.is_transformed:
+            raise NotImplementedError("Dimension not implemented for transformed random variables")
+        return self.dist.dim
+    
+    @property
+    def geometry(self):
+        if self.is_transformed:
+            raise NotImplementedError("Geometry not implemented for transformed random variables")
+        return self.dist.geometry
+    
+    @property
     def is_transformed(self):
         return len(self._distributions) > 1 or not isinstance(self.tree, RandomVariableNode)
    
