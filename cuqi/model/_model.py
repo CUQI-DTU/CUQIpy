@@ -413,11 +413,11 @@ class Model(object):
     def _handle_random_variable(self, x):
         """ Private function that handles the case of the input being a random variable. """
         # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
-        if not isinstance(x._tree, RandomVariableNode):
+        if x.is_transformed:
             return NotImplemented
         
         # In leaf-type node case we simply change the parameter name of model to match the random variable name
-        dist = x._tree._distributions[0]
+        dist = x.dist
         if dist.dim != self.domain_dim:
             raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
         

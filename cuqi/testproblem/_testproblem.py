@@ -294,9 +294,9 @@ class Deconvolution1D(BayesianProblem):
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, name="y")
+            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, name="y").dist
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, name="y")
+            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, name="y").dist
         else:
             raise NotImplementedError("This noise type is not implemented")
         

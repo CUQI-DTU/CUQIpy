@@ -4,6 +4,7 @@ from copy import copy
 from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
+from cuqi.randomvariable import RandomVariable
 from cuqi.geometry import Geometry, _DefaultGeometry1D
 import numpy as np # for splitting array. Can avoid.
 
@@ -65,8 +66,13 @@ class JointDistribution:
         names = [density.name for density in densities]
         if len(names) != len(set(names)):
             raise ValueError("All densities must have unique names.")
-
-        self._densities = list(densities)
+        
+        self._densities = []
+        for density in densities:
+            if isinstance(density, RandomVariable):
+                self._densities.append(density.dist)
+            else:
+                self._densities.append(density)
 
         # Make sure every parameter has a distribution (prior)
         cond_vars = self._get_conditioning_variables()
