@@ -25,6 +25,10 @@ class Posterior(Distribution):
         self.prior = prior 
         super().__init__(**kwargs)
 
+    # Revert to default __new__ behavior
+    def __new__(cls, *args, **kwargs):
+        return object.__new__(cls)
+
     @property
     def data(self):
         return self.likelihood.data

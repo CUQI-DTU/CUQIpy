@@ -290,7 +290,7 @@ class Deconvolution1D(BayesianProblem):
 
         # Set up prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, name="x")
+            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, name="x").dist
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
