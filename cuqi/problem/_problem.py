@@ -445,8 +445,8 @@ class BayesianProblem(object):
                 samples.plot_ci(percent=percent, exact=exact)
             except NotImplementedError as nie:
                 print(
-                    f"Unable to plot CI for samples with the underlying " +
-                    "geometry {samples.geometry}. Plotting the CI for the " +
+                    "Unable to plot CI for samples with the underlying " +
+                    f"geometry: {samples.geometry}. Plotting the CI for the " +
                     "parameters instead.")
                 self._alternative_plot_UQ_for_variable(
                     samples, percent=percent, exact=exact)
