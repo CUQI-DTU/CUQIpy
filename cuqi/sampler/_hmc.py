@@ -58,6 +58,25 @@ class NUTS(Sampler):
         # Plot samples
         samples.plot_pair()
 
+    After running the NUTS sampler, run diagnostics can be accessed via the 
+    following attributes:
+
+    .. code-block:: python
+
+        # Number of tree nodes created each NUTS iteration
+        sampler.num_tree_node_list
+
+        # Step size used in each NUTS iteration
+        sampler.epsilon_list
+
+        # Suggested step size during adaptation (the value of this step size is
+        # only used after adaptation). The suggested step size is None if 
+        # adaptation is not requested.
+        sampler.epsilon_bar_list
+
+        # Additionally, iterations' number can be accessed via
+        sampler.iteration_list
+
     """
     def __init__(self, target, x0=None, max_depth=15, adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, x0=x0, **kwargs)
@@ -122,6 +141,9 @@ class NUTS(Sampler):
         theta[:, 0] = self.x0
         joint_eval[0], grad = self._nuts_target(self.x0)
 
+        # Step size variables
+        epsilon, epsilon_bar = None, None
+
         # parameters dual averaging
         if (self.adapt_step_size == True):
             epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
@@ -182,6 +204,10 @@ class NUTS(Sampler):
                 s = s_prime * int((dtheta @ r_minus.T) >= 0) * int((dtheta @ r_plus.T) >= 0)
                 j += 1
 
+            # update run diagnostic attributes
+            self._update_run_diagnostic_attributes(
+                k, self._num_tree_node, epsilon, epsilon_bar)
+            
             # adapt epsilon during burn-in using dual averaging
             if (k <= Nb) and (self.adapt_step_size == True):
                 eta1 = 1/(k + t_0)
@@ -200,10 +226,6 @@ class NUTS(Sampler):
             if np.isnan(joint_eval[k]):
                 raise NameError('NaN potential func')
             
-            # update run diagnostic attributes
-            self._update_run_diagnostic_attributes(
-                k, self._num_tree_node, epsilon, epsilon_bar)
-
         # apply burn-in 
         theta = theta[:, Nb:]
         joint_eval = joint_eval[Nb:]
