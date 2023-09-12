@@ -332,6 +332,36 @@ class Continuous(Geometry, ABC):
     
     def fun2par(self,funvals):
         return funvals
+    
+    def _reshape_par2fun_input(self, pars):
+        """Make sure that the parameter last dimension reflects the number of
+        parameter vectors: 1 for a single parameter vector and n for n parameter
+        vectors."""
+        # Ensure pars shape is correct (either squeezed single vector or 
+        # multiple vectors with the correct shape).
+        if pars.shape != self.par_shape and\
+                pars.shape[:-1] != self.par_shape:
+            raise ValueError(
+                f"pars must have shape {self.par_shape} or {self.par_shape}"
+                + "+(n,) where n is the number of parameter vectors")
+
+        # Add dim to pars if pars is a single parameter vector.
+        return pars.reshape(self.par_shape + (-1,))
+
+    def _reshape_fun2par_input(self, funvals):
+        """Make sure that the function value last dimension reflects the number
+        of functions: 1 for a single function and n for n functions."""
+        # Ensure funvals shape is correct (either squeezed single function or 
+        # multiple functions with the correct shape).
+        if funvals.shape != self.fun_shape and\
+                funvals.shape[:-1] != self.fun_shape:
+            raise ValueError(
+                f"funvals must have shape {self.fun_shape} or {self.fun_shape}"
+                + "+(n,) where n is the number of functions")
+
+        # Add dim to funvals if funvals is a single function.
+        return funvals.reshape(self.fun_shape + (-1,))
+
 
 class Continuous1D(Continuous):
     """A class that represents a continuous 1D geometry.
@@ -770,6 +800,7 @@ class KLExpansion(Continuous1D):
         self._normalizer = normalizer  # normalizer factor
         self._num_modes = num_modes # number of modes 
         self._coefs = None
+        self._coefs_inverse = None
 
     @property
     def par_shape(self):
@@ -797,10 +828,22 @@ class KLExpansion(Continuous1D):
         # If the coefficients are not computed, compute them.
         if self._coefs is None or len(self._coefs) != self.num_modes:
             eigvals = np.array(range(1, self.par_dim+1))  # KL eigvals
-            self._coefs = 1/np.float_power(eigvals, self.decay_rate)
+            self._coefs = np.diag(1/np.float_power(eigvals, self.decay_rate))
 
         # Return the coefficients.
         return self._coefs
+    
+    @property
+    def coefs_inverse(self):
+        """Computes the inverse of the coefficients diagonal matrix."""
+        
+        # If the matrix is not computed, compute it.
+        if self._coefs_inverse is None or\
+            len(self._coefs_inverse) != self.num_modes:
+            self._coefs_inverse = np.diag(np.float_power(np.diag(self.coefs), -1))
+
+        # Return the inverse coefficients matrix.
+        return self._coefs_inverse
 
     @property
     def num_modes(self):
@@ -817,19 +860,22 @@ class KLExpansion(Continuous1D):
 
     # computes the real function out of expansion coefs
     def par2fun(self, p):
-        # Check that the input is of the correct shape
-        if len(p) != self.par_dim:
-            raise ValueError(
-                "Input array p must have length {}".format(self.par_dim))
 
-        modes = p*self.coefs/self.normalizer
+        # Reshape the parameter vector
+        p = self._reshape_par2fun_input(p)
 
-        # pad the remaining modes with zeros
-        modes = np.pad(modes, (0, self.fun_dim-self.par_dim),
+        modes = self.coefs@p/self.normalizer
+
+        # pad the remaining modes with zeros (for single or multiple parameter
+        # parameter vectors)
+        modes = np.pad(modes, ((0, self.fun_dim-self.par_dim), (0, 0)),
                        'constant', constant_values=0)
 
-        real = idst(modes)/2
-        return real
+        real = idst(modes.T).T/2
+
+        # squeeze to return single function value if only one parameter vector
+        # was given
+        return real.squeeze()
 
     def fun2par(self, funvals):
         """The function to parameter map used to map function values back to
@@ -838,11 +884,9 @@ class KLExpansion(Continuous1D):
         always the inverse of `par2fun` but it is the closest estimation of the
         function on the KL expansion coefficient space."""
 
-        # Check that the input is of the correct shape
-        if len(funvals) != self.fun_dim:
-            raise ValueError(
-                "Input array funvals must have length {}".format(self.fun_dim))
-        
+        # Reshape the function values
+        funvals = self._reshape_fun2par_input(funvals)
+
         warnings.warn(
             f"fun2par for {self.__class__} is a projection on "
             + "the KL expansion coefficients space where only "
@@ -866,10 +910,14 @@ class KLExpansion(Continuous1D):
         # However, if we use, for example, scipy.fft instead of scipy.fftpack,
         # then this scaling is not needed.
 
-        p = dst(funvals*2)[:self.par_dim]\
-            *self.normalizer/(self.coefs*2*self.fun_dim)
+        # Transform (single or multiple functions) to expansion coefficients
+        p_temp = dst(funvals.T*2).T[:self.par_dim,:]
+        p = self.coefs_inverse@p_temp*self.normalizer/(2*self.fun_dim)
+        
+        # squeeze to return single parameter vector if only one function value
+        # was given
+        return p.squeeze()
 
-        return p
 
 class KLExpansion_Full(Continuous1D):
     '''
@@ -1139,24 +1187,55 @@ class StepExpansion(Continuous1D):
         return self._n_steps
 
     def par2fun(self, p):
-        real = np.zeros(self.grid.shape)
+
+        # Reshape the parameter vector
+        p = self._reshape_par2fun_input(p)
+
+        # Extended fun_shape to include multiple functions.
+        ext_fun_shape = self.fun_shape + (p.shape[-1],)
+
+        # Initialize fun to zeros.
+        fun = np.zeros(ext_fun_shape)
+
+        # Fill fun with the step function values.
         for i in range(self._n_steps):
-            real[self._indices[i]] = p[i]
+            fun[self._indices[i],:] = p[i,:]
+
+        # Squeeze to return single evaluated function if only one parameter
+        # vector was given.
+        return fun.squeeze()
  
-        return real
 
     def fun2par(self,f):
-        val = np.zeros(self._n_steps)
+
+        # Reshape the function values
+        f = self._reshape_fun2par_input(f)
+
+        # Extended par_shape to include multiple parameter vectors.
+        ext_par_shape = self.par_shape + (f.shape[-1],)
+        
+        # Initialize par to zeros.
+        par = np.zeros(ext_par_shape)
+
+        # Fill par with the projection of the function values.
         for i in range(self._n_steps):
             if self._fun2par_projection.lower() == 'mean':
-                val[i] = np.mean(f[self._indices[i]])
+                projection_method = np.mean
             elif self._fun2par_projection.lower() == 'max':
-                val[i] = np.max(f[self._indices[i]])
+                projection_method = np.max
             elif self._fun2par_projection.lower() == 'min':
-                val[i] = np.min(f[self._indices[i]])
+                projection_method = np.min
             else:
                 raise ValueError("Invalid projection option.")
-        return val
+            
+            # Apply projection method to the function values in the ith
+            # interval.
+            par[i,:] = projection_method(f[self._indices[i],:], axis=0)
+
+        # Squeeze to return single parameter vector if only one function value
+        # was given.
+        return par.squeeze()
+    
 
     def _check_grid_setup(self):
         
