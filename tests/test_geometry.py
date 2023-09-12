@@ -483,3 +483,68 @@ def test_Continuous2D_plot_multiple_funvals_pass(geom2D_funvals):
     # Convert to parameters then plot
     multiple_funvals_topar = geom2D.fun2par(multiple_funvals)
     geom2D.plot(multiple_funvals_topar, is_par=True)
+
+# Create fixture for KLExpansion geometry
+@pytest.fixture
+def geom_KL():
+    """Returns a KLExpansion geometry"""
+    N = 20
+    grid = np.linspace(0, 1, N)
+    decay_rate = 2.5
+    normalizer = 12
+    geom = cuqi.geometry.KLExpansion(grid,
+                                     decay_rate=decay_rate,
+                                     normalizer=normalizer,
+                                     num_modes=10)
+    return geom
+
+# Create fixture for StepExpansion geometry
+@pytest.fixture
+def geom_Step():
+    """Returns a StepExpansion geometry"""
+    N = 20
+    grid = np.linspace(0, 1, N)
+    n_steps = 10
+    geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps)
+    return geom
+
+# Create fixture to parametrize the tests by geometry
+@pytest.fixture
+def geom(request):
+    return request.getfixturevalue(request.param)
+
+# Compare par2fun and fun2par for each geometry for individual parameters 
+# vectors and multiple parameter vectors
+@pytest.mark.parametrize('geom', ['geom_KL', 'geom_Step'], indirect=True)
+def test_par2fun_and_fun2par_correctness_for_multiple_values(geom):
+    """Check the correctness of the par2fun and fun2par methods for different
+    geometries for multiple parameter vectors"""
+
+    # Create random parameter values
+    np.random.seed(0)
+    n = 5
+    par = np.random.randn(geom.par_dim, n)
+    
+    # run par2fun (first for multiple parameter vectors at once)
+    fun = geom.par2fun(par)
+
+    # run par2fun (for each parameter vector individually)
+    fun_ind = np.array([geom.par2fun(par[:, i]) for i in range(n)]).T
+
+    # Check that the results are the same
+    assert np.allclose(fun, fun_ind)
+
+    # Check plotting runs
+    geom.plot(fun, is_par=False)
+
+    # run fun2par (first for multiple functions at once)
+    par2 = geom.fun2par(fun)
+
+    # run fun2par (for each function individually)
+    par2_ind = np.array([geom.fun2par(fun[:, i]) for i in range(n)]).T
+
+    # Check that the results are the same
+    assert np.allclose(par2, par2_ind)
+
+    # Check plotting runs
+    geom.plot(par2, is_par=True)
