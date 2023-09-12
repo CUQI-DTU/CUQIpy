@@ -400,7 +400,7 @@ def test_KLExpansion_projection(copy_reference):
     assert np.isclose(rel_err, 0.0, atol=1e-5)
 
     # Compare results with reference data
-    ref_file = copy_reference("data/test_KLExpansion_projection.npz")
+    ref_file = copy_reference("data/geometry/test_KLExpansion_projection.npz")
     ref = np.load(ref_file)
     assert np.allclose(p, ref["p"])
 
