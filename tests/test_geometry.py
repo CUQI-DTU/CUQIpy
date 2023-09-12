@@ -186,8 +186,13 @@ def test_stepExpansion_fun2par(projection, func):
     assert np.allclose(p, qa_f.parameters)
 
 @pytest.mark.parametrize("num_modes",[1, 10, 20, 25])
-def test_KL_expansion(num_modes):
+def test_KL_expansion(num_modes, copy_reference):
     """Check KL expansion geometry correctness"""
+
+    # File name for reference data
+    ref_fname = f"data/geometry/KL_expansion_{num_modes}.npz"
+
+    # Set up KL expansion geometry
     N = 20
     grid = np.linspace(0, 1, N)
     decay_rate = 2.5
@@ -199,6 +204,7 @@ def test_KL_expansion(num_modes):
     if num_modes > len(grid):
         num_modes = len(grid)
 
+    # Apply par2fun and check results
     p = np.random.randn(N)
     f_geom = geom.par2fun(p[:num_modes])
 
@@ -211,6 +217,10 @@ def test_KL_expansion(num_modes):
     assert geom.par_dim == geom.num_modes
     assert len(geom.grid) == geom.fun_dim
 
+    # Verify the KL expansion results against the reference data
+    ref_file = copy_reference(ref_fname)
+    ref = np.load(ref_file)
+    assert np.allclose(f_geom, ref["f_geom"])
 
 def test_KLExpansion_set_grid():
     """Check updating grid in KL expansion geometry"""
