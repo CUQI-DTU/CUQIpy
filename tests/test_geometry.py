@@ -371,7 +371,7 @@ def test_create_CustomKL_geometry():
 	   geom.trunc_term==trunc_term
 	
 
-def test_KLExpansion_projection():
+def test_KLExpansion_projection(copy_reference):
     """Check KLExpansion geometry projection performed by the method fun2par)"""
     # Set up a KLExpansion geometry
     num_modes = 95
@@ -398,6 +398,11 @@ def test_KLExpansion_projection():
     # Check that the projection is accurate
     rel_err = np.linalg.norm(signal-signal_proj)/np.linalg.norm(signal)
     assert np.isclose(rel_err, 0.0, atol=1e-5)
+
+    # Compare results with reference data
+    ref_file = copy_reference("data/test_KLExpansion_projection.npz")
+    ref = np.load(ref_file)
+    assert np.allclose(p, ref["p"])
 
 def test_DefaultGeometry2D_should_be_image2D():
     geom2D = cuqi.geometry._DefaultGeometry2D((100, 100))
