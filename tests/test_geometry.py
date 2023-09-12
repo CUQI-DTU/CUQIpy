@@ -145,8 +145,8 @@ def test_geometry_equality(g1, g2, truth_value):
 	"""Ensure geometry arrays compare correctly"""
 	assert (g1==g2) == truth_value
 
-@pytest.mark.parametrize("n_steps",[1,2,6,7,9,10,20, 21])
-def test_StepExpansion_geometry(n_steps):
+@pytest.mark.parametrize("n_steps", [1, 2, 6, 7, 9, 10, 20, 21])
+def test_StepExpansion_geometry(n_steps, copy_reference):
     """Check StepExpansion geometry correctness"""
     grid = np.linspace(0,1,20)
     if n_steps > np.size(grid):
@@ -159,8 +159,18 @@ def test_StepExpansion_geometry(n_steps):
         par = np.random.randn(n_steps)
         geom.plot(par,linestyle = '', marker='.')
 
-        assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
+        fun = geom.par2fun(par)
+        par2 = geom.fun2par(fun)
+
+        assert np.allclose(par, par2) \
            and geom.par_dim == n_steps
+        
+        # Assert fun and par2 matches the values in the data file
+        ref_file = copy_reference(
+            f"data/geometry/test_StepExpansion_{n_steps}.npz")
+        ref = np.load(ref_file)
+        assert np.allclose(fun, ref["fun"])
+        assert np.allclose(par2, ref["par2"])
 
 @pytest.mark.parametrize("projection, func",[('MiN', np.min),
       ('mAX', np.max),('mean', np.mean)])
