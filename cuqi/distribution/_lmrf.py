@@ -39,7 +39,7 @@ class LMRF(Distribution):
         prior = cuqi.distribution.LMRF(location=0, scale=0.1, geometry=128)
  
     """
-    def __init__(self, location, scale, bc_type="zero", **kwargs):
+    def __init__(self, location=None, scale=None, bc_type="zero", **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 

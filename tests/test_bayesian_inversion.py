@@ -41,7 +41,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
     lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
 
     # Load reference file into temp folder and load
-    ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
+    ref_fname = f"{TP_type.__name__}_{phantom}_{prior.dist.__class__.__name__}_{Ns}"
     #if isinstance(prior, LMRF): #Put the case you want to update for here.
     #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
     ref_file = copy_reference(f"data/{ref_fname}.npz")

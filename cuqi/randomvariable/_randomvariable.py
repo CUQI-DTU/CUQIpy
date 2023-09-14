@@ -136,9 +136,11 @@ class RandomVariable:
             raise ValueError("Unable to evaluate log density of transformed random variables")
         return self.dist.logd(*args, **kwargs)
     
-    def sample(self):
+    def sample(self, rng=None):
         """ Sample random variable. """
-        return self(**{distribution.name: distribution.sample() for distribution in self._distributions})
+        if not self.is_transformed:
+            return self.dist.sample(rng=rng)
+        return self(**{distribution.name: distribution.sample(rng=rng) for distribution in self._distributions})
     
     @property
     def dist(self) -> cuqi.distribution.Distribution:
@@ -234,7 +236,7 @@ class RandomVariable:
     
     @property
     def is_transformed(self):
-        return len(self._distributions) > 1 or not isinstance(self.tree, RandomVariableNode)
+        return len(self._distributions) > 1 or not self._tree is None
    
     def _apply_operation(self, operation, other=None) -> 'RandomVariable':
         """

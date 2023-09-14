@@ -1,5 +1,7 @@
 from cuqi.geometry import _DefaultGeometry, _get_identity_geometries
 from cuqi.distribution import Distribution
+from cuqi.randomvariable import RandomVariable
+from cuqi.likelihood import Likelihood
 
 # ========================================================================
 class Posterior(Distribution):
@@ -28,6 +30,30 @@ class Posterior(Distribution):
     # Revert to default __new__ behavior
     def __new__(cls, *args, **kwargs):
         return object.__new__(cls)
+    
+    @property
+    def prior(self):
+        return self._prior
+    
+    @prior.setter
+    def prior(self, value):
+        if isinstance(value, RandomVariable):
+            value = value.dist
+        if not isinstance(value, Distribution):
+            raise ValueError("Prior must be a Distribution or RandomVariable.")
+        self._prior = value
+
+    @property
+    def likelihood(self):
+        return self._likelihood
+    
+    @likelihood.setter
+    def likelihood(self, value):
+        if isinstance(value, RandomVariable):
+            value = value.dist
+        if not isinstance(value, Likelihood):
+            raise ValueError("Likelihood must be a Likelihood or RandomVariable.")
+        self._likelihood = value
 
     @property
     def data(self):
