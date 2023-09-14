@@ -36,7 +36,6 @@ class Geometry(ABC):
             if hasattr(funvals, 'shape'):
                 self._fun_shape = funvals.shape
             else:
-                warnings.warn("Could not infer function space shape.")
                 self._fun_shape = None
         return self._fun_shape
     

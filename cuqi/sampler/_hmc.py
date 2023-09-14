@@ -219,7 +219,12 @@ class NUTS(Sampler):
             s_prime = int(log_u < Delta_max + Ham_prime)     # check U-turn
             #
             diff_Ham = Ham_prime - Ham
-            alpha_prime = min(1, np.exp(diff_Ham))     # logalpha_p = min(0, H_p - H)
+
+            # Compute the acceptance probability
+            # alpha_prime = min(1, np.exp(diff_Ham))
+            # written in a stable way to avoid overflow when computing
+            # exp(diff_Ham) for large values of diff_Ham
+            alpha_prime = 1 if diff_Ham > 0 else np.exp(diff_Ham)
             n_alpha_prime = 1
             #
             theta_minus, theta_plus = theta_prime, theta_prime
