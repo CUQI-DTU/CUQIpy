@@ -186,3 +186,19 @@ def test_randomvariable_sample(operations):
 
     assert np.allclose(result, expected_result)
 
+def test_logp_conditional():
+    """ This tests logp evaluation for conditional random variables """
+    # Base example logp value
+    true_val = cuqi.distribution.Gaussian(3, 7, name="x").logd(13)
+
+    # Distribution with no specified parameters
+    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
+
+    # Test logp evaluates correctly in various cases
+    assert x.logd(mean=3, s=7, x=13) == true_val
+    assert x.condition(x=13).logd(mean=3, s=7) == true_val
+    assert x.condition(x=13, mean=3).logd(s=7) == true_val
+    assert x.condition(x=13, mean=3, s=7).logd() == true_val
+    assert x.condition(mean=3).logd(s=7, x=13) == true_val
+    assert x.condition(mean=3, s=7).logd(x=13) == true_val
+    assert x.condition(mean=3, x=13).logd(s=7) == true_val

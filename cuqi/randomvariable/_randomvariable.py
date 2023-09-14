@@ -146,6 +146,12 @@ class RandomVariable:
         if len(self._distributions) > 1:
             raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
         return next(iter(self._distributions))
+    
+    def get_conditioning_variables(self):
+        """ Get conditioning variables. """
+        if self.is_transformed:
+            raise NotImplementedError("Extracting conditioning variables is not implemented for transformed random variables")
+        return self.dist.get_conditioning_variables()
 
     @property
     def parameter_names(self) -> str:
@@ -203,6 +209,12 @@ class RandomVariable:
         if self.is_transformed:
             raise NotImplementedError("Geometry not implemented for transformed random variables")
         return self.dist.geometry
+    
+    @geometry.setter
+    def geometry(self, geometry):
+        if self.is_transformed:
+            raise NotImplementedError("Geometry not implemented for transformed random variables")
+        self.dist.geometry = geometry
     
     def condition(self, *args, **kwargs):
         """ Condition random variable on fixed values """
