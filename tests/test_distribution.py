@@ -9,10 +9,10 @@ from pytest import approx
 import pytest
 
 def test_Normal_mean_standard():
-    assert cuqi.distribution.Normal(0,1).mean == approx(0.0)
+    assert cuqi.distribution.Normal(0,1).dist.mean == approx(0.0)
 
 def test_Normal_pdf_mean():
-    pX = cuqi.distribution.Normal(0.1,1)
+    pX = cuqi.distribution.Normal(0.1,1).dist
     assert pX.pdf(0.1) == approx(1.0/np.sqrt(2.0*np.pi))
 
 @pytest.mark.parametrize("mean,var,expected",[
@@ -32,7 +32,7 @@ def test_Gaussian_mean():
     std = np.array([1, 1])
     R = np.array([[1, -0.7], [-0.7, 1]])
     cov = np.diag(std) @ (R @ np.diag(std))
-    pX_1 = cuqi.distribution.Gaussian(mean, cov)
+    pX_1 = cuqi.distribution.Gaussian(mean, cov).dist
     assert np.allclose(pX_1.mean, np.array([0, 0]) ) 
 
 def test_Gaussian_cov():
@@ -41,11 +41,11 @@ def test_Gaussian_cov():
     R = np.array([[1, -0.7], [-0.7, 1]])
     D = np.diag(std)
     S = D @ R @ D
-    pX_1 = cuqi.distribution.Gaussian(mean, S)
+    pX_1 = cuqi.distribution.Gaussian(mean, S).dist
     assert np.allclose(pX_1.cov, S)
     
 def test_Gaussian_multiple():
-    pX_1 = cuqi.distribution.Gaussian(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]]))
+    pX_1 = cuqi.distribution.Gaussian(np.zeros(2), np.array([[1.5, -.5],[-.5, 1]])).dist
     #
     X, Y = np.meshgrid(np.linspace(-4, 4, 200), np.linspace(-4, 4, 200))
     Xf, Yf = X.flatten(), Y.flatten()
@@ -132,7 +132,7 @@ def test_GMRF_rng(dist):
     (np.array([1.0, 2.0, 3.0]), np.array([3.0, 4.0, 5.0]), np.array([0.0, 5.0, 4.0]), -np.inf) \
   ])
 def test_Uniform_logpdf(low, high, toeval, expected):
-    UD = cuqi.distribution.Uniform(low, high)
+    UD = cuqi.distribution.Uniform(low, high).dist
     assert np.allclose(UD.logpdf(toeval), expected) 
 
 
@@ -179,9 +179,9 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (0), (np.array([[5,-3],[-3,2]])),       (np.zeros(2)), (np.array([[5,-3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_Gaussian_cov(mean,cov,mean_full,cov_full):
+def test_Gaussian_cov2(mean,cov,mean_full,cov_full):
     # Define cuqi dist using various means and covs
-    prior = cuqi.distribution.Gaussian(mean, cov)
+    prior = cuqi.distribution.Gaussian(mean, cov).dist
 
     # Compare logpdf with scipy using full vector+matrix rep
     x0 = 1000*np.random.rand(prior.dim)
@@ -233,11 +233,11 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     sqrtprec_s = sp.sparse.csr_matrix(sqrtprec)    
 
     # Define Gaussians from all combinations
-    X_prec = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec)
-    X_cov = cuqi.distribution.Gaussian(np.zeros(dim), cov)
-    X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec)
-    X_sqrtcov = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov)
-    X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
+    X_prec = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec).dist
+    X_cov = cuqi.distribution.Gaussian(np.zeros(dim), cov).dist
+    X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec).dist
+    X_sqrtcov = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov).dist
+    X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order).dist
 
     # logpdfs for full matrix
     x0 = np.random.randn(dim)
@@ -272,10 +272,10 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
 
     # Now compare sparse versions
     # Check un-normalized logpdfs for sparse precision and covariance
-    X_prec_s = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec_s)
-    X_cov_s = cuqi.distribution.Gaussian(np.zeros(dim), cov=cov_s)
-    X_sqrtprec_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec_s)
-    X_sqrtcov_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov_s)
+    X_prec_s = cuqi.distribution.Gaussian(np.zeros(dim), prec=prec_s).dist
+    X_cov_s = cuqi.distribution.Gaussian(np.zeros(dim), cov=cov_s).dist
+    X_sqrtprec_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec_s).dist
+    X_sqrtcov_s = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov_s).dist
 
     assert np.allclose(X_cov._logupdf(x0), X_cov_s._logupdf(x0))
     assert np.allclose(X_cov._logupdf(x0), X_prec_s._logupdf(x0))
@@ -335,7 +335,7 @@ def test_InverseGamma_sample():
                           (np.array([1000, 0, -40]))])
 @pytest.mark.parametrize("func", [("pdf"),("cdf"),("logpdf"),("gradient")])                        
 def test_InverseGamma(a, location, scale, x, func):
-    IGD = cuqi.distribution.InverseGamma(a, location=location, scale=scale)
+    IGD = cuqi.distribution.InverseGamma(a, location=location, scale=scale).dist
 
     # PDF formula for InverseGamma
     def my_pdf( x, a, location, scale):
@@ -400,7 +400,7 @@ def test_lognormal_logpdf(mean,std, x ):
 
     # CUQI lognormal x1,x2
     R = np.array([[1, 0], [0, 1]])
-    LND = cuqi.distribution.Lognormal(mean, std**2*R)
+    LND = cuqi.distribution.Lognormal(mean, std**2*R).dist
     
     # Scipy lognormal for x1
     x_1_pdf_scipy = sp.stats.lognorm.pdf(x[0], s = std[0], scale= np.exp(mean[0]))
@@ -435,7 +435,7 @@ def test_gradient_lognormal_as_prior(mean, std, R, val):
 
     # ------------------- 1. Create lognormal distribution --------------------
     Sigma = np.diag(std)@R@np.diag(std) # std**2*R
-    LND = cuqi.distribution.Lognormal(mean, Sigma)
+    LND = cuqi.distribution.Lognormal(mean, Sigma).dist
 
     # -------------- 2. Create the finite difference gradient -----------------
     eps = 0.000001
@@ -507,7 +507,7 @@ def test_gradient_lognormal_as_likelihood(std, R, val, x):
     model.gradient = gradient
     
     # ------------------- 2. Create lognormal distribution --------------------
-    LND = cuqi.distribution.Lognormal(model, std**2*R)
+    LND = cuqi.distribution.Lognormal(model, std**2*R).dist
     
     # -------------- 3. Create the finite difference gradient -----------------
     eps = 0.000001
@@ -526,7 +526,7 @@ def test_beta(): #TODO. Make more tests
     alpha = 2; beta = 5; x=0.5
 
     # Create beta distribution
-    BD = cuqi.distribution.Beta(alpha, beta)
+    BD = cuqi.distribution.Beta(alpha, beta).dist
 
     # Gamma function
     gamma = lambda x: sp.special.gamma(x)
@@ -561,7 +561,7 @@ def test_Gaussian_Cov_sample(C):
     assert np.allclose(samples, np.array([3.12670137, 0.70926018, 1.73476791, 3.97187978, 3.31016035]))
 
 
-@pytest.mark.parametrize("dist",
+@pytest.mark.parametrize("rv",
                          [cuqi.distribution.Gaussian(np.zeros(2), np.eye(2)),
                           cuqi.distribution.Beta(np.ones(2)*2, 5),
                           cuqi.distribution.Lognormal(np.ones(2)*.1, 4),
@@ -569,8 +569,9 @@ def test_Gaussian_Cov_sample(C):
                                                      np.array([[1.0, 0.7],
                                                                [0.7,  1.]])),
                           cuqi.distribution.GMRF(np.zeros(2), 0.1, 1)])
-def test_enable_FD_gradient_distributions(dist):
+def test_enable_FD_gradient_distributions(rv):
     """Test that the distribution FD gradient is close to the exact gradient"""
+    dist = rv.dist # Get the distribution
     x = np.array([0.1, 0.3])
 
     # Exact gradient
@@ -602,9 +603,9 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
     model = cuqi.testproblem.Deconvolution1D(dim=6).model
 
     # Create likelihood
-    y.mean = model
-    data = y(x_i).sample()
-    likelihood = y(y=data)
+    y.dist.mean = model
+    data = y.condition(x_i).sample()
+    likelihood = y.condition(y=data)
 
     # Create posterior
     posterior = cuqi.distribution.Posterior(likelihood, x)
@@ -624,7 +625,7 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
 def test_Cauchy_against_scipy():
     """ Test Cauchy distribution logpdf, cdf, pdf, gradient """
 
-    x = cuqi.distribution.Cauchy(np.random.randn(5), np.abs(np.random.rand(5)))
+    x = cuqi.distribution.Cauchy(np.random.randn(5), np.abs(np.random.rand(5))).dist
 
     val = np.random.randn(5)
 
@@ -643,7 +644,7 @@ def test_Cauchy_against_scipy():
 def test_Cauchy_out_of_range_values():
     """ Test that the logpdf is -inf for values outside the support """
 
-    x = cuqi.distribution.Cauchy(np.random.randn(5), np.abs(np.random.rand(5)))
+    x = cuqi.distribution.Cauchy(np.random.randn(5), np.abs(np.random.rand(5))).dist
 
     x.scale[0] = 0 # This is not a valid scale
 
@@ -671,7 +672,7 @@ def test_Gaussian_from_sparse_sqrtprec():
 
     sqrtprec = sp.sparse.spdiags(np.random.randn(N), 0, N, N)
 
-    y_from_sparse = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec)
-    y_from_dense = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense())
+    y_from_sparse = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec).dist
+    y_from_dense = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense()).dist
 
     assert y_from_dense.logpdf(np.ones(N)) == y_from_sparse.logpdf(np.ones(N))

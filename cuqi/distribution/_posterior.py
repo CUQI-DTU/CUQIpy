@@ -18,6 +18,11 @@ class Posterior(Distribution):
     """
     def __init__(self, likelihood, prior, **kwargs):
 
+        if isinstance(likelihood, RandomVariable):
+            likelihood = likelihood.dist
+        if isinstance(prior, RandomVariable):
+            prior = prior.dist
+
         if len(likelihood.get_parameter_names()) > 1:
             raise ValueError("Likelihood must only have one parameter.")
         if prior.is_cond:

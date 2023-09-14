@@ -117,11 +117,16 @@ class Density(ABC):
     def _make_copy(self):
         """ Returns a shallow copy of the density keeping a pointer to the original. """
         # Shallow copy requires the default __new__ method. Achieved by config variable.
-        cuqi.config.MAKE_RV_BY_DEFAULT = False
-        cuqi.config.ALLOW_NONE_SHAPE_DISTRIBUTIONS = True
-        new_density = copy(self)
-        cuqi.config.MAKE_RV_BY_DEFAULT = True
-        cuqi.config.ALLOW_NONE_SHAPE_DISTRIBUTIONS = False
+        try:
+            cuqi.config.MAKE_RV_BY_DEFAULT = False
+            cuqi.config.ALLOW_NONE_SHAPE_DISTRIBUTIONS = True
+            new_density = copy(self)
+            cuqi.config.MAKE_RV_BY_DEFAULT = True
+            cuqi.config.ALLOW_NONE_SHAPE_DISTRIBUTIONS = False
+        except:
+            cuqi.config.MAKE_RV_BY_DEFAULT = True
+            cuqi.config.ALLOW_NONE_SHAPE_DISTRIBUTIONS = False
+            raise
         new_density._original_density = self
         return new_density
 

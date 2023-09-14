@@ -141,10 +141,12 @@ class RandomVariable:
             raise NotImplementedError("Gradient not implemented for transformed random variables")
         return self.dist.gradient(*args, **kwargs)
     
-    def sample(self, rng=None):
+    def sample(self, N=1, rng=None):
         """ Sample random variable. """
         if not self.is_transformed:
-            return self.dist.sample(rng=rng)
+            return self.dist.sample(N=N, rng=rng)
+        if N != 1:
+            raise NotImplementedError("Sampling multiple values from transformed random variables is not implemented")
         return self(**{distribution.name: distribution.sample(rng=rng) for distribution in self._distributions})
     
     @property

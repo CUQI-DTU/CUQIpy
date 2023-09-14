@@ -36,11 +36,14 @@ class Lognormal(Distribution):
         samples.hist_chain(1, bins=70)
 
     """
-    def __init__(self, mean, cov, is_symmetric=False, **kwargs):
+    def __init__(self, mean=None, cov=None, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
         self.mean = to_cuqi_format(mean, force_ndarray=False)
         self.cov = to_cuqi_format(cov, force_ndarray=False)
-        self._normal = Gaussian(self.mean, self.cov)
+        try:
+            self._normal = Gaussian(self.mean, self.cov).dist
+        except AttributeError:
+            self._normal = Gaussian(self.mean, self.cov)
 
     @property
     def _normal(self):
