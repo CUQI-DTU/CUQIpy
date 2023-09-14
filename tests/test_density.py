@@ -40,30 +40,30 @@ def test_variable_name_accross_frames():
     
     recursive_return_dist(h, 10)
 
-def test_density_name_consistency():
+def test_rv_name_consistency(): # Consider moving to rv test file.
 
     x = cuqi.distribution.Gaussian(geometry=1)
-    x2 = x(mean=1)
-    x3 = x2(cov=1)
+    x2 = x.condition(mean=1)
+    x3 = x2.condition(cov=1)
 
-    # Names should be the same as the original density.  
+    # Names should be the same as the original rv.  
     assert x3.name == 'x'
     assert x2.name == 'x' 
     assert x.name == 'x'
 
-    # Ensure that the name cannot be changed for conditioned densities.
-    with pytest.raises(ValueError, match=r"Cannot set name of conditioned density. Only the original density can have its name set."):
+    # Ensure that the name cannot be changed for conditioned rvs.
+    with pytest.raises(ValueError, match=r"Cannot set name of conditioned random variable"):
         x2.name = 'y'
 
     x.name = 'y'
 
-    # Ensure that the name is changed for the other conditioned densities.
+    # Ensure that the name is changed for the other conditioned rvs.
     assert x2.name == 'y'
     assert x3.name == 'y'
 
 def test_evaluated_density_gradient():
     """ Test that the gradient of the evaluated density is not implemented. """
     x = cuqi.distribution.Gaussian(np.zeros(2), np.eye(2))
-    x = x(np.zeros(2)+.1)
+    x = x.condition(np.zeros(2)+.1)
     with pytest.raises(NotImplementedError, match=r"gradient is not implemented"):
         x.gradient()

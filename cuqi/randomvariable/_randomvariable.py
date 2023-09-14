@@ -136,6 +136,11 @@ class RandomVariable:
             raise ValueError("Unable to evaluate log density of transformed random variables")
         return self.dist.logd(*args, **kwargs)
     
+    def gradient(self, *args, **kwargs):
+        if self.is_transformed:
+            raise NotImplementedError("Gradient not implemented for transformed random variables")
+        return self.dist.gradient(*args, **kwargs)
+    
     def sample(self, rng=None):
         """ Sample random variable. """
         if not self.is_transformed:
