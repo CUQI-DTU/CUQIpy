@@ -136,6 +136,12 @@ class RandomVariable:
             raise ValueError("Unable to evaluate log density of transformed random variables")
         return self.dist.logd(*args, **kwargs)
     
+    @property
+    def is_cond(self):
+        if self.is_transformed:
+            raise NotImplementedError("Conditioning is not implemented for transformed random variables")
+        return self.dist.is_cond
+    
     def gradient(self, *args, **kwargs):
         if self.is_transformed:
             raise NotImplementedError("Gradient not implemented for transformed random variables")

@@ -53,11 +53,15 @@ def prepare_dist(dist):
     dist_from_vec = dist(first_param * np.ones(5), second_param)
     dist_from_dim = dist(first_param, second_param, geometry=5)
 
+    # Extract name from distribution (required when re-assigning conditional to same name)
+    dist_from_vec.name
+    dist_from_dim.name
+
     # If distribution is still conditional it needs more parameters
     if dist_from_vec.is_cond:
         cond_vars = dist_from_vec.get_conditioning_variables()
-        dist_from_vec = dist_from_vec(*extra_params[: len(cond_vars)])
-        dist_from_dim = dist_from_dim(*extra_params[: len(cond_vars)])
+        dist_from_vec = dist_from_vec.condition(*extra_params[: len(cond_vars)])
+        dist_from_dim = dist_from_dim.condition(*extra_params[: len(cond_vars)])
 
     return dist_from_vec, dist_from_dim
 

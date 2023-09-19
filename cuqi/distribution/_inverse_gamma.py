@@ -52,9 +52,33 @@ class InverseGamma(Distribution):
     """
     def __init__(self, shape=None, location=None, scale=None, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self.shape = to_cuqi_format(shape, flatten=True)
-        self.location = to_cuqi_format(location, flatten=True)
-        self.scale = to_cuqi_format(scale, flatten=True)
+        self.shape = shape
+        self.location = location
+        self.scale = scale
+
+    @property
+    def shape(self):
+        return self._shape
+    
+    @shape.setter
+    def shape(self, shape):
+        self._shape = to_cuqi_format(shape, flatten=True)
+
+    @property
+    def location(self):
+        return self._location
+    
+    @location.setter
+    def location(self, location):
+        self._location = to_cuqi_format(location, flatten=True)
+
+    @property
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, scale):
+        self._scale = to_cuqi_format(scale, flatten=True)
     
     def logpdf(self, x):
         return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
