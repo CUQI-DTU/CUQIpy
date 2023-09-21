@@ -1156,11 +1156,18 @@ class Deconvolution2D(BayesianProblem):
         | 'Mirror' - Mirrored boundary
         | 'Nearest' - Replicates last element of boundary
         
-    phantom : string
+    phantom : string or ndarray
         | The phantom (sharp image) that is convolved.
+        | If ndarray it should be a 2D array representing an image.
+        | The image will automatically be resized to fit the problem size.
+        | If string it should be any 2D phantom defined in cuqi.data.
+        | The string is lowercased and any hyphens are replaced 
+        | with underscores to match a method name in cuqi.data.
+        | Examples:
         | 'astronaut' - a photo of an astronaut.
         | 'camera' - a photo of a man with a camera.
         | 'cat' - a photo of a cat.
+        | 'cookie' - cartoon cookie.
         | 'satellite' - a photo of a satellite.
 
     noise_type : string
@@ -1266,16 +1273,12 @@ class Deconvolution2D(BayesianProblem):
             x_exact2D = phantom
         # If phantom is string its a specific case
         elif isinstance(phantom, str):
-            if phantom.lower() == "satellite":
-                x_exact2D = cuqi.data.satellite(size=dim)
-            elif phantom.lower() == "cat":
-                x_exact2D = cuqi.data.cat(size=dim)
-            elif phantom.lower() == "camera":
-                x_exact2D = cuqi.data.camera(size=dim)
-            elif phantom.lower() == "astronaut":
-                x_exact2D = cuqi.data.astronaut(size=dim)
+            # lowercase and replace hyphens with underscores to match library method names
+            phantom = phantom.lower().replace("-", "_") 
+            if hasattr(cuqi.data, phantom):
+                x_exact2D = getattr(cuqi.data, phantom)(size=dim)
             else:
-                raise TypeError(f"Unknown phantom: {phantom}.")
+                raise ValueError(f"Phantom {phantom} not found in cuqi.data phantom library.")
         else:
             raise TypeError("Unknown phantom type. Must be ndarray or string.")
 

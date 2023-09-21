@@ -2,6 +2,7 @@ import pkg_resources
 import scipy.io as spio
 import numpy as np
 import scipy.ndimage as spnd
+import matplotlib.pyplot as plt
 
 def satellite(size=None):
     """Photograph of a satelite."""
@@ -315,7 +316,40 @@ def p_power(size=128, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
     
     return x
 
+def cookie(size=128, grayscale=True):
+    """ Cartoon-style image of a cookie.
 
+    Parameters
+    ----------
+    size : int
+        Size of the image to generate. Image is square with sides of length size.
+
+    grayscale : bool
+        If True, return grayscale image. Otherwise return RGB image.
+
+    Returns
+    -------
+    ndarray
+        Image of the phantom.
+
+    """
+
+    # Read cookie.png file and convert to rgb
+    stream = pkg_resources.resource_stream(__name__, 'cookie.png')
+    cookie = plt.imread(stream)
+
+    # Convert to rgb
+    cookie = cookie[..., :3]
+
+    # Convert to grayscale
+    if grayscale:
+        cookie = rgb2gray(cookie)
+        cookie[cookie < 0.05] = 0 # Make background completely black
+
+    # Resize
+    cookie = imresize(cookie, size)
+
+    return cookie
 
 def rgb2gray(img):
     return img @ np.array([0.2125, 0.7154, 0.0721])
