@@ -1158,7 +1158,7 @@ class Deconvolution2D(BayesianProblem):
         
     phantom : string or ndarray
         | The phantom (sharp image) that is convolved.
-        | If ndarray it should be a 2D array representing an image.
+        | If ndarray it should be a square 2D array representing an image.
         | The image will automatically be resized to fit the problem size.
         | If string it should be any 2D phantom defined in cuqi.data.
         | The string is lowercased and any hyphens are replaced 
