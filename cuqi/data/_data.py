@@ -330,6 +330,8 @@ def cookie(size=128, grayscale=True):
 
     grayscale : bool
         If True, return grayscale image. Otherwise return RGB image.
+        Small values in the grayscale image are set to zero to make the
+        background completely black.
 
     Returns
     -------
@@ -356,6 +358,12 @@ def cookie(size=128, grayscale=True):
     return cookie
 
 def rgb2gray(img):
+    """ Convert RGB image to grayscale using the colorimetric (luminosity-preserving) method
+    
+    See e.g. discussion in https://poynton.ca/PDFs/ColorFAQ.pdf page 6 on the benefit of this
+    method compared to the classical [0.299, 0.587, 0.114] weights.
+    
+    """
     return img @ np.array([0.2125, 0.7154, 0.0721])
 
 def imresize(image, size, **kwargs):
