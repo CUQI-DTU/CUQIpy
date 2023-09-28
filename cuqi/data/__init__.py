@@ -3,6 +3,7 @@ from ._data import (
     astronaut,
     camera,
     cat,
+    cookie,
     grains,
     shepp_logan,
     threephases,
