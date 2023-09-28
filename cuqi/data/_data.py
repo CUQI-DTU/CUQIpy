@@ -319,6 +319,10 @@ def p_power(size=128, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
 def cookie(size=128, grayscale=True):
     """ Cartoon-style image of a cookie.
 
+    The image is generated from the cookie.png color image file in cuqi/data.
+    The original image is of size 2491 x 2243 pixels. The image is resized
+    to be square and optionally converted to grayscale.
+
     Parameters
     ----------
     size : int
