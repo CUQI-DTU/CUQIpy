@@ -49,7 +49,7 @@ prior_samples.plot()
 # %% prior logpdf
 prior.logpdf(np.zeros(dim))
 
-#%% Sample posterior with linear_RTO
+#%% Sample posterior with LinearRTO
 Ns = 5000
 Nb = 1000
 x0 = np.zeros(dim)

@@ -208,7 +208,7 @@ def test_sampler_CustomInput_LinearRTO():
     model = np.eye(2) # Identity model
     #model = cuqi.model.LinearModel(lambda x: x, lambda y: y, 2, 2) 
 
-    # In linear_RTO we require Gaussian distributions
+    # In LinearRTO we require Gaussian distributions
     # or at least classes with sqrtprec and sqrtprecTimesMean 
     # This is most easily done by defining a Gaussian. #TODO make UserDefined.
     P = cuqi.distribution.Gaussian(np.array([2,3]),np.array([[2,0.1],[0.1,5]]))
