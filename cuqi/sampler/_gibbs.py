@@ -52,7 +52,7 @@ class Gibbs:
 
         # Define sampling strategy
         sampling_strategy = {
-            'x': cuqi.sampler.Linear_RTO,
+            'x': cuqi.sampler.LinearRTO,
             ('d', 'l'): cuqi.sampler.Conjugate,
         }
 

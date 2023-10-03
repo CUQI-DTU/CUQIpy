@@ -200,11 +200,11 @@ def test_sampler_UserDefined_tuple():
 
     assert np.allclose(s_pCN.shape,(P.dim,Ns))
 
-def test_sampler_CustomInput_Linear_RTO():
+def test_sampler_CustomInput_LinearRTO():
     """
-    This tests the Linear_RTO sampler which requires a specific input structure.
+    This tests the LinearRTO sampler which requires a specific input structure.
     """
-    # In some special cases A model must be part of the likelihood (e.g. in Linear_RTO)
+    # In some special cases A model must be part of the likelihood (e.g. in LinearRTO)
     model = np.eye(2) # Identity model
     #model = cuqi.model.LinearModel(lambda x: x, lambda y: y, 2, 2) 
 
@@ -226,11 +226,11 @@ def test_sampler_CustomInput_Linear_RTO():
     Nb = 200   # burn-in
 
     # Sampling
-    s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
+    s_RTO = cuqi.sampler.LinearRTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
 
-def test_sampler_scalar_mean_Gaussian_Linear_RTO():
+def test_sampler_scalar_mean_Gaussian_LinearRTO():
 
     model = np.eye(2) # Identity model
 
@@ -248,7 +248,7 @@ def test_sampler_scalar_mean_Gaussian_Linear_RTO():
     Nb = 20   # burn-in
 
     # Sampling
-    s_RTO = cuqi.sampler.Linear_RTO(target).sample_adapt(Ns,Nb)
+    s_RTO = cuqi.sampler.LinearRTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
 
@@ -453,7 +453,7 @@ def _Gibbs_joint_hier_model(use_legacy=False, noise_std=0.01):
 
     # Define sampling strategy
     sampling_strategy = {
-        'x': cuqi.sampler.Linear_RTO,
+        'x': cuqi.sampler.LinearRTO,
         ('d', 'l'): cuqi.sampler.Conjugate,
     }
 
