@@ -18,7 +18,7 @@ Here's what it brings to the table:
 - An array of predefined distributions, samplers, models, and test problems.
 - Easy extendability for your unique needs.
 
-A number of `CUQIpy Plugins`_ are available as separate packages that expand the functionality of CUQIpy.
+A number of CUQIpy Plugins are available as separate packages that expand the functionality of CUQIpy.
 
 CUQIpy is part of the `CUQI
 project <https://www.compute.dtu.dk/english/cuqi>`__ supported by `the
@@ -31,7 +31,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 :doc:`Tutorials <user/_auto_tutorials/index>` |
 :doc:`How-To Guides <user/_auto_howtos/index>` |
 `Source Repository <https://github.com/CUQI-DTU/CUQIpy>`_ |
-`CUQIpy Plugins`_
+`🔌 CUQIpy Plugins`_
 
 
 
@@ -112,9 +112,10 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
         :text:
         :classes: stretched-link btn-link
 
-Quick Example - UQ in five steps
+🧪 Quick Example - UQ in a few lines of code
 --------------------------------
-Image deconvolution with uncertainty quantification
+Experience the simplicity and power of CUQIpy with this Image deconvolution example.
+Getting started with UQ takes just a few lines of code:
 
 .. code-block:: python
 
@@ -183,7 +184,7 @@ Image deconvolution with uncertainty quantification
    :alt: Regularization parameter (posterior trace)
 
 
-CUQIpy Plugins
+🔌 CUQIpy Plugins
 --------------
 
 A number of plugins are available as separate packages that expand the functionality of CUQIpy:
@@ -195,10 +196,8 @@ A number of plugins are available as separate packages that expand the functiona
    - `CUQIpy-PyTorch: <https://github.com/CUQI-DTU/CUQIpy-PyTorch>`_ A plugin providing access to the automatic differentiation framework of `PyTorch <https://pytorch.org>`_ within CUQIpy. It allows gradient-based sampling methods without manually providing derivative information of distributions and forward models.
 
 
-Contributors
+🌟 Contributors
 ------------
 
-See the list of
-`contributors <https://github.com/CUQI-DTU/CUQIpy/graphs/contributors>`__
-who participated in this project.
-
+A big shoutout to our passionate team! Discover the talented individuals behind CUQIpy
+`here <https://github.com/CUQI-DTU/CUQIpy/graphs/contributors>`__.
