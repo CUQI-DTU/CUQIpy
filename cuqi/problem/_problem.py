@@ -475,14 +475,14 @@ class BayesianProblem(object):
         plt.title("Sample variance of function representation")
 
     def _sampleLinearRTO(self, Ns, Nb, callback=None):
-        print("Using Linear_RTO sampler.")
+        print("Using LinearRTO sampler.")
         print(f"burn-in: {Nb/Ns*100:g}%")
 
         # Start timing
         ti = time.time()
 
         # Sample
-        sampler = cuqi.sampler.Linear_RTO(self.posterior, callback=callback)
+        sampler = cuqi.sampler.LinearRTO(self.posterior, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing
@@ -765,9 +765,9 @@ class BayesianProblem(object):
             elif self._check_posterior(cond_target, Gamma, LMRF):
                 sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
 
-            # Gaussian prior, Gaussian likelihood, Linear model -> Linear_RTO
+            # Gaussian prior, Gaussian likelihood, Linear model -> LinearRTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
-                sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
+                sampling_strategy[par_name] = cuqi.sampler.LinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):

@@ -5,7 +5,7 @@ from cuqi.solver import CGLS
 from cuqi.sampler import Sampler
 
 
-class Linear_RTO(Sampler):
+class LinearRTO(Sampler):
     """
     Linear RTO (Randomize-Then-Optimize) sampler.
 

@@ -299,7 +299,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec_s, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtcov_s, 1) , rtol=0.1)
     
-    #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
+    #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what LinearRTO uses.
     # CUQI test problem
     # TP = cuqi.testproblem.Deconvolution1D(dim=n)
     # TP.prior = X_GMRF
