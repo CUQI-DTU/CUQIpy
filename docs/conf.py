@@ -29,23 +29,23 @@ author = 'CUQI'
 # ones.
 extensions = [
     'sphinx.ext.mathjax',
-    #'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx_panels',
     'sphinx.ext.todo',
     'sphinx_copybutton',
-    #'sphinx_gallery.gen_gallery',
-    #'sphinx.ext.autosummary',
+    'sphinx_gallery.gen_gallery',
+    'sphinx.ext.autosummary',
     ]
 
 # Options for extensions
-#autodoc_member_order = 'groupwise'
-#autodoc_default_flags = ['members']
+autodoc_member_order = 'groupwise'
+autodoc_default_flags = ['members']
 todo_include_todos=True
-#autosummary_generate = True
-#autodoc_typehints = "none"
-#autosummary_imported_members = True # Adds any imported members to api docs automatically
-#autosummary_ignore_module_all = False # Adds only members from __all__ to the api docs (if present)
+autosummary_generate = True
+autodoc_typehints = "none"
+autosummary_imported_members = True # Adds any imported members to api docs automatically
+autosummary_ignore_module_all = False # Adds only members from __all__ to the api docs (if present)
 
 
 # Sphinx-gallery configuration
