@@ -350,10 +350,12 @@ def cookie(size=128, grayscale=True):
     # Convert to grayscale
     if grayscale:
         cookie = rgb2gray(cookie)
-        cookie[cookie < 0.05] = 0 # Make background completely black
-
+        
     # Resize
     cookie = imresize(cookie, size)
+
+    if grayscale:
+        cookie[cookie < 0.05] = 0 # Make background completely black
 
     return cookie
 

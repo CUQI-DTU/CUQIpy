@@ -9,17 +9,19 @@
 CUQIpy's Documentation
 ======================
 
-Computational Uncertainty Quantification for Inverse Problems in python
-(CUQIpy) is a python package for modeling and solving inverse problems
-in a Bayesian inference framework. CUQIpy provides a simple high-level
-interface to perform UQ analysis of inverse problems, while still
-allowing full control of the models and methods. The package comes equipped with a number of predefined distributions,
-samplers, models and test problems and is built to be easily further
-extended when needed. A number of `CUQIpy Plugins`_ are available as separate packages that expand the functionality of CUQIpy.
+CUQIpy stands for Computational Uncertainty Quantification for Inverse Problems in python.
+It's a robust Python package designed for modeling and solving inverse problems using Bayesian inference.
+Here's what it brings to the table:
 
+- A straightforward high-level interface for UQ analysis.
+- Complete control over the models and methods.
+- An array of predefined distributions, samplers, models, and test problems.
+- Easy extendability for your unique needs.
 
-This software package is part of the `CUQI
-project <https://www.compute.dtu.dk/english/cuqi>`__ funded by `the
+A number of `CUQIpy Plugins`_ are available as separate packages that expand the functionality of CUQIpy.
+
+CUQIpy is part of the `CUQI
+project <https://www.compute.dtu.dk/english/cuqi>`__ supported by `the
 Villum
 Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabelig-forskning>`__
 
@@ -117,51 +119,68 @@ Image deconvolution with uncertainty quantification
 .. code-block:: python
 
    # Imports
-   import numpy as np
    import matplotlib.pyplot as plt
    from cuqi.testproblem import Deconvolution2D
-   from cuqi.data import grains
-   from cuqi.distribution import LMRF, Gaussian
+   from cuqi.distribution import Gaussian, LMRF, Gamma
    from cuqi.problem import BayesianProblem
 
-   # Step 1: Model and data, y = Ax
-   A, y_data, info = Deconvolution2D.get_components(dim=128, phantom=grains())
+   # Step 1: Set up forward model and data, y = Ax
+   A, y_data, info = Deconvolution2D.get_components(dim=256, phantom="cookie")
 
-   # Step 2: Prior, x ~ LMRF(0, 0.01)
-   x = LMRF(location=0,
-            scale=0.01,
-            bc_type='neumann',
-            geometry=A.domain_geometry)
+   # Step 2: Define distributions for parameters
+   d = Gamma(1, 1e-4)
+   s = Gamma(1, 1e-4)
+   x = LMRF(0, lambda d: 1/d, geometry=A.domain_geometry)
+   y = Gaussian(A@x, lambda s: 1/s)
 
-   # Step 3: Likelihood, y ~ N(Ax, 0.0036^2)
-   y = Gaussian(mean=A@x, cov=0.0036**2)
-
-   # Step 4: Set up Bayesian problem and sample posterior
-   BP = BayesianProblem(y, x).set_data(y=y_data)
+   # Step 3: Combine into Bayesian Problem and sample posterior
+   BP = BayesianProblem(y, x, d, s)
+   BP.set_data(y=y_data)
    samples = BP.sample_posterior(200)
 
-   # Step 5: Analysis
-   info.exactSolution.plot(); plt.title("Exact solution")
-   y_data.plot(); plt.title("Data")
-   samples.plot_mean(); plt.title("Posterior mean")
-   samples.plot_std(); plt.title("Posterior standard deviation")
+   # Step 4: Analyze results
+   info.exactSolution.plot(); plt.title("Sharp image (exact solution)")
+   y_data.plot(); plt.title("Blurred and noisy image (data)")
+   samples["x"].plot_mean(); plt.title("Estimated image (posterior mean)")
+   samples["x"].plot_std(); plt.title("Uncertainty (posterior standard deviation)")
+   samples["s"].plot_trace(); plt.suptitle("Noise level (posterior trace)")
+   samples["d"].plot_trace(); plt.suptitle("Regularization parameter (posterior trace)")
 
 .. image:: _static/img/deconv2D_exact_sol.png
    :width: 49.5%
-   :alt: Exact solution
+   :alt: Sharp image (exact solution)
 
 .. image:: _static/img/deconv2D_data.png
    :width: 49.5%
-   :alt: Data
+   :alt: Blurred and noisy image (data)
+
+.. raw:: html
+
+    <div style="height: 20px;"></div>
 
 .. image:: _static/img/deconv2D_post_mean.png
    :width: 49.5%
-   :alt: Posterior mean
+   :alt: Estimated image (posterior mean)
 
 .. image:: _static/img/deconv2D_post_std.png
    :width: 49.5%
-   :alt: Posterior standard deviation
+   :alt: Uncertainty (posterior standard deviation)
 
+.. raw:: html
+
+    <div style="height: 20px;"></div>
+
+.. image:: _static/img/deconv2D_noise_level.png
+   :width: 99%
+   :alt: Noise level (posterior trace)
+
+.. raw:: html
+
+    <div style="height: 20px;"></div>
+
+.. image:: _static/img/deconv2D_regularization_parameter.png
+   :width: 99%
+   :alt: Regularization parameter (posterior trace)
 
 
 CUQIpy Plugins
