@@ -86,6 +86,13 @@ CUQIpy can be extended with additional functionality by installing optional plug
 ## 🤝 Contributing
 We welcome contributions to CUQIpy. Please see our [contributing guidelines](https://cuqi-dtu.github.io/CUQIpy/dev/index.html) for more information.
 
+## 💻 Developers
+
+[Nicolai André Brogaard Riis](https://github.com/nabriis)
+[Amal Mohammed A Alghamdi](https://github.com/amal-ghamdi)
+[Chao Zhang](https://github.com/chaozg)
+[Jakob Sauer Jørgensen](https://github.com/jakobsj)
+
 ## 🌟 Contributors
 
 A big shoutout to our passionate team! Discover the talented individuals behind CUQIpy
