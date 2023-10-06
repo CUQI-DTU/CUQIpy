@@ -75,8 +75,13 @@ samples["d"].plot_trace(); plt.suptitle("Regularization parameter (posterior tra
 </p>
 
 ## 🔌 Plugins
-CUQIpy can be extended with additional functionality by installing optional plugins. These can be found at
-[CUQI-DTU](https://github.com/CUQI-DTU?q=CUQIpy-).
+CUQIpy can be extended with additional functionality by installing optional plugins. We currently offer the following plugins:
+
+- [CUQIpy-CIL](https://github.com/CUQI-DTU/CUQIpy-CIL) A plugin for the Core Imaging Library [(CIL)](https://ccpi.ac.uk/cil/) providing access to forward models for X-ray computed tomography.
+
+- [CUQIpy-FEniCS](https://github.com/CUQI-DTU/CUQIpy-FEniCS): A plugin providing access to the finite element modelling tool [FEniCS](https://fenicsproject.org), which is used for solving PDE-based inverse problems.
+
+- [CUQIpy-PyTorch](https://github.com/CUQI-DTU/CUQIpy-PyTorch): A plugin providing access to the automatic differentiation framework of [PyTorch](https://pytorch.org) within CUQIpy. It allows gradient-based sampling methods without manually providing derivative information of distributions and forward models.
 
 ## 🤝 Contributing
 We welcome contributions to CUQIpy. Please see our [contributing guidelines](https://cuqi-dtu.github.io/CUQIpy/dev/index.html) for more information.
