@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
+from cuqi.distribution import Distribution, Gaussian, ImplicitRegularizedGaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -351,6 +351,10 @@ class BayesianProblem(object):
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior(self, (Gaussian, GMRF), Gaussian):
             return self._samplepCN(Ns, Nb, callback)
+        
+        # For Regularized Gaussians with linear models we use Regularized LinearRTO
+        elif self._check_posterior(self, ImplicitRegularizedGaussian, Gaussian):
+            return self._sampleRegularizedLinearRTO(Ns, Nb, callback)
 
         else:
             raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
@@ -595,6 +599,22 @@ class BayesianProblem(object):
 
         # Sample
         sampler = cuqi.sampler.UGLA(self.posterior, callback=callback)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+
+        return samples
+    
+    def _sampleRegularizedLinearRTO(self, Ns, Nb, callback=None):
+        print("Using Regularized LinearRTO sampler.")
+        print(f"burn-in: {Nb/Ns*100:g}%")
+
+        # Start timing
+        ti = time.time()
+
+        # Sample
+        sampler = cuqi.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = 5e-4, abstol=1e-10, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing

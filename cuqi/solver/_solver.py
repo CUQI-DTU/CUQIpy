@@ -565,3 +565,81 @@ class PDHG(object):
     """Primal-Dual Hybrid Gradient algorithm."""
     def __init__(self):
         raise NotImplementedError
+
+
+
+class FISTA(object):
+    """Fast Iterative Shrinkage-Thresholding Algorithm for regularized least squares problems.
+
+    Minimize ||Ax-b||^2 + f(x).
+    
+    Parameters
+    ----------
+    A : ndarray or callable f(x,*args).
+    b : ndarray.
+    x0 : ndarray. Initial guess.
+    proximal : callable f(x, gamma) for proximal mapping.
+    maxit : The maximum number of iterations.
+    stepsize : The stepsize of the gradient step.
+    abstol : The numerical tolerance for convergence checks.
+    adapative : Whether to use FISTA or ISTA.
+    """  
+    def __init__(self, A, b, x0, proximal, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
+        
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.proximal = proximal
+        self.maxit = int(maxit)
+        self.stepsize = stepsize
+        self.abstol = abstol
+        self.adaptive = adaptive
+        if not callable(A):
+            self.explicitA = True
+        else:
+            self.explicitA = False
+            
+    def solve(self):
+        # initial state
+        x = self.x0.copy()
+        stepsize = self.stepsize
+        
+        k, flag = 0, 0
+        
+        while (k < self.maxit) and (flag == 0):
+            x_old = x.copy()
+            k += 1
+        
+            if self.explicitA:
+                grad = self.A.T@(self.A @ x_old - self.b)
+            else:
+                grad = self.A(self.A(x_old, 1) - self.b, 2)
+                
+            x_new = self.proximal(x_old-stepsize*grad, stepsize)
+            
+            if self.adaptive:
+                x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
+            
+            if LA.norm(x_new-x_old) <= self.abstol:
+                flag = 1
+              
+            x = x_new.copy()
+                
+        return x, k
+    
+    
+def ProjectNonnegative(x):
+    return np.maximum(x, 0)
+
+def ProjectBox(x, lower = None, upper = None):
+    if lower is None:
+        lower = np.zeros_like(x)
+    
+    if upper is None:
+        upper = np.ones_like(x)
+    
+    return np.minimum(np.maximum(x, lower), upper)
+
+def ProximalL1(x, gamma):
+    """Proximal operator of ||x||_1, also known as the shrinkage of soft thresholding operator"""
+    return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))

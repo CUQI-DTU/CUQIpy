@@ -1,7 +1,7 @@
 import scipy as sp
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS
+from cuqi.solver import CGLS, FISTA
 from cuqi.sampler import Sampler
 
 
@@ -165,3 +165,112 @@ class LinearRTO(Sampler):
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
+    
+    
+    
+
+class RegularizedLinearRTO(Sampler):
+
+    def __init__(self, target, x0=None, maxit=100, stepsize = 1e0, abstol=1e-10, adaptive = True, **kwargs):
+
+        super().__init__(target, x0=x0, **kwargs)
+
+        # Check target type
+        if not isinstance(target, cuqi.distribution.Posterior):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
+
+        # Check Linear model and Gaussian prior+likelihood
+        if not isinstance(self.model, cuqi.model.LinearModel):
+            raise TypeError("Model needs to be linear")
+
+        if not hasattr(self.likelihood.distribution, "sqrtprec"):
+            raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
+
+        if not hasattr(self.prior.get_explicit_Gaussian(), "sqrtprec"):
+            raise TypeError("prior must contain a sqrtprec attribute")
+
+        if not hasattr(self.prior.get_explicit_Gaussian(), "sqrtprecTimesMean"):
+            raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
+
+        if not callable(self.prior.get_proximal()):
+            raise TypeError("Projector needs to be callable")
+
+        # Modify initial guess        
+        if x0 is not None:
+            self.x0 = x0
+        else:
+            self.x0 = np.zeros(self.prior.get_explicit_Gaussian().dim)
+
+        # Other parameters
+        self.maxit = maxit
+        self.stepsize = stepsize
+        self.abstol = abstol    
+        self.adaptive = adaptive
+        self.proximal = self.prior.get_proximal()
+                
+        L1 = self.likelihood.distribution.sqrtprec
+        L2 = self.prior.get_explicit_Gaussian().sqrtprec
+        L2mu = self.prior.get_explicit_Gaussian().sqrtprecTimesMean
+
+        # pre-computations
+        self.m = len(self.data)
+        self.n = len(self.x0)
+        self.b_tild = np.hstack([L1@self.data, L2mu]) 
+
+        if not callable(self.model):
+            self.M = sp.sparse.vstack([L1@self.model, L2])
+        else:
+            # in this case, model is a function doing forward and backward operations
+            def M(x, flag):
+                if flag == 1:
+                    out1 = L1 @ self.model.forward(x)
+                    out2 = L2 @ x
+                    out  = np.hstack([out1, out2])
+                elif flag == 2:
+                    idx = int(self.m)
+                    out1 = self.model.adjoint(L1.T@x[:idx])
+                    out2 = L2.T @ x[idx:]
+                    out  = out1 + out2                
+                return out   
+            self.M = M       
+
+    @property
+    def prior(self):
+        return self.target.prior
+
+    @property
+    def likelihood(self):
+        return self.target.likelihood
+
+    @property
+    def model(self):
+        return self.target.model     
+    
+    @property
+    def data(self):
+        return self.target.data
+
+    def _sample(self, N, Nb):   
+        Ns = N+Nb   # number of simulations        
+        samples = np.empty((self.n, Ns))
+                     
+        # initial state   
+        samples[:, 0] = self.x0
+        for s in range(Ns-1):
+            y = self.b_tild + np.random.randn(len(self.b_tild))
+            sim = FISTA(self.M, y, samples[:, s], self.proximal,
+                        maxit = self.maxit, stepsize = self.stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+            samples[:, s+1], _ = sim.solve()
+            
+            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
+            self._call_callback(samples[:, s+1], s+1)
+        # remove burn-in
+        samples = samples[:, Nb:]
+        
+        return samples, None, None
+
+    def _sample_adapt(self, N, Nb):
+        return self._sample(N,Nb)
+
+
+

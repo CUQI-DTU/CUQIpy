@@ -62,13 +62,14 @@ def get_direct_attributes(dist):
 
 def get_indirect_variables(dist):
     attributes = []
-    for _, value in vars(dist).items():
+    for attribute in dist.get_mutable_variables():
+        value = getattr(dist, attribute)
         if callable(value):
             keys = get_non_default_args(value)
             for key in keys:
                 if key not in attributes: #Ensure we did not already find this key
                     attributes.append(key)
-    return attributes
+    return attributes 
 
 def get_writeable_attributes(dist):
     """ Get writeable attributes of object instance. """
