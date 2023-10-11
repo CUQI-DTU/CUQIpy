@@ -6,6 +6,6 @@ from ._gibbs import Gibbs
 from ._hmc import NUTS
 from ._langevin_algorithm import ULA, MALA
 from ._laplace_approximation import UGLA
-from ._mh import MH
+from ._mh import MH, MH_new
 from ._pcn import pCN
 from ._rto import LinearRTO
