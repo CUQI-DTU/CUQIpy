@@ -614,7 +614,7 @@ class BayesianProblem(object):
         ti = time.time()
 
         # Sample
-        sampler = cuqi.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = 5e-4, abstol=1e-10, callback=callback)
+        sampler = cuqi.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing

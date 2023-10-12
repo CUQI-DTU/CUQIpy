@@ -1,4 +1,6 @@
 import scipy as sp
+from scipy.linalg.interpolative import estimate_spectral_norm
+from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS, FISTA
@@ -171,8 +173,8 @@ class LinearRTO(Sampler):
 
 class RegularizedLinearRTO(Sampler):
 
-    def __init__(self, target, x0=None, maxit=100, stepsize = 1e0, abstol=1e-10, adaptive = True, **kwargs):
-
+    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+        #stepsize = 1e-5
         super().__init__(target, x0=x0, **kwargs)
 
         # Check target type
@@ -186,31 +188,31 @@ class RegularizedLinearRTO(Sampler):
         if not hasattr(self.likelihood.distribution, "sqrtprec"):
             raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
 
-        if not hasattr(self.prior.get_explicit_Gaussian(), "sqrtprec"):
+        if not hasattr(self.prior.gaussian, "sqrtprec"):
             raise TypeError("prior must contain a sqrtprec attribute")
 
-        if not hasattr(self.prior.get_explicit_Gaussian(), "sqrtprecTimesMean"):
+        if not hasattr(self.prior.gaussian, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
 
-        if not callable(self.prior.get_proximal()):
+        if not callable(self.prior.proximal):
             raise TypeError("Projector needs to be callable")
 
         # Modify initial guess        
         if x0 is not None:
             self.x0 = x0
         else:
-            self.x0 = np.zeros(self.prior.get_explicit_Gaussian().dim)
+            self.x0 = np.zeros(self.prior.gaussian.dim)
 
         # Other parameters
         self.maxit = maxit
         self.stepsize = stepsize
         self.abstol = abstol    
         self.adaptive = adaptive
-        self.proximal = self.prior.get_proximal()
+        self.proximal = self.prior.proximal
                 
         L1 = self.likelihood.distribution.sqrtprec
-        L2 = self.prior.get_explicit_Gaussian().sqrtprec
-        L2mu = self.prior.get_explicit_Gaussian().sqrtprecTimesMean
+        L2 = self.prior.gaussian.sqrtprec
+        L2mu = self.prior.gaussian.sqrtprecTimesMean
 
         # pre-computations
         self.m = len(self.data)
@@ -253,13 +255,26 @@ class RegularizedLinearRTO(Sampler):
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
         samples = np.empty((self.n, Ns))
-                     
+                   
+        if isinstance(self.stepsize, str):
+            if self.stepsize in ["auto", "automatic", "spectral_norm"]:
+                if not callable(self.M):
+                    M_op = scipyLinearOperator(self.M.shape, matvec = lambda v: self.M@v, rmatvec = lambda w: self.M.T@w)
+                else:
+                    M_op = scipyLinearOperator((len(self.b_tild), self.n), matvec = lambda v: self.M(v,1), rmatvec = lambda w: self.M(w,2))
+                    
+                _stepsize = 0.99/(estimate_spectral_norm(M_op)**2)
+            else:
+                raise ValueError("Stepsize choice not supported")
+        else:
+            _stepsize = self.stepsize
+            
         # initial state   
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
             sim = FISTA(self.M, y, samples[:, s], self.proximal,
-                        maxit = self.maxit, stepsize = self.stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+                        maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
             samples[:, s+1], _ = sim.solve()
             
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
