@@ -129,8 +129,8 @@ class BayesianProblem(object):
     Most functionality is currently only implemented for this simple case.
 
     """
-    @classmethod
-    def get_components(cls, **kwargs) -> Tuple[Model, CUQIarray, ProblemInfo]:
+
+    def get_components(self, **kwargs) -> Tuple[Model, CUQIarray, ProblemInfo]:
         """
         Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
         
@@ -140,13 +140,12 @@ class BayesianProblem(object):
         """
 
         problem_info = ProblemInfo() #Instead of a dict, we use our ProblemInfo dataclass.
-        problem = cls(**kwargs)
 
         for key, value in vars(problem_info).items():
-            if hasattr(problem, key):
-                setattr(problem_info,key,vars(problem)[key])
+            if hasattr(self, key):
+                setattr(problem_info,key,vars(self)[key])
 
-        return problem.model, problem.data, problem_info
+        return self.model, self.data, problem_info
 
     def __init__(self, *densities: Density, **data: np.ndarray):
         self._target = JointDistribution(*densities)(**data)
