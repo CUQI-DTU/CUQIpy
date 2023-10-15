@@ -6,7 +6,7 @@ from pytest import approx
 
 def test_likelihood_log_and_grad():
     #Create likelihood
-    model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+    model, data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
     likelihood = cuqi.distribution.Gaussian(model,1).to_likelihood(data)
 
     # Tests log and gradient calls do not cause errors
@@ -14,7 +14,7 @@ def test_likelihood_log_and_grad():
     likelihood.gradient(probInfo.exactSolution)
 
 def test_likelihood_attributes():
-    model, data, _ = cuqi.testproblem.Poisson1D.get_components(dim=128, field_type="Step")
+    model, data, _ = cuqi.testproblem.Poisson1D().get_components(dim=128, field_type="Step")
     likelihood = cuqi.distribution.Gaussian(model,1).to_likelihood(data)
 
     # dim of domain
@@ -53,14 +53,14 @@ def test_likelihood_attributes():
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtprec=1/np.pi*sps.eye(128)),
                         ])
 def test_likelihood_Gaussian_log_IID(dist):
-    model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components(dim=128)
+    model, data, probInfo = cuqi.testproblem.Deconvolution1D().get_components(dim=128)
     dist.mean = model
     likelihood = dist.to_likelihood(probInfo.exactData) #We use exact data to get same logpdf every time
     assert likelihood.logd(probInfo.exactSolution) == approx(-264.14955763892135)
 
 def test_likelihood_UserDefined():
     # CUQI likelihood
-    model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+    model, data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
     L = cuqi.distribution.Gaussian(model, 1).to_likelihood(data)
 
     # Create user defined likelihood
