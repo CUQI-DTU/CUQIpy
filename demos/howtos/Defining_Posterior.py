@@ -23,7 +23,7 @@ import numpy as np
 #
 # See :class:`~cuqi.testproblem.Deconvolution1D` for more details.
 
-A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components()
+A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
 
 # %%
 # Then consider the following Bayesian model

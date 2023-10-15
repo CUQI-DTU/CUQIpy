@@ -71,7 +71,7 @@ if set_up == "multi_observation":
 source1 = lambda xs: magnitude*np.sin(xs*2*np.pi/endpoint)+magnitude
 
 # Obtain the forward model from the test problem
-model1, data1, problemInfo1 = cuqi.testproblem.Poisson1D.get_components(
+model1, data1, problemInfo1 = cuqi.testproblem.Poisson1D().get_components(
     dim=dim,
     endpoint=endpoint,
     field_type=field_type,

@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 # method.
 
 # Forward model and data
-A, y_data, info = cuqi.testproblem.Deconvolution1D.get_components()
+A, y_data, info = cuqi.testproblem.Deconvolution1D().get_components()
 
 # %%
 # There are many parameters that can be set when creating the test problem. For more details

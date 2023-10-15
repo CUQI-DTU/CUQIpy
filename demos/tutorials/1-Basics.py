@@ -41,7 +41,7 @@ import cuqi
 # Let us extract the model and data for a 1D deconvolution.
 # In this case we use the default settings for the testproblem.
 
-A, y_obs, info = cuqi.testproblem.Deconvolution1D.get_components()
+A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
 
 # %%
 # .. todo::
