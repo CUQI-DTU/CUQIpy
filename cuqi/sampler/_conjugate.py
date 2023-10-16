@@ -9,7 +9,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     Currently supported conjugate pairs are:
     - (Gaussian, Gamma)
     - (GMRF, Gamma)
-    - (ImplicitRegularizedGaussian, Gamma)
+    - (ImplicitRegularizedGaussian, Gamma) with nonnegativity constraints only
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 

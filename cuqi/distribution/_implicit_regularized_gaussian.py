@@ -75,7 +75,7 @@ class ImplicitRegularizedGaussian(Distribution):
         
     def _sample(self, N, rng=None):
         raise ValueError(
-            "There is no known way of efficiently sampling from a implicit regularized Gaussian distribution need not be defined.")
+            "There is no known way of efficiently sampling from a implicit regularized Gaussian distribution.")
   
 
     # --- Defer behavior of the underlying Gaussian --- #
