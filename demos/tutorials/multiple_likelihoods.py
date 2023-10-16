@@ -110,7 +110,7 @@ else:
 	source2 = source1
 
 # Obtain the forward model from the test problem
-model2, data2, problemInfo2 = cuqi.testproblem.Poisson1D.get_components(
+model2, data2, problemInfo2 = cuqi.testproblem.Poisson1D().get_components(
     dim=dim,
     endpoint=endpoint,
     field_type=field_type,
