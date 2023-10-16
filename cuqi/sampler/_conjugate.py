@@ -42,14 +42,13 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             return dist.sample()
         elif isinstance(self.target.likelihood.distribution, ImplicitRegularizedGaussian):
             # Extract variables
-            b = self.target.likelihood.data                                 #mu
-            m = len(b)                                                      #n
-            Ax = self.target.likelihood.distribution.gaussian.mean #x_i
+            b = self.target.likelihood.data                                          #mu
+            m = len(b)                                                               #n
+            Ax = self.target.likelihood.distribution.gaussian.mean                   #x_i
             L = self.target.likelihood.distribution(np.array([1])).gaussian.sqrtprec #L
-            alpha = self.target.prior.shape                                 #alpha
-            beta = self.target.prior.rate                                   #beta
+            alpha = self.target.prior.shape                                          #alpha
+            beta = self.target.prior.rate                                            #beta
     
             # Create Gamma distribution and sample
-            dist = Gamma(shape=np.count_nonzero(x)/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
-    
+            dist = Gamma(shape=np.count_nonzero(b)/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
             return dist.sample()

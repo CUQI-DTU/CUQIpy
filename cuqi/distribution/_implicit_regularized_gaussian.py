@@ -1,12 +1,11 @@
 from cuqi.utilities import get_non_default_args
-from cuqi.distribution import Distribution, Gaussian
+from cuqi.distribution import Distribution, Gaussian, GMRF
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
 
 import numpy as np
 
 
 class ImplicitRegularizedGaussian(Distribution):
-
     def __init__(self, gaussian, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
         # Underlying explicity Gaussian
         self._gaussian = gaussian
@@ -29,9 +28,8 @@ class ImplicitRegularizedGaussian(Distribution):
             if len(get_non_default_args(projector)) != 1:
                 raise ValueError("Projector should take 1 argument.")
                 
-        if gaussian is not None and not isinstance(gaussian, Gaussian):
-            raise ValueError("Explicit underlying distribution needs to be a gaussian")
-        
+        if gaussian is not None and not isinstance(gaussian, (Gaussian, GMRF)):
+            raise ValueError("Explicit underlying distribution needs to be a gaussian ")
             
         # Preset information, for use in Gibbs
         self._preset = None

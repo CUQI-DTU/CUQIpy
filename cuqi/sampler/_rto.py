@@ -167,12 +167,37 @@ class LinearRTO(Sampler):
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
-    
-    
-    
 
 class RegularizedLinearRTO(Sampler):
+    """
+    Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
+    Samples posterior related to the inverse problem with Gaussian likelihood and implicit prior, and where the forward model is Linear.
+
+    Parameters
+    ------------
+    target : `cuqi.distribution.Posterior`
+
+    x0 : `np.ndarray` 
+        Initial point for the sampler. *Optional*.
+
+    maxit : int
+        Maximum number of iterations of the inner FISTA solver. *Optional*.
+        
+    stepsize : string or float
+        If stepsize is a string and equals either "auto", "automatic" or "spectral_norm", then the stepsize is automatically estimated based on the spectral norm.
+        If stepsize is a float, then this stepsize is used.
+
+    abstol : float
+        Absolute tolerance of the inner FISTA solver. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+        
+    """
     def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
         #stepsize = 1e-5
         super().__init__(target, x0=x0, **kwargs)
@@ -264,6 +289,7 @@ class RegularizedLinearRTO(Sampler):
                     M_op = scipyLinearOperator((len(self.b_tild), self.n), matvec = lambda v: self.M(v,1), rmatvec = lambda w: self.M(w,2))
                     
                 _stepsize = 0.99/(estimate_spectral_norm(M_op)**2)
+                # print(f"Estimated stepsize for regularized Linear RTO: {_stepsize}")
             else:
                 raise ValueError("Stepsize choice not supported")
         else:

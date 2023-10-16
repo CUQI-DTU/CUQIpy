@@ -4,8 +4,8 @@ from ._cauchy import Cauchy
 from ._cmrf import CMRF
 from ._gamma import Gamma
 from ._gaussian import Gaussian, JointGaussianSqrtPrec
-from ._implicit_regularized_gaussian import ImplicitRegularizedGaussian
 from ._gmrf import GMRF
+from ._implicit_regularized_gaussian import ImplicitRegularizedGaussian
 from ._inverse_gamma import InverseGamma
 from ._lmrf import LMRF
 from ._laplace import Laplace
