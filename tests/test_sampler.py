@@ -438,7 +438,7 @@ def _Gibbs_joint_hier_model(use_legacy=False, noise_std=0.01):
     np.random.seed(0)
     
     # Model and data
-    A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(phantom='square', use_legacy=use_legacy, noise_std=noise_std)
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D(phantom='square', use_legacy=use_legacy, noise_std=noise_std).get_components()
     n = A.domain_dim
 
     # Define distributions
