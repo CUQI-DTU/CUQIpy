@@ -629,9 +629,23 @@ class FISTA(object):
     
     
 def ProjectNonnegative(x):
+    """(Euclidean) projection onto the nonnegative orthant.
+    
+    Parameters
+    ----------
+    x : array_like.
+    """  
     return np.maximum(x, 0)
 
 def ProjectBox(x, lower = None, upper = None):
+    """(Euclidean) projection onto a box.
+    
+    Parameters
+    ----------
+    x : array_like.
+    lower : array_like. Lower bound of box. Zero if None.
+    upper : array_like. Upper bound of box. One if None.
+    """  
     if lower is None:
         lower = np.zeros_like(x)
     
@@ -641,5 +655,12 @@ def ProjectBox(x, lower = None, upper = None):
     return np.minimum(np.maximum(x, lower), upper)
 
 def ProximalL1(x, gamma):
-    """Proximal operator of ||x||_1, also known as the shrinkage of soft thresholding operator"""
+    """(Euclidean) proximal operator of the \|x\|_1 norm.
+    Also known as the shrinkage or soft thresholding operator.
+    
+    Parameters
+    ----------
+    x : array_like.
+    gamma : scale parameter.
+    """
     return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))

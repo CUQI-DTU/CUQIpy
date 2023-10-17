@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import CGLS, LM
+from cuqi.solver import CGLS, LM, FISTA, ProximalL1
 from scipy.optimize import lsq_linear
 
 
@@ -44,3 +44,18 @@ def test_LM():
     ref_opt = np.array([0.92953293909007, 0.109186388510998])
 
     assert np.allclose(MSE, ref_MSE) and np.allclose(opt, ref_opt)
+    
+def test_FISTA():
+    # Parameters
+    rng = np.random.default_rng(seed = 42)
+    m, n = 10, 5
+    A = rng.standard_normal((m, n))
+    b = rng.standard_normal(m)
+    
+    stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
+    x0 = np.zeros(n)
+    sol, _ = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True).solve()
+
+    ref_sol = np.array([-1.83273787e-03, -1.72094582e-13,  0.0, -3.35835639e-01, -1.27795593e-01])
+    # Compare
+    assert np.allclose(sol, ref_sol, atol=1e-4)

@@ -6,6 +6,29 @@ import numpy as np
 
 
 class ImplicitRegularizedGaussian(Distribution):
+    """
+    General Gaussian probability distribution. Generates instance of cuqi.distribution.Gaussian.
+
+
+    Parameters
+    ----------
+    gaussian : Gaussian or GMRF
+        Underlying explicit Gaussian distribution.
+
+    proximal : callable f(x, scale) or None
+        Euclidean proximal operator of the regularization function R
+
+    projector : callable f(x) or None
+        Euclidean projection onto the constraint
+
+    constraint : string or None
+        Preset constraints, including "nonnegativity" and "box". Required for use in Gibbs.
+
+    regularization : string or None
+        Preset regularization, including "l1". Required for use in Gibbs in future update.
+
+    """
+        
     def __init__(self, gaussian, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
         # Underlying explicity Gaussian
         self._gaussian = gaussian
