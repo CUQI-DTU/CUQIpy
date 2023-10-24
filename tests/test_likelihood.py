@@ -14,7 +14,7 @@ def test_likelihood_log_and_grad():
     likelihood.gradient(probInfo.exactSolution)
 
 def test_likelihood_attributes():
-    model, data, _ = cuqi.testproblem.Poisson1D().get_components(dim=128, field_type="Step")
+    model, data, _ = cuqi.testproblem.Poisson1D(dim=128, field_type="Step").get_components()
     likelihood = cuqi.distribution.Gaussian(model,1).to_likelihood(data)
 
     # dim of domain
@@ -53,7 +53,7 @@ def test_likelihood_attributes():
                         cuqi.distribution.Gaussian(np.zeros(128), sqrtprec=1/np.pi*sps.eye(128)),
                         ])
 def test_likelihood_Gaussian_log_IID(dist):
-    model, data, probInfo = cuqi.testproblem.Deconvolution1D().get_components(dim=128)
+    model, data, probInfo = cuqi.testproblem.Deconvolution1D(dim=128).get_components()
     dist.mean = model
     likelihood = dist.to_likelihood(probInfo.exactData) #We use exact data to get same logpdf every time
     assert likelihood.logd(probInfo.exactSolution) == approx(-264.14955763892135)
