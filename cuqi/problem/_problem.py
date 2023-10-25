@@ -90,7 +90,7 @@ class BayesianProblem(object):
         import matplotlib.pyplot as plt
 
         # Deterministic forward model and data (1D convolution)
-        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
 
         # Bayesian model
         x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
@@ -130,13 +130,10 @@ class BayesianProblem(object):
 
     """
 
-    def get_components(self, **kwargs) -> Tuple[Model, CUQIarray, ProblemInfo]:
+    def get_components(self) -> Tuple[Model, CUQIarray, ProblemInfo]:
         """
         Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
         
-        Parameters:
-        -----------
-        Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution1D.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution1D` constructor. 
         """
 
         problem_info = ProblemInfo() #Instead of a dict, we use our ProblemInfo dataclass.

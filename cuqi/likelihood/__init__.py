@@ -9,7 +9,7 @@ Create a Gaussian likelihood function from a forward `model` and observed `data`
 .. code-block:: python
 
    import cuqi
-   model, data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+   model, data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
    likelihood = cuqi.distribution.Gaussian(mean=model, cov=0.05**2).to_likelihood(data)
 
 
