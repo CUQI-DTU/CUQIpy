@@ -71,7 +71,7 @@ posterior.logd(np.ones(A.domain_dim))
 
 # Both observations come from the same unknown x
 A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
-B, d_obs, _ = cuqi.testproblem.Deconvolution1D(PSF="Defocus",noise_std=0.02).get_components()
+B, d_obs, _ = cuqi.testproblem.Deconvolution1D(PSF="Defocus", noise_std=0.02).get_components()
 
 # %%
 # Then consider the following Bayesian model
