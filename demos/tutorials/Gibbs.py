@@ -55,7 +55,7 @@ np.random.seed(0)
 # true solution (sharp signal) and data (convolved signal).
 
 # Model and data
-A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
+A, y_obs, probinfo = Deconvolution1D(phantom='square').get_components()
 
 # Get dimension of signal
 n = A.domain_dim

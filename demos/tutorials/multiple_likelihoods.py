@@ -71,16 +71,14 @@ if set_up == "multi_observation":
 source1 = lambda xs: magnitude*np.sin(xs*2*np.pi/endpoint)+magnitude
 
 # Obtain the forward model from the test problem
-model1, data1, problemInfo1 = cuqi.testproblem.Poisson1D.get_components(
-    dim=dim,
+model1, data1, problemInfo1 = cuqi.testproblem.Poisson1D(dim=dim,
     endpoint=endpoint,
     field_type=field_type,
     field_params={"n_steps": n_steps},
     observation_grid_map=observation_grid_map1,
     exactSolution=x_exact,
     source=source1,
-    SNR=SNR,
-)
+    SNR=SNR).get_components()
 
 # Plot data, exact data and exact solution
 plt.figure()
@@ -110,16 +108,14 @@ else:
 	source2 = source1
 
 # Obtain the forward model from the test problem
-model2, data2, problemInfo2 = cuqi.testproblem.Poisson1D.get_components(
-    dim=dim,
+model2, data2, problemInfo2 = cuqi.testproblem.Poisson1D(dim=dim,
     endpoint=endpoint,
     field_type=field_type,
     field_params={"n_steps": n_steps},
     observation_grid_map=observation_grid_map2,
     exactSolution=x_exact,
     source=source2,
-    SNR=SNR,
-)
+    SNR=SNR).get_components()
 
 # Plot data, exact data and exact solution
 plt.figure()
