@@ -62,7 +62,8 @@ def get_direct_attributes(dist):
 
 def get_indirect_variables(dist):
     attributes = []
-    for _, value in vars(dist).items():
+    for attribute in dist.get_mutable_variables():
+        value = getattr(dist, attribute)
         if callable(value):
             keys = get_non_default_args(value)
             for key in keys:
