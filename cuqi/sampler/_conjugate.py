@@ -1,4 +1,4 @@
-from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ImplicitRegularizedGaussian
+from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF
 import numpy as np
 
 class Conjugate: # TODO: Subclass from Sampler once updated
@@ -16,12 +16,12 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     """
 
     def __init__(self, target: Posterior):
-        if not isinstance(target.likelihood.distribution, (Gaussian, GMRF, ImplicitRegularizedGaussian)):
+        if not isinstance(target.likelihood.distribution, (Gaussian, GMRF, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)):
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
             
-        if isinstance(target.likelihood.distribution, ImplicitRegularizedGaussian) and target.likelihood.distribution.preset not in ["nonnegativity"]:
+        if isinstance(target.likelihood.distribution, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
                raise ValueError("Conjugate sampler not defined these constraints and/or regularization")
         
         self.target = target
@@ -40,7 +40,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
     
             return dist.sample()
-        elif isinstance(self.target.likelihood.distribution, ImplicitRegularizedGaussian):
+        elif isinstance(self.target.likelihood.distribution, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)):
             # Extract variables
             b = self.target.likelihood.data                                          #mu
             m = len(b)                                                               #n
