@@ -9,15 +9,15 @@ import cuqi.operator
 #%%
 location = 0
 N = 2
-prec = 1.0
+scale = 1.0
 dom = 1
 BCs = 'neumann'
-x = cuqi.distribution.LMRF(location, prec, BCs, geometry=N)
+x = cuqi.distribution.LMRF(location, scale, BCs, geometry=N)
 print(x.logd(np.array([3,4])))
 #%%
 location = 0
-prec = 1
-y = cuqi.distribution.Laplace(location, prec)
+scale = 1
+y = cuqi.distribution.Laplace(location, scale)
 print(y.pdf(6))
 print(y.pdf(1))
 samples = y.sample(1000)
