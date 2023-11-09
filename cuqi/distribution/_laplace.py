@@ -4,13 +4,13 @@ from cuqi.distribution import Distribution
 class Laplace(Distribution):
     """ Laplace distribution. 
 
-    Defines a Laplace distribution given a location and a rate parameter. The Laplace distribution is defined as
+    Defines a Laplace distribution given a location and a scale. The Laplace distribution is defined as
 
     .. math::
 
         p(x) = \\frac{1}{2b} \exp\left(-\\frac{|x-\mu|}{b}\\right),
 
-    where :math:`\mu` is the location and :math:`b` is the scale parameter.
+    where :math:`\mu` is the location (mean) and :math:`b` is the scale (decay) parameter.
 
     The rate parameter is defined as :math:`\lambda = \\frac{1}{b}`.
 
@@ -21,18 +21,19 @@ class Laplace(Distribution):
     location : scalar or ndarray
         The location parameter of the distribution.
 
-    rate : scalar
-        The rate parameter of the distribution.
+    scale : scalar
+        The scale parameter of the distribution.
 
     """
 
-    def __init__(self, location, rate, **kwargs):
+    def __init__(self, location, scale, **kwargs):
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
         self.location = location
-        self.rate = rate
+        self.scale = scale
+        self.rate = 1.0/self.scale
   
     def logpdf(self, x):
         if isinstance(x, (float,int)):
