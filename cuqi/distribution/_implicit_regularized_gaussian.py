@@ -44,10 +44,11 @@ class ImplicitRegularizedGaussian(Distribution):
     """
         
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
-        # Underlying explicity Gaussian
-        self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec)
         
-        super().__init__(geometry = self._gaussian.geometry, **kwargs) 
+        # We init the underlying Gaussian first for geometry and dimensionality handling
+        self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
+        
+        super().__init__(**kwargs)
         
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
             raise ValueError("Incorrect parameters")
