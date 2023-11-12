@@ -675,3 +675,9 @@ def test_Gaussian_from_sparse_sqrtprec():
     y_from_dense = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense())
 
     assert y_from_dense.logpdf(np.ones(N)) == y_from_sparse.logpdf(np.ones(N))
+
+def test_ImplicitRegularizedGaussian_default_init():
+    """ Test that the implicit regularized Gaussian is initialized by default with nonnegativity preset """
+
+    x = cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1)
+    assert x._preset == "nonnegativity"
