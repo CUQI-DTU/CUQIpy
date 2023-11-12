@@ -53,7 +53,7 @@ class ImplicitRegularizedGaussian(Distribution):
 
         # Check only one of proximal, projector, constraint or regularization is provided        
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) > 1:
-            raise ValueError("Incorrect parameters")
+            raise ValueError("Only one of proximal, projector, constraint or regularization can be provided.")
         
         # Default to nonnegativity constraint if no arguments are provided
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) == 0:
