@@ -33,16 +33,15 @@ class Laplace(Distribution):
 
         self.location = location
         self.scale = scale
-        self.rate = 1.0/self.scale
   
     def logpdf(self, x):
         if isinstance(x, (float,int)):
             x = np.array([x])
-        return self.dim*(np.log(self.rate/2)) - self.rate*np.linalg.norm(x-self.location,1)
+        return self.dim*(np.log(0.5*self.scale)) - np.linalg.norm(x-self.location,1)/self.scale
 
     def _sample(self,N=1,rng=None):
         if rng is not None:
-            s =  rng.laplace(self.location, 1.0/self.rate, (N,self.dim)).T
+            s =  rng.laplace(self.location, self.scale, (N,self.dim)).T
         else:
-            s = np.random.laplace(self.location, 1.0/self.rate, (N,self.dim)).T
+            s = np.random.laplace(self.location, self.scale, (N,self.dim)).T
         return s

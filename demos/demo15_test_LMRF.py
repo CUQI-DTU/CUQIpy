@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 import cuqi.operator
-#%%
+# %%
 location = 0
 N = 2
 scale = 1.0
@@ -14,7 +14,7 @@ dom = 1
 BCs = 'neumann'
 x = cuqi.distribution.LMRF(location, scale, BCs, geometry=N)
 print(x.logd(np.array([3,4])))
-#%%
+# %%
 location = 0
 scale = 1
 y = cuqi.distribution.Laplace(location, scale)
@@ -22,10 +22,11 @@ print(y.pdf(6))
 print(y.pdf(1))
 samples = y.sample(1000)
 
-#%%
+# %%
 from scipy.stats import laplace
 print(laplace.pdf(6))
 print(laplace.pdf(1))
+assert np.allclose(y.pdf(6), laplace.pdf(6)) and np.allclose(y.pdf(1), laplace.pdf(1))
 
 # %%
 plt.figure()
