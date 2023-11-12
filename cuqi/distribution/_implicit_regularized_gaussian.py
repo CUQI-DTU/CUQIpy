@@ -78,7 +78,7 @@ class ImplicitRegularizedGaussian(Distribution):
             self._proximal = proximal
         elif projector is not None:
             self._proximal = lambda z, gamma: projector(z)
-        elif (isinstance(constraint, str) and constraint.lower() in ["nonnegativity", "nonnegative", "nn"]):
+        elif (isinstance(constraint, str) and constraint.lower().replace("-","") in ["nonnegativity", "nonnegative", "nn"]):
             self._proximal = lambda z, gamma: ProjectNonnegative(z)
             self._preset = "nonnegativity"
         elif (isinstance(constraint, str) and constraint.lower() in ["box"]):

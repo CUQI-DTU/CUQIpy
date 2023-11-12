@@ -703,6 +703,19 @@ def test_ImplicitRegularizedGaussian_guarding_statements():
     with pytest.raises(ValueError, match="Projector should take 1 argument"):
         cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
 
-    
+def test_ImplicitRegularizedGaussian_init_options():
+    """ Test different options for initialization of ImplicitRegularizedGaussian """
+
+    options = {
+        "constraint": "nonnegativity",
+        "constraint": "NN",
+        "constraint": "non-negativity",
+        "constraint": "non-negative",
+        "constraint": "Box",
+        "regularization": "L1",
+    }
+
+    for key, value in options.items():
+        x = cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, **{key: value}) 
 
 
