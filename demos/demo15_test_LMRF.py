@@ -26,7 +26,7 @@ samples = y.sample(1000)
 from scipy.stats import laplace
 print(laplace.pdf(6))
 print(laplace.pdf(1))
-assert np.allclose(y.pdf(6), laplace.pdf(6)) and np.allclose(y.pdf(1), laplace.pdf(1))
+assert np.isclose(y.pdf(6), laplace.pdf(6)) and np.isclose(y.pdf(1), laplace.pdf(1))
 
 # %%
 plt.figure()
