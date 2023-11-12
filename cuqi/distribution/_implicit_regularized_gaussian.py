@@ -6,8 +6,21 @@ import numpy as np
 
 
 class ImplicitRegularizedGaussian(Distribution):
-    """
-    Implicit Regularized Gaussian distribution, to be used for the RegularizedLinearRTO sampler. 
+    """ Implicit Regularized Gaussian distribution.
+
+    Defines a Gaussian distribution with implicit regularization. The regularization can be defined
+    in the form of a proximal operator or a projector. Alternatively, preset constraints and regularization
+    can be used.
+
+    Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
+    a nonnegativity constraint is used by default.
+
+    Distribution can be used as prior in posterior and samples with the RegularizedLinearRTO sampler.
+
+    For more details on implicit regularized Gaussian see the following paper:
+
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized
+    Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
 
     Parameters
     ----------
@@ -35,7 +48,7 @@ class ImplicitRegularizedGaussian(Distribution):
     projector : callable f(x) or None
         Euclidean projection onto the constraint
 
-    constraint : string or None
+    constraint : string or None, Default: "nonnegative"
         Preset constraints, including "nonnegativity" and "box". Required for use in Gibbs.
 
     regularization : string or None
@@ -202,8 +215,21 @@ class ImplicitRegularizedGaussian(Distribution):
     
 
 class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
-    """
-    Implicit Regularized GMRF (Gaussian Markov Random Field) distribution, to be used for the RegularizedLinearRTO sampler. 
+    """ Implicit Regularized GMRF (Gaussian Markov Random Field) distribution. 
+
+    Defines a Gaussian distribution with implicit regularization. The regularization can be defined
+    in the form of a proximal operator or a projector. Alternatively, preset constraints and regularization
+    can be used.
+
+    Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
+    a nonnegativity constraint is used by default.
+
+    Distribution can be used as prior in posterior and samples with the RegularizedLinearRTO sampler.
+
+    For more details on implicit regularized Gaussian see the following paper:
+
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized
+    Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
 
     Parameters
     ----------
