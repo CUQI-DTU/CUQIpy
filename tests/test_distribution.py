@@ -681,3 +681,28 @@ def test_ImplicitRegularizedGaussian_default_init():
 
     x = cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1)
     assert x._preset == "nonnegativity"
+
+def test_ImplicitRegularizedGaussian_guarding_statements():
+    """ Test that we catch incorrect initialization of ImplicitRegularizedGaussian """
+
+    # More than 1 argument
+    with pytest.raises(ValueError, match="Only one of "):
+        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, proximal=lambda s,z: s, constraint="nonnegativity")
+
+    # Proximal
+    with pytest.raises(ValueError, match="Proximal needs to be callable"):
+        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, proximal=1)
+
+    with pytest.raises(ValueError, match="Proximal should take 2 arguments"):
+        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, proximal=lambda s: s)
+
+    # Projector
+    with pytest.raises(ValueError, match="Projector needs to be callable"):
+        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, projector=1)
+
+    with pytest.raises(ValueError, match="Projector should take 1 argument"):
+        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
+
+    
+
+
