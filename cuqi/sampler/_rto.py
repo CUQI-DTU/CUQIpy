@@ -172,7 +172,7 @@ class RegularizedLinearRTO(Sampler):
     """
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
-    Samples posterior related to the inverse problem with Gaussian likelihood and implicit prior, and where the forward model is Linear.
+    Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
 
     Parameters
     ------------
