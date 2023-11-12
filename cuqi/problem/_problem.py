@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, ImplicitRegularizedGaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
+from cuqi.distribution import Distribution, Gaussian, ImplicitRegularizedGaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF, ImplicitRegularizedGMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -353,7 +353,7 @@ class BayesianProblem(object):
             return self._samplepCN(Ns, Nb, callback)
         
         # For Regularized Gaussians with linear models we use Regularized LinearRTO
-        elif self._check_posterior(self, ImplicitRegularizedGaussian, Gaussian):
+        elif self._check_posterior(self, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF), Gaussian):
             return self._sampleRegularizedLinearRTO(Ns, Nb, callback)
 
         else:
