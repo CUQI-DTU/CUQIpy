@@ -48,11 +48,16 @@ class ImplicitRegularizedGaussian(Distribution):
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
         
-        super().__init__(**kwargs)
-        
-        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
-            raise ValueError("Incorrect parameters")
         # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        # Check only one of proximal, projector, constraint or regularization is provided        
+        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) > 1:
+            raise ValueError("Incorrect parameters")
+        
+        # Default to nonnegativity constraint if no arguments are provided
+        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) == 0:
+            constraint = "nonnegative"
 
         if proximal is not None:
             if not callable(proximal):
