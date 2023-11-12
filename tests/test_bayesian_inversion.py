@@ -98,6 +98,28 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
             ],
             50,
         ),
+        # Case: ImplicitRegularizedGaussian with Gamma hyperpriors on both noise and prior precision
+        (
+            Deconvolution1D,
+            "square",
+            [
+                ImplicitRegularizedGaussian(np.zeros(128), lambda d: 1/d, name="x"),
+                Gamma(1, 1e-4, name="l"),
+                Gamma(1, 1e-4, name="d")
+            ],
+            50,
+        ),
+        # Case: ImplicitRegularizedGMRF with Gamma hyperpriors on both noise and prior precision
+        (
+            Deconvolution1D,
+            "square",
+            [
+                ImplicitRegularizedGMRF(np.zeros(128), lambda d: d, name="x"),
+                Gamma(1, 1e-4, name="l"),
+                Gamma(1, 1e-4, name="d")
+            ],
+            50,
+        ),
     ]
 )
 def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str, priors: Dict[str, Density], Ns: int):

@@ -778,7 +778,7 @@ class BayesianProblem(object):
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
             # Gamma prior, Gaussian likelihood -> Conjugate
-            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF)): 
+            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
             # Gamma prior, LMRF likelihood -> ConjugateApprox
@@ -788,6 +788,10 @@ class BayesianProblem(object):
             # Gaussian prior, Gaussian likelihood, Linear model -> LinearRTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.LinearRTO
+
+            # Implicit Regularized Gaussian prior, Gaussian likelihood, linear model -> RegularizedLinearRTO
+            elif self._check_posterior(cond_target, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF), Gaussian, LinearModel):
+                sampling_strategy[par_name] = cuqi.sampler.RegularizedLinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):
