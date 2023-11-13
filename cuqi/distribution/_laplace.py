@@ -37,7 +37,7 @@ class Laplace(Distribution):
     def logpdf(self, x):
         if isinstance(x, (float,int)):
             x = np.array([x])
-        return self.dim*(np.log(0.5*self.scale)) - np.linalg.norm(x-self.location,1)/self.scale
+        return self.dim*(np.log(0.5/self.scale)) - np.linalg.norm(x-self.location,1)/self.scale
 
     def _sample(self,N=1,rng=None):
         if rng is not None:
