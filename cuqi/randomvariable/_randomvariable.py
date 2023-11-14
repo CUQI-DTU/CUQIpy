@@ -71,7 +71,7 @@ class RandomVariable:
 
     """
 
-    def __init__(self, distributions: set, tree: RandomVariableNode = None):
+    def __init__(self, distributions: set, tree: RandomVariableNode = None, name: str = None):
         """ Create random variable from distribution """
         # Convert single distribution to OrderedSet.
         # We use ordered set to ensure that the order of the distributions is preserved.
@@ -79,25 +79,16 @@ class RandomVariable:
         if not isinstance(distributions, OrderedSet):
             distributions = OrderedSet([distributions])
         
-        # Check that distributions have names
-        for distribution in distributions:
-            if distribution.name is None or distribution.name == "distribution":
-                raise ValueError(
-                    "Unable to create random variable from distribution without name. Ensure "
-                    "distribution is defined as a variable, e.g. x = Gaussian(0, 1) or provide "
-                    "a name, e.g. Gaussian(0, 1, name='x')"
-                )
-        
         self._distributions = distributions
         """ The distribution from which the random variable originates. """
-
-        if tree is None:
-            if len(distributions) > 1:
-                raise ValueError("Cannot create random variable from multiple distributions")
-            tree = RandomVariableNode(next(iter(distributions)).name)
         
         self._tree = tree
         """ The tree representation of the random variable. """
+
+        self._original_variable = None
+        """ Stores the original variable if this is a conditioned copy"""
+
+        self._name = name
 
     def __call__(self, *args, **kwargs) -> Any:
         """ Evaluate random variable at a given parameter value. For example, for random variable `X`, `X(1)` gives `1` and `(X+1)(1)` gives `2` """
@@ -108,6 +99,34 @@ class RandomVariable:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
         return self._tree(**kwargs)
+    
+    @property
+    def tree(self):
+        if self._tree is None:
+            if len(self._distributions) > 1:
+                raise ValueError("Cannot create random variable from multiple distributions")
+            self._tree = RandomVariableNode(self.name)
+        return self._tree
+
+    @property
+    def name(self):
+        """ Name of the random variable. """
+        if self._is_copy: # Extract the original density name
+            return self._original_variable.name
+        if self._name is None: # If None extract the name from the stack
+            self._name = cuqi.utilities._get_python_variable_name(self)
+        return self._name
+    
+    @name.setter
+    def name(self, name):
+        if self._is_copy:
+            raise ValueError("Cannot set name of conditioned random variable. Only the variable can have its name set.")
+        self._name = name
+
+    @property
+    def _is_copy(self):
+        """ Returns True if this is a copy of another random variable, e.g. by conditioning. """
+        return hasattr(self, '_original_variable') and self._original_variable is not None
     
     def sample(self):
         """ Sample random variable. """
