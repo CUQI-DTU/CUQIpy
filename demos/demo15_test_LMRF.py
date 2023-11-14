@@ -23,11 +23,6 @@ print(y.pdf(1))
 samples = y.sample(1000)
 
 # %%
-from scipy.stats import laplace
-print(laplace.pdf(6))
-print(laplace.pdf(1))
-
-# %%
 plt.figure()
 samples.plot_chain(0)
 #samples.plot()
