@@ -74,11 +74,21 @@ class RandomVariable:
 
     def __init__(self, distributions: set, tree: RandomVariableNode = None, name: str = None):
         """ Create random variable from distribution """
+
         # Convert single distribution to OrderedSet.
         # We use ordered set to ensure that the order of the distributions is preserved.
         # which in turn ensures that the parameter names are always in the same order.
         if not isinstance(distributions, OrderedSet):
             distributions = OrderedSet([distributions])
+
+        # Match random variable name with distribution parameter name (for single distribution)
+        if len(distributions) == 1:
+            dist = next(iter(distributions))
+            if hasattr(dist, '_par_name'):
+                dist_par_name = dist._par_name
+                if name is not None and dist_par_name != name:
+                    raise ValueError(f"Parameter name '{dist_par_name}' of the distribution does not match the input name '{name}' for the random variable.")
+                name = dist_par_name
         
         self._distributions = distributions
         """ The distribution from which the random variable originates. """

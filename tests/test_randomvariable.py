@@ -17,7 +17,7 @@ def test_randomvariable_should_require_named_distribution():
 
 def test_algrabraic_operations_on_distribution_should_create_randomvariable():
 
-    x = cuqi.distribution.Gaussian(0, 1)
+    x = cuqi.distribution.Gaussian(0, 1).rv
 
     assert isinstance(x+1, cuqi.randomvariable.RandomVariable)
     assert isinstance(1+x, cuqi.randomvariable.RandomVariable)
@@ -60,7 +60,7 @@ def test_algrabraic_operations_on_distribution_should_create_randomvariable():
     lambda x: cuqi.model.LinearModel(np.ones((2,2)))@x,
 ])
 def test_algebra_on_randomvariables_can_be_combined_and_is_correct(operations):
-    X = cuqi.distribution.Gaussian(np.zeros(2), 1)
+    X = cuqi.distribution.Gaussian(np.zeros(2), 1).rv
     rv = operations(X)
     val = np.random.randn(2)
     # Compare random variable recorded operations vs actual operations
@@ -88,19 +88,19 @@ def test_randomvariable_returns_correct_parameter_name():
 def test_randomvariable_works_with_distribution_conditioning(operations):
 
     # Define x and y | x (y conditioned on x) with some algebraic operations
-    x = cuqi.distribution.Gaussian(np.zeros(2), 1)
-    y = cuqi.distribution.Gaussian(np.zeros(2), operations(x))
+    x = cuqi.distribution.Gaussian(np.zeros(2), 1).rv
+    y = cuqi.distribution.Gaussian(np.zeros(2), operations(x)).rv
 
     # Condition y on a random fixed value of x
     val = np.random.randn(2)
-    y_cond_x = y(x=val)
+    y_cond_x = y.condition(x=val)
 
     # Check basic classes are correct
-    assert isinstance(y, cuqi.distribution.Distribution)
-    assert isinstance(y.cov, cuqi.randomvariable.RandomVariable)
+    assert isinstance(y, cuqi.randomvariable.RandomVariable)
+    assert isinstance(y.dist.cov, cuqi.randomvariable.RandomVariable)
 
     # Check conditioning works and provides the expected result
-    assert np.allclose(y_cond_x.cov, operations(val))
+    assert np.allclose(y_cond_x.dist.cov, operations(val))
 
 @pytest.mark.parametrize("operations", [
     lambda x, y, z: x + y,
