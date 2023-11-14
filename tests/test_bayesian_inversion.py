@@ -60,7 +60,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "gauss",
             [
-                Gaussian(np.zeros(128), 0.005, name="x")
+                Gaussian(np.zeros(128), 0.005, par_name="x")
             ],
             50
         ),
@@ -69,8 +69,8 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "gauss",
             [
-                Gaussian(np.zeros(128), 0.005, name="x"),
-                Gamma(1, 1e-4, name="l")
+                Gaussian(np.zeros(128), 0.005, par_name="x"),
+                Gamma(1, 1e-4, par_name="l")
             ],
             50
         ),
@@ -79,9 +79,9 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "gauss",
             [
-                Gaussian(np.zeros(128), lambda d: 1/d, name="x"),
-                Gamma(1, 1e-4, name="l"),
-                Gamma(1, 1e-4, name="d")
+                Gaussian(np.zeros(128), lambda d: 1/d, par_name="x"),
+                Gamma(1, 1e-4, par_name="l"),
+                Gamma(1, 1e-4, par_name="d")
             ],
             50
         ),
@@ -90,9 +90,9 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             Deconvolution1D,
             "square",
             [
-                LMRF(0, lambda d: 1/d, geometry=128, name="x"),
-                Gamma(1, 1e-4, name="l"),
-                Gamma(1, 1e-4, name="d")
+                LMRF(0, lambda d: 1/d, geometry=128, par_name="x"),
+                Gamma(1, 1e-4, par_name="l"),
+                Gamma(1, 1e-4, par_name="d")
             ],
             50,
         ),
@@ -110,9 +110,9 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
 
     # data distribution
     if len(priors) == 1: # No hyperparameters
-        data_dist = Gaussian(A@priors[0], 400, name="y")
+        data_dist = Gaussian(A@priors[0], 400,par_name="y")
     else:
-        data_dist = Gaussian(A@priors[0], lambda l: 1/l, name="y")
+        data_dist = Gaussian(A@priors[0], lambda l: 1/l,par_name="y")
 
     # Bayesian problem
     BP = BayesianProblem(data_dist, *priors).set_data(y=y_data)
@@ -126,6 +126,6 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
     # No regression test yet, just check that the samples are the right shape
     if isinstance(samples, dict): # Gibbs case
         for prior in priors:
-            assert samples[prior.name].shape == (prior.dim, Ns)
+            assert samples[prior.par_name].shape == (prior.dim, Ns)
     else:
         assert samples.shape == (priors[0].dim, Ns)

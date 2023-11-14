@@ -110,9 +110,9 @@ class Posterior(Distribution):
     def __repr__(self):
         msg = f"Posterior(\n"
         msg += "    Equation:\n"
-        msg += f"\t p({self.prior.name}|{self.likelihood.name}) ∝ L({self.prior.name}|{self.likelihood.name})p({self.prior.name})\n"
+        msg += f"\t p({self.prior.par_name}|{self.likelihood.par_name}) ∝ L({self.prior.par_name}|{self.likelihood.par_name})p({self.prior.par_name})\n"
         msg += "    Densities:\n"
-        msg += f"\t{self.likelihood.name} ~ {self.likelihood}\n "
-        msg += f"\t{self.prior.name} ~ {self.prior}\n "
+        msg += f"\t{self.likelihood.par_name} ~ {self.likelihood}\n "
+        msg += f"\t{self.prior.par_name} ~ {self.prior}\n "
         msg += ")"
         return msg

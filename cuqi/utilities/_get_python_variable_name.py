@@ -9,7 +9,7 @@ import cuqi
 def _get_python_variable_name(var):
     """ Retrieve the Python variable name of an object. Takes the first variable name appearing on the stack that is not in the ignore list. """
 
-    ignored_var_names = ["self", "cls", "obj", "var", "_"]
+    ignored_var_names = ["self", "cls", "obj", "var", "_", "result", "args", "kwargs", "par_name", "name", "distribution", "dist"]
 
     # First get the stack size and loop (in reverse) through the stack
     # It can be a bit slow to loop through stack size so we limit the levels
@@ -29,7 +29,7 @@ def _get_python_variable_name(var):
             if len(var_names) > 0:
                 return var_names[0]
 
-    warnings.warn("Could not automatically find variable name for object: {}. Use keyword `name` when defining distribution to specify a name. If code runs slowly and variable name is not needed set config.MAX_STACK_SEARCH_DEPTH to 0.".format(var))
+    warnings.warn("Could not automatically find variable name for object. Did you assign (=) the object to a python variable? Alternatively, use keyword `par_name` when defining distribution to specify a name. If code runs slowly and variable name is not needed set config.MAX_STACK_SEARCH_DEPTH to 0. These names are reserved {}".format(ignored_var_names))
 
     return None
 

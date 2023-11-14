@@ -35,13 +35,13 @@ class Likelihood(Density):
         self.data = data
 
     @property
-    def name(self):
+    def par_name(self):
         """ Return name of likelihood """
-        return self.distribution.name
+        return self.distribution.par_name
 
-    @name.setter
-    def name(self, value):
-        self.distribution.name = value
+    @par_name.setter
+    def par_name(self, value):
+        self.distribution.par_name = value
 
     @property
     def FD_enabled(self):
@@ -163,12 +163,12 @@ class UserDefinedLikelihood(object):
     
     """
 
-    def __init__(self, dim=None, logpdf_func=None, gradient_func=None, geometry=None, name=None):
+    def __init__(self, dim=None, logpdf_func=None, gradient_func=None, geometry=None, par_name=None):
         self.dim = dim
         self.logpdf_func = logpdf_func
         self.gradient_func = gradient_func
         self.geometry = geometry
-        self._name = name
+        self._par_name = par_name
 
     @property
     def model(self):
@@ -176,11 +176,11 @@ class UserDefinedLikelihood(object):
         return None
     
     @property
-    def name(self):
+    def par_name(self):
         """ Return name of likelihood """
-        if self._name is None:
-            self._name = _get_python_variable_name(self)
-        return self._name
+        if self._par_name is None:
+            self._par_name = _get_python_variable_name(self) # TODO
+        return self._par_name
 
     @property
     def dim(self):

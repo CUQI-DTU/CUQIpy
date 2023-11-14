@@ -34,7 +34,7 @@ def test_variable_name_accross_frames():
 
     def recursive_return_dist(dist, recursions):
         if recursions == 0:
-            assert dist.name == 'h' # h was defined many frames above, and name should be inferred correctly.
+            assert dist.par_name == 'h' # h was defined many frames above, and name should be inferred correctly.
         else:
             recursive_return_dist(dist, recursions - 1)
     

@@ -71,7 +71,7 @@ data = data_dist(x=phantomC).sample()
 
 #%%
 prior_std = 0.2
-prior = Gaussian(np.zeros(dim), prior_std, np.eye(dim), name="x")
+prior = Gaussian(np.zeros(dim), prior_std, np.eye(dim),par_name="x")
 
 # Plot samples of prior
 prior.sample(5).plot()

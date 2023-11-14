@@ -51,7 +51,7 @@ Z.sample()
 
 #%%
 # We can also specify an optional name of distribution (to be used by certain sampling algorithms which require distributions to interconnect)
-y = cuqi.distribution.Normal(mean=5, std=1,name="y")
+y = cuqi.distribution.Normal(mean=5, std=1,par_name="y")
 y.par_name
 
 # %%

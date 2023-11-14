@@ -373,7 +373,7 @@ class Distribution(Density, ABC):
             return self._mutable_vars
         
         # Define list of ignored attributes and properties
-        ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
+        ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim', 'par_name']
         
         # Get public attributes
         attributes = get_writeable_attributes(self)
@@ -400,7 +400,7 @@ class Distribution(Density, ABC):
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
         if not self.is_cond: # If not conditional we create a constant density
-            return EvaluatedDensity(self.logd(data), name=self.par_name)
+            return EvaluatedDensity(self.logd(data), par_name=self.par_name)
         return Likelihood(self, data)
 
     def _parse_args_add_to_kwargs(self, cond_vars, *args, **kwargs):
@@ -436,6 +436,8 @@ class Distribution(Density, ABC):
         
     def _as_random_variable(self):
         """Return a RandomVariable instance of this distribution"""
+        if hasattr(self, '_par_name') and self._par_name is not None:
+            return RandomVariable(self, self._par_name)
         return RandomVariable(self)
     
     @property

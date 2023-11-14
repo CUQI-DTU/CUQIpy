@@ -168,7 +168,7 @@ class RandomVariable:
         return self._distributions
     
     def _set_dist_name_if_not_set(self, distribution):
-        if not hasattr(distribution, 'par_name') or distribution.par_name is None:
+        if not hasattr(distribution, '_par_name') or distribution._par_name is None:
             distribution.par_name = self.name
 
     def get_conditioning_variables(self):

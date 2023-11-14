@@ -97,10 +97,10 @@ class _Deblur(BayesianProblem):
         
         # Prior
         if prior is None:
-            prior = Gaussian(np.zeros(dim), 1, name="x")
+            prior = Gaussian(np.zeros(dim), 1, par_name="x")
 
         # Store data distribution
-        data_dist = Gaussian(model(prior), noise_std**2, name="y")
+        data_dist = Gaussian(model(prior), noise_std**2, par_name="y")
         
         # Generate inverse-crime free data (still same blur size)
         data, f_true, g_true = self._generateData(mesh, kernel, blur_size, data_dist)
@@ -290,13 +290,13 @@ class Deconvolution1D(BayesianProblem):
 
         # Set up prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, name="x")
+            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, par_name="x")
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
-            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, name="y")
+            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, par_name="y")
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, name="y")
+            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, par_name="y")
         else:
             raise NotImplementedError("This noise type is not implemented")
         
@@ -1085,7 +1085,7 @@ class _Deconv_1D(BayesianProblem):
         model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
     
         # Prior
-        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry, name="x")
+        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry, par_name="x")
 
         # Set up exact solution
         x_exact = prior.sample()
@@ -1098,7 +1098,7 @@ class _Deconv_1D(BayesianProblem):
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
         data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
-        likelihood = cuqi.distribution.Gaussian(model(prior), sigma2, name="y").to_likelihood(data)
+        likelihood = cuqi.distribution.Gaussian(model(prior), sigma2, par_name="y").to_likelihood(data)
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(likelihood, prior)
@@ -1287,13 +1287,13 @@ class Deconvolution2D(BayesianProblem):
 
         # Create prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=domain_geometry, name="x")
+            prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=domain_geometry, par_name="x")
 
         # Data distribution
         if noise_type.lower() == "gaussian":
-            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, geometry=range_geometry, name="y")
+            data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, geometry=range_geometry, par_name="y")
         elif noise_type.lower() == "scaledgaussian":
-            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, geometry=range_geometry, name="y")
+            data_dist = cuqi.distribution.Gaussian(model(prior), (y_exact*noise_std)**2, geometry=range_geometry, par_name="y")
         else:
             raise NotImplementedError("This noise type is not implemented")
         
@@ -1431,14 +1431,14 @@ class WangCubic(BayesianProblem):
 
         # define prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.array([1, 0]), 1, name="x")
+            prior = cuqi.distribution.Gaussian(np.array([1, 0]), 1, par_name="x")
 
         # data
         if data is None:
             data = 1
 
         # data distribution is Gaussian
-        data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, name="y")
+        data_dist = cuqi.distribution.Gaussian(model(prior), noise_std**2, par_name="y")
 
         # Define Gaussian likelihood
         likelihood = data_dist.to_likelihood(data)

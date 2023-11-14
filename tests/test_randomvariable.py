@@ -5,7 +5,7 @@ import numpy as np
 def test_randomvariable_should_require_named_distribution():
 
     # Case 1: distribution with explicit name
-    x_rv = cuqi.randomvariable.RandomVariable(cuqi.distribution.Gaussian(0, 1, name="x"))
+    x_rv = cuqi.randomvariable.RandomVariable(cuqi.distribution.Gaussian(0, 1,par_name="x"))
 
     # Case 2: distribution with implicit name
     x = cuqi.distribution.Gaussian(0, 1)
