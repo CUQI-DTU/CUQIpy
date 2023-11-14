@@ -128,10 +128,39 @@ class RandomVariable:
         """ Returns True if this is a copy of another random variable, e.g. by conditioning. """
         return hasattr(self, '_original_variable') and self._original_variable is not None
     
+    def logd(self, *args, **kwargs):
+        if len(self._distributions) > 1 or not isinstance(self.tree, RandomVariableNode):
+            raise ValueError("Unable to evaluate log density of transformed random variables")
+        return self.dist.logd(*args, **kwargs)
+    
+    @property
+    def is_cond(self):
+        if self.is_transformed:
+            raise NotImplementedError("Conditioning is not implemented for transformed random variables")
+        return self.dist.is_cond
+
+    def gradient(self, *args, **kwargs):
+        if self.is_transformed:
+            raise NotImplementedError("Gradient not implemented for transformed random variables")
+        return self.dist.gradient(*args, **kwargs)
+
     def sample(self):
         """ Sample random variable. """
         return self(**{distribution.name: distribution.sample() for distribution in self._distributions})
          
+    @property
+    def dist(self) -> cuqi.distribution.Distribution:
+        """ Distribution from which the random variable originates. """
+        if len(self._distributions) > 1:
+            raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
+        return next(iter(self._distributions))
+
+    def get_conditioning_variables(self):
+        """ Get conditioning variables. """
+        if self.is_transformed:
+            raise NotImplementedError("Extracting conditioning variables is not implemented for transformed random variables")
+        return self.dist.get_conditioning_variables()
+    
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
@@ -163,10 +192,58 @@ class RandomVariable:
         # Add initial newline and indentations
         parameter_strings = "\n".join(["\t"+line for line in parameter_strings.split("\n")])
         # Print parameter strings with newlines
-        return (f"RandomVariable\n"
-                f"Distributions: \n{parameter_strings}\n"
-                f"Transformations: {self._tree}")
+        if self.is_transformed:
+            title = f"Transformed Random Variable"
+        else:
+            title = f""
+        if self.is_transformed:
+            body = (
+                f"\n"
+                f"Formula: {self.tree}\n"
+                f"Components: \n{parameter_strings}"
+                )
+        else:
+            body = parameter_strings.replace("\t","")
+        return title+body
    
+    @property
+    def dim(self):
+        if self.is_transformed:
+            raise NotImplementedError("Dimension not implemented for transformed random variables")
+        return self.dist.dim
+
+    @property
+    def geometry(self):
+        if self.is_transformed:
+            raise NotImplementedError("Geometry not implemented for transformed random variables")
+        return self.dist.geometry
+
+    @geometry.setter
+    def geometry(self, geometry):
+        if self.is_transformed:
+            raise NotImplementedError("Geometry not implemented for transformed random variables")
+        self.dist.geometry = geometry
+
+    def condition(self, *args, **kwargs):
+        """ Condition random variable on fixed values """
+        if self.is_transformed:
+            raise NotImplementedError("Conditioning is not implemented for transformed random variables")
+        new_variable = self._make_copy()
+        new_variable._distributions = OrderedSet([self.dist(*args, **kwargs)])
+        return new_variable
+
+    def _make_copy(self):
+        """ Returns a shallow copy of the density keeping a pointer to the original. """
+        new_variable = copy(self)
+        new_variable._distributions = copy(self._distributions)
+        new_variable._tree = copy(self._tree)
+        new_variable._original_variable = self
+        return new_variable
+
+    @property
+    def is_transformed(self):
+        return len(self._distributions) > 1 or not self._tree is None
+    
     def _apply_operation(self, operation, other=None) -> 'RandomVariable':
         """
         Apply a specified operation to this RandomVariable.
@@ -175,10 +252,10 @@ class RandomVariable:
         if isinstance(other, cuqi.distribution.Distribution):
             other = other._as_random_variable()
         if other is None: # unary operation case
-            return RandomVariable(self._distributions, operation(self._tree))
+            return RandomVariable(self._distributions, operation(self.tree))
         elif isinstance(other, RandomVariable): # binary operation case with another random variable that has distributions
-            return RandomVariable(self._distributions | other._distributions, operation(self._tree, other._tree))
-        return RandomVariable(self._distributions, operation(self._tree, other)) # binary operation case with any other object (constant)
+            return RandomVariable(self._distributions | other._distributions, operation(self.tree, other.tree))
+        return RandomVariable(self._distributions, operation(self.tree, other)) # binary operation case with any other object (constant)
 
     def __add__(self, other) -> 'RandomVariable':
         return self._apply_operation(operator.add, other)
