@@ -4,6 +4,7 @@ from ._ast import RandomVariableNode
 from ._orderedset import OrderedSet
 import operator
 import cuqi
+from copy import copy
 
 
 class RandomVariable:
@@ -98,7 +99,7 @@ class RandomVariable:
         if args:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
-        return self._tree(**kwargs)
+        return self.tree(**kwargs)
     
     @property
     def tree(self):
@@ -146,14 +147,29 @@ class RandomVariable:
 
     def sample(self):
         """ Sample random variable. """
-        return self(**{distribution.name: distribution.sample() for distribution in self._distributions})
+        return self(**{distribution.name: distribution.sample() for distribution in self.distributions})
          
     @property
     def dist(self) -> cuqi.distribution.Distribution:
         """ Distribution from which the random variable originates. """
         if len(self._distributions) > 1:
             raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
-        return next(iter(self._distributions))
+        distribution = next(iter(self._distributions))
+        # Inject name into distribution
+        self._set_dist_name_if_not_set(distribution)
+        return distribution
+    
+    @property
+    def distributions(self) -> set:
+        """ Distributions from which the random variable originates. """
+        # Inject name into distributions
+        if len(self._distributions) == 1:
+            self._set_dist_name_if_not_set(next(iter(self._distributions)))
+        return self._distributions
+    
+    def _set_dist_name_if_not_set(self, distribution):
+        if not hasattr(distribution, 'name') or distribution.name is None:
+            distribution.name = self.name
 
     def get_conditioning_variables(self):
         """ Get conditioning variables. """
@@ -164,7 +180,7 @@ class RandomVariable:
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
-        return [distribution.name for distribution in self._distributions]
+        return [distribution.name for distribution in self.distributions]
     
     @property
     def _non_default_args(self) -> List[str]:
@@ -186,7 +202,7 @@ class RandomVariable:
 
     def __repr__(self):
         # Create strings for parameter name ~ distribution pairs
-        parameter_strings = [f"{name} ~ {distribution}" for name, distribution in zip(self.parameter_names, self._distributions)]
+        parameter_strings = [f"{name} ~ {distribution}" for name, distribution in zip(self.parameter_names, self.distributions)]
         # Join strings with newlines
         parameter_strings = "\n".join(parameter_strings)
         # Add initial newline and indentations
@@ -235,14 +251,14 @@ class RandomVariable:
     def _make_copy(self):
         """ Returns a shallow copy of the density keeping a pointer to the original. """
         new_variable = copy(self)
-        new_variable._distributions = copy(self._distributions)
+        new_variable._distributions = copy(self.distributions)
         new_variable._tree = copy(self._tree)
         new_variable._original_variable = self
         return new_variable
 
     @property
     def is_transformed(self):
-        return len(self._distributions) > 1 or not self._tree is None
+        return len(self.distributions) > 1 or not self._tree is None
     
     def _apply_operation(self, operation, other=None) -> 'RandomVariable':
         """
@@ -252,10 +268,10 @@ class RandomVariable:
         if isinstance(other, cuqi.distribution.Distribution):
             other = other._as_random_variable()
         if other is None: # unary operation case
-            return RandomVariable(self._distributions, operation(self.tree))
+            return RandomVariable(self.distributions, operation(self.tree))
         elif isinstance(other, RandomVariable): # binary operation case with another random variable that has distributions
-            return RandomVariable(self._distributions | other._distributions, operation(self.tree, other.tree))
-        return RandomVariable(self._distributions, operation(self.tree, other)) # binary operation case with any other object (constant)
+            return RandomVariable(self.distributions | other.distributions, operation(self.tree, other.tree))
+        return RandomVariable(self.distributions, operation(self.tree, other)) # binary operation case with any other object (constant)
 
     def __add__(self, other) -> 'RandomVariable':
         return self._apply_operation(operator.add, other)
