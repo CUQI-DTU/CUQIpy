@@ -62,7 +62,7 @@ class JointDistribution:
     def __init__(self, *densities: Density):
 
         # Ensure all densities have unique names
-        names = [density.name for density in densities]
+        names = [density.par_name for density in densities]
         if len(names) != len(set(names)):
             raise ValueError("All densities must have unique names.")
 
@@ -126,12 +126,12 @@ class JointDistribution:
 
     def get_parameter_names(self) -> List[str]:
         """ Returns the parameter names of the joint distribution. """
-        return [dist.name for dist in self._distributions]
+        return [dist.par_name for dist in self._distributions]
 
     def get_density(self, name) -> Density:
         """ Return a density with the given name. """
         for density in self._densities:
-            if density.name == name:
+            if density.par_name == name:
                 return density
         raise ValueError(f"No density with name {name}.")
 
@@ -163,7 +163,7 @@ class JointDistribution:
     def _get_fixed_variables(self) -> List[str]:
         """ Return the variables that have been conditioned on (fixed). """
         # Extract names of Likelihoods and EvaluatedDensities
-        return [density.name for density in self._densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
+        return [density.par_name for density in self._densities if isinstance(density, Likelihood) or isinstance(density, EvaluatedDensity)]
 
     def _parse_args_add_to_kwargs(self, *args, **kwargs):
         """ Parse args and add to kwargs. The args are assumed to follow the order of the parameter names. """
@@ -234,8 +234,8 @@ class JointDistribution:
 
             # RHS of equation: product of densities
             for density in self._densities:
-                par_names = ",".join([density.name])
-                cond_vars = ",".join(set(density.get_parameter_names())-set([density.name]))
+                par_names = ",".join([density.par_name])
+                cond_vars = ",".join(set(density.get_parameter_names())-set([density.par_name]))
 
                 # Distributions are written as p(x|y) or p(x). Likelihoods are L(y|x).
                 # x=par_names, y=cond_vars.
@@ -252,7 +252,7 @@ class JointDistribution:
 
         # Create "Bayesian model" equations
         for density in self._densities:
-            msg += f"\t{density.name} ~ {density}\n"
+            msg += f"\t{density.par_name} ~ {density}\n"
 
         # Wrap up
         msg += ")"

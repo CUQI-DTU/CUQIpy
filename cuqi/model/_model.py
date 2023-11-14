@@ -306,7 +306,7 @@ class Model(object):
             if x.dim != self.domain_dim:
                 raise ValueError("Attempting to match parameter name of Model with given distribution, but distribution dimension does not match model domain dimension.")
             new_model = copy(self)
-            new_model._non_default_args = [x.name] # Defaults to x if distribution had no name
+            new_model._non_default_args = [x.par_name] # Defaults to x if distribution had no name
             return new_model
         
         # If input is a random variable, we handle it separately

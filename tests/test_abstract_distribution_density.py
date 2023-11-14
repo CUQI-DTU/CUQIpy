@@ -79,13 +79,13 @@ def test_conditioning_keeps_name():
     """ This tests if the name of the distribution is kept when conditioning. """
     y = cuqi.distribution.Gaussian(lambda x:x, geometry=1)
     
-    assert y(x=1, cov=1).name == y.name
-    assert y(x=1)(cov=1).name == y.name
-    assert y(x=1)(cov=1)().name == y.name
+    assert y(x=1, cov=1).par_name == y.par_name
+    assert y(x=1)(cov=1).par_name == y.par_name
+    assert y(x=1)(cov=1)().par_name == y.par_name
 
-    assert y(x=1).name == y.name
-    assert y(cov=1).name == y.name
-    assert y().name == y.name
+    assert y(x=1).par_name == y.par_name
+    assert y(cov=1).par_name == y.par_name
+    assert y().par_name == y.par_name
 
 def test_conditioning_class_flow():
     """ This tests the class flow of conditioning a conditional distribution in various ways """

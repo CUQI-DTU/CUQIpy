@@ -147,7 +147,7 @@ class RandomVariable:
 
     def sample(self):
         """ Sample random variable. """
-        return self(**{distribution.name: distribution.sample() for distribution in self.distributions})
+        return self(**{distribution.par_name: distribution.sample() for distribution in self.distributions})
          
     @property
     def dist(self) -> cuqi.distribution.Distribution:
@@ -168,8 +168,8 @@ class RandomVariable:
         return self._distributions
     
     def _set_dist_name_if_not_set(self, distribution):
-        if not hasattr(distribution, 'name') or distribution.name is None:
-            distribution.name = self.name
+        if not hasattr(distribution, 'par_name') or distribution.par_name is None:
+            distribution.par_name = self.name
 
     def get_conditioning_variables(self):
         """ Get conditioning variables. """
@@ -180,7 +180,7 @@ class RandomVariable:
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
-        return [distribution.name for distribution in self.distributions]
+        return [distribution.par_name for distribution in self.distributions]
     
     @property
     def _non_default_args(self) -> List[str]:
@@ -258,7 +258,8 @@ class RandomVariable:
 
     @property
     def is_transformed(self):
-        return len(self.distributions) > 1 or not self._tree is None
+        #return len(self.distributions) > 1 or not self._tree is None
+        return not isinstance(self.tree, RandomVariableNode)
     
     def _apply_operation(self, operation, other=None) -> 'RandomVariable':
         """

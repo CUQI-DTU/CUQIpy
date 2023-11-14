@@ -152,7 +152,7 @@ def test_joint_dist_properties(densities):
     assert P.get_parameter_names() == [density.name for density in densities[:-1]]
 
     # Check list of distributions by comparing the names
-    assert [dist.name for dist in P._distributions] == [density.name for density in densities[:-1]]
+    assert [dist.par_name for dist in P._distributions] == [density.name for density in densities[:-1]]
 
     # Check likelihoods by comparing the names
     assert [L.name for L in P._likelihoods] == [densities[-1].name]
