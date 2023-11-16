@@ -274,3 +274,10 @@ def test_rv_name_consistency():
     # Ensure that the name is changed for the other conditioned densities.
     assert x2.name == 'y'
     assert x3.name == 'y'
+
+def test_RV_should_catch_non_linear_model_used_as_linear_model():
+    A = cuqi.testproblem.Poisson1D().model
+    x = cuqi.distribution.Gaussian(0, 1, geometry=A.domain_geometry).rv
+
+    with pytest.raises(TypeError, match=r"Cannot apply matmul to non-linear models"):
+        y=A@x

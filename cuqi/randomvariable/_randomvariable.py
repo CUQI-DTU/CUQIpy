@@ -312,9 +312,13 @@ class RandomVariable:
         return self._apply_operation(lambda x, y: operator.truediv(y, x), other)
 
     def __matmul__(self, other) -> 'RandomVariable':
+        if isinstance(other, cuqi.model.Model) and not isinstance(other, cuqi.model.LinearModel):
+            raise TypeError("Cannot apply matmul to non-linear models")
         return self._apply_operation(operator.matmul, other)
 
     def __rmatmul__(self, other) -> 'RandomVariable':
+        if isinstance(other, cuqi.model.Model) and not isinstance(other, cuqi.model.LinearModel):
+            raise TypeError("Cannot apply matmul to non-linear models")
         return self._apply_operation(lambda x, y: operator.matmul(y, x), other)
 
     def __neg__(self) -> 'RandomVariable':
