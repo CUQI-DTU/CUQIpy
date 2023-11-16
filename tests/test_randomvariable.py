@@ -2,18 +2,18 @@ import pytest
 import cuqi
 import numpy as np
 
-def test_randomvariable_should_require_named_distribution():
+def test_randomvariable_name_consistency():
 
     # Case 1: distribution with explicit name
-    x_rv = cuqi.randomvariable.RandomVariable(cuqi.distribution.Gaussian(0, 1,par_name="x"))
+    x_rv = cuqi.randomvariable.RandomVariable(cuqi.distribution.Gaussian(0, 1, par_name="x"))
+
+    assert x_rv.name == "x"
 
     # Case 2: distribution with implicit name
-    x = cuqi.distribution.Gaussian(0, 1)
-    x_rv = cuqi.randomvariable.RandomVariable(x)
+    x = cuqi.distribution.Gaussian(0, 1).rv
 
-    # Case 3: distribution without name
-    with pytest.raises(ValueError, match="without name"):
-        x_rv = cuqi.randomvariable.RandomVariable(cuqi.distribution.Gaussian(0, 1))
+    assert x.name == "x"
+
 
 def test_algrabraic_operations_on_distribution_should_create_randomvariable():
 
@@ -67,8 +67,8 @@ def test_algebra_on_randomvariables_can_be_combined_and_is_correct(operations):
     assert np.allclose(rv(val), operations(val))
 
 def test_randomvariable_returns_correct_parameter_name():
-    z = cuqi.distribution.Gaussian(0, 1)
-    assert cuqi.utilities.get_non_default_args(z._as_random_variable()) == ["z"]
+    z = cuqi.distribution.Gaussian(0, 1).rv
+    assert cuqi.utilities.get_non_default_args(z) == ["z"]
 
 @pytest.mark.parametrize("operations", [
     lambda x: x+1,
@@ -130,9 +130,9 @@ def test_randomvariable_works_with_distribution_conditioning(operations):
 ])
 def test_randomvariable_algebra_works_on_joint_space(operations):
     """ Test that algebraic operations on random variables work in joint space """
-    x = cuqi.distribution.Gaussian(0, 1)
-    y = cuqi.distribution.Gaussian(0, 1)
-    z = cuqi.distribution.Gaussian(0, 1)
+    x = cuqi.distribution.Gaussian(0, 1).rv
+    y = cuqi.distribution.Gaussian(0, 1).rv
+    z = cuqi.distribution.Gaussian(0, 1).rv
 
     # Define a random variable in joint space
     rv = operations(x, y, z)
@@ -169,9 +169,9 @@ def test_randomvariable_algebra_works_on_joint_space(operations):
 ])
 def test_randomvariable_sample(operations):
     """ Test that random variable sampling works """
-    x = cuqi.distribution.Gaussian(0, 1)
-    y = cuqi.distribution.Gaussian(0, 1)
-    z = cuqi.distribution.Gaussian(0, 1)
+    x = cuqi.distribution.Gaussian(0, 1).rv
+    y = cuqi.distribution.Gaussian(0, 1).rv
+    z = cuqi.distribution.Gaussian(0, 1).rv
 
     # Define a random variable in joint space
     rv = operations(x, y, z)
