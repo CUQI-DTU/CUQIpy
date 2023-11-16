@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, LMRF
-from cuqi.sampler import Gibbs, Linear_RTO, Conjugate, UGLA, ConjugateApprox
+from cuqi.sampler import Gibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
 
@@ -55,7 +55,7 @@ np.random.seed(0)
 # true solution (sharp signal) and data (convolved signal).
 
 # Model and data
-A, y_obs, probinfo = Deconvolution1D.get_components(phantom='square')
+A, y_obs, probinfo = Deconvolution1D(phantom='square').get_components()
 
 # Get dimension of signal
 n = A.domain_dim
@@ -148,17 +148,17 @@ print(posterior)
 # :math:`\mathbf{y}` is also Gaussian with a Linear operator acting
 # on :math:`\mathbf{x}` as the mean variable. This means that we can
 # efficiently sample from :math:`\mathbf{x}` conditional on the other
-# variables using the ``Linear_RTO`` sampler.
+# variables using the ``LinearRTO`` sampler.
 # 
 # Taking these two facts into account, we can define a Gibbs sampler
 # that uses the ``Conjugate`` sampler for :math:`d` and :math:`l` and
-# the ``Linear_RTO`` sampler for :math:`\mathbf{x}`.
+# the ``LinearRTO`` sampler for :math:`\mathbf{x}`.
 #
 # This is done in CUQIpy as follows:
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': Linear_RTO,
+    'x': LinearRTO,
     'd': Conjugate,
     'l': Conjugate
 }
@@ -234,7 +234,7 @@ print(posterior_Ld)
 # Using the same approach as earlier we can define a Gibbs sampler
 # for this new hierarchical model. The only difference is that we
 # now need to use a different sampler for :math:`\mathbf{x}` because
-# the ``Linear_RTO`` sampler only works for Gaussian distributions.
+# the ``LinearRTO`` sampler only works for Gaussian distributions.
 #
 # In this case we use the UGLA (Unadjusted Gaussian Laplace Approximation) sampler
 # for :math:`\mathbf{x}`. We also use an approximate Conjugate

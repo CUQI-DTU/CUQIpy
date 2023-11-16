@@ -299,7 +299,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtprec_s, 1) , rtol=0.1)
     assert np.allclose(np.round(s_cov, 1), np.round(s_sqrtcov_s, 1) , rtol=0.1)
     
-    #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what Linear_RTO uses.
+    #TODO. Add comparrison of sampling using X_cov.sqrtprec directly. This is what LinearRTO uses.
     # CUQI test problem
     # TP = cuqi.testproblem.Deconvolution1D(dim=n)
     # TP.prior = X_GMRF
@@ -371,6 +371,13 @@ def test_InverseGamma(a, location, scale, x, func):
 
     else:
         raise ValueError
+
+@pytest.mark.parametrize("location", [-1, -2, -3, 0, 1, 2, 3])
+@pytest.mark.parametrize("scale", [1e-3, 1e-1, 1e0, 1e1, 1e3])
+@pytest.mark.parametrize("value", [1e-3, 1e-1, 1e0, 1e1, 1e3])
+def test_Laplace_pdf(location, scale, value):
+    LPL = cuqi.distribution.Laplace(location, scale)
+    assert np.isclose(LPL.pdf(value), scipy_stats.laplace(location, scale).pdf(value))
 
 @pytest.mark.xfail(reason="Expected to fail after fixing Gaussian sample. Regression needs to be updated")
 def test_lognormal_sample():

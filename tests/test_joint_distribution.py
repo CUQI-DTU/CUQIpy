@@ -5,7 +5,7 @@ import pytest
 def test_joint_dist_dim_geometry():
     """ Test the dimension and geometry properties of a joint distribution """
 
-    model, data, _ = cuqi.testproblem.Poisson1D.get_components() # Model is m times n, m != n.
+    model, data, _ = cuqi.testproblem.Poisson1D().get_components() # Model is m times n, m != n.
 
     # Bayesian model
     d = cuqi.distribution.Gamma(1, 1e-4).rv

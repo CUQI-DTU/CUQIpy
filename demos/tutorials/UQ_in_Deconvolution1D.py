@@ -32,11 +32,11 @@ import matplotlib.pyplot as plt
 # This module contains a number of pre-defined test problems that contain the
 # forward model and synthetic data. In this case, we will use the
 # :class:`cuqi.testproblem.Deconvolution1D` test problem. We extract the forward model
-# and synthetic data from the test problem by calling the :func:`get_components` static
+# and synthetic data from the test problem by calling the :func:`get_components`
 # method.
 
 # Forward model and data
-A, y_data, info = cuqi.testproblem.Deconvolution1D.get_components()
+A, y_data, info = cuqi.testproblem.Deconvolution1D().get_components()
 
 # %%
 # There are many parameters that can be set when creating the test problem. For more details

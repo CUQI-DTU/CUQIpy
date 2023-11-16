@@ -4,15 +4,25 @@ import cuqi
 import pytest
 from cuqi.geometry import Continuous2D, Continuous1D
 
-@pytest.mark.parametrize("geomClass,grid,expected_grid,expected_par_shape,expected_fun_shape,expected_dim",
-                         [(cuqi.geometry.Continuous1D,(1),np.array([0]),(1,),(1,),1),
-			  (cuqi.geometry.Continuous1D,(1,),np.array([0]),(1,),(1,),1),
-			  (cuqi.geometry.Continuous1D, 1, np.array([0]),(1,),(1,),1),
-			  (cuqi.geometry.Continuous1D, [1,2,3,4],np.array([1,2,3,4]),(4,),(4,),4),
-			  (cuqi.geometry.Continuous1D, 5,np.array([0,1,2,3,4]),(5,),(5,),5),
-			  (cuqi.geometry.Continuous2D,(1,1),(np.array([0]),np.array([0])),(1,),(1,1),1),
-			  (cuqi.geometry.Continuous2D,([1,2,3],1), (np.array([1,2,3]), np.array([0])), (3,),(3,1), 3)
-			  ])
+
+@pytest.mark.parametrize(
+    "geomClass,grid,expected_grid,expected_par_shape,expected_fun_shape,expected_dim",
+    [(cuqi.geometry.Continuous1D, (1), np.array([0]), (1,), (1,), 1),
+     (cuqi.geometry.Continuous1D, (1,),
+      np.array([0]), (1,), (1,), 1),
+     (cuqi.geometry.Continuous1D, 1,
+      np.array([0]), (1,), (1,), 1),
+     (cuqi.geometry.Continuous1D, [1, 2, 3, 4], np.array(
+         [1, 2, 3, 4]), (4,), (4,), 4),
+     (cuqi.geometry.Continuous1D, 5, np.array(
+         [0, 1, 2, 3, 4]), (5,), (5,), 5),
+     (cuqi.geometry.Continuous2D, (1, 1),
+      (np.array([0]), np.array([0])), (1,), (1, 1), 1),
+     (cuqi.geometry.Continuous2D, ([1, 2, 3], 1), (np.array(
+         [1, 2, 3]), np.array([0])), (3,), (3, 1), 3),
+     (cuqi.geometry.Continuous2D, (2, 2), (np.array(
+         [0, 1]), np.array([0, 1])), (4,), (2, 2), 4)
+     ])
 def test_Continuous_geometry(geomClass,grid,expected_grid,expected_par_shape, expected_fun_shape,expected_dim):
     geom = geomClass(grid=grid)
     assert(np.all(np.hstack(geom.grid) == np.hstack(expected_grid))
@@ -135,8 +145,8 @@ def test_geometry_equality(g1, g2, truth_value):
 	"""Ensure geometry arrays compare correctly"""
 	assert (g1==g2) == truth_value
 
-@pytest.mark.parametrize("n_steps",[1,2,6,7,9,10,20, 21])
-def test_StepExpansion_geometry(n_steps):
+@pytest.mark.parametrize("n_steps", [1, 2, 6, 7, 9, 10, 20, 21])
+def test_StepExpansion_geometry(n_steps, copy_reference):
     """Check StepExpansion geometry correctness"""
     grid = np.linspace(0,1,20)
     if n_steps > np.size(grid):
@@ -149,8 +159,18 @@ def test_StepExpansion_geometry(n_steps):
         par = np.random.randn(n_steps)
         geom.plot(par,linestyle = '', marker='.')
 
-        assert np.allclose(par, geom.fun2par(geom.par2fun(par))) \
+        fun = geom.par2fun(par)
+        par2 = geom.fun2par(fun)
+
+        assert np.allclose(par, par2) \
            and geom.par_dim == n_steps
+        
+        # Assert fun and par2 matches the values in the data file
+        ref_file = copy_reference(
+            f"data/geometry/test_StepExpansion_{n_steps}.npz")
+        ref = np.load(ref_file)
+        assert np.allclose(fun, ref["fun"])
+        assert np.allclose(par2, ref["par2"])
 
 @pytest.mark.parametrize("projection, func",[('MiN', np.min),
       ('mAX', np.max),('mean', np.mean)])
@@ -176,8 +196,13 @@ def test_stepExpansion_fun2par(projection, func):
     assert np.allclose(p, qa_f.parameters)
 
 @pytest.mark.parametrize("num_modes",[1, 10, 20, 25])
-def test_KL_expansion(num_modes):
+def test_KL_expansion(num_modes, copy_reference):
     """Check KL expansion geometry correctness"""
+
+    # File name for reference data
+    ref_fname = f"data/geometry/KL_expansion_{num_modes}.npz"
+
+    # Set up KL expansion geometry
     N = 20
     grid = np.linspace(0, 1, N)
     decay_rate = 2.5
@@ -189,6 +214,7 @@ def test_KL_expansion(num_modes):
     if num_modes > len(grid):
         num_modes = len(grid)
 
+    # Apply par2fun and check results
     p = np.random.randn(N)
     f_geom = geom.par2fun(p[:num_modes])
 
@@ -201,6 +227,10 @@ def test_KL_expansion(num_modes):
     assert geom.par_dim == geom.num_modes
     assert len(geom.grid) == geom.fun_dim
 
+    # Verify the KL expansion results against the reference data
+    ref_file = copy_reference(ref_fname)
+    ref = np.load(ref_file)
+    assert np.allclose(f_geom, ref["f_geom"])
 
 def test_KLExpansion_set_grid():
     """Check updating grid in KL expansion geometry"""
@@ -361,7 +391,7 @@ def test_create_CustomKL_geometry():
 	   geom.trunc_term==trunc_term
 	
 
-def test_KLExpansion_projection():
+def test_KLExpansion_projection(copy_reference):
     """Check KLExpansion geometry projection performed by the method fun2par)"""
     # Set up a KLExpansion geometry
     num_modes = 95
@@ -389,8 +419,132 @@ def test_KLExpansion_projection():
     rel_err = np.linalg.norm(signal-signal_proj)/np.linalg.norm(signal)
     assert np.isclose(rel_err, 0.0, atol=1e-5)
 
+    # Compare results with reference data
+    ref_file = copy_reference("data/geometry/test_KLExpansion_projection.npz")
+    ref = np.load(ref_file)
+    assert np.allclose(p, ref["p"])
+
 def test_DefaultGeometry2D_should_be_image2D():
     geom2D = cuqi.geometry._DefaultGeometry2D((100, 100))
 
     assert isinstance(geom2D, cuqi.geometry.Image2D)
    
+
+@pytest.fixture
+def geom2D_funvals():
+    """Returns two different function values for a continuous 2D geometry"""
+    geom2D = cuqi.geometry.Continuous2D((3, 3))
+    def func1(x, y): return x*y
+    def func2(x, y): return x**2*y**2
+    XX, YY = np.meshgrid(geom2D.grid[0], geom2D.grid[1])
+    funval1 = cuqi.array.CUQIarray(
+        func1(XX, YY), is_par=False, geometry=geom2D)
+    funval2 = cuqi.array.CUQIarray(
+        func2(XX, YY), is_par=False, geometry=geom2D)
+    return funval1, funval2
+
+
+def test_Continuous2D_par2fun_and_fun2par_correctness(geom2D_funvals):
+    """Check the correctness of the par2fun and fun2par methods for a continuous
+    2D geometry"""
+    funval1, funval2 = geom2D_funvals
+    geom2D = funval1.geometry
+
+    # Checks for one function value
+    assert (funval1.shape == (3, 3))
+    assert (funval1.parameters.shape == (9,))
+    assert (funval1.parameters.funvals.shape == (3, 3))
+    assert np.allclose(funval1, funval1.parameters.funvals)
+
+    # Checks for an array of more than one function values
+    # create the array
+    multiple_funvals = np.stack((funval1, funval2), axis=-1)
+    assert (multiple_funvals.shape == (3, 3, 2))
+
+    # convert to parameters
+    multiple_funvals_topar = geom2D.fun2par(multiple_funvals)
+    assert np.allclose(multiple_funvals_topar[:, 0], funval1.parameters)
+    assert np.allclose(multiple_funvals_topar[:, 1], funval2.parameters)
+
+    # convert back to function values
+    multiple_funvals_topar_tofun = geom2D.par2fun(multiple_funvals_topar)
+    assert np.allclose(multiple_funvals_topar_tofun, multiple_funvals)
+
+
+def test_Continuous2D_plot_multiple_funvals_pass(geom2D_funvals):
+    """Check the correctness of the plot method for a continuous 2D geometry
+    when multiple function values are given"""
+    funval1, funval2 = geom2D_funvals
+    geom2D = funval1.geometry
+    multiple_funvals = np.stack((funval1, funval2), axis=-1)
+    assert (multiple_funvals.shape == (3, 3, 2))
+    # Test plotting passes
+    geom2D.plot(multiple_funvals, is_par=False)
+    # Convert to parameters then plot
+    multiple_funvals_topar = geom2D.fun2par(multiple_funvals)
+    geom2D.plot(multiple_funvals_topar, is_par=True)
+
+# Create fixture for KLExpansion geometry
+@pytest.fixture
+def geom_KL():
+    """Returns a KLExpansion geometry"""
+    N = 20
+    grid = np.linspace(0, 1, N)
+    decay_rate = 2.5
+    normalizer = 12
+    geom = cuqi.geometry.KLExpansion(grid,
+                                     decay_rate=decay_rate,
+                                     normalizer=normalizer,
+                                     num_modes=10)
+    return geom
+
+# Create fixture for StepExpansion geometry
+@pytest.fixture
+def geom_Step():
+    """Returns a StepExpansion geometry"""
+    N = 20
+    grid = np.linspace(0, 1, N)
+    n_steps = 10
+    geom = cuqi.geometry.StepExpansion(grid, n_steps=n_steps)
+    return geom
+
+# Create fixture to parametrize the tests by geometry
+@pytest.fixture
+def geom(request):
+    return request.getfixturevalue(request.param)
+
+# Compare par2fun and fun2par for each geometry for individual parameters 
+# vectors and multiple parameter vectors
+@pytest.mark.parametrize('geom', ['geom_KL', 'geom_Step'], indirect=True)
+def test_par2fun_and_fun2par_correctness_for_multiple_values(geom):
+    """Check the correctness of the par2fun and fun2par methods for different
+    geometries for multiple parameter vectors"""
+
+    # Create random parameter values
+    np.random.seed(0)
+    n = 5
+    par = np.random.randn(geom.par_dim, n)
+    
+    # run par2fun (first for multiple parameter vectors at once)
+    fun = geom.par2fun(par)
+
+    # run par2fun (for each parameter vector individually)
+    fun_ind = np.array([geom.par2fun(par[:, i]) for i in range(n)]).T
+
+    # Check that the results are the same
+    assert np.allclose(fun, fun_ind)
+
+    # Check plotting runs
+    geom.plot(fun, is_par=False)
+
+    # run fun2par (first for multiple functions at once)
+    par2 = geom.fun2par(fun)
+
+    # run fun2par (for each function individually)
+    par2_ind = np.array([geom.fun2par(fun[:, i]) for i in range(n)]).T
+
+    # Check that the results are the same
+    assert np.allclose(par2, par2_ind)
+
+    # Check plotting runs
+    geom.plot(par2, is_par=True)

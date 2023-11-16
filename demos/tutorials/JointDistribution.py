@@ -18,7 +18,7 @@ from cuqi.distribution import Gaussian, Gamma, JointDistribution
 from cuqi.testproblem import Deconvolution1D
 
 # Model and data
-A, y_obs, _ = Deconvolution1D.get_components()
+A, y_obs, _ = Deconvolution1D().get_components()
 
 # Model dimensions
 n = A.domain_dim

@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 # myfuns
 import cuqi
-from cuqi.sampler import Linear_RTO
+from cuqi.sampler import LinearRTO
 
 # =============================================================================
 # set-up the discrete convolution model
@@ -47,7 +47,7 @@ x0 = mu_pr
 maxit = 20
 #
 posterior = cuqi.distribution.Posterior(test.likelihood, prior)
-MCMC = Linear_RTO(posterior, x0, maxit)
+MCMC = LinearRTO(posterior, x0, maxit)
 #
 ti = time.time()
 x_s = MCMC.sample(Ns, Nb).samples

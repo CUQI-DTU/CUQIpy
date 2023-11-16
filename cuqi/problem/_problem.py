@@ -90,7 +90,7 @@ class BayesianProblem(object):
         import matplotlib.pyplot as plt
 
         # Deterministic forward model and data (1D convolution)
-        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D.get_components()
+        A, y_data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
 
         # Bayesian model
         x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
@@ -129,24 +129,20 @@ class BayesianProblem(object):
     Most functionality is currently only implemented for this simple case.
 
     """
-    @classmethod
-    def get_components(cls, **kwargs) -> Tuple[Model, CUQIarray, ProblemInfo]:
+
+    def get_components(self) -> Tuple[Model, CUQIarray, ProblemInfo]:
         """
         Method that returns the model, the data and additional information to be used in formulating the Bayesian problem.
         
-        Parameters:
-        -----------
-        Takes the same parameters that the corresponding class initializer takes. For example: :meth:`cuqi.testproblem.Deconvolution1D.get_components` takes the parameters of :meth:`cuqi.testproblem.Deconvolution1D` constructor. 
         """
 
         problem_info = ProblemInfo() #Instead of a dict, we use our ProblemInfo dataclass.
-        problem = cls(**kwargs)
 
         for key, value in vars(problem_info).items():
-            if hasattr(problem, key):
-                setattr(problem_info,key,vars(problem)[key])
+            if hasattr(self, key):
+                setattr(problem_info,key,vars(self)[key])
 
-        return problem.model, problem.data, problem_info
+        return self.model, self.data, problem_info
 
     def __init__(self, *densities: Density, **data: np.ndarray):
         self._target = JointDistribution(*densities)(**data)
@@ -291,13 +287,16 @@ class BayesianProblem(object):
         x_MAP.info = solver_info
         return x_MAP
 
-    def sample_posterior(self, Ns, callback=None) -> cuqi.samples.Samples:
+    def sample_posterior(self, Ns, Nb=None, callback=None) -> cuqi.samples.Samples:
         """Sample the posterior. Sampler choice and tuning is handled automatically.
         
         Parameters
         ----------
         Ns : int
             Number of samples to draw.
+
+        Nb : int or None, *Optional*
+            Number of burn-in samples. If not provided, 20% of the samples will be used for burn-in.
 
         callback : callable, *Optional*
             If set this function will be called after every sample.
@@ -319,10 +318,14 @@ class BayesianProblem(object):
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print("")
 
+        # Set up burn-in if not provided
+        if Nb is None:
+            Nb = int(0.2*Ns)
+
         # If target is a joint distribution, try Gibbs sampling
         # This is still very experimental!
         if isinstance(self._target, JointDistribution):       
-            return self._sampleGibbs(Ns, callback=callback)
+            return self._sampleGibbs(Ns, Nb, callback=callback)
 
         # For Gaussian small-scale we can use direct sampling
         if self._check_posterior(self, Gaussian, Gaussian, LinearModel, config.MAX_DIM_INV) and not self._check_posterior(self, GMRF):
@@ -330,20 +333,20 @@ class BayesianProblem(object):
 
         # For larger-scale Gaussian we use Linear RTO. TODO: Improve checking once we have a common Gaussian class.
         elif hasattr(self.prior,"sqrtprecTimesMean") and hasattr(self.likelihood.distribution,"sqrtprec") and isinstance(self.model,LinearModel):
-            return self._sampleLinearRTO(Ns, callback)
+            return self._sampleLinearRTO(Ns, Nb, callback)
 
         # For LMRF we use our awesome unadjusted Laplace approximation!
         elif self._check_posterior(self, LMRF, Gaussian):
-            return self._sampleUGLA(Ns, callback)
+            return self._sampleUGLA(Ns, Nb, callback)
 
         # If we have gradients, use NUTS!
         # TODO: Fix cases where we have gradients but NUTS fails (see checks)
         elif self._check_posterior(self, must_have_gradient=True) and not self._check_posterior(self, (Beta, InverseGamma, Lognormal)):
-            return self._sampleNUTS(Ns, callback)
+            return self._sampleNUTS(Ns, Nb, callback)
 
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior(self, (Gaussian, GMRF), Gaussian):
-            return self._samplepCN(Ns, callback)
+            return self._samplepCN(Ns, Nb, callback)
 
         else:
             raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
@@ -369,17 +372,23 @@ class BayesianProblem(object):
         model = cuqi.model.LinearModel(lambda x: 0*x, lambda y: 0*y, self.model.range_geometry, self.model.domain_geometry)
         likelihood = cuqi.distribution.Gaussian(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
         prior_problem.likelihood = likelihood
+        
+        # Set up burn-in
+        Nb = int(0.2*Ns)
 
         # Now sample prior problem
-        return prior_problem.sample_posterior(Ns, callback)
+        return prior_problem.sample_posterior(Ns, Nb, callback)
 
-    def UQ(self, Ns=1000, percent=95, exact=None) -> cuqi.samples.Samples:
+    def UQ(self, Ns=1000, Nb=None, percent=95, exact=None) -> cuqi.samples.Samples:
         """ Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.
         
         Parameters
         ----------
         Ns : int, *Optional*
-            Number of samples to draw.
+            Number of samples to draw. Defaults to 1000.
+
+        Nb : int, *Optional*
+            Number of burn-in samples. If not provided, 20% of the samples will be used for burn-in.
         
         exact : ndarray or dict[str, ndarray], *Optional*
             Exact solution to the problem. If provided the summary will include a comparison to the exact solution.
@@ -394,7 +403,7 @@ class BayesianProblem(object):
             Samples from the posterior. The samples can be used to compute further statistics and plots.
         """
         print(f"Computing {Ns} samples")
-        samples = self.sample_posterior(Ns)
+        samples = self.sample_posterior(Ns, Nb)
 
         print("Plotting results")
         # Gibbs case
@@ -431,10 +440,10 @@ class BayesianProblem(object):
             try:
                 samples.plot_ci(percent=percent, exact=exact)
             except NotImplementedError as nie:
-                warnings.warn(
-                    f"Unable to plot CI for samples with the underlying "+
-                     "geometry {samples.geometry}. Plotting the CI for the "+
-                     "parameters instead.")
+                print(
+                    "Unable to plot CI for samples with the underlying " +
+                    f"geometry: {samples.geometry}. Plotting the CI for the " +
+                    "parameters instead.")
                 self._alternative_plot_UQ_for_variable(
                     samples, percent=percent, exact=exact)
 
@@ -461,16 +470,15 @@ class BayesianProblem(object):
         samples.funvals.vector.plot_variance()
         plt.title("Sample variance of function representation")
 
-    def _sampleLinearRTO(self,Ns, callback=None):
-        print("Using Linear_RTO sampler.")
-        print("burn-in: 20%")
+    def _sampleLinearRTO(self, Ns, Nb, callback=None):
+        print("Using LinearRTO sampler.")
+        print(f"burn-in: {Nb/Ns*100:g}%")
 
         # Start timing
         ti = time.time()
 
         # Sample
-        Nb = int(0.2*Ns)   # burn-in
-        sampler = cuqi.sampler.Linear_RTO(self.posterior, callback=callback)
+        sampler = cuqi.sampler.LinearRTO(self.posterior, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
         # Print timing
@@ -480,6 +488,8 @@ class BayesianProblem(object):
 
     def _sampleMapCholesky(self, Ns, callback=None):
         print(f"Using direct sampling of Gaussian posterior. Only works for small-scale problems with dim<={config.MAX_DIM_INV}.")
+        print("No burn-in needed for direct sampling.")
+
         # Start timing
         ti = time.time()
 
@@ -517,9 +527,9 @@ class BayesianProblem(object):
         
         return cuqi.samples.Samples(x_s,self.model.domain_geometry)
     
-    def _sampleCWMH(self, Ns, callback=None):
+    def _sampleCWMH(self, Ns, Nb, callback=None):
         print("Using Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
-        print("burn-in: 20%, scale: 0.05, x0: 0.5 (vector)")
+        print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
         # Dimension
         n = self.prior.dim
@@ -533,16 +543,15 @@ class BayesianProblem(object):
         MCMC = cuqi.sampler.CWMH(self.posterior, proposal, scale, x0, callback=callback)
         
         # Run sampler
-        Nb = int(0.2*Ns)   # burn-in
         ti = time.time()
         x_s = MCMC.sample_adapt(Ns,Nb); #ToDo: Make results class
         print('Elapsed time:', time.time() - ti)
         
         return x_s
 
-    def _samplepCN(self, Ns, callback=None):
+    def _samplepCN(self, Ns, Nb, callback=None):
         print("Using preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
-        print("burn-in: 20%, scale: 0.02")
+        print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.02")
 
         scale = 0.02
         #x0 = np.zeros(n)
@@ -550,16 +559,15 @@ class BayesianProblem(object):
         MCMC = cuqi.sampler.pCN(self.posterior, scale, callback=callback)      
         
         #Run sampler
-        Nb = int(0.2*Ns)
         ti = time.time()
         x_s = MCMC.sample_adapt(Ns, Nb)
         print('Elapsed time:', time.time() - ti)
        
         return x_s
 
-    def _sampleNUTS(self, Ns, callback=None):
+    def _sampleNUTS(self, Ns, Nb, callback=None):
         print("Using No-U-Turn (NUTS) sampler")
-        print("burn-in: 20%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
 
         # MAP
         #print("Computing MAP ESTIMATE")
@@ -568,22 +576,20 @@ class BayesianProblem(object):
         MCMC = cuqi.sampler.NUTS(self.posterior, callback=callback)
         
         # Run sampler
-        Nb = int(0.2*Ns)   # burn-in
         ti = time.time()
         x_s = MCMC.sample_adapt(Ns,Nb)
         print('Elapsed time:', time.time() - ti)
         
         return x_s
 
-    def _sampleUGLA(self, Ns, callback=None):
+    def _sampleUGLA(self, Ns, Nb, callback=None):
         print("Using UGLA sampler")
-        print("burn-in: 20%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
 
         # Start timing
         ti = time.time()
 
         # Sample
-        Nb = int(0.2*Ns)
         sampler = cuqi.sampler.UGLA(self.posterior, callback=callback)
         samples = sampler.sample(Ns, Nb)
 
@@ -693,14 +699,11 @@ class BayesianProblem(object):
 
         return L and P and M and D and G
 
-    def _sampleGibbs(self, Ns, callback=None):
+    def _sampleGibbs(self, Ns, Nb, callback=None):
         """ This is a helper function for sampling from the posterior using Gibbs sampler. """
 
-        # Set burn-in ratio
-        burn_in_ratio = 0.2
-
         print("Using Gibbs sampler")
-        print(f"burn-in: {int(burn_in_ratio*100)}%")
+        print(f"burn-in: {Nb/Ns*100:g}%")
         print("")
 
         if callback is not None:
@@ -708,9 +711,6 @@ class BayesianProblem(object):
 
         # Start timing
         ti = time.time()
-
-        # Burn-in
-        Nb = int(burn_in_ratio*Ns)
 
         # Sampling strategy
         sampling_strategy = self._determine_sampling_strategy()
@@ -761,9 +761,9 @@ class BayesianProblem(object):
             elif self._check_posterior(cond_target, Gamma, LMRF):
                 sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
 
-            # Gaussian prior, Gaussian likelihood, Linear model -> Linear_RTO
+            # Gaussian prior, Gaussian likelihood, Linear model -> LinearRTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
-                sampling_strategy[par_name] = cuqi.sampler.Linear_RTO
+                sampling_strategy[par_name] = cuqi.sampler.LinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):

@@ -121,7 +121,7 @@ class UGLA(Sampler):
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
 
-        # Now prepare "Linear_RTO" type sampler. TODO: Use Linear_RTO for this instead
+        # Now prepare "LinearRTO" type sampler. TODO: Use LinearRTO for this instead
         self._shift = 0
 
         # Pre-computations

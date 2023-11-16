@@ -23,7 +23,7 @@ import numpy as np
 #
 # See :class:`~cuqi.testproblem.Deconvolution1D` for more details.
 
-A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components()
+A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
 
 # %%
 # Then consider the following Bayesian model
@@ -70,11 +70,8 @@ posterior.logd(np.ones(A.domain_dim))
 #    \end{align*}
 
 # Both observations come from the same unknown x
-A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components()
-B, d_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(
-    PSF="Defocus",
-    noise_std=0.02
-)
+A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+B, d_obs, _ = cuqi.testproblem.Deconvolution1D(PSF="Defocus", noise_std=0.02).get_components()
 
 # %%
 # Then consider the following Bayesian model
@@ -127,11 +124,8 @@ posterior2.logd(np.ones(A.domain_dim))
 # where :math:`C` is a nonlinear function.
 
 # Same x for all 3 observations
-A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components()
-B, d_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(
-    PSF="Defocus",
-    noise_std=0.02
-)
+A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+B, d_obs, _ = cuqi.testproblem.Deconvolution1D(PSF="Defocus", noise_std=0.02).get_components()
 C = cuqi.model.Model(lambda x: np.linalg.norm(x)**2, 1, A.domain_dim)
 b_obs = 16
 

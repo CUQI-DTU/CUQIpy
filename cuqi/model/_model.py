@@ -149,57 +149,82 @@ class Model(object):
     def range_dim(self): 
         return self.range_geometry.par_dim
 
-    def _input2fun(self, x, geometry, is_par):
-        """ Converts input to function values (if needed) using the appropriate geometry. The input can then be passed to :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func).
+    def _2fun(self, x, geometry, is_par):
+        """ Converts `x` to function values (if needed) using the appropriate 
+        geometry. For example, `x` can be the model input which need to be
+        converted to function value before being passed to 
+        :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func,
+        _gradient_func).
 
         Parameters
         ----------
         x : ndarray or cuqi.array.CUQIarray
-            The input value to be converted.
+            The value to be converted.
 
         geometry : cuqi.geometry.Geometry
-            The geometry representing the input `x`.
+            The geometry representing `x`.
 
         is_par : bool
-            If True the input is assumed to be parameters.
-            If False the input is assumed to be function values.
+            If True, `x` is assumed to be parameters.
+            If False, `x` is assumed to be function values.
 
         Returns
         -------
         ndarray or cuqi.array.CUQIarray
-            The input value represented as a function.
+            `x` represented as a function.
         """
-        if type(x) is CUQIarray and not isinstance(x.geometry, _DefaultGeometry1D):
-            return x.funvals
+        # Convert to function representation
+        # if x is CUQIarray and geometry are consistent, we obtain funvals
+        # directly
+        if isinstance(x, CUQIarray) and  x.geometry == geometry:
+            x = x.funvals
+        # Otherwise we use the geometry par2fun method
         elif is_par:
-            return geometry.par2fun(x)
-        else:
-            return x
+            x = geometry.par2fun(x)
 
-    def _output2par(self, out, geometry, to_CUQIarray=False):
-        """ Converts output of :class:~`cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func) to parameters using the appropriate geometry.
+        return x
+
+    def _2par(self, val, geometry, to_CUQIarray=False, is_par=False):
+        """ Converts val, normally output of :class:~`cuqi.model.Model` 
+        operators (e.g. _forward_func, _adjoint_func, _gradient_func), to
+        parameters using the appropriate geometry.
 
         Parameters
         ----------
-        out : ndarray or cuqi.array.CUQIarray
-            The output value to be converted.
+        val : ndarray or cuqi.array.CUQIarray
+            The value to be converted to parameters.
 
         geometry : cuqi.geometry.Geometry
-            The geometry representing the argument `out`.
+            The geometry representing the argument `val`.
 
         to_CUQIarray : bool
-            If True, the output is wrapped as a cuqi.array.CUQIarray.
+            If True, the returned value is wrapped as a cuqi.array.CUQIarray.
+        
+        is_par : bool
+            If True, `val` is assumed to be of parameter representation and
+            hence no conversion to parameters is performed.
 
         Returns
         -------
         ndarray or cuqi.array.CUQIarray
-            The output value represented as parameters.
-        """ 
-        out = geometry.fun2par(out)
+            The value `val` represented as parameters.
+        """
+        # Convert to parameters
+        # if val is CUQIarray and geometry are consistent, we obtain parameters
+        # directly
+        if isinstance(val, CUQIarray) and val.geometry == geometry:
+            val = val.parameters
+        # Otherwise we use the geometry fun2par method
+        elif not is_par:
+            val = geometry.fun2par(val)
+
+        # Wrap val in CUQIarray if requested
         if to_CUQIarray:
-            return CUQIarray(out, is_par=True, geometry=geometry)
-        else:
-            return out
+            val = CUQIarray(val, is_par=True, geometry=geometry)
+
+        # Return val
+        return val
+        
 
     def _apply_func(self, func, func_range_geometry, func_domain_geometry, x, is_par, **kwargs):
         """ Private function that applies the given function `func` to the input value `x`. It converts the input to function values (if needed) using the given `func_domain_geometry` and converts the output function values to parameters using the given `func_range_geometry`. It additionally handles the case of applying the function `func` to the cuqi.samples.Samples object.
@@ -241,11 +266,17 @@ class Model(object):
                                               item, is_par=True,
                                               **kwargs)
             return Samples(out, geometry=func_range_geometry)
+        
+        # store if input x is CUQIarray
+        is_CUQIarray = type(x) is CUQIarray
 
-        x = self._input2fun(x, func_domain_geometry, is_par)
+        x = self._2fun(x, func_domain_geometry, is_par=is_par)
         out = func(x, **kwargs)
-        return self._output2par(out, func_range_geometry, 
-                                    to_CUQIarray= (type(x) is CUQIarray))
+
+        # Return output as parameters 
+        # (and wrapped in CUQIarray if input was CUQIarray)
+        return self._2par(out, func_range_geometry, 
+                                    to_CUQIarray=is_CUQIarray)
 
     def _parse_args_add_to_kwargs(self, *args, **kwargs):
         """ Private function that parses the input arguments of the model and adds them as keyword arguments matching the non default arguments of the forward function. """
@@ -349,6 +380,64 @@ class Model(object):
             If False, `wrt` is assumed to be function values.
         
         """
+        # Obtain the parameters representation of wrt and raise an error if it
+        # cannot be obtained
+        error_message = \
+            "For the gradient to be computed, is_wrt_par needs " +\
+            "to be True and wrt needs to be parameter value, not function " +\
+            "value. Alternatively, the model domain_geometry: "+\
+            f"{self.domain_geometry} " +\
+            "should have an implementation of the method fun2par"
+        try:
+            wrt_par = self._2par(wrt, 
+                                 geometry=self.domain_geometry,
+                                 is_par=is_wrt_par,
+                                 to_CUQIarray=False,
+                                 )
+        # NotImplementedError will be raised if fun2par of the geometry is not
+        # implemented and ValueError will be raised when imap is not set in
+        # MappedGeometry
+        except ValueError as e:
+            raise ValueError(error_message +
+                             " ,including an implementation of imap for " +
+                             "MappedGeometry")
+        except NotImplementedError as e:
+            raise NotImplementedError(error_message)
+        
+        # Check for other errors that may prevent computing the gradient
+        self._check_gradient_can_be_computed(direction, wrt)
+
+        wrt = self._2fun(wrt, self.domain_geometry, is_par=is_wrt_par)
+
+        # Store if the input direction is CUQIarray
+        is_direction_CUQIarray = type(direction) is CUQIarray
+
+        direction = self._2fun(direction,
+                               self.range_geometry,
+                               is_par=is_direction_par)
+
+        grad = self._gradient_func(direction, wrt)
+        grad_is_par = False # Assume gradient is function values
+        
+        # If domain_geometry has gradient attribute, we apply it to the gradient
+        # The gradient returned by the domain_geometry.gradient is assumed to be
+        # parameters
+        if hasattr(self.domain_geometry, 'gradient'):
+            grad = self.domain_geometry.gradient(grad, wrt_par)
+            grad_is_par = True # Gradient is parameters
+
+        # we convert the computed gradient to parameters
+        grad = self._2par(grad,
+                          self.domain_geometry,
+                          to_CUQIarray=is_direction_CUQIarray,
+                          is_par=grad_is_par)
+
+        return grad
+    
+    def _check_gradient_can_be_computed(self, direction, wrt):
+        """ Private function that checks if the gradient can be computed. By
+        raising an error for the cases where the gradient cannot be computed."""
+
         # Raise an error if _gradient_func function is not set
         if self._gradient_func is None:
             raise NotImplementedError("Gradient is not implemented for this model.")
@@ -364,51 +453,12 @@ class Model(object):
         if not type(self.range_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with range geometry {}".format(self,self.range_geometry)) 
         
-        # Raise an error if wrt is passed as function value and the domain_geometry 
-        # does not have fun2par method
-        error_message = \
-         "For the gradient to be computed, is_wrt_par "+\
-         "needs to be True and wrt needs to be parameter value, not function "+\
-         f"value. Alternatively, the model domain_geometry: {self.domain_geometry} "+\
-         "should have an implementation of the method fun2par"
-        if isinstance(wrt, CUQIarray):
-            wrt_par = wrt.parameters
-        elif is_wrt_par:
-            wrt_par = wrt
-        else:
-            try:
-                wrt_par = self.domain_geometry.fun2par(wrt)
-            # NotImplementedError will be raised if fun2par is not
-            # implemented and ValueError will be raised when imap
-            # is not set in MappedGeometry
-            except NotImplementedError:
-                raise NotImplementedError(error_message)
-            except ValueError:
-                raise ValueError(error_message + " ,including an implementation of imap for MappedGeometry")
-
-        wrt = self._input2fun(wrt, self.domain_geometry, is_wrt_par)
-
-        x = self._input2fun(direction,
-                            self.range_geometry,
-                            is_direction_par)
-
-        grad = self._gradient_func(x, wrt)
-
-        if hasattr(self.domain_geometry, 'gradient'):
-            grad = self.domain_geometry.gradient(grad, wrt_par)
-
-        elif type(self.domain_geometry) in _get_identity_geometries():
-            grad = self._output2par(grad,
-                             self.domain_geometry,
-                             to_CUQIarray= (type(direction) is CUQIarray)) 
-
         # Raise an error if domain_geometry does not have gradient attribute and
-        # is not in the list returned by `_get_identity_geometries()`. i.e. The
+        # is not in the list returned by `_get_identity_geometries()`. i.e. the
         # Jacobian of its par2fun map is not identity.  
-        else:
+        if not hasattr(self.domain_geometry, 'gradient') and \
+            not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
-
-        return grad
     
     def _handle_random_variable(self, x):
         """ Private function that handles the case of the input being a random variable. """
@@ -425,6 +475,7 @@ class Model(object):
         new_model._non_default_args = [dist.par_name]
         return new_model
     
+
     def __len__(self):
         return self.range_dim
 

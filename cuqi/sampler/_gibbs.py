@@ -37,7 +37,7 @@ class Gibbs:
         import numpy as np
 
         # Model and data
-        A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D.get_components(phantom='square')
+        A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D(phantom='square').get_components()
         n = A.domain_dim
 
         # Define distributions
@@ -52,7 +52,7 @@ class Gibbs:
 
         # Define sampling strategy
         sampling_strategy = {
-            'x': cuqi.sampler.Linear_RTO,
+            'x': cuqi.sampler.LinearRTO,
             ('d', 'l'): cuqi.sampler.Conjugate,
         }
 
