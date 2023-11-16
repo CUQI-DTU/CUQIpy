@@ -48,7 +48,7 @@ class Laplace(Distribution):
         return self._scale
     
     @scale.setter
-    def prec(self, value):
+    def scale(self, value):
         self._scale = to_cuqi_format(value, force_ndarray=False)
         
   

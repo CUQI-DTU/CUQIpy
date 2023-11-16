@@ -132,8 +132,8 @@ def test_passing_burnin_to_UQ_method(capfd):
     fwd_model = cuqi.model.Model(lambda x: x, 1, 1)
 
     # Create prior and data distributions
-    x = cuqi.distribution.Gaussian(0, 1)
-    y = cuqi.distribution.Gaussian(fwd_model(x), 1)
+    x = cuqi.distribution.Gaussian(0, 1).rv
+    y = cuqi.distribution.Gaussian(fwd_model(x), 1).rv
 
     # Create BayesianProblem and set data
     BP = cuqi.problem.BayesianProblem(x, y)
