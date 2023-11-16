@@ -357,7 +357,7 @@ def test_model_parameter_name_switch():
     assert cuqi.utilities.get_non_default_args(model) == ['x']
 
     # Parameter name can be switched to 'y' by "evaluating" the model with y as input
-    y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+    y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).rv
     model_y = model(y)
     model_y2 = model@y
     model_y3 = model.forward(y)
@@ -372,7 +372,7 @@ def test_model_parameter_name_switch_errors():
 
     model = cuqi.testproblem.Poisson1D().model # domain_dim != range_dim
 
-    y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim-1), 1)
+    y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim-1), 1).rv
 
     with pytest.raises(ValueError, match=r"dimension does not match"):
         model(y)    

@@ -131,7 +131,7 @@ class RandomVariable:
     @name.setter
     def name(self, name):
         if self._is_copy:
-            raise ValueError("Cannot set name of conditioned random variable. Only the variable can have its name set.")
+            raise ValueError("Cannot set name of conditioned random variable. Only the original variable can have its name set.")
         self._name = name
 
     @property

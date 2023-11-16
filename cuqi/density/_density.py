@@ -39,8 +39,6 @@ class Density(ABC):
         """ Name of the random variable associated with the density. """
         if self._is_copy: # Extract the original density name
             return self._original_density.par_name
-        if self._par_name is None: # If None extract the name from the stack
-            self._par_name = cuqi.utilities._get_python_variable_name(self)
         return self._par_name
 
     @par_name.setter

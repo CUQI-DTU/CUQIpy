@@ -604,7 +604,7 @@ def test_enable_FD_gradient_posterior(x, y, x_i):
     # Create likelihood
     y.mean = model
     data = y(x_i).sample()
-    likelihood = y(y=data)
+    likelihood = y.to_likelihood(data)
 
     # Create posterior
     posterior = cuqi.distribution.Posterior(likelihood, x)

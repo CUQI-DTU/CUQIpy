@@ -710,8 +710,8 @@ class Poisson1D(BayesianProblem):
         data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.Gaussian(model, sigma2)
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).rv
+        y = cuqi.distribution.Gaussian(model, sigma2).rv
 
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(y, x, y=data)
@@ -861,8 +861,8 @@ class Heat1D(BayesianProblem):
         data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.Gaussian(model(x), sigma2)
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).rv
+        y = cuqi.distribution.Gaussian(model(x), sigma2).rv
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(y, x, y=data)
@@ -980,8 +980,8 @@ class Abel1D(BayesianProblem):
         data = y_exact + np.random.normal(0, sigma, y_exact.shape )
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.Gaussian(model(x), sigma2)
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).rv
+        y = cuqi.distribution.Gaussian(model(x), sigma2).rv
         
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(y, x, y=data)

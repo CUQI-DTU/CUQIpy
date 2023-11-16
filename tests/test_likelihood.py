@@ -126,7 +126,7 @@ def test_enable_FD_gradient(y, x_i):
     # Create likelihood
     y.mean = model
     data = y(x_i).sample()
-    likelihood = y(y=data)
+    likelihood = y.to_likelihood(data)
 
     # Compute exact gradient
     g_exact = likelihood.gradient(x_i)

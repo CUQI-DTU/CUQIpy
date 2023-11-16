@@ -436,10 +436,10 @@ def _Gibbs_joint_hier_model(use_legacy=False, noise_std=0.01):
     n = A.domain_dim
 
     # Define distributions
-    d = cuqi.distribution.Gamma(1, 1e-4)
-    l = cuqi.distribution.Gamma(1, 1e-4)
-    x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d[0])
-    y = cuqi.distribution.Gaussian(A, lambda l: 1/l)
+    d = cuqi.distribution.Gamma(1, 1e-4).rv
+    l = cuqi.distribution.Gamma(1, 1e-4).rv
+    x = cuqi.distribution.GMRF(np.zeros(n), d[0]).rv
+    y = cuqi.distribution.Gaussian(A, 1/l).rv
 
     # Combine into a joint distribution and create posterior
     joint = cuqi.distribution.JointDistribution(d, l, x, y)

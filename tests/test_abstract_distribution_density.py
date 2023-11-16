@@ -41,14 +41,15 @@ def test_conditioning_arg_as_mutable_var():
 
 def test_conditioning_on_main_parameter():
     """ This checks if we can condition on the main parameter in various ways. """
-    x = cuqi.distribution.Gaussian(geometry=1)
+    x = cuqi.distribution.Gaussian(geometry=1).rv
+    X = x.dist
 
     # With keywords (name also automatically inferred)
-    assert isinstance(x(mean=1, x=5), cuqi.likelihood.Likelihood)
-    assert isinstance(x(mean=1, cov=1, x=5), cuqi.density.EvaluatedDensity)
+    assert isinstance(X(mean=1, x=5), cuqi.likelihood.Likelihood)
+    assert isinstance(X(mean=1, cov=1, x=5), cuqi.density.EvaluatedDensity)
     
     # Now using positional arguments
-    assert isinstance(x(1, 1, 5), cuqi.density.EvaluatedDensity)
+    assert isinstance(X(1, 1, 5), cuqi.density.EvaluatedDensity)
 
 def test_conditioning_kwarg_as_mutable_var():
     """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
@@ -91,28 +92,29 @@ def test_conditioning_class_flow():
     """ This tests the class flow of conditioning a conditional distribution in various ways """
 
     # Initial conditional distribution on parameter x and cov.
-    y = cuqi.distribution.Gaussian(lambda x:x, geometry=1)
+    y = cuqi.distribution.Gaussian(lambda x:x, geometry=1).rv
+    Y = y.dist
 
     # Conditioning on x is still conditional on cov
-    assert y(x=1).is_cond
+    assert Y(x=1).is_cond
 
     # Conditioning on y (name of distribution) should return a likelihood
-    assert isinstance(y(y=1), cuqi.likelihood.Likelihood)
+    assert isinstance(Y(y=1), cuqi.likelihood.Likelihood)
 
     # Conditioning on x and cov be a regular distribution
-    assert isinstance(y(x=1, cov=1), cuqi.distribution.Distribution)
+    assert isinstance(Y(x=1, cov=1), cuqi.distribution.Distribution)
 
     # Conditioning on all unspecified variables should return constant density
-    assert isinstance(y(x=1, y=1, cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(x=1, y=1, cov=1), cuqi.density.EvaluatedDensity)
 
     # Conditioning on all parameters in various ways should also return constant density
     # (in between they might change to Likelihood)
-    assert isinstance(y(x=1)(y=1)(cov=1), cuqi.density.EvaluatedDensity)
-    assert isinstance(y(x=1)(cov=1)(y=1), cuqi.density.EvaluatedDensity)
-    assert isinstance(y(y=1)(x=1)(cov=1), cuqi.density.EvaluatedDensity)
-    assert isinstance(y(y=1)(cov=1)(x=1), cuqi.density.EvaluatedDensity)
-    assert isinstance(y(cov=1)(x=1)(y=1), cuqi.density.EvaluatedDensity)
-    assert isinstance(y(cov=1)(y=1)(x=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(x=1)(y=1)(cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(x=1)(cov=1)(y=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(y=1)(x=1)(cov=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(y=1)(cov=1)(x=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(cov=1)(x=1)(y=1), cuqi.density.EvaluatedDensity)
+    assert isinstance(Y(cov=1)(y=1)(x=1), cuqi.density.EvaluatedDensity)
 
 def test_logp_conditional():
     """ This tests logp evaluation for conditional distributions """
@@ -120,16 +122,16 @@ def test_logp_conditional():
     true_val = cuqi.distribution.Gaussian(3, 7).logd(13)
 
     # Distribution with no specified parameters
-    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
+    X = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1, par_name="x")
 
     # Test logp evaluates correctly in various cases
-    assert x.logd(mean=3, s=7, x=13) == true_val
-    assert x(x=13).logd(mean=3, s=7) == true_val
-    assert x(x=13, mean=3).logd(s=7) == true_val
-    assert x(x=13, mean=3, s=7).logd() == true_val
-    assert x(mean=3).logd(s=7, x=13) == true_val
-    assert x(mean=3, s=7).logd(x=13) == true_val
-    assert x(mean=3, x=13).logd(s=7) == true_val
+    assert X.logd(mean=3, s=7, x=13) == true_val
+    assert X(x=13).logd(mean=3, s=7) == true_val
+    assert X(x=13, mean=3).logd(s=7) == true_val
+    assert X(x=13, mean=3, s=7).logd() == true_val
+    assert X(mean=3).logd(s=7, x=13) == true_val
+    assert X(mean=3, s=7).logd(x=13) == true_val
+    assert X(mean=3, x=13).logd(s=7) == true_val
 
 def test_logd_err_handling():
     """ This tests if logp correctly identifies errors in the input """
@@ -145,19 +147,19 @@ def test_logd_err_handling():
 
 def test_logd_err_handling_single_cond_var():
     """ This tests if logp correctly identifies errors in the input """
-    x = cuqi.distribution.Gaussian(0, cov=lambda s:s)
+    X = cuqi.distribution.Gaussian(0, cov=lambda s:s, par_name="x")
 
     # Test that we raise error if we don't provide all parameters
     with pytest.raises(ValueError, match=r"To evaluate the log density all conditioning variables and main"):
-        x.logd(3) # Should expect error since we have not specified s
+        X.logd(3) # Should expect error since we have not specified s
 
     # Too many arguments
     with pytest.raises(ValueError, match=r"Unable to parse"):
-        x.logd(1, 3, 5)
+        X.logd(1, 3, 5)
 
     # Should not expect error since we have specified s (2 arguments)
-    x.logd(1, 3)
-    x.logd(s=1, x=1) 
+    X.logd(1, 3)
+    X.logd(s=1, x=1) 
 
 def test_sample_conditional_err_handling():
     """ Test if conditional distributions correctly identify errors when sampling """
@@ -170,45 +172,45 @@ def test_sample_conditional_err_handling():
 
 def test_cond_positional_and_kwargs():
     """ Test conditioning for both positional and kwargs """
-    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
+    X = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1, par_name="x")
 
-    logd = x(mean=3, cov=7).logd(13)
+    logd = X(mean=3, cov=7).logd(13)
 
     # Conditioning full positional
-    assert x(3, 7, 13).value == logd
-    assert x(3, 7)(13).value == logd
-    assert x(3)(7, 13).value == logd
-    assert x(3)(7)(13).value == logd
+    assert X(3, 7, 13).value == logd
+    assert X(3, 7)(13).value == logd
+    assert X(3)(7, 13).value == logd
+    assert X(3)(7)(13).value == logd
 
     # Conditioning full kwargs
-    assert x(mean=3, cov=7, x=13).value == logd
-    assert x(mean=3, cov=7)(x=13).value == logd
-    assert x(mean=3)(cov=7, x=13).value == logd
-    assert x(mean=3)(cov=7)(x=13).value == logd
+    assert X(mean=3, cov=7, x=13).value == logd
+    assert X(mean=3, cov=7)(x=13).value == logd
+    assert X(mean=3)(cov=7, x=13).value == logd
+    assert X(mean=3)(cov=7)(x=13).value == logd
 
     # Conditioning partial positional
-    assert x(3, s=7, x=13).value == logd
-    assert x(3, 7, x=13).value == logd
-    assert x(3, s=7)(13).value == logd
-    assert x(mean=3)(7, x=13).value == logd
-    assert x(mean=3)(7)(x=13).value == logd
-    assert x(mean=3)(7)(13).value == logd
+    assert X(3, s=7, x=13).value == logd
+    assert X(3, 7, x=13).value == logd
+    assert X(3, s=7)(13).value == logd
+    assert X(mean=3)(7, x=13).value == logd
+    assert X(mean=3)(7)(x=13).value == logd
+    assert X(mean=3)(7)(13).value == logd
 
 def test_logd_positional_and_kwargs():
     """ Test logd for both positional and kwargs """
-    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
+    X = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1, par_name="x")
 
-    logd = x(mean=3, s=7).logd(13)
+    logd = X(mean=3, s=7).logd(13)
 
     # logd full kwargs
-    assert x.logd(mean=3, s=7, x=13) == logd
+    assert X.logd(mean=3, s=7, x=13) == logd
 
     # logd full positional
-    assert x.logd(3, 7, 13) == logd
+    assert X.logd(3, 7, 13) == logd
 
     # logd partial positional
-    assert x.logd(3, s=7, x=13) == logd
-    assert x.logd(3, 7, x=13) == logd
+    assert X.logd(3, s=7, x=13) == logd
+    assert X.logd(3, 7, x=13) == logd
 
 def test_dim_geometry_compatibility():
     """ Test the compatibility of dim and geometry attributes """
