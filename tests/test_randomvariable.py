@@ -104,11 +104,11 @@ def test_randomvariable_works_with_distribution_conditioning(operations):
     assert np.allclose(y_cond_x.dist.cov, operations(val))
 
 @pytest.mark.parametrize("operations", [
-    lambda x, y, z: x + y,
-    lambda x, y, z: x * y,
-    lambda x, y, z: x / y,
-    lambda x, y, z: x ** y,
-    lambda x, y, z: x @ y,
+    lambda x, y, z: x + y - z,
+    lambda x, y, z: x * y - z,
+    lambda x, y, z: x / y - z,
+    lambda x, y, z: x ** y - z,
+    lambda x, y, z: x @ y - z,
     lambda x, y, z: x + y + z,
     lambda x, y, z: x * y * z,
     lambda x, y, z: x / y / z,
@@ -117,8 +117,8 @@ def test_randomvariable_works_with_distribution_conditioning(operations):
     lambda x, y, z: x * y + z,
     lambda x, y, z: x + y @ z,
     lambda x, y, z: x @ y + z,
-    lambda x, y, z: x[0]+z,
-    lambda x, y, z: abs(x[0])+z,
+    lambda x, y, z: x[0]+z+y,
+    lambda x, y, z: abs(x[0])+z-y,
     lambda x, y, z: (x + y) * z,
     lambda x, y, z: (x - y) / z,
     lambda x, y, z: x ** (y + z),
@@ -281,3 +281,16 @@ def test_RV_should_catch_non_linear_model_used_as_linear_model():
 
     with pytest.raises(TypeError, match=r"Cannot apply matmul to non-linear models"):
         y=A@x
+
+def test_ensure_that_RV_evaluation_requires_all_parameters():
+    x = cuqi.distribution.Gaussian(0, 1).rv
+
+    # raise ValueError(f"Expected {self.parameter_names} arguments, got {kwargs}")
+    with pytest.raises(ValueError, match=r"Expected \['x'\] arguments, got \{\}"):
+        x()
+
+    y = cuqi.distribution.Gaussian(0, 1).rv
+    z = (x+y)**2
+
+    with pytest.raises(ValueError, match=r"Expected \['x', 'y'\] arguments, got \{'x': 1\}"):
+        z(x=1)

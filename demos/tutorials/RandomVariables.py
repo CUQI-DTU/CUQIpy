@@ -121,12 +121,13 @@ print(y)
 # transform the sample drawn from the original distribution.
 # 
 # This means for example that we can both draw a sample from :math:`x` and
-# :math:`y` using the same syntax:
+# :math:`y` using the same syntax, which also matches the syntax used for
+# sampling from distributions.
 # 
 
-print(x.sample())
+print(x.sample()) # Draws a sample from x ~ Gaussian(0,1)
 
-print(y.sample())
+print(y.sample()) # Draws a sample from y = (x+10)^2 ~ Gaussian(100,1)
 
 
 # %%
@@ -232,12 +233,14 @@ print(A)
 #    \mathbf{y} &\sim \mathrm{Gaussian}(\mathbf{A}\mathbf{x}, s^{-1}) \\
 #    \end{align*}
 # 
+# Noting that the algebraic operations performed on the random variables
+# are used to define the conditional distributions used in the subsequent
+# random variables (e.g. the covariance of y is lazily evaluated as 1/s).
 
 d = Gamma(1, 1e-4).rv
 s = Gamma(1, 1e-4).rv
 x = LMRF(0, 1/d, geometry=A.domain_geometry).rv
 y = Gaussian(A @ x, 1/s).rv
-
 
 # %%
 ######################################################################

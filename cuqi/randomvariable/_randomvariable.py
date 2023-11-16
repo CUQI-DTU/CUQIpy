@@ -109,6 +109,9 @@ class RandomVariable:
         if args:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
+        if len(kwargs) != len(self.parameter_names):
+            raise ValueError(f"Expected {self.parameter_names} arguments, got {kwargs}")
+
         return self.tree(**kwargs)
     
     @property
