@@ -55,6 +55,11 @@ print(x)
 # represents a random variable for the purpose of defining a Bayesian
 # problem. Random variables are defined by their underlying distribution
 # and the algebraic operations performed on them.
+#
+# The underlying distribution of a random variable can be accessed using
+# the ``dist`` attribute of the random variable.
+
+print(x.dist)
 
 
 ######################################################################
