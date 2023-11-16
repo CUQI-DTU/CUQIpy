@@ -570,6 +570,9 @@ class PDHG(object):
 
 class FISTA(object):
     """Fast Iterative Shrinkage-Thresholding Algorithm for regularized least squares problems.
+    
+    Reference:
+    Beck, Amir, and Marc Teboulle. "A fast iterative shrinkage-thresholding algorithm for linear inverse problems." SIAM journal on imaging sciences 2.1 (2009): 183-202.
 
     Minimize ||Ax-b||^2 + f(x).
     

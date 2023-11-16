@@ -43,10 +43,12 @@ class ImplicitRegularizedGaussian(Distribution):
         If a scalar or 1d-array the value is assumed to be the inverse standard deviation of each component of the Gaussian.
 
     proximal : callable f(x, scale) or None
-        Euclidean proximal operator of the regularization function R
+        Euclidean proximal operator of the regularization function g, that is, a solver for the optimization problem
+        min_z 0.5||x-z||_2^2+scale*g(x).
 
     projector : callable f(x) or None
-        Euclidean projection onto the constraint
+        Euclidean projection onto the constraint C, that is, a solver for the optimization problem
+        min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None, Default: "nonnegative"
         Preset constraints, including "nonnegativity" and "box". Required for use in Gibbs.
@@ -249,10 +251,12 @@ class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
         The order of the GMRF. Can be 0, 1 or 2.
 
     proximal : callable f(x, scale) or None
-        Euclidean proximal operator of the regularization function R
+        Euclidean proximal operator of the regularization function g, that is, a solver for the optimization problem
+        min_z 0.5||x-z||_2^2+scale*g(x).
 
     projector : callable f(x) or None
-        Euclidean projection onto the constraint
+        Euclidean projection onto the constraint C, that is, a solver for the optimization problem
+        min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None
         Preset constraints, including "nonnegativity" and "box". Required for use in Gibbs.
