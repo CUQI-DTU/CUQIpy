@@ -1,6 +1,7 @@
 import pytest
 import cuqi
 import numpy as np
+from cuqi.randomvariable._ast import RandomVariableNode
 
 def test_randomvariable_name_consistency():
 
@@ -185,4 +186,33 @@ def test_randomvariable_sample(operations):
     expected_result = operations(x.sample(), y.sample(), z.sample())
 
     assert np.allclose(result, expected_result)
+
+def test_logp_conditional():
+    """ This tests logp evaluation for conditional random variables """
+    # Base example logp value
+    true_val = cuqi.distribution.Gaussian(3, 7).logd(13)
+
+    # Distribution with no specified parameters
+    x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1).rv
+
+    # Test logp evaluates correctly in various cases
+    assert x.logd(mean=3, s=7, x=13) == true_val
+    assert x.condition(x=13).logd(mean=3, s=7) == true_val
+    assert x.condition(x=13, mean=3).logd(s=7) == true_val
+    assert x.condition(x=13, mean=3, s=7).logd() == true_val
+    assert x.condition(mean=3).logd(s=7, x=13) == true_val
+    assert x.condition(mean=3, s=7).logd(x=13) == true_val
+    assert x.condition(mean=3, x=13).logd(s=7) == true_val
+
+def test_rv_attributes():
+    """ Test various attributes of random variable"""
+
+    x = cuqi.distribution.Gaussian(0, 1, geometry=10).rv
+
+    assert x.dim == 10
+    assert isinstance(x.geometry, cuqi.geometry._DefaultGeometry1D)
+    assert x.name == "x"
+    assert isinstance(x.tree, RandomVariableNode)
+    assert x.tree.name == "x"
+    assert isinstance(x.dist, cuqi.distribution.Gaussian)
 

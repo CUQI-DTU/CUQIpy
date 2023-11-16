@@ -44,6 +44,15 @@ class Likelihood(Density):
         self.distribution.par_name = value
 
     @property
+    def _par_name(self):
+        """ Return name of likelihood """
+        return self.distribution._par_name
+    
+    @_par_name.setter
+    def _par_name(self, value):
+        self.distribution._par_name = value
+
+    @property
     def FD_enabled(self):
         """ Return FD_enabled of the likelihood from the underlying distribution """
         return self.distribution.FD_enabled

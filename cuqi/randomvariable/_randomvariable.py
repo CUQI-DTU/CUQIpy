@@ -178,7 +178,7 @@ class RandomVariable:
         return self._distributions
     
     def _set_dist_name_if_not_set(self, distribution):
-        if not hasattr(distribution, '_par_name') or distribution._par_name is None:
+        if not hasattr(distribution, '_par_name') or distribution._par_name is None: #TODO. Change to "par_name" once dist does not auto infer
             distribution.par_name = self.name
 
     def get_conditioning_variables(self):
@@ -190,6 +190,8 @@ class RandomVariable:
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
+        test = self.distributions
+
         return [distribution.par_name for distribution in self.distributions]
     
     @property
@@ -255,7 +257,8 @@ class RandomVariable:
         if self.is_transformed:
             raise NotImplementedError("Conditioning is not implemented for transformed random variables")
         new_variable = self._make_copy()
-        new_variable._distributions = OrderedSet([self.dist(*args, **kwargs)])
+        conditioned_dist = self.dist(*args, **kwargs)
+        new_variable._distributions = OrderedSet([conditioned_dist])
         return new_variable
 
     def _make_copy(self):
