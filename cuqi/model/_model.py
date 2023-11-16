@@ -413,16 +413,16 @@ class Model(object):
     def _handle_random_variable(self, x):
         """ Private function that handles the case of the input being a random variable. """
         # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
-        if not isinstance(x._tree, RandomVariableNode):
-            return NotImplemented
+        if not isinstance(x.tree, RandomVariableNode):
+            return NotImplemented        
         
         # In leaf-type node case we simply change the parameter name of model to match the random variable name
-        dist = x._tree._distributions[0]
+        dist = x.dist
         if dist.dim != self.domain_dim:
             raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
         
         new_model = copy(self)
-        new_model._non_default_args = [dist.name]
+        new_model._non_default_args = [dist.par_name]
         return new_model
     
     def __len__(self):

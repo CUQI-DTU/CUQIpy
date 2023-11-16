@@ -7,13 +7,14 @@ them in ``CUQIpy``. At this point in time random variables are still
 experimental and the API is subject to change.
 
 """
-
+#%%
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, LMRF
 from cuqi.problem import BayesianProblem
 import numpy as np
 
 
+# %%
 ######################################################################
 # Introduction
 # ~~~~~~~~~~~~
@@ -34,10 +35,11 @@ import numpy as np
 # This can be defined in CUQIpy as follows:
 # 
 
-X = Gaussian(0, 1) # Distribution
+x = Gaussian(0, 1).rv
 
-x = X.rv # Random variable
+print(x)
 
+# %%
 ######################################################################
 # The difference between distributions and random variables can be subtle.
 # From a mathematical point of view, a random variable is a function from
@@ -61,8 +63,8 @@ x = X.rv # Random variable
 # 
 # 1. They are not immediately evaluated when defined. Instead, they are
 #    evaluated in a lazy fashion in the context needed.
-# 2. They contain a probability distribution (single or multivariate)
-#    instead of a single value or vector.
+# 2. They contain at least one probability distribution (single or multivariate)
+#    instead of a single value or vector of values.
 # 
 # Despite these differences, random variables can be used in the same way
 # as regular variables in most cases.
@@ -81,27 +83,7 @@ x = X.rv # Random variable
 y = (x + 10)**2
 
 
-######################################################################
-# Note that for convenience algebraic operations are also supported on
-# distributions. For example we can also define new
-# random variables :math:`z` and :math:`v` as follows:
-#
-# .. math::
-#
-#    z &\sim \mathrm{Gaussian}(0,1) \\
-#    v &= (z + 10)^2
-#
-# We can achieve this in CUQIpy without invoking `.rv` as follows.
-
-z = Gaussian(0, 1)
-v = (z + 10)**2
-
-######################################################################
-# Noting that the distribution is automatically considered a random 
-# variable in the context of the algebraic operations.
-# This API may be subject to change.
-
-
+# %%
 ######################################################################
 # Calling print on ``y`` reveals that it is a random variable which has
 # recorded the operations performed on it and maintains a reference to the
@@ -111,6 +93,7 @@ v = (z + 10)**2
 print(y)
 
 
+# %%
 ######################################################################
 # Evaluating random variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,6 +102,7 @@ print(y)
 # 
 # 1. Sampling
 # 2. Direct evaluation
+# 3. Probability density evaluation (logd)
 # 
 # Sampling
 # ^^^^^^^^
@@ -140,6 +124,7 @@ print(x.sample())
 print(y.sample())
 
 
+# %%
 ######################################################################
 # Direct evaluation
 # ^^^^^^^^^^^^^^^^^
@@ -154,17 +139,21 @@ print(y.sample())
 y(3)
 
 
+# %%
 ######################################################################
-# **Note**. A third mode, probability density evaluation (e.g. asking
-# for ``y.logd``) is planned for future versions.
+# Probability density evaluation
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# Probability density evaluation **is** implemented for Distributions:
+# Probability density evaluation works by evaluating the probability
+# density function of the random variable at a given point. This is done
+# using the ``logd`` method. **Note**. Only simple (non-transformed)
+# random variables support this method at this point in time.
 #
 
-X = Gaussian(0, 1) # Distribution
-print(X.logd(0.5)) 
+x.logd(3)
 
 
+# %%
 ######################################################################
 # Algebraic operations on random variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,14 +163,13 @@ print(X.logd(0.5))
 # 
 # Random variables also support algebra between each other. For example we
 # can define two new variables :math:`x`, :math:`y` as follows:
-# (again using the fact that distributions support algebraic operations,
-# and create random variables in the context of these operations)
-# 
+#
 
-x = Gamma(1, 1)
-y = Gaussian(0, 1)
+x = Gamma(1, 1).rv
+y = Gaussian(0, 1).rv
 
 
+# %%
 ######################################################################
 # We can then define a new random variable :math:`z` as follows:
 # 
@@ -189,16 +177,17 @@ y = Gaussian(0, 1)
 z = x + (y**2+x**2)*0.1
 print(z)
 
-
+# %%
 ######################################################################
 # Sampling and direct evaluation work as expected:
 # 
 
-print(z.sample())
+print(z.sample()) # Draws a sample from z with x and y sampled from their respective distributions
 
-z(x=1, y=2)
+z(x=1, y=2) # Evaluates z at x=1, y=2
 
 
+# %%
 ######################################################################
 # Hierarchical modelling
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -223,7 +212,7 @@ A, y_obs, info = Deconvolution1D.get_components(phantom="square")
 
 print(A)
 
-
+# %%
 ######################################################################
 # Now we can define a hierarchical model for this Bayesian problem as
 # follows:
@@ -239,12 +228,13 @@ print(A)
 #    \end{align*}
 # 
 
-d = Gamma(1, 1e-4)
-s = Gamma(1, 1e-4)
-x = LMRF(0, 1/d, geometry=A.domain_geometry)
-y = Gaussian(A @ x, 1/s)
+d = Gamma(1, 1e-4).rv
+s = Gamma(1, 1e-4).rv
+x = LMRF(0, 1/d, geometry=A.domain_geometry).rv
+y = Gaussian(A @ x, 1/s).rv
 
 
+# %%
 ######################################################################
 # For illustrative purposes let us put this into a Bayesian Problem
 # object:
@@ -253,6 +243,7 @@ y = Gaussian(A @ x, 1/s)
 BP = BayesianProblem(d, s, x, y)
 print(BP)
 
+# %%
 ######################################################################
 # Providing data to the Bayesian problem creates a posterior as shown.
 #
@@ -260,6 +251,7 @@ print(BP)
 BP.set_data(y=y_obs)
 print(BP)
 
+# %%
 ######################################################################
 # Given the Bayesian problem posterior we can now sample from
 # the posterior distribution using MCMC as follows:
@@ -267,9 +259,12 @@ print(BP)
 
 samples = BP.sample_posterior(1000)
 
+# %%
 ######################################################################
 # We can now plot a 95 credibility interval of the samples for x
 # from the posterior distribution as follows:
 #
 
 samples["x"].plot_ci(exact=info.exactSolution)
+
+# %%

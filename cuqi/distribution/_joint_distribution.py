@@ -5,6 +5,7 @@ from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
 from cuqi.geometry import Geometry, _DefaultGeometry1D
+from cuqi.randomvariable import RandomVariable
 import numpy as np # for splitting array. Can avoid.
 
 class JointDistribution:
@@ -59,7 +60,11 @@ class JointDistribution:
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, *densities: Density):
+    def __init__(self, *densities: [Density, RandomVariable]):
+        """ Create a joint distribution from the given densities. """
+
+        # Convert potential random variables to their underlying dist
+        densities = [density.dist if isinstance(density, RandomVariable) else density for density in densities]
 
         # Ensure all densities have unique names
         names = [density.par_name for density in densities]
