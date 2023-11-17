@@ -194,8 +194,6 @@ class RandomVariable:
     @property
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
-        test = self.distributions
-
         return [distribution.par_name for distribution in self.distributions]
     
     @property
