@@ -109,8 +109,9 @@ class RandomVariable:
         if args:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
-        if len(kwargs) != len(self.parameter_names):
-            raise ValueError(f"Expected {self.parameter_names} arguments, got {kwargs}")
+        # Check if kwargs match parameter names using a all compare
+        if not all([name in kwargs for name in self.parameter_names]):
+            raise ValueError(f"Expected arguments {self.parameter_names}, got arguments {kwargs}")
 
         return self.tree(**kwargs)
     
@@ -212,7 +213,7 @@ class RandomVariable:
         # Add args to kwargs
         for arg, name in zip(args, self.parameter_names):
             kwargs[name] = arg
-        
+            
         return kwargs
 
     def __repr__(self):
