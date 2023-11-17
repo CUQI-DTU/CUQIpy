@@ -35,7 +35,7 @@ convert_to_node = lambda x: x if isinstance(x, Node) else ValueNode(x)
 class Node:
     """ Base class for all nodes in the abstract syntax tree.  """
     def __call__(self, **kwargs):
-        """ Evaluate node at a given parameter value. This will traverse the tree and evaluate given the recorded operations. """
+        """ Evaluate node at a given parameter value. This will traverse the tree and evaluate it given the recorded operations. """
         raise NotImplementedError()
 
     def __add__(self, other):
