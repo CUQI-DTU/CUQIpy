@@ -214,7 +214,7 @@ z(x=1, y=2) # Evaluates z at x=1, y=2
 # follows:
 # 
 
-A, y_obs, info = Deconvolution1D.get_components(phantom="square")
+A, y_obs, info = Deconvolution1D(phantom="square").get_components()
 
 print(A)
 
