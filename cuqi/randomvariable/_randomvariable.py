@@ -19,7 +19,7 @@ class RandomVariable:
     ----------
     distributions : Distribution or set of Distribution
         The distribution from which the random variable originates. If multiple distributions are
-        provided, the random variable is defined by the abstract syntax tree representing the
+        provided, the random variable is defined by the passed abstract syntax `tree` representing the
         algebraic operations on the random variables defined by the distributions.
 
     tree : RandomVariableNode, optional
