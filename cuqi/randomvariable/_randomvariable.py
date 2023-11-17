@@ -208,7 +208,7 @@ class RandomVariable:
     def _parse_args_add_to_kwargs(self, args, kwargs) -> dict:
         """ Parse args and add to kwargs if any. Arguments follow self.parameter_names order. """
         if len(args) != len(self.parameter_names):
-            raise ValueError(f"Expected {len(self.parameter_names)} arguments, got {len(args)}")
+            raise ValueError(f"Expected {len(self.parameter_names)} arguments, got {len(args)}. Parameters are: {self.parameter_names}")
         
         # Add args to kwargs
         for arg, name in zip(args, self.parameter_names):
