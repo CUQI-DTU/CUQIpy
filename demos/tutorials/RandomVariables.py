@@ -11,7 +11,6 @@ experimental and the API is subject to change.
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, LMRF
 from cuqi.problem import BayesianProblem
-import numpy as np
 
 
 # %%
@@ -32,12 +31,23 @@ import numpy as np
 # 
 #    x \sim \mathrm{Gaussian}(0,1)
 # 
-# This can be defined in CUQIpy as follows:
+# In CUQIpy random variables are defined by first creating a distribution
+# and subsequently generating a random variable from it using the ``rv``
+# attribute as follows:
 # 
 
-x = Gaussian(0, 1).rv
+X = Gaussian(0, 1) # Distribution
+
+x = X.rv # Random variable
 
 print(x)
+
+# %%
+######################################################################
+# This can also be done in a single line as follows:
+#
+
+x = Gaussian(0, 1).rv # Random variable
 
 # %%
 ######################################################################
@@ -62,6 +72,7 @@ print(x)
 print(x.dist)
 
 
+# %%
 ######################################################################
 # Random variables act different than regular Python
 # variables in the following important ways:
@@ -103,11 +114,10 @@ print(y)
 # Evaluating random variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# Currently, two modes of evaluation are supported for random variables:
+# Currently, a two modes of evaluation are supported for all random variables:
 # 
 # 1. Sampling
 # 2. Direct evaluation
-# 3. Probability density evaluation (logd)
 # 
 # Sampling
 # ^^^^^^^^
@@ -147,6 +157,28 @@ y(3)
 
 # %%
 ######################################################################
+# Other methods and attributes of random variables
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# In addition, simple random variables (i.e. random variables which are
+# not transformed) support the following methods and attributes:
+#
+# 1. ``logd``: Evaluates the log of the probability density function of
+#    the random variable at a given point.
+# 2. ``dim``: Returns the dimension of the random variable.
+# 3. ``geometry``: Returns the geometry of the random variable.
+# 4. ``gradient``: Returns the gradient og the log density function of
+#    the random variable at a given point.
+# 5. ``condition``: Returns a new random variable where the underlying
+#    distribution has been conditioned on the given input.
+# 
+# These methods and attributes are demonstrated below.
+#
+
+
+
+# %%
+######################################################################
 # Probability density evaluation
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
@@ -157,6 +189,45 @@ y(3)
 #
 
 x.logd(3)
+
+# %%
+######################################################################
+# Gradient evaluation
+# ^^^^^^^^^^^^^^^^^^^
+#
+# Gradient evaluation works by evaluating the gradient of the log
+# probability density function of the random variable at a given point.
+#
+
+x.gradient(3)
+
+
+# %%
+######################################################################
+# Dimension and geometry
+# ^^^^^^^^^^^^^^^^^^^^^^
+#
+# The dimension of a random variable can be accessed using the ``dim``
+# attribute. The geometry of a random variable can be accessed using the
+# ``geometry`` attribute.
+#
+
+print(x.dim)
+print(x.geometry)
+
+# %%
+######################################################################
+# Conditioning
+# ^^^^^^^^^^^^
+#
+# Conditioning works by conditioning the underlying distribution of the
+# random variable on the given input. This is done using the ``condition``
+# method. For more details see documentation of conditioning on distributions.
+
+z = Gaussian(0, lambda s: s).rv
+
+print(z)
+print(z.condition(s=10))
 
 
 # %%
