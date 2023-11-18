@@ -97,10 +97,10 @@ plt.title("Observed data")
 # In CUQIpy the model can be defined as follows:
 
 # Define distributions
-d = Gamma(1, 1e-4)
-l = Gamma(1, 1e-4)
-x = GMRF(np.zeros(n), lambda d: d)
-y = Gaussian(A, lambda l: 1/l)
+d = Gamma(1, 1e-4).rv
+l = Gamma(1, 1e-4).rv
+x = GMRF(np.zeros(n), d).rv
+y = Gaussian(A@x, 1/l).rv
 
 # Combine into a joint distribution
 joint = JointDistribution(d, l, x, y)
@@ -216,7 +216,7 @@ samples['l'].plot_trace(figsize=(8,2))
 # This laplace distribution and new posterior can be defined as follows:
 
 # Define new distribution for x
-x = LMRF(0, lambda d: 1/d, geometry=n)
+x = LMRF(0, 1/d, geometry=n).rv
 
 # Define new joint distribution with piecewise constant prior
 joint_Ld = JointDistribution(d, l, x, y)

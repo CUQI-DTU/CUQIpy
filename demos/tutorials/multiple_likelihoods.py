@@ -136,7 +136,7 @@ theta = cuqi.distribution.Gaussian(
     mean=np.zeros(model1.domain_dim),
     cov=3,
     geometry=model1.domain_geometry,
-)
+).rv
 
 
 # %%
@@ -152,12 +152,12 @@ y1 = cuqi.distribution.Gaussian(
     mean=model1(theta),
     cov=sigma_noise1**2,
     geometry=model1.range_geometry,
-)
+).rv
 y2 = cuqi.distribution.Gaussian(
     mean=model2(theta),
     cov=sigma_noise2**2,
     geometry=model2.range_geometry,
-)
+).rv
 
 
 # %%
