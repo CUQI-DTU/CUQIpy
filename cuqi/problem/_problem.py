@@ -35,10 +35,10 @@ class BayesianProblem(object):
 
     Parameters
     ----------
-    \*densities: Density
-        The densities that represent the Bayesian Problem.
+    \*components: RandomVariable or Density
+        The components that represent the Bayesian Problem.
         Each density is passed as comma-separated arguments.
-        Can be Distribution, Likelihood etc.
+        Can be RandomVariable, Distribution, Likelihood etc.
 
     \**data: ndarray, Optional
         Any potential observed data. The data should be passed
@@ -52,7 +52,7 @@ class BayesianProblem(object):
 
     **Basic syntax**
 
-    Given distributions for ``x``, ``y`` and ``z``, we can define a Bayesian problem
+    Given random variable for ``x``, ``y`` and ``z``, we can define a Bayesian problem
     and set the observed data ``y=y_data`` as follows:
 
     .. code-block:: python
@@ -93,8 +93,8 @@ class BayesianProblem(object):
         A, y_data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
-        y = cuqi.distribution.Gaussian(A@x, 0.05)
+        x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1).rv
+        y = cuqi.distribution.Gaussian(A@x, 0.05).rv
 
         # Define Bayesian problem and set data
         BP = cuqi.problem.BayesianProblem(y, x).set_data(y=y_data)
@@ -144,8 +144,8 @@ class BayesianProblem(object):
 
         return self.model, self.data, problem_info
 
-    def __init__(self, *densities: Density, **data: np.ndarray):
-        self._target = JointDistribution(*densities)(**data)
+    def __init__(self, *components: Density, **data: np.ndarray):
+        self._target = JointDistribution(*components)(**data)
 
     def set_data(self, **kwargs) -> BayesianProblem:
         """ Set the data of the problem. This conditions the underlying joint distribution on the data. """
