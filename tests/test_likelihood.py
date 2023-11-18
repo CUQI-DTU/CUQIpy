@@ -113,8 +113,8 @@ def test_likelihood_conditioning(dist, mean, cov, data):
 
 
 @pytest.mark.parametrize("y",
-                         [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6)),
-                          cuqi.distribution.Lognormal(np.zeros(6), 4)])
+                         [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6), par_name="y"),
+                          cuqi.distribution.Lognormal(np.zeros(6), 4, par_name="y")])
 @pytest.mark.parametrize("x_i", [np.array([0.1, 0.3, 6, 12, 1, 2]),
                                  np.array([0.1, 0.3, 0.5, 6, 3, 1])])
 def test_enable_FD_gradient(y, x_i):
@@ -126,7 +126,7 @@ def test_enable_FD_gradient(y, x_i):
     # Create likelihood
     y.mean = model
     data = y(x_i).sample()
-    likelihood = y.to_likelihood(data)
+    likelihood = y(y=data)
 
     # Compute exact gradient
     g_exact = likelihood.gradient(x_i)
