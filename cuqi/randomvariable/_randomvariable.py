@@ -82,7 +82,7 @@ class RandomVariable:
             distributions = OrderedSet([distributions])
 
         # Match random variable name with distribution parameter name (for single distribution)
-        if len(distributions) == 1:
+        if len(distributions) == 1 and tree is None:
             dist = next(iter(distributions))
             if hasattr(dist, '_par_name'):
                 dist_par_name = dist._par_name
@@ -280,9 +280,8 @@ class RandomVariable:
         """
         Apply a specified operation to this RandomVariable.
         """
-        # Distributions are handled as random variables in the context of algebraic operations
         if isinstance(other, cuqi.distribution.Distribution):
-            other = other._as_random_variable()
+            raise ValueError("Cannot apply operation to distribution. Use .rv to create random variable first.")
         if other is None: # unary operation case
             return RandomVariable(self.distributions, operation(self.tree))
         elif isinstance(other, RandomVariable): # binary operation case with another random variable that has distributions
