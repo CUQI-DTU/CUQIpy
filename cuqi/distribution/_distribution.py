@@ -436,8 +436,6 @@ class Distribution(Density, ABC):
         
     def _as_random_variable(self):
         """Return a RandomVariable instance of this distribution"""
-        if hasattr(self, '_par_name') and self._par_name is not None:
-            return RandomVariable(self, self._par_name)
         return RandomVariable(self)
     
     @property
