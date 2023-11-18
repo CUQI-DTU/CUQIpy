@@ -14,9 +14,10 @@ class JointDistribution:
 
     Parameters
     ----------
-    densities : Density
-        The densities to include in the joint distribution.
-        Each density is passed as comma-separated arguments.
+    components : RandomVariable or Density
+        The components to include in the joint distribution.
+        Each component is passed as comma-separated arguments,
+        and can be either a :class:`RandomVariable` or a :class:`Density`.
 
     Notes
     -----
@@ -48,7 +49,7 @@ class JointDistribution:
         y_obs = np.random.randn(10)
         A = np.random.randn(10,3)
 
-        # Define distributions for Bayesian model
+        # Define distributions for Bayesian problem
         y = cuqi.distribution.Normal(lambda x: A@x, np.ones(10))
         x = cuqi.distribution.Normal(np.zeros(3), lambda z:z)
         z = cuqi.distribution.Gamma(1, 1)
@@ -60,11 +61,16 @@ class JointDistribution:
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, *densities: [Density, RandomVariable]):
+    def __init__(self, *components: [Density, RandomVariable]):
         """ Create a joint distribution from the given densities. """
 
+        # Check if all RandomVariables are simple (not-transformed)
+        for component in components:
+            if isinstance(component, RandomVariable) and component.is_transformed:
+                raise ValueError("All RandomVariables must be simple (not-transformed).")
+
         # Convert potential random variables to their underlying dist
-        densities = [density.dist if isinstance(density, RandomVariable) else density for density in densities]
+        densities = [component.dist if isinstance(component, RandomVariable) else component for component in components]
 
         # Ensure all densities have unique names
         names = [density.par_name for density in densities]
