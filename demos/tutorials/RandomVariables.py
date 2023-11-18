@@ -19,10 +19,10 @@ from cuqi.problem import BayesianProblem
 # ~~~~~~~~~~~~
 # 
 # When defining a Distribution object in CUQIpy it can
-# be viewed/converted to a random variable after it has been defined.
+# be converted to a random variable after it has been defined.
 # 
 # In contrast to regular deterministic variables, random variables are not
-# defined by a single value but by a probability distribution.
+# defined by a single value, but by a probability distribution.
 # 
 # Consider the following example defining a random variable :math:`x` from
 # a Gaussian (normal) distribution X:
@@ -31,14 +31,14 @@ from cuqi.problem import BayesianProblem
 # 
 #    x \sim \mathrm{Gaussian}(0,1)
 # 
-# In CUQIpy random variables are defined by first creating a distribution
+# In CUQIpy the random variable is defined by first creating a distribution
 # and subsequently generating a random variable from it using the ``rv``
 # attribute as follows:
 # 
 
 X = Gaussian(0, 1) # Distribution
 
-x = X.rv # Random variable
+x = X.rv # Random variable from distribution
 
 print(x)
 
@@ -47,7 +47,7 @@ print(x)
 # This can also be done in a single line as follows:
 #
 
-x = Gaussian(0, 1).rv # Random variable
+x = Gaussian(0, 1).rv
 
 # %%
 ######################################################################
@@ -66,8 +66,8 @@ x = Gaussian(0, 1).rv # Random variable
 # problem. Random variables are defined by their underlying distribution
 # and the algebraic operations performed on them.
 #
-# The underlying distribution of a random variable can be accessed using
-# the ``dist`` attribute of the random variable.
+# For simple random variable, the underlying distribution can be accessed using
+# the ``dist`` attribute.
 
 print(x.dist)
 
@@ -103,10 +103,25 @@ y = (x + 10)**2
 ######################################################################
 # Calling print on ``y`` reveals that it is a random variable which has
 # recorded the operations performed on it and maintains a reference to the
-# original random variable ``x``.
+# random variable ``x`` and its underlying distribution.
 # 
 
 print(y)
+
+# %%
+######################################################################
+# Transformed random variables
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# The random variable ``y`` defined above is an example of a transformed
+# random variable. Transformed random variables are random variables which
+# are defined by applying algebraic operations to other random variables.
+# 
+# In CUQIpy, it is possible to determine if a random variable is
+# transformed by checking the ``is_transformed`` attribute.
+#
+
+print(y.is_transformed)
 
 
 # %%
@@ -114,7 +129,8 @@ print(y)
 # Evaluating random variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # 
-# Currently, a two modes of evaluation are supported for all random variables:
+# Currently, a two modes of evaluation are supported for all
+# (simple and transformed) random variables:
 # 
 # 1. Sampling
 # 2. Direct evaluation
@@ -122,7 +138,7 @@ print(y)
 # Sampling
 # ^^^^^^^^
 # 
-# Sampling works by drawing a random sample from the probability
+# Sampling works by drawing a random sample from the underlying probability
 # distribution of the random variable. This is done using the ``sample``
 # method.
 # 
@@ -135,9 +151,11 @@ print(y)
 # sampling from distributions.
 # 
 
-print(x.sample()) # Draws a sample from x ~ Gaussian(0,1)
+# Draws a sample from x ~ Gaussian(0,1)
+print(x.sample()) 
 
-print(y.sample()) # Draws a sample from y = (x+10)^2 ~ Gaussian(100,1)
+# Draws a sample from y = (x+10)^2, x ~ Gaussian(0,1)
+print(y.sample()) 
 
 
 # %%
@@ -145,13 +163,15 @@ print(y.sample()) # Draws a sample from y = (x+10)^2 ~ Gaussian(100,1)
 # Direct evaluation
 # ^^^^^^^^^^^^^^^^^
 # 
-# Direct evaluation works by evaluating the random variable using the
-# transformations performed on it. This is done using the ``__call__``
-# method (which is called when using the ``()`` operator) in Python.
+# Direct evaluation is defined by the transformations performed on it.
+# It works by evaluating the transformations given a an input value.
+# The ``__call__`` method (which is called when using the ``()`` operator)
+# in Python is used for this purpose.
 # 
 # For example we can evaluate :math:`y` at value ``x=3`` as follows:
 # 
 
+# Evaluates y = (x+10)^2 at x=3
 y(3)
 
 
@@ -160,11 +180,12 @@ y(3)
 # Other methods and attributes of random variables
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# In addition, simple random variables (i.e. random variables which are
-# not transformed) support the following methods and attributes:
+# In addition to the abovementioned evaluation methods, simple, non-transformed
+# random variables support a variety of other methods and attributes for accessing
+# the underlying distribution. These include:
 #
 # 1. ``logd``: Evaluates the log of the probability density function of
-#    the random variable at a given point.
+#    the underlying distribution for the random variable at a given point.
 # 2. ``dim``: Returns the dimension of the random variable.
 # 3. ``geometry``: Returns the geometry of the random variable.
 # 4. ``gradient``: Returns the gradient og the log density function of
@@ -172,62 +193,8 @@ y(3)
 # 5. ``condition``: Returns a new random variable where the underlying
 #    distribution has been conditioned on the given input.
 # 
-# These methods and attributes are demonstrated below.
+# These methods and attributes are demonstrated at the end of this tutorial.
 #
-
-
-
-# %%
-######################################################################
-# Probability density evaluation
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-#
-# Probability density evaluation works by evaluating the probability
-# density function of the random variable at a given point. This is done
-# using the ``logd`` method. **Note**. Only simple (non-transformed)
-# random variables support this method at this point in time.
-#
-
-x.logd(3)
-
-# %%
-######################################################################
-# Gradient evaluation
-# ^^^^^^^^^^^^^^^^^^^
-#
-# Gradient evaluation works by evaluating the gradient of the log
-# probability density function of the random variable at a given point.
-#
-
-x.gradient(3)
-
-
-# %%
-######################################################################
-# Dimension and geometry
-# ^^^^^^^^^^^^^^^^^^^^^^
-#
-# The dimension of a random variable can be accessed using the ``dim``
-# attribute. The geometry of a random variable can be accessed using the
-# ``geometry`` attribute.
-#
-
-print(x.dim)
-print(x.geometry)
-
-# %%
-######################################################################
-# Conditioning
-# ^^^^^^^^^^^^
-#
-# Conditioning works by conditioning the underlying distribution of the
-# random variable on the given input. This is done using the ``condition``
-# method. For more details see documentation of conditioning on distributions.
-
-z = Gaussian(0, lambda s: s).rv
-
-print(z)
-print(z.condition(s=10))
 
 
 # %%
@@ -259,9 +226,11 @@ print(z)
 # Sampling and direct evaluation work as expected:
 # 
 
-print(z.sample()) # Draws a sample from z with x and y sampled from their respective distributions
+# Draws a sample from z with x and y sampled from their respective distributions
+print(z.sample()) 
 
-z(x=1, y=2) # Evaluates z at x=1, y=2
+# Evaluates z at x=1, y=2
+z(x=1, y=2) 
 
 
 # %%
@@ -269,8 +238,8 @@ z(x=1, y=2) # Evaluates z at x=1, y=2
 # Hierarchical modelling
 # ~~~~~~~~~~~~~~~~~~~~~~
 # 
-# One of the main advantages of random variables is that they allow for
-# hierarchical modelling of Bayesian problems.
+# One of the main advantages of random variables is that they enable
+# a succinct syntax for hierarchical modelling of Bayesian problems.
 # 
 # Consider for example a 1D deconvolution problem as described in the
 # CUQIpy tutorial Uncertainty Quantification in one-dimensional
@@ -347,3 +316,66 @@ samples = BP.sample_posterior(1000)
 samples["x"].plot_ci(exact=info.exactSolution)
 
 # %%
+# Revisiting the random variable methods and attributes
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# In this section we revisit the methods and attributes of random variables
+# introduced earlier in this tutorial.
+# 
+# For this purpose let us define a new random 3-dimensional
+# variable :math:`x` as follows:
+
+x = Gaussian(0, 1, geometry=3).rv
+
+# %%
+######################################################################
+# Probability density evaluation
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+#
+# Probability density evaluation works by evaluating the probability
+# density function of the random variable at a given point. This is done
+# using the ``logd`` method. **Note**. Only simple (non-transformed)
+# random variables support this method at this point in time.
+#
+
+x.logd([1, 2, 3])
+
+# %%
+######################################################################
+# Gradient evaluation
+# ^^^^^^^^^^^^^^^^^^^
+#
+# Gradient evaluation works by evaluating the gradient of the log
+# probability density function of the random variable at a given point.
+#
+
+x.gradient([1, 2, 3])
+
+
+# %%
+######################################################################
+# Dimension and geometry
+# ^^^^^^^^^^^^^^^^^^^^^^
+#
+# The dimension of a random variable can be accessed using the ``dim``
+# attribute. The geometry of a random variable can be accessed using the
+# ``geometry`` attribute.
+#
+
+print(x.dim)
+print(x.geometry)
+
+# %%
+######################################################################
+# Conditioning
+# ^^^^^^^^^^^^
+#
+# Conditioning works by conditioning the underlying distribution of the
+# random variable on the given input. This is done using the ``condition``
+# method. For more details see documentation of conditioning on distributions.
+
+z = Gaussian(0, lambda s: s).rv
+
+print(z)
+print(z.condition(s=10))
+
