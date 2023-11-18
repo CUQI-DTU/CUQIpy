@@ -45,10 +45,10 @@ m = A.range_dim
 # We can write this model in CUQIpy as follows:
 
 # Define distribution
-d = Gamma(1, 1e-4)
-l = Gamma(1, 1e-4)
-x = Gaussian(np.zeros(n), lambda d: 1/d)
-y = Gaussian(lambda x: A@x, lambda l: 1/l, geometry=m)
+d = Gamma(1, 1e-4).rv
+l = Gamma(1, 1e-4).rv
+x = Gaussian(np.zeros(n), 1/d).rv
+y = Gaussian(A@x, 1/l, geometry=m).rv
 
 # %%
 # Define joint distribution p(d,l,x,y)
