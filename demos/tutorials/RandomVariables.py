@@ -104,6 +104,9 @@ y = (x + 10)**2
 # Calling print on ``y`` reveals that it is a random variable which has
 # recorded the operations performed on it and maintains a reference to the
 # random variable ``x`` and its underlying distribution.
+#
+# Here it is worth it to note that performing algebraic operations on
+# directly on the distributions, e.g. (X+10)**2, is not possible.
 # 
 
 print(y)
