@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import to_cuqi_format
+from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
 
 class InverseGamma(Distribution):
@@ -52,9 +52,9 @@ class InverseGamma(Distribution):
     """
     def __init__(self, shape=None, location=None, scale=None, is_symmetric=False, **kwargs):
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
-        self.shape = to_cuqi_format(shape, flatten=True)
-        self.location = to_cuqi_format(location, flatten=True)
-        self.scale = to_cuqi_format(scale, flatten=True)
+        self.shape = force_ndarray(shape, flatten=True)
+        self.location = force_ndarray(location, flatten=True)
+        self.scale = force_ndarray(scale, flatten=True)
     
     def logpdf(self, x):
         return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))

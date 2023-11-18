@@ -1,5 +1,5 @@
 from ._utilities import (
-    to_cuqi_format,
+    force_ndarray,
     infer_len,
     get_non_default_args,
     get_direct_attributes,

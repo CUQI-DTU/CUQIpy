@@ -3,7 +3,7 @@ from scipy.sparse import diags, eye
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import dft
 from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
-from cuqi.utilities import sparse_cholesky, to_cuqi_format
+from cuqi.utilities import sparse_cholesky, force_ndarray
 from cuqi import config
 from cuqi.operator import PrecisionFiniteDifference
 from cuqi.distribution import Distribution
@@ -151,7 +151,6 @@ class GMRF(Distribution):
                 value = value[0]
             else:
                 raise ValueError('Precision must be a scalar or a 1D array with a single scalar element.')
-        value = to_cuqi_format(value, force_ndarray=False)
         self._prec = value
 
     @property 

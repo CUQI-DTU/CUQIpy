@@ -1,6 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
-from cuqi.utilities import to_cuqi_format
+from cuqi.utilities import force_ndarray
 
 class Laplace(Distribution):
     """ Laplace distribution. 
@@ -41,7 +41,7 @@ class Laplace(Distribution):
     
     @location.setter
     def location(self, value):
-        self._location = to_cuqi_format(value, force_ndarray=False)
+        self._location = value
 
     @property
     def scale(self):
@@ -49,7 +49,7 @@ class Laplace(Distribution):
     
     @scale.setter
     def scale(self, value):
-        self._scale = to_cuqi_format(value, force_ndarray=False)
+        self._scale = value
         
   
     def logpdf(self, x):

@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.special import erf
 from cuqi.distribution import Distribution
-from cuqi.utilities import to_cuqi_format
+from cuqi.utilities import force_ndarray
 
 class Normal(Distribution):
     """
@@ -41,7 +41,7 @@ class Normal(Distribution):
     
     @mean.setter
     def mean(self, value):
-        self._mean = to_cuqi_format(value, force_ndarray=False)
+        self._mean = value
 
     @property
     def std(self):
@@ -49,7 +49,7 @@ class Normal(Distribution):
     
     @std.setter
     def std(self, value):
-        self._std = to_cuqi_format(value, force_ndarray=False)
+        self._std = value
 
 
     def pdf(self, x):

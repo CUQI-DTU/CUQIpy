@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import to_cuqi_format
+from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
 
 
@@ -54,7 +54,7 @@ class Beta(Distribution):
     
     @alpha.setter
     def alpha(self, value):
-        self._alpha = to_cuqi_format(value, flatten=True)
+        self._alpha = force_ndarray(value, flatten=True)
 
     @property
     def beta(self):
@@ -62,7 +62,7 @@ class Beta(Distribution):
     
     @beta.setter
     def beta(self, value):
-        self._beta = to_cuqi_format(value, flatten=True)
+        self._beta = force_ndarray(value, flatten=True)
 
     def logpdf(self, x):
 

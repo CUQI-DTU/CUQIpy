@@ -79,7 +79,7 @@ poisson_form = lambda x: (diff_operator, source(x[0], x[1]))
 # Create PDE class (passing solver of choice)
 def linalg_solve_3(A, b):
 # Solve using invertion: not very good approach. But this is to illustrate any third party solver can be wrapped in similar way.
-    return cuqi.utilities.to_cuqi_format(np.linalg.inv(A)@b).flatten(),\
+    return cuqi.utilities.force_ndarray(np.linalg.inv(A)@b).flatten(),\
            "dummy_info_1",\
 	   "dummy_info_2",\
 	   "dummy_info_3" 

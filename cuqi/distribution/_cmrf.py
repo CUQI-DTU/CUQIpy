@@ -2,7 +2,7 @@ import numpy as np
 import warnings
 from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
-from cuqi.utilities import to_cuqi_format
+from cuqi.utilities import force_ndarray
 from cuqi.geometry import _get_identity_geometries
 
 class CMRF(Distribution):
@@ -78,7 +78,7 @@ class CMRF(Distribution):
     
     @location.setter
     def location(self, value):
-        self._location = to_cuqi_format(value, flatten=True)
+        self._location = force_ndarray(value, flatten=True)
 
     @property
     def scale(self):
@@ -86,7 +86,7 @@ class CMRF(Distribution):
     
     @scale.setter
     def scale(self, value):
-        self._scale = to_cuqi_format(value, flatten=True, force_ndarray=False)
+        self._scale = value
 
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)

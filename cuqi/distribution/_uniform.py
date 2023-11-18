@@ -1,6 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
-from cuqi.utilities import to_cuqi_format
+from cuqi.utilities import force_ndarray
 
 class Uniform(Distribution):
 
@@ -27,7 +27,7 @@ class Uniform(Distribution):
     
     @low.setter
     def low(self, value):
-        self._low = to_cuqi_format(value, force_ndarray=False)
+        self._low = value
 
     @property
     def high(self):
@@ -35,7 +35,7 @@ class Uniform(Distribution):
     
     @high.setter
     def high(self, value):
-        self._high = to_cuqi_format(value, force_ndarray=False)
+        self._high = value
 
     def logpdf(self, x):
         # First check whether x is outside bounds.
