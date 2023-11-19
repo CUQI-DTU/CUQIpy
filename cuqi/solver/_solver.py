@@ -597,10 +597,10 @@ class FISTA(object):
         self.stepsize = stepsize
         self.abstol = abstol
         self.adaptive = adaptive
-        if not callable(A):
-            self.explicitA = True
-        else:
-            self.explicitA = False
+
+    @property
+    def _explicitA(self):
+        return not callable(self.A)
             
     def solve(self):
         # initial state
@@ -613,7 +613,7 @@ class FISTA(object):
             x_old = x.copy()
             k += 1
         
-            if self.explicitA:
+            if self._explicitA:
                 grad = self.A.T@(self.A @ x_old - self.b)
             else:
                 grad = self.A(self.A(x_old, 1) - self.b, 2)
