@@ -13,6 +13,10 @@ class Conjugate: # TODO: Subclass from Sampler once updated
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
+    For implicit regularized Gaussians see:
+    
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
+
     """
 
     def __init__(self, target: Posterior):
@@ -27,28 +31,22 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         self.target = target
 
     def step(self, x=None):
+        # Extract variables
+        b = self.target.likelihood.data                                 #mu
+        m = self._calc_m_for_Gaussians(b)                               #n
+        Ax = self.target.likelihood.distribution.mean                   #x_i
+        L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
+        alpha = self.target.prior.shape                                 #alpha
+        beta = self.target.prior.rate                                   #beta
+
+        # Create Gamma distribution and sample
+        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
+
+        return dist.sample()
+
+    def _calc_m_for_Gaussians(self, b):
+        """ Helper method to calculate m parameter for Gaussian-Gamma conjugate pair. """
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
-            # Extract variables
-            b = self.target.likelihood.data                                 #mu
-            m = len(b)                                                      #n
-            Ax = self.target.likelihood.distribution.mean                   #x_i
-            L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
-            alpha = self.target.prior.shape                                 #alpha
-            beta = self.target.prior.rate                                   #beta
-    
-            # Create Gamma distribution and sample
-            dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
-    
-            return dist.sample()
+            return len(b)
         elif isinstance(self.target.likelihood.distribution, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)):
-            # Extract variables
-            b = self.target.likelihood.data                                          #mu
-            m = len(b)                                                               #n
-            Ax = self.target.likelihood.distribution.gaussian.mean                   #x_i
-            L = self.target.likelihood.distribution(np.array([1])).gaussian.sqrtprec #L
-            alpha = self.target.prior.shape                                          #alpha
-            beta = self.target.prior.rate                                            #beta
-    
-            # Create Gamma distribution and sample
-            dist = Gamma(shape=np.count_nonzero(b)/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
-            return dist.sample()
+            return np.count_nonzero(b) # See 
