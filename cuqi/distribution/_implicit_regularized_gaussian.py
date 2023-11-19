@@ -15,7 +15,8 @@ class ImplicitRegularizedGaussian(Distribution):
     Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
     a nonnegativity constraint is used by default.
 
-    Distribution can be used as prior in posterior and samples with the RegularizedLinearRTO sampler.
+    Distribution can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
 
     For more details on implicit regularized Gaussian see the following paper:
 
@@ -50,11 +51,12 @@ class ImplicitRegularizedGaussian(Distribution):
         Euclidean projection onto the constraint C, that is, a solver for the optimization problem
         min_(z in C) 0.5||x-z||_2^2.
 
-    constraint : string or None, Default: "nonnegative"
-        Preset constraints, including "nonnegativity" and "box". Required for use in Gibbs.
+    constraint : string or None, Default: "nonnegativity"
+        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
 
     regularization : string or None
-        Preset regularization, including "l1". Required for use in Gibbs in future update.
+        Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
+
 
     """
         
@@ -71,9 +73,10 @@ class ImplicitRegularizedGaussian(Distribution):
     def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization):
         """ Parse regularization input arguments with guarding statements and store internal states """
 
-                # Check only one of proximal, projector, constraint or regularization is provided        
+        # Check only one of proximal, projector, constraint or regularization is provided        
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) > 1:
             raise ValueError("Only one of proximal, projector, constraint or regularization can be provided.")
+
         
         # Default to nonnegativity constraint if no arguments are provided
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) == 0:
@@ -226,7 +229,8 @@ class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
     Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
     a nonnegativity constraint is used by default.
 
-    Distribution can be used as prior in posterior and samples with the RegularizedLinearRTO sampler.
+    Distribution can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
 
     For more details on implicit regularized Gaussian see the following paper:
 
