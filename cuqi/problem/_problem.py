@@ -353,7 +353,7 @@ class BayesianProblem(object):
             return self._samplepCN(Ns, Nb, callback)
         
         # For Regularized Gaussians with linear models we use Regularized LinearRTO
-        elif self._check_posterior(self, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF), Gaussian):
+        elif self._check_posterior(self, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF), Gaussian, LinearModel):
             return self._sampleRegularizedLinearRTO(Ns, Nb, callback)
 
         else:
