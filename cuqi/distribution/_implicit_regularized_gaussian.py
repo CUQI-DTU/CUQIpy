@@ -144,7 +144,7 @@ class ImplicitRegularizedGaussian(Distribution):
     
     @geometry.setter
     def geometry(self, value):
-        self._gaussian.geometry = value
+        self.gaussian.geometry = value
     
     @property
     def mean(self):
