@@ -51,7 +51,7 @@ Im = np.ones(m)
 d = 100
 s = 400
 
-# Define distributions
+# Bayesian model
 x = Gaussian(np.zeros(n), 1/d*In).rv
 y = Gaussian(A@x, 1/s*Im).rv
 

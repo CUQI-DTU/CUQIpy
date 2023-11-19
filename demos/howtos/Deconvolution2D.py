@@ -50,6 +50,9 @@ A, y_obs, info = Deconvolution2D().get_components()
 # 
 # This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.LMRF`.
 # Notice we have to specify the geometry of the unknown.
+#
+# When defining the prior, we create it as a :class:`~cuqi.randomvariable.RandomVariable` object
+# using the ``rv`` attribute of the distribution.
 
 x = LMRF(location=0, scale=0.1, geometry=A.domain_geometry).rv
 
@@ -67,6 +70,8 @@ x = LMRF(location=0, scale=0.1, geometry=A.domain_geometry).rv
 #
 # We can represent :math:`\mathbf{y}\mid \mathbf{x}` as a :class:`cuqi.distribution.Distribution` object.
 # We often call the distribution of :math:`\mathbf{y}\mid \mathbf{x}` the data distribution.
+#
+# Again, we extract the random variable representing the data distribution using the ``rv`` attribute.
 
 y = Gaussian(mean=A@x, cov=0.01).rv
 
@@ -83,6 +88,8 @@ y = Gaussian(mean=A@x, cov=0.01).rv
 # and then sampling from this posterior distribution.
 #
 # In CUQIpy, we the easiest way to do this is to use the :class:`cuqi.problem.BayesianProblem` class.
+# Here we can simply pass the previously defined random variables as arguments to the class, and then
+# set the data using the :meth:`cuqi.problem.BayesianProblem.set_data` method.
 
 # Create Bayesian problem and set observed data (conditioning)
 BP = BayesianProblem(y, x).set_data(y=y_obs)

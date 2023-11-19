@@ -147,7 +147,7 @@ theta = cuqi.distribution.Gaussian(
 sigma_noise1 = np.linalg.norm(problemInfo1.exactData)/SNR
 sigma_noise2 = np.linalg.norm(problemInfo2.exactData)/SNR
 
-# Create the data distributions
+# Create the data distributions and store them as random variables
 y1 = cuqi.distribution.Gaussian(
     mean=model1(theta),
     cov=sigma_noise1**2,

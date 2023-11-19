@@ -44,7 +44,7 @@ m = A.range_dim
 #
 # We can write this model in CUQIpy as follows:
 
-# Define distribution
+# Define random variables
 d = Gamma(1, 1e-4).rv
 l = Gamma(1, 1e-4).rv
 x = Gaussian(np.zeros(n), 1/d).rv

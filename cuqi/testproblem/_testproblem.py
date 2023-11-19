@@ -711,7 +711,7 @@ class Poisson1D(BayesianProblem):
 
         # Bayesian model
         x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).rv
-        y = cuqi.distribution.Gaussian(model, sigma2).rv
+        y = cuqi.distribution.Gaussian(model(x), sigma2).rv
 
         # Initialize Deconvolution as BayesianProblem problem
         super().__init__(y, x, y=data)
