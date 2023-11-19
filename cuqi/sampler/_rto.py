@@ -185,7 +185,7 @@ class RegularizedLinearRTO(Sampler):
         Maximum number of iterations of the inner FISTA solver. *Optional*.
         
     stepsize : string or float
-        If stepsize is a string and equals either "auto", "automatic" or "spectral_norm", then the stepsize is automatically estimated based on the spectral norm.
+        If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
         If stepsize is a float, then this stepsize is used.
 
     abstol : float
@@ -282,7 +282,7 @@ class RegularizedLinearRTO(Sampler):
         samples = np.empty((self.n, Ns))
                    
         if isinstance(self.stepsize, str):
-            if self.stepsize in ["auto", "automatic", "spectral_norm"]:
+            if self.stepsize in ["automatic"]:
                 if not callable(self.M):
                     M_op = scipyLinearOperator(self.M.shape, matvec = lambda v: self.M@v, rmatvec = lambda w: self.M.T@w)
                 else:
