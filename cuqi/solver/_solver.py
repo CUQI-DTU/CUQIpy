@@ -576,6 +576,7 @@ class FISTA(object):
 
     Minimize ||Ax-b||^2 + f(x).
     
+    
     Parameters
     ----------
     A : ndarray or callable f(x,*args).
@@ -586,6 +587,25 @@ class FISTA(object):
     stepsize : The stepsize of the gradient step.
     abstol : The numerical tolerance for convergence checks.
     adapative : Whether to use FISTA or ISTA.
+
+    Example
+    -----------
+    .. code-block:: python
+    
+        from cuqi.solver import FISTA,  ProximalL1
+        import scipy as sp
+        import numpy as np
+
+        rng = np.random.default_rng()
+
+        m, n = 10, 5
+        A = rng.standard_normal((m, n))
+        b = rng.standard_normal(m)
+        stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
+        x0 = np.zeros(n)
+        fista = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
+        sol, _ = fista.solve()
+
     """  
     def __init__(self, A, b, x0, proximal, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
         
