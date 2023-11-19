@@ -25,23 +25,20 @@ class ImplicitRegularizedGaussian(Distribution):
 
     Parameters
     ----------
-    mean : scalar or 1d-array
-        Mean vector of Gaussian. If a scalar value, all entries in the mean vector are set to that scalar.
+    mean
+        See :class:`~cuqi.distribution.Gaussian` for details.
 
-    cov : scalar, 1d-array or 2d-array (sparse matrix is supported)
-        Covariance matrix of Gaussian. If a scalar or 1d-array, the value defines the diagonal entries of the covariance matrix.
+    cov
+        See :class:`~cuqi.distribution.Gaussian` for details.
 
-    prec : scalar, 1d-array or 2d-array (sparse matrix is supported)
-        Precision matrix of Gaussian defined as the inverse of the covariance.
-        If a scalar or 1d-array, the value defines the diagonal entries of the precision matrix.
+    prec
+        See :class:`~cuqi.distribution.Gaussian` for details.
 
-    sqrtcov : scalar, 1d-array or 2d-array (sparse matrix is supported)
-        Square root of covariance matrix of Gaussian. Defined as matrix R, where R.T@R = cov.
-        If a scalar or 1d-array the value is assumed to be the standard deviation of each component of the Gaussian.
+    sqrtcov
+        See :class:`~cuqi.distribution.Gaussian` for details.
 
-    sqrtprec : scalar or 1d-array or 2d-array (sparse matrix is supported)
-        Square root of precision matrix of Gaussian. Defined as matrix R, where R.T@R = prec.
-        If a scalar or 1d-array the value is assumed to be the inverse standard deviation of each component of the Gaussian.
+    sqrtprec
+        See :class:`~cuqi.distribution.Gaussian` for details.
 
     proximal : callable f(x, scale) or None
         Euclidean proximal operator of the regularization function g, that is, a solver for the optimization problem
@@ -239,20 +236,20 @@ class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
 
     Parameters
     ----------
-    mean : array_like
-        Mean of the GMRF. 
+    mean
+        See :class:`~cuqi.distribution.GMRF` for details.
         
-    prec : float
-        Precision of the GMRF.
+    prec
+        See :class:`~cuqi.distribution.GMRF` for details.
 
-    physical_dim : int
-        The physical dimension of what the distribution represents (can take the values 1 or 2).
+    physical_dim
+        See :class:`~cuqi.distribution.GMRF` for details.
 
-    bc_type : str
-        The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
+    bc_type
+        See :class:`~cuqi.distribution.GMRF` for details.
 
-    order : int
-        The order of the GMRF. Can be 0, 1 or 2.
+    order
+        See :class:`~cuqi.distribution.GMRF` for details.
 
     proximal : callable f(x, scale) or None
         Euclidean proximal operator of the regularization function g, that is, a solver for the optimization problem
