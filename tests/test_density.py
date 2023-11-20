@@ -53,7 +53,7 @@ def test_density_name_consistency():
     assert X.par_name == 'x'
 
     # Ensure that the name cannot be changed for conditioned densities.
-    with pytest.raises(ValueError, match=r"Cannot set name of conditioned density. Only the original density can have its name set."):
+    with pytest.raises(ValueError, match=r"Cannot set name of already named conditioned density. Only the original density can have its name set."):
         X2.par_name = 'y'
 
     X.par_name = 'y'
@@ -68,3 +68,11 @@ def test_evaluated_density_gradient():
     x = x(np.zeros(2)+.1)
     with pytest.raises(NotImplementedError, match=r"gradient is not implemented"):
         x.gradient()
+
+def test_allow_setting_par_name_of_unnamed_conditioned_density():
+    """ Test that the name of an unnamed conditioned density can be set. """
+    Z_s = cuqi.distribution.Gaussian(0, lambda s: s)
+    Z = Z_s(s=3)
+    Z.par_name = 'Z' # Should not raise an error.
+
+    assert Z_s.par_name == 'Z' # Should be changed for the original density.

@@ -44,7 +44,10 @@ class Density(ABC):
     @par_name.setter
     def par_name(self, name):
         if self._is_copy:
-            raise ValueError("Cannot set name of conditioned density. Only the original density can have its name set.")
+            if self._original_density.par_name is not None:
+                raise ValueError("Cannot set name of already named conditioned density. Only the original density can have its name set.")
+            else:
+                self._original_density.par_name = name
         self._par_name = name
 
     @property

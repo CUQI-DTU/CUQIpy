@@ -130,6 +130,8 @@ class RandomVariable:
             return self._original_variable.name
         if self._name is None: # If None extract the name from the stack
             self._name = cuqi.utilities._get_python_variable_name(self)
+        if len(self._distributions) == 1: # If single distribution, inject name into distribution
+            self._set_dist_name_if_not_set(next(iter(self._distributions)), self._name)
         return self._name
     
     @name.setter
@@ -170,7 +172,7 @@ class RandomVariable:
             raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
         distribution = next(iter(self._distributions))
         # Inject name into distribution
-        self._set_dist_name_if_not_set(distribution)
+        self._set_dist_name_if_not_set(distribution, self.name)
         return distribution
     
     @property
@@ -178,12 +180,12 @@ class RandomVariable:
         """ Distributions from which the random variable originates. """
         # Inject name into distributions
         if len(self._distributions) == 1:
-            self._set_dist_name_if_not_set(next(iter(self._distributions)))
+            self._set_dist_name_if_not_set(next(iter(self._distributions)), self.name)
         return self._distributions
     
-    def _set_dist_name_if_not_set(self, distribution):
-        if not hasattr(distribution, '_par_name') or distribution._par_name is None: #TODO. Change to "par_name" once dist does not auto infer
-            distribution.par_name = self.name
+    def _set_dist_name_if_not_set(self, distribution, name):
+        if not hasattr(distribution, '_par_name') or distribution._par_name is None:
+            distribution.par_name = name
 
     def get_conditioning_variables(self):
         """ Get conditioning variables. """

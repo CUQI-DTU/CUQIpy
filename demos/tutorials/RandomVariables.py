@@ -382,5 +382,5 @@ print(x.geometry)
 z = Gaussian(0, lambda p: p).rv # z ~ p(z|p) = Gaussian(0, p)
 
 print(z)
-print(z.condition(s=10))
+print(z.condition(p=10))
 
