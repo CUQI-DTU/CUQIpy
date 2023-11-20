@@ -379,7 +379,7 @@ print(x.geometry)
 # random variable on the given input. This is done using the ``condition``
 # method. For more details see documentation of conditioning on distributions.
 
-z = Gaussian(0, lambda s: s).rv
+z = Gaussian(0, lambda p: p).rv # z ~ p(z|p) = Gaussian(0, p)
 
 print(z)
 print(z.condition(s=10))
