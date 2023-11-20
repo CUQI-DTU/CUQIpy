@@ -292,6 +292,9 @@ def test_ensure_that_RV_evaluation_requires_all_parameters():
     with pytest.raises(ValueError, match=r"Expected arguments \['x'\], got arguments \{'y': 1\}"):
         x(y=1)
 
+    with pytest.raises(ValueError, match=r"Expected arguments \['x'\], got arguments \{'x': 1, 'y': 1\}"):
+        x(x=1, y=1)
+
     y = cuqi.distribution.Gaussian(0, 1).rv
     z = (x+y)**2
 

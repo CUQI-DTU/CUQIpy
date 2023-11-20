@@ -110,7 +110,7 @@ class RandomVariable:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
         # Check if kwargs match parameter names using a all compare
-        if not all([name in kwargs for name in self.parameter_names]):
+        if not all([name in kwargs for name in self.parameter_names]) or not all([name in self.parameter_names for name in kwargs]):
             raise ValueError(f"Expected arguments {self.parameter_names}, got arguments {kwargs}")
 
         return self.tree(**kwargs)
