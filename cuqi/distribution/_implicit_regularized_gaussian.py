@@ -41,8 +41,9 @@ class ImplicitRegularizedGaussian(Distribution):
         See :class:`~cuqi.distribution.Gaussian` for details.
 
     proximal : callable f(x, scale) or None
-        Euclidean proximal operator of the regularization function g, that is, a solver for the optimization problem
+        Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
         min_z 0.5||x-z||_2^2+scale*g(x).
+
 
     projector : callable f(x) or None
         Euclidean projection onto the constraint C, that is, a solver for the optimization problem
