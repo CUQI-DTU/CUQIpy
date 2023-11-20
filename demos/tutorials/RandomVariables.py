@@ -37,7 +37,7 @@ from cuqi.problem import BayesianProblem
 # 
 
 X = Gaussian(0, 1) # Distribution
-
+print(X)
 x = X.rv # Random variable from distribution
 
 print(x)
@@ -66,7 +66,7 @@ x = Gaussian(0, 1).rv
 # problem. Random variables are defined by their underlying distribution
 # and the algebraic operations performed on them.
 #
-# For simple random variable, the underlying distribution can be accessed using
+# For a simple random variable, the underlying distribution can be accessed using
 # the ``dist`` attribute.
 
 print(x.dist)
@@ -74,7 +74,7 @@ print(x.dist)
 
 # %%
 ######################################################################
-# Random variables act different than regular Python
+# Random variables act differently than regular Python
 # variables in the following important ways:
 # 
 # 1. They are not immediately evaluated when defined. Instead, they are
@@ -83,7 +83,7 @@ print(x.dist)
 #    instead of a single value or vector of values.
 # 
 # Despite these differences, random variables can be used in the same way
-# as regular variables in most cases.
+# as regular variables in most cases, such as performing algebraic operations.
 # 
 # For example suppose we want to define a new variable :math:`y` as
 # follows:
@@ -145,7 +145,7 @@ print(y.is_transformed)
 # distribution of the random variable. This is done using the ``sample``
 # method.
 # 
-# This is possible because the random variable knows of the
+# This is possible because the random variable knows of any
 # transformations performed on it and can use this information to
 # transform the sample drawn from the original distribution.
 # 
@@ -176,7 +176,8 @@ print(y.sample())
 
 # Evaluates y = (x+10)^2 at x=3
 y(3)
-
+# One can also specify x=3 as keyword argument with the same result:
+y(x=3)
 
 # %%
 ######################################################################
@@ -232,7 +233,7 @@ print(z)
 # Draws a sample from z with x and y sampled from their respective distributions
 print(z.sample()) 
 
-# Evaluates z at x=1, y=2
+# Directly evaluates z at x=1, y=2
 z(x=1, y=2) 
 
 
@@ -340,8 +341,9 @@ x = Gaussian(0, 1, geometry=3).rv
 # using the ``logd`` method. **Note**. Only simple (non-transformed)
 # random variables support this method at this point in time.
 #
-
-x.logd([1, 2, 3])
+# Define point for evaluation
+x0 = [1, 2, 3]
+x.logd(x0)
 
 # %%
 ######################################################################
@@ -352,7 +354,7 @@ x.logd([1, 2, 3])
 # probability density function of the random variable at a given point.
 #
 
-x.gradient([1, 2, 3])
+x.gradient(x0)
 
 
 # %%
