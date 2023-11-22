@@ -266,7 +266,7 @@ def test_rv_name_consistency():
     assert x.name == 'x'
 
     # Ensure that the name cannot be changed for conditioned densities.
-    with pytest.raises(ValueError, match=r"Cannot set name of conditioned random variable. Only the original variable can have its name set."):
+    with pytest.raises(ValueError, match=r"This random variable is derived from the conditional random variable named x"):
         x2.name = 'y'
 
     x.name = 'y'
