@@ -1,5 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class Laplace(Distribution):
     """ Laplace distribution. 
@@ -33,6 +34,23 @@ class Laplace(Distribution):
 
         self.location = location
         self.scale = scale
+
+    @property
+    def location(self):
+        return self._location
+    
+    @location.setter
+    def location(self, value):
+        self._location = value
+
+    @property
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = value
+        
   
     def logpdf(self, x):
         if isinstance(x, (float,int)):

@@ -8,6 +8,7 @@ from cuqi.likelihood import Likelihood
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import _DefaultGeometry1D, _DefaultGeometry2D, Geometry
+from cuqi.randomvariable import RandomVariable
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
 import numpy as np # To be replaced by cuqi.array_api
 
@@ -71,7 +72,7 @@ class Distribution(Density, ABC):
     mutable variable itself (in case 1) or the parameters to the callable function (in case 2).
 
     """
-    def __init__(self, name=None, geometry=None, is_symmetric=None):
+    def __init__(self, par_name=None, geometry=None, is_symmetric=None):
         """ Initialize the core properties of the distribution.
         
         Parameters
@@ -86,7 +87,7 @@ class Distribution(Density, ABC):
             Indicator if distribution is symmetric.
                         
         """
-        super().__init__(name=name)
+        super().__init__(par_name=par_name)
         self.is_symmetric = is_symmetric
         self.geometry = geometry
 
@@ -146,8 +147,8 @@ class Distribution(Density, ABC):
 
         # Check if dist has a name, if so we provide it to the geometry
         # We do not use self.name to potentially infer it from python stack.
-        if self._name: 
-            self._geometry._variable_name = self._name
+        if self._par_name: 
+            self._geometry._variable_name = self._par_name
             
         return self._geometry
 
@@ -335,13 +336,13 @@ class Distribution(Density, ABC):
         # of a distribution by walking the python stack.
         if len(unused_kwargs)>0:
 
-            if self.name in kwargs:
+            if self.par_name in kwargs:
                 # If name matches we convert to likelihood
-                return new_dist.to_likelihood(kwargs[self.name])  
+                return new_dist.to_likelihood(kwargs[self.par_name])  
             else:
                 # KEYWORD ERROR CHECK
                 for kw_key in kwargs.keys():
-                    if kw_key not in (mutable_vars+cond_vars+[self.name]):
+                    if kw_key not in (mutable_vars+cond_vars+[self.par_name]):
                         raise ValueError("The keyword \"{}\" is not a mutable, conditioning variable or parameter name of this distribution.".format(kw_key))       
 
         return new_dist
@@ -372,7 +373,7 @@ class Distribution(Density, ABC):
             return self._mutable_vars
         
         # Define list of ignored attributes and properties
-        ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
+        ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim', 'par_name']
         
         # Get public attributes
         attributes = get_writeable_attributes(self)
@@ -386,7 +387,7 @@ class Distribution(Density, ABC):
         return self._mutable_vars
 
     def get_parameter_names(self):
-        return self.get_conditioning_variables() + [self.name]
+        return self.get_conditioning_variables() + [self.par_name]
 
     @property
     def is_cond(self):
@@ -399,7 +400,7 @@ class Distribution(Density, ABC):
     def to_likelihood(self, data):
         """Convert conditional distribution to a likelihood function given observed data"""
         if not self.is_cond: # If not conditional we create a constant density
-            return EvaluatedDensity(self.logd(data), name=self.name)
+            return EvaluatedDensity(self.logd(data), par_name=self.par_name)
         return Likelihood(self, data)
 
     def _parse_args_add_to_kwargs(self, cond_vars, *args, **kwargs):
@@ -429,3 +430,16 @@ class Distribution(Density, ABC):
             return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
+                
+    def _as_random_variable(self):
+        """Return a RandomVariable instance of this distribution"""
+        # Copy distribution and original density to avoid side effects
+        new_dist = copy(self)
+        new_dist._original_density = copy(self._original_density)
+        return RandomVariable(new_dist)
+    
+    @property
+    def rv(self):
+        """Return a RandomVariable instance of this distribution"""
+        return self._as_random_variable() 
+

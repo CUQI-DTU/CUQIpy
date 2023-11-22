@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.special import erf
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class Normal(Distribution):
     """
@@ -33,6 +34,23 @@ class Normal(Distribution):
         # Init specific to this distribution
         self.mean = mean
         self.std = std
+
+    @property
+    def mean(self):
+        return self._mean
+    
+    @mean.setter
+    def mean(self, value):
+        self._mean = value
+
+    @property
+    def std(self):
+        return self._std
+    
+    @std.setter
+    def std(self, value):
+        self._std = value
+
 
     def pdf(self, x):
         return np.prod(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))

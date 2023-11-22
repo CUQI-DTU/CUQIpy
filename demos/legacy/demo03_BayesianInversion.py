@@ -30,12 +30,12 @@ n = tp.model.domain_dim;    # Number of unknowns
 
 #%% Two choices of prior
 
-P1 = cuqi.distribution.GMRF(np.zeros(n), 25, 1, 'zero', name="x")
+P1 = cuqi.distribution.GMRF(np.zeros(n), 25, 1, 'zero',par_name="x")
 
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-P2 = cuqi.distribution.CMRF(loc, scale, 'neumann', name="x")
+P2 = cuqi.distribution.CMRF(loc, scale, 'neumann',par_name="x")
 
 #%% Generate and display some prior samples
 sp1 = P1.sample(5)

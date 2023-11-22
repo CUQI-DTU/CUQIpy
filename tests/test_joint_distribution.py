@@ -8,9 +8,9 @@ def test_joint_dist_dim_geometry():
     model, data, _ = cuqi.testproblem.Poisson1D().get_components() # Model is m times n, m != n.
 
     # Bayesian model
-    d = cuqi.distribution.Gamma(1, 1e-4)
-    x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), lambda d: d)
-    y = cuqi.distribution.Gaussian(model, 1)
+    d = cuqi.distribution.Gamma(1, 1e-4).rv
+    x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), d).rv
+    y = cuqi.distribution.Gaussian(model, 1).rv
 
     # Joint distribution
     J = cuqi.distribution.JointDistribution(d, x, y)
@@ -31,32 +31,32 @@ def test_joint_dist_dim_geometry():
 
 @pytest.mark.parametrize("densities", [
     [
-        cuqi.distribution.Gamma(1, 1e-4, name="x"),
-        cuqi.distribution.Normal(0, 1, name="y")
+        cuqi.distribution.Gamma(1, 1e-4,par_name="x"),
+        cuqi.distribution.Normal(0, 1,par_name="y")
     ],
     [
-        cuqi.distribution.Gamma(1, 1e-4, name="x"),
-        cuqi.distribution.Normal(0, lambda x:x, name="y")
+        cuqi.distribution.Gamma(1, 1e-4,par_name="x"),
+        cuqi.distribution.Normal(0, lambda x:x,par_name="y")
     ],
     [
-        cuqi.distribution.Gamma(1, 1e-4, name="d"),
-        cuqi.distribution.Gamma(1, 1e-2, name="l"),
-        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Gamma(1, 1e-4,par_name="d"),
+        cuqi.distribution.Gamma(1, 1e-2,par_name="l"),
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d,par_name="x"),
         cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
-            name="y"
+           par_name="y"
         )
     ],
     [
-        cuqi.distribution.Normal(0, 1e-2, name="z"),
-        cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
-        cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Normal(0, 1e-2,par_name="z"),
+        cuqi.distribution.Gamma(1, lambda z: abs(z),par_name="d"),
+        cuqi.distribution.Gamma(lambda z: z, 1e-2,par_name="l"),
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d,par_name="x"),
         cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
-            name="y"
+           par_name="y"
         )
     ],
 ])
@@ -90,29 +90,29 @@ def test_joint_dist_logd(densities):
 
 @pytest.mark.parametrize("densities", [
     [
-        cuqi.distribution.Gamma(1, 1e-4, name="x"),
-        cuqi.distribution.Gaussian(0, lambda x:x, name="z"),
-        cuqi.distribution.Normal(0, lambda x:x, name="y")
+        cuqi.distribution.Gamma(1, 1e-4,par_name="x"),
+        cuqi.distribution.Gaussian(0, lambda x:x,par_name="z"),
+        cuqi.distribution.Normal(0, lambda x:x,par_name="y")
     ],
     [
-        cuqi.distribution.Gamma(1, 1e-4, name="d"),
-        cuqi.distribution.Gamma(1, 1e-2, name="l"),
-        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Gamma(1, 1e-4,par_name="d"),
+        cuqi.distribution.Gamma(1, 1e-2,par_name="l"),
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d,par_name="x"),
         cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
-            name="y"
+           par_name="y"
         )
     ],
     [
-        cuqi.distribution.Normal(0, 1e-2, name="z"),
-        cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
-        cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+        cuqi.distribution.Normal(0, 1e-2,par_name="z"),
+        cuqi.distribution.Gamma(1, lambda z: abs(z),par_name="d"),
+        cuqi.distribution.Gamma(lambda z: z, 1e-2,par_name="l"),
+        cuqi.distribution.Gaussian(np.zeros(8), lambda d: d,par_name="x"),
         cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
             cov=lambda l: l,
-            name="y"
+           par_name="y"
         )
     ],
 ])
@@ -129,7 +129,7 @@ def test_joint_dist_properties(densities):
     assert J.geometry == [density.geometry for density in densities]
 
     # Check the parameter names
-    assert J.get_parameter_names() == [density.name for density in densities]
+    assert J.get_parameter_names() == [density.par_name for density in densities]
 
     # Check list of distributions
     assert J._distributions == densities
@@ -149,13 +149,13 @@ def test_joint_dist_properties(densities):
     assert P.geometry == [density.geometry for density in densities[:-1]]
 
     # Check the parameter names
-    assert P.get_parameter_names() == [density.name for density in densities[:-1]]
+    assert P.get_parameter_names() == [density.par_name for density in densities[:-1]]
 
     # Check list of distributions by comparing the names
-    assert [dist.name for dist in P._distributions] == [density.name for density in densities[:-1]]
+    assert [dist.par_name for dist in P._distributions] == [density.par_name for density in densities[:-1]]
 
     # Check likelihoods by comparing the names
-    assert [L.name for L in P._likelihoods] == [densities[-1].name]
+    assert [L.par_name for L in P._likelihoods] == [densities[-1].par_name]
 
 def test_joint_dist_reduce():
     """ This tests the reduce hack for the joint distribution. """
@@ -213,14 +213,14 @@ def hierarchical_joint(main_dim=8):
     """
 
     densities = [
-        cuqi.distribution.Normal(0, 1e-2, name="z"),
-        cuqi.distribution.Gamma(1, lambda z: abs(z), name="d"),
-        cuqi.distribution.Gamma(lambda z: z, 1e-2, name="l"),
-        cuqi.distribution.Gaussian(np.zeros(main_dim), lambda d: d, name="x"),
+        cuqi.distribution.Normal(0, 1e-2,par_name="z"),
+        cuqi.distribution.Gamma(1, lambda z: abs(z),par_name="d"),
+        cuqi.distribution.Gamma(lambda z: z, 1e-2,par_name="l"),
+        cuqi.distribution.Gaussian(np.zeros(main_dim), lambda d: d,par_name="x"),
         cuqi.distribution.Gaussian(
             mean=cuqi.testproblem.Deconvolution1D(dim=main_dim).model,
             cov=lambda l: l,
-            name="y"
+           par_name="y"
         )
     ]
 
@@ -234,9 +234,9 @@ def test_extra_parameter_no_prior():
     A = np.random.randn(10,3)
 
     # Define distributions for Bayesian model
-    y = cuqi.distribution.Normal(lambda x: A@x, np.ones(10))
-    x = cuqi.distribution.Normal(np.zeros(3), lambda z,b:z+b)
-    z = cuqi.distribution.Gamma(1, 1)
+    y = cuqi.distribution.Normal(lambda x: A@x, np.ones(10)).rv
+    x = cuqi.distribution.Normal(np.zeros(3), lambda z,b:z+b).rv
+    z = cuqi.distribution.Gamma(1, 1).rv
 
     # Joint distribution p(y,x,z)
     with pytest.raises(ValueError, match=r"Missing prior for \['b'\]"):
@@ -269,8 +269,8 @@ def test_MultipleLikelihoodPosterior_should_raise_if_two_densities():
     """ This tests if the MultipleLikelihoodPosterior raises if it has two densities. """
 
     # Define distributions for Bayesian model
-    y = cuqi.distribution.Normal(lambda x: x, 1)
-    x = cuqi.distribution.Normal(0, 1)
+    y = cuqi.distribution.Normal(lambda x: x, 1).rv
+    x = cuqi.distribution.Normal(0, 1).rv
 
     # Joint distribution p(y,x)
     J = cuqi.distribution.JointDistribution(y,x)
@@ -283,16 +283,16 @@ def test_MultipleLikelihoodPosterior_should_raise_if_two_densities():
 
     # Check that we cannot create MultipleLikelihoodPosterior
     with pytest.raises(ValueError, match=r"requires at least three densities"):
-        cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x)
+        cuqi.distribution.MultipleLikelihoodPosterior(y.condition(y=1), x)
 
 
 def test_MultipleLikelihoodPosterior_should_raise_if_no_likelihood():
     """ This tests if the MultipleLikelihoodPosterior raises if no likelihood is given."""
 
     # Define distributions for Bayesian model
-    y1 = cuqi.distribution.Normal(lambda x: x, 1)
-    y2 = cuqi.distribution.Normal(lambda x: x+1, 1)
-    x = cuqi.distribution.Normal(0, 1)
+    y1 = cuqi.distribution.Normal(lambda x: x, 1).rv
+    y2 = cuqi.distribution.Normal(lambda x: x+1, 1).rv
+    x = cuqi.distribution.Normal(0, 1).rv
  
     # Check that we cannot create MultipleLikelihoodPosterior
     with pytest.raises(ValueError, match=r"must have a likelihood and prior"):
@@ -302,11 +302,11 @@ def test_MultipleLikelihoodPosterior_should_raise_if_names_do_not_match():
     """ This tests if the MultipleLikelihoodPosterior raises if the names do not match."""
 
     # Define distributions for Bayesian model
-    y = cuqi.distribution.Normal(lambda x: x, 1)
-    x = cuqi.distribution.Normal(0, 1)
-    z = cuqi.distribution.Normal(0, 1)
+    y = cuqi.distribution.Normal(lambda x: x, 1).rv
+    x = cuqi.distribution.Normal(0, 1).rv
+    z = cuqi.distribution.Normal(0, 1).rv
  
     # Check that we cannot create MultipleLikelihoodPosterior
     with pytest.raises(ValueError, match=r"the same parameter name"):
-        cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x, z)
+        cuqi.distribution.MultipleLikelihoodPosterior(y.condition(y=1), x, z)
 

@@ -12,7 +12,7 @@ from cuqi.distribution import Normal
 # %%
 # First we create a simple distribution
 # We explicitly add the name to name the RV associated with the distribution
-x = Normal(0, 1, name="x") # x ~ N(0, 1). Later we dont need to specify the name
+x = Normal(0, 1,par_name="x") # x ~ N(0, 1). Later we dont need to specify the name
 
 # %% logpdf and logd
 
@@ -26,7 +26,7 @@ print(x.logd(1))
 
 # %% Evaluating the logd of a conditioned distribution
 # Suppose we have a conditional distribution p(y|s) = N(y|0,s^2)
-y = Normal(0, lambda s: s, name="y")
+y = Normal(0, lambda s: s,par_name="y")
 
 # In some cases we want to explicitly create a new object representing
 # the conditioned distribution: p(y|s=1) = N(y|0,1^2).

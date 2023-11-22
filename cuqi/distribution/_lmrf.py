@@ -1,5 +1,4 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry1D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
@@ -76,6 +75,14 @@ class LMRF(Distribution):
     @location.setter
     def location(self, value):
         self._location = force_ndarray(value, flatten=True)
+
+    @property
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = value
 
     def pdf(self, x):
         Dx = self._diff_op @ (x-self.location)  # np.diff(X)

@@ -1,10 +1,9 @@
 import numpy as np
 import warnings
-from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.utilities import force_ndarray
-
+from cuqi.geometry import _get_identity_geometries
 
 class CMRF(Distribution):
     """Cauchy distribution on the difference between neighboring nodes.
@@ -81,6 +80,13 @@ class CMRF(Distribution):
     def location(self, value):
         self._location = force_ndarray(value, flatten=True)
 
+    @property
+    def scale(self):
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = value
 
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)

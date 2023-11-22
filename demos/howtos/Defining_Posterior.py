@@ -36,8 +36,8 @@ A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
 #
 # which can be written in CUQIpy as
 
-x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
-y = cuqi.distribution.Gaussian(A(x), 0.05**2)
+x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1).rv
+y = cuqi.distribution.Gaussian(A(x), 0.05**2).rv
 
 # %%
 # The joint distribution :math:`p(\mathbf{x}, \mathbf{y})` is then obtained by
@@ -83,9 +83,9 @@ B, d_obs, _ = cuqi.testproblem.Deconvolution1D(PSF="Defocus", noise_std=0.02).ge
 #    \mathbf{d} &\sim \mathcal{N}(\mathbf{B}\mathbf{x}, 0.01^2\mathbf{I})
 #    \end{align*}
 
-x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
-y = cuqi.distribution.Gaussian(A(x), 0.05**2)
-d = cuqi.distribution.Gaussian(B(x), 0.01**2)
+x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1).rv
+y = cuqi.distribution.Gaussian(A(x), 0.05**2).rv
+d = cuqi.distribution.Gaussian(B(x), 0.01**2).rv
 
 # %%
 # The joint distribution :math:`p(\mathbf{x}, \mathbf{y}, \mathbf{d})` is then
@@ -143,13 +143,13 @@ b_obs = 16
 #    \mathbf{b} &\sim \mathcal{L}(\mathbf{C}(\mathbf{x}), q)
 #    \end{align*}
 
-q = cuqi.distribution.Uniform(0.1, 10)
-l = cuqi.distribution.Gamma(1, 1)
-s = cuqi.distribution.Gamma(1, 1e-2)
-x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), lambda l: 1/l)
-y = cuqi.distribution.Gaussian(A(x), lambda s: 1/s)
-d = cuqi.distribution.Gaussian(B(x), 0.01**2)
-b = cuqi.distribution.Laplace(C(x), lambda q: q)
+q = cuqi.distribution.Uniform(0.1, 10).rv
+l = cuqi.distribution.Gamma(1, 1).rv
+s = cuqi.distribution.Gamma(1, 1e-2).rv
+x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 1/l).rv
+y = cuqi.distribution.Gaussian(A(x), 1/s).rv
+d = cuqi.distribution.Gaussian(B(x), 0.01**2).rv
+b = cuqi.distribution.Laplace(C(x), q).rv
 
 # %%
 # The joint distribution :math:`p(q, l, s, \mathbf{x}, \mathbf{y}, \mathbf{d}, \mathbf{b})`

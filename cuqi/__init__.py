@@ -8,6 +8,7 @@ from . import model
 from . import operator
 from . import pde
 from . import problem
+from . import randomvariable
 from . import sampler
 from . import array
 from . import samples

@@ -72,7 +72,7 @@ plt.legend()
 # a Gaussian Markov Random Field (GMRF) prior. For more details on the GMRF prior, see the
 # :class:`cuqi.distribution.GMRF` documentation.
 
-x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 200)
+x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 200).rv
 
 
 # %%
@@ -89,7 +89,7 @@ print(info.infoString)
 # information to define the likelihood. In this case, we will use a :class:`~cuqi.distribution.Gaussian`
 # distribution.
 
-y = cuqi.distribution.Gaussian(A @ x, 0.01**2)
+y = cuqi.distribution.Gaussian(A @ x, 0.01**2).rv
 
 # %%
 # Bayesian problem (Joint distribution)
@@ -134,13 +134,13 @@ samples.plot_ci(exact=info.exactSolution)
 # many cases, this is not the case. If we do not know the noise level, we can
 # use a :class:`~cuqi.distribution.Gamma` distribution to model the noise level.
 
-s = cuqi.distribution.Gamma(1, 1e-4)
+s = cuqi.distribution.Gamma(1, 1e-4).rv
 
 # %%
 # Update likelihood with unknown noise level
 # ------------------------------------------
 
-y = cuqi.distribution.Gaussian(A @ x, prec=lambda s: s)
+y = cuqi.distribution.Gaussian(A @ x, prec=s).rv
 
 # %%
 # Bayesian problem (Joint distribution)

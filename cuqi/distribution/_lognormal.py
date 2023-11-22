@@ -2,6 +2,7 @@ import numpy as np
 from cuqi.geometry import _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.distribution import Gaussian
+from cuqi.utilities import force_ndarray
 import warnings
 
 class Lognormal(Distribution):

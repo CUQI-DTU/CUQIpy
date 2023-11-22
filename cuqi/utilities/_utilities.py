@@ -1,4 +1,5 @@
 from cuqi.array import CUQIarray
+import cuqi
 import numpy as np
 import inspect
 from numbers import Number
@@ -6,10 +7,21 @@ from scipy.sparse import issparse, diags
 from scipy.sparse import linalg as spslinalg
 from dataclasses import dataclass
 from abc import ABCMeta
-import copy
 
 
-def force_ndarray(value,flatten=False):
+def force_ndarray(value, flatten=False):
+    """ Force input value to be an ndarray.
+    
+    Parameters
+    ----------
+    value : any
+        The input value to be forced to an ndarray.
+
+    flatten : bool
+        If True, the input value will be flattened to a 1D array if it is not already one.
+            
+    """
+    
     if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:
             value = np.array(value)
@@ -21,6 +33,7 @@ def force_ndarray(value,flatten=False):
     if isinstance(value,np.matrix): #Convert to array if matrix (matrix acts different on (n,) arrays)
         value = value.A
     return value
+    
 
 def infer_len(value):
     """ Infer the length of the given input value.

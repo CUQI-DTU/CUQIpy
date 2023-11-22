@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.special import loggamma, gammainc
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class Gamma(Distribution):
 
@@ -10,7 +11,23 @@ class Gamma(Distribution):
 
         # Init specific to this distribution
         self.shape = shape
-        self.rate = rate     
+        self.rate = rate
+
+    @property
+    def shape(self):
+        return self._shape
+    
+    @shape.setter
+    def shape(self, value):
+        self._shape = value
+
+    @property
+    def rate(self):
+        return self._rate
+    
+    @rate.setter
+    def rate(self, value):
+        self._rate = value
 
     @property
     def scale(self):

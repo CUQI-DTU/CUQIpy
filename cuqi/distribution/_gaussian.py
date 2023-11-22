@@ -743,7 +743,7 @@ class JointGaussianSqrtPrec(Distribution):
 
         # Force to numpy arrays
         for i in range(len(means)):
-            means[i] = force_ndarray(means[i],flatten=True)
+            means[i] = force_ndarray(means[i], flatten=True)
         for i in range(len(sqrtprecs)):
             sqrtprecs[i] = force_ndarray(sqrtprecs[i])
 
