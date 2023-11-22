@@ -37,7 +37,14 @@ from cuqi.problem import BayesianProblem
 # 
 
 X = Gaussian(0, 1) # Distribution
+
 print(X)
+
+# %%
+######################################################################
+# The random variable is then created by calling the ``rv`` attribute.
+#
+
 x = X.rv # Random variable from distribution
 
 print(x)
