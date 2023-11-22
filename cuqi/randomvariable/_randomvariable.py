@@ -105,7 +105,7 @@ class RandomVariable:
     def tree(self):
         if self._tree is None:
             if len(self._distributions) > 1:
-                raise ValueError("Cannot create random variable from multiple distributions")
+                raise ValueError("Tree for multiple distributions can not be created automatically and need to be passed as an argument to the {} initializer.".format(type(self).__name__))
             self._tree = RandomVariableNode(self.name)
         return self._tree
 
