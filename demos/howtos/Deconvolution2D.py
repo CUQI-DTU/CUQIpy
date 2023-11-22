@@ -51,7 +51,7 @@ A, y_obs, info = Deconvolution2D().get_components()
 # This distribution comes pre-defined in CUQIpy as the :class:`cuqi.distribution.LMRF`.
 # Notice we have to specify the geometry of the unknown.
 #
-# When defining the prior, we create it as a :class:`~cuqi.randomvariable.RandomVariable` object
+# When defining the prior, we convert it to a :class:`~cuqi.randomvariable.RandomVariable` object
 # using the ``rv`` attribute of the distribution.
 
 x = LMRF(location=0, scale=0.1, geometry=A.domain_geometry).rv
