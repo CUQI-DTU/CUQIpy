@@ -53,7 +53,7 @@ def test_density_name_consistency():
     assert X.par_name == 'x'
 
     # Ensure that the name cannot be changed for conditioned densities.
-    with pytest.raises(ValueError, match=r"Cannot set name of already named conditioned density. Only the original density can have its name set."):
+    with pytest.raises(ValueError, match=r"This density is derived from the conditional density named x."):
         X2.par_name = 'y'
 
     X.par_name = 'y'
