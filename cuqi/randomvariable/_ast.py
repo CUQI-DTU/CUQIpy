@@ -204,7 +204,7 @@ class GetItemNode(BinaryNode):
         return f"{left}[{self.right}]"
 
 class NegateNode(UnaryNode):
-    """ Node that represents the negation operation."""
+    """ Node that represents the arithmetic negation operation."""
     def __call__(self, **kwargs):
         return -self.child(**kwargs)
     
