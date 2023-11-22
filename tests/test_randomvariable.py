@@ -301,10 +301,12 @@ def test_ensure_that_RV_evaluation_requires_all_parameters():
     with pytest.raises(ValueError, match=r"Expected arguments \['x', 'y'\], got arguments \{'x': 1\}"):
         z(x=1)
 
-def test_RV_sets_name_of_original_conditional_density_if_par_name_not_set():
+def test_RV_sets_name_of_internal_conditional_density_if_par_name_not_set_and_does_not_set_original_density():
     Z_s = cuqi.distribution.Gaussian(0, lambda s: s)
     Z = Z_s(s=3)
     z = Z.rv
 
-    assert z.name == 'z' # Should be set for the original density.
-    assert Z_s.par_name == 'z' # Should be set for the original density.
+    assert z.name == 'z'
+    assert z.dist.par_name == "z"
+    assert Z_s.par_name is None # Should not be set for the original density.
+    assert Z.par_name is None # Should not be set for the conditioned density.

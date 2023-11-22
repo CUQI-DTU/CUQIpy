@@ -436,7 +436,10 @@ class Distribution(Density, ABC):
         
     def _as_random_variable(self):
         """Return a RandomVariable instance of this distribution"""
-        return RandomVariable(self)
+        # Copy distribution and original density to avoid side effects
+        new_dist = copy(self)
+        new_dist._original_density = copy(self._original_density)
+        return RandomVariable(new_dist)
     
     @property
     def rv(self):
