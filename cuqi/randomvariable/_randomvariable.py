@@ -84,12 +84,12 @@ class RandomVariable:
         # Match random variable name with distribution parameter name (for single distribution)
         if len(distributions) == 1 and tree is None:
             dist = next(iter(distributions))
-            if hasattr(dist, '_par_name'):
-                dist_par_name = dist._par_name
+            dist_par_name = dist.par_name
+            if dist_par_name is not None:
                 if name is not None and dist_par_name != name:
                     raise ValueError(f"Parameter name '{dist_par_name}' of the distribution does not match the input name '{name}' for the random variable.")
                 name = dist_par_name
-        
+    
         self._distributions = distributions
         """ The distribution from which the random variable originates. """
         
@@ -184,7 +184,7 @@ class RandomVariable:
         return self._distributions
     
     def _set_dist_name_if_not_set(self, distribution, name):
-        if not hasattr(distribution, '_par_name') or distribution._par_name is None:
+        if distribution.par_name is None:
             distribution.par_name = name
 
     def get_conditioning_variables(self):
