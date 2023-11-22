@@ -96,7 +96,7 @@ plt.title("Observed data")
 #
 # In CUQIpy the model can be defined as follows:
 
-# Define hierarchical model using CUQIpy distributions stored as random variables
+# Define hierarchical model using CUQIpy distributions converted to random variables
 d = Gamma(1, 1e-4).rv
 l = Gamma(1, 1e-4).rv
 x = GMRF(np.zeros(n), d).rv
