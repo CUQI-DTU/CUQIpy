@@ -430,10 +430,7 @@ class Distribution(Density, ABC):
             return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
-        
-    # The following methods define algebraic operations on distributions
-    # The return type is a RandomVariable instance
-        
+                
     def _as_random_variable(self):
         """Return a RandomVariable instance of this distribution"""
         # Copy distribution and original density to avoid side effects
