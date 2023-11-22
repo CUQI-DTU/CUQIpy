@@ -34,21 +34,7 @@ class RandomVariable:
 
         from cuqi.distribution import Gaussian
 
-        x = Gaussian(0, 1)
-
-        print(x+1)  # returns a RandomVariable object with operation recorded
-
-    Directly creating random variable:
-   
-    .. code-block:: python
-
-        from cuqi.distribution import Gaussian
-
-        x = Gaussian(0, 1)
-
-        x_rv = x.rv  # returns a RandomVariable object
-
-        print((x_rv+1)**2)  # returns a RandomVariable object with operation recorded
+        x = Gaussian(0, 1).rv # Returns a RandomVariable object
 
     Defining Bayesian problem using algebra on distributions (creating random variables implicitly):
 
@@ -58,13 +44,13 @@ class RandomVariable:
         from cuqi.distribution import Gaussian, Gamma, GMRF
         from cuqi.problem import BayesianProblem
         import numpy as np
-        A, y_obs, info = Deconvolution1D.get_components()
+        A, y_obs, info = Deconvolution1D().get_components()
 
         # Bayesian problem
-        d = Gamma(1, 1e-4)
-        s = Gamma(1, 1e-4)
-        x = GMRF(np.zeros(A.domain_dim), d)
-        y = Gaussian(A @ x, 1/s)
+        d = Gamma(1, 1e-4).rv
+        s = Gamma(1, 1e-4).rv
+        x = GMRF(np.zeros(A.domain_dim), d).rv
+        y = Gaussian(A @ x, 1/s).rv
 
         BP = BayesianProblem(y, x, s, d)
         BP.set_data(y=y_obs)
