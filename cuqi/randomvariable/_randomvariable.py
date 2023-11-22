@@ -158,7 +158,7 @@ class RandomVariable:
             raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
         distribution = next(iter(self._distributions))
         # Inject name into distribution
-        self._set_dist_name_if_not_set(distribution, self.name)
+        self._set_dist_name_if_not_set(distribution)
         return distribution
     
     @property
@@ -166,11 +166,13 @@ class RandomVariable:
         """ Distributions from which the random variable originates. """
         # Inject name into distributions
         if len(self._distributions) == 1:
-            self._set_dist_name_if_not_set(next(iter(self._distributions)), self.name)
+            self._set_dist_name_if_not_set(next(iter(self._distributions)))
         return self._distributions
     
-    def _set_dist_name_if_not_set(self, distribution, name):
+    def _set_dist_name_if_not_set(self, distribution, name=None):
         if distribution.par_name is None:
+            if name is None:
+                name = self.name
             distribution.par_name = name
 
     def get_conditioning_variables(self):
