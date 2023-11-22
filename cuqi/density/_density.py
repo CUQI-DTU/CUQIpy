@@ -45,7 +45,7 @@ class Density(ABC):
     def par_name(self, name):
         if self._is_copy:
             if self._original_density.par_name is not None:
-                raise ValueError("Cannot set name of already named conditioned density. Only the original density can have its name set.")
+                raise ValueError("This density is derived from the conditional density named "+self.original_density.par_name+". The name of the derived density cannot be set, but follows the name of the original density.")
             else:
                 self._original_density.par_name = name
         self._par_name = name
