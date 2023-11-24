@@ -59,15 +59,17 @@ class ImplicitRegularizedGaussian(Distribution):
         
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
         
+        args = {"lower_bound" : kwargs.pop("lower_bound", None),
+                "upper_bound" : kwargs.pop("upper_bound", None)}
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
-        
+
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
-        self._parse_regularization_input_arguments(proximal, projector, constraint, regularization)
+        self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
 
-    def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization):
+    def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization, args):
         """ Parse regularization input arguments with guarding statements and store internal states """
 
         # Check that only one of proximal, projector, constraint or regularization is provided        
@@ -97,7 +99,7 @@ class ImplicitRegularizedGaussian(Distribution):
             self._proximal = lambda z, gamma: ProjectNonnegative(z)
             self._preset = "nonnegativity"
         elif (isinstance(constraint, str) and constraint.lower() in ["box"]):
-            self._proximal = lambda z, gamma: ProjectBox(z)
+            self._proximal = lambda z, gamma: ProjectBox(z, lower = args["lower_bound"] if "lower_bound" in args else None, upper = args["upper_bound"] if "upper_bound" in args else None)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
             self._proximal = ProximalL1
@@ -264,10 +266,13 @@ class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
     # TODO: Once GMRF is updated, add default None to mean and prec here.
     def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
             
+            args = {"lower_bound" : kwargs.pop("lower_bound", None),
+                    "upper_bound" : kwargs.pop("upper_bound", None)}
+            
             # Underlying explicit Gaussian
             self._gaussian = GMRF(mean, prec, physical_dim=physical_dim, bc_type=bc_type, order=order, **kwargs)
             
             # Init from abstract distribution class
             super(Distribution, self).__init__(**kwargs)
 
-            self._parse_regularization_input_arguments(proximal, projector, constraint, regularization)
+            self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
