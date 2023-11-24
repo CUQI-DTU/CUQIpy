@@ -12,8 +12,7 @@ class ImplicitRegularizedGaussian(Distribution):
     in the form of a proximal operator or a projector. Alternatively, preset constraints and regularization
     can be used.
 
-    Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
-    a nonnegativity constraint is used by default.
+    Precisely one of proximal, projector, constraint or regularization needs to be provided. Otherwise, an error is raised.
 
     Distribution can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
@@ -71,14 +70,9 @@ class ImplicitRegularizedGaussian(Distribution):
     def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization):
         """ Parse regularization input arguments with guarding statements and store internal states """
 
-        # Check only one of proximal, projector, constraint or regularization is provided        
-        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) > 1:
-            raise ValueError("Only one of proximal, projector, constraint or regularization can be provided.")
-
-        
-        # Default to nonnegativity constraint if no arguments are provided
-        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) == 0:
-            constraint = "nonnegative"
+        # Check that only one of proximal, projector, constraint or regularization is provided        
+        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
+            raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
 
         if proximal is not None:
             if not callable(proximal):
@@ -253,7 +247,7 @@ class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
         See :class:`~cuqi.distribution.GMRF` for details.
 
     proximal : callable f(x, scale) or None
-        Euclidean proximal operator of the regularization function g, that is, a solver for the optimization problem
+        Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
         min_z 0.5||x-z||_2^2+scale*g(x).
 
     projector : callable f(x) or None
