@@ -58,14 +58,18 @@ class ImplicitRegularizedGaussian(Distribution):
 
     regularization : string or None
         Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
-
+        For "l1", the following additional parameters can be passed:
+            strength : scalar
+                Regularization parameter, i.e., strength*||x||_1 , defaults to one
 
     """
         
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
         
         args = {"lower_bound" : kwargs.pop("lower_bound", None),
-                "upper_bound" : kwargs.pop("upper_bound", None)}
+                "upper_bound" : kwargs.pop("upper_bound", None),
+                "strength" : kwargs.pop("strength", None)}
+        
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
 
@@ -100,14 +104,17 @@ class ImplicitRegularizedGaussian(Distribution):
             self._proximal = proximal
         elif projector is not None:
             self._proximal = lambda z, gamma: projector(z)
-        elif (isinstance(constraint, str) and constraint.lower().replace("-","") in ["nonnegativity", "nonnegative", "nn"]):
+        elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
             self._proximal = lambda z, gamma: ProjectNonnegative(z)
             self._preset = "nonnegativity"
-        elif (isinstance(constraint, str) and constraint.lower() in ["box"]):
-            self._proximal = lambda z, gamma: ProjectBox(z, lower = args["lower_bound"] if "lower_bound" in args else None, upper = args["upper_bound"] if "upper_bound" in args else None)
+        elif (isinstance(constraint, str) and constraint.lower() == "box"):
+            lower = args["lower_bound"] if "lower_bound" in args else None
+            upper = args["upper_bound"] if "upper_bound" in args else None
+            self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
-            self._proximal = ProximalL1
+            strength = args["strength"] if "strength" in args else 1
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
             self._preset = "l1"
         else:
             raise ValueError("Regularization not supported")
@@ -138,6 +145,14 @@ class ImplicitRegularizedGaussian(Distribution):
         raise ValueError(
             "There is no known way of efficiently sampling from a implicit regularized Gaussian distribution.")
   
+    @staticmethod
+    def constraint_options():
+        return ["nonnegativity", "box"]
+
+    @staticmethod
+    def regularization_options():
+        return ["l1"]
+
 
     # --- Defer behavior of the underlying Gaussian --- #
     @property
@@ -272,7 +287,8 @@ class ImplicitRegularizedGMRF(ImplicitRegularizedGaussian):
     def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
             
             args = {"lower_bound" : kwargs.pop("lower_bound", None),
-                    "upper_bound" : kwargs.pop("upper_bound", None)}
+                    "upper_bound" : kwargs.pop("upper_bound", None),
+                    "strength" : kwargs.pop("strength", None)}
             
             # Underlying explicit Gaussian
             self._gaussian = GMRF(mean, prec, physical_dim=physical_dim, bc_type=bc_type, order=order, **kwargs)
