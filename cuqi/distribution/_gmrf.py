@@ -96,7 +96,7 @@ class GMRF(Distribution):
 
     """
 
-    def __init__(self, mean, prec, bc_type="zero", order=1, **kwargs):
+    def __init__(self, mean=None, prec=None, bc_type="zero", order=1, **kwargs):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
