@@ -101,9 +101,9 @@ samples.plot_mean()
 TP.prior = cuqi.distribution.GMRF(
     mean=np.zeros(TP.model.domain_dim),
     prec=100,
-    physical_dim=2,
     bc_type="zero", # Try e.g. zero, neumann or periodic.
-    order=2 # Try e.g. order 1 or 2 (higher order is more smooth)
+    order=2, # Try e.g. order 1 or 2 (higher order is more smooth)
+    geometry=TP.model.domain_geometry
 )
 
 # We can plot some samples of this prior
