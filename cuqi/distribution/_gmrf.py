@@ -207,10 +207,6 @@ class GMRF(Distribution):
                 xi = np.random.randn(self.dim, N) + 1j*np.random.randn(self.dim, N)
             
             F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
-            F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
-            # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
-            F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix   
-            # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
             eigv = np.hstack([self._L_eigval, self._L_eigval[-1]])  # repeat last eigval to complete dim
             L_sqrt = diags(np.sqrt(eigv)) 
             s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
