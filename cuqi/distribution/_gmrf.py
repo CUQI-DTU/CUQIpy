@@ -194,7 +194,6 @@ class GMRF(Distribution):
                 s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
             else:
                 s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
-                # s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
                         
         elif (self._bc_type == 'periodic'):
             
@@ -210,9 +209,6 @@ class GMRF(Distribution):
             eigv = np.hstack([self._L_eigval, self._L_eigval[-1]])  # repeat last eigval to complete dim
             L_sqrt = diags(np.sqrt(eigv)) 
             s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
-            # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)  
-            # L_sqrt = pinvh(np.diag(np.sqrt(eigv)))
-            # s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*np.real(F.conj() @ (L_sqrt @ xi))
             
         elif (self._bc_type == 'neumann'):
 
