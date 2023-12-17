@@ -230,5 +230,4 @@ class GMRF(Distribution):
 
     @property
     def sqrtprecTimesMean(self):
-        mean = self.mean[:, np.newaxis]
-        return (self.sqrtprec@mean).flatten()
+        return (self.sqrtprec@self.mean)
