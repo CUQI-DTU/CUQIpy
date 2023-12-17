@@ -479,6 +479,9 @@ def test_Gibbs_regression(copy_reference):
             "data/Gibbs_original_code_results_win.npz")
     samples_orig = np.load(samples_orig_file)
 
+    # Save results
+    #np.savez("Gibbs_original_code_results_win.npz", samples["d"].samples)
+
     assert(np.allclose(samples["d"].samples, samples_orig["arr_0"]))
 
 def test_Gibbs_continue_sampling():
