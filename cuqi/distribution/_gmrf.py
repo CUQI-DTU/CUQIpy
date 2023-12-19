@@ -20,9 +20,6 @@ class GMRF(Distribution):
     prec : float
         Precision of the GMRF.
 
-    physical_dim : int
-        The physical dimension of what the distribution represents (can take the values 1 or 2).
-
     bc_type : str
         The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
 
