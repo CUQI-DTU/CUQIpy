@@ -13,7 +13,7 @@ from cuqi.density import Density
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
                          [
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
-                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20),
+                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, "zero"), 20),
                              (Deconvolution1D, "square", LMRF(0, 0.005, geometry=128), 100),
                              (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50),
                          ])

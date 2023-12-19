@@ -19,7 +19,7 @@ prior = cuqi.distribution.GMRF(
     prec=500, # Higher precision means more regularized solution.
     order=1,  # Higher order mean more correlated structures. Can be 1 or 2.
     bc_type="zero", # Boundary conditions for GMRF. Non-zero are experimental.
-    physical_dim=ndim,
+    geometry=TP.model.domain_geometry
 )
 
 # Plot samples of prior

@@ -113,7 +113,7 @@ def test_Gaussian_rng(mean,std,R):
     cov = np.diag(std) @ (R @ np.diag(std))
     assert np.allclose(cuqi.distribution.Gaussian(mean,cov).sample(10).samples,cuqi.distribution.Gaussian(mean,cov).sample(10,rng=rng).samples)
 
-@pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,1,'zero'),cuqi.distribution.GMRF(np.ones(128),35,1,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,1,'neumann')])
+@pytest.mark.parametrize("dist",[cuqi.distribution.GMRF(np.ones(128),35,'zero'),cuqi.distribution.GMRF(np.ones(128),35,'periodic'),cuqi.distribution.GMRF(np.ones(128),35,'neumann')])
 def test_GMRF_rng(dist):
     np.random.seed(3)
     rng = np.random.RandomState(3)
@@ -237,7 +237,7 @@ def test_Gaussians_vs_GMRF(prec, GMRF_order):
     X_cov = cuqi.distribution.Gaussian(np.zeros(dim), cov)
     X_sqrtprec = cuqi.distribution.Gaussian(np.zeros(dim), sqrtprec=sqrtprec)
     X_sqrtcov = cuqi.distribution.Gaussian(np.zeros(dim), sqrtcov=sqrtcov)
-    X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 1, 'zero', order=GMRF_order)
+    X_GMRF = cuqi.distribution.GMRF(np.zeros(dim), 1, 'zero', order=GMRF_order)
 
     # logpdfs for full matrix
     x0 = np.random.randn(dim)
@@ -575,7 +575,7 @@ def test_Gaussian_Cov_sample(C):
                           cuqi.distribution.Gaussian(np.zeros(2),
                                                      np.array([[1.0, 0.7],
                                                                [0.7,  1.]])),
-                          cuqi.distribution.GMRF(np.zeros(2), 0.1, 1)])
+                          cuqi.distribution.GMRF(np.zeros(2), 0.1)])
 def test_enable_FD_gradient_distributions(dist):
     """Test that the distribution FD gradient is close to the exact gradient"""
     x = np.array([0.1, 0.3])
@@ -596,7 +596,7 @@ def test_enable_FD_gradient_distributions(dist):
                          [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6)),
                           cuqi.distribution.Beta(np.ones(6)*2, 5),
                           cuqi.distribution.Lognormal(np.ones(6)*.1, 4),
-                          cuqi.distribution.GMRF(np.zeros(6), 0.1, 1)])
+                          cuqi.distribution.GMRF(np.zeros(6), 0.1)])
 @pytest.mark.parametrize("y",
                          [cuqi.distribution.Gaussian(np.zeros(6), np.eye(6)),
                           cuqi.distribution.Lognormal(np.zeros(6), 4)])

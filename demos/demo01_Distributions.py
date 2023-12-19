@@ -51,7 +51,7 @@ elif (dom == 2):
 # Set up GMRF
 mean = np.zeros(geometry.par_dim)
 prec = 4
-pX = cuqi.distribution.GMRF(mean, prec, dom, 'neumann', geometry = geometry)
+pX = cuqi.distribution.GMRF(mean, prec, 'neumann', geometry = geometry)
 
 # evaluation of PDF
 Ns = 8

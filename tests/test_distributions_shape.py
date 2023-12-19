@@ -17,16 +17,13 @@ ignore_list = [
 
 # Define cases to skip (these are TODO)
 skip_logd = [
-    cuqi.distribution.GMRF, # Mean must allow scalar values
     cuqi.distribution.Gamma # Missing force_ndarray
 ]
 skip_sample = [
-    cuqi.distribution.GMRF,  # Mean must allow scalar values
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.Lognormal,
 ]
 skip_gradient = [
-    cuqi.distribution.GMRF,  # Mean must allow scalar values
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.Lognormal,
     cuqi.distribution.InverseGamma, 
