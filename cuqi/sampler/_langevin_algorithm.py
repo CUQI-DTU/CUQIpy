@@ -196,3 +196,48 @@ class MALA(ULA):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
+
+class MALAL(cuqi.sampler.MALA):
+    """ Metropolis-adjusted Langevin algorithm with Lipschitz adaptive step size (Lipschitz-MALA) (Izzatullah et al. 2021)
+    """
+    def __init__(self, target, scale, x0=None, dim=None, rng=None, tmax=None, coeff=None, **kwargs):
+        super().__init__(target, scale, x0=None, dim=None, rng=None, **kwargs)
+        self.tmax = tmax
+        self.coeff = coeff
+        self.theta = np.Inf
+        self.scales = []
+        self.scales.append(self.scale)
+    def single_update(self, x_t, target_eval_t, g_target_eval_t):
+        # approximate Langevin diffusion
+        # note self.scale is a half of that in MALA
+        # xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        # x_star = x_t + (self.scale/2)*g_target_eval_t + xi
+        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(2*self.scale)).sample(rng=self.rng)
+        x_star = x_t + self.scale*g_target_eval_t + xi
+        logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
+
+        # Metropolis step
+        log_target_ratio = logpi_eval_star - target_eval_t
+        log_prop_ratio = self.log_proposal(x_t, x_star, g_logpi_star) \
+            - self.log_proposal(x_star, x_t,  g_target_eval_t)
+        log_alpha = min(0, log_target_ratio + log_prop_ratio)
+
+        # accept/reject
+        log_u = np.log(cuqi.distribution.Uniform(low=0, high=1).sample(rng=self.rng))
+        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star) == False):
+            # update scale
+            t1    = self.coeff*np.linalg.norm(x_star - x_t)/np.linalg.norm(g_logpi_star - g_target_eval_t)
+            t2    = np.sqrt(1 + self.theta)*self.scale
+
+            # print(t1,t2)
+
+            tk    = min(t1,t2)
+            # tk    = 2.0*min(t1,t2)
+
+            self.theta = tk/self.scale
+            self.scale   = min(self.tmax,tk)
+            self.scales.append(self.scale)
+
+            return x_star, logpi_eval_star, g_logpi_star, 1
+        else:
+            return x_t.copy(), target_eval_t, g_target_eval_t.copy(), 0
