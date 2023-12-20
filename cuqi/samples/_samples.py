@@ -553,6 +553,7 @@ class Samples(object):
                 label=f"{percent}% Credibility Interval")
 
             lmn = self.plot_mean(*args, **kwargs_copy, label="Mean")
+            plt.title("")
             if exact is not None:
             #TODO: Allow exact to be defined in different space than mean?
                 if isinstance(exact, CUQIarray):
