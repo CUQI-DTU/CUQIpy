@@ -26,7 +26,7 @@ Tracker = "https://github.com/CUQI-DTU/CUQIpy/issues"
 include = ["cuqi*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.setuptools.package-data]
-cuqi = ["data/*.npz", "data/*.mat"]
+cuqi = ["data/*.npz", "data/*.mat", "data/*.png"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
