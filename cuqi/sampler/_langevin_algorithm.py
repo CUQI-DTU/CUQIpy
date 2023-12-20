@@ -197,7 +197,7 @@ class MALA(ULA):
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
 
-class MALAL(cuqi.sampler.MALA):
+class MALAL(MALA):
     """ Metropolis-adjusted Langevin algorithm with Lipschitz adaptive step size (Lipschitz-MALA) (Izzatullah et al. 2021)
     """
     def __init__(self, target, scale, x0=None, dim=None, rng=None, tmax=None, coeff=None, **kwargs):
