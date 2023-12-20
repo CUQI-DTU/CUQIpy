@@ -24,7 +24,7 @@ posterior = cuqi.distribution.Posterior(likelihood, prior)
 mala_sampler = cuqi.sampler.MALA(posterior, scale=.007, x0=np.ones(n))
 
 # %% Sample
-mala_samples = mala_sampler.sample(6000, 1000)
+mala_samples = mala_sampler.sample(9000, 1000)
 
 # %% Compute mean
 mala_mean = np.mean(mala_samples.samples, axis=1)
@@ -43,7 +43,7 @@ mala_samples.plot_autocorrelation(max_lag=3000)
 malal_sampler = cuqi.sampler.MALAL(posterior, scale=.007, x0=np.ones(n), tmax=1, coeff=posterior.dim**(-1/3))
 
 # %% Sample
-malal_samples = malal_sampler.sample(6000, 1000)
+malal_samples = malal_sampler.sample(9000, 1000)
 
 # %% Compute mean
 malal_mean = np.mean(malal_samples.samples, axis=1)
