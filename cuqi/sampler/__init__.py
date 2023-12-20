@@ -4,7 +4,7 @@ from ._conjugate_approx import ConjugateApprox
 from ._cwmh import CWMH
 from ._gibbs import Gibbs
 from ._hmc import NUTS
-from ._langevin_algorithm import ULA, MALA
+from ._langevin_algorithm import ULA, MALA, MALAL
 from ._laplace_approximation import UGLA
 from ._mh import MH
 from ._pcn import pCN
