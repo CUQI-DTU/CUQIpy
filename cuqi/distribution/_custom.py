@@ -10,7 +10,7 @@ class UserDefinedDistribution(Distribution):
     ------------
     logpdf_func: Function evaluating log probability density function. Callable.
     gradient_func: Function evaluating the gradient of the logpdf. Callable.
-    logpdf_func: Function evaluating log probability density function. Callable.
+    sample_func: Function drawing samples from distribution. Callable.
     
     Methods
     -----------
