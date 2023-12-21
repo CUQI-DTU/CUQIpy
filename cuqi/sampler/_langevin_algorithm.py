@@ -201,7 +201,7 @@ class MALAL(MALA):
     """ Metropolis-adjusted Langevin algorithm with Lipschitz adaptive step size (Lipschitz-MALA) (Izzatullah et al. 2021)
     """
     def __init__(self, target, scale, x0=None, dim=None, rng=None, tmax=None, coeff=None, **kwargs):
-        super().__init__(target, scale, x0=None, dim=None, rng=None, **kwargs)
+        super().__init__(target, scale, x0=x0, dim=dim, rng=rng, **kwargs)
         self.tmax = tmax
         self.coeff = coeff
         self.theta = np.Inf
