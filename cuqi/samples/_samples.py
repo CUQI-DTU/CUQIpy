@@ -483,7 +483,6 @@ class Samples(object):
         """
         
         # Compute statistics
-        mean = np.mean(self.samples,axis=-1)
         lo_conf, up_conf = self.compute_ci(percent)
 
         #Extract plotting keywords and put into plot_envelope
@@ -496,6 +495,10 @@ class Samples(object):
         # (mean, lo_conf,up_conf) are either parameter values or function values
         self._process_is_par_kwarg(kwargs)
         self._process_is_par_kwarg(pe_kwargs)
+
+        # Create a copy of kwargs without is_par
+        kwargs_copy = kwargs.copy()
+        kwargs_copy.pop("is_par")
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
         if not self.is_par:
@@ -519,7 +522,7 @@ class Samples(object):
 
             plt.figure()
             #fig.add_subplot(2,2,1)
-            im_mn = self.geometry.plot(mean, *args, **kwargs)
+            im_mn = self.plot_mean(*args, **kwargs_copy)
             plt.title("Sample mean")
             if exact is not None:
                 #fig.add_subplot(2,2,3)
@@ -544,18 +547,20 @@ class Samples(object):
             lci, lmn, lex = None, None, None
 
             lci = self.geometry.plot_envelope(
-                lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
-            
-            lmn = self.geometry.plot(mean, *args, **kwargs)
-            if exact is not None:  #TODO: Allow exact to be defined in different space than mean?
+                lo_conf, up_conf,
+                color='dodgerblue',
+                **pe_kwargs,
+                label=f"{percent}% Credibility Interval")
+
+            lmn = self.plot_mean(*args, **kwargs_copy, label="Mean")
+            plt.title("")
+            if exact is not None:
+            #TODO: Allow exact to be defined in different space than mean?
                 if isinstance(exact, CUQIarray):
-                    lex = exact.plot(*args, **kwargs)
+                    lex = exact.plot(*args, **kwargs, label="Exact")
                 else:
-                    lex = self.geometry.plot(exact, *args, **kwargs)
-                plt.legend([lmn[0], lex[0], lci], [
-                           "Mean", "Exact", f"{percent}% Credibility Interval"])
-            else:
-                plt.legend([lmn[0], lci], ["Mean", f"{percent}% Credibility Interval"])
+                    lex = self.geometry.plot(exact, *args, **kwargs, label="Exact")
+            plt.legend()
 
             plotting_objects = [lmn, lex, lci]
         
