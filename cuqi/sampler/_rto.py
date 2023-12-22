@@ -1,7 +1,7 @@
 import scipy as sp
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS
+from cuqi.solver import CGLS, PCGLS
 from cuqi.sampler import Sampler
 
 
@@ -23,7 +23,7 @@ class LinearRTO(Sampler):
         model: is a m by n dimensional matrix or LinearModel representing the forward model.
         L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.
         P_mean: is the prior mean.
-        P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
+        P_sqrtprec: is the squareroot of the precision matrix of the Gaussian prior.
 
     x0 : `np.ndarray` 
         Initial point for the sampler. *Optional*.
@@ -34,6 +34,10 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
+    precondition : bool
+        If True, the inner CGLS solver will use prior preconditioning.
+        If False, the inner CGLS solver will not use preconditioning.
+
     callback : callable, *Optional*
         If set this function will be called after every sample.
         The signature of the callback function is `callback(sample, sample_index)`,
@@ -41,7 +45,7 @@ class LinearRTO(Sampler):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=10, tol=1e-6, shift=0, **kwargs):
+    def __init__(self, target, x0=None, maxit=10, tol=1e-6, precondition=False, **kwargs):
         
         # Accept tuple of inputs and construct posterior
         if isinstance(target, tuple) and len(target) == 5:
@@ -100,11 +104,13 @@ class LinearRTO(Sampler):
         # Other parameters
         self.maxit = maxit
         self.tol = tol        
-        self.shift = 0
-                
+        self.precondition = precondition
+        
         L1 = self.likelihood.distribution.sqrtprec
         L2 = self.prior.sqrtprec
         L2mu = self.prior.sqrtprecTimesMean
+        if self.precondition: # If preconditioning, precondition with the prior sqrtprec
+            self.preconditioner = L2
 
         # pre-computations
         self.m = len(self.data)
@@ -152,7 +158,11 @@ class LinearRTO(Sampler):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+            if self.precondition:
+                sim = PCGLS(self.M, y, samples[:, s], self.preconditioner, self.maxit, self.tol)     
+            else:
+                sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol)     
+
             samples[:, s+1], _ = sim.solve()
 
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
@@ -165,3 +175,7 @@ class LinearRTO(Sampler):
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
+
+    def __call__(self, target): 
+        """ Reinitialize sampler with new target keeping the other parameters """ 
+        return self.__init__(target, x0=self.x0, maxit=self.maxit, tol=self.tol, precondition=self.precondition)

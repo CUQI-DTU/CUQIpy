@@ -258,4 +258,3 @@ class PrecisionFiniteDifference(Operator):
         else:
             raise NotImplementedError
 
-
