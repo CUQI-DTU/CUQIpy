@@ -15,8 +15,8 @@ class LinearRTO(Sampler):
 
     Parameters
     ------------
-    target : `cuqi.distribution.Posterior` or 5-dimensional tuple.
-        If target is of type cuqi.distribution.Posterior, it represents the posterior distribution.
+    target : `cuqi.distribution.Posterior`, `cuqi.distribution.MultipleLikelihoodPosterior` or 5-dimensional tuple.
+        If target is of type cuqi.distribution.Posterior or cuqi.distribution.MultipleLikelihoodPosterior, it represents the posterior distribution.
         If target is a 5-dimensional tuple, it assumes the following structure:
         (data, model, L_sqrtprec, P_mean, P_sqrtrec)
         
@@ -76,22 +76,7 @@ class LinearRTO(Sampler):
 
         super().__init__(target, x0=x0, **kwargs)
 
-        # Check target type
-        if not isinstance(target, cuqi.distribution.Posterior):
-            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
-
-        # Check Linear model and Gaussian prior+likelihood
-        if not isinstance(self.model, cuqi.model.LinearModel):
-            raise TypeError("Model needs to be linear")
-
-        if not hasattr(self.likelihood.distribution, "sqrtprec"):
-            raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
-
-        if not hasattr(self.prior, "sqrtprec"):
-            raise TypeError("prior must contain a sqrtprec attribute")
-
-        if not hasattr(self.prior, "sqrtprecTimesMean"):
-            raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
+        self._check_posterior()
 
         # Modify initial guess        
         if x0 is not None:
@@ -104,31 +89,39 @@ class LinearRTO(Sampler):
         self.tol = tol        
         self.shift = 0
                 
-        L1 = self.likelihood.distribution.sqrtprec
+        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
         L2 = self.prior.sqrtprec
         L2mu = self.prior.sqrtprecTimesMean
 
         # pre-computations
-        self.m = len(self.data)
         self.n = len(self.x0)
-        self.b_tild = np.hstack([L1@self.data, L2mu]) 
+        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
 
-        if not callable(self.model):
-            self.M = sp.sparse.vstack([L1@self.model, L2])
-        else:
+        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
+        notcallability = [not c for c in callability]
+        if all(notcallability):
+            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
+        elif all(callability):
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
                 if flag == 1:
-                    out1 = L1 @ self.model.forward(x)
+                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
                     out2 = L2 @ x
-                    out  = np.hstack([out1, out2])
+                    out  = np.hstack(out1 + [out2])
                 elif flag == 2:
-                    idx = int(self.m)
-                    out1 = self.model.adjoint(L1.T@x[:idx])
-                    out2 = L2.T @ x[idx:]
+                    idx_start = 0
+                    idx_end = 0
+                    out1 = np.zeros(self.n)
+                    for likelihood in self.likelihoods:
+                        idx_end += len(likelihood.data)
+                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+                        idx_start = idx_end
+                    out2 = L2.T @ x[idx_end:]
                     out  = out1 + out2                
                 return out   
-            self.M = M       
+            self.M = M  
+        else:
+            raise TypeError("All likelihoods need to be callable or none need to be callable.") 
 
     @property
     def prior(self):
@@ -137,6 +130,13 @@ class LinearRTO(Sampler):
     @property
     def likelihood(self):
         return self.target.likelihood
+    
+    @property
+    def likelihoods(self):
+        if isinstance(self.target, cuqi.distribution.Posterior):
+            return [self.target.likelihood]
+        elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior):
+            return self.target.likelihoods
 
     @property
     def model(self):
@@ -167,8 +167,37 @@ class LinearRTO(Sampler):
 
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
+    
+    def _check_posterior(self):
+        # Check target type
+        if not isinstance(self.target, (cuqi.distribution.Posterior, cuqi.distribution.MultipleLikelihoodPosterior)):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior' or 'cuqi.distribution.MultipleLikelihoodPosterior'.")       
 
-class RegularizedLinearRTO(Sampler):
+        # Check Linear model and Gaussian likelihood(s)
+        if isinstance(self.target, cuqi.distribution.Posterior):
+            if not isinstance(self.model, cuqi.model.LinearModel):
+                raise TypeError("Model needs to be linear")
+
+            if not hasattr(self.likelihood.distribution, "sqrtprec"):
+                raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
+            
+        elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior): # Elif used for further alternatives, e.g., stacked posterior
+            for likelihood in self.likelihoods:
+                if not isinstance(likelihood.model, cuqi.model.LinearModel):
+                    raise TypeError("Model needs to be linear")
+
+                if not hasattr(likelihood.distribution, "sqrtprec"):
+                    raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
+        
+        # Check Gaussian prior
+        if not hasattr(self.prior, "sqrtprec"):
+            raise TypeError("prior must contain a sqrtprec attribute")
+
+        if not hasattr(self.prior, "sqrtprecTimesMean"):
+            raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
+
+
+class RegularizedLinearRTO(LinearRTO):
     """
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
@@ -177,6 +206,7 @@ class RegularizedLinearRTO(Sampler):
     Parameters
     ------------
     target : `cuqi.distribution.Posterior`
+        See `cuqi.sampler.LinearRTO`
 
     x0 : `np.ndarray` 
         Initial point for the sampler. *Optional*.
@@ -199,83 +229,21 @@ class RegularizedLinearRTO(Sampler):
         
     """
     def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
-        #stepsize = 1e-5
-        super().__init__(target, x0=x0, **kwargs)
 
-        # Check target type
-        if not isinstance(target, cuqi.distribution.Posterior):
-            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
-
-        # Check Linear model and Gaussian prior+likelihood
-        if not isinstance(self.model, cuqi.model.LinearModel):
-            raise TypeError("Model needs to be linear")
-
-        if not hasattr(self.likelihood.distribution, "sqrtprec"):
-            raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
-
-        if not hasattr(self.prior.gaussian, "sqrtprec"):
-            raise TypeError("prior must contain a sqrtprec attribute")
-
-        if not hasattr(self.prior.gaussian, "sqrtprecTimesMean"):
-            raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
-
-        if not callable(self.prior.proximal):
+        if not callable(target.prior.proximal):
             raise TypeError("Projector needs to be callable")
-
-        # Modify initial guess        
-        if x0 is not None:
-            self.x0 = x0
-        else:
-            self.x0 = np.zeros(self.prior.gaussian.dim)
+        
+        super().__init__(target, x0=x0, maxit=100, **kwargs)
 
         # Other parameters
-        self.maxit = maxit
         self.stepsize = stepsize
-        self.abstol = abstol    
+        self.abstol = abstol   
         self.adaptive = adaptive
-        self.proximal = self.prior.proximal
-                
-        L1 = self.likelihood.distribution.sqrtprec
-        L2 = self.prior.gaussian.sqrtprec
-        L2mu = self.prior.gaussian.sqrtprecTimesMean
-
-        # pre-computations
-        self.m = len(self.data)
-        self.n = len(self.x0)
-        self.b_tild = np.hstack([L1@self.data, L2mu]) 
-
-        if not callable(self.model):
-            self.M = sp.sparse.vstack([L1@self.model, L2])
-        else:
-            # in this case, model is a function doing forward and backward operations
-            def M(x, flag):
-                if flag == 1:
-                    out1 = L1 @ self.model.forward(x)
-                    out2 = L2 @ x
-                    out  = np.hstack([out1, out2])
-                elif flag == 2:
-                    idx = int(self.m)
-                    out1 = self.model.adjoint(L1.T@x[:idx])
-                    out2 = L2.T @ x[idx:]
-                    out  = out1 + out2                
-                return out   
-            self.M = M       
+        self.proximal = target.prior.proximal
 
     @property
     def prior(self):
-        return self.target.prior
-
-    @property
-    def likelihood(self):
-        return self.target.likelihood
-
-    @property
-    def model(self):
-        return self.target.model     
-    
-    @property
-    def data(self):
-        return self.target.data
+        return self.target.prior.gaussian
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
@@ -309,9 +277,5 @@ class RegularizedLinearRTO(Sampler):
         samples = samples[:, Nb:]
         
         return samples, None, None
-
-    def _sample_adapt(self, N, Nb):
-        return self._sample(N,Nb)
-
 
 
