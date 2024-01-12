@@ -627,9 +627,9 @@ class FISTA(object):
         x = self.x0.copy()
         stepsize = self.stepsize
         
-        k, flag = 0, 0
+        k = 0
         
-        while (k < self.maxit) and (flag == 0):
+        while True:
             x_old = x.copy()
             k += 1
         
@@ -639,16 +639,14 @@ class FISTA(object):
                 grad = self.A(self.A(x_old, 1) - self.b, 2)
                 
             x_new = self.proximal(x_old-stepsize*grad, stepsize)
+                        
+            if LA.norm(x_new-x_old) <= self.abstol or (k >= self.maxit):
+                return x_new, k
             
             if self.adaptive:
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
-            
-            if LA.norm(x_new-x_old) <= self.abstol:
-                flag = 1
               
             x = x_new.copy()
-                
-        return x, k
     
     
 def ProjectNonnegative(x):
