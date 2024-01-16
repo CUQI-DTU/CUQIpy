@@ -76,8 +76,8 @@ class MH_new(ProposalBasedSamplerNew):
         self.current_target = temp
         self.scale = state['scale']
 
-    def current_point(self):
-        print('in current point')
+    # def current_point(self):
+    #     print('in current point')
 
 class MH(ProposalBasedSampler):
     """Metropolis Hastings sampler.

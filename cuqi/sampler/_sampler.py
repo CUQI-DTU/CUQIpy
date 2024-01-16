@@ -92,20 +92,20 @@ class SamplerNew(ABC):
         """Tune the sampler."""
         pass
 
-    # ------------ Abstract methods ------------
-    
-    @abstractmethod
-    def dump_samples(self):
-        """Perform one step of the sampler."""
-        pass
+    # # ------------ Abstract methods ------------
+    # #TODO: Do we realy need to have it as an abstract method?
+    # @abstractmethod
+    # def dump_samples(self):
+    #     """Perform one step of the sampler."""
+    #     pass
 
-    # ------------ Abstract properties ------------
-
-    @abstractmethod
-#    @property
-    def current_point(self):
-        """Return the current point of the sampler."""
-        pass
+#     # ------------ Abstract properties ------------
+#     #TODO: Do we realy need to have it as a abstract method?
+#     @abstractmethod
+# #    @property
+#     def current_point(self):
+#         """Return the current point of the sampler."""
+#         pass
 
     # ------------ Private methods ------------
     def _print_progress(self, s, Ns):
@@ -121,6 +121,31 @@ class SamplerNew(ABC):
         """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
             self.callback(sample, sample_index)
+
+    # ------------ The following could be moved to base class? ------------
+    def current_point(self):
+        return self.current_point
+
+    def dump_samples(self):
+        np.savez( self.sample_path + 'batch_{:04d}.npz'.format( self.num_batch_dumped), samples=np.array(self._samples[-1-self.batch_size:] ), batch_id=self.num_batch_dumped )
+        self.num_batch_dumped += 1
+
+    def save_checkpoint(self, path):
+        state = self.get_state()
+
+        with open(path, 'wb') as handle:
+            pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
+
+    def load_checkpoint(self, path):
+        with open(path, 'rb') as handle:
+            state = pkl.load(handle)
+
+        self.set_state(state)
+
+    def reset(self):
+        self._samples.clear()
+        self._acc.clear()
+
 class Sampler(ABC):
 
     def __init__(self, target, x0=None, dim=None, callback=None):
@@ -276,10 +301,6 @@ class ProposalBasedSamplerNew(SamplerNew,ABC):
         self.num_batch_dumped = 0
         self.batch_size = 0
 
-    def dump_samples(self):
-        np.savez( self.sample_path + 'batch_{:04d}.npz'.format( self.num_batch_dumped), samples=np.array(self._samples[-1-self.batch_size:] ), batch_id=self.num_batch_dumped )
-        self.num_batch_dumped += 1
-
     @property 
     def proposal(self):
         return self._proposal 
@@ -287,22 +308,6 @@ class ProposalBasedSamplerNew(SamplerNew,ABC):
     @proposal.setter 
     def proposal(self, value):
         self._proposal = value
-
-    def save_checkpoint(self, path):
-        state = self.get_state()
-
-        with open(path, 'wb') as handle:
-            pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
-
-    def load_checkpoint(self, path):
-        with open(path, 'rb') as handle:
-            state = pkl.load(handle)
-
-        self.set_state(state)
-
-    def reset(self):
-        self._samples.clear()
-        self._acc.clear()
 
     @property
     def geometry(self):
