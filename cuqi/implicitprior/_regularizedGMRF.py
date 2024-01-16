@@ -27,9 +27,6 @@ class RegularizedGMRF(RegularizedGaussian):
     prec
         See :class:`~cuqi.distribution.GMRF` for details.
 
-    physical_dim
-        See :class:`~cuqi.distribution.GMRF` for details.
-
     bc_type
         See :class:`~cuqi.distribution.GMRF` for details.
 
@@ -52,14 +49,14 @@ class RegularizedGMRF(RegularizedGaussian):
 
     """
     # TODO: Once GMRF is updated, add default None to mean and prec here.
-    def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
+    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
             
             args = {"lower_bound" : kwargs.pop("lower_bound", None),
                     "upper_bound" : kwargs.pop("upper_bound", None),
                     "strength" : kwargs.pop("strength", None)}
             
             # Underlying explicit Gaussian
-            self._gaussian = GMRF(mean, prec, physical_dim=physical_dim, bc_type=bc_type, order=order, **kwargs)
+            self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
             
             # Init from abstract distribution class
             super(Distribution, self).__init__(**kwargs)
