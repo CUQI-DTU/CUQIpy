@@ -10,7 +10,7 @@ class UserDefinedDistribution(Distribution):
     ------------
     logpdf_func: Function evaluating log probability density function. Callable.
     gradient_func: Function evaluating the gradient of the logpdf. Callable.
-    logpdf_func: Function evaluating log probability density function. Callable.
+    sample_func: Function drawing samples from distribution. Callable.
     
     Methods
     -----------
@@ -103,9 +103,9 @@ class DistributionGallery(UserDefinedDistribution):
             #TODO: Keep Gaussian distribution other functionalities (e.g. _sample)
             dim = 2
             mu = np.zeros(dim)
-            sigma = np.linspace(0.5, 1, dim)
-            R = np.array([[1.0, .9 ],[.9, 1]])
-            dist = Gaussian(mu, (sigma**2)*R)
+            sigma = np.diag(np.linspace(0.5, 1, dim))
+            R = np.array([[1.0, 0.9 ],[0.9, 1.0]])
+            dist = Gaussian(mu, sigma@R@sigma)
             self._sample = dist._sample
             logpdf_func = dist.logpdf
             grad_logpdf = dist.gradient

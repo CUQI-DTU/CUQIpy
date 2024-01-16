@@ -27,14 +27,14 @@ if ndim == 2: Ns = 500
 # %% Prior choices (Main ones of interest: Gaussian, GMR, CMRF, LMRF:
 # Working choices
 #TP.prior = Gaussian(mean=np.zeros(n), cov=par**2, geometry=TP.model.domain_geometry)
-#TP.prior = GMRF(np.zeros(n), 1/par**2, ndim, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
+#TP.prior = GMRF(np.zeros(n), 1/par**2, "zero", geometry=TP.model.domain_geometry) # Odd behavior (swingy?)
 
 TP.prior = CMRF(location=0, scale=0.01, bc_type="zero", geometry=TP.model.domain_geometry)
 #TP.prior = LMRF(location=0, scale=0.01, bc_type="neumann", geometry=TP.model.domain_geometry)
 
 # Bad choices (ignore) both 1D and 2D
 #TP.prior = Beta(2*np.ones(n), 5*np.ones(n)) #Might need tuning
-#TP.prior = Laplace(np.zeros(n), 10) #Might need tuning
+#TP.prior = Laplace(np.zeros(n), 1/10) #Might need tuning
 #TP.prior = InverseGamma(3*np.ones(n), np.zeros(n), 1*np.ones(n)) #Bad choice in general.. #Might need tuning
 #TP.prior = Lognormal(mean=np.zeros(n), cov=0.05) #NUTS ACTS out!
 

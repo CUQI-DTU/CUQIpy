@@ -2,11 +2,12 @@ import numpy as np
 from scipy.sparse import diags, eye
 from scipy.sparse import linalg as splinalg
 from scipy.linalg import dft
-from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
+from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import sparse_cholesky
 from cuqi import config
 from cuqi.operator import PrecisionFiniteDifference
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class GMRF(Distribution):
     """ Gaussian Markov random field (GMRF).
@@ -18,9 +19,6 @@ class GMRF(Distribution):
         
     prec : float
         Precision of the GMRF.
-
-    physical_dim : int
-        The physical dimension of what the distribution represents (can take the values 1 or 2).
 
     bc_type : str
         The type of boundary conditions to use. Can be 'zero', 'periodic' or 'neumann'.
@@ -94,54 +92,67 @@ class GMRF(Distribution):
     For more details see: See Bardsley, J. (2018). Computational Uncertainty Quantification for Inverse Problems, Chapter 4.2.
 
     """
-        
-    def __init__(self, mean, prec, physical_dim=1, bc_type='zero', order=1, is_symmetric=True, **kwargs): 
-        super().__init__(is_symmetric=is_symmetric, **kwargs) #TODO: This calls Distribution __init__, should be replaced by calling Gaussian.__init__ 
 
-        self.mean = mean.reshape(len(mean), 1)
+    def __init__(self, mean=None, prec=None, bc_type="zero", order=1, **kwargs):
+        # Init from abstract distribution class
+        super().__init__(**kwargs)
+
+        self.mean = mean
         self.prec = prec
-        self._partition_size = int(len(mean)**(1/physical_dim))
-        self._bc_type = bc_type      # boundary conditions
-        self._physical_dim = physical_dim
-        
-        num_nodes = tuple(self._partition_size for _ in range(physical_dim))
-        if physical_dim == 2: #TODO. Remove once _DefaultGeometry is implemented for 2D.
-            if isinstance(self.geometry, _DefaultGeometry1D):
-                self.geometry = Image2D(num_nodes)
+        self._bc_type = bc_type
 
-        self._prec_op = PrecisionFiniteDifference(num_nodes, bc_type=bc_type, order=order) 
-        self._diff_op = self._prec_op._diff_op      
+        # Ensure geometry has shape
+        if not self.geometry.fun_shape or self.geometry.par_dim == 1:
+            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (geometry of which the fun_shape is not None) and has parameter dimension greater than 1.")
+
+        # Default physical_dim to geometry's dimension if not provided
+        physical_dim = len(self.geometry.fun_shape)
+
+        # Ensure provided physical dimension is either 1 or 2
+        if physical_dim not in [1, 2]:
+            raise ValueError("Only physical dimension 1 or 2 supported.")
+
+        self._physical_dim = physical_dim
+
+        if self._physical_dim == 2:
+            N = int(np.sqrt(self.dim))
+            num_nodes = (N, N)
+        else: 
+            num_nodes = self.dim
+
+        self._prec_op = PrecisionFiniteDifference(num_nodes=num_nodes, bc_type=bc_type, order=order)
+        self._diff_op = self._prec_op._diff_op 
                    
         # compute Cholesky and det
         if (bc_type == 'zero'):    # only for PSD matrices
             self._rank = self.dim
             self._chol = sparse_cholesky(self._prec_op.get_matrix()).T
             self._logdet = 2*sum(np.log(self._chol.diagonal()))
-            # L_cholmod = cholesky(self.L, ordering_method='natural')
-            # self.chol = L_cholmod
-            # self.logdet = L_cholmod.logdet()
-            # 
-            # np.log(np.linalg.det(self.L.todense()))
         elif (bc_type == 'periodic') or (bc_type == 'neumann'):
-            # Print warning that periodic and Neumann boundary conditions are experimental
             print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using LinearRTO may not produce fully accurate results.")
-
             eps = np.finfo(float).eps
             self._rank = self.dim - 1   #np.linalg.matrix_rank(self.L.todense())
             self._chol = sparse_cholesky(self._prec_op + np.sqrt(eps)*eye(self.dim, dtype=int)).T
-            if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excesive' time
+            if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excessive' time
                 self._logdet = 2*sum(np.log(self._chol.diagonal()))
             else:
-                # eigval = eigvalsh(self.L.todense())
                 self._L_eigval = splinalg.eigsh(self._prec_op.get_matrix(), self._rank, which='LM', return_eigenvectors=False)
                 self._logdet = sum(np.log(self._L_eigval))
         else:
             raise ValueError('bc_type must be "zero", "periodic" or "neumann"')
 
     @property
+    def mean(self):
+        return self._mean
+    
+    @mean.setter
+    def mean(self, value):
+        self._mean = force_ndarray(value, flatten=True)
+
+    @property
     def prec(self):
         return self._prec
-
+    
     @prec.setter
     def prec(self, value):
         # We store the precision as a scalar to match existing code in this class,
@@ -153,33 +164,20 @@ class GMRF(Distribution):
                 raise ValueError('Precision must be a scalar or a 1D array with a single scalar element.')
         self._prec = value
 
-    @property 
-    def dim(self):  
-        if self._physical_dim == 1:
-            return self._partition_size 
-        elif self._physical_dim==2:
-            return self._partition_size**2
-        raise ValueError("attribute dom can be either 1 or 2")
-
     def logpdf(self, x):
-        mean = self.mean.flatten()
+        mean = self.mean
         const = 0.5*(self._rank*(np.log(self.prec)-np.log(2*np.pi)) + self._logdet)
-        y = const - 0.5*( self.prec*((x-mean).T @ (self._prec_op @ (x-mean))) )
-        # = sps.multivariate_normal.logpdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
-        return y
-
-    def pdf(self, x):
-        # = sps.multivariate_normal.pdf(x.T, self.mean.flatten(), np.linalg.inv(self.prec*self.L.todense()))
-        return np.exp(self.logpdf(x))
+        return const - 0.5*( self.prec*((x-mean).T @ (self._prec_op @ (x-mean))) )
 
     def _gradient(self, x):
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
 
-        if not callable(self.mean):
-            mean = self.mean.flatten()
-            return -(self.prec*self._prec_op) @ (x-mean)
+        if not callable(self.mean): # for prior
+            return -(self.prec*self._prec_op) @ (x-self.mean)
+        else:
+            NotImplementedError("Gradient not implemented for mean {}".format(type(self.mean)))
 
     def _sample(self, N=1, rng=None):
         if (self._bc_type == 'zero'):
@@ -190,10 +188,9 @@ class GMRF(Distribution):
                 xi = np.random.randn(self.dim, N)   # standard Gaussian
 
             if N == 1:
-                s = self.mean.flatten() + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
-            else:
                 s = self.mean + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
-            # s = self.mean + (1/np.sqrt(self.prec))*L_cholmod.solve_Lt(xi, use_LDLt_decomposition=False) 
+            else:
+                s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
                         
         elif (self._bc_type == 'periodic'):
             
@@ -206,12 +203,9 @@ class GMRF(Distribution):
                 xi = np.random.randn(self.dim, N) + 1j*np.random.randn(self.dim, N)
             
             F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
-            # eigv = eigvalsh(self.L.todense()) # splinalg.eigsh(self.L, self.rank, return_eigenvectors=False)           
             eigv = np.hstack([self._L_eigval, self._L_eigval[-1]])  # repeat last eigval to complete dim
             L_sqrt = diags(np.sqrt(eigv)) 
-            s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
-            # L_sqrt = pinvh(np.diag(np.sqrt(eigv)))
-            # s = self.mean + (1/np.sqrt(self.prec))*np.real(F.conj() @ (L_sqrt @ xi))
+            s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))*np.real(F.conj() @ splinalg.spsolve(L_sqrt, xi))
             
         elif (self._bc_type == 'neumann'):
 
@@ -220,7 +214,7 @@ class GMRF(Distribution):
             else:
                 xi = np.random.randn(self._diff_op.shape[0], N)   # standard Gaussian
 
-            s = self.mean + (1/np.sqrt(self.prec))* \
+            s = self.mean[:, np.newaxis] + (1/np.sqrt(self.prec))* \
                 splinalg.spsolve(self._chol.T, (splinalg.spsolve(self._chol, (self._diff_op.T @ xi)))) 
         else:
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
@@ -233,5 +227,4 @@ class GMRF(Distribution):
 
     @property
     def sqrtprecTimesMean(self):
-        return (self.sqrtprec@self.mean).flatten()
-        
+        return (self.sqrtprec@self.mean)

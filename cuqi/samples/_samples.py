@@ -5,8 +5,16 @@ from cuqi.geometry import _DefaultGeometry1D, Continuous2D, Image2D
 from cuqi.array import CUQIarray
 from cuqi.utilities import force_ndarray
 from copy import copy
-import arviz # Plotting tool
 from numbers import Number
+
+try:
+    import arviz # Plotting tool
+except ImportError:
+    arviz = None
+
+def _check_for_arviz():
+    if arviz is None:
+        raise ImportError("The arviz package is required for this functionality. Please install arviz using `pip install arviz`.")
 
 
 class Samples(object):
@@ -475,7 +483,6 @@ class Samples(object):
         """
         
         # Compute statistics
-        mean = np.mean(self.samples,axis=-1)
         lo_conf, up_conf = self.compute_ci(percent)
 
         #Extract plotting keywords and put into plot_envelope
@@ -488,6 +495,10 @@ class Samples(object):
         # (mean, lo_conf,up_conf) are either parameter values or function values
         self._process_is_par_kwarg(kwargs)
         self._process_is_par_kwarg(pe_kwargs)
+
+        # Create a copy of kwargs without is_par
+        kwargs_copy = kwargs.copy()
+        kwargs_copy.pop("is_par")
 
         #User cannot ask for computing statistics on function values then plotting on parameter space
         if not self.is_par:
@@ -511,7 +522,7 @@ class Samples(object):
 
             plt.figure()
             #fig.add_subplot(2,2,1)
-            im_mn = self.geometry.plot(mean, *args, **kwargs)
+            im_mn = self.plot_mean(*args, **kwargs_copy)
             plt.title("Sample mean")
             if exact is not None:
                 #fig.add_subplot(2,2,3)
@@ -536,18 +547,20 @@ class Samples(object):
             lci, lmn, lex = None, None, None
 
             lci = self.geometry.plot_envelope(
-                lo_conf, up_conf, color='dodgerblue', **pe_kwargs)
-            
-            lmn = self.geometry.plot(mean, *args, **kwargs)
-            if exact is not None:  #TODO: Allow exact to be defined in different space than mean?
+                lo_conf, up_conf,
+                color='dodgerblue',
+                **pe_kwargs,
+                label=f"{percent}% Credibility Interval")
+
+            lmn = self.plot_mean(*args, **kwargs_copy, label="Mean")
+            plt.title("")
+            if exact is not None:
+            #TODO: Allow exact to be defined in different space than mean?
                 if isinstance(exact, CUQIarray):
-                    lex = exact.plot(*args, **kwargs)
+                    lex = exact.plot(*args, **kwargs, label="Exact")
                 else:
-                    lex = self.geometry.plot(exact, *args, **kwargs)
-                plt.legend([lmn[0], lex[0], lci], [
-                           "Mean", "Exact", f"{percent}% Credibility Interval"])
-            else:
-                plt.legend([lmn[0], lci], ["Mean", f"{percent}% Credibility Interval"])
+                    lex = self.geometry.plot(exact, *args, **kwargs, label="Exact")
+            plt.legend()
 
             plotting_objects = [lmn, lex, lci]
         
@@ -598,6 +611,7 @@ class Samples(object):
         datadict = self.to_arviz_inferencedata(variable_indices)
         
         # Plot autocorrelation using arviz
+        _check_for_arviz()
         axis = arviz.plot_autocorr(datadict, max_lag=max_lag, combined=combined, **kwargs)
 
         return axis
@@ -664,6 +678,7 @@ class Samples(object):
             kwargs["lines"] = tuple([(par_names[i], {}, exact[i]) for i in range(len(par_names))])
 
         # Plot using arviz
+        _check_for_arviz()
         ax =  arviz.plot_trace(datadict, combined=combined, **kwargs)
 
         # Improves subplot spacing
@@ -704,6 +719,7 @@ class Samples(object):
         # Convert to arviz InferenceData object
         datadict = self.to_arviz_inferencedata(variable_indices)
 
+        _check_for_arviz()
         ax =  arviz.plot_pair(datadict, kind=kind, marginals=marginals, **kwargs)
 
         return ax
@@ -751,6 +767,7 @@ class Samples(object):
         -------
         Numpy array with effective sample size for each variable.
         """
+        _check_for_arviz()
         ESS_xarray = arviz.ess(self.to_arviz_inferencedata(), **kwargs)
         ESS_items = ESS_xarray.items()
         ESS = np.empty(len(ESS_items))
@@ -806,6 +823,7 @@ class Samples(object):
         datadict =  dict(zip(variables,samples))
 
         # Compute rhat
+        _check_for_arviz()
         RHAT_xarray = arviz.rhat(datadict, **kwargs)
 
         # Convert to numpy array
@@ -844,6 +862,7 @@ class Samples(object):
         datadict = self.to_arviz_inferencedata(variable_indices)
 
         # Plot using arviz
+        _check_for_arviz()
         ax =  arviz.plot_violin(datadict, **kwargs)
 
         return ax

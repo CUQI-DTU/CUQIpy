@@ -438,7 +438,7 @@ def _Gibbs_joint_hier_model(use_legacy=False, noise_std=0.01):
     np.random.seed(0)
     
     # Model and data
-    A, y_obs, _ = cuqi.testproblem.Deconvolution1D.get_components(phantom='square', use_legacy=use_legacy, noise_std=noise_std)
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D(phantom='square', use_legacy=use_legacy, noise_std=noise_std).get_components()
     n = A.domain_dim
 
     # Define distributions
@@ -478,6 +478,9 @@ def test_Gibbs_regression(copy_reference):
         samples_orig_file = copy_reference(
             "data/Gibbs_original_code_results_win.npz")
     samples_orig = np.load(samples_orig_file)
+
+    # Save results
+    #np.savez("Gibbs_original_code_results_win.npz", samples["d"].samples)
 
     assert(np.allclose(samples["d"].samples, samples_orig["arr_0"]))
 

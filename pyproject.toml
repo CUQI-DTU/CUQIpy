@@ -8,10 +8,11 @@ description = "Computational Uncertainty Quantification for Inverse problems in 
 maintainers = [
     {name = "Nicolai A. B. Riis", email = "nabr@dtu.dk"},
     {name = "Jakob S. Jørgensen", email = "jakj@dtu.dk"},
-    {name = "Amal M. Alghamdi", email = "amaal@dtu.dk"}
+    {name = "Amal M. Alghamdi", email = "amaal@dtu.dk"},
+    {name = "Chao Zhang", email = "chaz@dtu.dk"}
 ]
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = {file = "LICENSE"}
 dynamic = ["dependencies", "version"]
 
@@ -25,7 +26,7 @@ Tracker = "https://github.com/CUQI-DTU/CUQIpy/issues"
 include = ["cuqi*"]  # package names should match these glob patterns (["*"] by default)
 
 [tool.setuptools.package-data]
-cuqi = ["data/*.npz", "data/*.mat"]
+cuqi = ["data/*.npz", "data/*.mat", "data/*.png"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }

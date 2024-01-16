@@ -43,7 +43,7 @@ from cuqi.distribution import Gaussian, LMRF, Gamma
 from cuqi.problem import BayesianProblem
 
 # Step 1: Set up forward model and data, y = Ax
-A, y_data, info = Deconvolution2D.get_components(dim=256, phantom="cookie")
+A, y_data, info = Deconvolution2D(dim=256, phantom="cookie").get_components()
 
 # Step 2: Define distributions for parameters
 d = Gamma(1, 1e-4)

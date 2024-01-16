@@ -30,7 +30,7 @@ from cuqi.problem import BayesianProblem
 # The easiest way to get these two components is to use the built-in testproblems.
 # Let us extract the model and data for a 2D deconvolution.
 
-A, y_obs, info = Deconvolution2D.get_components()
+A, y_obs, info = Deconvolution2D().get_components()
 
 # %%
 # Step 2: Prior model

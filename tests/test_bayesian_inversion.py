@@ -14,7 +14,7 @@ from cuqi.density import Density
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns, use_legacy", 
                          [
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20, True),
-                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20, True),
+                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, "zero"), 20, True),
                              (Deconvolution1D, "square", LMRF(0, 0.005, geometry=128), 100, True),
                              (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50, True),
                              (Deconvolution1D, "square", RegularizedGaussian(np.zeros(128), 0.1, constraint="nonnegative"), 100, False),
@@ -131,7 +131,7 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
     Currently, no reference data is available for this test, so no regression test is performed.
     """
     # Load model + data from testproblem library
-    A, y_data, probInfo = TP_type.get_components(dim=priors[0].dim, phantom=phantom)
+    A, y_data, probInfo = TP_type(dim=priors[0].dim, phantom=phantom).get_components()
 
     # data distribution
     if len(priors) == 1: # No hyperparameters
