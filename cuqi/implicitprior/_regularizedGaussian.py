@@ -6,15 +6,15 @@ import numpy as np
 
 
 class RegularizedGaussian(Distribution):
-    """ Implicit Regularized Gaussian distribution.
+    """ Implicit Regularized Gaussian.
 
-    Defines a Gaussian distribution with implicit regularization. The regularization can be defined
-    in the form of a proximal operator or a projector. Alternatively, preset constraints and regularization
-    can be used.
+    Defines a Gaussian distribution with implicit regularization creating a so-called implicit prior.
+    The regularization can be defined in the form of a proximal operator or a projector. 
+    Alternatively, preset constraints and regularization can be used.
 
     Precisely one of proximal, projector, constraint or regularization needs to be provided. Otherwise, an error is raised.
 
-    Distribution can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
 
     For more details on implicit regularized Gaussian see the following paper:
@@ -139,11 +139,11 @@ class RegularizedGaussian(Distribution):
     def logpdf(self, x):
         return np.nan
         #raise ValueError(
-        #    f"The logpdf of a implicit regularized Gaussian distribution need not be defined.")
+        #    f"The logpdf of a implicit regularized Gaussian is not be defined.")
         
     def _sample(self, N, rng=None):
         raise ValueError(
-            "There is no known way of efficiently sampling from a implicit regularized Gaussian distribution.")
+            "There is no known way of efficiently sampling from a implicit regularized Gaussian.")
   
     @staticmethod
     def constraint_options():

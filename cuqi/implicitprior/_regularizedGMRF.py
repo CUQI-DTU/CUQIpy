@@ -2,16 +2,16 @@ from cuqi.implicitprior import RegularizedGaussian
 from cuqi.distribution import Distribution, GMRF
 
 class RegularizedGMRF(RegularizedGaussian):
-    """ Implicit Regularized GMRF (Gaussian Markov Random Field) distribution. 
+    """ Implicit Regularized GMRF (Gaussian Markov Random Field). 
 
-    Defines a Gaussian distribution with implicit regularization. The regularization can be defined
-    in the form of a proximal operator or a projector. Alternatively, preset constraints and regularization
-    can be used.
+    Defines a GMRF distribution with implicit regularization defining a so-called implicit prior.
+    The regularization can be defined in the form of a proximal operator or a projector.
+    Alternatively, preset constraints and regularization can be used.
 
     Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
     a nonnegativity constraint is used by default.
 
-    Distribution can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
 
     For more details on implicit regularized Gaussian see the following paper:
