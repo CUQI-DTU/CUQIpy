@@ -260,7 +260,7 @@ class Sampler(ABC):
         if self.callback is not None:
             self.callback(sample, sample_index)
 
-class ProposalBasedSampler(SamplerNew,ABC):
+class ProposalBasedSamplerNew(SamplerNew,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
         #TODO: after fixing None dim
         #if dim is None and hasattr(proposal,'dim'):
@@ -318,62 +318,35 @@ class ProposalBasedSampler(SamplerNew,ABC):
         else:
             return cuqi.geometry._DefaultGeometry(self.dim)
 
-#class ProposalBasedSampler(SamplerNew,ABC):
-#    def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
-#        #TODO: after fixing None dim
-#        #if dim is None and hasattr(proposal,'dim'):
-#        #    dim = proposal.dim
-#
-#        super().__init__(target, initial_point=x0, **kwargs)
-#
-#        self.current_point = x0
-#        self.current_target = self.target.logd(self.current_point)
-#        self.proposal =proposal
-#        self.scale = scale
-#
-#        self._acc = [ 1 ]
-#        self.num_batch_dumped = 0
-#        self.batch_size = 0
-#
-#    def dump_samples(self):
-#        np.savez( self.sample_path + 'batch_{:04d}.npz'.format( self.num_batch_dumped), samples=np.array(self._samples[-1-self.batch_size:] ), batch_id=self.num_batch_dumped )
-#        self.num_batch_dumped += 1
-#
-#    def save_checkpoint(self, path):
-#        state = self.get_state()
-#
-#        with open(path, 'wb') as handle:
-#            pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
-#
-#    def load_checkpoint(self, path):
-#        with open(path, 'rb') as handle:
-#            state = pkl.load(handle)
-#
-#        print(state)
-#
-#    def reset(self):
-#        self._samples.clear()
-#        self._acc.clear()
-#
-#    @property 
-#    def proposal(self):
-#        return self._proposal 
-#
-#    @proposal.setter 
-#    def proposal(self, value):
-#        self._proposal = value
+class ProposalBasedSampler(Sampler,ABC):
+    def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
+        #TODO: after fixing None dim
+        #if dim is None and hasattr(proposal,'dim'):
+        #    dim = proposal.dim
+        super().__init__(target, x0=x0, dim=dim, **kwargs)
 
-#    @property
-#    def geometry(self):
-#        geom1, geom2 = None, None
-#        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
-#            geom1=  self.proposal.geometry
-#        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.par_dim is not None:
-#            geom2 = self.target.geometry
-#        if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
-#            return geom1
-#        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry) and geom2 is not None: 
-#            return geom2
-#        else:
-#            return cuqi.geometry._DefaultGeometry()#(self.dim)
-#
+        self.proposal =proposal
+        self.scale = scale
+
+
+    @property 
+    def proposal(self):
+        return self._proposal 
+
+    @proposal.setter 
+    def proposal(self, value):
+        self._proposal = value
+
+    @property
+    def geometry(self):
+        geom1, geom2 = None, None
+        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
+            geom1=  self.proposal.geometry
+        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.par_dim is not None:
+            geom2 = self.target.geometry
+        if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
+            return geom1
+        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry) and geom2 is not None: 
+            return geom2
+        else:
+            return cuqi.geometry._DefaultGeometry1D(self.dim)

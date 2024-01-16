@@ -1,4 +1,5 @@
-from ._sampler import Sampler, ProposalBasedSampler, SamplerNew
+from ._sampler import Sampler, ProposalBasedSampler
+from ._sampler import SamplerNew, ProposalBasedSamplerNew
 from ._conjugate import Conjugate
 from ._conjugate_approx import ConjugateApprox
 from ._cwmh import CWMH

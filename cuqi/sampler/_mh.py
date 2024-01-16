@@ -1,10 +1,10 @@
 import numpy as np
 import cuqi
 from cuqi.sampler import ProposalBasedSampler
+from cuqi.sampler import ProposalBasedSamplerNew
 from cuqi.array import CUQIarray
 
-
-class MH_new(ProposalBasedSampler):
+class MH_new(ProposalBasedSamplerNew):
     def __init__(self, target, proposal=None, scale=1, x0=None, dim=None, **kwargs):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
 
@@ -12,7 +12,7 @@ class MH_new(ProposalBasedSampler):
             x0 = np.ones(target.dim)
         super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
 
-    @ProposalBasedSampler.proposal.setter 
+    @ProposalBasedSamplerNew.proposal.setter 
     def proposal(self, value):
         fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
