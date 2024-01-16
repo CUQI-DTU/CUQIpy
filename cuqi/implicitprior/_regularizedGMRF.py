@@ -48,7 +48,6 @@ class RegularizedGMRF(RegularizedGaussian):
         Preset regularization, including "l1". Required for use in Gibbs in future update.
 
     """
-    # TODO: Once GMRF is updated, add default None to mean and prec here.
     def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
             
             args = {"lower_bound" : kwargs.pop("lower_bound", None),
