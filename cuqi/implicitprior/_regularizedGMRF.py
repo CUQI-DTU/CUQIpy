@@ -42,10 +42,18 @@ class RegularizedGMRF(RegularizedGaussian):
         min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None
-        Preset constraints, including "nonnegativity" and "box". Required for use in Gibbs.
+        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
+        For "box", the following additional parameters can be passed:
+            lower_bound : array_like or None
+                Lower bound of box, defaults to zero
+            upper_bound : array_like
+                Upper bound of box, defaults to one
 
     regularization : string or None
-        Preset regularization, including "l1". Required for use in Gibbs in future update.
+        Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
+        For "l1", the following additional parameters can be passed:
+            strength : scalar
+                Regularization parameter, i.e., strength*||x||_1 , defaults to one
 
     """
     def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
