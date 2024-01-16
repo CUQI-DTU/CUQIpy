@@ -104,7 +104,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
             Deconvolution1D,
             "square",
             [
-                RegularizedGaussian(np.zeros(128), lambda d: 1/d, name="x"),
+                RegularizedGaussian(np.zeros(128), lambda d: 1/d, constraint="nonnegativity", name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],
@@ -115,7 +115,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
             Deconvolution1D,
             "square",
             [
-                RegularizedGMRF(np.zeros(128), lambda d: d, name="x"),
+                RegularizedGMRF(np.zeros(128), lambda d: d, constraint="nonnegativity", name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],
