@@ -86,7 +86,7 @@ class MALA_new(cuqi.sampler.SamplerNew):
         self.current_target_grad_eval = temp
         self.scale = state['scale']
 #%%
-# Define program
+# Define custom distribution
 def make_custom_distribution(dim=5):
     mu = np.arange(dim)  # Mean of Gaussian
     std = 1  # standard deviation of Gaussian
