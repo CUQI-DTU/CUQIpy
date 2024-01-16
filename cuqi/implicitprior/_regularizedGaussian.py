@@ -66,9 +66,12 @@ class RegularizedGaussian(Distribution):
         
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
         
-        args = {"lower_bound" : kwargs.pop("lower_bound", None),
-                "upper_bound" : kwargs.pop("upper_bound", None),
-                "strength" : kwargs.pop("strength", None)}
+        # Store regularization parameters and remove them from kwargs passed to Gaussian
+        optional_regularization_parameters = {
+            "lower_bound" : kwargs.pop("lower_bound", None), # Takes default of ProjectBox if None
+            "upper_bound" : kwargs.pop("upper_bound", None), # Takes default of ProjectBox if None
+            "strength" : kwargs.pop("strength", 1)
+        }
         
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
@@ -76,9 +79,9 @@ class RegularizedGaussian(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
-        self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
+        self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, optional_regularization_parameters)
 
-    def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization, args):
+    def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization, optional_regularization_parameters):
         """ Parse regularization input arguments with guarding statements and store internal states """
 
         # Check that only one of proximal, projector, constraint or regularization is provided        
@@ -108,12 +111,12 @@ class RegularizedGaussian(Distribution):
             self._proximal = lambda z, gamma: ProjectNonnegative(z)
             self._preset = "nonnegativity"
         elif (isinstance(constraint, str) and constraint.lower() == "box"):
-            lower = args["lower_bound"] if "lower_bound" in args else None
-            upper = args["upper_bound"] if "upper_bound" in args else None
+            lower = optional_regularization_parameters["lower_bound"]
+            upper = optional_regularization_parameters["upper_bound"]
             self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
-            strength = args["strength"] if "strength" in args else 1
+            strength = optional_regularization_parameters["strength"]
             self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
             self._preset = "l1"
         else:
