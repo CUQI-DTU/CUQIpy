@@ -169,6 +169,7 @@ def test_distribution_contains_geometry(distribution, kwargs):
           np.all(geom.grid[1]== np.array([0, 1])))
 
 # Compare computed covariance
+@pytest.mark.parametrize("seed", [0,3,5,7])
 @pytest.mark.parametrize("mean,cov,mean_full,cov_full",[
     ( (0),           (5),            (0),           (5)           ),
     ( (0),           (5*np.ones(3)), (np.zeros(3)), (5*np.eye(3)) ),
@@ -179,7 +180,10 @@ def test_distribution_contains_geometry(distribution, kwargs):
     ( (0), (np.array([[5,-3],[-3,2]])),       (np.zeros(2)), (np.array([[5,-3],[-3,2]])) ),
     #( (0), (sps.csc_matrix([[5,3],[-3,2]])), (np.zeros(2)), (np.array([[5,3],[-3,2]])) ),
 ])
-def test_Gaussian_cov(mean,cov,mean_full,cov_full):
+def test_Gaussian_cov(mean,cov, mean_full, cov_full, seed):
+    #Fix seed for reproducibility
+    np.random.seed(seed)
+
     # Define cuqi dist using various means and covs
     prior = cuqi.distribution.Gaussian(mean, cov)
 
