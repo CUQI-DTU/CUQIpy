@@ -5,7 +5,8 @@ import numpy as np
 import sys
 
 from cuqi.testproblem import Deconvolution1D
-from cuqi.distribution import Gaussian, GMRF, CMRF, LMRF, Gamma, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF
+from cuqi.distribution import Gaussian, GMRF, CMRF, LMRF, Gamma
+from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.problem import BayesianProblem
 from cuqi.density import Density
 
@@ -16,8 +17,8 @@ from cuqi.density import Density
                              (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, 1, "zero"), 20, True),
                              (Deconvolution1D, "square", LMRF(0, 0.005, geometry=128), 100, True),
                              (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50, True),
-                             (Deconvolution1D, "square", ImplicitRegularizedGaussian(np.zeros(128), 0.1, constraint="nonnegative"), 100, False),
-                             (Deconvolution1D, "square", ImplicitRegularizedGMRF(np.zeros(128), 50, constraint="nonnegative"), 100, False),
+                             (Deconvolution1D, "square", RegularizedGaussian(np.zeros(128), 0.1, constraint="nonnegative"), 100, False),
+                             (Deconvolution1D, "square", RegularizedGMRF(np.zeros(128), 50, constraint="nonnegative"), 100, False),
                          ])
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy):
     # SKIP NUTS test if not windows (for now)
@@ -98,23 +99,23 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
             ],
             50,
         ),
-        # Case: ImplicitRegularizedGaussian with Gamma hyperpriors on both noise and prior precision
+        # Case: RegularizedGaussian with Gamma hyperpriors on both noise and prior precision
         (
             Deconvolution1D,
             "square",
             [
-                ImplicitRegularizedGaussian(np.zeros(128), lambda d: 1/d, name="x"),
+                RegularizedGaussian(np.zeros(128), lambda d: 1/d, name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],
             50,
         ),
-        # Case: ImplicitRegularizedGMRF with Gamma hyperpriors on both noise and prior precision
+        # Case: RegularizedGMRF with Gamma hyperpriors on both noise and prior precision
         (
             Deconvolution1D,
             "square",
             [
-                ImplicitRegularizedGMRF(np.zeros(128), lambda d: d, name="x"),
+                RegularizedGMRF(np.zeros(128), lambda d: d, name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],

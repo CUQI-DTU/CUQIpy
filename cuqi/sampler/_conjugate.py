@@ -1,4 +1,5 @@
-from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF
+from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
+from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 import numpy as np
 
 class Conjugate: # TODO: Subclass from Sampler once updated
@@ -9,7 +10,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     Currently supported conjugate pairs are:
     - (Gaussian, Gamma)
     - (GMRF, Gamma)
-    - (ImplicitRegularizedGaussian, Gamma) with nonnegativity constraints only
+    - (RegularizedGaussian, Gamma) with nonnegativity constraints only
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
@@ -20,12 +21,12 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     """
 
     def __init__(self, target: Posterior):
-        if not isinstance(target.likelihood.distribution, (Gaussian, GMRF, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)):
+        if not isinstance(target.likelihood.distribution, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)):
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
             
-        if isinstance(target.likelihood.distribution, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
+        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
                raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
         
         self.target = target
@@ -48,5 +49,5 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         """ Helper method to calculate m parameter for Gaussian-Gamma conjugate pair. """
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
-        elif isinstance(self.target.likelihood.distribution, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)):
+        elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
             return np.count_nonzero(b) # See 

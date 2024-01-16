@@ -5,7 +5,8 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, ImplicitRegularizedGaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF, ImplicitRegularizedGMRF
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
+from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -353,7 +354,7 @@ class BayesianProblem(object):
             return self._samplepCN(Ns, Nb, callback)
         
         # For Regularized Gaussians with linear models we use Regularized LinearRTO
-        elif self._check_posterior(self, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF), Gaussian, LinearModel):
+        elif self._check_posterior(self, (RegularizedGaussian, RegularizedGMRF), Gaussian, LinearModel):
             return self._sampleRegularizedLinearRTO(Ns, Nb, callback)
 
         else:
@@ -778,7 +779,7 @@ class BayesianProblem(object):
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
             # Gamma prior, Gaussian likelihood -> Conjugate
-            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF, ImplicitRegularizedGaussian, ImplicitRegularizedGMRF)): 
+            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
             # Gamma prior, LMRF likelihood -> ConjugateApprox
@@ -790,7 +791,7 @@ class BayesianProblem(object):
                 sampling_strategy[par_name] = cuqi.sampler.LinearRTO
 
             # Implicit Regularized Gaussian prior, Gaussian likelihood, linear model -> RegularizedLinearRTO
-            elif self._check_posterior(cond_target, (ImplicitRegularizedGaussian, ImplicitRegularizedGMRF), Gaussian, LinearModel):
+            elif self._check_posterior(cond_target, (RegularizedGaussian, RegularizedGMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.RegularizedLinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA

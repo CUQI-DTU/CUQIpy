@@ -676,35 +676,35 @@ def test_Gaussian_from_sparse_sqrtprec():
 
     assert y_from_dense.logpdf(np.ones(N)) == y_from_sparse.logpdf(np.ones(N))
 
-def test_ImplicitRegularizedGaussian_default_init():
+def test_RegularizedGaussian_default_init():
     """ Test that the implicit regularized Gaussian is initialized by default with nonnegativity preset """
 
-    x = cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1)
+    x = cuqi.distribution.RegularizedGaussian(np.zeros(5), 1)
     assert x._preset == "nonnegativity"
 
-def test_ImplicitRegularizedGaussian_guarding_statements():
-    """ Test that we catch incorrect initialization of ImplicitRegularizedGaussian """
+def test_RegularizedGaussian_guarding_statements():
+    """ Test that we catch incorrect initialization of RegularizedGaussian """
 
     # More than 1 argument
     with pytest.raises(ValueError, match="Only one of "):
-        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, proximal=lambda s,z: s, constraint="nonnegativity")
+        cuqi.distribution.RegularizedGaussian(np.zeros(5), 1, proximal=lambda s,z: s, constraint="nonnegativity")
 
     # Proximal
     with pytest.raises(ValueError, match="Proximal needs to be callable"):
-        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, proximal=1)
+        cuqi.distribution.RegularizedGaussian(np.zeros(5), 1, proximal=1)
 
     with pytest.raises(ValueError, match="Proximal should take 2 arguments"):
-        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, proximal=lambda s: s)
+        cuqi.distribution.RegularizedGaussian(np.zeros(5), 1, proximal=lambda s: s)
 
     # Projector
     with pytest.raises(ValueError, match="Projector needs to be callable"):
-        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, projector=1)
+        cuqi.distribution.RegularizedGaussian(np.zeros(5), 1, projector=1)
 
     with pytest.raises(ValueError, match="Projector should take 1 argument"):
-        cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
+        cuqi.distribution.RegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
 
-def test_ImplicitRegularizedGaussian_init_options():
-    """ Test different options for initialization of ImplicitRegularizedGaussian """
+def test_RegularizedGaussian_init_options():
+    """ Test different options for initialization of RegularizedGaussian """
 
     options = {
         "constraint": "nonnegativity",
@@ -716,6 +716,6 @@ def test_ImplicitRegularizedGaussian_init_options():
     }
 
     for key, value in options.items():
-        x = cuqi.distribution.ImplicitRegularizedGaussian(np.zeros(5), 1, **{key: value}) 
+        x = cuqi.distribution.RegularizedGaussian(np.zeros(5), 1, **{key: value}) 
 
 

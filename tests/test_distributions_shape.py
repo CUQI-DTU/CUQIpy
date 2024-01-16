@@ -19,23 +19,17 @@ ignore_list = [
 skip_logd = [
     cuqi.distribution.GMRF, # Mean must allow scalar values
     cuqi.distribution.Gamma, # Missing force_ndarray
-    cuqi.distribution.ImplicitRegularizedGaussian, # NotImplemented
-    cuqi.distribution.ImplicitRegularizedGMRF, # NotImplemented
 ]
 skip_sample = [
     cuqi.distribution.GMRF,  # Mean must allow scalar values
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.Lognormal,
-    cuqi.distribution.ImplicitRegularizedGaussian, # NotImplemented
-    cuqi.distribution.ImplicitRegularizedGMRF, # NotImplemented
 ]
 skip_gradient = [
     cuqi.distribution.GMRF,  # Mean must allow scalar values
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.Lognormal,
     cuqi.distribution.InverseGamma,
-    cuqi.distribution.ImplicitRegularizedGaussian, # NotImplemented
-    cuqi.distribution.ImplicitRegularizedGMRF, # NotImplemented
 ]
 
 # Get all classes in the cuqi.distribution module, and ignore the ones in ignore list
