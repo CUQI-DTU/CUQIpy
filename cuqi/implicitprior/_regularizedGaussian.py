@@ -146,7 +146,7 @@ class RegularizedGaussian(Distribution):
         
     def _sample(self, N, rng=None):
         raise ValueError(
-            "There is no known way of efficiently sampling from a implicit regularized Gaussian.")
+            "Cannot be sampled from.")
   
     @staticmethod
     def constraint_options():
