@@ -204,13 +204,14 @@ def approx_gradient(func, x, epsilon= 0.000001):
     # Initialize variables
     FD_gradient = x*0.0
     eps_vec = x*0.0
+    func_x = func(x)
 
     # Compute the gradient using forward differences component by component
     x_len = infer_len(x)
     for i in range(x_len):
         eps_vec[i] = epsilon
         x_plus_eps = x + eps_vec
-        FD_gradient[i] = (func(x_plus_eps) - func(x))/epsilon
+        FD_gradient[i] = (func(x_plus_eps) - func_x)/epsilon
         eps_vec[i] = 0.0
         
     return FD_gradient
