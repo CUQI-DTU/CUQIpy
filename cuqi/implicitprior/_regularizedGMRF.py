@@ -4,7 +4,7 @@ from cuqi.distribution import Distribution, GMRF
 class RegularizedGMRF(RegularizedGaussian):
     """ Implicit Regularized GMRF (Gaussian Markov Random Field). 
 
-    Defines a GMRF distribution with implicit regularization defining a so-called implicit prior.
+    Defines a so-called implicit prior based on a GMRF distribution with implicit regularization.
     The regularization can be defined in the form of a proximal operator or a projector.
     Alternatively, preset constraints and regularization can be used.
 
@@ -62,7 +62,7 @@ class RegularizedGMRF(RegularizedGaussian):
                     "upper_bound" : kwargs.pop("upper_bound", None),
                     "strength" : kwargs.pop("strength", None)}
             
-            # Underlying explicit Gaussian
+            # Underlying explicit GMRF
             self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
             
             # Init from abstract distribution class
