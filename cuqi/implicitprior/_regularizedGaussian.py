@@ -8,7 +8,7 @@ import numpy as np
 class RegularizedGaussian(Distribution):
     """ Implicit Regularized Gaussian.
 
-    Defines a Gaussian distribution with implicit regularization creating a so-called implicit prior.
+    Defines a so-called implicit prior based on a Gaussian distribution with implicit regularization.
     The regularization can be defined in the form of a proximal operator or a projector. 
     Alternatively, preset constraints and regularization can be used.
 
@@ -146,7 +146,7 @@ class RegularizedGaussian(Distribution):
         
     def _sample(self, N, rng=None):
         raise ValueError(
-            "There is no known way of efficiently sampling from a implicit regularized Gaussian.")
+            "Cannot be sampled from.")
   
     @staticmethod
     def constraint_options():
