@@ -1,5 +1,5 @@
 from cuqi.distribution import JointDistribution
-from cuqi.sampler import Sampler
+from cuqi.sampler import Sampler, Conjugate, ConjugatePair
 from cuqi.samples import Samples
 from typing import Dict, Union
 import numpy as np
@@ -86,6 +86,8 @@ class Gibbs:
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
 
+        self.first_step = True
+
     # ------------ Public methods ------------
     def sample(self, Ns, Nb=0):
         """ Sample from target distribution """
@@ -131,12 +133,18 @@ class Gibbs:
             # Set up sampler for current conditional distribution
             sampler = self.samplers[par_name](self.target(**other_params))
 
+            # validate that the use of Conjugacy is allowed
+            if self.first_step:
+                if isinstance(sampler, (Conjugate, ConjugatePair)):
+                    sampler.validate()
+
             # Take a MCMC step
             current_samples[par_name] = sampler.step(current_samples[par_name])
 
             # Ensure even 1-dimensional samples are 1D arrays
             current_samples[par_name] = current_samples[par_name].reshape(-1)
         
+        self.first_step = False
         return current_samples
 
     def step_tune(self, current_samples):

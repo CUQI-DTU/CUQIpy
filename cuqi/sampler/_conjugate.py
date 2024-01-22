@@ -18,6 +18,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     - (Gaussian, Gamma)
     - (GMRF, Gamma)
     - (RegularizedGaussian, Gamma) with nonnegativity constraints only
+    - (RegularizedGMRF, Gamma) with nonnegativity constraints only
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
@@ -34,13 +35,16 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         elif isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(target.prior, (Gamma)):
             self.conjugacypair = RegularizedGaussianGammaPair(target)
         else:
-            raise ValueError(f"Conjugate does not support a conjugacy pair with likelihood {type(target.likelihood.distribution)} and prior{type(target.prior)}")
+            raise ValueError(f"Conjugate does not support a conjugacy pair with likelihood {type(target.likelihood.distribution)} and prior {type(target.prior)}")
         
         self.target = target
 
 
     def step(self, x=None):
         return self.conjugacypair.step(x)
+    
+    def validate(self):
+        return self.conjugacypair.validate()
 
 class ConjugatePair(ABC):
 
@@ -53,27 +57,30 @@ class ConjugatePair(ABC):
         pass
 
     @abstractmethod
-    def _verify(self, name, attr):
+    def _validate(self, name, attr):
         return True
 
-    def verify(self):
+    def validate(self):
         mutable_likelihood_vars = self.target.likelihood.distribution.get_mutable_variables()
-
+        
+        # Check only those attributes that are functions and have the conjugacy variable as argument
         for var_key in mutable_likelihood_vars:
             attr = getattr(self.target.likelihood.distribution, var_key)
             if callable(attr) and self.conjugate_variable in get_non_default_args(attr):
-                if not self._verify(var_key, attr):
+                if not self._validate(var_key, attr):
                     raise ValueError(f"Conjugacy on the variable {self.conjugate_variable} in attribute {var_key} is not incorrect or unsupported")
                
         return True
 
+# Tests whether a function (scalar to scalar) is the idenity (lambda x : x)
 def regression_test_scalar_identity(f):
     return all([f(1.0) == 1.0,
                 f(10.0) == 10.0,
                 f(100.0) == 100.0])
 
+# Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x)
 def regression_test_scalar_reciprocal(f):
-    return all([isclose(f(1.0), 1.0/1.0),
+    return all([isclose(f(1.0), 1.0),
                 isclose(f(10.0), 1.0/10.0),
                 isclose(f(100.0), 1.0/100.0)])
 
@@ -82,9 +89,9 @@ class GaussianGammaPair(ConjugatePair):
 
     def __init__(self, target: Posterior):
         if not isinstance(target.likelihood.distribution, (Gaussian, GMRF)):
-            raise ValueError(f"Conjugacy pair likelihood needs to be Gaussian or GMRF, but is {type(target.likelihood.distribution)}")
+            raise ValueError(f"The likelihood needs to be Gaussian or GMRF, but is {type(target.likelihood.distribution)}")
         if not isinstance(target.prior, (Gamma)):
-            raise ValueError(f"Conjugacy pair prior needs to be Gamma , but is {type(target.prior)}")
+            raise ValueError(f"The prior needs to be Gamma , but is {type(target.prior)}")
         
         super().__init__(target)
 
@@ -102,7 +109,7 @@ class GaussianGammaPair(ConjugatePair):
 
         return dist.sample()
     
-    def _verify(self, name, attr):
+    def _validate(self, name, attr):
         if name in ["cov"]:
             return regression_test_scalar_reciprocal(attr)
         if name in ["prec"]:
@@ -114,9 +121,9 @@ class RegularizedGaussianGammaPair(ConjugatePair):
 
     def __init__(self, target: Posterior):
         if not isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            raise ValueError(f"Conjugacy pair likelihood needs to be RegularizedGaussian or RegularizedGMRF, but is {type(target.likelihood.distribution)}")
+            raise ValueError(f"The likelihood needs to be RegularizedGaussian or RegularizedGMRF, but is {type(target.likelihood.distribution)}")
         if not isinstance(target.prior, (Gamma)):
-            raise ValueError(f"Conjugacy pair prior needs to be Gamma , but is {type(target.prior)}")
+            raise ValueError(f"The prior needs to be Gamma , but is {type(target.prior)}")
 
         super().__init__(target)
 
@@ -134,7 +141,7 @@ class RegularizedGaussianGammaPair(ConjugatePair):
 
         return dist.sample()
     
-    def _verify(self, name, attr):
+    def _validate(self, name, attr):
         if name in ["cov"]:
             return regression_test_scalar_reciprocal(attr)
         if name in ["prec"]:
