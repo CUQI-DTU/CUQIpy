@@ -1,6 +1,13 @@
+from abc import ABC, abstractmethod
+import sys
+
+from cuqi.sampler import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
+from cuqi.utilities import get_non_default_args
+
 import numpy as np
+from math import isclose
 
 class Conjugate: # TODO: Subclass from Sampler once updated
     """ Conjugate sampler
@@ -21,20 +28,70 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     """
 
     def __init__(self, target: Posterior):
-        if not isinstance(target.likelihood.distribution, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)):
-            raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
-        if not isinstance(target.prior, Gamma):
-            raise ValueError("Conjugate sampler only works with Gamma prior")
-            
-        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
-               raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
+
+        if isinstance(target.likelihood.distribution, (Gaussian, GMRF)) and isinstance(target.prior, (Gamma)):
+            self.conjugacypair = GaussianGammaPair(target)
+        elif isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(target.prior, (Gamma)):
+            self.conjugacypair = RegularizedGaussianGammaPair(target)
+        else:
+            raise ValueError(f"Conjugate does not support a conjugacy pair with likelihood {type(target.likelihood.distribution)} and prior{type(target.prior)}")
         
         self.target = target
+
+
+    def step(self, x=None):
+        return self.conjugacypair.step(x)
+
+class ConjugatePair(ABC):
+
+    def __init__(self, target: Posterior):
+        self.target = target
+        self.conjugate_variable = target.prior.name
+
+    @abstractmethod
+    def step(self, x=None):
+        pass
+
+    @abstractmethod
+    def _verify(self, name, attr):
+        return True
+
+    def verify(self):
+        mutable_likelihood_vars = self.target.likelihood.distribution.get_mutable_variables()
+
+        for var_key in mutable_likelihood_vars:
+            attr = getattr(self.target.likelihood.distribution, var_key)
+            if callable(attr) and self.conjugate_variable in get_non_default_args(attr):
+                if not self._verify(var_key, attr):
+                    raise ValueError(f"Conjugacy on the variable {self.conjugate_variable} in attribute {var_key} is not incorrect or unsupported")
+               
+        return True
+
+def regression_test_scalar_identity(f):
+    return all([f(1.0) == 1.0,
+                f(10.0) == 10.0,
+                f(100.0) == 100.0])
+
+def regression_test_scalar_reciprocal(f):
+    return all([isclose(f(1.0), 1.0/1.0),
+                isclose(f(10.0), 1.0/10.0),
+                isclose(f(100.0), 1.0/100.0)])
+
+
+class GaussianGammaPair(ConjugatePair):
+
+    def __init__(self, target: Posterior):
+        if not isinstance(target.likelihood.distribution, (Gaussian, GMRF)):
+            raise ValueError(f"Conjugacy pair likelihood needs to be Gaussian or GMRF, but is {type(target.likelihood.distribution)}")
+        if not isinstance(target.prior, (Gamma)):
+            raise ValueError(f"Conjugacy pair prior needs to be Gamma , but is {type(target.prior)}")
+        
+        super().__init__(target)
 
     def step(self, x=None):
         # Extract variables
         b = self.target.likelihood.data                                 #mu
-        m = self._calc_m_for_Gaussians(b)                               #n
+        m = len(b)                                                      #n
         Ax = self.target.likelihood.distribution.mean                   #x_i
         L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
         alpha = self.target.prior.shape                                 #alpha
@@ -44,10 +101,42 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
 
         return dist.sample()
+    
+    def _verify(self, name, attr):
+        if name in ["cov"]:
+            return regression_test_scalar_reciprocal(attr)
+        if name in ["prec"]:
+            return regression_test_scalar_identity(attr)
+        raise ValueError(f"Conjugate variable {self.conjugate_variable} in attribute {name} is unsupported.")
+    
+    
+class RegularizedGaussianGammaPair(ConjugatePair):
 
-    def _calc_m_for_Gaussians(self, b):
-        """ Helper method to calculate m parameter for Gaussian-Gamma conjugate pair. """
-        if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
-            return len(b)
-        elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            return np.count_nonzero(b) # See 
+    def __init__(self, target: Posterior):
+        if not isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
+            raise ValueError(f"Conjugacy pair likelihood needs to be RegularizedGaussian or RegularizedGMRF, but is {type(target.likelihood.distribution)}")
+        if not isinstance(target.prior, (Gamma)):
+            raise ValueError(f"Conjugacy pair prior needs to be Gamma , but is {type(target.prior)}")
+
+        super().__init__(target)
+
+    def step(self, x=None):
+        # Extract variables
+        b = self.target.likelihood.data                                 #mu
+        m = np.count_nonzero(b)                                         #n
+        Ax = self.target.likelihood.distribution.mean                   #x_i
+        L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
+        alpha = self.target.prior.shape                                 #alpha
+        beta = self.target.prior.rate                                   #beta
+
+        # Create Gamma distribution and sample
+        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
+
+        return dist.sample()
+    
+    def _verify(self, name, attr):
+        if name in ["cov"]:
+            return regression_test_scalar_reciprocal(attr)
+        if name in ["prec"]:
+            return regression_test_scalar_identity(attr)
+        raise ValueError(f"Conjugate variable {self.conjugate_variable} in attribute {name} is unsupported.")
