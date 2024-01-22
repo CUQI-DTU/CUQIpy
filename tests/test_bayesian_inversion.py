@@ -6,18 +6,21 @@ import sys
 
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, GMRF, CMRF, LMRF, Gamma
+from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.problem import BayesianProblem
 from cuqi.density import Density
 
 #All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
-@pytest.mark.parametrize("TP_type, phantom, prior, Ns", 
+@pytest.mark.parametrize("TP_type, phantom, prior, Ns, use_legacy", 
                          [
-                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20),
-                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, "zero"), 20),
-                             (Deconvolution1D, "square", LMRF(0, 0.005, geometry=128), 100),
-                             (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50),
+                             (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20, True),
+                             (Deconvolution1D, "gauss", GMRF(np.zeros(128), 100, "zero"), 20, True),
+                             (Deconvolution1D, "square", LMRF(0, 0.005, geometry=128), 100, True),
+                             (Deconvolution1D, "square", CMRF(np.zeros(128), 0.01), 50, True),
+                             (Deconvolution1D, "square", RegularizedGaussian(np.zeros(128), 0.1, constraint="nonnegativity"), 100, False),
+                             (Deconvolution1D, "square", RegularizedGMRF(np.zeros(128), 50, constraint="nonnegativity"), 100, False),
                          ])
-def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
+def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy):
     # SKIP NUTS test if not windows (for now)
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
@@ -26,7 +29,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
 
     # Generate TP using this seed (for data consistency)
     # Legacy convolution is used for consistency with the reference data.
-    TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=True, noise_std=0.05) 
+    TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=use_legacy, noise_std=0.05) 
 
     # set the prior of testproblem
     TP.prior = prior
@@ -91,6 +94,28 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns):
             "square",
             [
                 LMRF(0, lambda d: 1/d, geometry=128, name="x"),
+                Gamma(1, 1e-4, name="l"),
+                Gamma(1, 1e-4, name="d")
+            ],
+            50,
+        ),
+        # Case: RegularizedGaussian with Gamma hyperpriors on both noise and prior precision
+        (
+            Deconvolution1D,
+            "square",
+            [
+                RegularizedGaussian(np.zeros(128), lambda d: 1/d, constraint="nonnegativity", name="x"),
+                Gamma(1, 1e-4, name="l"),
+                Gamma(1, 1e-4, name="d")
+            ],
+            50,
+        ),
+        # Case: RegularizedGMRF with Gamma hyperpriors on both noise and prior precision
+        (
+            Deconvolution1D,
+            "square",
+            [
+                RegularizedGMRF(np.zeros(128), lambda d: d, constraint="nonnegativity", name="x"),
                 Gamma(1, 1e-4, name="l"),
                 Gamma(1, 1e-4, name="d")
             ],

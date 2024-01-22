@@ -8,4 +8,4 @@ from ._langevin_algorithm import ULA, MALA
 from ._laplace_approximation import UGLA
 from ._mh import MH
 from ._pcn import pCN
-from ._rto import LinearRTO
+from ._rto import LinearRTO, RegularizedLinearRTO

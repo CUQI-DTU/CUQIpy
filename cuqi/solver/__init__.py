@@ -5,5 +5,9 @@ from ._solver import (
     LS,
     CGLS,
     LM,
-    PDHG
+    PDHG,
+    FISTA,
+    ProjectNonnegative,
+    ProjectBox,
+    ProximalL1
 )

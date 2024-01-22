@@ -69,7 +69,7 @@ def get_indirect_variables(dist):
             for key in keys:
                 if key not in attributes: #Ensure we did not already find this key
                     attributes.append(key)
-    return attributes
+    return attributes 
 
 def get_writeable_attributes(dist):
     """ Get writeable attributes of object instance. """

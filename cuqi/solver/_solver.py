@@ -565,3 +565,123 @@ class PDHG(object):
     """Primal-Dual Hybrid Gradient algorithm."""
     def __init__(self):
         raise NotImplementedError
+
+
+
+class FISTA(object):
+    """Fast Iterative Shrinkage-Thresholding Algorithm for regularized least squares problems.
+    
+    Reference:
+    Beck, Amir, and Marc Teboulle. "A fast iterative shrinkage-thresholding algorithm for linear inverse problems." SIAM journal on imaging sciences 2.1 (2009): 183-202.
+
+    Minimize ||Ax-b||^2 + f(x).
+    
+    
+    Parameters
+    ----------
+    A : ndarray or callable f(x,*args).
+    b : ndarray.
+    x0 : ndarray. Initial guess.
+    proximal : callable f(x, gamma) for proximal mapping.
+    maxit : The maximum number of iterations.
+    stepsize : The stepsize of the gradient step.
+    abstol : The numerical tolerance for convergence checks.
+    adapative : Whether to use FISTA or ISTA.
+
+    Example
+    -----------
+    .. code-block:: python
+    
+        from cuqi.solver import FISTA,  ProximalL1
+        import scipy as sp
+        import numpy as np
+
+        rng = np.random.default_rng()
+
+        m, n = 10, 5
+        A = rng.standard_normal((m, n))
+        b = rng.standard_normal(m)
+        stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
+        x0 = np.zeros(n)
+        fista = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
+        sol, _ = fista.solve()
+
+    """  
+    def __init__(self, A, b, x0, proximal, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
+        
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.proximal = proximal
+        self.maxit = int(maxit)
+        self.stepsize = stepsize
+        self.abstol = abstol
+        self.adaptive = adaptive
+
+    @property
+    def _explicitA(self):
+        return not callable(self.A)
+            
+    def solve(self):
+        # initial state
+        x = self.x0.copy()
+        stepsize = self.stepsize
+        
+        k = 0
+        
+        while True:
+            x_old = x.copy()
+            k += 1
+        
+            if self._explicitA:
+                grad = self.A.T@(self.A @ x_old - self.b)
+            else:
+                grad = self.A(self.A(x_old, 1) - self.b, 2)
+                
+            x_new = self.proximal(x_old-stepsize*grad, stepsize)
+                        
+            if LA.norm(x_new-x_old) <= self.abstol or (k >= self.maxit):
+                return x_new, k
+            
+            if self.adaptive:
+                x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
+              
+            x = x_new.copy()
+    
+    
+def ProjectNonnegative(x):
+    """(Euclidean) projection onto the nonnegative orthant.
+    
+    Parameters
+    ----------
+    x : array_like.
+    """  
+    return np.maximum(x, 0)
+
+def ProjectBox(x, lower = None, upper = None):
+    """(Euclidean) projection onto a box.
+    
+    Parameters
+    ----------
+    x : array_like.
+    lower : array_like. Lower bound of box. Zero if None.
+    upper : array_like. Upper bound of box. One if None.
+    """  
+    if lower is None:
+        lower = np.zeros_like(x)
+    
+    if upper is None:
+        upper = np.ones_like(x)
+    
+    return np.minimum(np.maximum(x, lower), upper)
+
+def ProximalL1(x, gamma):
+    """(Euclidean) proximal operator of the \|x\|_1 norm.
+    Also known as the shrinkage or soft thresholding operator.
+    
+    Parameters
+    ----------
+    x : array_like.
+    gamma : scale parameter.
+    """
+    return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))

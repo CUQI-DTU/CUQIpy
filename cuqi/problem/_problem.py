@@ -6,6 +6,7 @@ from typing import Tuple
 import cuqi
 from cuqi import config
 from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
+from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
 from cuqi.likelihood import Likelihood
@@ -347,6 +348,10 @@ class BayesianProblem(object):
         # For Gaussians with non-linear model we use pCN
         elif self._check_posterior(self, (Gaussian, GMRF), Gaussian):
             return self._samplepCN(Ns, Nb, callback)
+        
+        # For Regularized Gaussians with linear models we use RegularizedLinearRTO
+        elif self._check_posterior(self, (RegularizedGaussian, RegularizedGMRF), Gaussian, LinearModel):
+            return self._sampleRegularizedLinearRTO(Ns, Nb, callback)
 
         else:
             raise NotImplementedError(f"Automatic sampler choice is not implemented for model: {type(self.model)}, likelihood: {type(self.likelihood.distribution)} and prior: {type(self.prior)} and dim {self.prior.dim}. Manual sampler choice can be done via the 'sampler' module. Posterior distribution can be extracted via '.posterior' of any testproblem (BayesianProblem).")
@@ -597,6 +602,22 @@ class BayesianProblem(object):
         print('Elapsed time:', time.time() - ti)
 
         return samples
+    
+    def _sampleRegularizedLinearRTO(self, Ns, Nb, callback=None):
+        print("Using Regularized LinearRTO sampler.")
+        print(f"burn-in: {Nb/Ns*100:g}%")
+
+        # Start timing
+        ti = time.time()
+
+        # Sample
+        sampler = cuqi.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
+        samples = sampler.sample(Ns, Nb)
+
+        # Print timing
+        print('Elapsed time:', time.time() - ti)
+
+        return samples
 
     def _solve_max_point(self, density, disp=True, x0=None):
         """ This is a helper function for point estimation of the maximum of a density (e.g. posterior or likelihood) using solver module.
@@ -754,7 +775,7 @@ class BayesianProblem(object):
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
             # Gamma prior, Gaussian likelihood -> Conjugate
-            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF)): 
+            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)): 
                 sampling_strategy[par_name] = cuqi.sampler.Conjugate
 
             # Gamma prior, LMRF likelihood -> ConjugateApprox
@@ -764,6 +785,10 @@ class BayesianProblem(object):
             # Gaussian prior, Gaussian likelihood, Linear model -> LinearRTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 sampling_strategy[par_name] = cuqi.sampler.LinearRTO
+
+            # Implicit Regularized Gaussian prior, Gaussian likelihood, linear model -> RegularizedLinearRTO
+            elif self._check_posterior(cond_target, (RegularizedGaussian, RegularizedGMRF), Gaussian, LinearModel):
+                sampling_strategy[par_name] = cuqi.sampler.RegularizedLinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):
