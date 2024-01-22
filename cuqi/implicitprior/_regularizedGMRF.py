@@ -8,8 +8,7 @@ class RegularizedGMRF(RegularizedGaussian):
     The regularization can be defined in the form of a proximal operator or a projector.
     Alternatively, preset constraints and regularization can be used.
 
-    Only one of proximal, projector, constraint or regularization can be provided. If none of them are provided,
-    a nonnegativity constraint is used by default.
+    Only one of proximal, projector, constraint or regularization can be provided. Otherwise, an error is raised.
 
     Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
