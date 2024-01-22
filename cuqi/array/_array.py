@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.geometry import _DefaultGeometry1D
+from cuqi.geometry import _DefaultGeometry1D, ConcatenatedGeometries
 
 
 class CUQIarray(np.ndarray):
@@ -39,20 +39,50 @@ class CUQIarray(np.ndarray):
             super().__repr__()
 
     def __new__(cls, input_array, is_par=True, geometry=None):
+        # Set data type to object if input_array is function value for
+        # a ConcatenatedGeometries object
+        dtype = None
+        if (not is_par) and (geometry is not None) and \
+        isinstance(geometry, ConcatenatedGeometries):
+            # make sure input_array has a valid format
+            cls._verify_concatenated_funvals(input_array, geometry)
+            # set data type to object
+            dtype = np.dtype('O')       
+        
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
-        obj = np.asarray(input_array).view(cls)
+        obj = np.asarray(input_array, dtype=dtype).view(cls)
+
         # add the new attribute to the created instance
         obj.is_par = is_par
-        if (not is_par) and (geometry is None):
-            raise ValueError("geometry cannot be none when initializing a CUQIarray as function values (with is_par False).")
-        if is_par and (obj.ndim>1):
-            raise ValueError("input_array cannot be multidimensional when initializing CUQIarray as parameter (with is_par True).")
+
+        # Checks to verify that the input to the method __new__ is valid
+        cls._verify_new_input(obj, geometry)
+
+        # Set the geometry
         if geometry is None:
             geometry = _DefaultGeometry1D(grid=obj.__len__())
         obj.geometry = geometry
         # Finally, we must return the newly created object:
         return obj
+    
+    @classmethod
+    def _verify_concatenated_funvals(cls, input_array, geometry):
+        """Verify that the input_array is a valid function values list for a ConcatenatedGeometries object."""
+        #TODO: this check can be transferred to ConcatenatedGeometries
+        # make sure input_array length is equal to the number of geometries
+        if len(input_array) != geometry.number_of_geometries:
+            raise ValueError(
+                "input_array must have length equal to the number "+
+                "of geometries in the ConcatenatedGeometries object.")
+
+    @classmethod
+    def _verify_new_input(cls, obj, geometry):
+        is_par = obj.is_par
+        if (not is_par) and (geometry is None):
+            raise ValueError("geometry cannot be none when initializing a CUQIarray as function values (with is_par False).")
+        if is_par and (obj.ndim>1):
+            raise ValueError("input_array cannot be multidimensional when initializing CUQIarray as parameter (with is_par True).")
 
     def __array_finalize__(self, obj):
         # see InfoArray.__array_finalize__ for comments
@@ -63,12 +93,15 @@ class CUQIarray(np.ndarray):
     @property
     def funvals(self):
         if self.is_par is True:
-            vals = self.geometry.par2fun(self)
+            vals = self.geometry.par2fun(self.to_numpy())
         else:
             vals = self
 
-        if isinstance(vals, np.ndarray):
-            if vals.dtype == np.dtype('O'):
+        if True:
+            if isinstance(self.geometry, ConcatenatedGeometries):
+
+                return type(self)(vals,is_par=False,geometry=self.geometry)
+            elif vals.dtype == np.dtype('O'):
                 # if vals is of type np.ndarray, but the data type of the array
                 # is object (e.g. FEniCS function), then extract the object and
                 # return it. reshape(1) is needed to convert the shape from
@@ -77,21 +110,21 @@ class CUQIarray(np.ndarray):
             else:
                 # else, cast the np.ndarray to a CUQIarray
                 return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)
-        else:
-            return vals 
+
 
     @property
     def parameters(self):
         if self.is_par is False:
-            if self.dtype == np.dtype('O'):
+            if isinstance(self.geometry, ConcatenatedGeometries):
+                vals = self.geometry.fun2par(*self)
+            elif self.dtype == np.dtype('O'):
                 # If the current state if the CUQIarray is function values, and
                 # the data type of self is object (e.g. FEniCS function), then
                 # extract the object and save it. reshape(1) is needed to
                 # convert the shape from () to (1,).
-                funvals = self.reshape(1)[0]
+                vals = self.geometry.fun2par(self.reshape(-1))
             else:
-                funvals = self
-            vals = self.geometry.fun2par(funvals)
+                vals = self.geometry.fun2par(self)
 
         else:
             vals = self
