@@ -34,6 +34,8 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             self.conjugacypair = GaussianGammaPair(target)
         elif isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(target.prior, (Gamma)):
             self.conjugacypair = RegularizedGaussianGammaPair(target)
+        elif isinstance(target.likelihood.distribution, (Gamma)) and isinstance(target.prior, (Gamma)):
+            self.conjugacypair = GammaGammaPair(target)
         else:
             raise ValueError(f"Conjugate does not support a conjugacy pair with likelihood {type(target.likelihood.distribution)} and prior {type(target.prior)}")
         
@@ -78,6 +80,18 @@ def regression_test_scalar_identity(f):
                 f(10.0) == 10.0,
                 f(100.0) == 100.0])
 
+def regression_test_linear(f):
+    reference_f = f(1.0)
+    if isinstance(reference_f,np.ndarray):
+        reference = f(1.0).flatten()[0]
+        return all([f(10.0).flatten()[0] == 10.0*reference,
+                    f(100.0).flatten()[0] == 100.0*reference])
+    else:
+        reference = f(1.0)
+        return all([f(10.0) == 10.0*reference,
+                    f(100.0) == 100.0*reference])
+
+
 # Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x)
 def regression_test_scalar_reciprocal(f):
     return all([isclose(f(1.0), 1.0),
@@ -113,7 +127,7 @@ class GaussianGammaPair(ConjugatePair):
         if name in ["cov"]:
             return regression_test_scalar_reciprocal(attr)
         if name in ["prec"]:
-            return regression_test_scalar_identity(attr)
+            return regression_test_linear(attr)
         raise ValueError(f"Conjugate variable {self.conjugate_variable} in attribute {name} is unsupported.")
     
     
@@ -123,7 +137,7 @@ class RegularizedGaussianGammaPair(ConjugatePair):
         if not isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
             raise ValueError(f"The likelihood needs to be RegularizedGaussian or RegularizedGMRF, but is {type(target.likelihood.distribution)}")
         if not isinstance(target.prior, (Gamma)):
-            raise ValueError(f"The prior needs to be Gamma , but is {type(target.prior)}")
+            raise ValueError(f"The prior needs to be Gamma, but is {type(target.prior)}")
 
         super().__init__(target)
 
@@ -145,5 +159,34 @@ class RegularizedGaussianGammaPair(ConjugatePair):
         if name in ["cov"]:
             return regression_test_scalar_reciprocal(attr)
         if name in ["prec"]:
-            return regression_test_scalar_identity(attr)
+            return regression_test_linear(attr)
+        raise ValueError(f"Conjugate variable {self.conjugate_variable} in attribute {name} is unsupported.")
+    
+
+class GammaGammaPair(ConjugatePair):
+
+    def __init__(self, target: Posterior):
+        if not isinstance(target.likelihood.distribution, (Gamma)):
+            raise ValueError(f"The likelihood needs to be Gamma, but is {type(target.likelihood.distribution)}")
+        if not isinstance(target.prior, (Gamma)):
+            raise ValueError(f"The prior needs to be Gamma, but is {type(target.prior)}")
+
+        super().__init__(target)
+
+    def step(self, x=None):
+        # Extract variables
+        likelihood = self.target.likelihood.distribution(np.array([1]))
+        shape_l = likelihood.shape 
+        rate_l = likelihood.rate      
+        shape_p = self.target.prior.shape
+        rate_p = self.target.prior.rate
+
+        # Create Gamma distribution and sample
+        dist = Gamma(shape=shape_l + shape_p, rate=rate_l + rate_p)
+
+        return dist.sample()
+    
+    def _validate(self, name, attr):
+        if name in ["rate"]:
+            return regression_test_linear(attr)
         raise ValueError(f"Conjugate variable {self.conjugate_variable} in attribute {name} is unsupported.")
