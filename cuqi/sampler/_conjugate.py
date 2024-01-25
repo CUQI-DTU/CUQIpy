@@ -54,9 +54,13 @@ class ConjugatePair(ABC):
         self.target = target
         self.conjugate_variable = target.prior.name
 
+    @property
     @abstractmethod
-    def step(self, x=None):
+    def distribution(self):
         pass
+
+    def step(self, x=None):
+        return self.distribution.sample()
 
     @abstractmethod
     def _validate(self, name, attr):
@@ -109,7 +113,8 @@ class GaussianGammaPair(ConjugatePair):
         
         super().__init__(target)
 
-    def step(self, x=None):
+    @property
+    def distribution(self):
         # Extract variables
         b = self.target.likelihood.data                                 #mu
         m = len(b)                                                      #n
@@ -118,10 +123,8 @@ class GaussianGammaPair(ConjugatePair):
         alpha = self.target.prior.shape                                 #alpha
         beta = self.target.prior.rate                                   #beta
 
-        # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
-
-        return dist.sample()
+        # Create Gamma distribution 
+        return Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
     
     def _validate(self, name, attr):
         if name in ["cov"]:
@@ -141,7 +144,8 @@ class RegularizedGaussianGammaPair(ConjugatePair):
 
         super().__init__(target)
 
-    def step(self, x=None):
+    @property
+    def distribution(self):
         # Extract variables
         b = self.target.likelihood.data                                 #mu
         m = np.count_nonzero(b)                                         #n
@@ -150,10 +154,9 @@ class RegularizedGaussianGammaPair(ConjugatePair):
         alpha = self.target.prior.shape                                 #alpha
         beta = self.target.prior.rate                                   #beta
 
-        # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
+        # Create Gamma distribution
+        return Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
 
-        return dist.sample()
     
     def _validate(self, name, attr):
         if name in ["cov"]:
@@ -173,18 +176,15 @@ class GammaGammaPair(ConjugatePair):
 
         super().__init__(target)
 
-    def step(self, x=None):
+    @property
+    def distribution(self):
         # Extract variables
-        likelihood = self.target.likelihood.distribution(np.array([1]))
-        shape_l = likelihood.shape 
-        rate_l = likelihood.rate      
+        shape_l = self.target.likelihood.distribution.shape 
         shape_p = self.target.prior.shape
         rate_p = self.target.prior.rate
 
-        # Create Gamma distribution and sample
-        dist = Gamma(shape=shape_l + shape_p, rate=rate_l + rate_p)
-
-        return dist.sample()
+        # Create Gamma distribution
+        return Gamma(shape=shape_l + shape_p, rate=self.target.likelihood.data + rate_p)
     
     def _validate(self, name, attr):
         if name in ["rate"]:

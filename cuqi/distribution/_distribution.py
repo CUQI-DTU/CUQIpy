@@ -249,7 +249,7 @@ class Distribution(Density, ABC):
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
-                s = s.ravel()[0]
+                s = s.ravel()
             else:
                 s = s.flatten()
             s = CUQIarray(s, geometry=self.geometry)
