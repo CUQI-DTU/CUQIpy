@@ -179,12 +179,15 @@ class GammaGammaPair(ConjugatePair):
     @property
     def distribution(self):
         # Extract variables
-        shape_l = self.target.likelihood.distribution.shape 
         shape_p = self.target.prior.shape
         rate_p = self.target.prior.rate
 
+        likelihood = self.target.likelihood.distribution(np.ones_like(rate_p))
+        shape_l = likelihood.shape
+        rate_l = likelihood.rate
+
         # Create Gamma distribution
-        return Gamma(shape=shape_l + shape_p, rate=self.target.likelihood.data + rate_p)
+        return Gamma(shape=shape_l + shape_p, rate=rate_l*self.target.likelihood.data + rate_p)
     
     def _validate(self, name, attr):
         if name in ["rate"]:
