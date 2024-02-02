@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.stats as sps
-from scipy.special import loggamma, gammainc
 from cuqi.distribution import Distribution
+from cuqi.utilities import force_ndarray
 
 class Gamma(Distribution):
     """
@@ -42,20 +42,33 @@ class Gamma(Distribution):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric,**kwargs) 
 
-        # Init specific to this distribution
         self.shape = shape
-        self.rate = rate     
+        self.rate = rate
+
+    @property
+    def shape(self):
+        return self._shape
+    
+    @shape.setter
+    def shape(self, value):
+        self._shape = force_ndarray(value, flatten=True)
+
+    @property
+    def rate(self):
+        return self._rate
+    
+    @rate.setter
+    def rate(self, value):
+        self._rate = force_ndarray(value, flatten=True)
 
     @property
     def scale(self):
         return 1/self.rate
 
     def logpdf(self, x):
-        #return (self.shape*np.log(self.rate)-loggamma(self.shape)) + ((self.shape-1)*np.log(x) - self.rate*x)
         return np.sum(sps.gamma.logpdf(x, a=self.shape, loc=0, scale=self.scale))
 
     def cdf(self, x):
-        #return gammainc(self.shape, self.rate*x)
         return np.prod(sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale))
 
     def _sample(self, N, rng=None):
