@@ -41,7 +41,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         beta = self.target.prior.rate                                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
+        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta, geometry=self.target.prior.geometry)
 
         return dist.sample()
 
