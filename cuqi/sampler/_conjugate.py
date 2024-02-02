@@ -25,6 +25,8 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
+        if not target.prior.dim == 1:
+            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
             
         if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
                raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
@@ -41,7 +43,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         beta = self.target.prior.rate                                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta, geometry=self.target.prior.geometry)
+        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
 
         return dist.sample()
 
