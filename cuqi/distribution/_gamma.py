@@ -31,7 +31,7 @@ class Gamma(Distribution):
 
     def _sample(self, N, rng=None):
         if rng is not None:
-            return rng.gamma(shape=self.shape, scale=self.scale, size=(N))
+            return rng.gamma(shape=self.shape, scale=np.tile(self.scale, (N,1)))
         else:
-            return np.random.gamma(shape=self.shape, scale=self.scale, size=(N))
+            return np.random.gamma(shape=self.shape, scale=np.tile(self.scale, (N,1)))
             
