@@ -21,7 +21,7 @@ class Gamma(Distribution):
         The shape parameter of the Gamma distribution. Must be positive.
 
     rate : float or array_like, optional
-        The rate parameter of the Gamma distribution. Must be positive. The inverse of the scale parameter.
+        The rate parameter of the Gamma distribution. Must be positive.
 
     Examples
     --------
@@ -59,7 +59,7 @@ class Gamma(Distribution):
 
         # Plot histogram of samples for index 0
         samples.hist_chain(0, bins=70)
-        
+
     """
     def __init__(self, shape=None, rate=None, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
@@ -70,6 +70,7 @@ class Gamma(Distribution):
 
     @property
     def shape(self):
+        """ Shape parameter of the Gamma distribution. Must be positive. """
         return self._shape
     
     @shape.setter
@@ -78,6 +79,7 @@ class Gamma(Distribution):
 
     @property
     def rate(self):
+        """ Rate parameter of the Gamma distribution. Must be positive. """
         return self._rate
     
     @rate.setter
@@ -86,6 +88,7 @@ class Gamma(Distribution):
 
     @property
     def scale(self):
+        """ Scale parameter of the Gamma distribution. Must be positive. This is the inverse of the rate parameter. """
         return 1/self.rate
 
     def logpdf(self, x):
