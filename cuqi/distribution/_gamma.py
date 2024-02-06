@@ -11,6 +11,10 @@ class Gamma(Distribution):
 
     where `shape` and `rate` are the parameters of the distribution, and Gamma is the Gamma function.
 
+    In case shape and/or rate are arrays, the pdf looks like
+
+    f(x_i; shape_i, rate_i) = rate_i^shape_i * x_i^(shape_i-1) * exp(-rate_i * x_i) / Gamma(shape_i)
+
     Parameters
     ----------
     shape : float or array_like, optional
@@ -27,16 +31,35 @@ class Gamma(Distribution):
         import cuqi
         import matplotlib.pyplot as plt
 
-        # Create a Gamma distribution instance
+        # Create a multivariate Gamma distribution with the same shape and rate parameters
         shape = 1
         rate = 1e-4
+        gamma_dist = cuqi.distribution.Gamma(shape=shape, rate=rate, geometry=10)
+
+        # Generate samples
+        samples = gamma_dist.sample(10000)
+
+        # Plot histogram of samples for index 0
+        samples.hist_chain(0, bins=70)
+
+
+    .. code-block:: python
+
+        import numpy as np
+        import cuqi
+        import matplotlib.pyplot as plt
+
+        # Create a multivariate Gamma distribution with different shape and rate parameters
+        shape = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+        rate = [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e1, 1e2, 1e3, 1e4, 1e5]
         gamma_dist = cuqi.distribution.Gamma(shape=shape, rate=rate)
 
         # Generate samples
         samples = gamma_dist.sample(10000)
 
-        # Plot histogram of samples
+        # Plot histogram of samples for index 0
         samples.hist_chain(0, bins=70)
+        
     """
     def __init__(self, shape=None, rate=None, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
