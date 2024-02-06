@@ -7,7 +7,7 @@ class Gamma(Distribution):
     """
     Represents a multivariate Gamma distribution characterized by shape and rate parameters of independent random variables x_i. Each is distributed according to the PDF function
     
-    f(x; shape, rate) = rate^shape * x^(shape-1) * exp(-rate * x) / Gamma(shape)
+    f(x_i; shape, rate) = rate^shape * x_i^(shape-1) * exp(-rate * x_i) / Gamma(shape)
 
     where `shape` and `rate` are the parameters of the distribution, and Gamma is the Gamma function.
 
