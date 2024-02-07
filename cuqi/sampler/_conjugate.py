@@ -25,6 +25,8 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
             raise ValueError("Conjugate sampler only works with Gamma prior")
+        if not target.prior.dim == 1:
+            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
             
         if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
                raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")

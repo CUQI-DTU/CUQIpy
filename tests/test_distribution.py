@@ -375,6 +375,32 @@ def test_InverseGamma(a, location, scale, x, func):
 
     else:
         raise ValueError
+    
+@pytest.mark.parametrize("shape", [1, 2, 3, 5])
+@pytest.mark.parametrize("rate", [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e4, 1e5])
+@pytest.mark.parametrize("value", [1, 2, 3, 4, 5])
+def test_Gamma_pdf(shape, rate, value):
+    G = cuqi.distribution.Gamma(shape, rate)
+    assert np.isclose(G.pdf(value), scipy_stats.gamma(shape, scale=1/rate).pdf(value))
+
+@pytest.mark.parametrize("shape", [1, 2, 3, 5])
+@pytest.mark.parametrize("rate", [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e4, 1e5])
+@pytest.mark.parametrize("value", [1, 2, 3, 4, 5])
+def test_Gamma_cdf(shape, rate, value):
+    G = cuqi.distribution.Gamma(shape, rate)
+    assert np.isclose(G.cdf(value), scipy_stats.gamma(shape, scale=1/rate).cdf(value))
+
+@pytest.mark.parametrize("shape", [1, 2, 3, 5])
+@pytest.mark.parametrize("rate", [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e4, 1e5])
+def test_Gamma_sample(shape, rate):
+    rng = np.random.RandomState(3)
+    G = cuqi.distribution.Gamma(shape, rate)
+    cuqi_samples = G.sample(3, rng=rng)
+
+    rng2 = np.random.RandomState(3)
+    np_samples = rng2.gamma(shape=shape, scale=1/rate, size=(3, 1)).T
+
+    assert np.allclose(cuqi_samples.samples, np_samples)
 
 @pytest.mark.parametrize("location", [-1, -2, -3, 0, 1, 2, 3])
 @pytest.mark.parametrize("scale", [1e-3, 1e-1, 1e0, 1e1, 1e3])
