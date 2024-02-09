@@ -1297,6 +1297,14 @@ class ConcatenatedGeometries(Geometry):
         return [g.par_dim for g in self.geometries]
     
     @property
+    def stack_indices(self):
+        """Indecies of the parameter vector where each geometry's parameter
+        vector starts and ends. For example, if the parameter vector is
+        [p1, p2, p3] and the parameter dimensions of the geometries are
+        [2, 3, 4], then the stack_indecies will be [0, 2, 5, 9]."""
+        return np.cumsum([0] + self.par_dim_list)
+
+    @property
     def number_of_geometries(self):
         """Number of geometries in the concatenation."""
         return len(self.geometries)
