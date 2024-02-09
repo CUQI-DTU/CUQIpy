@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Union
 from cuqi.model import Model
-from cuqi.utilities import get_non_default_args, _get_python_variable_name
+from cuqi.utilities import get_non_default_args, _get_python_variable_name,\
+    _split_stacked_args
 from cuqi.geometry import _DefaultGeometry1D
 from cuqi.density import Density, EvaluatedDensity
 import warnings
@@ -59,6 +60,7 @@ class Likelihood(Density):
 
     def _logd(self, *args, **kwargs):
         """Return the log-likelihood function at given value"""
+        args, kwargs = _split_stacked_args(self.geometry, *args, **kwargs)
         return self.distribution(*args, **kwargs).logd(self.data)
 
     def _gradient(self, *args, **kwargs):
