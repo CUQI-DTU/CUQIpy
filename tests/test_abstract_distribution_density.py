@@ -53,8 +53,8 @@ def test_conditioning_on_main_parameter():
 def test_conditioning_kwarg_as_mutable_var():
     """ This checks if we allow kwargs for a distribution that has no conditioning variables. """
     x = cuqi.distribution.Gaussian(mean=1, cov=1)
-    x = x(cov=2) #This should be ok and not throw an error
-    assert x.cov == 2
+    with pytest.raises(ValueError):
+        x = x(cov=2) #This should raise error since no cond vars
 
 def test_conditioning_both_args_kwargs():
     """ This tests that we throw error if we accidentally provide arg and kwarg for same variable. """
@@ -172,7 +172,7 @@ def test_cond_positional_and_kwargs():
     """ Test conditioning for both positional and kwargs """
     x = cuqi.distribution.Gaussian(cov=lambda s:s, geometry=1)
 
-    logd = x(mean=3, cov=7).logd(13)
+    logd = x(mean=3, s=7).logd(13)
 
     # Conditioning full positional
     assert x(3, 7, 13).value == logd
@@ -181,10 +181,10 @@ def test_cond_positional_and_kwargs():
     assert x(3)(7)(13).value == logd
 
     # Conditioning full kwargs
-    assert x(mean=3, cov=7, x=13).value == logd
-    assert x(mean=3, cov=7)(x=13).value == logd
-    assert x(mean=3)(cov=7, x=13).value == logd
-    assert x(mean=3)(cov=7)(x=13).value == logd
+    assert x(mean=3, s=7, x=13).value == logd
+    assert x(mean=3, s=7)(x=13).value == logd
+    assert x(mean=3)(s=7, x=13).value == logd
+    assert x(mean=3)(s=7)(x=13).value == logd
 
     # Conditioning partial positional
     assert x(3, s=7, x=13).value == logd
