@@ -589,6 +589,31 @@ def test_beta(): #TODO. Make more tests
     FD_gradient = cuqi.utilities.approx_gradient(BD.logpdf, x, epsilon=0.000000001)
     assert np.allclose(BD.gradient(x),FD_gradient,rtol=1e-3) or (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(BD.gradient(x))))
 
+# Fixture for beta distribution where beta is a likelihood
+@pytest.fixture
+def beta_likelihood():
+    # simple forward model
+    A = cuqi.model.Model(
+        lambda x: x**2,
+        range_geometry=1,
+        domain_geometry=1,
+        gradient=lambda direction, wrt: 2*wrt*direction)
+    
+    # set a gaussian prior
+    x = cuqi.distribution.Gaussian(0, 1)
+    # Beta data distribution
+    y = cuqi.distribution.Beta(A(x),1)
+    # set the observed data
+    y=y(y=0.5)
+    return y
+
+def test_gradient_for_Beta_as_likelihood_raises_error(beta_likelihood):
+    """Test computing the gradient of the Beta distribution as a likelihood
+    raises a NotImplementedError"""
+
+    with pytest.raises(NotImplementedError, 
+                       match=r"Gradient is not implemented for CUQI Beta."):
+        beta_likelihood.gradient(1)
 
 @pytest.mark.parametrize("C",[1, np.ones(5), np.eye(5), sps.eye(5), sps.diags(np.ones(5))])
 def test_Gaussian_Cov_sample(C):
