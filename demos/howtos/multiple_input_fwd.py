@@ -10,7 +10,7 @@ from numbers import Number
 import matplotlib.pyplot as plt
 
 # %% Simple Example Supported
-run_supported = True
+run_supported = False
 # with one output only?
 if run_supported:
     def fwd1(a):
@@ -26,8 +26,8 @@ if run_supported:
     assert np.allclose(exact_data, fwd1(a1))
     a = GMRF(0, 1, geometry=geom_a)
     y = Gaussian(mean=F1(a), cov = 0.001, geometry=range_geometry)
-    y_data_dist = y(a=a1) 
-    noisy_data = y_data_dist.sample(1)
+    y_given_abc = y(a=a1) 
+    noisy_data = y_given_abc.sample(1)
     plt.figure()
     noisy_data.plot()
     noisy_data.geometry.plot(exact_data)
@@ -50,7 +50,7 @@ geom_a = Continuous1D(np.linspace(0, 1, 10))
 geom_b = Discrete(['b1', 'b2'])
 geom_c = Discrete(['c'])
 range_geometry = Continuous1D(np.linspace(0, 1, 10))
-#Future:
+#*****Future*****:
 #F = Model(forward=fwd3,
 #          range_geometry=range_geometry,
 #          domain_geometry=[geom_a, geom_b, geom_c])
@@ -74,14 +74,16 @@ c = Uniform(0, 1, geometry=geom_c)
 y = Gaussian(mean=F(a, b, c), cov = 0.001, geometry=range_geometry)
 
 #%%
-y_data_dist = y(a=a1, b=b1, c=c1) 
-noisy_data = y_data_dist.sample(1)
+y_given_abc = y(a=a1, b=b1, c=c1) 
+noisy_data = y_given_abc.sample(1)
 noisy_data.plot()
 noisy_data.geometry.plot(exact_data)
 #%%
 joint = JointDistribution(a, b, c, y)
 posterior = joint(y=noisy_data)
 #%%
+#*****Future*****:
+# No need to explicitly create prior2 or use Posterior class
 prior2 = IndependentJointDistribution(*posterior._distributions)
 likelihood2 = posterior._likelihoods[0]
 prior2.get_parameter_names()
@@ -323,8 +325,8 @@ if test_grad:
 #%% Data Distribution
 y = cuqi.distribution.Gaussian(F(a, b), 0.1, geometry=range_geometry)
 # Distributions to be extended to enable multiple inputs to the forward model
-y_data_dist = y(a=vec1, b=5)
-y_data = y_data_dist.sample(1)
+y_given_abc = y(a=vec1, b=5)
+y_data = y_given_abc.sample(1)
 
 #%% Joint Distribution
 
