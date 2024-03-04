@@ -3,7 +3,7 @@ sys.path.append('./cuqi')
 
 import numpy as np
 import matplotlib.pyplot as plt
-from cuqi.sampler import MH_new
+from cuqi.mcmc import MH_new
 from cuqi.distribution import Gaussian, JointDistribution
 
 x = Gaussian(np.zeros(2), np.ones(2))

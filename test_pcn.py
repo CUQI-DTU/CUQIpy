@@ -31,7 +31,7 @@ results.plot_chain()
 plt.title("old PCN")
 # %%
 np.random.seed(0)
-sampler = cuqi.sampler.PCN_new(target, scale=scale, initial_point=x0)
+sampler = cuqi.mcmc.PCN_new(target, scale=scale, initial_point=x0)
 # Sample
 # TODO: there seems a bug with warmup, but I can't reproduce it
 sampler.sample(1000)
@@ -59,7 +59,7 @@ f, axes = plt.subplots(1,2)
 axes[0].plot(samples.samples[:,1])
 axes[0].set_title('without checkpoint')
 
-sampler2 = cuqi.sampler.PCN_new(target, scale=0.1, initial_point=x0)
+sampler2 = cuqi.mcmc.PCN_new(target, scale=0.1, initial_point=x0)
 
 sampler2.load_checkpoint('checkpoint.pickle')
 

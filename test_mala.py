@@ -67,7 +67,7 @@ f, axes = plt.subplots(1,2)
 axes[0].plot(samples.samples[:,1])
 axes[0].set_title('without checkpoint')
 
-sampler2 = cuqi.sampler.MALA_new(target, scale=eps**2, initial_point=x0)
+sampler2 = cuqi.mcmc.MALA_new(target, scale=eps**2, initial_point=x0)
 
 sampler2.load_checkpoint('checkpoint.pickle')
 

@@ -5,6 +5,7 @@ from . import distribution
 from . import geometry
 from . import implicitprior
 from . import likelihood
+from . import mcmc
 from . import model
 from . import operator
 from . import pde
