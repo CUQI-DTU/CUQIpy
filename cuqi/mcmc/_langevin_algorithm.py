@@ -46,9 +46,15 @@ class MALA_new(SamplerNew):
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
 
     def get_state(self):
-        return {'sampler_type': 'MALA', 'current_point': self.current_point.to_numpy(), \
-                'current_target_eval': self.current_target_eval.to_numpy(), \
-                'current_target_grad_eval': self.current_target_grad_eval.to_numpy(), \
+        if isinstance(self.current_point, CUQIarray):
+            self.current_point = self.current_point.to_numpy()
+        if isinstance(self.current_target_eval, CUQIarray):
+            self.current_target_eval = self.current_target_eval.to_numpy()
+        if isinstance(self.current_target_grad_eval, CUQIarray):
+            self.current_target_grad_eval = self.current_target_grad_eval.to_numpy()
+        return {'sampler_type': 'MALA', 'current_point': self.current_point, \
+                'current_target_eval': self.current_target_eval, \
+                'current_target_grad_eval': self.current_target_grad_eval, \
                 'scale': self.scale}
 
     def set_state(self, state):

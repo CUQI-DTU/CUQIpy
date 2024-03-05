@@ -73,7 +73,8 @@ sampler2.load_checkpoint('checkpoint.pickle')
 np.random.seed(0)
 
 sampler2.sample(1000)
-axes[1].plot(samples.samples[:,1])
+samples2 = sampler2.get_samples()   
+axes[1].plot(samples2.samples[:,1])
 axes[1].set_title('with loaded checkpoint')
 plt.show()
 

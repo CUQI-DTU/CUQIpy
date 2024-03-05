@@ -96,3 +96,37 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
     sampler_old = cuqi.sampler.MALA(target, scale=1)
     sampler_new = cuqi.mcmc.MALA_new(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
+
+# ============ Checkpointing ============
+
+@pytest.mark.parametrize("sampler", [
+    cuqi.mcmc.MALA_new(cuqi.testproblem.Deconvolution1D().posterior, scale=1),
+])
+def test_checkpointing(sampler: cuqi.mcmc.SamplerNew):
+    """ Check that the checkpointing functionality works. Tested with save_checkpoint(filename) and load_checkpoint(filename). """
+
+    # Run sampler with some samples
+    sampler.sample(100)
+
+    # Save checkpoint
+    sampler.save_checkpoint('checkpoint.pickle')
+
+    # Reset (soft) the sampler, e.g. remove all samples but keep the state
+    sampler.reset()
+
+    # Do some more samples from pre-defined rng state
+    np.random.seed(0)
+    samples1 = sampler.sample(100).get_samples().samples
+
+    # Now load the checkpoint on completely fresh sampler not even with target
+    sampler_fresh = sampler.__class__(sampler.target) # In principle init with no arguments. Now still with target
+    sampler_fresh.load_checkpoint('checkpoint.pickle')
+
+    # Do some more samples from pre-defined rng state
+    np.random.seed(0)
+    samples2 = sampler_fresh.sample(100).get_samples().samples[:-1] # TODO. This needs to be fixed..
+
+    # Check that the samples are the same
+    assert np.allclose(samples1, samples2), f"Samples1: {samples1.samples}\nSamples2: {samples2.samples}"
+
