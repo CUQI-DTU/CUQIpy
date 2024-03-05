@@ -2,3 +2,4 @@ matplotlib
 numpy>=1.17.0
 scipy
 arviz
+progressbar2
