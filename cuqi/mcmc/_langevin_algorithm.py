@@ -1,7 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import Sampler
-from cuqi.sampler import SamplerNew
+from cuqi.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
 class MALA_new(SamplerNew):

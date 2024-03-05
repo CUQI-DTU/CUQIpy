@@ -1,7 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import Sampler
-from cuqi.sampler import SamplerNew
+from cuqi.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
 class PCN_new(SamplerNew):
@@ -51,7 +50,7 @@ class PCN_new(SamplerNew):
         elif isinstance(self.target,tuple) and len(self.target)==2:
             return self.target[0]
 
-    @Sampler.target.setter 
+    @SamplerNew.target.setter 
     def target(self, value):
         if isinstance(value, cuqi.distribution.Posterior):
             self._target = value

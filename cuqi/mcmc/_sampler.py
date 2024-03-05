@@ -79,6 +79,14 @@ class SamplerNew(ABC):
     def geometry(self):
         """ Geometry of the target density. """
         return self.target.geometry
+    
+    @property
+    def target(self):
+        return self._target
+    
+    @target.setter
+    def target(self, value):
+        self._target = value
 
     # ------------ Abstract methods ------------
     

@@ -2,7 +2,6 @@
 import numpy as np
 import cuqi
 import matplotlib.pyplot as plt
-from cuqi.array import CUQIarray
 
 #%%
 # Define custom distribution
@@ -36,7 +35,7 @@ samples_old.plot_chain()
 plt.title('old MALA')
 # Set up new MALA sampler
 np.random.seed(0)
-sampler = cuqi.sampler.MALA_new(target, scale=eps**2, initial_point=x0)
+sampler = cuqi.mcmc.MALA_new(target, scale=eps**2, initial_point=x0)
 # Sample
 sampler.sample(N)
 samples = sampler.get_samples()
@@ -77,3 +76,5 @@ sampler2.sample(1000)
 axes[1].plot(samples.samples[:,1])
 axes[1].set_title('with loaded checkpoint')
 plt.show()
+
+# %%

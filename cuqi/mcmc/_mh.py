@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import ProposalBasedSamplerNew
+from cuqi.mcmc import ProposalBasedSamplerNew
 from cuqi.array import CUQIarray
 
 

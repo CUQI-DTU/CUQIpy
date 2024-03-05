@@ -1,9 +1,7 @@
 # %%
 import numpy as np
 import cuqi
-from cuqi.sampler import Sampler
 import matplotlib.pyplot as plt
-from cuqi.array import CUQIarray
 #%%
 # Define custom distribution
 # this is from tests/test_pCN_sample_regression.py
@@ -69,3 +67,5 @@ sampler2.sample(1000)
 axes[1].plot(samples.samples[:,1])
 axes[1].set_title('with loaded checkpoint')
 plt.show()
+
+# %%
