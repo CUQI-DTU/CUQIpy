@@ -3,6 +3,53 @@ import cuqi
 from cuqi.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
+class ULA_new(SamplerNew):
+    def __init__(self, target, initial_point=None, scale=1.0, callback=None):
+        super().__init__(target, initial_point, callback)
+        self.scale = scale
+        self.current_point = initial_point
+        self.current_target_eval = self.target.logd(self.current_point)
+        self.current_target_grad_eval = self.target.gradient(self.current_point)
+        self._acc = [1]
+        self.batch_size = 0
+        self.num_batch_dumped = 0
+
+    def step(self):
+        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
+        x_star = self.current_point + 0.5*self.scale*self.current_target_grad_eval + xi
+
+        target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
+
+        self.current_point = x_star
+        self.current_target_eval = target_eval_star
+        self.current_target_grad_eval = target_grad_star
+        acc = 1
+
+        return acc
+
+    def tune(self, skip_len, update_count):
+        pass
+
+    def log_proposal(self, theta_star, theta_k, g_logpi_k):
+        mu = theta_k + ((self.scale)/2)*g_logpi_k
+        misfit = theta_star - mu
+        return -0.5*((1/(self.scale))*(misfit.T @ misfit))
+
+    def get_state(self):
+        return {'sampler_type': 'ULA', 'current_point': self.current_point.to_numpy(), \
+                'current_target_eval': self.current_target_eval.to_numpy(), \
+                'current_target_grad_eval': self.current_target_grad_eval.to_numpy(), \
+                'scale': self.scale}
+
+    def set_state(self, state):
+        temp = CUQIarray(state['current_point'] , geometry=self.target.geometry)
+        self.current_point = temp
+        temp = CUQIarray(state['current_target_eval'] , geometry=self.target.geometry)
+        self.current_target_eval = temp
+        temp = CUQIarray(state['current_target_grad_eval'] , geometry=self.target.geometry)
+        self.current_target_grad_eval = temp
+        self.scale = state['scale']
+
 class MALA_new(SamplerNew):
     def __init__(self, target, initial_point=None, scale=1.0, callback=None):
         super().__init__(target, initial_point, callback)
@@ -46,15 +93,9 @@ class MALA_new(SamplerNew):
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
 
     def get_state(self):
-        if isinstance(self.current_point, CUQIarray):
-            self.current_point = self.current_point.to_numpy()
-        if isinstance(self.current_target_eval, CUQIarray):
-            self.current_target_eval = self.current_target_eval.to_numpy()
-        if isinstance(self.current_target_grad_eval, CUQIarray):
-            self.current_target_grad_eval = self.current_target_grad_eval.to_numpy()
-        return {'sampler_type': 'MALA', 'current_point': self.current_point, \
-                'current_target_eval': self.current_target_eval, \
-                'current_target_grad_eval': self.current_target_grad_eval, \
+        return {'sampler_type': 'MALA', 'current_point': self.current_point.to_numpy(), \
+                'current_target_eval': self.current_target_eval.to_numpy(), \
+                'current_target_grad_eval': self.current_target_grad_eval.to_numpy(), \
                 'scale': self.scale}
 
     def set_state(self, state):
