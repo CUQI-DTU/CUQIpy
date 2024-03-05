@@ -7,7 +7,7 @@ class MALA_new(SamplerNew):
     def __init__(self, target, initial_point=None, scale=1.0, callback=None):
         super().__init__(target, initial_point, callback)
         self.scale = scale
-        self.current_point = initial_point
+        self.current_point = self.initial_point()
         self.current_target_eval = self.target.logd(self.current_point)
         self.current_target_grad_eval = self.target.gradient(self.current_point)
         self._acc = [1]

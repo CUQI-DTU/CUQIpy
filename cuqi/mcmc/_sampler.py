@@ -45,8 +45,8 @@ class SamplerNew(ABC):
 
             #self._call_callback(self.current_point, len(self._samples)-1)
             #self._print_progress(len(self._samples), Ns+initial_samples_len)
-
-        return self._samples
+                
+        return self
 
     def warmup(self, Nb, tune_freq=0.1):
         """ Warmup the sampler by sampling Nb samples. """
@@ -61,11 +61,13 @@ class SamplerNew(ABC):
             #self._call_callback(self.current_point, len(self._samples)-1)
             #self._print_progress(len(self._samples), Nb+initial_samples_len)
 
+        return self
+
     def initial_point(self):
         """Return the initial point of the sampler."""
         return self._samples[0]
 
-    def get_samples(self):
+    def get_samples(self) -> Samples:
         """Return the samples. The internal data-structure for the samples is dynamic so this creates a copy."""
         return Samples(np.array(self._samples), self.target.geometry)
 
