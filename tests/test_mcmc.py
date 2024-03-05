@@ -13,14 +13,33 @@ def assert_true_if_sampling_is_equivalent(sampler_old: cuqi.sampler.Sampler, sam
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
-def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew, Ns=100, Nb=100, atol=1e-1):
-    """ Assert that the samples from the old and new sampler are equivalent. """
+def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew, Ns=100, Nb=100, Na=10, atol=1e-1):
+    """ Assert that the samples from the old and new sampler are equivalent.
+     
+    Ns: int
+        Number of samples.
+    
+    Nb: int
+        Number of burn-in samples. (to be removed from the samples)
 
+    Na: int
+        Number of iterations to adapt.
+              
+    """
+
+    # Get Ns samples from the old sampler
+    # Sampling run is Ns + Nb
+    # Na is not used in the old sampler, but hard-coded e.g. to int(0.1*Ns)
     np.random.seed(0)
     samples_old = sampler_old.sample_adapt(N=Ns, Nb=Nb).samples
 
+    # Get Ns samples from the new sampler
+    # Sampling run is Ns + Nb
+    # Na is used in the new sampler, defined the "warmup" iterations
+    # Nb+Ns-Na samples are taken from the new sampler after the warmup
+    # Nb samples are removed afterwards as burn-in
     np.random.seed(0)
-    samples_new = sampler_new.warmup(Nb).sample(Ns).get_samples().samples[Nb:-1].T
+    samples_new = sampler_new.warmup(Na).sample(Nb+Ns-Na).get_samples().samples[Nb:-1].T
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
@@ -39,7 +58,6 @@ def test_MH_regression_sample(target: cuqi.density.Density):
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
-@pytest.mark.xfail(reason="The warmup is not equivalent at this point for MH sampler.")
 def test_MH_regression_warmup(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
