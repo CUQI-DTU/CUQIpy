@@ -3,16 +3,17 @@ import cuqi
 from cuqi.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
-class MALA_new(SamplerNew):
-    def __init__(self, target, initial_point=None, scale=1.0, callback=None):
-        super().__init__(target, initial_point, callback)
+class MALANew(SamplerNew): # Refactor to Proposal-based sampler?
+
+    def __init__(self, target, scale=1.0, **kwargs):
+
+        super().__init__(target, **kwargs)
+
         self.scale = scale
         self.current_point = self.initial_point
         self.current_target_eval = self.target.logd(self.current_point)
         self.current_target_grad_eval = self.target.gradient(self.current_point)
-        self._acc = [1]
-        self.batch_size = 0
-        self.num_batch_dumped = 0
+        self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
         try:
@@ -22,9 +23,11 @@ class MALA_new(SamplerNew):
             raise ValueError("The target need to have a gradient method")
 
     def step(self):
+        # propose state
         xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
         x_star = self.current_point + 0.5*self.scale*self.current_target_grad_eval + xi
 
+        # evaluate target
         target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
 
         # Metropolis step

@@ -35,7 +35,7 @@ samples_old.plot_chain()
 plt.title('old MALA')
 # Set up new MALA sampler
 np.random.seed(0)
-sampler = cuqi.mcmc.MALA_new(target, scale=eps**2, initial_point=x0)
+sampler = cuqi.mcmc.MALANew(target, scale=eps**2, initial_point=x0)
 # Sample
 sampler.sample(N)
 samples = sampler.get_samples()
@@ -66,7 +66,7 @@ f, axes = plt.subplots(1,2)
 axes[0].plot(samples.samples[:,1])
 axes[0].set_title('without checkpoint')
 
-sampler2 = cuqi.mcmc.MALA_new(target, scale=eps**2, initial_point=x0)
+sampler2 = cuqi.mcmc.MALANew(target, scale=eps**2, initial_point=x0)
 
 sampler2.load_checkpoint('checkpoint.pickle')
 

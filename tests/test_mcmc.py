@@ -87,21 +87,21 @@ def test_pCN_regression_warmup(target: cuqi.density.Density):
 def test_MALA_regression_sample(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
-    sampler_new = cuqi.mcmc.MALA_new(target, scale=1)
+    sampler_new = cuqi.mcmc.MALANew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MALA_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
-    sampler_new = cuqi.mcmc.MALA_new(target, scale=1)
+    sampler_new = cuqi.mcmc.MALANew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 
 # ============ Checkpointing ============
 
 @pytest.mark.parametrize("sampler", [
-    cuqi.mcmc.MALA_new(cuqi.testproblem.Deconvolution1D().posterior, scale=1),
+    cuqi.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=1),
 ])
 def test_checkpointing(sampler: cuqi.mcmc.SamplerNew):
     """ Check that the checkpointing functionality works. Tested with save_checkpoint(filename) and load_checkpoint(filename). """
