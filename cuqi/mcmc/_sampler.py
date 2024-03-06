@@ -205,21 +205,35 @@ class SamplerNew(ABC):
             self.callback(sample, sample_index)
 
 
-class ProposalBasedSamplerNew(SamplerNew,ABC):
-    def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
-        #TODO: after fixing None dim
-        #if dim is None and hasattr(proposal,'dim'):
-        #    dim = proposal.dim
-        super().__init__(target, initial_point=x0, **kwargs)
+class ProposalBasedSamplerNew(SamplerNew, ABC):
+    """ Abstract base class for samplers that use a proposal distribution. """
+    def __init__(self, target, proposal=None, scale=1, **kwargs):
+        """ Initializer for proposal based samplers. 
 
-        self.current_point = x0
+        Parameters
+        ----------
+        target : cuqi.density.Density
+            The target density.
+
+        proposal : cuqi.distribution.Distribution, optional
+            The proposal distribution. If not specified, the default proposal is used.
+
+        scale : float, optional
+            The scale parameter for the proposal distribution.
+
+        **kwargs : dict
+            Additional keyword arguments passed to the :class:`SamplerNew` initializer.
+
+        """
+
+        super().__init__(target, **kwargs)
+
+        self.current_point = self.initial_point
         self.current_target = self.target.logd(self.current_point)
-        self.proposal =proposal
+        self.proposal = proposal
         self.scale = scale
 
-        self._acc = [ 1 ]
-        self.num_batch_dumped = 0
-        self.batch_size = 0
+        self._acc = [ 1 ] # TODO. Check
 
     @property 
     def proposal(self):
@@ -230,7 +244,7 @@ class ProposalBasedSamplerNew(SamplerNew,ABC):
         self._proposal = value
 
     @property
-    def geometry(self):
+    def geometry(self): # TODO. Check if we can refactor this
         geom1, geom2 = None, None
         if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
             geom1=  self.proposal.geometry

@@ -5,12 +5,13 @@ from cuqi.array import CUQIarray
 
 
 class MH_new(ProposalBasedSamplerNew):
-    def __init__(self, target, proposal=None, scale=1, x0=None, dim=None, **kwargs):
+    def __init__(self, target, proposal=None, scale=1, x0=None, **kwargs):
         """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
 
         if x0 is None:
             x0 = np.ones(target.dim)
-        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
+            
+        super().__init__(target, proposal=proposal, scale=scale,  initial_point=x0, **kwargs)
 
     def validate_target(self):
         pass # All targets are valid
