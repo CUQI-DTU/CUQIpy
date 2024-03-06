@@ -59,6 +59,16 @@ class SamplerNew(ABC):
         """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
         pass
 
+    @abstractmethod
+    def get_state(self):
+        """ Return the state of the sampler. """
+        pass
+
+    @abstractmethod
+    def set_state(self, state):
+        """ Set the state of the sampler. """
+        pass
+
 
     # ------------ Public attributes ------------
 
@@ -94,6 +104,26 @@ class SamplerNew(ABC):
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
         return Samples(np.array(self._samples), self.target.geometry)
+    
+    def reset(self): # TODO. Issue here. Current point is not reset, and initial point is lost with this reset.
+        self._samples.clear()
+        self._acc.clear()
+    
+    def save_checkpoint(self, path):
+        """ Save the state of the sampler to a file. """
+
+        state = self.get_state()
+
+        with open(path, 'wb') as handle:
+            pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
+
+    def load_checkpoint(self, path):
+        """ Load the state of the sampler from a file. """
+
+        with open(path, 'rb') as handle:
+            state = pkl.load(handle)
+
+        self.set_state(state)
 
     def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'SamplerNew':
         """ Sample Ns samples from the target density.
@@ -133,19 +163,39 @@ class SamplerNew(ABC):
             self._call_callback(self.current_point, len(self._samples)-1)
                 
         return self
+    
 
     def warmup(self, Nb, tune_freq=0.1) -> 'SamplerNew':
-        """ Warmup the sampler by sampling Nb samples. """
-        initial_samples_len = len(self._samples)
-        skip_len = int( tune_freq*Nb )
-        for idx in progressbar( range(Nb) ):
+        """ Warmup the sampler by drawing Nb samples.
+
+        Parameters
+        ----------
+        Nb : int
+            The number of samples to draw during warmup.
+
+        tune_freq : float, optional
+            The frequency of tuning. Tuning is performed every tune_freq*Nb samples.
+
+        """
+
+        tune_interval = max(int(tune_freq * Nb), 1)
+
+        # Draw warmup samples with tuning
+        for idx in progressbar(range(Nb)):
+
+            # Perform one step of the sampler
             acc = self.step()
-            if( (idx+1) % skip_len == 0):
-                self.tune(skip_len, int(idx/skip_len))
+
+            # Tune the sampler at tuning intervals
+            if (idx + 1) % tune_interval == 0:
+                self.tune(tune_interval, idx // tune_interval) 
+
+            # Store samples
             self._acc.append(acc)
             self._samples.append(self.current_point)
-            #self._call_callback(self.current_point, len(self._samples)-1)
-            #self._print_progress(len(self._samples), Nb+initial_samples_len)
+
+            # Call callback function if specified
+            self._call_callback(self.current_point, len(self._samples)-1)
 
         return self
 
@@ -154,27 +204,6 @@ class SamplerNew(ABC):
         if self.callback is not None:
             self.callback(sample, sample_index)
 
-    # ------------ The following could be moved to base class? ------------
-
-    def dump_samples(self):
-        np.savez( self.sample_path + 'batch_{:04d}.npz'.format( self.num_batch_dumped), samples=np.array(self._samples[-1-self.batch_size:] ), batch_id=self.num_batch_dumped )
-        self.num_batch_dumped += 1
-
-    def save_checkpoint(self, path):
-        state = self.get_state()
-
-        with open(path, 'wb') as handle:
-            pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
-
-    def load_checkpoint(self, path):
-        with open(path, 'rb') as handle:
-            state = pkl.load(handle)
-
-        self.set_state(state)
-
-    def reset(self):
-        self._samples.clear()
-        self._acc.clear()
 
 class ProposalBasedSamplerNew(SamplerNew,ABC):
     def __init__(self, target,  proposal=None, scale=1, x0=None, dim=None, **kwargs):
@@ -271,7 +300,7 @@ class _BatchHandler:
         # Save the current batch of samples
         batch_samples = np.array(self.current_batch)
         file_path = f'{self.sample_path}batch_{self.num_batches_dumped:04d}.npz'
-        np.savez(file_path, samples=batch_samples)
+        np.savez(file_path, samples=batch_samples, batch_id=self.num_batches_dumped)
 
         self.num_batches_dumped += 1
         self.current_batch = []  # Clear the batch after saving
