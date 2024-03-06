@@ -96,28 +96,41 @@ class SamplerNew(ABC):
         return Samples(np.array(self._samples), self.target.geometry)
 
     def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'SamplerNew':
-        self.batch_size = batch_size
-        if(batch_size>0):
-            self.sample_path = sample_path
-            if self.sample_path.endswith('/'):
-                pass
-            else:
-                self.sample_path += '/'
-            if(os.path.exists(self.sample_path)):
-                pass
-            else:
-                os.makedirs(self.sample_path)
-        """ Sample Ns samples from the target density. """
-        initial_samples_len = len(self._samples)
-        for idx in progressbar( range(Ns) ):
+        """ Sample Ns samples from the target density.
+
+        Parameters
+        ----------
+        Ns : int
+            The number of samples to draw.
+
+        batch_size : int, optional
+            The batch size for saving samples to disk. If 0, no batching is used. If positive, samples are saved to disk in batches of the specified size.
+
+        sample_path : str, optional
+            The path to save the samples. If not specified, the samples are saved to the current working directory under a folder called 'CUQI_samples'.
+
+        """
+
+        # Initialize batch handler
+        if batch_size > 0:
+            batch_handler = _BatchHandler(batch_size, sample_path)
+
+        # Draw samples
+        for _ in progressbar( range(Ns) ):
+            
+            # Perform one step of the sampler
             acc = self.step()
+
+            # Store samples
             self._acc.append(acc)
             self._samples.append(self.current_point)
-            if( (self.batch_size>0) and (idx%self.batch_size==0) ):
-                self.dump_samples()
 
-            #self._call_callback(self.current_point, len(self._samples)-1)
-            #self._print_progress(len(self._samples), Ns+initial_samples_len)
+            # Add sample to batch
+            if batch_size > 0:
+                batch_handler.add_sample(self.current_point)
+
+            # Call callback function if specified            
+            self._call_callback(self.current_point, len(self._samples)-1)
                 
         return self
 
@@ -200,3 +213,69 @@ class ProposalBasedSamplerNew(SamplerNew,ABC):
             return geom2
         else:
             return cuqi.geometry._DefaultGeometry(self.dim)
+
+
+class _BatchHandler:
+    """ Utility class to handle batching of samples. 
+    
+    If a batch size is specified, this class will save samples to disk in batches of the specified size.
+     
+    This is useful for very large sample sets that do not fit in memory.
+     
+    """
+    
+    def __init__(self, batch_size=0, sample_path='./CUQI_samples/'):
+
+        if batch_size < 0:
+            raise ValueError("Batch size should be a non-negative integer")
+
+        self.sample_path = sample_path
+        self._batch_size = batch_size
+        self.current_batch = []
+        self.num_batches_dumped = 0
+
+    @property
+    def sample_path(self):
+        """ The path to save the samples. """
+        return self._sample_path
+    
+    @sample_path.setter
+    def sample_path(self, value):
+        if not isinstance(value, str):
+            raise TypeError("Sample path must be a string.")
+        normalized_path = value.rstrip('/') + '/'
+        if not os.path.isdir(normalized_path):
+            try:
+                os.makedirs(normalized_path, exist_ok=True)
+            except Exception as e:
+                raise ValueError(f"Could not create directory at {normalized_path}: {e}")
+        self._sample_path = normalized_path
+
+    def add_sample(self, sample):
+        """ Add a sample to the batch if batching. If the batch is full, flush the batch to disk. """
+
+        if self._batch_size <= 0:
+            return  # Batching not used
+
+        self.current_batch.append(sample)
+
+        if len(self.current_batch) >= self._batch_size:
+            self.flush()
+
+    def flush(self):
+        """ Flush the current batch of samples to disk. """
+
+        if not self.current_batch:
+            return  # No samples to flush
+
+        # Save the current batch of samples
+        batch_samples = np.array(self.current_batch)
+        file_path = f'{self.sample_path}batch_{self.num_batches_dumped:04d}.npz'
+        np.savez(file_path, samples=batch_samples)
+
+        self.num_batches_dumped += 1
+        self.current_batch = []  # Clear the batch after saving
+
+    def finalize(self):
+        """ Finalize the batch handler. Flush any remaining samples to disk. """
+        self.flush()
