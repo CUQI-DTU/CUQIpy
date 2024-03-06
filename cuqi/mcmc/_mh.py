@@ -12,6 +12,9 @@ class MH_new(ProposalBasedSamplerNew):
             x0 = np.ones(target.dim)
         super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
 
+    def validate_target(self):
+        pass # All targets are valid
+
     @ProposalBasedSamplerNew.proposal.setter 
     def proposal(self, value):
         fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."

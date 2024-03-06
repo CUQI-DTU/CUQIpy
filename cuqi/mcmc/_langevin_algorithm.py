@@ -7,12 +7,19 @@ class MALA_new(SamplerNew):
     def __init__(self, target, initial_point=None, scale=1.0, callback=None):
         super().__init__(target, initial_point, callback)
         self.scale = scale
-        self.current_point = self.initial_point()
+        self.current_point = self.initial_point
         self.current_target_eval = self.target.logd(self.current_point)
         self.current_target_grad_eval = self.target.gradient(self.current_point)
         self._acc = [1]
         self.batch_size = 0
         self.num_batch_dumped = 0
+
+    def validate_target(self):
+        try:
+            self.target.gradient(np.ones(self.dim))
+            pass
+        except (NotImplementedError, AttributeError):
+            raise ValueError("The target need to have a gradient method")
 
     def step(self):
         xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()

@@ -8,9 +8,31 @@ from cuqi.samples import Samples
 from progressbar import progressbar
 
 class SamplerNew(ABC):
-    """Abstract base class for all samplers."""
+    """ Abstract base class for all samplers.
+    
+    Provides a common interface for all samplers. The interface includes methods for sampling, warmup and getting the samples in an object oriented way.
+
+    Samples are stored in a list to allow for dynamic growth of the sample set. Returning samples is done by creating a new Samples object from the list of samples.
+
+    """
 
     def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
+        """ Initializer for abstract base class for all samplers.
+        
+        Parameters
+        ----------
+        target : cuqi.density.Density
+            The target density.
+
+        initial_point : array-like, optional
+            The initial point for the sampler. If not given, the sampler will choose an initial point.
+
+        callback : callable, optional
+            A function that will be called after each sample is drawn. The function should take two arguments: the sample and the index of the sample.
+            The sample is a 1D numpy array and the index is an integer. The callback function is useful for monitoring the sampler during sampling.
+
+        """
+
         self.target = target
         self.callback = callback
 
@@ -20,9 +42,60 @@ class SamplerNew(ABC):
         
         self._samples = [initial_point]
 
+    # ------------ Abstract methods to be implemented by subclasses ------------
+    
+    @abstractmethod
+    def step(self):
+        """ Perform one step of the sampler by transitioning the current point to a new point according to the sampler's transition kernel. """
+        pass
+
+    @abstractmethod
+    def tune(self):
+        """ Tune the parameters of the sampler. This method is called after each step of the warmup phase. """
+        pass
+
+    @abstractmethod
+    def validate_target(self):
+        """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
+        pass
+
+
+    # ------------ Public attributes ------------
+
+    @property
+    def initial_point(self):
+        """ Return the initial point of the sampler. This is always the first sample. """
+        return self._samples[0]
+    
+    @property
+    def dim(self):
+        """ Dimension of the target density. """
+        return self.target.dim
+
+    @property
+    def geometry(self):
+        """ Geometry of the target density. """
+        return self.target.geometry
+    
+    @property
+    def target(self) -> cuqi.density.Density:
+        """ Return the target density. """
+        return self._target
+    
+    @target.setter
+    def target(self, value):
+        """ Set the target density. Runs validation of the target. """
+        self._target = value
+        self.validate_target()
+
+
     # ------------ Public methods ------------
 
-    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/'):
+    def get_samples(self) -> Samples:
+        """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
+        return Samples(np.array(self._samples), self.target.geometry)
+
+    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'SamplerNew':
         self.batch_size = batch_size
         if(batch_size>0):
             self.sample_path = sample_path
@@ -48,7 +121,7 @@ class SamplerNew(ABC):
                 
         return self
 
-    def warmup(self, Nb, tune_freq=0.1):
+    def warmup(self, Nb, tune_freq=0.1) -> 'SamplerNew':
         """ Warmup the sampler by sampling Nb samples. """
         initial_samples_len = len(self._samples)
         skip_len = int( tune_freq*Nb )
@@ -63,78 +136,12 @@ class SamplerNew(ABC):
 
         return self
 
-    def initial_point(self):
-        """Return the initial point of the sampler."""
-        return self._samples[0]
-
-    def get_samples(self) -> Samples:
-        """Return the samples. The internal data-structure for the samples is dynamic so this creates a copy."""
-        return Samples(np.array(self._samples), self.target.geometry)
-
-    # ------------ Public properties ------------
-    @property
-    def dim(self):
-        """ Dimension of the target density. """
-        return self.target.dim
-
-    @property
-    def geometry(self):
-        """ Geometry of the target density. """
-        return self.target.geometry
-    
-    @property
-    def target(self):
-        return self._target
-    
-    @target.setter
-    def target(self, value):
-        self._target = value
-
-    # ------------ Abstract methods ------------
-    
-    @abstractmethod
-    def step(self):
-        """Perform one step of the sampler."""
-        pass
-
-    @abstractmethod
-    def tune(self):
-        """Tune the sampler."""
-        pass
-
-    # # ------------ Abstract methods ------------
-    # #TODO: Do we realy need to have it as an abstract method?
-    # @abstractmethod
-    # def dump_samples(self):
-    #     """Perform one step of the sampler."""
-    #     pass
-
-#     # ------------ Abstract properties ------------
-#     #TODO: Do we realy need to have it as a abstract method?
-#     @abstractmethod
-# #    @property
-#     def current_point(self):
-#         """Return the current point of the sampler."""
-#         pass
-
-    # ------------ Private methods ------------
-    def _print_progress(self, s, Ns):
-        """Prints sampling progress"""
-        # Print sampling progress every 1% of samples and at the end
-        if (s % (max(Ns//100,1))) == 0 or s==Ns:
-            msg = f'Sampling {s} / {Ns}'
-            sys.stdout.write('\r'+msg)
-            if s==Ns:
-                sys.stdout.write('\n')
-
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
             self.callback(sample, sample_index)
 
     # ------------ The following could be moved to base class? ------------
-    def current_point(self):
-        return self.current_point
 
     def dump_samples(self):
         np.savez( self.sample_path + 'batch_{:04d}.npz'.format( self.num_batch_dumped), samples=np.array(self._samples[-1-self.batch_size:] ), batch_id=self.num_batch_dumped )

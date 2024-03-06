@@ -7,13 +7,22 @@ class PCN_new(SamplerNew):
     def __init__(self, target, initial_point=None, scale=1.0, callback=None):
         super().__init__(target, initial_point, callback)
         self.scale = scale
-        self.current_point = self.initial_point()
+        self.current_point = self.initial_point
 
         self.current_loglike_eval = self._loglikelihood(self.current_point)
 
         self._acc = [1]
         self.batch_size = 0
         self.num_batch_dumped = 0
+
+    def validate_target(self):
+        try:
+            if isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
+                pass
+            else:
+                raise ValueError("The prior distribution of the target need to be Gaussian")
+        except AttributeError:
+            raise ValueError("The target need to have a prior distribution")
 
     def step(self):
         xi = self.prior.sample(1).flatten()   # sample from the prior
