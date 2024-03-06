@@ -4,19 +4,32 @@ from cuqi.mcmc import ProposalBasedSamplerNew
 from cuqi.array import CUQIarray
 
 
-class MH_new(ProposalBasedSamplerNew):
-    def __init__(self, target, proposal=None, scale=1, x0=None, **kwargs):
-        """ Metropolis-Hastings (MH) sampler. Default (if proposal is None) is random walk MH with proposal that is Gaussian with identity covariance"""
+class MHNew(ProposalBasedSamplerNew):
+    """ Metropolis-Hastings (MH) sampler.
 
-        if x0 is None:
-            x0 = np.ones(target.dim)
-            
-        super().__init__(target, proposal=proposal, scale=scale,  initial_point=x0, **kwargs)
+    Parameters
+    ----------
+    target : cuqi.density.Density
+        Target density or distribution.
+
+    proposal : cuqi.distribution.Distribution or callable
+        Proposal distribution. If None, a random walk MH is used (i.e., Gaussian proposal with identity covariance).
+
+    scale : float
+        Scaling parameter for the proposal distribution.
+
+    kwargs : dict
+        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSamplerNew`.
+
+    """
+
+    def __init__(self, target, proposal=None, scale=1, **kwargs):
+        super().__init__(target, proposal=proposal, scale=scale, **kwargs)
 
     def validate_target(self):
         pass # All targets are valid
 
-    @ProposalBasedSamplerNew.proposal.setter 
+    @ProposalBasedSamplerNew.proposal.setter  # TODO. Check if we can refactor this. We can work with a validate_proposal method instead?
     def proposal(self, value):
         fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
@@ -63,14 +76,6 @@ class MH_new(ProposalBasedSamplerNew):
         self.scale = min(scale_temp, 1)
 
     def get_state(self):
-        #print(self.current_point.parameters)
-        #temp = CUQIarray(np.array([5,5]) , geometry=self.current_point.geometry)
-        #print(temp)
-        #print(temp.geometry)
-        #self.current_point = temp
-        #print(self.current_point)
-        #print(self.current_point.geometry)
-        #exit()
         return {'sampler_type': 'MH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target.to_numpy(), 'scale': self.scale}
 
     def set_state(self, state):
@@ -79,6 +84,3 @@ class MH_new(ProposalBasedSamplerNew):
         temp = CUQIarray(state['current_target'] , geometry=self.target.geometry)
         self.current_target = temp
         self.scale = state['scale']
-
-    # def current_point(self):
-    #     print('in current point')

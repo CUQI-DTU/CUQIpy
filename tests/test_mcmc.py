@@ -54,14 +54,14 @@ targets = [
 def test_MH_regression_sample(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
-    sampler_new = cuqi.mcmc.MH_new(target, scale=1)
+    sampler_new = cuqi.mcmc.MHNew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MH_regression_warmup(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
-    sampler_new = cuqi.mcmc.MH_new(target, scale=1)
+    sampler_new = cuqi.mcmc.MHNew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ pCN ============

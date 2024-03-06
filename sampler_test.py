@@ -3,7 +3,7 @@ sys.path.append('./cuqi')
 
 import numpy as np
 import matplotlib.pyplot as plt
-from cuqi.mcmc import MH_new
+from cuqi.mcmc import MHNew
 from cuqi.distribution import Gaussian, JointDistribution
 
 x = Gaussian(np.zeros(2), np.ones(2))
@@ -16,7 +16,7 @@ x0 = 2*np.ones(2)
 #joint = JointDistribution(x,y)
 #posterior = joint(y=np.array([0.1,0.2]) )
 
-sampler = MH_new(x, x0=x0 , scale=0.1)
+sampler = MHNew(x, initial_point=x0 , scale=0.1)
 
 sampler.sample(10000)
 sampler.warmup(10000)
@@ -34,7 +34,7 @@ f, axes = plt.subplots(1,2)
 
 axes[0].plot(samples.samples[:,1])
 
-sampler2 = MH_new(x, x0=x0)
+sampler2 = MHNew(x, initial_point=x0)
 
 sampler2.load_checkpoint('checkpoint.pickle')
 
