@@ -3,17 +3,17 @@ import cuqi
 from cuqi.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
-class PCN_new(SamplerNew):
-    def __init__(self, target, initial_point=None, scale=1.0, callback=None):
-        super().__init__(target, initial_point, callback)
+class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
+
+    def __init__(self, target, scale=1.0, **kwargs):
+
+        super().__init__(target, **kwargs)
+
         self.scale = scale
         self.current_point = self.initial_point
-
         self.current_loglike_eval = self._loglikelihood(self.current_point)
 
-        self._acc = [1]
-        self.batch_size = 0
-        self.num_batch_dumped = 0
+        self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
         try:
@@ -25,6 +25,7 @@ class PCN_new(SamplerNew):
             raise ValueError("The target need to have a prior distribution")
 
     def step(self):
+        # propose state
         xi = self.prior.sample(1).flatten()   # sample from the prior
         x_star = np.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # pCN proposal
 
@@ -77,7 +78,7 @@ class PCN_new(SamplerNew):
         #    raise ValueError("The prior distribution of the target need to be Gaussian")
 
     @property
-    def dim(self):
+    def dim(self): # TODO. Check if we need this. Implemented in base class
         if hasattr(self,'target') and hasattr(self.target,'dim'):
             self._dim = self.target.dim
         elif hasattr(self,'target') and isinstance(self.target,tuple) and len(self.target)==2:
