@@ -9,7 +9,7 @@ def assert_true_if_sampling_is_equivalent(sampler_old: cuqi.sampler.Sampler, sam
     samples_old = sampler_old.sample(Ns).samples
 
     np.random.seed(0)
-    samples_new = sampler_new.sample(Ns).get_samples().samples[:-1].T
+    samples_new = sampler_new.sample(Ns).get_samples().samples[...,:-1]
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
@@ -39,7 +39,7 @@ def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampl
     # Nb+Ns-Na samples are taken from the new sampler after the warmup
     # Nb samples are removed afterwards as burn-in
     np.random.seed(0)
-    samples_new = sampler_new.warmup(Na).sample(Nb+Ns-Na).get_samples().samples[Nb:-1].T
+    samples_new = sampler_new.warmup(Na).sample(Nb+Ns-Na).get_samples().samples[...,Nb:-1]
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
@@ -125,7 +125,7 @@ def test_checkpointing(sampler: cuqi.mcmc.SamplerNew):
 
     # Do some more samples from pre-defined rng state
     np.random.seed(0)
-    samples2 = sampler_fresh.sample(100).get_samples().samples[:-1] # TODO. This needs to be fixed..
+    samples2 = sampler_fresh.sample(100).get_samples().samples[...,:-1] # TODO. This needs to be fixed..
 
     # Check that the samples are the same
     assert np.allclose(samples1, samples2), f"Samples1: {samples1.samples}\nSamples2: {samples2.samples}"
