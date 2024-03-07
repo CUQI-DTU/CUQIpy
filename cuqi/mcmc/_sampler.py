@@ -103,7 +103,7 @@ class SamplerNew(ABC):
 
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
-        return Samples(np.array(self._samples), self.target.geometry)
+        return Samples(np.array(self._samples).T, self.target.geometry)
     
     def reset(self): # TODO. Issue here. Current point is not reset, and initial point is lost with this reset.
         self._samples.clear()
