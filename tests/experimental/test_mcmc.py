@@ -60,6 +60,31 @@ targets = [
 ]
 """ List of targets to test against. """
 
+
+def assert_true_if_warmup_is_equivalent2(
+        sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew):
+    """ Assert that the samples from the old and new sampler are equivalent.
+     
+    Ns: int
+        Number of samples.
+    
+    Nb: int
+        Number of burn-in samples. (to be removed from the samples)
+
+    Na: int
+        Number of iterations to adapt.
+              
+    """
+
+    np.random.seed(0)
+    sampler_old.sample_adapt(N=101)
+
+    np.random.seed(0)
+    sampler_new.warmup(100)
+    
+
+    assert np.allclose(sampler_old.scale, sampler_new.scale)
+
 # ============ MH ============
 
 @pytest.mark.parametrize("target", targets)
@@ -124,17 +149,12 @@ def test_CWMH_regression_sample(target: cuqi.density.Density):
                                           old_idx=[0, -1],
                                           new_idx=[1, -1])
 
-# skip this tests for now
-@pytest.mark.skip(reason="The warmup is not verified yet for CWMH sampler.")
 @pytest.mark.parametrize("target", targets)
-def test_CWMH_regression_warmup(target: cuqi.density.Density):
+def test_CWMH_regression_warmup2(target: cuqi.density.Density):
     """Test the CWMH sampler regression."""
     sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
     sampler_new = cuqi.mcmc.CWMHNew(target, scale=np.ones(target.dim))
-    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new,
-                                        Ns=10,
-                                        old_idx=[0, None],
-                                        new_idx=[0, -1])
+    assert_true_if_warmup_is_equivalent2(sampler_old, sampler_new)
 
 # ============ Checkpointing ============
 
