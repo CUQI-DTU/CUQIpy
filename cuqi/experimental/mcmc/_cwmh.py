@@ -91,13 +91,13 @@ class CWMHNew(ProposalBasedSamplerNew):
     def step(self): #CWMH_new
         # Propose state x_i_star used to update x_t
         # each component of x_t step by step 
-        x_t = self.current_point
+        x_t = self.current_point.copy()
+        x_star = self.current_point.copy()
         target_eval_t = self.current_target
         if isinstance(self.proposal,cuqi.distribution.Distribution):
-            x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
+            x_i_star = self.proposal(location= self.current_point, scale = self.scale).sample()
         else:
-            x_i_star = self.proposal(x_t, self.scale) 
-        x_star = x_t.copy()
+            x_i_star = self.proposal(self.current_point, self.scale) 
         acc = np.zeros(self.dim)
 
         for j in range(self.dim):
@@ -122,8 +122,9 @@ class CWMHNew(ProposalBasedSamplerNew):
                 # x_t[j]       = x_t[j]
                 # target_eval_t = target_eval_t
             x_star = x_t.copy()
-        self.current_point = x_t.copy()
+
         self.current_target = target_eval_t
+        self.current_point = x_t
         #NEW: update return 
         #return x_t, target_eval_t, acc
         return acc
@@ -131,6 +132,7 @@ class CWMHNew(ProposalBasedSamplerNew):
     def tune(self, skip_len, update_count):
         star_acc = 0.21/self.dim + 0.23
         hat_acc = np.mean(self._acc[-1-skip_len:], axis=0)
+        #print('hat_acc:',hat_acc)
 
         # compute new scaling parameter
         zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
@@ -138,7 +140,9 @@ class CWMHNew(ProposalBasedSamplerNew):
             np.log(self.scale) + zeta*(hat_acc-star_acc))  
 
         # update parameters
+        #print('scale_temp:',scale_temp)
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
+        #print('self.scale:',self.scale)
 
     def get_state(self):
         return {'sampler_type': 'CWMH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target, 'scale': self.scale}
