@@ -55,16 +55,20 @@ class CWMHNew(ProposalBasedSamplerNew):
 
     """
     def __init__(self, target: cuqi.density.Density, proposal=None, scale=1,
-                 initial_point=None, dim=None, **kwargs):
+                 initial_point=None, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale,
-                         x0=initial_point, dim=dim, **kwargs)
+                         initial_point=initial_point, **kwargs)
+        self._acc = [np.ones((self.dim))]
+
+    def validate_target(self):
+        pass # All targets are valid
 
     @ProposalBasedSamplerNew.proposal.setter 
     def proposal(self, value):
         fail_msg = "Proposal should be either None, "+\
-            f"{self.distribution.Distribution.__class__.__name__} "+\
+            f"{cuqi.distribution.Distribution.__class__.__name__} "+\
             "conditioned only on 'location' and 'scale', lambda function, "+\
-            f"or {self.distribution.Normal.__class__.__name__} conditioned "+\
+            f"or {cuqi.distribution.Normal.__class__.__name__} conditioned "+\
             "only on 'mean' and 'std'"
 
         if value is None:
@@ -84,9 +88,11 @@ class CWMHNew(ProposalBasedSamplerNew):
         
         #self._proposal.geometry = self.target.geometry
 
-    def step(self, x_t, target_eval_t): #CWMH_new
+    def step(self): #CWMH_new
         # Propose state x_i_star used to update x_t
         # each component of x_t step by step 
+        x_t = self.current_point
+        target_eval_t = self.current_target
         if isinstance(self.proposal,cuqi.distribution.Distribution):
             x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
         else:
@@ -124,7 +130,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
     def tune(self, skip_len, update_count):
         star_acc = 0.21/self.dim + 0.23
-        hat_acc = np.mean(self._acc[:, -1-skip_len:], axis=1)
+        hat_acc = np.mean(self._acc[-1-skip_len:], axis=0)
 
         # compute new scaling parameter
         zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
