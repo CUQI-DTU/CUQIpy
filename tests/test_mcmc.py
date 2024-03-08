@@ -13,7 +13,7 @@ def assert_true_if_sampling_is_equivalent(sampler_old: cuqi.sampler.Sampler, sam
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
-def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew, Ns=100, Nb=100, Na=10, atol=1e-1):
+def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew, Ns=100, Nb=100, strategy="MH"):
     """ Assert that the samples from the old and new sampler are equivalent.
      
     Ns: int
@@ -22,29 +22,35 @@ def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampl
     Nb: int
         Number of burn-in samples. (to be removed from the samples)
 
-    Na: int
-        Number of iterations to adapt.
+    strategy: str
+        Tuning strategy defined by sampler to compare with. Default is MH.
               
     """
 
     # Get Ns samples from the old sampler
     # Sampling run is Ns + Nb
-    # Na is not used in the old sampler, but hard-coded e.g. to int(0.1*Ns)
+    # Tuning frequency parametrized but hard-coded, e.g. to int(0.1*Ns) for MH.
     np.random.seed(0)
     samples_old = sampler_old.sample_adapt(N=Ns, Nb=Nb).samples
 
     # Get Ns samples from the new sampler
     # Sampling run is Ns + Nb
-    # Na is used in the new sampler, defined the "warmup" iterations
-    # Nb+Ns-Na samples are taken from the new sampler after the warmup
+    # Tune_freq is used in the new sampler, defining how often to tune.
     # Nb samples are removed afterwards as burn-in
     np.random.seed(0)
-    samples_new = sampler_new.warmup(Na).sample(Nb+Ns-Na).get_samples().samples[...,Nb:-1]
+    if strategy == "MH":
+        tune_freq = int(0.1*Ns) / (Ns+Nb-1) # Due to a bug? in old MH, tuning freq is only defined by N and not N+Nb.
+    else:
+        raise NotImplementedError(f"Strategy {strategy} not implemented")
+    
+    samples_new = sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq).get_samples().samples[...,Nb:]
 
-    assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
+    assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
 targets = [
-    cuqi.testproblem.Deconvolution1D().posterior
+    cuqi.testproblem.Deconvolution1D(dim=2).posterior,
+    cuqi.testproblem.Deconvolution1D(dim=20).posterior,
+    cuqi.testproblem.Deconvolution1D(dim=128).posterior
 ]
 """ List of targets to test against. """
 

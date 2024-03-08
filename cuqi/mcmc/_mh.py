@@ -25,6 +25,8 @@ class MHNew(ProposalBasedSamplerNew):
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
+        # Due to a bug? in old MH, we must keep track of this extra variable to match behavior.
+        self._scale_temp = self.scale 
 
     def validate_target(self):
         pass # All targets are valid
@@ -66,14 +68,17 @@ class MHNew(ProposalBasedSamplerNew):
         return acc
 
     def tune(self, skip_len, update_count):
-        hat_acc = np.mean(self._acc[-1-skip_len:])
+        hat_acc = np.mean(self._acc[-skip_len:])
 
         # d. compute new scaling parameter
         zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
-        scale_temp = np.exp(np.log(self.scale) + zeta*(hat_acc-0.234))
+
+        # We use self._scale_temp here instead of self.scale in update. This might be a bug,
+        # but is equivalent to old MH
+        self._scale_temp = np.exp(np.log(self._scale_temp) + zeta*(hat_acc-0.234))
 
         # update parameters
-        self.scale = min(scale_temp, 1)
+        self.scale = min(self._scale_temp, 1)
 
     def get_state(self):
         return {'sampler_type': 'MH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target.to_numpy(), 'scale': self.scale}
