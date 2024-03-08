@@ -3,7 +3,7 @@ import cuqi
 from cuqi.mcmc import ProposalBasedSamplerNew
 from cuqi.array import CUQIarray
 
-class CWMH_new(ProposalBasedSamplerNew):
+class CWMHNew(ProposalBasedSamplerNew):
     """Component-wise Metropolis Hastings sampler.
 
     Allows sampling of a target distribution by a component-wise random-walk sampling of a proposal distribution along with an accept/reject step.
@@ -122,28 +122,25 @@ class CWMH_new(ProposalBasedSamplerNew):
         #return x_t, target_eval_t, acc
         return acc
 
+    def tune(self, skip_len, update_count):
+        star_acc = 0.21/self.dim + 0.23
+        hat_acc = np.mean(self._acc[:, -1-skip_len:], axis=1)
 
-    def tune(self, skip_len, update_count): #CWMH_new
-        # hat_acc = np.mean(self._acc[-1-skip_len:])
+        # compute new scaling parameter
+        zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
+        scale_temp = np.exp(
+            np.log(self.scale) + zeta*(hat_acc-star_acc))  
 
-        # # d. compute new scaling parameter
-        # zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
-        # scale_temp = np.exp(np.log(self.scale) + zeta*(hat_acc-0.234))
-
-        # # update parameters
-        # self.scale = min(scale_temp, 1)
-        raise NotImplementedError("Tuning not implemented for CWMH_new")
+        # update parameters
+        self.scale = np.minimum(scale_temp, np.ones(self.dim))
 
     def get_state(self):
-
-        return {'sampler_type': 'CWMH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target.to_numpy(), 'scale': self.scale.to_numpy()}
+        return {'sampler_type': 'CWMH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target, 'scale': self.scale}
 
     def set_state(self, state):
         self.current_point =\
             CUQIarray(state['current_point'] , geometry=self.target.geometry)
 
-        self.current_target =\
-            CUQIarray(state['current_target'] , geometry=self.target.geometry)
+        self.current_target = state['current_target']
 
-        self.scale =\
-            CUQIarray(state['scale'] , geometry=self.target.geometry)
+        self.scale = state['scale']
