@@ -130,6 +130,15 @@ class FirstOrderFiniteDifference(Operator):
             Dmat[0, 0] = 1
         elif (self.bc_type == 'none'):
             Dmat = eye(N)
+        elif (self.bc_type == 'some_bc'):
+            locs = [0, 1]
+            Dmat = spdiags(diags, locs, N-1, N).tocsr()
+            Dmat[0, 0] = 1
+            Dmat[-1,-1] = 1
+            Dmat[0, 1:] = 0
+            Dmat[1:, 0] = 0
+            Dmat[-1, :-1] = 0
+            Dmat[:-1, -1] = 0
         else:
             raise ValueError(f"Unknown boundary type {self.bc_type}")
 
