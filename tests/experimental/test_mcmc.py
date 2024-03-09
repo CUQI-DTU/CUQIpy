@@ -18,7 +18,10 @@ def assert_true_if_sampling_is_equivalent(
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
-def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.experimental.mcmc.SamplerNew, Ns=100, Nb=100, strategy="MH"):
+def assert_true_if_warmup_is_equivalent(
+        sampler_old: cuqi.sampler.Sampler,
+        sampler_new: cuqi.experimental.mcmc.SamplerNew, Ns=100, Nb=100,
+        strategy="MH_like", old_idx=[0, None], new_idx=[0, None]):
     """ Assert that the samples from the old and new sampler are equivalent.
      
     Ns: int
@@ -32,6 +35,11 @@ def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampl
               
     """
 
+    if strategy == "MH_like":
+        tune_freq = int(0.1*Ns) / (Ns+Nb-1) # Due to a bug? in old MH, tuning freq is only defined by N and not N+Nb.
+    else:
+        raise NotImplementedError(f"Strategy {strategy} not implemented")
+
     # Get Ns samples from the old sampler
     # Sampling run is Ns + Nb
     # Tuning frequency parametrized but hard-coded, e.g. to int(0.1*Ns) for MH.
@@ -43,13 +51,8 @@ def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampl
     # Sampling run is Ns + Nb
     # Tune_freq is used in the new sampler, defining how often to tune.
     # Nb samples are removed afterwards as burn-in
-    np.random.seed(0)
-    if strategy == "MH":
-        tune_freq = int(0.1*Ns) / (Ns+Nb-1) # Due to a bug? in old MH, tuning freq is only defined by N and not N+Nb.
-    else:
-        raise NotImplementedError(f"Strategy {strategy} not implemented")
-    
-    samples_new = sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq).get_samples().samples[...,Nb:]
+    np.random.seed(0)    
+    samples_new = sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq).get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
 
     assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
@@ -155,6 +158,17 @@ def test_CWMH_regression_warmup2(target: cuqi.density.Density):
     sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
     sampler_new = cuqi.mcmc.CWMHNew(target, scale=np.ones(target.dim))
     assert_true_if_warmup_is_equivalent2(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", targets)
+def test_CWMH_regression_warmup(target: cuqi.density.Density):
+    """Test the CWMH sampler regression."""
+    sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
+    sampler_new = cuqi.mcmc.CWMHNew(target, scale=np.ones(target.dim))
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new,
+                                        Ns=100,
+                                        strategy="MH_like",
+                                        old_idx=[0, -1],
+                                        new_idx=[1, None])
 
 # ============ Checkpointing ============
 
