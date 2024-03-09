@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.mcmc import SamplerNew
+from cuqi.experimental.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
 class MALANew(SamplerNew): # Refactor to Proposal-based sampler?

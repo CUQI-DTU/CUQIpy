@@ -1,6 +1,6 @@
 # %%
 from cuqi.distribution import DistributionGallery
-from cuqi.mcmc import MHNew
+from cuqi.experimental.mcmc import MHNew
 
 # %%
 # The samplers in the MCMC module are an re-implementation of this sampler module in a more object oriented way.

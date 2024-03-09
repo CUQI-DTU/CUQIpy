@@ -2,10 +2,10 @@ from . import data
 from . import density
 from . import diagnostics
 from . import distribution
+from . import experimental
 from . import geometry
 from . import implicitprior
 from . import likelihood
-from . import mcmc
 from . import model
 from . import operator
 from . import pde

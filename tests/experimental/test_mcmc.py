@@ -2,7 +2,7 @@ import cuqi
 import pytest
 import numpy as np
 
-def assert_true_if_sampling_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew, Ns=100, atol=1e-1):
+def assert_true_if_sampling_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.experimental.mcmc.SamplerNew, Ns=100, atol=1e-1):
     """ Assert that the samples from the old and new sampler are equivalent. """
 
     np.random.seed(0)
@@ -13,7 +13,7 @@ def assert_true_if_sampling_is_equivalent(sampler_old: cuqi.sampler.Sampler, sam
 
     assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
-def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew, Ns=100, Nb=100, strategy="MH"):
+def assert_true_if_warmup_is_equivalent(sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.experimental.mcmc.SamplerNew, Ns=100, Nb=100, strategy="MH"):
     """ Assert that the samples from the old and new sampler are equivalent.
      
     Ns: int
@@ -60,14 +60,14 @@ targets = [
 def test_MH_regression_sample(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
-    sampler_new = cuqi.mcmc.MHNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MHNew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MH_regression_warmup(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
-    sampler_new = cuqi.mcmc.MHNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MHNew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ pCN ============
@@ -76,7 +76,7 @@ def test_MH_regression_warmup(target: cuqi.density.Density):
 def test_pCN_regression_sample(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=1)
-    sampler_new = cuqi.mcmc.pCNNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.pCNNew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
@@ -84,7 +84,7 @@ def test_pCN_regression_sample(target: cuqi.density.Density):
 def test_pCN_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=1)
-    sampler_new = cuqi.mcmc.pCNNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.pCNNew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ MALA ============
@@ -93,23 +93,23 @@ def test_pCN_regression_warmup(target: cuqi.density.Density):
 def test_MALA_regression_sample(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
-    sampler_new = cuqi.mcmc.MALANew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MALA_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
-    sampler_new = cuqi.mcmc.MALANew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 
 # ============ Checkpointing ============
 
 @pytest.mark.parametrize("sampler", [
-    cuqi.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=1),
+    cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=1),
 ])
-def test_checkpointing(sampler: cuqi.mcmc.SamplerNew):
+def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
     """ Check that the checkpointing functionality works. Tested with save_checkpoint(filename) and load_checkpoint(filename). """
 
     # Run sampler with some samples
