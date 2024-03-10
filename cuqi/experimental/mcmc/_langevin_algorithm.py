@@ -3,7 +3,7 @@ import cuqi
 from cuqi.experimental.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
-class ULANew(SamplerNew):
+class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     def __init__(self, target, scale=1.0, **kwargs):
 
@@ -13,7 +13,7 @@ class ULANew(SamplerNew):
         self.current_point = self.initial_point
         self.current_target_eval = self.target.logd(self.current_point)
         self.current_target_grad_eval = self.target.gradient(self.current_point)
-        self._acc = [1]
+        self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
         try:
@@ -66,24 +66,11 @@ class ULANew(SamplerNew):
         self.current_target_grad_eval = temp
         self.scale = state['scale']
 
-class MALANew(SamplerNew): # Refactor to Proposal-based sampler?
+class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     def __init__(self, target, scale=1.0, **kwargs):
 
-        super().__init__(target, **kwargs)
-
-        self.scale = scale
-        self.current_point = self.initial_point
-        self.current_target_eval = self.target.logd(self.current_point)
-        self.current_target_grad_eval = self.target.gradient(self.current_point)
-        self._acc = [1] # TODO. Check if we need this
-
-    def validate_target(self):
-        try:
-            self.target.gradient(np.ones(self.dim))
-            pass
-        except (NotImplementedError, AttributeError):
-            raise ValueError("The target need to have a gradient method")
+        super().__init__(target, scale, **kwargs)
 
     def step(self):
         # propose state
@@ -112,11 +99,6 @@ class MALANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     def tune(self, skip_len, update_count):
         pass
-
-    def log_proposal(self, theta_star, theta_k, g_logpi_k):
-        mu = theta_k + ((self.scale)/2)*g_logpi_k
-        misfit = theta_star - mu
-        return -0.5*((1/(self.scale))*(misfit.T @ misfit))
 
     def get_state(self):
         if isinstance(self.current_point, CUQIarray):
