@@ -87,22 +87,37 @@ def test_pCN_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.pCNNew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
+# ============ ULA ============
+
+@pytest.mark.parametrize("target", targets)
+def test_ULA_regression_sample(target: cuqi.density.Density):
+    """Test the ULA sampler regression."""
+    sampler_old = cuqi.sampler.ULA(target, scale=0.1)
+    sampler_new = cuqi.experimental.mcmc.ULANew(target, scale=0.1)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", targets)
+def test_MALA_regression_warmup(target: cuqi.density.Density):
+    """Test the ULA sampler regression."""
+    sampler_old = cuqi.sampler.ULA(target, scale=0.1)
+    sampler_new = cuqi.experimental.mcmc.ULANew(target, scale=0.1)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
 # ============ MALA ============
 
 @pytest.mark.parametrize("target", targets)
 def test_MALA_regression_sample(target: cuqi.density.Density):
-    """Test the pCN sampler regression."""
+    """Test the MALA sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
     sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MALA_regression_warmup(target: cuqi.density.Density):
-    """Test the pCN sampler regression."""
+    """Test the MALA sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
     sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
-
 
 # ============ Checkpointing ============
 

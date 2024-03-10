@@ -1,6 +1,9 @@
 # %%
 from cuqi.distribution import DistributionGallery
-from cuqi.experimental.mcmc import MHNew
+from cuqi.experimental.mcmc import MHNew, MALANew, ULANew
+import cuqi
+import numpy as np
+import matplotlib.pyplot as plt
 
 # %%
 # The samplers in the MCMC module are an re-implementation of this sampler module in a more object oriented way.
@@ -77,5 +80,48 @@ sampler.sample(500, batch_size=100, sample_path='demo36_sampler_samples/')
 
 # This stored samples in chunks of 100 in the folder demo36_sampler_samples
 
+# %% ULA
+sampler = ULANew(target, scale=0.1)
+sampler.warmup(100)
+sampler.save_checkpoint('demo36_sampler_checkpoint.pickle')
 
-# %%
+np.random.seed(0)
+sampler.sample(100)
+samples = sampler.get_samples()
+samples = samples.burnthin(101)
+samples.plot_trace()
+
+# Then using a new sampler can load checkpoint
+sampler2 = ULANew(target)
+sampler2.load_checkpoint('demo36_sampler_checkpoint.pickle')
+print(sampler.scale) # Should be the same
+print(sampler2.scale) # Should be the same
+
+np.random.seed(0)
+sampler2.sample(100)
+samples2 = sampler2.get_samples()
+samples2 = samples2.burnthin(1) # As [1,...] is saved there
+samples2.plot_trace() # Should be the save as above
+
+# %% MALA
+sampler = MALANew(target, scale=0.1)
+sampler.warmup(100)
+sampler.save_checkpoint('demo36_sampler_checkpoint.pickle')
+
+np.random.seed(0)
+sampler.sample(100)
+samples = sampler.get_samples()
+samples = samples.burnthin(101)
+samples.plot_trace()
+
+# Then using a new sampler can load checkpoint
+sampler2 = MALANew(target)
+sampler2.load_checkpoint('demo36_sampler_checkpoint.pickle')
+print(sampler.scale) # Should be the same
+print(sampler2.scale) # Should be the same
+
+np.random.seed(0)
+sampler2.sample(100)
+samples2 = sampler2.get_samples()
+samples2 = samples2.burnthin(1) # As [1,...] is saved there
+samples2.plot_trace() # Should be the save as above
