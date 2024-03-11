@@ -77,7 +77,25 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             raise ValueError("The target need to have a gradient method")
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
-        # accept directly
+        """
+        Accepts the proposed state and updates the sampler's state accordingly.
+
+        Parameters
+        ----------
+        x_star : 
+            Theproposed state
+
+        target_eval_star: 
+            The log likelihood evaluated at x_star
+
+        target_grad_star: 
+            The gradient of log likelihood evaluated at x_star
+
+        Returns
+        -------
+        scaler
+            1 (accepted)
+        """
         self.current_point = x_star
         self.current_target_eval = target_eval_star
         self.current_target_grad_eval = target_grad_star
@@ -179,6 +197,26 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     """
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
+        """
+        Accepts the proposed state according to a Metropolis step 
+        and updates the sampler's state accordingly.
+
+        Parameters
+        ----------
+        x_star : 
+            Theproposed state
+
+        target_eval_star: 
+            The log likelihood evaluated at x_star
+
+        target_grad_star: 
+            The gradient of log likelihood evaluated at x_star
+
+        Returns
+        -------
+        scaler
+            1 if accepted, 0 otherwise
+        """
         log_target_ratio = target_eval_star - self.current_target_eval
         log_prop_ratio = self.log_proposal(self.current_point, x_star, target_grad_star) \
             - self.log_proposal(x_star, self.current_point,  self.current_target_grad_eval)
