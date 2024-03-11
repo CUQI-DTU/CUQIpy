@@ -130,9 +130,6 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
 
     Currently, no reference data is available for this test, so no regression test is performed.
     """
-
-    np.random.seed(19937)
-    
     # Load model + data from testproblem library
     A, y_data, probInfo = TP_type(dim=priors[0].dim, phantom=phantom).get_components()
 
