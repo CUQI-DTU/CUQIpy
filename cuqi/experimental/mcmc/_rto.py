@@ -82,8 +82,6 @@ class LinearRTONew(SamplerNew):
         self.current_point = self.initial_point
         self._acc = [1] # TODO. Check if we need this
 
-        self._check_posterior()
-
         # Other parameters
         self.maxit = maxit
         self.tol = tol        
@@ -123,13 +121,6 @@ class LinearRTONew(SamplerNew):
         else:
             raise TypeError("All likelihoods need to be callable or none need to be callable.") 
 
-    def validate_target(self):
-        try:
-            self.target.gradient(np.ones(self.dim))
-            pass
-        except (NotImplementedError, AttributeError):
-            raise ValueError("The target need to have a gradient method")
-
     @property
     def prior(self):
         return self.target.prior
@@ -164,29 +155,10 @@ class LinearRTONew(SamplerNew):
     def tune(self, skip_len, update_count):
         pass
 
-    def _sample(self, N, Nb):   
-        Ns = N+Nb   # number of simulations        
-        samples = np.empty((self.n, Ns))
-                     
-        # initial state   
-        samples[:, 0] = self.initial_point
-        for s in range(Ns-1):
-            y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)
-            samples[:, s+1], _ = sim.solve()
-
-            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming initial_point is the first sample
-            self._call_callback(samples[:, s+1], s+1)
-
-        # remove burn-in
-        samples = samples[:, Nb:]
-        
-        return samples, None, None
-
     def _sample_adapt(self, N, Nb):
         return self._sample(N,Nb)
     
-    def _check_posterior(self):
+    def validate_target(self):
         # Check target type
         if not isinstance(self.target, (cuqi.distribution.Posterior, cuqi.distribution.MultipleLikelihoodPosterior)):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior' or 'cuqi.distribution.MultipleLikelihoodPosterior'.")       
