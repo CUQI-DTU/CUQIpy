@@ -177,9 +177,6 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     A Deblur example can be found in demos/demo28_MALA.py
     """
-    def __init__(self, target, scale=1.0, **kwargs):
-
-        super().__init__(target, scale, **kwargs)
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         log_target_ratio = target_eval_star - self.current_target_eval
