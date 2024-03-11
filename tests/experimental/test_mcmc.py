@@ -119,20 +119,20 @@ def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
-# # ============ RegularizedLinearRTO ============
-# def test_RegularizedLinearRTO_regression_sample():
-#     """Test the LinearRTO sampler regression."""
-#     n = 128
-#     A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=n, phantom='square').get_components()
-#     x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(n), 0.1, constraint = "nonnegativity")
-#     y = cuqi.distribution.Gaussian(A@x, 0.001)
+# ============ RegularizedLinearRTO ============
+def test_RegularizedLinearRTO_regression_sample():
+    """Test the LinearRTO sampler regression."""
+    n = 128
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=n, phantom='square').get_components()
+    x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(n), 0.1, constraint = "nonnegativity")
+    y = cuqi.distribution.Gaussian(A@x, 0.001)
 
-#     joint = cuqi.distribution.JointDistribution(x, y)
-#     target = joint(y=y_data)
+    joint = cuqi.distribution.JointDistribution(x, y)
+    target = joint(y=y_data)
 
-#     sampler_old = cuqi.sampler.RegularizedLinearRTO(target)
-#     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target)
-#     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+    sampler_old = cuqi.sampler.RegularizedLinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 # ============ Checkpointing ============
 
