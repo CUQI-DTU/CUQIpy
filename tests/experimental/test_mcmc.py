@@ -103,6 +103,21 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
+# ============ LinearRTO ============
+
+@pytest.mark.parametrize("target", targets)
+def test_LinearRTO_regression_sample(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.LinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", targets)
+def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.LinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ Checkpointing ============
 
