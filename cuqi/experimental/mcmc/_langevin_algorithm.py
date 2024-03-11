@@ -20,16 +20,12 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         The target distribution to sample. Must have logd and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
     scale : int
         The Langevin diffusion discretization time step (In practice, a scale of 1/dim**2 is
         recommended but not guaranteed to be the optimal choice).
-
-    dim : int
-        Dimension of parameter space. Required if target logpdf and gradient are callable 
-        functions. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -143,15 +139,11 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
     scale : int
         The Langevin diffusion discretization time step.
-
-    dim : int
-        Dimension of parameter space. Required if target logpdf and gradient are callable 
-        functions. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
