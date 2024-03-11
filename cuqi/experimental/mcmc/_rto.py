@@ -214,25 +214,8 @@ class LinearRTONew(SamplerNew):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
 
-    def get_state(self):
-        # if isinstance(self.current_point, CUQIarray):
-        #     self.current_point = self.current_point.to_numpy()
-        # if isinstance(self.current_target_eval, CUQIarray):
-        #     self.current_target_eval = self.current_target_eval.to_numpy()
-        # if isinstance(self.current_target_grad_eval, CUQIarray):
-        #     self.current_target_grad_eval = self.current_target_grad_eval.to_numpy()
-        # return {'sampler_type': 'MALA', 'current_point': self.current_point, \
-        #         'current_target_eval': self.current_target_eval, \
-        #         'current_target_grad_eval': self.current_target_grad_eval, \
-        #         'scale': self.scale}
+    def get_state(self): #TODO: LinearRTO only need initial_point for reproducibility?
         return {'sampler_type': 'LinearRTO'}
 
-    def set_state(self, state):
-        # temp = CUQIarray(state['current_point'] , geometry=self.target.geometry)
-        # self.current_point = temp
-        # temp = CUQIarray(state['current_target_eval'] , geometry=self.target.geometry)
-        # self.current_target_eval = temp
-        # temp = CUQIarray(state['current_target_grad_eval'] , geometry=self.target.geometry)
-        # self.current_target_grad_eval = temp
-        # self.scale = state['scale']
+    def set_state(self, state): #TODO: LinearRTO only need initial_point for reproducibility?
         pass
