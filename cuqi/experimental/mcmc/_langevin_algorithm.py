@@ -45,11 +45,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     def tune(self, skip_len, update_count):
         pass
 
-    def log_proposal(self, theta_star, theta_k, g_logpi_k):
-        mu = theta_k + ((self.scale)/2)*g_logpi_k
-        misfit = theta_star - mu
-        return -0.5*((1/(self.scale))*(misfit.T @ misfit))
-
     def get_state(self):
         if isinstance(self.current_point, CUQIarray):
             self.current_point = self.current_point.to_numpy()
@@ -96,6 +91,11 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     def tune(self, skip_len, update_count):
         pass
 
+    def log_proposal(self, theta_star, theta_k, g_logpi_k):
+        mu = theta_k + ((self.scale)/2)*g_logpi_k
+        misfit = theta_star - mu
+        return -0.5*((1/(self.scale))*(misfit.T @ misfit))
+
     def get_state(self):
         if isinstance(self.current_point, CUQIarray):
             self.current_point = self.current_point.to_numpy()
@@ -107,12 +107,3 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
                 'current_target_eval': self.current_target_eval, \
                 'current_target_grad_eval': self.current_target_grad_eval, \
                 'scale': self.scale}
-
-    def set_state(self, state):
-        temp = CUQIarray(state['current_point'] , geometry=self.target.geometry)
-        self.current_point = temp
-        temp = CUQIarray(state['current_target_eval'] , geometry=self.target.geometry)
-        self.current_target_eval = temp
-        temp = CUQIarray(state['current_target_grad_eval'] , geometry=self.target.geometry)
-        self.current_target_grad_eval = temp
-        self.scale = state['scale']
