@@ -146,7 +146,6 @@ class LinearRTONew(SamplerNew):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        # self._samples[-1]
         sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol, self.shift)            
         self.current_point, _ = sim.solve()
         acc = 1
@@ -191,3 +190,76 @@ class LinearRTONew(SamplerNew):
 
     def set_state(self, state): #TODO: LinearRTO only need initial_point for reproducibility?
         pass
+
+class RegularizedLinearRTONew(LinearRTONew):
+    """
+    Regularized Linear RTO (Randomize-Then-Optimize) sampler.
+
+    Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
+
+    Parameters
+    ------------
+    target : `cuqi.distribution.Posterior`
+        See `cuqi.sampler.LinearRTO`
+
+    x0 : `np.ndarray` 
+        Initial point for the sampler. *Optional*.
+
+    maxit : int
+        Maximum number of iterations of the inner FISTA solver. *Optional*.
+        
+    stepsize : string or float
+        If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
+        If stepsize is a float, then this stepsize is used.
+
+    abstol : float
+        Absolute tolerance of the inner FISTA solver. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+        
+    """
+    def __init__(self, target, initial_point=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+
+        if not callable(target.prior.proximal):
+            raise TypeError("Projector needs to be callable")
+        
+        super().__init__(target, initial_point=initial_point, maxit=100, **kwargs)
+
+        # Other parameters
+        self.stepsize = stepsize
+        self.abstol = abstol   
+        self.adaptive = adaptive
+        self.proximal = target.prior.proximal
+        self._stepsize = self._choose_stepsize()
+
+    def _choose_stepsize(self):
+        if isinstance(self.stepsize, str):
+            if self.stepsize in ["automatic"]:
+                if not callable(self.M):
+                    M_op = scipyLinearOperator(self.M.shape, matvec = lambda v: self.M@v, rmatvec = lambda w: self.M.T@w)
+                else:
+                    M_op = scipyLinearOperator((len(self.b_tild), self.n), matvec = lambda v: self.M(v,1), rmatvec = lambda w: self.M(w,2))
+                    
+                _stepsize = 0.99/(estimate_spectral_norm(M_op)**2)
+                # print(f"Estimated stepsize for regularized Linear RTO: {_stepsize}")
+            else:
+                raise ValueError("Stepsize choice not supported")
+        else:
+            _stepsize = self.stepsize
+        return _stepsize
+
+    @property
+    def prior(self):
+        return self.target.prior.gaussian
+
+    def step(self):
+        y = self.b_tild + np.random.randn(len(self.b_tild))
+        sim = FISTA(self.M, y, self.current_point, self.proximal,
+                    maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+        self.current_point, _ = sim.solve()
+        acc = 1
+        return acc
