@@ -78,7 +78,8 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
-        Accepts the proposed state and updates the sampler's state accordingly.
+        Accepts the proposed state and updates the sampler's state accordingly, i.e.,
+        current_point, current_target_eval, and current_target_grad_eval.
 
         Parameters
         ----------
@@ -198,8 +199,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
-        Accepts the proposed state according to a Metropolis step 
-        and updates the sampler's state accordingly.
+        Accepts the proposed state according to a Metropolis step and updates the sampler's state accordingly, i.e., current_point, current_target_eval, and current_target_grad_eval.
 
         Parameters
         ----------
