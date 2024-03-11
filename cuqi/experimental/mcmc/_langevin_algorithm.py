@@ -38,6 +38,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         # evaluate target
         target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
 
+        # accept or reject proposal
         acc = self._accept_or_reject(x_star, target_eval_star, target_grad_star)
 
         return acc
