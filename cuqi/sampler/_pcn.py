@@ -2,7 +2,6 @@ import numpy as np
 import cuqi
 from cuqi.sampler import Sampler
 
-
 class pCN(Sampler):   
     #Samples target*proposal
     #TODO. Check proposal, needs to be Gaussian and zero mean.

@@ -2,7 +2,6 @@ import numpy as np
 import cuqi
 from cuqi.sampler import Sampler
 
-
 class ULA(Sampler):
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
@@ -196,3 +195,4 @@ class MALA(ULA):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
+

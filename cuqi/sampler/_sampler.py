@@ -4,7 +4,6 @@ import numpy as np
 import cuqi
 from cuqi.samples import Samples
 
-
 class Sampler(ABC):
 
     def __init__(self, target, x0=None, dim=None, callback=None):
