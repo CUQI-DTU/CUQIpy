@@ -22,6 +22,14 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         except (NotImplementedError, AttributeError):
             raise ValueError("The target need to have a gradient method")
 
+    def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
+        # accept directly
+        self.current_point = x_star
+        self.current_target_eval = target_eval_star
+        self.current_target_grad_eval = target_grad_star
+        acc = 1
+        return acc
+
     def step(self):
         # propose state
         xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
@@ -30,10 +38,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         # evaluate target
         target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
 
-        self.current_point = x_star
-        self.current_target_eval = target_eval_star
-        self.current_target_grad_eval = target_grad_star
-        acc = 1
+        acc = self._accept_or_reject(x_star, target_eval_star, target_grad_star)
 
         return acc
 
@@ -72,21 +77,13 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
         super().__init__(target, scale, **kwargs)
 
-    def step(self):
-        # propose state
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
-        x_star = self.current_point + 0.5*self.scale*self.current_target_grad_eval + xi
-
-        # evaluate target
-        target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
-
-        # Metropolis step
+    def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         log_target_ratio = target_eval_star - self.current_target_eval
         log_prop_ratio = self.log_proposal(self.current_point, x_star, target_grad_star) \
             - self.log_proposal(x_star, self.current_point,  self.current_target_grad_eval)
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
-        # accept/reject
+        # accept/reject with Metropolis
         acc = 0
         log_u = np.log(cuqi.distribution.Uniform(low=0, high=1).sample())
         if (log_u <= log_alpha) and (np.isnan(target_eval_star) == False):
@@ -94,7 +91,6 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
             self.current_target_eval = target_eval_star
             self.current_target_grad_eval = target_grad_star
             acc = 1
-
         return acc
 
     def tune(self, skip_len, update_count):
