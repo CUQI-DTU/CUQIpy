@@ -4,7 +4,65 @@ from cuqi.experimental.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
 class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
+    """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
+    Samples a distribution given its logpdf and gradient (up to a constant) based on
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
+    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
+
+    For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
+    of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Must have logd and gradient method. Custom logpdfs 
+        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    scale : int
+        The Langevin diffusion discretization time step (In practice, a scale of 1/dim**2 is
+        recommended but not guaranteed to be the optimal choice).
+
+    dim : int
+        Dimension of parameter space. Required if target logpdf and gradient are callable 
+        functions. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
+
+    Example
+    -------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        gradient_func = lambda x: -2/(std**2)*(x - mu)
+
+        # Define distribution from logpdf and gradient as UserDefinedDistribution
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
+            gradient_func=gradient_func)
+
+        # Set up sampler
+        sampler = cuqi.experimental.mcmc.ULANew(target, scale=1/dim**2)
+
+        # Sample
+        sampler.sample(2000)
+
+    A Deblur example can be found in demos/demo27_ULA.py
+    """
     def __init__(self, target, scale=1.0, **kwargs):
 
         super().__init__(target, **kwargs)
@@ -68,7 +126,65 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         self.scale = state['scale']
 
 class MALANew(ULANew): # Refactor to Proposal-based sampler?
+    """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
 
+    Samples a distribution given its logd and gradient (up to a constant) based on
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
+    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion. 
+    The sample is then accepted or rejected according to Metropolis–Hastings algorithm.
+
+    For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
+    of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
+        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    x0 : ndarray
+        Initial parameters. *Optional*
+
+    scale : int
+        The Langevin diffusion discretization time step.
+
+    dim : int
+        Dimension of parameter space. Required if target logpdf and gradient are callable 
+        functions. *Optional*.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+
+
+    Example
+    -------
+    .. code-block:: python
+
+        # Parameters
+        dim = 5 # Dimension of distribution
+        mu = np.arange(dim) # Mean of Gaussian
+        std = 1 # standard deviation of Gaussian
+
+        # Logpdf function
+        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        gradient_func = lambda x: -2/(std**2)*(x-mu)
+
+        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
+        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
+            gradient_func=gradient_func)
+
+        # Set up sampler
+        sampler = cuqi.experimental.mcmc.MALANew(target, scale=1/5**2)
+
+        # Sample
+        sampler.sample(2000)
+
+    A Deblur example can be found in demos/demo28_MALA.py
+    """
     def __init__(self, target, scale=1.0, **kwargs):
 
         super().__init__(target, scale, **kwargs)
