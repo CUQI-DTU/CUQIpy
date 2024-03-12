@@ -238,7 +238,6 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         self.current_target = self.target.logd(self.current_point)
         self.proposal = proposal
         self.scale = scale
-        self._scale_old = scale
 
         self._acc = [ 1 ] # TODO. Check
 

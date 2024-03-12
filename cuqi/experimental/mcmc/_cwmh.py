@@ -60,7 +60,7 @@ class CWMHNew(ProposalBasedSamplerNew):
                          initial_point=initial_point, **kwargs)
         self._acc = [np.ones((self.dim))]
         self.scale = np.ones(self.dim)*scale
-        self._scale_old = np.ones(self.dim)*scale
+        self._scale_temp = np.ones(self.dim)*scale
 
     def validate_target(self):
         pass # All targets are valid
@@ -142,15 +142,15 @@ class CWMHNew(ProposalBasedSamplerNew):
         # compute new scaling parameter
         zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
         print('zeta:',zeta)
-        print('lambd[:, i]',self._scale_old)
+        print('lambd[:, i]',self._scale_temp)
         scale_temp = np.exp(
-            np.log(self._scale_old) + zeta*(hat_acc-star_acc))  
+            np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
 
         # update parameters
         print('scale_temp:',scale_temp)
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
         print('self.scale:',self.scale)
-        self._scale_old = scale_temp
+        self._scale_temp = scale_temp
 
     def get_state(self):
         return {'sampler_type': 'CWMH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target, 'scale': self.scale}
