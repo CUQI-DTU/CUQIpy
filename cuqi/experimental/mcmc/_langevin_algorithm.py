@@ -218,8 +218,8 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
             1 if accepted, 0 otherwise
         """
         log_target_ratio = target_eval_star - self.current_target_eval
-        log_prop_ratio = self.log_proposal(self.current_point, x_star, target_grad_star) \
-            - self.log_proposal(x_star, self.current_point,  self.current_target_grad_eval)
+        log_prop_ratio = self._log_proposal(self.current_point, x_star, target_grad_star) \
+            - self._log_proposal(x_star, self.current_point,  self.current_target_grad_eval)
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
         # accept/reject with Metropolis
@@ -235,7 +235,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     def tune(self, skip_len, update_count):
         pass
 
-    def log_proposal(self, theta_star, theta_k, g_logpi_k):
+    def _log_proposal(self, theta_star, theta_k, g_logpi_k):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
