@@ -123,7 +123,7 @@ class CWMHNew(ProposalBasedSamplerNew):
         else:
             raise ValueError(fail_msg)
 
-    def step(self): #CWMH_new
+    def step(self):
         """ Perform one step of the sampler by transitioning the current point
         to a new point according to the sampler's transition kernel. """
         # Propose state x_i_star used to update
