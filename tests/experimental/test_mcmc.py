@@ -65,7 +65,7 @@ targets = [
 
 
 def assert_true_if_warmup_is_equivalent2(
-        sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.mcmc.SamplerNew):
+        sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.experimental.mcmc.SamplerNew):
     """ Assert that the samples from the old and new sampler are equivalent.
      
     Ns: int
