@@ -1,10 +1,6 @@
 # %%
 from cuqi.distribution import DistributionGallery
-from cuqi.experimental.mcmc import MHNew, MALANew, ULANew
-import cuqi
-import numpy as np
-import matplotlib.pyplot as plt
-
+from cuqi.experimental.mcmc import MHNew
 # %%
 # The samplers in the MCMC module are an re-implementation of this sampler module in a more object oriented way.
 # The sampling results are tested against the samplers in the sampler module in test_mcmc.py.
