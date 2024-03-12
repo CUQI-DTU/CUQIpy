@@ -84,7 +84,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         Parameters
         ----------
         x_star : 
-            Theproposed state
+            The proposed state
 
         target_eval_star: 
             The log likelihood evaluated at x_star
@@ -204,7 +204,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         Parameters
         ----------
         x_star : 
-            Theproposed state
+            The proposed state
 
         target_eval_star: 
             The log likelihood evaluated at x_star
