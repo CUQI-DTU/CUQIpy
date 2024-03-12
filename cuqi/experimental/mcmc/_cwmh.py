@@ -124,6 +124,8 @@ class CWMHNew(ProposalBasedSamplerNew):
             raise ValueError(fail_msg)
 
     def step(self): #CWMH_new
+        """ Perform one step of the sampler by transitioning the current point
+        to a new point according to the sampler's transition kernel. """
         # Propose state x_i_star used to update
         # each component of x_t step by step
         x_t = self.current_point.copy()
@@ -166,6 +168,8 @@ class CWMHNew(ProposalBasedSamplerNew):
         return acc
 
     def tune(self, skip_len, update_count):
+        """ Tune the parameters of the sampler. This method is called after each
+        step of the warmup phase. """
         idx = update_count
         star_acc = 0.21/self.dim + 0.23
         hat_acc = np.mean(self._acc[idx*skip_len:(idx+1)*skip_len], axis=0)
