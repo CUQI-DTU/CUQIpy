@@ -2,6 +2,7 @@ import numpy as np
 import cuqi
 from cuqi.experimental.mcmc import ProposalBasedSamplerNew
 from cuqi.array import CUQIarray
+from numbers import Number
 
 class CWMHNew(ProposalBasedSamplerNew):
     """Component-wise Metropolis Hastings sampler.
@@ -17,10 +18,13 @@ class CWMHNew(ProposalBasedSamplerNew):
     proposal : `cuqi.distribution.Distribution` or callable method
         The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
 
-    scale : float
-        Scale parameter used to define correlation between previous and proposed sample in random-walk.  *Optional*.
+    scale : float or ndarray
+        Scale parameter used to define correlation between previous and proposed
+        sample in random-walk.  *Optional*. If float, the same scale is used for
+        all dimensions. If ndarray, a (possibly) different scale is used for
+        each dimension.
 
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
     dim : int
@@ -32,10 +36,14 @@ class CWMHNew(ProposalBasedSamplerNew):
         where `sample` is the current sample and `sample_index` is the index of the sample.
         An example is shown in demos/demo31_callback.py.
 
+    kwargs : dict
+        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSamplerNew`.
+
     Example
     -------
     .. code-block:: python
-
+        import numpy as np
+        import cuqi
         # Parameters
         dim = 5 # Dimension of distribution
         mu = np.arange(dim) # Mean of Gaussian
@@ -48,19 +56,26 @@ class CWMHNew(ProposalBasedSamplerNew):
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.CWMH(target, scale=1)
+        sampler = cuqi.experimental.mcmc.CWMHNew(target, scale=1)
 
         # Sample
-        samples = sampler.sample(2000)
+        samples = sampler.sample(2000).get_samples()
 
     """
     def __init__(self, target: cuqi.density.Density, proposal=None, scale=1,
                  initial_point=None, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale,
                          initial_point=initial_point, **kwargs)
+        # Set scale
+        if isinstance(scale, Number):
+            self.scale = np.ones(self.dim)*scale
+            self._scale_temp = np.ones(self.dim)*scale
+        elif isinstance(scale, np.ndarray):
+            self.scale = scale
+            self._scale_temp = scale.copy()
+
+        # set initial acceptance rate
         self._acc = [np.ones((self.dim))]
-        self.scale = np.ones(self.dim)*scale
-        self._scale_temp = np.ones(self.dim)*scale
 
     def validate_target(self):
         pass # All targets are valid
@@ -74,25 +89,34 @@ class CWMHNew(ProposalBasedSamplerNew):
             "only on 'mean' and 'std'"
 
         if value is None:
-            self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=self.dim)
+            self._proposal = cuqi.distribution.Normal(
+                mean=lambda location: location,
+                std=lambda scale: scale,
+                geometry=self.dim,
+            )
 
-        elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
+        elif isinstance(value, cuqi.distribution.Distribution) and sorted(
+            value.get_conditioning_variables()
+        ) == ["location", "scale"]:
             self._proposal = value
 
-        elif isinstance(value, cuqi.distribution.Normal) and sorted(value.get_conditioning_variables())==['mean','std']:
-            self._proposal = value(mean = lambda location:location, std = lambda scale:scale)
+        elif isinstance(value, cuqi.distribution.Normal) and sorted(
+            value.get_conditioning_variables()
+        ) == ["mean", "std"]:
+            self._proposal = value(
+                mean=lambda location: location, std=lambda scale: scale
+            )
 
-        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
+        elif not isinstance(value, cuqi.distribution.Distribution) and callable(
+            value):
             self._proposal = value
 
         else:
             raise ValueError(fail_msg)
-        
-        #self._proposal.geometry = self.target.geometry
 
     def step(self): #CWMH_new
-        # Propose state x_i_star used to update x_t
-        # each component of x_t step by step 
+        # Propose state x_i_star used to update
+        # each component of x_t step by step
         x_t = self.current_point.copy()
         x_star = self.current_point.copy()
         target_eval_t = self.current_target
@@ -127,8 +151,8 @@ class CWMHNew(ProposalBasedSamplerNew):
 
         self.current_target = target_eval_t
         self.current_point = x_t
-        #NEW: update return 
-        #return x_t, target_eval_t, acc
+        # NEW: update return
+        # return x_t, target_eval_t, acc
         return acc
 
     def tune(self, skip_len, update_count):
@@ -136,29 +160,34 @@ class CWMHNew(ProposalBasedSamplerNew):
         star_acc = 0.21/self.dim + 0.23
         hat_acc = np.mean(self._acc[idx*skip_len:(idx+1)*skip_len], axis=0)
 
-        print('skip_len:',skip_len)
-        print('update_count:',update_count)
-        print('hat_acc:',hat_acc)
         # compute new scaling parameter
-        zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
-        print('zeta:',zeta)
-        print('lambd[:, i]',self._scale_temp)
+        # ensures that the variation of lambda(i) vanishes
+        zeta = 1/np.sqrt(update_count+1)  
         scale_temp = np.exp(
             np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
 
         # update parameters
-        print('scale_temp:',scale_temp)
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
-        print('self.scale:',self.scale)
         self._scale_temp = scale_temp
 
     def get_state(self):
-        return {'sampler_type': 'CWMH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target, 'scale': self.scale}
+        """ Return the state of the sampler. """
+        current_point = self.current_point
+        if isinstance(current_point, CUQIarray):
+            current_point = current_point.to_numpy()
+
+        return {'sampler_type': 'CWMH',
+                'current_point': current_point,
+                'current_target': self.current_target,
+                'scale': self.scale}
 
     def set_state(self, state):
-        self.current_point =\
-            CUQIarray(state['current_point'] , geometry=self.target.geometry)
+        """ Set the state of the sampler. """
+        current_point = state['current_point']
+        if not isinstance(current_point, CUQIarray):
+            current_point = CUQIarray(current_point,
+                                      geometry=self.target.geometry)
 
+        self.current_point = current_point
         self.current_target = state['current_target']
-
         self.scale = state['scale']
