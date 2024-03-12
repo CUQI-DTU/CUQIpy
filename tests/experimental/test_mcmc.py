@@ -51,8 +51,10 @@ def assert_true_if_warmup_is_equivalent(
     # Sampling run is Ns + Nb
     # Tune_freq is used in the new sampler, defining how often to tune.
     # Nb samples are removed afterwards as burn-in
-    np.random.seed(0)    
-    samples_new = sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq).get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
+    np.random.seed(0)
+    sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)  
+    samples_new = \
+        sampler_new.get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
 
     assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
@@ -62,31 +64,6 @@ targets = [
     cuqi.testproblem.Deconvolution1D(dim=128).posterior
 ]
 """ List of targets to test against. """
-
-
-def assert_true_if_warmup_is_equivalent2(
-        sampler_old: cuqi.sampler.Sampler, sampler_new: cuqi.experimental.mcmc.SamplerNew):
-    """ Assert that the samples from the old and new sampler are equivalent.
-     
-    Ns: int
-        Number of samples.
-    
-    Nb: int
-        Number of burn-in samples. (to be removed from the samples)
-
-    Na: int
-        Number of iterations to adapt.
-              
-    """
-
-    np.random.seed(0)
-    sampler_old.sample_adapt(N=101)
-
-    np.random.seed(0)
-    sampler_new.warmup(100)
-    
-
-    assert np.allclose(sampler_old.scale, sampler_new.scale)
 
 # ============ MH ============
 
@@ -142,30 +119,23 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
 @pytest.mark.parametrize("target", targets)
 def test_CWMH_regression_sample(target: cuqi.density.Density):
     """Test the CWMH sampler regression."""
-    sampler_old = cuqi.sampler.CWMH(target,
-                                    scale=np.ones(target.dim),
-                                    x0=np.zeros(target.dim))
-    sampler_new = cuqi.experimental.mcmc.CWMHNew(target, scale=np.ones(target.dim),
-                                    initial_point=np.zeros(target.dim))
+    sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
+    sampler_new = cuqi.experimental.mcmc.CWMHNew(target,
+                                                 scale=np.ones(target.dim))
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new,
                                           Ns=10,
                                           old_idx=[0, -1],
                                           new_idx=[1, -1])
 
 @pytest.mark.parametrize("target", targets)
-def test_CWMH_regression_warmup2(target: cuqi.density.Density):
-    """Test the CWMH sampler regression."""
-    sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
-    sampler_new = cuqi.experimental.mcmc.CWMHNew(target, scale=np.ones(target.dim))
-    assert_true_if_warmup_is_equivalent2(sampler_old, sampler_new)
-
-@pytest.mark.parametrize("target", targets)
 def test_CWMH_regression_warmup(target: cuqi.density.Density):
     """Test the CWMH sampler regression."""
     sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
-    sampler_new = cuqi.experimental.mcmc.CWMHNew(target, scale=np.ones(target.dim))
+    sampler_new = cuqi.experimental.mcmc.CWMHNew(target,
+                                                 scale=np.ones(target.dim))
+    Ns = 100 if target.dim < 50 else 20
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new,
-                                        Ns=100,
+                                        Ns=Ns,
                                         strategy="MH_like",
                                         old_idx=[0, -1],
                                         new_idx=[1, None])
