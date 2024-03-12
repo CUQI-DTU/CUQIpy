@@ -7,16 +7,20 @@ from numbers import Number
 class CWMHNew(ProposalBasedSamplerNew):
     """Component-wise Metropolis Hastings sampler.
 
-    Allows sampling of a target distribution by a component-wise random-walk sampling of a proposal distribution along with an accept/reject step.
+    Allows sampling of a target distribution by a component-wise random-walk
+    sampling of a proposal distribution along with an accept/reject step.
 
     Parameters
     ----------
 
     target : `cuqi.distribution.Distribution` or lambda function
-        The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+        The target distribution to sample. Custom logpdfs are supported by using
+        a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     proposal : `cuqi.distribution.Distribution` or callable method
-        The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
+        The proposal to sample from. If a callable method it should provide a
+        single independent sample from proposal distribution. Defaults to a
+        Gaussian proposal.  *Optional*.
 
     scale : float or ndarray
         Scale parameter used to define correlation between previous and proposed
@@ -28,16 +32,19 @@ class CWMHNew(ProposalBasedSamplerNew):
         Initial parameters. *Optional*
 
     dim : int
-        Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
+        Dimension of parameter space. Required if target and proposal are
+        callable functions. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
+        The signature of the callback function is
+        `callback(sample, sample_index)`, where `sample` is the current sample
+        and `sample_index` is the index of the sample.
         An example is shown in demos/demo31_callback.py.
 
     kwargs : dict
-        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSamplerNew`.
+        Additional keyword arguments to be passed to the base class 
+        :class:`ProposalBasedSamplerNew`.
 
     Example
     -------
@@ -52,8 +59,10 @@ class CWMHNew(ProposalBasedSamplerNew):
         # Logpdf function
         logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
 
-        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported as inputs to UserDefinedDistribution)
-        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+        # Define distribution from logpdf as UserDefinedDistribution (sample
+        # and gradients also supported as inputs to UserDefinedDistribution)
+        target = cuqi.distribution.UserDefinedDistribution(
+            dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
         sampler = cuqi.experimental.mcmc.CWMHNew(target, scale=1)
@@ -121,7 +130,8 @@ class CWMHNew(ProposalBasedSamplerNew):
         x_star = self.current_point.copy()
         target_eval_t = self.current_target
         if isinstance(self.proposal,cuqi.distribution.Distribution):
-            x_i_star = self.proposal(location= self.current_point, scale = self.scale).sample()
+            x_i_star = self.proposal(
+                location= self.current_point, scale=self.scale).sample()
         else:
             x_i_star = self.proposal(self.current_point, self.scale) 
         acc = np.zeros(self.dim)
