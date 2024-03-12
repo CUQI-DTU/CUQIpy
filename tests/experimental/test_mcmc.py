@@ -99,8 +99,8 @@ def test_ULA_regression_sample(target: cuqi.density.Density):
 @pytest.mark.parametrize("target", targets)
 def test_ULA_regression_warmup(target: cuqi.density.Density):
     """Test the ULA sampler regression."""
-    sampler_old = cuqi.sampler.ULA(target, scale=0.1)
-    sampler_new = cuqi.experimental.mcmc.ULANew(target, scale=0.1)
+    sampler_old = cuqi.sampler.ULA(target, scale=0.001)
+    sampler_new = cuqi.experimental.mcmc.ULANew(target, scale=0.001)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ MALA ============
@@ -122,7 +122,8 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
 # ============ Checkpointing ============
 
 @pytest.mark.parametrize("sampler", [
-    cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=1),
+    cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
+    cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
 ])
 def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
     """ Check that the checkpointing functionality works. Tested with save_checkpoint(filename) and load_checkpoint(filename). """
@@ -146,8 +147,8 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
     # Do some more samples from pre-defined rng state
     np.random.seed(0)
-    samples2 = sampler_fresh.sample(100).get_samples().samples[...,:-1] # TODO. This needs to be fixed..
+    samples2 = sampler_fresh.sample(100).get_samples().samples[...,1:] # TODO. This needs to be fixed..
 
     # Check that the samples are the same
-    assert np.allclose(samples1, samples2), f"Samples1: {samples1.samples}\nSamples2: {samples2.samples}"
+    assert np.allclose(samples1, samples2), f"Samples1: {samples1}\nSamples2: {samples2}"
 
