@@ -136,59 +136,68 @@ class CWMHNew(ProposalBasedSamplerNew):
             raise ValueError(fail_msg)
 
     def step(self):
-        # Propose state x_i_star used to update
-        # each component of x_t step by step
+        # Initialize x_t which is used to store the current CWMH sample
         x_t = self.current_point.copy()
+
+        # Initialize x_star which is used to store the proposed sample by
+        # updating the current sample component-by-component
         x_star = self.current_point.copy()
+
+        # Propose a sample x_all_components from the proposal distribution
+        # for all the components
         target_eval_t = self.current_target
         if isinstance(self.proposal,cuqi.distribution.Distribution):
-            x_i_star = self.proposal(
+            x_all_components = self.proposal(
                 location= self.current_point, scale=self.scale).sample()
         else:
-            x_i_star = self.proposal(self.current_point, self.scale) 
+            x_all_components = self.proposal(self.current_point, self.scale)
+
+        # Initialize acceptance rate
         acc = np.zeros(self.dim)
 
+        # Loop over all the components of the sample and accept/reject
+        # each component update.
         for j in range(self.dim):
-            # propose state
-            x_star[j] = x_i_star[j]
+            # propose state x_star by updating the j-th component
+            x_star[j] = x_all_components[j]
 
             # evaluate target
             target_eval_star = self.target.logd(x_star)
 
-            # ratio and acceptance probability
-            ratio = target_eval_star - target_eval_t  # proposal is symmetric
-            alpha = min(0, ratio)
+            # compute Metropolis acceptance ratio
+            alpha = min(0, target_eval_star - target_eval_t)
 
             # accept/reject
             u_theta = np.log(np.random.rand())
-            if (u_theta <= alpha):
-                x_t[j] = x_i_star[j]
+            if (u_theta <= alpha): # accept
+                x_t[j] = x_all_components[j]
                 target_eval_t = target_eval_star
                 acc[j] = 1
-            else:
-                pass
-                # x_t[j]       = x_t[j]
-                # target_eval_t = target_eval_t
+
             x_star = x_t.copy()
 
         self.current_target = target_eval_t
         self.current_point = x_t
-        # NEW: update return
-        # return x_t, target_eval_t, acc
+
         return acc
 
     def tune(self, skip_len, update_count):
-        idx = update_count
-        star_acc = 0.21/self.dim + 0.23
-        hat_acc = np.mean(self._acc[idx*skip_len:(idx+1)*skip_len], axis=0)
+        # Store update_count in variable i for readability
+        i = update_count
 
-        # compute new scaling parameter
-        # ensures that the variation of lambda(i) vanishes
+        # Optimal acceptance rate for CWMH
+        star_acc = 0.21/self.dim + 0.23
+
+        # Mean of acceptance rate over the last skip_len samples
+        hat_acc = np.mean(self._acc[i*skip_len:(i+1)*skip_len], axis=0)
+
+        # Compute new intermediate scaling parameter scale_temp
+        # Factor zeta ensures that the variation of the scale update vanishes
         zeta = 1/np.sqrt(update_count+1)  
         scale_temp = np.exp(
             np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
 
-        # update parameters
+        # Update the scale parameter
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
         self._scale_temp = scale_temp
 
