@@ -100,7 +100,7 @@ class CWMHNew(ProposalBasedSamplerNew):
         pass # All targets are valid
 
     @ProposalBasedSamplerNew.proposal.setter
-     # TODO. Check if we can refactor this.
+    # TODO. Check if we can refactor this.
     # We can work with a validate_proposal method instead?
     def proposal(self, value):
         fail_msg = "Proposal should be either None, "+\
