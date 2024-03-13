@@ -79,8 +79,9 @@ class NUTS(SamplerNew):
         sampler.iteration_list
 
     """
-    def __init__(self, target, x0=None, max_depth=15, adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
-        super().__init__(target, x0=x0, **kwargs)
+    def __init__(self, target, initial_point=None, max_depth=15,
+                 adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
+        super().__init__(target, initial_point=initial_point, **kwargs)
         self.max_depth = max_depth
         self.adapt_step_size = adapt_step_size
         self.opt_acc_rate = opt_acc_rate
@@ -90,37 +91,6 @@ class NUTS(SamplerNew):
         self._num_tree_node = 0
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
-
-    def _create_run_diagnostic_attributes(self):
-        """A method to create attributes to store NUTS run diagnostic."""
-        self._reset_run_diagnostic_attributes()
-
-    def _reset_run_diagnostic_attributes(self):
-        """A method to reset attributes to store NUTS run diagnostic."""
-        # NUTS iterations
-        self.iteration_list = []
-        # List to store number of tree nodes created each NUTS iteration
-        self.num_tree_node_list = []
-        # List of step size used in each NUTS iteration 
-        self.epsilon_list = []
-        # List of burn-in step size suggestion during adaptation 
-        # only used when adaptation is done
-        # remains fixed after adaptation (after burn-in)
-        self.epsilon_bar_list = []
-
-    def _update_run_diagnostic_attributes(self, k, n_tree, eps, eps_bar):
-        """A method to update attributes to store NUTS run diagnostic."""
-        # Store the current iteration number k
-        self.iteration_list.append(k)
-        # Store the number of tree nodes created in iteration k
-        self.num_tree_node_list.append(n_tree)
-        # Store the step size used in iteration k
-        self.epsilon_list.append(eps)
-        # Store the step size suggestion during adaptation in iteration k
-        self.epsilon_bar_list.append(eps_bar)
-
-    def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
-        return self.target.logd(x), self.target.gradient(x)
 
     def _sample(self, N, Nb):
         # Reset run diagnostic attributes
@@ -136,8 +106,8 @@ class NUTS(SamplerNew):
         step_sizes = np.empty(Ns)
 
         # Initial state
-        theta[:, 0] = self.x0
-        joint_eval[0], grad = self._nuts_target(self.x0)
+        theta[:, 0] = self.initial_point
+        joint_eval[0], grad = self._nuts_target(self.initial_point)
 
         # Step size variables
         epsilon, epsilon_bar = None, None
@@ -228,6 +198,27 @@ class NUTS(SamplerNew):
         theta = theta[:, Nb:]
         joint_eval = joint_eval[Nb:]
         return theta, joint_eval, step_sizes
+    #=========================================================================
+    #================== Implement methods required by SamplerNew =============
+    #=========================================================================
+    def validate_target(self):
+        pass #TODO: target needs to have logpdf and gradient methods
+
+    def step(self):
+        pass
+
+    def tune(self, skip_len, update_count):
+        pass
+
+    def get_state(self):
+        pass
+
+    def set_state(self, state):
+        pass
+
+    #=========================================================================
+    def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
+        return self.target.logd(x), self.target.gradient(x)
 
     #=========================================================================
     # auxiliary standard Gaussian PDF: kinetic energy function
@@ -327,14 +318,34 @@ class NUTS(SamplerNew):
         return theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
                 theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
 
-    def step(self):
-        pass
+    #=========================================================================
+    #======================== Diagnostic methods =============================
+    #=========================================================================
 
-    def tune(self, skip_len, update_count):
-        pass
+    def _create_run_diagnostic_attributes(self):
+        """A method to create attributes to store NUTS run diagnostic."""
+        self._reset_run_diagnostic_attributes()
 
-    def get_state(self):
-        pass
+    def _reset_run_diagnostic_attributes(self):
+        """A method to reset attributes to store NUTS run diagnostic."""
+        # NUTS iterations
+        self.iteration_list = []
+        # List to store number of tree nodes created each NUTS iteration
+        self.num_tree_node_list = []
+        # List of step size used in each NUTS iteration 
+        self.epsilon_list = []
+        # List of burn-in step size suggestion during adaptation 
+        # only used when adaptation is done
+        # remains fixed after adaptation (after burn-in)
+        self.epsilon_bar_list = []
 
-    def set_state(self, state):
-        pass
+    def _update_run_diagnostic_attributes(self, k, n_tree, eps, eps_bar):
+        """A method to update attributes to store NUTS run diagnostic."""
+        # Store the current iteration number k
+        self.iteration_list.append(k)
+        # Store the number of tree nodes created in iteration k
+        self.num_tree_node_list.append(n_tree)
+        # Store the step size used in iteration k
+        self.epsilon_list.append(eps)
+        # Store the step size suggestion during adaptation in iteration k
+        self.epsilon_bar_list.append(eps_bar)
