@@ -1,7 +1,6 @@
 # %%
 from cuqi.distribution import DistributionGallery
 from cuqi.experimental.mcmc import MHNew
-
 # %%
 # The samplers in the MCMC module are an re-implementation of this sampler module in a more object oriented way.
 # The sampling results are tested against the samplers in the sampler module in test_mcmc.py.
@@ -76,6 +75,3 @@ print(sampler2.scale) # Should be the same
 sampler.sample(500, batch_size=100, sample_path='demo36_sampler_samples/')
 
 # This stored samples in chunks of 100 in the folder demo36_sampler_samples
-
-
-# %%
