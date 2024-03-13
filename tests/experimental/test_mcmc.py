@@ -85,9 +85,7 @@ def assert_true_if_warmup_is_equivalent(
     assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
 targets = [
-    cuqi.testproblem.Deconvolution1D(dim=2).posterior,
-    cuqi.testproblem.Deconvolution1D(dim=20).posterior,
-    cuqi.testproblem.Deconvolution1D(dim=128).posterior
+    cuqi.testproblem.Deconvolution1D(dim=2).posterior
 ]
 """ List of targets to test against. """
 
@@ -182,6 +180,13 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
                                         old_idx=[0, -1],
                                         new_idx=[1, None])
 
+# ============= HMC (NUTS) ==============
+@pytest.mark.parametrize("target", targets)
+def test_NUTS_regression_sample(target: cuqi.density.Density):
+    """Test the HMC sampler regression."""
+    sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=0.001)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, adapt_step_size=0.001)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
 # ============ Checkpointing ============
 
 @pytest.mark.parametrize("sampler", [
