@@ -58,6 +58,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         sampler.sample(2000)
 
     A Deblur example can be found in demos/demo27_ULA.py
+    # TODO: update demo once sampler merged
     """
     def __init__(self, target, scale=1.0, **kwargs):
 
@@ -195,6 +196,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         sampler.sample(2000)
 
     A Deblur example can be found in demos/demo28_MALA.py
+    # TODO: update demo once sampler merged
     """
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
@@ -224,7 +226,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
         # accept/reject with Metropolis
         acc = 0
-        log_u = np.log(cuqi.distribution.Uniform(low=0, high=1).sample())
+        log_u = np.log(np.random.rand())
         if (log_u <= log_alpha) and (np.isnan(target_eval_star) == False):
             self.current_point = x_star
             self.current_target_eval = target_eval_star
