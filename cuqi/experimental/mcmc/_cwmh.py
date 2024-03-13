@@ -75,16 +75,26 @@ class CWMHNew(ProposalBasedSamplerNew):
                  initial_point=None, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale,
                          initial_point=initial_point, **kwargs)
-        # Set scale
-        if isinstance(scale, Number):
-            self.scale = np.ones(self.dim)*scale
-            self._scale_temp = np.ones(self.dim)*scale
-        elif isinstance(scale, np.ndarray):
-            self.scale = scale
-            self._scale_temp = scale.copy()
+
+        # set initial scale
+        self.scale = scale
 
         # set initial acceptance rate
         self._acc = [np.ones((self.dim))]
+
+    @property
+    def scale(self):
+        """ Get the scale parameter. """
+        return self._scale
+
+    @scale.setter
+    def scale(self, value):
+        """ Set the scale parameter. """
+        if isinstance(value, Number):
+            self._scale = np.ones(self.dim)*value
+        elif isinstance(value, np.ndarray):
+            self._scale = value
+        self._scale_temp = self._scale.copy()
 
     def validate_target(self):
         pass # All targets are valid
