@@ -1,10 +1,11 @@
 import numpy as np
 import numpy as np
 from cuqi.experimental.mcmc import SamplerNew
+import sys
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
-class NUTS(SamplerNew):
+class NUTSNew(SamplerNew):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
     Samples a distribution given its logpdf and gradient using a Hamiltonian Monte Carlo (HMC) algorithm with automatic parameter tuning.
@@ -91,6 +92,8 @@ class NUTS(SamplerNew):
         self._num_tree_node = 0
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
+        self._acc = [None]
+        self.current_point = self.initial_point
 
     def _sample(self, N, Nb):
         # Reset run diagnostic attributes
@@ -106,8 +109,8 @@ class NUTS(SamplerNew):
         step_sizes = np.empty(Ns)
 
         # Initial state
-        theta[:, 0] = self.initial_point
-        joint_eval[0], grad = self._nuts_target(self.initial_point)
+        theta[:, 0] = self.current_point
+        joint_eval[0], grad = self._nuts_target(self.current_point)
 
         # Step size variables
         epsilon, epsilon_bar = None, None
@@ -195,9 +198,10 @@ class NUTS(SamplerNew):
                 raise NameError('NaN potential func')
             
         # apply burn-in 
+        print("theta", theta)
         theta = theta[:, Nb:]
         joint_eval = joint_eval[Nb:]
-        return theta, joint_eval, step_sizes
+        return theta#, joint_eval, step_sizes
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
@@ -205,7 +209,8 @@ class NUTS(SamplerNew):
         pass #TODO: target needs to have logpdf and gradient methods
 
     def step(self):
-        pass
+        self.current_point = self._sample(2, 0)[:,1].flatten()
+        return None
 
     def tune(self, skip_len, update_count):
         pass
@@ -349,3 +354,13 @@ class NUTS(SamplerNew):
         self.epsilon_list.append(eps)
         # Store the step size suggestion during adaptation in iteration k
         self.epsilon_bar_list.append(eps_bar)
+
+    def _print_progress(self,s,Ns):
+        """Prints sampling progress"""
+        if Ns > 2:
+            if (s % (max(Ns//100,1))) == 0:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg)
+            if s==Ns:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg+'\n')
