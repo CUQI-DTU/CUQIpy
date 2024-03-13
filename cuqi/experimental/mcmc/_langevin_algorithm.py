@@ -94,7 +94,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
         Returns
         -------
-        scaler
+        scalar
             1 (accepted)
         """
         self.current_point = x_star
