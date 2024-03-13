@@ -74,7 +74,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             self.target.gradient(np.ones(self.dim))
             pass
         except (NotImplementedError, AttributeError):
-            raise ValueError("The target need to have a gradient method")
+            raise ValueError("The target needs to have a gradient method")
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
