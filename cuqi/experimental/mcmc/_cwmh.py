@@ -99,7 +99,9 @@ class CWMHNew(ProposalBasedSamplerNew):
     def validate_target(self):
         pass # All targets are valid
 
-    @ProposalBasedSamplerNew.proposal.setter 
+    @ProposalBasedSamplerNew.proposal.setter
+     # TODO. Check if we can refactor this.
+    # We can work with a validate_proposal method instead?
     def proposal(self, value):
         fail_msg = "Proposal should be either None, "+\
             f"{cuqi.distribution.Distribution.__class__.__name__} "+\
