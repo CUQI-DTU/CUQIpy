@@ -5,3 +5,4 @@ from ._langevin_algorithm import ULANew, MALANew
 from ._mh import MHNew
 from ._pcn import pCNNew
 from ._cwmh import CWMHNew
+from ._hmc import NUTSNew
