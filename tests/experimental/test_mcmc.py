@@ -14,12 +14,12 @@ def assert_true_if_sampling_is_equivalent(
     Nb: int
         Number of burn-in samples. (to be removed from the samples)
 
-    old_idx: list of int of length 2
+    old_idx: list of length 2
         Indexes to slice the samples from the old sampler. The first index is
         the index of the first sample to be compared and the second index is of
         the last sample.
 
-    new_idx: list of int of length 2
+    new_idx: list of length 2
         Indexes to slice the samples from the new sampler. The first index is
         the index of the first sample to be compared and the second index is of
         the last sample.
@@ -49,12 +49,12 @@ def assert_true_if_warmup_is_equivalent(
     strategy: str
         Tuning strategy defined by sampler to compare with. Default is MH.
 
-    old_idx: list of int of length 2
+    old_idx: list of length 2
         Indexes to slice the samples from the old sampler. The first index is
         the index of the first sample to be compared and the second index is of
         the last sample.
 
-    new_idx: list of int of length 2
+    new_idx: list of length 2
         Indexes to slice the samples from the new sampler. The first index is
         the index of the first sample to be compared (after burn-in is removed,
         i.e. samples start index is Nb+new_idx[0]) and the second index is of
