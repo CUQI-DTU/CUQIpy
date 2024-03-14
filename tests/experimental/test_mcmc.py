@@ -6,8 +6,24 @@ def assert_true_if_sampling_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
         sampler_new: cuqi.experimental.mcmc.SamplerNew,
         Ns=100, atol=1e-1, old_idx=[0, None], new_idx=[0, -1]):
-    """ Assert that the samples from the old and new sampler are equivalent. """
+    """ Assert that the samples from the old and new sampler are equivalent.
 
+    Ns: int
+        Number of samples.
+
+    Nb: int
+        Number of burn-in samples. (to be removed from the samples)
+
+    old_idx: list of int of length 2
+        Indexes to slice the samples from the old sampler. The first index is
+        the index of the first sample to be compared and the second index is of
+        the last sample.
+
+    new_idx: list of int of length 2
+        Indexes to slice the samples from the new sampler. The first index is
+        the index of the first sample to be compared and the second index is of
+        the last sample.
+    """
     np.random.seed(0)
     samples_old = sampler_old.sample(Ns).samples[..., old_idx[0]:old_idx[1]]
 
@@ -26,13 +42,23 @@ def assert_true_if_warmup_is_equivalent(
      
     Ns: int
         Number of samples.
-    
+
     Nb: int
         Number of burn-in samples. (to be removed from the samples)
 
     strategy: str
         Tuning strategy defined by sampler to compare with. Default is MH.
-              
+
+    old_idx: list of int of length 2
+        Indexes to slice the samples from the old sampler. The first index is
+        the index of the first sample to be compared and the second index is of
+        the last sample.
+
+    new_idx: list of int of length 2
+        Indexes to slice the samples from the new sampler. The first index is
+        the index of the first sample to be compared (after burn-in is removed,
+        i.e. samples start index is Nb+new_idx[0]) and the second index is of
+        the last sample.
     """
 
     if strategy == "MH_like":
