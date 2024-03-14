@@ -44,9 +44,19 @@ class LinearRTONew(SamplerNew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, initial_point=None, maxit=10, tol=1e-6, shift=0, **kwargs):
+    def __init__(self, target, initial_point=None, maxit=10, tol=1e-6, shift=0, callback=None, **kwargs):
 
-        super().__init__(target, initial_point=initial_point, **kwargs)
+        self.target = target
+        self.callback = callback
+
+        # # Choose initial point if not given
+        # if initial_point is None:
+        #     initial_point = np.ones(self.dim)
+        
+        # self._samples = [initial_point]
+
+
+        # super().__init__(target, initial_point=initial_point, **kwargs)
 
         self._samples = [np.zeros(self.dim)] #TODO: Should we store zeros as first sample?
 
@@ -58,39 +68,39 @@ class LinearRTONew(SamplerNew):
         self.tol = tol        
         self.shift = shift
                 
-        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
-        L2 = self.prior.sqrtprec
-        L2mu = self.prior.sqrtprecTimesMean
+        # L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
+        # L2 = self.prior.sqrtprec
+        # L2mu = self.prior.sqrtprecTimesMean
 
-        # pre-computations
-        self.n = len(self.initial_point)
-        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
+        # # pre-computations
+        # self.n = len(self.initial_point)
+        # self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
 
-        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
-        notcallability = [not c for c in callability]
-        if all(notcallability):
-            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
-        elif all(callability):
-            # in this case, model is a function doing forward and backward operations
-            def M(x, flag):
-                if flag == 1:
-                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
-                    out2 = L2 @ x
-                    out  = np.hstack(out1 + [out2])
-                elif flag == 2:
-                    idx_start = 0
-                    idx_end = 0
-                    out1 = np.zeros(self.n)
-                    for likelihood in self.likelihoods:
-                        idx_end += len(likelihood.data)
-                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
-                        idx_start = idx_end
-                    out2 = L2.T @ x[idx_end:]
-                    out  = out1 + out2                
-                return out   
-            self.M = M  
-        else:
-            raise TypeError("All likelihoods need to be callable or none need to be callable.") 
+        # callability = [callable(likelihood.model) for likelihood in self.likelihoods]
+        # notcallability = [not c for c in callability]
+        # if all(notcallability):
+        #     self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
+        # elif all(callability):
+        #     # in this case, model is a function doing forward and backward operations
+        #     def M(x, flag):
+        #         if flag == 1:
+        #             out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
+        #             out2 = L2 @ x
+        #             out  = np.hstack(out1 + [out2])
+        #         elif flag == 2:
+        #             idx_start = 0
+        #             idx_end = 0
+        #             out1 = np.zeros(self.n)
+        #             for likelihood in self.likelihoods:
+        #                 idx_end += len(likelihood.data)
+        #                 out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+        #                 idx_start = idx_end
+        #             out2 = L2.T @ x[idx_end:]
+        #             out  = out1 + out2                
+        #         return out   
+        #     self.M = M  
+        # else:
+        #     raise TypeError("All likelihoods need to be callable or none need to be callable.")
 
     @property
     def prior(self):
@@ -148,6 +158,42 @@ class LinearRTONew(SamplerNew):
             value = cuqi.distribution.Posterior(L, P)
         self._target = value
         self.validate_target()
+        self._precompute()
+
+    def _precompute(self):
+        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
+        L2 = self.prior.sqrtprec
+        L2mu = self.prior.sqrtprecTimesMean
+
+        # pre-computations
+        self.n = self.prior.dim
+        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
+
+        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
+        notcallability = [not c for c in callability]
+        if all(notcallability):
+            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
+        elif all(callability):
+            # in this case, model is a function doing forward and backward operations
+            def M(x, flag):
+                if flag == 1:
+                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
+                    out2 = L2 @ x
+                    out  = np.hstack(out1 + [out2])
+                elif flag == 2:
+                    idx_start = 0
+                    idx_end = 0
+                    out1 = np.zeros(self.n)
+                    for likelihood in self.likelihoods:
+                        idx_end += len(likelihood.data)
+                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+                        idx_start = idx_end
+                    out2 = L2.T @ x[idx_end:]
+                    out  = out1 + out2                
+                return out   
+            self.M = M  
+        else:
+            raise TypeError("All likelihoods need to be callable or none need to be callable.")
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
