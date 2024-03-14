@@ -202,7 +202,7 @@ class RegularizedLinearRTONew(LinearRTONew):
     target : `cuqi.distribution.Posterior`
         See `cuqi.sampler.LinearRTO`
 
-    x0 : `np.ndarray` 
+    initial_point : `np.ndarray` 
         Initial point for the sampler. *Optional*.
 
     maxit : int
