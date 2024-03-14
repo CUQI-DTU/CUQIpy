@@ -45,35 +45,6 @@ class LinearRTONew(SamplerNew):
         
     """
     def __init__(self, target, initial_point=None, maxit=10, tol=1e-6, shift=0, **kwargs):
-        
-        # Accept tuple of inputs and construct posterior
-        if isinstance(target, tuple) and len(target) == 5:
-            # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
-            data = target[0]
-            model = target[1]
-            L_sqrtprec = target[2]
-            P_mean = target[3]
-            P_sqrtprec = target[4]
-
-            # If numpy matrix convert to CUQI model
-            if isinstance(model, np.ndarray) and len(model.shape) == 2:
-                model = cuqi.model.LinearModel(model)
-
-            # Check model input
-            if not isinstance(model, cuqi.model.LinearModel):
-                raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
-
-            # Likelihood
-            L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
-
-            # Prior TODO: allow multiple priors stacked
-            #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
-            #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
-            #else:
-            P = cuqi.distribution.Gaussian(P_mean, sqrtprec=P_sqrtprec)
-
-            # Construct posterior
-            target = cuqi.distribution.Posterior(L, P)
 
         super().__init__(target, initial_point=initial_point, **kwargs)
 
@@ -143,6 +114,45 @@ class LinearRTONew(SamplerNew):
     @property
     def data(self):
         return self.target.data
+
+    @property
+    def target(self) -> cuqi.density.Density:
+        """ Return the target density. """
+        return self._target
+
+    @target.setter
+    def target(self, value):
+        """ Set the target density. Runs validation of the target. """
+        # Accept tuple of inputs and construct posterior
+        if isinstance(value, tuple) and len(value) == 5:
+            # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
+            data = value[0]
+            model = value[1]
+            L_sqrtprec = value[2]
+            P_mean = value[3]
+            P_sqrtprec = value[4]
+
+            # If numpy matrix convert to CUQI model
+            if isinstance(model, np.ndarray) and len(model.shape) == 2:
+                model = cuqi.model.LinearModel(model)
+
+            # Check model input
+            if not isinstance(model, cuqi.model.LinearModel):
+                raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
+
+            # Likelihood
+            L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
+
+            # Prior TODO: allow multiple priors stacked
+            #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
+            #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
+            #else:
+            P = cuqi.distribution.Gaussian(P_mean, sqrtprec=P_sqrtprec)
+
+            # Construct posterior
+            value = cuqi.distribution.Posterior(L, P)
+        self._target = value
+        self.validate_target()
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
