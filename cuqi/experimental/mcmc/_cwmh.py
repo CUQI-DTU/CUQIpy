@@ -31,10 +31,6 @@ class CWMHNew(ProposalBasedSamplerNew):
     initial_point : ndarray
         Initial parameters. *Optional*
 
-    dim : int
-        Dimension of parameter space. Required if target and proposal are
-        callable functions. *Optional*.
-
     callback : callable, *Optional*
         If set this function will be called after every sample.
         The signature of the callback function is
@@ -97,7 +93,10 @@ class CWMHNew(ProposalBasedSamplerNew):
         self._scale_temp = self._scale.copy()
 
     def validate_target(self):
-        pass # All targets are valid
+        if not isinstance(self.target, cuqi.density.Density):
+            raise ValueError(
+                "Target should be an instance of "+\
+                f"{cuqi.density.Density.__class__.__name__}")
 
     @ProposalBasedSamplerNew.proposal.setter
     # TODO. Check if we can refactor this.
