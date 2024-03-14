@@ -115,12 +115,7 @@ class LinearRTONew(SamplerNew):
     def data(self):
         return self.target.data
 
-    @property
-    def target(self) -> cuqi.density.Density:
-        """ Return the target density. """
-        return self._target
-
-    @target.setter
+    @SamplerNew.target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
         # Accept tuple of inputs and construct posterior
