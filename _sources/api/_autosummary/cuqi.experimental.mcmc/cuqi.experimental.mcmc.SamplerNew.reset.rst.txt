@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.reset
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: SamplerNew.reset

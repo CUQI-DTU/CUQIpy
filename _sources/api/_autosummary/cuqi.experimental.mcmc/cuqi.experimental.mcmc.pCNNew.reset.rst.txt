@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.pCNNew.reset
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: pCNNew.reset

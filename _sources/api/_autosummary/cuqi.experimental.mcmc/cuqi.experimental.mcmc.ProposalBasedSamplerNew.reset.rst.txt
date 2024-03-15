@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSamplerNew.reset
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ProposalBasedSamplerNew.reset

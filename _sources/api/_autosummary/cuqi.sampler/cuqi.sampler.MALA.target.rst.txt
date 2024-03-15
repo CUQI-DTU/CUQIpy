@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.target
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MALA.target

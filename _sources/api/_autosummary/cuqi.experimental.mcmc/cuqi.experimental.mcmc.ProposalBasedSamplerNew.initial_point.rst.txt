@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSamplerNew.initial\_point
+=============================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ProposalBasedSamplerNew.initial_point

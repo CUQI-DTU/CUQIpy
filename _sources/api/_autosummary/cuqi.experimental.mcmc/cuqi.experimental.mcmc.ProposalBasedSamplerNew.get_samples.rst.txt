@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSamplerNew.get\_samples
+===========================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ProposalBasedSamplerNew.get_samples

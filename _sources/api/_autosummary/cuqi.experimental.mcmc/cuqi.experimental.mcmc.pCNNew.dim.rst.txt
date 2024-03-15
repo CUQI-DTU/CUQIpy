@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.pCNNew.dim
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: pCNNew.dim

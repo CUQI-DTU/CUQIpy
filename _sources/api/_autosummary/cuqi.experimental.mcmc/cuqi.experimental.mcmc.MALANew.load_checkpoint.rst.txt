@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.load\_checkpoint
+===============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALANew.load_checkpoint

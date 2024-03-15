@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULANew.dim
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ULANew.dim

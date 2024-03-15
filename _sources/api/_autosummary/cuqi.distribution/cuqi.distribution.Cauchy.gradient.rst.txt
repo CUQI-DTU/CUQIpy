@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.gradient
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.gradient

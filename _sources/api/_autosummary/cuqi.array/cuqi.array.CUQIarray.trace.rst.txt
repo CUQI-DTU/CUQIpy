@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.trace
+==========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.trace

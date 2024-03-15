@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.pCNNew.target
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: pCNNew.target

@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.log\_proposal
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.log_proposal

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULANew.initial\_point
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ULANew.initial_point

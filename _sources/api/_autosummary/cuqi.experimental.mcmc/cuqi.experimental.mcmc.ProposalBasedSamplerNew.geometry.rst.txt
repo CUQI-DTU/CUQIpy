@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSamplerNew.geometry
+=======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ProposalBasedSamplerNew.geometry

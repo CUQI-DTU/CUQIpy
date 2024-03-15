@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.eigval
+=============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.eigval

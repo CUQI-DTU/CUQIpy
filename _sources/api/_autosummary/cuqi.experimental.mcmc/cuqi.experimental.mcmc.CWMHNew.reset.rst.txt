@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.reset
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMHNew.reset

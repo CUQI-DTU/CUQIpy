@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.get\_state
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMHNew.get_state

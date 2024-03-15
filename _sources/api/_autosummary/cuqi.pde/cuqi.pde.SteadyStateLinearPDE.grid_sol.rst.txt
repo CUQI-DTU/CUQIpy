@@ -1,0 +1,6 @@
+cuqi.pde.SteadyStateLinearPDE.grid\_sol
+=======================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: SteadyStateLinearPDE.grid_sol

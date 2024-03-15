@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.initial\_point
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MHNew.initial_point

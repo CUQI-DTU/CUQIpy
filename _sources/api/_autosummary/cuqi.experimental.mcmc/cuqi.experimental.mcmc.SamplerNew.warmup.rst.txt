@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.warmup
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: SamplerNew.warmup

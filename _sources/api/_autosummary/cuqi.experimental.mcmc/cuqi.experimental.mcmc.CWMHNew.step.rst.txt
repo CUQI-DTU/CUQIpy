@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.step
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMHNew.step

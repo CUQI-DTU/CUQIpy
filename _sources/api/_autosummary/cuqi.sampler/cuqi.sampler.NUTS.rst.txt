@@ -1,0 +1,37 @@
+NUTS
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: NUTS
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NUTS.__init__
+      ~NUTS.sample
+      ~NUTS.sample_adapt
+      ~NUTS.step
+      ~NUTS.step_tune
+      ~NUTS.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NUTS.dim
+      ~NUTS.geometry
+      ~NUTS.target
+   
+   

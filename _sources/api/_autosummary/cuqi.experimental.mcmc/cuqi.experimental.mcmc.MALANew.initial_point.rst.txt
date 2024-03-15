@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.initial\_point
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MALANew.initial_point

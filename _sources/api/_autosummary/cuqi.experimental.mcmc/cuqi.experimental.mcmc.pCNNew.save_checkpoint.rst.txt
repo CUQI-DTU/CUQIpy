@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.pCNNew.save\_checkpoint
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: pCNNew.save_checkpoint

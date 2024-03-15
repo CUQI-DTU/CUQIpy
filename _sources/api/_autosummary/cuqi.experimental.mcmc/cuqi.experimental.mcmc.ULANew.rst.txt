@@ -1,0 +1,44 @@
+ULANew
+======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: ULANew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ULANew.__init__
+      ~ULANew.get_samples
+      ~ULANew.get_state
+      ~ULANew.load_checkpoint
+      ~ULANew.reset
+      ~ULANew.sample
+      ~ULANew.save_checkpoint
+      ~ULANew.set_state
+      ~ULANew.step
+      ~ULANew.tune
+      ~ULANew.validate_target
+      ~ULANew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ULANew.dim
+      ~ULANew.geometry
+      ~ULANew.initial_point
+      ~ULANew.target
+   
+   

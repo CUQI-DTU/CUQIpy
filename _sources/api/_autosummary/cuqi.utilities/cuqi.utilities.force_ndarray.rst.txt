@@ -1,0 +1,6 @@
+force\_ndarray
+==============
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: force_ndarray

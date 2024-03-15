@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.dim
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MALANew.dim

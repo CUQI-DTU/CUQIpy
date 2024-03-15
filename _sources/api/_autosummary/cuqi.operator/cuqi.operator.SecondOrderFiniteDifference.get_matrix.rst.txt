@@ -1,0 +1,6 @@
+cuqi.operator.SecondOrderFiniteDifference.get\_matrix
+=====================================================
+
+.. currentmodule:: cuqi.operator
+
+.. automethod:: SecondOrderFiniteDifference.get_matrix

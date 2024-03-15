@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.step\_tune
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.step_tune

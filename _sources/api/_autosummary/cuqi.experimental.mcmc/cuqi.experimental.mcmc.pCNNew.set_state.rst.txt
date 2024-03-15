@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.pCNNew.set\_state
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: pCNNew.set_state

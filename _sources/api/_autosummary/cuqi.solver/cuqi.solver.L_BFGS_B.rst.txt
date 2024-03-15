@@ -1,0 +1,24 @@
+L\_BFGS\_B
+==========
+
+.. currentmodule:: cuqi.solver
+
+.. autoclass:: L_BFGS_B
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~L_BFGS_B.__init__
+      ~L_BFGS_B.solve
+   
+   
+
+   
+   
+   

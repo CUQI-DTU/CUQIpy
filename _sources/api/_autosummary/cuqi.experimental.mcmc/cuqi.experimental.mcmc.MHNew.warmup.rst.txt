@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.warmup
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MHNew.warmup

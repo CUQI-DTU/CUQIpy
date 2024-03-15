@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.likelihood
+=======================================
+
+.. currentmodule:: cuqi.problem
+
+.. autoproperty:: BayesianProblem.likelihood

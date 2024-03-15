@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.logd
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UserDefinedDistribution.logd

@@ -1,0 +1,6 @@
+cuqi.solver.minimize.\_\_init\_\_
+=================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: minimize.__init__

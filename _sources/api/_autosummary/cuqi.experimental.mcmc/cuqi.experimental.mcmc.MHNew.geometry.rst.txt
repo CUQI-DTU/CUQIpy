@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.geometry
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MHNew.geometry

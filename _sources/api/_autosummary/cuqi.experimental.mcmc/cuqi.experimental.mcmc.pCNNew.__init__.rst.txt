@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.pCNNew.\_\_init\_\_
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: pCNNew.__init__

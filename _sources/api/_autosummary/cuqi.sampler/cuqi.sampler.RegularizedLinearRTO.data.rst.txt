@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.data
+======================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: RegularizedLinearRTO.data

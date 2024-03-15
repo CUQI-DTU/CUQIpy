@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.gradient
+======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: MultipleLikelihoodPosterior.gradient

@@ -1,0 +1,24 @@
+maximize
+========
+
+.. currentmodule:: cuqi.solver
+
+.. autoclass:: maximize
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~maximize.__init__
+      ~maximize.solve
+   
+   
+
+   
+   
+   

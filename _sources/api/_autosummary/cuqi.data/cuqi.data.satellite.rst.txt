@@ -1,0 +1,6 @@
+satellite
+=========
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: satellite
