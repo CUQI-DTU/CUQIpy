@@ -23,7 +23,10 @@ class _UniqueList(list):
 
     def __add__(self, other):
         """Override the + operator to ensure only unique elements are added."""
-        return _UniqueList(dict.fromkeys(self + other))
+        new_list = _UniqueList(self)
+        for item in other:
+            new_list.append(item)
+        return new_list
     
     def __iadd__(self, other):
         """Override the += operator to ensure only unique elements are added."""
