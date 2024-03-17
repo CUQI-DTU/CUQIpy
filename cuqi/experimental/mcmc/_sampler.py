@@ -22,6 +22,12 @@ class SamplerNew(ABC):
 
     """
 
+    _STATE_KEYS = ['current_point', 'current_target']
+    """ List of keys for the state dictionary. """
+
+    _HISTORY_KEYS = ['_samples', '_acc']
+    """ List of keys for the history dictionary. """
+
     def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
         """ Initializer for abstract base class for all samplers.
         
@@ -45,8 +51,10 @@ class SamplerNew(ABC):
         # Choose initial point if not given
         if initial_point is None:
             initial_point = np.ones(self.dim)
+
+        self.initial_point = initial_point
         
-        self._samples = [initial_point]
+        self._samples = [initial_point] # Remove?
 
     # ------------ Abstract methods to be implemented by subclasses ------------
     
@@ -65,24 +73,8 @@ class SamplerNew(ABC):
         """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
         pass
 
-    @abstractmethod
-    def get_state(self):
-        """ Return the state of the sampler. """
-        pass
-
-    @abstractmethod
-    def set_state(self, state):
-        """ Set the state of the sampler. """
-        pass
-
-
     # ------------ Public attributes ------------
-
-    @property
-    def initial_point(self):
-        """ Return the initial point of the sampler. This is always the first sample. """
-        return self._samples[0]
-    
+   
     @property
     def dim(self):
         """ Dimension of the target density. """
@@ -204,6 +196,54 @@ class SamplerNew(ABC):
             self._call_callback(self.current_point, len(self._samples)-1)
 
         return self
+    
+    def get_state(self) -> dict:
+        """ Return the state of the sampler. """   
+        state = {
+            'metadata': {
+                'sampler_type': self.__class__.__name__
+            },
+            'state': {
+                key: getattr(self, key) for key in self._STATE_KEYS
+            }
+        }
+        return state
+
+    def set_state(self, state: dict):
+        """ Set the state of the sampler. """
+        if state['metadata']['sampler_type'] != self.__class__.__name__:
+            raise ValueError(f"Sampler type in state dictionary ({state['metadata']['sampler_type']}) does not match the type of the sampler ({self.__class__.__name__}).")
+        
+        for key, value in state['state'].items():
+            if key in self._STATE_KEYS:
+                setattr(self, key, value)
+            else:
+                raise ValueError(f"Key {key} not recognized in state dictionary of sampler {self.__class__.__name__}.")
+            
+    def get_history(self) -> dict:
+        """ Return the history of the sampler. """
+        history = {
+            'metadata': {
+                'sampler_type': self.__class__.__name__
+            },
+            'history': {
+                key: getattr(self, key) for key in self._HISTORY_KEYS
+            }
+        }
+        return history
+    
+    def set_history(self, history: dict):
+        """ Set the history of the sampler. """
+        if history['metadata']['sampler_type'] != self.__class__.__name__:
+            raise ValueError(f"Sampler type in history dictionary ({history['metadata']['sampler_type']}) does not match the type of the sampler ({self.__class__.__name__}).")
+        
+        for key, value in history['history'].items():
+            if key in self._HISTORY_KEYS:
+                setattr(self, key, value)
+            else:
+                raise ValueError(f"Key {key} not recognized in history dictionary of sampler {self.__class__.__name__}.")
+
+    # ------------ Private methods ------------
 
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
@@ -213,6 +253,9 @@ class SamplerNew(ABC):
 
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
+
+    _STATE_KEYS = SamplerNew._STATE_KEYS + ['proposal', 'scale']
+
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         """ Initializer for proposal based samplers. 
 

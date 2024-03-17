@@ -23,6 +23,8 @@ class MHNew(ProposalBasedSamplerNew):
 
     """
 
+    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS + ['_scale_temp']
+
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
         # Due to a bug? in old MH, we must keep track of this extra variable to match behavior.
@@ -79,13 +81,3 @@ class MHNew(ProposalBasedSamplerNew):
 
         # update parameters
         self.scale = min(self._scale_temp, 1)
-
-    def get_state(self):
-        return {'sampler_type': 'MH', 'current_point': self.current_point.to_numpy(), 'current_target': self.current_target.to_numpy(), 'scale': self.scale}
-
-    def set_state(self, state):
-        temp = CUQIarray(state['current_point'] , geometry=self.target.geometry)
-        self.current_point = temp
-        temp = CUQIarray(state['current_target'] , geometry=self.target.geometry)
-        self.current_target = temp
-        self.scale = state['scale']
