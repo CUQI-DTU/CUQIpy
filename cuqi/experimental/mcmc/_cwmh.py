@@ -199,23 +199,3 @@ class CWMHNew(ProposalBasedSamplerNew):
         # Update the scale parameter
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
         self._scale_temp = scale_temp
-
-    def get_state(self):
-        current_point = self.current_point
-        if isinstance(current_point, CUQIarray):
-            current_point = current_point.to_numpy()
-
-        return {'sampler_type': 'CWMH',
-                'current_point': current_point,
-                'current_target': self.current_target_logd,
-                'scale': self.scale}
-
-    def set_state(self, state):
-        current_point = state['current_point']
-        if not isinstance(current_point, CUQIarray):
-            current_point = CUQIarray(current_point,
-                                      geometry=self.target.geometry)
-
-        self.current_point = current_point
-        self.current_target_logd = state['current_target']
-        self.scale = state['scale']
