@@ -144,7 +144,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
         # Propose a sample x_all_components from the proposal distribution
         # for all the components
-        target_eval_t = self.current_target
+        target_eval_t = self.current_target_logd
         if isinstance(self.proposal,cuqi.distribution.Distribution):
             x_all_components = self.proposal(
                 location= self.current_point, scale=self.scale).sample()
@@ -175,7 +175,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
             x_star = x_t.copy()
 
-        self.current_target = target_eval_t
+        self.current_target_logd = target_eval_t
         self.current_point = x_t
 
         return acc
@@ -207,7 +207,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
         return {'sampler_type': 'CWMH',
                 'current_point': current_point,
-                'current_target': self.current_target,
+                'current_target': self.current_target_logd,
                 'scale': self.scale}
 
     def set_state(self, state):
@@ -217,5 +217,5 @@ class CWMHNew(ProposalBasedSamplerNew):
                                       geometry=self.target.geometry)
 
         self.current_point = current_point
-        self.current_target = state['current_target']
+        self.current_target_logd = state['current_target']
         self.scale = state['scale']
