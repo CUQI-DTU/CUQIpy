@@ -294,7 +294,7 @@ class SamplerNew(ABC):
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS + ['proposal', 'scale']
+    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale']
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         """ Initializer for proposal based samplers. 
