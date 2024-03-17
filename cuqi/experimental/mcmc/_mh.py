@@ -56,7 +56,7 @@ class MHNew(ProposalBasedSamplerNew):
         target_eval_star = self.target.logd(x_star)
 
         # ratio and acceptance probability
-        ratio = target_eval_star - self.current_target # proposal is symmetric
+        ratio = target_eval_star - self.current_target_logd # proposal is symmetric
         alpha = min(0, ratio)
 
         # accept/reject
@@ -64,7 +64,7 @@ class MHNew(ProposalBasedSamplerNew):
         acc = 0
         if (u_theta <= alpha):
             self.current_point = x_star
-            self.current_target = target_eval_star
+            self.current_target_logd = target_eval_star
             acc = 1
         
         return acc

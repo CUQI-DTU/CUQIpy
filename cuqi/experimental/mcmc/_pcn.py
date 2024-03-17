@@ -5,13 +5,15 @@ from cuqi.array import CUQIarray
 
 class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
+    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale', 'current_loglike_logd']
+
     def __init__(self, target, scale=1.0, **kwargs):
 
         super().__init__(target, **kwargs)
 
         self.scale = scale
         self.current_point = self.initial_point
-        self.current_loglike_eval = self._loglikelihood(self.current_point)
+        self.current_loglike_logd = self._loglikelihood(self.current_point)
 
         self._acc = [1] # TODO. Check if we need this
 
@@ -33,7 +35,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         loglike_eval_star =  self._loglikelihood(x_star) 
 
         # ratio and acceptance probability
-        ratio = loglike_eval_star - self.current_loglike_eval  # proposal is symmetric
+        ratio = loglike_eval_star - self.current_loglike_logd  # proposal is symmetric
         alpha = min(0, ratio)
 
         # accept/reject
@@ -41,7 +43,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         u_theta = np.log(np.random.rand())
         if (u_theta <= alpha):
             self.current_point = x_star
-            self.current_loglike_eval = loglike_eval_star
+            self.current_loglike_logd = loglike_eval_star
             acc = 1
         
         return acc
@@ -87,15 +89,3 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
     def tune(self, skip_len, update_count):
         pass
-
-    def get_state(self):
-        return {'sampler_type': 'PCN', 'current_point': self.current_point.to_numpy(), \
-                'current_loglike_eval': self.current_loglike_eval.to_numpy(), \
-                'scale': self.scale}
-
-    def set_state(self, state):
-        temp = CUQIarray(state['current_point'] , geometry=self.target.geometry)
-        self.current_point = temp
-        temp = CUQIarray(state['current_loglike_eval'] , geometry=self.target.geometry)
-        self.current_loglike_eval = temp
-        self.scale = state['scale']

@@ -22,7 +22,7 @@ class SamplerNew(ABC):
 
     """
 
-    _STATE_KEYS = ['current_point', 'current_target']
+    _STATE_KEYS = ['current_point', 'current_target_logd']
     """ List of keys for the state dictionary. """
 
     _HISTORY_KEYS = ['_samples', '_acc']
@@ -95,6 +95,25 @@ class SamplerNew(ABC):
         self._target = value
         self.validate_target()
 
+    @property
+    def current_point(self):
+        """ The current point of the sampler. """
+        return self._current_point
+    
+    @current_point.setter
+    def current_point(self, value):
+        """ Set the current point of the sampler. """
+        self._current_point = value
+
+    @property
+    def current_target_logd(self):
+        """ The current target value of the sampler. """
+        return self._current_target_logd
+    
+    @current_target_logd.setter
+    def current_target_logd(self, value):
+        """ Set the current target value of the sampler. """
+        self._current_target_logd = value
 
     # ------------ Public methods ------------
 
@@ -277,7 +296,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         super().__init__(target, **kwargs)
 
         self.current_point = self.initial_point
-        self.current_target = self.target.logd(self.current_point)
+        self.current_target_logd = self.target.logd(self.current_point)
         self.proposal = proposal
         self.scale = scale
 
