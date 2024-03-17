@@ -13,6 +13,24 @@ except ImportError:
         warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
         return iterable
 
+class _UniqueList(list):
+    """ Utility class to store a list of unique elements. """
+
+    def append(self, item):
+        """ Append an item to the list if it is not already in the list. """
+        if item not in self:
+            super().append(item)
+
+    def __add__(self, other):
+        """Override the + operator to ensure only unique elements are added."""
+        return _UniqueList(dict.fromkeys(self + other))
+    
+    def __iadd__(self, other):
+        """Override the += operator to ensure only unique elements are added."""
+        for item in other:
+            self.append(item)
+        return self
+
 class SamplerNew(ABC):
     """ Abstract base class for all samplers.
     
@@ -22,10 +40,10 @@ class SamplerNew(ABC):
 
     """
 
-    _STATE_KEYS = ['current_point', 'current_target_logd']
+    _STATE_KEYS = _UniqueList(['current_point', 'current_target_logd'])
     """ List of keys for the state dictionary. """
 
-    _HISTORY_KEYS = ['_samples', '_acc']
+    _HISTORY_KEYS = _UniqueList(['_samples', '_acc'])
     """ List of keys for the history dictionary. """
 
     def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
