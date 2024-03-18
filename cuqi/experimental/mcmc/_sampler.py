@@ -1,11 +1,17 @@
 from abc import ABC, abstractmethod
 import os
-import sys
 import numpy as np
 import pickle as pkl
+import warnings
 import cuqi
 from cuqi.samples import Samples
-from progressbar import progressbar
+
+try:
+    from progressbar import progressbar
+except ImportError:
+    def progressbar(iterable, **kwargs):
+        warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
+        return iterable
 
 class SamplerNew(ABC):
     """ Abstract base class for all samplers.
