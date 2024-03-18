@@ -268,6 +268,8 @@ class CGLS(object):
         x = self.x0.copy()
         if self.explicitA:
             r = self.b - (self.A @ x)
+            print(r.shape)
+            print(self.A.T.shape)
             s = (self.A.T @ r) - self.shift*x
         else:        
             r = self.b - self.A(x, 1)
@@ -298,6 +300,7 @@ class CGLS(object):
             x += alpha_cgls*p
             r -= alpha_cgls*q
             if self.explicitA:
+                print
                 s = self.A.T @ r - self.shift*x     
             else:
                 s = self.A(r, 2) - self.shift*x
@@ -675,6 +678,22 @@ def ProjectBox(x, lower = None, upper = None):
     
     return np.minimum(np.maximum(x, lower), upper)
 
+def ProjectHalfspace(x, a, b):
+    """(Euclidean) projection onto the halfspace defined {z|<a,z> <= b}.
+    
+    Parameters
+    ----------
+    x : array_like.
+    a : array_like.
+    b : array_like.
+    """  
+
+    ax_b = np.inner(a,x)-b
+    if ax_b <= 0:
+        return x
+    else:
+        return x - (ax_b/np.inner(a,a))*a
+
 def ProximalL1(x, gamma):
     """(Euclidean) proximal operator of the \|x\|_1 norm.
     Also known as the shrinkage or soft thresholding operator.
@@ -685,3 +704,79 @@ def ProximalL1(x, gamma):
     gamma : scale parameter.
     """
     return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))
+
+
+def DykstrasProjection(x, projectors, reltol = 1e-6, maxiters = 100):
+    """(Euclidean) projection onto the intersection of the domains of the projectors.
+    
+    Parameters
+    ----------
+    x : array_like.
+    projectors : List of projectors.
+    maxiters : The maximum number of iterations.
+    """
+        
+    n_proj = len(projectors)
+    
+    u = x.copy()
+    u_old = u.copy()
+    duals = n_proj*[np.zeros_like(u)]
+
+    k = 0
+    while True:
+        k+=1
+        for i in range(n_proj):
+            d = u + duals[i]
+            u = projectors[i](d)
+            duals[i] = d - u
+        if k >= maxiters or LA.norm(u-u_old) <= reltol*LA.norm(u_old):
+            return u
+        u_old = u.copy()
+
+
+class ADMM:
+    def __init__(self, A, b, x0, rho, penalties, maxit = 100):
+
+        self.A = A
+        self.b = b
+        self.x_cur = x0
+        self.y_cur = [np.zeros(penalty[1].shape[0]) for penalty in penalties]
+        self.u_cur = [np.zeros(penalty[1].shape[0]) for penalty in penalties]
+        
+        self.rho = rho
+        self.maxit = maxit
+
+        self.penalties = penalties
+    
+    def solve(self):
+        p = len(self.penalties)
+        sqrt2rho = np.sqrt(2/self.rho)
+        
+        y_new = p*[0]
+        u_new = p*[0]
+        
+        # Preprocessing
+        big_matrix = np.vstack([sqrt2rho*self.A] + [penalty[1] for penalty in self.penalties])
+
+        # Iterating
+        for i in range(self.maxit):
+            
+            # Main update (Least Squares)
+            big_vector = np.hstack([sqrt2rho*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(p)])
+            print("matrix shape: ", big_matrix.shape)
+            print("vector shape: ", big_vector.shape)
+            print("x0 shape: ", self.x_cur.shape)
+            solver = CGLS(big_matrix, big_vector, self.x_cur, 13)
+            x_new, _ = solver.solve()
+        
+            # Regularization update
+            for i, penalty in enumerate(self.penalties):
+                y_new[i] = penalty[0](penalty[1]@x_new + self.u_cur[i], 1.0/self.rho)
+                
+            # Dual update
+            for i, penalty in enumerate(self.penalties):
+                u_new[i] =  self.u_cur[i] + (penalty[1]@x_new - y_new[i])
+            
+            self.x_cur, self.y_cur, self.u_cur = x_new, y_new, u_new
+            
+        return self.x_cur, i

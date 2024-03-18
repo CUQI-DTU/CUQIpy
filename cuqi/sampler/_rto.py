@@ -169,6 +169,7 @@ class LinearRTO(Sampler):
         return self._sample(N,Nb)
     
     def _check_posterior(self):
+        
         # Check target type
         if not isinstance(self.target, (cuqi.distribution.Posterior, cuqi.distribution.MultipleLikelihoodPosterior)):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior' or 'cuqi.distribution.MultipleLikelihoodPosterior'.")       
@@ -228,7 +229,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
 
         if not callable(target.prior.proximal):
             raise TypeError("Projector needs to be callable")
@@ -239,6 +240,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.stepsize = stepsize
         self.abstol = abstol   
         self.adaptive = adaptive
+        self.warmstart_CGLS = warmstart_CGLS
         self.proximal = target.prior.proximal
 
     @property
@@ -267,7 +269,14 @@ class RegularizedLinearRTO(LinearRTO):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = FISTA(self.M, y, samples[:, s], self.proximal,
+
+            if self.warmstart_CGLS:
+                ws_sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+                x0, _ = ws_sim.solve()
+            else:
+                x0 = samples[:, s]
+
+            sim = FISTA(self.M, y, x0, self.proximal,
                         maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
             samples[:, s+1], _ = sim.solve()
             
