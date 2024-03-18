@@ -160,9 +160,6 @@ class LinearRTONew(SamplerNew):
 
     def tune(self, skip_len, update_count):
         pass
-
-    def _sample_adapt(self, N, Nb):
-        return self._sample(N,Nb)
     
     def validate_target(self):
         # Check target type
