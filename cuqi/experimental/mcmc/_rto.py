@@ -227,9 +227,6 @@ class RegularizedLinearRTONew(LinearRTONew):
         
     """
     def __init__(self, target, initial_point=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
-
-        if not callable(target.prior.proximal):
-            raise TypeError("Projector needs to be callable")
         
         super().__init__(target, initial_point=initial_point, maxit=100, **kwargs)
 
@@ -239,6 +236,12 @@ class RegularizedLinearRTONew(LinearRTONew):
         self.adaptive = adaptive
         self.proximal = target.prior.proximal
         self._stepsize = self._choose_stepsize()
+
+    @LinearRTONew.target.setter
+    def target(self, value):
+        if not callable(value.prior.proximal):
+            raise TypeError("Projector needs to be callable")
+        return super(RegularizedLinearRTONew, type(self)).target.fset(self, value)
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
