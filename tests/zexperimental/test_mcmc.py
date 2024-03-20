@@ -172,16 +172,25 @@ def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
-# ============ RegularizedLinearRTO ============
-def test_RegularizedLinearRTO_regression_sample():
-    """Test the LinearRTO sampler regression."""
-    n = 128
-    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=n, phantom='square').get_components()
-    x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(n), 0.1, constraint = "nonnegativity")
+def create_regularized_target(dim=16):
+    """Create a regularized target."""
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint = "nonnegativity")
     y = cuqi.distribution.Gaussian(A@x, 0.001)
+    return cuqi.distribution.JointDistribution(x, y)(y=y_data)
 
-    joint = cuqi.distribution.JointDistribution(x, y)
-    target = joint(y=y_data)
+regularized_targets = [
+    create_regularized_target(dim=32),
+    create_regularized_target(dim=64),
+    create_regularized_target(dim=128)
+]
+""" List of regularized targets to test against. """
+
+# ============ RegularizedLinearRTO ============
+
+@pytest.mark.parametrize("target", regularized_targets)
+def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
+    """Test the RegularizedLinearRTO sampler regression."""
 
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target)
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target)
