@@ -236,6 +236,7 @@ class RegularizedLinearRTONew(LinearRTONew):
         self.adaptive = adaptive
         self.proximal = target.prior.proximal
         self._stepsize = self._choose_stepsize()
+        self.maxit = maxit
 
     @LinearRTONew.target.setter
     def target(self, value):
