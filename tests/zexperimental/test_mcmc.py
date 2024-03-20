@@ -172,6 +172,43 @@ def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
+# ============ LinearRTO with MultipleLikelihoodPosterior ============
+
+def create_MultipleLikelihoodPosterior_target(dim=16):
+    """Create a target with multiple likelihoods."""
+    A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    A2, data2, info2 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+
+    x = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1)
+    y1 = cuqi.distribution.Gaussian(A1@x, 0.001)
+    y2 = cuqi.distribution.Gaussian(A2@x, 0.001)
+
+    target = cuqi.distribution.JointDistribution(x,y1,y2)(y1=data1, y2=data2)
+
+    return target
+
+multiple_likelihood_posterior_targets = [
+    create_MultipleLikelihoodPosterior_target(dim=32),
+    create_MultipleLikelihoodPosterior_target(dim=64),
+    create_MultipleLikelihoodPosterior_target(dim=128)
+]
+
+@pytest.mark.parametrize("target", multiple_likelihood_posterior_targets)
+def test_LinearRTO_MultipleLikelihoodPosterior_regression_sample(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.LinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", multiple_likelihood_posterior_targets)
+def test_LinearRTO_MultipleLikelihoodPosterior_regression_warmup(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.LinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
+# ============ RegularizedLinearRTO ============
+
 def create_regularized_target(dim=16):
     """Create a regularized target."""
     A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
@@ -184,9 +221,6 @@ regularized_targets = [
     create_regularized_target(dim=64),
     create_regularized_target(dim=128)
 ]
-""" List of regularized targets to test against. """
-
-# ============ RegularizedLinearRTO ============
 
 @pytest.mark.parametrize("target", regularized_targets)
 def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
@@ -199,6 +233,45 @@ def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
 @pytest.mark.parametrize("target", regularized_targets)
 def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
+
+    sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
+# ============ RegularizedLinearRTO with MultipleLikelihoodPosterior ============
+
+def create_MultipleLikelihoodPosterior_regularized_target(dim=16):
+    """Create a target with multiple likelihoods and a regularized prior."""
+    A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    A2, data2, info2 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+
+    x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint = "nonnegativity")
+    y1 = cuqi.distribution.Gaussian(A1@x, 0.001)
+    y2 = cuqi.distribution.Gaussian(A2@x, 0.001)
+
+    target = cuqi.distribution.JointDistribution(x,y1,y2)(y1=data1, y2=data2)
+
+    return target
+
+multiple_likelihood_posterior_regularized_targets = [
+    create_MultipleLikelihoodPosterior_regularized_target(dim=32),
+    create_MultipleLikelihoodPosterior_regularized_target(dim=64),
+    create_MultipleLikelihoodPosterior_regularized_target(dim=128)
+]
+
+@pytest.mark.parametrize("target", multiple_likelihood_posterior_regularized_targets)
+def test_RegularizedLinearRTO_MultipleLikelihoodPosterior_regression_sample(target: cuqi.density.Density):
+    """Test the RegularizedLinearRTO sampler regression with
+    MultipleLikelihoodPosterior."""
+
+    sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", multiple_likelihood_posterior_regularized_targets)
+def test_RegularizedLinearRTO_MultipleLikelihoodPosterior_regression_warmup(target: cuqi.density.Density):
+    """Test the RegularizedLinearRTO sampler warmup with
+    MultipleLikelihoodPosterior."""
 
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
