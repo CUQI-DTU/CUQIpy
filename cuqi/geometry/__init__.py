@@ -13,7 +13,8 @@ from ._geometry import (
     KLExpansion,
     KLExpansion_Full,
     CustomKL,
-    StepExpansion
+    StepExpansion,
+    ConcatenatedGeometries
 )
 
 

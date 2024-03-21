@@ -1,5 +1,8 @@
-from cuqi.geometry import _DefaultGeometry, _get_identity_geometries
+from cuqi.geometry import _DefaultGeometry, _get_identity_geometries\
+    , ConcatenatedGeometries
 from cuqi.distribution import Distribution
+from cuqi.utilities import _split_stacked_args
+import numpy as np
 
 # ========================================================================
 class Posterior(Distribution):
@@ -16,8 +19,11 @@ class Posterior(Distribution):
     """
     def __init__(self, likelihood, prior, **kwargs):
 
-        if len(likelihood.get_parameter_names()) > 1:
-            raise ValueError("Likelihood must only have one parameter.")
+        #if len(likelihood.get_parameter_names()) > 1:
+        #    raise ValueError("Likelihood must only have one parameter.")
+        # Likelihood parameter must be the same as prior parameter
+        if likelihood.get_parameter_names() != prior.get_parameter_names():
+            raise ValueError("Likelihood and prior must have the same parameter names and order.")
         if prior.is_cond:
             raise ValueError("Prior must not be a conditional distribution.")
 
@@ -83,6 +89,8 @@ class Posterior(Distribution):
             
     def logpdf(self, *args, **kwargs):
         """ Returns the logpdf of the posterior distribution"""
+        # split stacked parameters
+        args, kwargs = _split_stacked_args(self.geometry, *args, **kwargs)
         return self.likelihood.logd(*args, **kwargs)+ self.prior.logd(*args, **kwargs)
 
     def get_conditioning_variables(self):

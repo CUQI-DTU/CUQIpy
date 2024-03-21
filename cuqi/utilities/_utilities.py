@@ -1,4 +1,5 @@
 from cuqi.array import CUQIarray
+from cuqi.geometry import ConcatenatedGeometries
 import numpy as np
 import inspect
 from numbers import Number
@@ -215,3 +216,29 @@ def approx_gradient(func, x, epsilon= 0.000001):
         eps_vec[i] = 0.0
         
     return FD_gradient
+
+def _split_stacked_args(geometry, *args, **kwargs):
+    """ Private function that checks if the input arguments are stacked
+    and splits them if they are. """
+    # Length of args should be 1 if the input is stacked (no partial
+    # stacking is supported)
+    if len(args) > 1:
+        return args, kwargs
+    
+    # Stacked input should be passed as args only
+    if len(kwargs) > 0:
+        return args, kwargs
+
+    # Shape of args[0] should be (self.dim,)
+    if not args[0].shape == (geometry.par_dim,):
+        return args, kwargs
+
+    # Ensure geometry is ConcatenatedGeometries
+    if not isinstance(geometry, ConcatenatedGeometries):
+        return args, kwargs
+
+    # Split the stacked input
+    args = np.split(
+        args[0], geometry.stack_indices[1:-1])
+
+    return args, kwargs

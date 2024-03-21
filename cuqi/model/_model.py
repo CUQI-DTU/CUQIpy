@@ -5,7 +5,8 @@ from scipy.sparse import hstack
 from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
-from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D, _get_identity_geometries
+from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D,\
+    _get_identity_geometries, ConcatenatedGeometries
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
@@ -90,30 +91,30 @@ class Model(object):
     """
     def __init__(self, forward, range_geometry, domain_geometry, gradient=None, jacobian=None):
 
-        #Check if input is callable
+        # Check if input is callable
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function.")
-        
+
         # Check if only one of gradient and jacobian is given
         if (gradient is not None) and (jacobian is not None):
             raise TypeError("Only one of gradient and jacobian should be specified")
-        
-        #Check if input is callable
+
+        # Check if input is callable
         if (gradient is not None) and (callable(gradient) is not True):
             raise TypeError("Gradient needs to be callable function.")
-        
+
         if (jacobian is not None) and (callable(jacobian) is not True):
             raise TypeError("Jacobian needs to be callable function.")
-        
+
         # Use jacobian function to specify gradient function (vector-Jacobian product)
         if jacobian is not None:
             gradient = lambda direction, wrt: direction@jacobian(wrt)
- 
-        #Store forward func
+
+        # Store forward func
         self._forward_func = forward
         self._gradient_func = gradient
-         
-        #Store range_geometry
+
+        # Store range_geometry
         if isinstance(range_geometry, tuple) and len(range_geometry) == 2:
             self.range_geometry = _DefaultGeometry2D(range_geometry)
         elif isinstance(range_geometry, int):
@@ -121,11 +122,11 @@ class Model(object):
         elif isinstance(range_geometry, Geometry):
             self.range_geometry = range_geometry
         elif range_geometry is None:
-            raise AttributeError("The parameter 'range_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
+            raise AttributeError("The parameter 'range_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'.")
         else:
             raise TypeError("The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
 
-        #Store domain_geometry
+        # Store domain_geometry
         if isinstance(domain_geometry, tuple) and len(domain_geometry) == 2:
             self.domain_geometry = _DefaultGeometry2D(domain_geometry)
         elif isinstance(domain_geometry, int):
@@ -148,7 +149,7 @@ class Model(object):
     def range_dim(self): 
         return self.range_geometry.par_dim
 
-    def _2fun(self, x, geometry, is_par):
+    def _2fun(self, geometry=None, is_par=True, **kwargs):
         """ Converts `x` to function values (if needed) using the appropriate 
         geometry. For example, `x` can be the model input which need to be
         converted to function value before being passed to 
@@ -172,18 +173,36 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             `x` represented as a function.
         """
-        # Convert to function representation
-        # if x is CUQIarray and geometry are consistent, we obtain funvals
-        # directly
-        if isinstance(x, CUQIarray) and  x.geometry == geometry:
-            x = x.funvals
-        # Otherwise we use the geometry par2fun method
-        elif is_par:
-            x = geometry.par2fun(x)
+        # Case of multiple inputs
+        if len(kwargs) >= 1 and isinstance(geometry,ConcatenatedGeometries):
+            for i , (k, v) in enumerate(kwargs.items()):
+                if isinstance(v, CUQIarray) and\
+                    v.geometry == geometry.geometries[i]:
+                    kwargs[k] = v.funvals
+                # Otherwise we use the geometry par2fun method
+                elif is_par:
+                    kwargs[k] = geometry.geometries[i].par2fun(v)
+            return kwargs
 
-        return x
+        # Case of single input
+        if len(kwargs) == 1:
+            k, v = kwargs.popitem()
+            # Convert to function representation
+            # if x is CUQIarray and geometry are consistent, we obtain funvals
+            # directly
+            if isinstance(v, CUQIarray) and  v.geometry == geometry:
+                v = v.funvals
+            # Otherwise we use the geometry par2fun method
+            elif is_par:
+                v = geometry.par2fun(v)
+            return {k: v}
 
-    def _2par(self, val, geometry, to_CUQIarray=False, is_par=False):
+        raise ValueError(
+            "The input is specified by more than one argument. This is only "
+            +"supported for domain geometry of type "
+            +f"{ConcatenatedGeometries.__name__}.")
+
+    def _2par(self, geometry=None, to_CUQIarray=False, is_par=False, **kwargs):    
         """ Converts val, normally output of :class:~`cuqi.model.Model` 
         operators (e.g. _forward_func, _adjoint_func, _gradient_func), to
         parameters using the appropriate geometry.
@@ -208,24 +227,36 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             The value `val` represented as parameters.
         """
-        # Convert to parameters
-        # if val is CUQIarray and geometry are consistent, we obtain parameters
-        # directly
-        if isinstance(val, CUQIarray) and val.geometry == geometry:
-            val = val.parameters
-        # Otherwise we use the geometry fun2par method
-        elif not is_par:
-            val = geometry.fun2par(val)
+        # If len of kwargs is larger than 1, the geometry needs to be of type
+        # ConcatenatedGeometries
+        if len(kwargs) > 1:
+            if not isinstance(geometry, ConcatenatedGeometries):
+                raise ValueError(
+                    "The input is specified by more than one argument. This is only "
+                    +"supported for domain geometry of type "
+                    +f"{ConcatenatedGeometries.__name__}.")
 
-        # Wrap val in CUQIarray if requested
-        if to_CUQIarray:
-            val = CUQIarray(val, is_par=True, geometry=geometry)
+        for i , (k, v) in enumerate(kwargs.items()):
+            # Convert to parameters
+            # if val is CUQIarray and geometry are consistent, we obtain parameters
+            # directly
+            input_geom = geometry.geometries[i]\
+                if isinstance(geometry, ConcatenatedGeometries) else geometry
+            if isinstance(v, CUQIarray) and v.geometry == input_geom:
+                v = v.parameters
+            # Otherwise we use the geometry fun2par method
+            elif not is_par:
+                v = input_geom.fun2par(v)
 
-        # Return val
-        return val
-        
+            # Wrap val in CUQIarray if requested
+            if to_CUQIarray:
+                v = CUQIarray(v, is_par=True, geometry=input_geom)
 
-    def _apply_func(self, func, func_range_geometry, func_domain_geometry, x, is_par, **kwargs):
+            kwargs[k] = v
+        # Return kwargs
+        return kwargs
+
+    def _apply_func(self, func=None, fwd=True, is_par=True, **kwargs):
         """ Private function that applies the given function `func` to the input value `x`. It converts the input to function values (if needed) using the given `func_domain_geometry` and converts the output function values to parameters using the given `func_range_geometry`. It additionally handles the case of applying the function `func` to the cuqi.samples.Samples object.
 
         kwargs are keyword arguments passed to the functions `func`.
@@ -253,47 +284,122 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             The output of the function `func` converted to parameters.
         """ 
+        if fwd:
+            func_range_geometry = self.range_geometry
+            func_domain_geometry = self.domain_geometry
+        else:
+            func_range_geometry = self.domain_geometry
+            func_domain_geometry = self.range_geometry
+
         # If input x is Samples we apply func for each sample
         # TODO: Check if this can be done all-at-once for computational speed-up
-        if isinstance(x,Samples):
-            out = np.zeros((func_range_geometry.par_dim, x.Ns))
-            # Recursively apply func to each sample
-            for idx, item in enumerate(x):
-                out[:,idx] = self._apply_func(func,
-                                              func_range_geometry,
-                                              func_domain_geometry,
-                                              item, is_par=True,
-                                              **kwargs)
-            return Samples(out, geometry=func_range_geometry)
-        
-        # store if input x is CUQIarray
-        is_CUQIarray = type(x) is CUQIarray
+        if any(isinstance(x,Samples) for x in kwargs.values()):
+            return self._handle_samples(func, fwd, is_par, **kwargs)
 
-        x = self._2fun(x, func_domain_geometry, is_par=is_par)
-        out = func(x, **kwargs)
+        # store if any input x is CUQIarray
+        is_CUQIarray = any(isinstance(x, CUQIarray) for x in kwargs.values())
 
-        # Return output as parameters 
+        kwargs = self._2fun(
+            geometry=func_domain_geometry, is_par=is_par, **kwargs)
+        out = func(**kwargs)
+
+        # Return output as parameters
         # (and wrapped in CUQIarray if input was CUQIarray)
-        return self._2par(out, func_range_geometry, 
-                                    to_CUQIarray=is_CUQIarray)
+        return self._2par(
+            geometry=func_range_geometry,
+            to_CUQIarray=is_CUQIarray,
+            **{"out":out})['out']
 
-    def _parse_args_add_to_kwargs(self, *args, **kwargs):
+    def _handle_samples(self, func=None, fwd=True, is_par=True, **kwargs):
+
+        func_range_geometry =\
+            self.range_geometry if fwd else self.domain_geometry
+
+        # all kwargs should be Samples of the same length
+        if not all(isinstance(x, Samples) for x in kwargs.values()) and\
+            not all(x.Ns == kwargs.values()[0].Ns for x in kwargs.values()):
+            raise ValueError(
+                "All input arguments should be Samples of the same length.")
+
+        out = np.zeros((func_range_geometry.par_dim, kwargs.values()[0].Ns))
+
+        # Recursively apply func to each sample
+        for i in range(kwargs.values()[0].Ns):
+            kwargs_i = {k: v[i] for k, v in kwargs.items()}
+            out[:,i] = self._apply_func(func=func,
+                                        fwd=fwd,
+                                        is_par=is_par,
+                                        **kwargs_i)
+
+        return Samples(out, geometry=func_range_geometry)
+
+    def _parse_args_add_to_kwargs(self, *args, is_par=True, **kwargs):
         """ Private function that parses the input arguments of the model and adds them as keyword arguments matching the non default arguments of the forward function. """
 
         if len(args) > 0:
 
             if len(kwargs) > 0:
                 raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
-                
+
             if len(args) != len(self._non_default_args):
-                raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model.")
-            
+                # Check if the input is stacked and split it
+                stacked_args_processed, split_args = self.is_stacked_args(*args, is_par=is_par)
+                args = split_args
+
+                # Raise error if it is not possible to interpret the input
+                # as stacked and the number of positional arguments does not
+                # match the number of non-default arguments of the model
+                if not stacked_args_processed:
+                    raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model.")
+
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
                 kwargs[self._non_default_args[idx]] = arg
 
         return kwargs
-        
+
+    def is_stacked_args(self, *args, is_par=True):
+        """ Private function that checks if the input arguments are stacked
+        and splits them if they are. """
+        # Length of args should be 1 if the input is stacked (no partial
+        # stacking is supported)
+        if len(args) > 1:
+            return False, args
+
+        # Type of args should be parameter
+        if not is_par:
+            return False, args
+
+        # args[0] should be numpy array or CUQIarray
+        is_CUQIarray = isinstance(args[0], CUQIarray)
+        is_numpy_array = isinstance(args[0], np.ndarray)
+        if not is_CUQIarray and not is_numpy_array:
+            return False, args
+
+        # Shape of args[0] should be (domain_dim,)
+        if not args[0].shape == (self.domain_dim,):
+            return False, args
+
+        # Ensure domain geometry is ConcatenatedGeometries
+        if not isinstance(self.domain_geometry, ConcatenatedGeometries):
+            return False, args
+
+        # Split the stacked input
+        split_args = np.split(
+            args[0], self.domain_geometry.stack_indices[1:-1])
+
+        # Covert split args to CUQIarray if input is CUQIarray
+        if is_CUQIarray:
+            split_args = [
+                CUQIarray(
+                    arg,
+                    is_par=True,
+                    geometry=self.domain_geometry.geometries[i])
+                for i, arg in enumerate(split_args)
+            ]
+
+        return True, split_args
+
     def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
         
@@ -305,7 +411,7 @@ class Model(object):
         *args : ndarray or cuqi.array.CUQIarray
             The model input.
 
-        is_par : bool
+        is_par : bool or list of bool
             If True the input is assumed to be parameters.
             If False the input is assumed to be function values.
         
@@ -318,32 +424,52 @@ class Model(object):
             The model output. Always returned as parameters.
         """
 
-        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs)
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par)
 
         # Check kwargs matches non_default_args
         if set(list(kwargs.keys())) != set(self._non_default_args):
             raise ValueError(f"The model input is specified by a keywords arguments {kwargs.keys()} that does not match the non_default_args of the model {self._non_default_args}.")
 
-        # For now only support one input
-        if len(kwargs) > 1:
-            raise ValueError("The model input is specified by more than one argument. This is not supported.")
-
-        # Get input matching the non_default_args
-        x = kwargs[self._non_default_args[0]]
+        # For now only support one input or multiple inputs if the
+        # domain_geometry is ConcatenatedGeometries
+        if not isinstance(self.domain_geometry, ConcatenatedGeometries)\
+            and len(kwargs) > 1:
+            raise ValueError(
+                "The model input is specified by more than one argument. "+\
+                "This is only supported for domain geometry of type"+\
+                f"{ConcatenatedGeometries.__name__}.")
 
         # If input is a distribution, we simply change the parameter name of model to match the distribution name
-        if isinstance(x, cuqi.distribution.Distribution):
-            if x.dim != self.domain_dim:
+        if all(isinstance(x, cuqi.distribution.Distribution)
+               for x in kwargs.values()):
+            if not self._correct_distribution_dimension(kwargs.values()):
                 raise ValueError("Attempting to match parameter name of Model with given distribution, but distribution dimension does not match model domain dimension.")
             new_model = copy(self)
-            new_model._non_default_args = [x.name] # Defaults to x if distribution had no name
+            # Update the non_default_args of the model to match the
+            # distribution names. Defaults to x if distribution had no name
+            new_model._non_default_args = [x.name for x in kwargs.values()]
+
             return new_model
 
         # Else we apply the forward operator
-        return self._apply_func(self._forward_func,
-                                self.range_geometry,
-                                self.domain_geometry,
-                                x, is_par)
+        return self._apply_func(func=self._forward_func,
+                                fwd=True,
+                                is_par=is_par,
+                                **kwargs)
+
+    def _correct_distribution_dimension(self, distributions):
+        """ Private function that checks if the dimension of the
+        distributions matches the domain dimension of the model. """
+        if len(distributions) == 1:
+            return list(distributions)[0].dim == self.domain_dim
+        elif len(distributions) > 1 and\
+            isinstance(self.domain_geometry, ConcatenatedGeometries):
+            return all(
+                d.dim == self.domain_geometry.par_dim_list[i]
+                for i, d in enumerate(distributions)
+            )
+        else:
+            return False
 
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
@@ -394,7 +520,7 @@ class Model(object):
                              "MappedGeometry")
         except NotImplementedError as e:
             raise NotImplementedError(error_message)
-        
+
         # Check for other errors that may prevent computing the gradient
         self._check_gradient_can_be_computed(direction, wrt)
 
@@ -409,7 +535,7 @@ class Model(object):
 
         grad = self._gradient_func(direction, wrt)
         grad_is_par = False # Assume gradient is function values
-        
+
         # If domain_geometry has gradient attribute, we apply it to the gradient
         # The gradient returned by the domain_geometry.gradient is assumed to be
         # parameters
@@ -424,7 +550,7 @@ class Model(object):
                           is_par=grad_is_par)
 
         return grad
-    
+
     def _check_gradient_can_be_computed(self, direction, wrt):
         """ Private function that checks if the gradient can be computed. By
         raising an error for the cases where the gradient cannot be computed."""
@@ -432,32 +558,31 @@ class Model(object):
         # Raise an error if _gradient_func function is not set
         if self._gradient_func is None:
             raise NotImplementedError("Gradient is not implemented for this model.")
-        
+
         # Raise error if either the direction or wrt are Samples object
         if isinstance(direction, Samples) or isinstance(wrt, Samples):
             raise ValueError("cuqi.samples.Samples input values for arguments `direction` and `wrt` are not supported")
-        
+
         # Raise an error if range_geometry is not in the list returned by
-        # `_get_identity_geometries()`. i.e. The Jacobian of its 
-        # par2fun map is not identity.  
-        #TODO: Add range geometry gradient to the chain rule 
+        # `_get_identity_geometries()`. i.e. The Jacobian of its
+        # par2fun map is not identity.
+        # TODO: Add range geometry gradient to the chain rule
         if not type(self.range_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with range geometry {}".format(self,self.range_geometry)) 
-        
+
         # Raise an error if domain_geometry does not have gradient attribute and
         # is not in the list returned by `_get_identity_geometries()`. i.e. the
-        # Jacobian of its par2fun map is not identity.  
+        # Jacobian of its par2fun map is not identity.
         if not hasattr(self.domain_geometry, 'gradient') and \
             not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
-
 
     def __len__(self):
         return self.range_dim
 
     def __repr__(self) -> str:
         return "CUQI {}: {} -> {}.\n    Forward parameters: {}.".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.get_non_default_args(self))
-    
+
 class LinearModel(Model):
     """Model based on a Linear forward operator.
 
@@ -545,10 +670,11 @@ class LinearModel(Model):
         ndarray or cuqi.array.CUQIarray
             The adjoint model output. Always returned as parameters.
         """
-        return self._apply_func(self._adjoint_func,
-                                self.domain_geometry,
-                                self.range_geometry,
-                                y, is_par)
+        return self._apply_func(func=self._adjoint_func,
+                                fwd=False,
+                                is_par=is_par,
+                                **{'y':y})
+
 
 
     def get_matrix(self):
@@ -581,7 +707,7 @@ class LinearModel(Model):
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
-        
+
 
 class PDEModel(Model):
     """
@@ -644,4 +770,3 @@ class PDEModel(Model):
     # Add the underlying PDE class name to the repr.
     def __repr__(self) -> str:
         return super().__repr__()+"\n    PDE: {}.".format(self.pde.__class__.__name__)
-        

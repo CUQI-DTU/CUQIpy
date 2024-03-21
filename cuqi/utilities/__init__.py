@@ -10,6 +10,7 @@ from ._utilities import (
     ProblemInfo,
     sparse_cholesky,
     approx_derivative,
+    _split_stacked_args
 )
 
 from ._get_python_variable_name import _get_python_variable_name

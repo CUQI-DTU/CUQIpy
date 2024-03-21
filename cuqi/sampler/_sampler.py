@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import cuqi
 from cuqi.samples import Samples
+from cuqi.geometry import ConcatenatedGeometries
 
 class Sampler(ABC):
 
@@ -89,14 +90,14 @@ class Sampler(ABC):
     def sample(self,N,Nb=0):
         # Get samples from the samplers sample method
         result = self._sample(N,Nb)
-        return self._create_Sample_object(result,N+Nb)
+        return self._create_Sample_object(result, N+Nb, self.geometry)
 
     def sample_adapt(self,N,Nb=0):
         # Get samples from the samplers sample method
         result = self._sample_adapt(N,Nb)
-        return self._create_Sample_object(result,N+Nb)
+        return self._create_Sample_object(result, N+Nb, self.geometry)
 
-    def _create_Sample_object(self,result,N):
+    def _create_Sample_object(self,result,N, geometry):
         loglike_eval = None
         acc_rate = None
         if isinstance(result,tuple):
@@ -107,7 +108,10 @@ class Sampler(ABC):
             if len(result)>3: raise TypeError("Expected tuple of at most 3 elements from sampling method.")
         else:
             s = result
-                
+        
+        if isinstance(geometry, ConcatenatedGeometries):
+            return self._handle_multiple_parameters(s, N, loglike_eval, acc_rate, geometry)
+
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
@@ -115,10 +119,22 @@ class Sampler(ABC):
             else:
                 s = s.flatten()
         else:
-            s = Samples(s, self.geometry)#, geometry = self.geometry)
+            s = Samples(s, geometry)#, geometry = self.geometry)
             s.loglike_eval = loglike_eval
             s.acc_rate = acc_rate
         return s
+    
+    def _handle_multiple_parameters(
+        self, s, N, loglike_eval, acc_rate, geometry):
+        samples_dict = {}
+        indices = geometry.stack_indices
+        for i, geom_i in enumerate(geometry.geometries):
+            
+            samples_i = self._create_Sample_object(
+                (s[indices[i]:indices[i+1],:], loglike_eval, acc_rate),
+                N, geom_i)
+            samples_dict[self.target.get_parameter_names()[i]] = samples_i
+        return samples_dict
 
     @abstractmethod
     def _sample(self,N,Nb):

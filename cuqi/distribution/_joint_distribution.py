@@ -4,7 +4,8 @@ from copy import copy
 from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
-from cuqi.geometry import Geometry, _DefaultGeometry1D
+from cuqi.geometry import Geometry, _DefaultGeometry1D,\
+    ConcatenatedGeometries
 import numpy as np # for splitting array. Can avoid.
 
 class JointDistribution:
@@ -150,8 +151,40 @@ class JointDistribution:
     def _evaluated_densities(self) -> List[EvaluatedDensity]:
         """ Returns a list of the evaluated densities in the joint distribution. """
         return [eval_dens for eval_dens in self._densities if isinstance(eval_dens, EvaluatedDensity)]
+            
+    @property
+    def is_independent(self):
+        """ Returns True if the joint distribution is a product of independent 
+        distributions. """
+        
+        # All densities should be distributions (e.g. not likelihoods or 
+        # evaluated densities) and with no internal or external dependencies
+        return self._densities_are_distributions\
+            and self._internal_dependencies == []\
+            and self._get_conditioning_variables() == []
 
     # --------- Private methods ---------
+    @property
+    def _densities_are_distributions(self) -> bool:
+        """ Returns True if all densities are distributions. """
+        return all(
+            isinstance(density, Distribution) for density in self._densities)
+    
+    @property
+    def _internal_dependencies(self):
+        """ Returns the internal dependencies of the joint distribution. That
+        is, dependencies of the densities on each other. """
+
+        # Compute the union of all conditioning variables
+        union_list = set()
+        for dist in self._densities:
+            union_list = union_list.union(dist.get_conditioning_variables())
+        
+        # Remove the external dependencies
+        union_list.difference(self._get_conditioning_variables())
+        
+        return list(union_list)
+
     def _get_conditioning_variables(self) -> List[str]:
         """ Return the conditioning variables of the joint distribution. """
         joint_par_names = self.get_parameter_names()
@@ -188,10 +221,6 @@ class JointDistribution:
         n_dist = len(self._distributions)
         n_likelihood = len(self._likelihoods)
 
-        # Cant reduce if there are multiple distributions or likelihoods
-        if n_dist > 1:
-            return self
-
         # If exactly one distribution and multiple likelihoods reduce
         if n_dist == 1 and n_likelihood > 1:
             return MultipleLikelihoodPosterior(*self._densities)
@@ -211,12 +240,21 @@ class JointDistribution:
         if n_likelihood == 1 and n_dist == 0:
             return self._likelihoods[0]
 
+        # If is independent distribution, return IndependentJointDistribution
+        if self.is_independent:
+            return IndependentJointDistribution(*self._densities)
+        
+        # Cant reduce if there are multiple distributions or likelihoods
+        # and not independent
+        if n_dist > 1:
+            return self
+
     def _as_stacked(self) -> _StackedJointDistribution:
         """ Return a stacked JointDistribution with the same densities. """
         return _StackedJointDistribution(*self._densities)
 
     def __repr__(self):
-        msg = f"JointDistribution(\n"
+        msg = f"{self.__class__.__name__}(\n"
         msg += "    Equation: \n\t"
 
         # Construct equation expression
@@ -300,10 +338,6 @@ class _StackedJointDistribution(JointDistribution, Distribution):
     def _sample(self, Ns=1):
         raise TypeError(f"{self.__class__.__name__} does not support sampling.")
 
-    def __repr__(self):
-        return "_Stacked"+super().__repr__()
-
-
 class MultipleLikelihoodPosterior(JointDistribution, Distribution):
     """ A posterior distribution with multiple likelihoods and a single prior.
 
@@ -376,6 +410,94 @@ class MultipleLikelihoodPosterior(JointDistribution, Distribution):
         if len(set(par_names)) > 1:
             raise ValueError(f"{self.__class__.__name__} requires all densities to have the same parameter name.")
 
-    def __repr__(self):
-        # Remove first line of super repr and add class name to the start
-        return f"{self.__class__.__name__}(\n" + "\n".join(super().__repr__().split("\n")[1:])
+class IndependentJointDistribution(JointDistribution, Distribution):
+    """ A joint distribution of independent variables.
+
+    Parameters
+    ----------
+    densities : Density
+        The densities to include in the joint distribution.
+        Each density is passed as comma-separated arguments.
+
+    Example
+    -------
+
+    Consider defining the joint distribution:
+
+    .. math::
+
+        p(y,x,z) = p(y)p(x)p(z)
+
+    .. code-block:: python
+    
+            import cuqi
+    
+            # Define distributions
+            x = cuqi.distribution.Normal(np.zeros(3), 1)
+            y = cuqi.distribution.Gamma(1, 1)
+    
+            # Joint distribution p(y,x,z)
+            joint = cuqi.distribution.IndependentJointDistribution(y, x, z)
+    
+            # Compute log density
+            logd = joint.logd(x=1, y=2)
+
+            # Sample
+            sample = joint.sample(1)
+
+            
+        """
+    def __init__(self, *densities: Density, name=None):
+        JointDistribution.__init__(self, *densities)
+        self._name = name
+        #self._densities = list(densities)
+        if not self.is_independent:
+            raise ValueError("The densities must be independent and fully "+ 
+                             "specified")
+    
+    @property
+    def geometry(self):
+        return ConcatenatedGeometries(*super().geometry)
+    
+    @property
+    def name(self):
+        return Distribution.name.fget(self)
+    
+    @name.setter
+    def name(self, name):
+        Distribution.name.fset(self, name)
+    
+    @property
+    def dim(self):
+        return sum(super().dim)
+    
+    def logpdf(self, *args, **kwargs):
+        # if input is a single array, split it into individual parameters
+        return self.logd(*args, **kwargs)
+    
+    def _parse_args_add_to_kwargs(self, *args, **kwargs):
+        """ Split input into individual parameters if needed.
+        Then call super()._parse_args_add_to_kwargs """
+
+        # Check if input is a single array
+        if len(args) == 1 and len(kwargs) == 0:
+            if len(args[0]) == self.dim:
+                split_indices = np.cumsum(super().dim)
+                args = np.split(args[0], split_indices[:-1])
+            else:
+                raise ValueError(f"If input is a single array, it must have the same length as the dimension of the {self.__class__.__name__}.")
+        return super()._parse_args_add_to_kwargs(*args, **kwargs) 
+
+    def _sample(self, N):
+        # Allocate space for samples
+        samples = np.zeros((self.dim, N))
+        # Compute cumulative sum of dimensions and append zeoro (for indexing)
+        cum_dims = np.cumsum(super().dim)
+        cum_dims = np.insert(cum_dims, 0, 0)
+        # Sample each density
+        for i, density in enumerate(self._densities):
+            samples_i = density.sample(N).to_numpy()
+            if len(samples_i.shape) == 1:
+                samples_i = samples_i.reshape(-1,1)
+            samples[cum_dims[i]:cum_dims[i+1]] = samples_i
+        return samples
