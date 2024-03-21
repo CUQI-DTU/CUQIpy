@@ -195,14 +195,16 @@ multiple_likelihood_posterior_targets = [
 
 @pytest.mark.parametrize("target", multiple_likelihood_posterior_targets)
 def test_LinearRTO_MultipleLikelihoodPosterior_regression_sample(target: cuqi.density.Density):
-    """Test the LinearRTO sampler regression."""
+    """Test the LinearRTO sampler regression with MultipleLikelihoodPosterior.
+    """
     sampler_old = cuqi.sampler.LinearRTO(target)
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", multiple_likelihood_posterior_targets)
 def test_LinearRTO_MultipleLikelihoodPosterior_regression_warmup(target: cuqi.density.Density):
-    """Test the LinearRTO sampler regression."""
+    """Test the LinearRTO sampler warmup with MultipleLikelihoodPosterior.
+    """
     sampler_old = cuqi.sampler.LinearRTO(target)
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
@@ -225,7 +227,6 @@ regularized_targets = [
 @pytest.mark.parametrize("target", regularized_targets)
 def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
-
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
