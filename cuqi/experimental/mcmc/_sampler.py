@@ -13,27 +13,6 @@ except ImportError:
         warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
         return iterable
 
-class _UniqueList(list):
-    """ Utility class to store a list of unique elements. """
-
-    def append(self, item):
-        """ Append an item to the list if it is not already in the list. """
-        if item not in self:
-            super().append(item)
-
-    def __add__(self, other):
-        """Override the + operator to ensure only unique elements are added."""
-        new_list = _UniqueList(self)
-        for item in other:
-            new_list.append(item)
-        return new_list
-    
-    def __iadd__(self, other):
-        """Override the += operator to ensure only unique elements are added."""
-        for item in other:
-            self.append(item)
-        return self
-
 class SamplerNew(ABC):
     """ Abstract base class for all samplers.
     
@@ -42,12 +21,11 @@ class SamplerNew(ABC):
     Samples are stored in a list to allow for dynamic growth of the sample set. Returning samples is done by creating a new Samples object from the list of samples.
 
     """
+    _STATE_KEYS = {'current_point', 'current_target_logd'}
+    """ Set of keys for the state dictionary. """
 
-    _STATE_KEYS = _UniqueList(['current_point', 'current_target_logd'])
-    """ List of keys for the state dictionary. """
-
-    _HISTORY_KEYS = _UniqueList(['_samples', '_acc'])
-    """ List of keys for the history dictionary. """
+    _HISTORY_KEYS = {'_samples', '_acc'}
+    """ Set of keys for the history dictionary. """
 
     def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
         """ Initializer for abstract base class for all samplers.
@@ -293,7 +271,7 @@ class SamplerNew(ABC):
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale']
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale'})
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         """ Initializer for proposal based samplers. 
