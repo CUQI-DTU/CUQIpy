@@ -338,7 +338,16 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
     assert np.allclose(samples1, samples2), f"Samples1: {samples1}\nSamples2: {samples2}"
 
 
-@pytest.mark.parametrize("sampler", checkpoint_targets)
+state_history_targets = [
+    cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.pCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
+    cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
+]
+
+
+@pytest.mark.parametrize("sampler", state_history_targets)
 def test_state_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
     """Test that the state keys match the expected keys defined in _STATE_KEYS."""
 
@@ -346,7 +355,7 @@ def test_state_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
     sampler.warmup(10).sample(10)
     
     # Retrieve the state of the sampler
-    state = sampler.get_state()
+    state = sampler.get_state() # Will fail if variable for state is not set in the sampler
 
     # Retrieve the actual keys from the saved state
     actual_keys = set(state['state'].keys())
@@ -357,7 +366,7 @@ def test_state_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
     # Check if the actual keys match the expected keys
     assert actual_keys == expected_keys, f"State keys mismatch. Expected: {expected_keys}, Actual: {actual_keys}"
 
-@pytest.mark.parametrize("sampler", checkpoint_targets)
+@pytest.mark.parametrize("sampler", state_history_targets)
 def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
     """Test that the history keys match the expected keys defined in _HISTORY_KEYS."""
 
@@ -365,7 +374,7 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
     sampler.warmup(10).sample(10)
     
     # Retrieve the history of the sampler
-    history = sampler.get_history()
+    history = sampler.get_history() # Will fail if variable for history is not set in the sampler
 
     # Retrieve the actual keys from the saved history
     actual_keys = set(history['history'].keys())
@@ -375,3 +384,56 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
 
     # Check if the actual keys match the expected keys
     assert actual_keys == expected_keys, f"History keys mismatch. Expected: {expected_keys}, Actual: {actual_keys}"
+
+# Dictionary to store keys that are not expected to be updated after warmup.
+# Likely due to not implemented feature in the sampler.
+state_exception_keys = {
+    cuqi.experimental.mcmc.pCNNew: 'scale',
+    cuqi.experimental.mcmc.ULANew: 'scale',
+    cuqi.experimental.mcmc.MALANew: 'scale',
+}
+
+@pytest.mark.parametrize("sampler", state_history_targets)
+def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcmc.SamplerNew):
+    """ Test that the state is fully updated after a warmup step.
+    
+    This also checks that the samplers use (or at least update) all the keys defined in _STATE_KEYS.
+
+    """
+
+    # Extract the initial state of the sampler
+    initial_state = sampler.get_state()
+
+    # Run 100 warmup steps (should be enough to update all state variables)
+    sampler.warmup(100)
+
+    # Extract the state of the sampler after the warmup step
+    updated_state = sampler.get_state()
+
+    # Dictionary to store messages for keys that have not been updated
+    failed_updates = {}
+
+    # Ensure all keys in _STATE_KEYS are present in the state and have been updated
+    for key in sampler._STATE_KEYS:
+
+        # Skip keys that are not expected to be updated after warmup
+        if key in state_exception_keys.get(sampler.__class__, []):
+            continue
+
+        initial_value = initial_state['state'].get(key)
+        updated_value = updated_state['state'].get(key)
+
+        # Check all state variables are updated after warmup
+        if isinstance(initial_value, np.ndarray) and isinstance(updated_value, np.ndarray):
+            if np.allclose(updated_value, initial_value):
+                failed_updates[key] = f"(Arrays are equal)"
+        else:
+            if updated_value == initial_value:
+                failed_updates[key] = f"Initial: {initial_value}, Updated: {updated_value}"
+
+    # Assert that there were no errors during the state checks
+    if failed_updates:
+        failed_keys = ', '.join(failed_updates.keys())
+        error_details = '\n'.join([f"State '{key}' not updated correctly after warmup. {message}" for key, message in failed_updates.items()])
+        error_message = f"Errors occurred in {sampler.__class__.__name__} - issues with keys: {failed_keys}.\n{error_details}"
+        assert not failed_updates, error_message
