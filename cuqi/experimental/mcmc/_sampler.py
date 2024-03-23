@@ -53,7 +53,7 @@ class SamplerNew(ABC):
 
         self.initial_point = initial_point
         
-        self._samples = [initial_point] # Remove?
+        self._samples = [initial_point] # Remove. See #324.
 
     # ------------ Abstract methods to be implemented by subclasses ------------
     
