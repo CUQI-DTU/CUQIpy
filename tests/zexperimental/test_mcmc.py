@@ -293,7 +293,7 @@ def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
         if cls not in skip_checkpoint  # use cls here, not name
     ]
 
-    # Convert instances to their classes
+    # Convert instances in checkpoint_targets to their classes
     checkpoint_target_classes = [type(sampler) for sampler in checkpoint_targets]  
 
     # Convert 'samplers' classes to names for easier comparison and error reading
