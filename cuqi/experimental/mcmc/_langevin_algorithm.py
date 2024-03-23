@@ -60,14 +60,17 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     A Deblur example can be found in demos/demo27_ULA.py
     # TODO: update demo once sampler merged
     """
+
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
+
     def __init__(self, target, scale=1.0, **kwargs):
 
         super().__init__(target, **kwargs)
 
         self.scale = scale
         self.current_point = self.initial_point
-        self.current_target_eval = self.target.logd(self.current_point)
-        self.current_target_grad_eval = self.target.gradient(self.current_point)
+        self.current_target_logd = self.target.logd(self.current_point)
+        self.current_target_grad = self.target.gradient(self.current_point)
         self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
@@ -99,15 +102,15 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             1 (accepted)
         """
         self.current_point = x_star
-        self.current_target_eval = target_eval_star
-        self.current_target_grad_eval = target_grad_star
+        self.current_target_logd = target_eval_star
+        self.current_target_grad = target_grad_star
         acc = 1
         return acc
 
     def step(self):
         # propose state
         xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
-        x_star = self.current_point + 0.5*self.scale*self.current_target_grad_eval + xi
+        x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
 
         # evaluate target
         target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
@@ -120,26 +123,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     def tune(self, skip_len, update_count):
         pass
 
-    def get_state(self):
-        if isinstance(self.current_point, CUQIarray):
-            self.current_point = self.current_point.to_numpy()
-        if isinstance(self.current_target_eval, CUQIarray):
-            self.current_target_eval = self.current_target_eval.to_numpy()
-        if isinstance(self.current_target_grad_eval, CUQIarray):
-            self.current_target_grad_eval = self.current_target_grad_eval.to_numpy()
-        return {'sampler_type': 'ULA', 'current_point': self.current_point, \
-                'current_target_eval': self.current_target_eval, \
-                'current_target_grad_eval': self.current_target_grad_eval, \
-                'scale': self.scale}
-
-    def set_state(self, state):
-        temp = CUQIarray(state['current_point'] , geometry=self.target.geometry)
-        self.current_point = temp
-        temp = CUQIarray(state['current_target_eval'] , geometry=self.target.geometry)
-        self.current_target_eval = temp
-        temp = CUQIarray(state['current_target_grad_eval'] , geometry=self.target.geometry)
-        self.current_target_grad_eval = temp
-        self.scale = state['scale']
 
 class MALANew(ULANew): # Refactor to Proposal-based sampler?
     """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
@@ -219,9 +202,9 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         scaler
             1 if accepted, 0 otherwise
         """
-        log_target_ratio = target_eval_star - self.current_target_eval
+        log_target_ratio = target_eval_star - self.current_target_logd
         log_prop_ratio = self._log_proposal(self.current_point, x_star, target_grad_star) \
-            - self._log_proposal(x_star, self.current_point,  self.current_target_grad_eval)
+            - self._log_proposal(x_star, self.current_point,  self.current_target_grad)
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
         # accept/reject with Metropolis
@@ -229,8 +212,8 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         log_u = np.log(np.random.rand())
         if (log_u <= log_alpha) and (np.isnan(target_eval_star) == False):
             self.current_point = x_star
-            self.current_target_eval = target_eval_star
-            self.current_target_grad_eval = target_grad_star
+            self.current_target_logd = target_eval_star
+            self.current_target_grad = target_grad_star
             acc = 1
         return acc
 
@@ -241,15 +224,3 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
-
-    def get_state(self):
-        if isinstance(self.current_point, CUQIarray):
-            self.current_point = self.current_point.to_numpy()
-        if isinstance(self.current_target_eval, CUQIarray):
-            self.current_target_eval = self.current_target_eval.to_numpy()
-        if isinstance(self.current_target_grad_eval, CUQIarray):
-            self.current_target_grad_eval = self.current_target_grad_eval.to_numpy()
-        return {'sampler_type': 'MALA', 'current_point': self.current_point, \
-                'current_target_eval': self.current_target_eval, \
-                'current_target_grad_eval': self.current_target_grad_eval, \
-                'scale': self.scale}
