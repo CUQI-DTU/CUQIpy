@@ -5,7 +5,7 @@ from cuqi.array import CUQIarray
 
 class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale', 'current_loglike_logd']
+    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale', 'current_likelihood_logd']
 
     def __init__(self, target, scale=1.0, **kwargs):
 
@@ -13,7 +13,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
         self.scale = scale
         self.current_point = self.initial_point
-        self.current_loglike_logd = self._loglikelihood(self.current_point)
+        self.current_likelihood_logd = self._loglikelihood(self.current_point)
 
         self._acc = [1] # TODO. Check if we need this
 
@@ -35,7 +35,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         loglike_eval_star =  self._loglikelihood(x_star) 
 
         # ratio and acceptance probability
-        ratio = loglike_eval_star - self.current_loglike_logd  # proposal is symmetric
+        ratio = loglike_eval_star - self.current_likelihood_logd  # proposal is symmetric
         alpha = min(0, ratio)
 
         # accept/reject
@@ -43,7 +43,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         u_theta = np.log(np.random.rand())
         if (u_theta <= alpha):
             self.current_point = x_star
-            self.current_loglike_logd = loglike_eval_star
+            self.current_likelihood_logd = loglike_eval_star
             acc = 1
         
         return acc
