@@ -206,7 +206,28 @@ class SamplerNew(ABC):
         return self
     
     def get_state(self) -> dict:
-        """ Return the state of the sampler. """   
+        """ Return the state of the sampler. 
+
+        The state is used when checkpointing the sampler.
+
+        The state of the sampler is a dictionary with keys 'metadata' and 'state'.
+        The 'metadata' key contains information about the sampler type.
+        The 'state' key contains the state of the sampler.
+
+        For example, the state of a "MH" sampler could be:
+
+        state = {
+            'metadata': {
+                'sampler_type': 'MH'
+            },
+            'state': {
+                'current_point': np.array([...]),
+                'current_target_logd': -123.45,
+                'scale': 1.0,
+                ...
+            }
+        }
+        """   
         state = {
             'metadata': {
                 'sampler_type': self.__class__.__name__
@@ -218,7 +239,26 @@ class SamplerNew(ABC):
         return state
 
     def set_state(self, state: dict):
-        """ Set the state of the sampler. """
+        """ Set the state of the sampler.
+
+        The state is used when loading the sampler from a checkpoint.
+
+        The state of the sampler is a dictionary with keys 'metadata' and 'state'.
+
+        For example, the state of a "MH" sampler could be:
+
+        state = {
+            'metadata': {
+                'sampler_type': 'MH'
+            },
+            'state': {
+                'current_point': np.array([...]),
+                'current_target_logd': -123.45,
+                'scale': 1.0,
+                ...
+            }
+        }
+        """
         if state['metadata']['sampler_type'] != self.__class__.__name__:
             raise ValueError(f"Sampler type in state dictionary ({state['metadata']['sampler_type']}) does not match the type of the sampler ({self.__class__.__name__}).")
         
