@@ -21,7 +21,7 @@ class SamplerNew(ABC):
     Samples are stored in a list to allow for dynamic growth of the sample set. Returning samples is done by creating a new Samples object from the list of samples.
 
     """
-    _STATE_KEYS = {'current_point', 'current_target_logd'}
+    _STATE_KEYS = {'current_point'}
     """ Set of keys for the state dictionary. """
 
     _HISTORY_KEYS = {'_samples', '_acc'}
@@ -104,16 +104,6 @@ class SamplerNew(ABC):
     def current_point(self, value):
         """ Set the current point of the sampler. """
         self._current_point = value
-
-    @property
-    def current_target_logd(self):
-        """ The current target value of the sampler. """
-        return self._current_target_logd
-    
-    @current_target_logd.setter
-    def current_target_logd(self, value):
-        """ Set the current target value of the sampler. """
-        self._current_target_logd = value
 
     # ------------ Public methods ------------
 
@@ -272,7 +262,7 @@ class SamplerNew(ABC):
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale'})
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale'})
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         """ Initializer for proposal based samplers. 
