@@ -61,7 +61,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     # TODO: update demo once sampler merged
     """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale', 'current_target_grad']
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_target_grad'})
 
     def __init__(self, target, scale=1.0, **kwargs):
 

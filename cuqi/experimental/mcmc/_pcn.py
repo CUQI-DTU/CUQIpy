@@ -5,7 +5,7 @@ from cuqi.array import CUQIarray
 
 class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS + ['scale', 'current_likelihood_logd']
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_likelihood_logd'})
 
     def __init__(self, target, scale=1.0, **kwargs):
 

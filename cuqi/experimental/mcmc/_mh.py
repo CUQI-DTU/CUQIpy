@@ -23,7 +23,7 @@ class MHNew(ProposalBasedSamplerNew):
 
     """
 
-    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS + ['scale', '_scale_temp']
+    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union({'scale', '_scale_temp'})
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
