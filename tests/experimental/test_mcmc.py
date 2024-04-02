@@ -201,6 +201,7 @@ def test_NUTS_regression_sample(target: cuqi.density.Density):
 def test_NUTS_regression_warmup(target: cuqi.density.Density):
     """Test the HMC (NUTS) sampler regression."""
     sampler_old = cuqi.sampler.NUTS(target)
+    sampler_old._return_burnin = True
     sampler_new = cuqi.experimental.mcmc.NUTSNew(target)
     #Ns = 20 if target.dim < 10 else 5
     Ns = 5
