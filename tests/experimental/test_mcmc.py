@@ -63,6 +63,8 @@ def assert_true_if_warmup_is_equivalent(
 
     if strategy == "MH_like":
         tune_freq = int(0.1*Ns) / (Ns+Nb-1) # Due to a bug? in old MH, tuning freq is only defined by N and not N+Nb.
+    elif strategy == "NUTS":
+        tune_freq = 1/Nb
     else:
         raise NotImplementedError(f"Strategy {strategy} not implemented")
 
@@ -78,14 +80,21 @@ def assert_true_if_warmup_is_equivalent(
     # Tune_freq is used in the new sampler, defining how often to tune.
     # Nb samples are removed afterwards as burn-in
     np.random.seed(0)
-    sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)  
-    samples_new = \
-        sampler_new.get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
+    if strategy == "NUTS":
+        sampler_new.warmup(Nb+1, tune_freq=tune_freq)
+        sampler_new.sample(Ns=Ns-2)
+        samples_new = sampler_new.get_samples().samples[...,new_idx[0]:new_idx[1]]
+    else:
+        sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)
+        samples_new = \
+            sampler_new.get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
 
     assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
 targets = [
-    cuqi.testproblem.Deconvolution1D(dim=2).posterior
+    cuqi.testproblem.Deconvolution1D(dim=2).posterior,
+    cuqi.testproblem.Deconvolution1D(dim=20).posterior,
+    cuqi.testproblem.Deconvolution1D(dim=128).posterior
 ]
 """ List of targets to test against. """
 
@@ -183,10 +192,24 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
 # ============= HMC (NUTS) ==============
 @pytest.mark.parametrize("target", targets)
 def test_NUTS_regression_sample(target: cuqi.density.Density):
-    """Test the HMC sampler regression."""
+    """Test the HMC (NUTS) sampler regression."""
     sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=0.001)
     sampler_new = cuqi.experimental.mcmc.NUTSNew(target, adapt_step_size=0.001)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
+
+@pytest.mark.parametrize("target", targets)
+def test_NUTS_regression_warmup(target: cuqi.density.Density):
+    """Test the HMC (NUTS) sampler regression."""
+    sampler_old = cuqi.sampler.NUTS(target)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target)
+    #Ns = 20 if target.dim < 10 else 5
+    Ns = 5
+    Nb = Ns
+    assert_true_if_warmup_is_equivalent(sampler_old,
+                                        sampler_new,
+                                        Ns=Ns,
+                                        Nb=Nb,
+                                        strategy="NUTS")
 # ============ Checkpointing ============
 
 @pytest.mark.parametrize("sampler", [
