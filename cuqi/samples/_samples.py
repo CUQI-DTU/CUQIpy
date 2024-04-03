@@ -8,13 +8,23 @@ from copy import copy
 from numbers import Number
 
 try:
-    import arviz # Plotting tool
-except ImportError:
+    import arviz  # Plotting tool
+except ImportError as e:
     arviz = None
+    arviz_import_error = e
+
 
 def _check_for_arviz():
     if arviz is None:
-        raise ImportError("The arviz package is required for this functionality. Please install arviz using `pip install arviz`.")
+        msg = (
+            "The arviz package is required for this functionality. "
+            + "Please install arviz using `pip install arviz`. "
+            + "See below for the original error message:\n"
+        )
+        arviz_import_error.args = (
+            msg + arviz_import_error.args[0],
+        ) + arviz_import_error.args[1:]
+        raise arviz_import_error
 
 
 class Samples(object):
