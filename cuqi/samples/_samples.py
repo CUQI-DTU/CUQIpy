@@ -17,12 +17,8 @@ except ImportError as e:
 def _check_for_arviz():
     if arviz is None:
         msg = "The arviz package is required for this functionality. "\
-            + "Please install arviz using `pip install arviz`. "\
-            + "See below for the original error message:\n"
-        arviz_import_error.args = (
-            msg + arviz_import_error.args[0],
-        ) + arviz_import_error.args[1:]
-        raise arviz_import_error
+            + "Please make sure you have a working installation of arviz`. "
+        raise ImportError(msg) from arviz_import_error
 
 
 class Samples(object):
