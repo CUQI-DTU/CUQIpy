@@ -214,4 +214,5 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
     # Check that the samples are the same
     assert np.allclose(samples1, samples2), f"Samples1: {samples1}\nSamples2: {samples2}"
+    
 
