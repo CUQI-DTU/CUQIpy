@@ -113,7 +113,7 @@ class LinearRTONew(SamplerNew):
 
             # Construct posterior
             value = cuqi.distribution.Posterior(L, P)
-        super().target = value
+        super(LinearRTONew, type(self)).target.fset(self, value)
         self._precompute()
 
     def _precompute(self):
