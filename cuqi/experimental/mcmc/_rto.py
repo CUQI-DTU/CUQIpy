@@ -48,9 +48,7 @@ class LinearRTONew(SamplerNew):
 
         super().__init__(target, **kwargs)
 
-        if 'initial_point' in kwargs:
-            self.initial_point = kwargs.get("initial_point")
-        else:
+        if 'initial_point' not in kwargs:
             self.initial_point = np.zeros(self.dim)
 
         self.current_point = self.initial_point
