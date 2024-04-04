@@ -158,22 +158,6 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
 
 # ============ LinearRTO ============
 
-@pytest.mark.parametrize("target", targets)
-def test_LinearRTO_regression_sample(target: cuqi.density.Density):
-    """Test the LinearRTO sampler regression."""
-    sampler_old = cuqi.sampler.LinearRTO(target)
-    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
-    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
-
-@pytest.mark.parametrize("target", targets)
-def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
-    """Test the LinearRTO sampler regression."""
-    sampler_old = cuqi.sampler.LinearRTO(target)
-    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
-    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
-
-# ============ LinearRTO with MultipleLikelihoodPosterior ============
-
 def create_MultipleLikelihoodPosterior_target(dim=16):
     """Create a target with multiple likelihoods."""
     A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
@@ -187,24 +171,22 @@ def create_MultipleLikelihoodPosterior_target(dim=16):
 
     return target
 
-multiple_likelihood_posterior_targets = [
+LinearRTO_targets = targets + [
     create_MultipleLikelihoodPosterior_target(dim=32),
     create_MultipleLikelihoodPosterior_target(dim=64),
     create_MultipleLikelihoodPosterior_target(dim=128)
 ]
 
-@pytest.mark.parametrize("target", multiple_likelihood_posterior_targets)
-def test_LinearRTO_MultipleLikelihoodPosterior_regression_sample(target: cuqi.density.Density):
-    """Test the LinearRTO sampler regression with MultipleLikelihoodPosterior.
-    """
+@pytest.mark.parametrize("target", LinearRTO_targets)
+def test_LinearRTO_regression_sample(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
     sampler_old = cuqi.sampler.LinearRTO(target)
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
-@pytest.mark.parametrize("target", multiple_likelihood_posterior_targets)
-def test_LinearRTO_MultipleLikelihoodPosterior_regression_warmup(target: cuqi.density.Density):
-    """Test the LinearRTO sampler warmup with MultipleLikelihoodPosterior.
-    """
+@pytest.mark.parametrize("target", LinearRTO_targets)
+def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
     sampler_old = cuqi.sampler.LinearRTO(target)
     sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
