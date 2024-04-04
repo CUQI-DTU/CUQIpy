@@ -44,12 +44,15 @@ class LinearRTONew(SamplerNew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, initial_point=None, maxit=10, tol=1e-6, shift=0, callback=None, **kwargs):
+    def __init__(self, target, maxit=10, tol=1e-6, shift=0, **kwargs):
 
-        self.target = target
-        self.callback = callback
+        super().__init__(target, **kwargs)
 
-        self._samples = [np.zeros(self.dim)] #TODO: Should we store zeros as first sample?
+        if 'initial_point' in kwargs:
+            self.initial_point = kwargs.get("initial_point")
+        else:
+            self.initial_point = np.zeros(self.dim)
+
         self.current_point = self.initial_point
         self._acc = [1] # TODO. Check if we need this
 
@@ -226,9 +229,9 @@ class RegularizedLinearRTONew(LinearRTONew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, initial_point=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+    def __init__(self, target, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
         
-        super().__init__(target, initial_point=initial_point, maxit=100, **kwargs)
+        super().__init__(target, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
