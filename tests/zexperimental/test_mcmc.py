@@ -158,7 +158,7 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
 
 # ============ LinearRTO ============
 
-def create_MultipleLikelihoodPosterior_target(dim=16):
+def create_multiple_likelihood_posterior_target(dim=16):
     """Create a target with multiple likelihoods."""
     A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
     A2, data2, info2 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
@@ -172,9 +172,9 @@ def create_MultipleLikelihoodPosterior_target(dim=16):
     return target
 
 LinearRTO_targets = targets + [
-    create_MultipleLikelihoodPosterior_target(dim=32),
-    create_MultipleLikelihoodPosterior_target(dim=64),
-    create_MultipleLikelihoodPosterior_target(dim=128)
+    create_multiple_likelihood_posterior_target(dim=32),
+    create_multiple_likelihood_posterior_target(dim=64),
+    create_multiple_likelihood_posterior_target(dim=128)
 ]
 
 @pytest.mark.parametrize("target", LinearRTO_targets)
@@ -200,7 +200,7 @@ def create_regularized_target(dim=16):
     y = cuqi.distribution.Gaussian(A@x, 0.001)
     return cuqi.distribution.JointDistribution(x, y)(y=y_data)
 
-def create_MultipleLikelihoodPosterior_regularized_target(dim=16):
+def create_multiple_likelihood_posterior_regularized_target(dim=16):
     """Create a target with multiple likelihoods and a regularized prior."""
     A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
     A2, data2, info2 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
@@ -218,9 +218,9 @@ regularized_targets = [
     create_regularized_target(dim=64),
     create_regularized_target(dim=128)
 ] + [
-    create_MultipleLikelihoodPosterior_regularized_target(dim=32),
-    create_MultipleLikelihoodPosterior_regularized_target(dim=64),
-    create_MultipleLikelihoodPosterior_regularized_target(dim=128)
+    create_multiple_likelihood_posterior_regularized_target(dim=32),
+    create_multiple_likelihood_posterior_regularized_target(dim=64),
+    create_multiple_likelihood_posterior_regularized_target(dim=128)
 ]
 
 @pytest.mark.parametrize("target", regularized_targets)
