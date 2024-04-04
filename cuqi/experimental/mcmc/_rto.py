@@ -36,6 +36,9 @@ class LinearRTONew(SamplerNew):
 
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
+    
+    shift : float
+        Shift parameter for the inner CGLS solver. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -218,6 +221,9 @@ class RegularizedLinearRTONew(LinearRTONew):
 
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
+    
+    adaptive : bool
+        If True, FISTA is used as inner solver, otherwise ISTA is used. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
