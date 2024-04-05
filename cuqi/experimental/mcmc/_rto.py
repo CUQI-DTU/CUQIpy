@@ -36,9 +36,6 @@ class LinearRTONew(SamplerNew):
 
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
-    
-    shift : float
-        Shift parameter for the inner CGLS solver. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -47,11 +44,11 @@ class LinearRTONew(SamplerNew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, maxit=10, tol=1e-6, shift=0, **kwargs):
+    def __init__(self, target, initial_point=None, maxit=10, tol=1e-6, **kwargs):
 
-        super().__init__(target, **kwargs)
+        super().__init__(target=target, initial_point=initial_point, **kwargs)
 
-        if 'initial_point' not in kwargs:
+        if initial_point is None: #TODO: Replace later with a getter
             self.initial_point = np.zeros(self.dim)
 
         self.current_point = self.initial_point
@@ -59,8 +56,7 @@ class LinearRTONew(SamplerNew):
 
         # Other parameters
         self.maxit = maxit
-        self.tol = tol        
-        self.shift = shift
+        self.tol = tol
 
     @property
     def prior(self):
@@ -156,7 +152,7 @@ class LinearRTONew(SamplerNew):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol, self.shift)            
+        sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
@@ -232,9 +228,9 @@ class RegularizedLinearRTONew(LinearRTONew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+    def __init__(self, target, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, **kwargs):
         
-        super().__init__(target, **kwargs)
+        super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
