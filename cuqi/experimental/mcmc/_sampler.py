@@ -92,6 +92,11 @@ class SamplerNew(ABC):
         """ Return the initial point of the sampler. This is always the first sample. """
         return self._samples[0]
     
+    @initial_point.setter
+    def initial_point(self, value):
+        """ Set the initial point of the sampler. """
+        self._samples[0] = value
+    
     @property
     def dim(self):
         """ Dimension of the target density. """
