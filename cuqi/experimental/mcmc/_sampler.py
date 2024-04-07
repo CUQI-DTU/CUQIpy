@@ -67,8 +67,16 @@ class SamplerNew(ABC):
         """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
         pass
 
-    # ------------ Public attributes ------------
-   
+    #@abstractmethod
+    def _pre_sample(self):
+        """ Any code that needs to be run before sampling. """
+        pass
+
+    #@abstractmethod
+    def _pre_warmup(self):
+        """ Any code that needs to be run before warmup. """
+        pass
+
     @property
     def dim(self):
         """ Dimension of the target density. """
@@ -161,6 +169,9 @@ class SamplerNew(ABC):
         if batch_size > 0:
             batch_handler = _BatchHandler(batch_size, sample_path)
 
+        # Any code that needs to be run before sampling
+        self._pre_sample()
+
         # Draw samples
         for _ in progressbar( range(Ns) ):
             
@@ -195,6 +206,9 @@ class SamplerNew(ABC):
         """
 
         tune_interval = max(int(tune_freq * Nb), 1)
+
+        # Any code that needs to be run before warmup
+        self._pre_warmup()
 
         # Draw warmup samples with tuning
         for idx in progressbar(range(Nb)):

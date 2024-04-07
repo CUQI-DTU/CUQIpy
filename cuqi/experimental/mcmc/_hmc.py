@@ -1,9 +1,11 @@
 import numpy as np
-from cuqi.sampler import Sampler
+import numpy as np
+from cuqi.experimental.mcmc import SamplerNew
+import sys
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
-class NUTS(Sampler):
+class NUTSNew(SamplerNew):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
     Samples a distribution given its logpdf and gradient using a Hamiltonian Monte Carlo (HMC) algorithm with automatic parameter tuning.
@@ -78,162 +80,140 @@ class NUTS(Sampler):
         sampler.iteration_list
 
     """
-    def __init__(self, target, x0=None, max_depth=15, adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
-        super().__init__(target, x0=x0, **kwargs)
+    def __init__(self, target, initial_point=None, max_depth=15,
+                 adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
+        super().__init__(target, initial_point=initial_point, **kwargs)
         self.max_depth = max_depth
         self.adapt_step_size = adapt_step_size
         self.opt_acc_rate = opt_acc_rate
-        # if this flag is True, the samples and the burn-in will be returned
-        # otherwise, the burn-in will be truncated
-        self._return_burnin = False
 
         # NUTS run diagnostic
         # number of tree nodes created each NUTS iteration
         self._num_tree_node = 0
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
+        self._acc = [None]
+        self.current_point = self.initial_point
 
-    def _create_run_diagnostic_attributes(self):
-        """A method to create attributes to store NUTS run diagnostic."""
-        self._reset_run_diagnostic_attributes()
-
-    def _reset_run_diagnostic_attributes(self):
-        """A method to reset attributes to store NUTS run diagnostic."""
-        # NUTS iterations
-        self.iteration_list = []
-        # List to store number of tree nodes created each NUTS iteration
-        self.num_tree_node_list = []
-        # List of step size used in each NUTS iteration 
-        self.epsilon_list = []
-        # List of burn-in step size suggestion during adaptation 
-        # only used when adaptation is done
-        # remains fixed after adaptation (after burn-in)
-        self.epsilon_bar_list = []
-
-    def _update_run_diagnostic_attributes(self, k, n_tree, eps, eps_bar):
-        """A method to update attributes to store NUTS run diagnostic."""
-        # Store the current iteration number k
-        self.iteration_list.append(k)
-        # Store the number of tree nodes created in iteration k
-        self.num_tree_node_list.append(n_tree)
-        # Store the step size used in iteration k
-        self.epsilon_list.append(eps)
-        # Store the step size suggestion during adaptation in iteration k
-        self.epsilon_bar_list.append(eps_bar)
-
-    def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
-        return self.target.logd(x), self.target.gradient(x)
-
-    def _sample_adapt(self, N, Nb):
-        return self._sample(N, Nb)
-
-    def _sample(self, N, Nb):
-        # Reset run diagnostic attributes
-        self._reset_run_diagnostic_attributes()
+        # Fixed parameters that do not change during the run
+        self._gamma, self._t_0, self._kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
+        self._delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+        self._step_size = []
+        self._epsilon = None
+        self._epsilon_bar = None
         
-        if self.adapt_step_size is True and Nb == 0:
-            raise ValueError("Adaptive step size is True but number of burn-in steps is 0. Please set Nb > 0.")
+    #=========================================================================
+    #================== Implement methods required by SamplerNew =============
+    #=========================================================================
+    def validate_target(self):
+        pass #TODO: target needs to have logpdf and gradient methods
 
-        # Allocation
-        Ns = Nb+N # total number of chains
-        theta = np.empty((self.dim, Ns))
-        joint_eval = np.empty(Ns)
-        step_sizes = np.empty(Ns)
+    def step(self):
+        print("k", len(self._step_size)+1)
+        print("epsilon", self._epsilon)
+        print("epsilon_bar", self._epsilon_bar)
+        print("current_point (pre)", self.current_point)
+        # reset number of tree nodes for each iteration
+        self._num_tree_node = 0
 
-        # Initial state
-        theta[:, 0] = self.x0
-        joint_eval[0], grad = self._nuts_target(self.x0)
+        self._step_size.append(self._epsilon)
 
-        # Step size variables
-        epsilon, epsilon_bar = None, None
+        theta_k, joint_k = self.current_point.copy(), self._joint # initial position (parameters)
+        grad = self._grad.copy() # initial gradient
+        r_k = self._Kfun(1, 'sample') # resample momentum vector
+        Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
 
-        # parameters dual averaging
-        if (self.adapt_step_size == True):
-            epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
-            mu = np.log(10*epsilon)
-            gamma, t_0, kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
-            epsilon_bar, H_bar = 1, 0
-            delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
-            step_sizes[0] = epsilon
-        elif (self.adapt_step_size == False):
-            epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
-        else:
-            epsilon = self.adapt_step_size # if scalar then user specifies the step size
+        # slice variable
+        log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
+
+        # initialization
+        j, s, n = 0, 1, 1
+        self.current_point, self._joint = theta_k, joint_k
+        theta_minus, theta_plus = np.copy(theta_k), np.copy(theta_k)
+        grad_minus, grad_plus = np.copy(grad), np.copy(grad)
+        r_minus, r_plus = np.copy(r_k), np.copy(r_k)
 
         # run NUTS
-        for k in range(1, Ns):
-            # reset number of tree nodes for each iteration
-            self._num_tree_node = 0
+        while (s == 1) and (j <= self.max_depth):
+            # sample a direction
+            v = int(2*(np.random.rand() < 0.5)-1)
 
-            theta_k, joint_k = theta[:, k-1], joint_eval[k-1] # initial position (parameters)
-            r_k = self._Kfun(1, 'sample') # resample momentum vector
-            Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
+            # build tree: doubling procedure
+            if (v == -1):
+                theta_minus, r_minus, grad_minus, _, _, _, \
+                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
+                    self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j, self._epsilon)
+            else:
+                _, _, _, theta_plus, r_plus, grad_plus, \
+                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
+                    self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j, self._epsilon)
 
-            # slice variable
-            log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
+            # Metropolis step
+            alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
+            if (s_prime == 1) and (np.random.rand() <= alpha2):
+                self.current_point = theta_prime
+                self._joint = joint_prime
+                self._grad = np.copy(grad_prime)
 
-            # initialization
-            j, s, n = 0, 1, 1
-            theta[:, k], joint_eval[k] = theta_k, joint_k
-            theta_minus, theta_plus = np.copy(theta_k), np.copy(theta_k)
-            grad_minus, grad_plus = np.copy(grad), np.copy(grad)
-            r_minus, r_plus = np.copy(r_k), np.copy(r_k)
+            # update number of particles, tree level, and stopping criterion
+            n += n_prime
+            dtheta = theta_plus - theta_minus
+            s = s_prime * int((dtheta @ r_minus.T) >= 0) * int((dtheta @ r_plus.T) >= 0)
+            j += 1
+            self._alpha = alpha
+            self._n_alpha = n_alpha
 
-            # run NUTS
-            while (s == 1) and (j <= self.max_depth):
-                # sample a direction
-                v = int(2*(np.random.rand() < 0.5)-1)
+        # update run diagnostic attributes
+        self._update_run_diagnostic_attributes(
+            len(self._step_size), self._num_tree_node, self._epsilon, self._epsilon_bar)
+        
+        if np.isnan(self._joint):
+            raise NameError('NaN potential func')
 
-                # build tree: doubling procedure
-                if (v == -1):
-                    theta_minus, r_minus, grad_minus, _, _, _, \
-                    theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                        self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j, epsilon)
-                else:
-                    _, _, _, theta_plus, r_plus, grad_plus, \
-                    theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                        self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j, epsilon)
+    def tune(self, skip_len, update_count):
+        # adapt epsilon during burn-in using dual averaging
+        k = update_count+1
+        print("update_count", update_count)
 
-                # Metropolis step
-                alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
-                if (s_prime == 1) and (np.random.rand() <= alpha2):
-                    theta[:, k] = theta_prime
-                    joint_eval[k] = joint_prime
-                    grad = np.copy(grad_prime)
+        eta1 = 1/(k + self._t_0)
+        self._H_bar = (1-eta1)*self._H_bar + eta1*(self._delta - (self._alpha/self._n_alpha))
+        self._epsilon = np.exp(self._mu - (np.sqrt(k)/self._gamma)*self._H_bar)
+        eta = k**(-self._kappa)
+        self._epsilon_bar = np.exp(eta*np.log(self._epsilon) + (1-eta)*np.log(self._epsilon_bar))
 
-                # update number of particles, tree level, and stopping criterion
-                n += n_prime
-                dtheta = theta_plus - theta_minus
-                s = s_prime * int((dtheta @ r_minus.T) >= 0) * int((dtheta @ r_plus.T) >= 0)
-                j += 1
+        print("epsilon (post)", self._epsilon)
+        print("epsilon_bar (post)", self._epsilon_bar)
+        print("current_point (post)", self.current_point)
 
-            # update run diagnostic attributes
-            self._update_run_diagnostic_attributes(
-                k, self._num_tree_node, epsilon, epsilon_bar)
-            
-            # adapt epsilon during burn-in using dual averaging
-            if (k <= Nb) and (self.adapt_step_size == True):
-                eta1 = 1/(k + t_0)
-                H_bar = (1-eta1)*H_bar + eta1*(delta - (alpha/n_alpha))
-                epsilon = np.exp(mu - (np.sqrt(k)/gamma)*H_bar)
-                eta = k**(-kappa)
-                epsilon_bar = np.exp(eta*np.log(epsilon) + (1-eta)*np.log(epsilon_bar))
-            elif (k == Nb+1) and (self.adapt_step_size == True):
-                epsilon = epsilon_bar   # fix epsilon after burn-in
-            step_sizes[k] = epsilon
-            
-            # msg
-            self._print_progress(k+1, Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
-            self._call_callback(theta[:, k], k)
-            
-            if np.isnan(joint_eval[k]):
-                raise NameError('NaN potential func')
-            
-        # apply burn-in
-        if not self._return_burnin: 
-            theta = theta[:, Nb:]
-            joint_eval = joint_eval[Nb:]
-        return theta, joint_eval, step_sizes
+    def get_state(self):
+        pass
+
+    def set_state(self, state):
+        pass
+
+    def _pre_warmup(self):
+        # Reset run diagnostic attributes
+        self._reset_run_diagnostic_attributes()
+
+        # parameters that change during the run
+        self._epsilon_bar, self._H_bar = 1, 0
+
+        # parameters dual averaging
+        self._epsilon = self._FindGoodEpsilon()
+
+        # Parameter mu, does not change during the run
+        self._mu = np.log(10*self._epsilon)
+
+    def _pre_sample(self):
+        self._joint, self._grad = self._nuts_target(self.current_point)
+        self._epsilon = self._epsilon_bar   # fix epsilon after burn-in
+        if self._epsilon is None:
+            self._epsilon = self.adapt_step_size
+            self._epsilon_bar = self.adapt_step_size
+ 
+    #=========================================================================
+    def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
+        return self.target.logd(x), self.target.gradient(x)
 
     #=========================================================================
     # auxiliary standard Gaussian PDF: kinetic energy function
@@ -245,7 +225,12 @@ class NUTS(Sampler):
             return np.random.standard_normal(size=self.dim)
 
     #=========================================================================
-    def _FindGoodEpsilon(self, theta, joint, grad, epsilon=1):
+    def _FindGoodEpsilon(self, epsilon=1):
+        theta = self.current_point
+        self._joint, self._grad = self._nuts_target(theta)
+        joint = self._joint
+        grad = self._grad
+
         r = self._Kfun(1, 'sample')    # resample a momentum
         Ham = joint - self._Kfun(r, 'eval')     # initial Hamiltonian
         _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon)
@@ -333,3 +318,44 @@ class NUTS(Sampler):
         return theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
                 theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
 
+    #=========================================================================
+    #======================== Diagnostic methods =============================
+    #=========================================================================
+
+    def _create_run_diagnostic_attributes(self):
+        """A method to create attributes to store NUTS run diagnostic."""
+        self._reset_run_diagnostic_attributes()
+
+    def _reset_run_diagnostic_attributes(self):
+        """A method to reset attributes to store NUTS run diagnostic."""
+        # NUTS iterations
+        self.iteration_list = []
+        # List to store number of tree nodes created each NUTS iteration
+        self.num_tree_node_list = []
+        # List of step size used in each NUTS iteration 
+        self.epsilon_list = []
+        # List of burn-in step size suggestion during adaptation 
+        # only used when adaptation is done
+        # remains fixed after adaptation (after burn-in)
+        self.epsilon_bar_list = []
+
+    def _update_run_diagnostic_attributes(self, k, n_tree, eps, eps_bar):
+        """A method to update attributes to store NUTS run diagnostic."""
+        # Store the current iteration number k
+        self.iteration_list.append(k)
+        # Store the number of tree nodes created in iteration k
+        self.num_tree_node_list.append(n_tree)
+        # Store the step size used in iteration k
+        self.epsilon_list.append(eps)
+        # Store the step size suggestion during adaptation in iteration k
+        self.epsilon_bar_list.append(eps_bar)
+
+    def _print_progress(self,s,Ns):
+        """Prints sampling progress"""
+        if Ns > 2:
+            if (s % (max(Ns//100,1))) == 0:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg)
+            if s==Ns:
+                msg = f'Sample {s} / {Ns}'
+                sys.stdout.write('\r'+msg+'\n')

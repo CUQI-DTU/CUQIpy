@@ -64,6 +64,8 @@ def assert_true_if_warmup_is_equivalent(
 
     if strategy == "MH_like":
         tune_freq = int(0.1*Ns) / (Ns+Nb-1) # Due to a bug? in old MH, tuning freq is only defined by N and not N+Nb.
+    elif strategy == "NUTS":
+        tune_freq = 1/Nb
     else:
         raise NotImplementedError(f"Strategy {strategy} not implemented")
 
@@ -71,17 +73,27 @@ def assert_true_if_warmup_is_equivalent(
     # Sampling run is Ns + Nb
     # Tuning frequency parametrized but hard-coded, e.g. to int(0.1*Ns) for MH.
     np.random.seed(0)
-    samples_old =\
-        sampler_old.sample_adapt(N=Ns, Nb=Nb).samples[...,old_idx[0]:old_idx[1]]
+    if strategy == "NUTS":
+        samples_old =\
+            sampler_old.sample_adapt(N=Ns, Nb=Nb).samples[...,old_idx[0]:Nb-1]
+    else:
+        samples_old =\
+            sampler_old.sample_adapt(
+                N=Ns, Nb=Nb).samples[...,old_idx[0]:old_idx[1]]
 
     # Get Ns samples from the new sampler
     # Sampling run is Ns + Nb
     # Tune_freq is used in the new sampler, defining how often to tune.
     # Nb samples are removed afterwards as burn-in
     np.random.seed(0)
-    sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)  
-    samples_new = \
-        sampler_new.get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
+    if strategy == "NUTS":
+        sampler_new.warmup(Nb, tune_freq=tune_freq)
+        sampler_new.sample(Ns=Ns-1)
+        samples_new = sampler_new.get_samples().samples[...,new_idx[0]:Nb-1]
+    else:
+        sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)
+        samples_new = \
+            sampler_new.get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
 
     assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
@@ -157,6 +169,88 @@ def test_MALA_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
+# ============ LinearRTO ============
+
+def create_multiple_likelihood_posterior_target(dim=16):
+    """Create a target with multiple likelihoods."""
+    A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    A2, data2, info2 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+
+    x = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1)
+    y1 = cuqi.distribution.Gaussian(A1@x, 0.001)
+    y2 = cuqi.distribution.Gaussian(A2@x, 0.001)
+
+    target = cuqi.distribution.JointDistribution(x,y1,y2)(y1=data1, y2=data2)
+
+    return target
+
+LinearRTO_targets = targets + [
+    create_multiple_likelihood_posterior_target(dim=32),
+    create_multiple_likelihood_posterior_target(dim=64),
+    create_multiple_likelihood_posterior_target(dim=128)
+]
+
+@pytest.mark.parametrize("target", LinearRTO_targets)
+def test_LinearRTO_regression_sample(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.LinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", LinearRTO_targets)
+def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
+    """Test the LinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.LinearRTO(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
+# ============ RegularizedLinearRTO ============
+
+def create_regularized_target(dim=16):
+    """Create a regularized target."""
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint = "nonnegativity")
+    y = cuqi.distribution.Gaussian(A@x, 0.001)
+    return cuqi.distribution.JointDistribution(x, y)(y=y_data)
+
+def create_multiple_likelihood_posterior_regularized_target(dim=16):
+    """Create a target with multiple likelihoods and a regularized prior."""
+    A1, data1, info1 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    A2, data2, info2 = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+
+    x = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint = "nonnegativity")
+    y1 = cuqi.distribution.Gaussian(A1@x, 0.001)
+    y2 = cuqi.distribution.Gaussian(A2@x, 0.001)
+
+    target = cuqi.distribution.JointDistribution(x,y1,y2)(y1=data1, y2=data2)
+
+    return target
+
+regularized_targets = [
+    create_regularized_target(dim=32),
+    create_regularized_target(dim=64),
+    create_regularized_target(dim=128)
+] + [
+    create_multiple_likelihood_posterior_regularized_target(dim=32),
+    create_multiple_likelihood_posterior_regularized_target(dim=64),
+    create_multiple_likelihood_posterior_regularized_target(dim=128)
+]
+
+@pytest.mark.parametrize("target", regularized_targets)
+def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
+    """Test the RegularizedLinearRTO sampler regression."""
+    sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", regularized_targets)
+def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
+    """Test the RegularizedLinearRTO sampler regression."""
+
+    sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
 # ============== CWMH ============
 
 @pytest.mark.parametrize("target", targets)
@@ -183,6 +277,27 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
                                         old_idx=[0, -1],
                                         new_idx=[1, None])
 
+# ============= HMC (NUTS) ==============
+@pytest.mark.parametrize("target", targets)
+def test_NUTS_regression_sample(target: cuqi.density.Density):
+    """Test the HMC (NUTS) sampler regression."""
+    sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=0.001)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, adapt_step_size=0.001)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
+
+@pytest.mark.parametrize("target", targets)
+def test_NUTS_regression_warmup(target: cuqi.density.Density):
+    """Test the HMC (NUTS) sampler regression."""
+    sampler_old = cuqi.sampler.NUTS(target)
+    sampler_old._return_burnin = True
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target)
+    Ns = 20
+    Nb = Ns
+    assert_true_if_warmup_is_equivalent(sampler_old,
+                                        sampler_new,
+                                        Ns=Ns,
+                                        Nb=Nb,
+                                        strategy="NUTS")
 # ============ Checkpointing ============
 
 
