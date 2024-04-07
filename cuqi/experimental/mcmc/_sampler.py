@@ -45,15 +45,10 @@ class SamplerNew(ABC):
         """
 
         self.target = target
-        self.callback = callback
-
-        # Choose initial point if not given
-        if initial_point is None:
-            initial_point = np.ones(self.dim)
-
         self.initial_point = initial_point
-        
-        self._samples = [initial_point] # Remove. See #324.
+        self.current_point = initial_point
+        self.callback = callback
+        self._samples = []
 
     # ------------ Abstract methods to be implemented by subclasses ------------
     
@@ -93,17 +88,32 @@ class SamplerNew(ABC):
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
         self._target = value
-        self.validate_target()
+        if self._target is not None:
+            self.validate_target()
 
     @property
     def current_point(self):
         """ The current point of the sampler. """
+        if self._current_point is None:
+            self._current_point = self.initial_point
         return self._current_point
     
     @current_point.setter
     def current_point(self, value):
         """ Set the current point of the sampler. """
         self._current_point = value
+
+    @property
+    def initial_point(self):
+        """ The initial point of the sampler. """
+        if self._initial_point is None:
+            self._set_default_initial_point()
+        return self._initial_point
+    
+    @initial_point.setter
+    def initial_point(self, value):
+        """ Set the initial point of the sampler. """
+        self._initial_point = value
 
     # ------------ Public methods ------------
 
@@ -298,13 +308,24 @@ class SamplerNew(ABC):
         if self.callback is not None:
             self.callback(sample, sample_index)
 
+    def _set_default_initial_point(self):
+        """ Set the default initial point for the sampler. Defaults to an array of ones. """
+        if self.target is None:
+            raise ValueError("Cannot get or set default initial point without a target density.")
+        self.initial_point = np.ones(self.dim)
+
+    # Temp
+    def __call__(self, target):
+        self.target = target
+        return self
+
 
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale'})
 
-    def __init__(self, target, proposal=None, scale=1, **kwargs):
+    def __init__(self, target=None, proposal=None, scale=1, **kwargs):
         """ Initializer for proposal based samplers. 
 
         Parameters
@@ -325,34 +346,35 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         super().__init__(target, **kwargs)
 
-        self.current_point = self.initial_point
-        self.current_target_logd = self.target.logd(self.current_point)
         self.proposal = proposal
         self.scale = scale
-
+        self.current_target_logd = None
         self._acc = [ 1 ] # TODO. Check
 
-    @property 
-    def proposal(self):
-        return self._proposal 
-
-    @proposal.setter 
-    def proposal(self, value):
-        self._proposal = value
+    @property
+    def current_target_logd(self):
+        """ The log-density of the target at the current point. """
+        # If the current target log-density is not set yet, calculate it given the current point
+        if self._current_target_logd is None:
+            if self.target is not None and self.current_point is not None:
+                self._current_target_logd = self.target.logd(self.current_point)
+        return self._current_target_logd
+    
+    @current_target_logd.setter
+    def current_target_logd(self, value):
+        self._current_target_logd = value
 
     @property
-    def geometry(self): # TODO. Check if we can refactor this
-        geom1, geom2 = None, None
-        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
-            geom1=  self.proposal.geometry
-        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.par_dim is not None:
-            geom2 = self.target.geometry
-        if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
-            return geom1
-        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry) and geom2 is not None: 
-            return geom2
-        else:
-            return cuqi.geometry._DefaultGeometry(self.dim)
+    def proposal(self):
+        """ The proposal distribution. """
+        if self._proposal is None:
+            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+        return self._proposal
+    
+    @proposal.setter
+    def proposal(self, proposal):
+        """ Set the proposal distribution. """
+        self._proposal = proposal
 
 
 class _BatchHandler:
