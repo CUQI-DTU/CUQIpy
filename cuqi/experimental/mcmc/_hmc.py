@@ -80,7 +80,7 @@ class NUTSNew(SamplerNew):
         sampler.iteration_list
 
     """
-    def __init__(self, target, initial_point=None, max_depth=15,
+    def __init__(self, target=None, initial_point=None, max_depth=15,
                  adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
         self.max_depth = max_depth
@@ -93,7 +93,7 @@ class NUTSNew(SamplerNew):
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
         self._acc = [None]
-        self.current_point = self.initial_point
+        #self.current_point = self.initial_point
 
         # Fixed parameters that do not change during the run
         self._gamma, self._t_0, self._kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
@@ -109,10 +109,10 @@ class NUTSNew(SamplerNew):
         pass #TODO: target needs to have logpdf and gradient methods
 
     def step(self):
-        print("k", len(self._step_size)+1)
-        print("epsilon", self._epsilon)
-        print("epsilon_bar", self._epsilon_bar)
-        print("current_point (pre)", self.current_point)
+        #print("k", len(self._step_size)+1)
+        #print("epsilon", self._epsilon)
+        #print("epsilon_bar", self._epsilon_bar)
+        #print("current_point (pre)", self.current_point)
         # reset number of tree nodes for each iteration
         self._num_tree_node = 0
 
@@ -173,7 +173,7 @@ class NUTSNew(SamplerNew):
     def tune(self, skip_len, update_count):
         # adapt epsilon during burn-in using dual averaging
         k = update_count+1
-        print("update_count", update_count)
+        #print("update_count", update_count)
 
         eta1 = 1/(k + self._t_0)
         self._H_bar = (1-eta1)*self._H_bar + eta1*(self._delta - (self._alpha/self._n_alpha))
@@ -181,9 +181,9 @@ class NUTSNew(SamplerNew):
         eta = k**(-self._kappa)
         self._epsilon_bar = np.exp(eta*np.log(self._epsilon) + (1-eta)*np.log(self._epsilon_bar))
 
-        print("epsilon (post)", self._epsilon)
-        print("epsilon_bar (post)", self._epsilon_bar)
-        print("current_point (post)", self.current_point)
+        #print("epsilon (post)", self._epsilon)
+        #print("epsilon_bar (post)", self._epsilon_bar)
+        #print("current_point (post)", self.current_point)
 
     def get_state(self):
         pass

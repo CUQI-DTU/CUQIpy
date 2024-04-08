@@ -7,3 +7,5 @@ from ._pcn import pCNNew
 from ._rto import LinearRTONew, RegularizedLinearRTONew
 from ._cwmh import CWMHNew
 from ._hmc import NUTSNew
+from ._gibbs import GibbsNew
+from ._conjugate import ConjugateNew
