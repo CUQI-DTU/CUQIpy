@@ -50,6 +50,7 @@ class LinearRTONew(SamplerNew):
 
         if initial_point is None: #TODO: Replace later with a getter
             self.initial_point = np.zeros(self.dim)
+            self._samples = [self.initial_point]
 
         self.current_point = self.initial_point
         self._acc = [1] # TODO. Check if we need this
