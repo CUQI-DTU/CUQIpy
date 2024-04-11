@@ -189,12 +189,6 @@ class LinearRTONew(SamplerNew):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
 
-    def get_state(self): #TODO: LinearRTO only need initial_point for reproducibility?
-        return {'sampler_type': 'LinearRTO'}
-
-    def set_state(self, state): #TODO: LinearRTO only need initial_point for reproducibility?
-        pass
-
 class RegularizedLinearRTONew(LinearRTONew):
     """
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.

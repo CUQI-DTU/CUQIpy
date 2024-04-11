@@ -272,6 +272,7 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
 checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
+    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -280,7 +281,8 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.ProposalBasedSamplerNew,
     cuqi.experimental.mcmc.MHNew,
     cuqi.experimental.mcmc.pCNNew,
-    cuqi.experimental.mcmc.CWMHNew
+    cuqi.experimental.mcmc.CWMHNew,
+    cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
