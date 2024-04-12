@@ -72,13 +72,8 @@ def assert_true_if_warmup_is_equivalent(
     # Sampling run is Ns + Nb
     # Tuning frequency parametrized but hard-coded, e.g. to int(0.1*Ns) for MH.
     np.random.seed(0)
-    if strategy == "NUTS":
-        samples_old =\
-            sampler_old.sample_adapt(N=Ns, Nb=Nb).samples[...,old_idx[0]:Nb-1]
-    else:
-        samples_old =\
-            sampler_old.sample_adapt(
-                N=Ns, Nb=Nb).samples[...,old_idx[0]:old_idx[1]]
+    samples_old = sampler_old.sample_adapt(
+        N=Ns, Nb=Nb).samples[...,old_idx[0]:old_idx[1]]
 
     # Get Ns samples from the new sampler
     # Sampling run is Ns + Nb
@@ -88,7 +83,7 @@ def assert_true_if_warmup_is_equivalent(
     if strategy == "NUTS":
         sampler_new.warmup(Nb, tune_freq=tune_freq)
         sampler_new.sample(Ns=Ns-1)
-        samples_new = sampler_new.get_samples().samples[...,new_idx[0]:Nb-1]
+        samples_new = sampler_new.get_samples().samples[...,new_idx[0]:new_idx[1]]
     else:
         sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)
         samples_new = \
@@ -291,7 +286,7 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
     sampler_old._return_burnin = True
     sampler_new = cuqi.experimental.mcmc.NUTSNew(target)
     Ns = 20
-    Nb = Ns
+    Nb = 20
     assert_true_if_warmup_is_equivalent(sampler_old,
                                         sampler_new,
                                         Ns=Ns,
