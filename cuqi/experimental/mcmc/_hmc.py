@@ -2,6 +2,7 @@ import numpy as np
 import numpy as np
 from cuqi.experimental.mcmc import SamplerNew
 import sys
+from cuqi.array import CUQIarray
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
@@ -98,6 +99,8 @@ class NUTSNew(SamplerNew):
         # Fixed parameters that do not change during the run
         self._gamma, self._t_0, self._kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
         self._delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
+
+        # Parameters that change during the run
         self._step_size = []
         self._epsilon = None
         self._epsilon_bar = None
@@ -109,10 +112,10 @@ class NUTSNew(SamplerNew):
         pass #TODO: target needs to have logpdf and gradient methods
 
     def step(self):
-        print("k", len(self._step_size)+1)
-        print("epsilon", self._epsilon)
-        print("epsilon_bar", self._epsilon_bar)
-        print("current_point (pre)", self.current_point)
+        self.current_point = self.current_point.to_numpy() if hasattr(self.current_point, 'to_numpy') else self.current_point
+        self._joint = self._joint.to_numpy() if hasattr(self._joint, 'to_numpy') else self._joint
+        self._grad = self._grad.to_numpy() if hasattr(self._grad, 'to_numpy') else self._grad
+
         # reset number of tree nodes for each iteration
         self._num_tree_node = 0
 
@@ -167,23 +170,21 @@ class NUTSNew(SamplerNew):
         self._update_run_diagnostic_attributes(
             len(self._step_size), self._num_tree_node, self._epsilon, self._epsilon_bar)
         
+        self._epsilon = self._epsilon_bar 
         if np.isnan(self._joint):
             raise NameError('NaN potential func')
 
     def tune(self, skip_len, update_count):
         # adapt epsilon during burn-in using dual averaging
         k = update_count+1
-        print("update_count", update_count)
 
         eta1 = 1/(k + self._t_0)
         self._H_bar = (1-eta1)*self._H_bar + eta1*(self._delta - (self._alpha/self._n_alpha))
+        self._H_bar = self._H_bar.to_numpy() if isinstance(self._H_bar, CUQIarray) else self._H_bar
         self._epsilon = np.exp(self._mu - (np.sqrt(k)/self._gamma)*self._H_bar)
         eta = k**(-self._kappa)
+        self._epsilon = self._epsilon.to_numpy() if isinstance(self._epsilon, CUQIarray) else self._epsilon
         self._epsilon_bar = np.exp(eta*np.log(self._epsilon) + (1-eta)*np.log(self._epsilon_bar))
-
-        print("epsilon (post)", self._epsilon)
-        print("epsilon_bar (post)", self._epsilon_bar)
-        print("current_point (post)", self.current_point)
 
     def get_state(self):
         pass
@@ -206,7 +207,7 @@ class NUTSNew(SamplerNew):
 
     def _pre_sample(self):
         self._joint, self._grad = self._nuts_target(self.current_point)
-        self._epsilon = self._epsilon_bar   # fix epsilon after burn-in
+
         if self._epsilon is None:
             self._epsilon = self.adapt_step_size
             self._epsilon_bar = self.adapt_step_size
