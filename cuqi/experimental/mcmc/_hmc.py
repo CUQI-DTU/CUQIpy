@@ -82,15 +82,11 @@ class NUTSNew(SamplerNew):
     def __init__(self, target, initial_point=None, max_depth=15,
                  adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
+
+        # Assign parameters as attributes
         self.max_depth = max_depth
         self.adapt_step_size = adapt_step_size
         self.opt_acc_rate = opt_acc_rate
-
-        # NUTS run diagnostic
-        # number of tree nodes created each NUTS iteration
-        self._num_tree_node = 0
-        # Create lists to store NUTS run diagnostics
-        self._create_run_diagnostic_attributes()
         
         # Set current point 
         self.current_point = self.initial_point
@@ -105,6 +101,12 @@ class NUTSNew(SamplerNew):
         # Arrays to store acceptance rate
         self._acc = [None]
 
+        # NUTS run diagnostic:
+        # number of tree nodes created each NUTS iteration
+        self._num_tree_node = 0
+        # Create lists to store NUTS run diagnostics
+        self._create_run_diagnostic_attributes()
+
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
@@ -113,31 +115,34 @@ class NUTSNew(SamplerNew):
              # https://github.com/CUQI-DTU/CUQIpy/issues/378
 
     def step(self):
-        # Convert current_point, joint, and grad to numpy arrays
+        # Convert current_point, logd, and grad to numpy arrays
         # if they are CUQIarray objects
         if isinstance(self.current_point, CUQIarray):
             self.current_point = self.current_point.to_numpy() 
-        if isinstance(self._joint, CUQIarray):
-            self._joint = self._joint.to_numpy()
-        if isinstance(self._grad, CUQIarray):
-            self._grad = self._grad.to_numpy()
+        if isinstance(self.current_target_logd, CUQIarray):
+            self.current_target_logd = self.current_target_logd.to_numpy()
+        if isinstance(self.current_target_grad, CUQIarray):
+            self.current_target_grad = self.current_target_grad.to_numpy()
 
         # reset number of tree nodes for each iteration
         self._num_tree_node = 0
 
-        theta_k, joint_k = self.current_point.copy(), self._joint # initial position (parameters)
-        grad = self._grad.copy() # initial gradient
+        # copy current point, logd, and grad in local variables
+        point_k = self.current_point.copy() # initial position (parameters)
+        logd_k = self.current_target_logd
+        grad_k = self.current_target_grad.copy() # initial gradient
+        
+        # compute r_k and Hamiltonian
         r_k = self._Kfun(1, 'sample') # resample momentum vector
-        Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
+        Ham = logd_k - self._Kfun(r_k, 'eval') # Hamiltonian
 
         # slice variable
-        log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
+        log_u = Ham - np.random.exponential(1, size=1)
 
         # initialization
         j, s, n = 0, 1, 1
-        self.current_point, self._joint = theta_k, joint_k
-        theta_minus, theta_plus = np.copy(theta_k), np.copy(theta_k)
-        grad_minus, grad_plus = np.copy(grad), np.copy(grad)
+        point_minus, point_plus = np.copy(point_k), np.copy(point_k)
+        grad_minus, grad_plus = np.copy(grad_k), np.copy(grad_k)
         r_minus, r_plus = np.copy(r_k), np.copy(r_k)
 
         # run NUTS
@@ -147,28 +152,28 @@ class NUTSNew(SamplerNew):
 
             # build tree: doubling procedure
             if (v == -1):
-                theta_minus, r_minus, grad_minus, _, _, _, \
-                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                    self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j, self._epsilon)
+                point_minus, r_minus, grad_minus, _, _, _, \
+                point_prime, logd_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
+                    self._BuildTree(point_minus, r_minus, grad_minus, Ham, log_u, v, j, self._epsilon)
             else:
-                _, _, _, theta_plus, r_plus, grad_plus, \
-                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                    self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j, self._epsilon)
+                _, _, _, point_plus, r_plus, grad_plus, \
+                point_prime, logd_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
+                    self._BuildTree(point_plus, r_plus, grad_plus, Ham, log_u, v, j, self._epsilon)
 
             # Metropolis step
             alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
             if (s_prime == 1) and (np.random.rand() <= alpha2):
-                self.current_point = theta_prime
-                self._joint = joint_prime
-                self._grad = np.copy(grad_prime)
+                self.current_point = point_prime
+                self.current_target_logd = logd_prime
+                self.current_target_grad = np.copy(grad_prime)
                 self._acc.append(1)
             else:
                 self._acc.append(0)
 
             # update number of particles, tree level, and stopping criterion
             n += n_prime
-            dtheta = theta_plus - theta_minus
-            s = s_prime * int((dtheta @ r_minus.T) >= 0) * int((dtheta @ r_plus.T) >= 0)
+            dpoints = point_plus - point_minus
+            s = s_prime * int((dpoints @ r_minus.T) >= 0) * int((dpoints @ r_plus.T) >= 0)
             j += 1
             self._alpha = alpha
             self._n_alpha = n_alpha
@@ -177,7 +182,7 @@ class NUTSNew(SamplerNew):
         self._update_run_diagnostic_attributes(self._num_tree_node, self._epsilon, self._epsilon_bar)
         
         self._epsilon = self._epsilon_bar 
-        if np.isnan(self._joint):
+        if np.isnan(self.current_target_logd):
             raise NameError('NaN potential func')
 
     def tune(self, skip_len, update_count):
@@ -216,7 +221,7 @@ class NUTSNew(SamplerNew):
         self._mu = np.log(10*self._epsilon)
 
     def _pre_sample(self):
-        self._joint, self._grad = self._nuts_target(self.current_point)
+        self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
 
         if self._epsilon is None:
             self._epsilon = self.adapt_step_size
@@ -237,52 +242,52 @@ class NUTSNew(SamplerNew):
 
     #=========================================================================
     def _FindGoodEpsilon(self, epsilon=1):
-        theta = self.current_point
-        self._joint, self._grad = self._nuts_target(theta)
-        joint = self._joint
-        grad = self._grad
+        point_k = self.current_point
+        self.current_target_logd, self.current_target_grad = self._nuts_target(point_k)
+        logd = self.current_target_logd
+        grad = self.current_target_grad
 
         r = self._Kfun(1, 'sample')    # resample a momentum
-        Ham = joint - self._Kfun(r, 'eval')     # initial Hamiltonian
-        _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon)
+        Ham = logd - self._Kfun(r, 'eval')     # initial Hamiltonian
+        _, r_prime, logd_prime, grad_prime = self._Leapfrog(point_k, r, grad, epsilon)
 
         # trick to make sure the step is not huge, leading to infinite values of the likelihood
         k = 1
-        while np.isinf(joint_prime) or np.isinf(grad_prime).any():
+        while np.isinf(logd_prime) or np.isinf(grad_prime).any():
             k *= 0.5
-            _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon*k)
+            _, r_prime, logd_prime, grad_prime = self._Leapfrog(point_k, r, grad, epsilon*k)
         epsilon = 0.5*k*epsilon
 
         # doubles/halves the value of epsilon until the accprob of the Langevin proposal crosses 0.5
-        Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
+        Ham_prime = logd_prime - self._Kfun(r_prime, 'eval')
         log_ratio = Ham_prime - Ham
         a = 1 if log_ratio > np.log(0.5) else -1
         while (a*log_ratio > -a*np.log(2)):
             epsilon = (2**a)*epsilon
-            _, r_prime, joint_prime, _ = self._Leapfrog(theta, r, grad, epsilon)
-            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
+            _, r_prime, logd_prime, _ = self._Leapfrog(point_k, r, grad, epsilon)
+            Ham_prime = logd_prime - self._Kfun(r_prime, 'eval')
             log_ratio = Ham_prime - Ham
         return epsilon
 
     #=========================================================================
-    def _Leapfrog(self, theta_old, r_old, grad_old, epsilon):
+    def _Leapfrog(self, point_old, r_old, grad_old, epsilon):
         # symplectic integrator: trajectories preserve phase space volumen
         r_new = r_old + 0.5*epsilon*grad_old     # half-step
-        theta_new = theta_old + epsilon*r_new     # full-step
-        joint_new, grad_new = self._nuts_target(theta_new)     # new gradient
+        point_new = point_old + epsilon*r_new     # full-step
+        logd_new, grad_new = self._nuts_target(point_new)     # new gradient
         r_new += 0.5*epsilon*grad_new     # half-step
-        return theta_new, r_new, joint_new, grad_new
+        return point_new, r_new, logd_new, grad_new
 
     #=========================================================================
     # @functools.lru_cache(maxsize=128)
-    def _BuildTree(self, theta, r, grad, Ham, log_u, v, j, epsilon, Delta_max=1000):
+    def _BuildTree(self, point_k, r, grad, Ham, log_u, v, j, epsilon, Delta_max=1000):
         # Increment the number of tree nodes counter
         self._num_tree_node += 1
 
         if (j == 0):     # base case
             # single leapfrog step in the direction v
-            theta_prime, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, v*epsilon)
-            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')     # Hamiltonian eval
+            point_prime, r_prime, logd_prime, grad_prime = self._Leapfrog(point_k, r, grad, v*epsilon)
+            Ham_prime = logd_prime - self._Kfun(r_prime, 'eval')     # Hamiltonian eval
             n_prime = int(log_u <= Ham_prime)     # if particle is in the slice
             s_prime = int(log_u < Delta_max + Ham_prime)     # check U-turn
             #
@@ -295,39 +300,39 @@ class NUTSNew(SamplerNew):
             alpha_prime = 1 if diff_Ham > 0 else np.exp(diff_Ham)
             n_alpha_prime = 1
             #
-            theta_minus, theta_plus = theta_prime, theta_prime
+            point_minus, point_plus = point_prime, point_prime
             r_minus, r_plus = r_prime, r_prime
             grad_minus, grad_plus = grad_prime, grad_prime
         else: 
             # recursion: build the left/right subtrees
-            theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
-            theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime = \
-                self._BuildTree(theta, r, grad, Ham, log_u, v, j-1, epsilon)
+            point_minus, r_minus, grad_minus, point_plus, r_plus, grad_plus, \
+            point_prime, logd_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime = \
+                self._BuildTree(point_k, r, grad, Ham, log_u, v, j-1, epsilon)
             if (s_prime == 1): # do only if the stopping criteria does not verify at the first subtree
                 if (v == -1):
-                    theta_minus, r_minus, grad_minus, _, _, _, \
-                    theta_2prime, joint_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
-                        self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j-1, epsilon)
+                    point_minus, r_minus, grad_minus, _, _, _, \
+                    point_2prime, logd_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
+                        self._BuildTree(point_minus, r_minus, grad_minus, Ham, log_u, v, j-1, epsilon)
                 else:
-                    _, _, _, theta_plus, r_plus, grad_plus, \
-                    theta_2prime, joint_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
-                        self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j-1, epsilon)
+                    _, _, _, point_plus, r_plus, grad_plus, \
+                    point_2prime, logd_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
+                        self._BuildTree(point_plus, r_plus, grad_plus, Ham, log_u, v, j-1, epsilon)
 
                 # Metropolis step
                 alpha2 = n_2prime / max(1, (n_prime + n_2prime))
                 if (np.random.rand() <= alpha2):
-                    theta_prime = np.copy(theta_2prime)
-                    joint_prime = np.copy(joint_2prime)
+                    point_prime = np.copy(point_2prime)
+                    logd_prime = np.copy(logd_2prime)
                     grad_prime = np.copy(grad_2prime)
 
                 # update number of particles and stopping criterion
                 alpha_prime += alpha_2prime
                 n_alpha_prime += n_alpha_2prime
-                dtheta = theta_plus - theta_minus
-                s_prime = s_2prime * int((dtheta@r_minus.T)>=0) * int((dtheta@r_plus.T)>=0)
+                dpoints = point_plus - point_minus
+                s_prime = s_2prime * int((dpoints@r_minus.T)>=0) * int((dpoints@r_plus.T)>=0)
                 n_prime += n_2prime
-        return theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
-                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
+        return point_minus, r_minus, grad_minus, point_plus, r_plus, grad_plus, \
+                point_prime, logd_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
 
     #=========================================================================
     #======================== Diagnostic methods =============================
