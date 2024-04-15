@@ -1,11 +1,9 @@
 import numpy as np
 import numpy as np
 from cuqi.experimental.mcmc import SamplerNew
-import sys
 from cuqi.array import CUQIarray
 
 
-# another implementation is in https://github.com/mfouesneau/NUTS
 class NUTSNew(SamplerNew):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
@@ -15,11 +13,10 @@ class NUTSNew(SamplerNew):
 
     Parameters
     ----------
-
     target : `cuqi.distribution.Distribution`
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
     max_depth : int
@@ -53,10 +50,14 @@ class NUTSNew(SamplerNew):
         target = tp.posterior
 
         # Set up sampler
-        sampler = cuqi.sampler.NUTS(target)
+        sampler = cuqi.experimental.mcmc.NUTSNew(target)
 
         # Sample
-        samples = sampler.sample(10000, 5000)
+        sampler.warmup(5000)
+        sampler.sample(10000)
+
+        # Get samples
+        samples = sampler.get_samples()
 
         # Plot samples
         samples.plot_pair()
@@ -77,9 +78,6 @@ class NUTSNew(SamplerNew):
         # adaptation is not requested.
         sampler.epsilon_bar_list
 
-        # Additionally, iterations' number can be accessed via
-        sampler.iteration_list
-
     """
     def __init__(self, target, initial_point=None, max_depth=15,
                  adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
@@ -93,33 +91,39 @@ class NUTSNew(SamplerNew):
         self._num_tree_node = 0
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
-        self._acc = [None]
+        
+        # Set current point 
         self.current_point = self.initial_point
 
-        # Fixed parameters that do not change during the run
-        self._gamma, self._t_0, self._kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
-        self._delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
-
-        # Parameters that change during the run
-        self._step_size = []
+        # Initialize epsilon and epsilon_bar
+        # epsilon is the step size used in the current iteration
+        # after warm up and one sampling step, epsilon is updated
+        # to epsilon_bar for the remaining sampling steps.
         self._epsilon = None
         self._epsilon_bar = None
-        
+
+        # Arrays to store acceptance rate
+        self._acc = [None]
+
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
     def validate_target(self):
         pass #TODO: target needs to have logpdf and gradient methods
+             # https://github.com/CUQI-DTU/CUQIpy/issues/378
 
     def step(self):
-        self.current_point = self.current_point.to_numpy() if hasattr(self.current_point, 'to_numpy') else self.current_point
-        self._joint = self._joint.to_numpy() if hasattr(self._joint, 'to_numpy') else self._joint
-        self._grad = self._grad.to_numpy() if hasattr(self._grad, 'to_numpy') else self._grad
+        # Convert current_point, joint, and grad to numpy arrays
+        # if they are CUQIarray objects
+        if isinstance(self.current_point, CUQIarray):
+            self.current_point = self.current_point.to_numpy() 
+        if isinstance(self._joint, CUQIarray):
+            self._joint = self._joint.to_numpy()
+        if isinstance(self._grad, CUQIarray):
+            self._grad = self._grad.to_numpy()
 
         # reset number of tree nodes for each iteration
         self._num_tree_node = 0
-
-        self._step_size.append(self._epsilon)
 
         theta_k, joint_k = self.current_point.copy(), self._joint # initial position (parameters)
         grad = self._grad.copy() # initial gradient
@@ -157,6 +161,9 @@ class NUTSNew(SamplerNew):
                 self.current_point = theta_prime
                 self._joint = joint_prime
                 self._grad = np.copy(grad_prime)
+                self._acc.append(1)
+            else:
+                self._acc.append(0)
 
             # update number of particles, tree level, and stopping criterion
             n += n_prime
@@ -167,22 +174,25 @@ class NUTSNew(SamplerNew):
             self._n_alpha = n_alpha
 
         # update run diagnostic attributes
-        self._update_run_diagnostic_attributes(
-            len(self._step_size), self._num_tree_node, self._epsilon, self._epsilon_bar)
+        self._update_run_diagnostic_attributes(self._num_tree_node, self._epsilon, self._epsilon_bar)
         
         self._epsilon = self._epsilon_bar 
         if np.isnan(self._joint):
             raise NameError('NaN potential func')
 
     def tune(self, skip_len, update_count):
-        # adapt epsilon during burn-in using dual averaging
+        """ adapt epsilon during burn-in using dual averaging"""
         k = update_count+1
 
-        eta1 = 1/(k + self._t_0)
-        self._H_bar = (1-eta1)*self._H_bar + eta1*(self._delta - (self._alpha/self._n_alpha))
+        # Fixed parameters that do not change during the run
+        gamma, t_0, kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
+
+        eta1 = 1/(k + t_0)
+        self._H_bar = (1-eta1)*self._H_bar +\
+            eta1*(self.opt_acc_rate - (self._alpha/self._n_alpha))
         self._H_bar = self._H_bar.to_numpy() if isinstance(self._H_bar, CUQIarray) else self._H_bar
-        self._epsilon = np.exp(self._mu - (np.sqrt(k)/self._gamma)*self._H_bar)
-        eta = k**(-self._kappa)
+        self._epsilon = np.exp(self._mu - (np.sqrt(k)/gamma)*self._H_bar)
+        eta = k**(-kappa)
         self._epsilon = self._epsilon.to_numpy() if isinstance(self._epsilon, CUQIarray) else self._epsilon
         self._epsilon_bar = np.exp(eta*np.log(self._epsilon) + (1-eta)*np.log(self._epsilon_bar))
 
@@ -329,8 +339,6 @@ class NUTSNew(SamplerNew):
 
     def _reset_run_diagnostic_attributes(self):
         """A method to reset attributes to store NUTS run diagnostic."""
-        # NUTS iterations
-        self.iteration_list = []
         # List to store number of tree nodes created each NUTS iteration
         self.num_tree_node_list = []
         # List of step size used in each NUTS iteration 
@@ -340,23 +348,11 @@ class NUTSNew(SamplerNew):
         # remains fixed after adaptation (after burn-in)
         self.epsilon_bar_list = []
 
-    def _update_run_diagnostic_attributes(self, k, n_tree, eps, eps_bar):
+    def _update_run_diagnostic_attributes(self, n_tree, eps, eps_bar):
         """A method to update attributes to store NUTS run diagnostic."""
-        # Store the current iteration number k
-        self.iteration_list.append(k)
         # Store the number of tree nodes created in iteration k
         self.num_tree_node_list.append(n_tree)
         # Store the step size used in iteration k
         self.epsilon_list.append(eps)
         # Store the step size suggestion during adaptation in iteration k
         self.epsilon_bar_list.append(eps_bar)
-
-    def _print_progress(self,s,Ns):
-        """Prints sampling progress"""
-        if Ns > 2:
-            if (s % (max(Ns//100,1))) == 0:
-                msg = f'Sample {s} / {Ns}'
-                sys.stdout.write('\r'+msg)
-            if s==Ns:
-                msg = f'Sample {s} / {Ns}'
-                sys.stdout.write('\r'+msg+'\n')
