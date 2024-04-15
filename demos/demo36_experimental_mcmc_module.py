@@ -52,9 +52,40 @@ print(f"Shape: {samples.shape}")
 samples.burnthin(1401).plot_pair()
 
 # %%
+# Getting sampler state or history
+#
+# The sampler state can be accessed as follows:
+
+state = sampler.get_state()
+
+# Sampler state is a dictionary with keys:
+print(state.keys())
+
+
+# %%
+# The key 'state' contains the actual state, while 'metadata' contains metadata e.g. sampler name.
+# To get the current point one does:
+print(state['state']['current_point'])
+
+# %%
+# Setting sampler state
+#
+# The sampler state can be set as follows:
+
+new_state = sampler.get_state()
+
+# Change current point
+new_state['state']['current_point'] = new_state['state']['current_point'] + 1
+
+# Set new state
+sampler.set_state(state)
+
+# %%
 # Checkpointing
 #
-# The new sampler supports checkpointing by saving and loading state (not samples) For example:
+# The new sampler supports checkpointing by saving and loading state (not samples).
+# Checkpoint uses the set_state and get_state methods to save and load state and then pickles the state. 
+# For example:
 
 # Save current state of sampler (e.g. current point, current scale etc.)
 sampler.save_checkpoint('demo36_sampler_checkpoint.pickle')
