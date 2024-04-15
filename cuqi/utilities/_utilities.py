@@ -64,7 +64,7 @@ def get_indirect_variables(dist):
     attributes = []
     for attribute in dist.get_mutable_variables():
         value = getattr(dist, attribute)
-        if callable(value):
+        if callable(value) and not isinstance(value, spslinalg.LinearOperator):
             keys = get_non_default_args(value)
             for key in keys:
                 if key not in attributes: #Ensure we did not already find this key

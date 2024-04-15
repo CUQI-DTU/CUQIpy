@@ -673,6 +673,14 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
         logdet = np.sum(-np.log(precision))
         rank = dim
 
+    # sqrtprec is LinearOperator (only for RTOs)
+    elif isinstance(sqrtprec, spa.linalg.LinearOperator):
+        sqrtprec = sqrtprec
+        logdet
+        if hasattr(sqrtprec, 'logdet'):
+            logdet = sqrtprec.logdet
+        rank = dim
+
     # sqrtprec is full
     else:
         if spa.issparse(sqrtprec):
