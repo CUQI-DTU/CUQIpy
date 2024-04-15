@@ -214,6 +214,20 @@ class Samples(object):
     def geometry(self,inGeometry):
         self._geometry = inGeometry
 
+    def to_numpy(self):
+        """Return a numpy array of the CUQIarray data. If is_par is True, then 
+        the parameters are returned as numpy.ndarray. If is_par is False, then 
+        the function values are returned instead. If the samples are function
+        values that are not in vector form, an error is raised.
+        """
+        if not self.is_par and not self.is_vec:
+            raise ValueError(
+                "Cannot convert function values that are not in vector form "+
+                "to numpy array. Consider using the property vector to "+
+                "convert the samples to vector representation, e.g. "+
+                "my_samples.vector, before calling to_numpy.")
+        return self.samples
+
     def _process_is_par_kwarg(self, plotting_dict):
         """Updates the plotting dictionary by setting the is_par attribute
         of plotting_dict to the value of self.is_par"""
