@@ -281,11 +281,19 @@ def test_NUTS_regression_sample(target: cuqi.density.Density):
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
 
 @pytest.mark.parametrize("target", targets)
-def test_NUTS_regression_warmup(target: cuqi.density.Density):
+def test_NUTS_regression_sample_tune_first_step_only(
+    target: cuqi.density.Density):
     """Test the HMC (NUTS) sampler regression."""
-    sampler_old = cuqi.sampler.NUTS(target)
+    sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=False)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, adapt_step_size=False)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
+
+@pytest.mark.parametrize("target", targets)
+def test_NUTS_regression_warmup(target: cuqi.density.Density):
+    """Test the HMC (NUTS) sampler regression (with warmup)."""
+    sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=True)
     sampler_old._return_burnin = True
-    sampler_new = cuqi.experimental.mcmc.NUTSNew(target)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, adapt_step_size=True)
     Ns = 20
     Nb = 20
     assert_true_if_warmup_is_equivalent(sampler_old,
