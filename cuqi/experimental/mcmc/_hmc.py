@@ -121,6 +121,12 @@ class NUTSNew(SamplerNew):
         pass #TODO: target needs to have logpdf and gradient methods
              # https://github.com/CUQI-DTU/CUQIpy/issues/378
 
+    def reset(self):
+        # Call the parent reset method
+        super().reset()
+        # Reset NUTS run diagnostic attributes
+        self._reset_run_diagnostic_attributes()
+
     def step(self):
         # Convert current_point, logd, and grad to numpy arrays
         # if they are CUQIarray objects
@@ -220,9 +226,6 @@ class NUTSNew(SamplerNew):
         pass
 
     def _pre_warmup(self):
-        # Reset run diagnostic attributes
-        self._reset_run_diagnostic_attributes()
-
         # parameters that change during the run
         self._epsilon_bar, self._H_bar = 1, 0
 
@@ -233,9 +236,13 @@ class NUTSNew(SamplerNew):
         self._mu = np.log(10*self._epsilon)
 
     def _pre_sample(self):
+
         self.current_target_logd, self.current_target_grad =\
             self._nuts_target(self.current_point)
 
+        if self.adapt_step_size is False:
+            self._epsilon = self._FindGoodEpsilon()
+            self._epsilon_bar = self._epsilon
         if self._epsilon is None:
             self._epsilon = self.adapt_step_size
             self._epsilon_bar = self.adapt_step_size
