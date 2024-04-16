@@ -112,9 +112,8 @@ class UGLANew(SamplerNew):
         self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
     
         # Sample from approximate posterior
-        e = cuqi.distribution.Normal(mean=np.zeros(len(self._b_tild)), std=1).sample(rng=self.rng)
+        e = np.random.randn(len(self._b_tild))
         y = self._b_tild + e # Perturb data
-        print(y)
         sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)                     
         self.current_point, _ = sim.solve()
         acc = 1
