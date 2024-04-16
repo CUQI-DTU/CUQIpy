@@ -239,6 +239,33 @@ def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
+def create_lmrf_prior_target(dim=16):
+    """Create a target with LMRF prior."""
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    x = cuqi.distribution.LMRF(0, 0.1, geometry=dim)
+    y = cuqi.distribution.Gaussian(A@x, 0.001)
+    return cuqi.distribution.JointDistribution(x, y)(y=y_data)
+
+lmrf_prior_targets = [
+    create_lmrf_prior_target(dim=32),
+    create_lmrf_prior_target(dim=64),
+    create_lmrf_prior_target(dim=128)
+]
+
+@pytest.mark.parametrize("target", lmrf_prior_targets)
+def test_UGLA_regression_sample(target: cuqi.density.Density):
+    """Test the UGLA sampler regression."""
+    sampler_old = cuqi.sampler.UGLA(target)
+    sampler_new = cuqi.experimental.mcmc.UGLANew(target)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target", lmrf_prior_targets)
+def test_UGLA_regression_warmup(target: cuqi.density.Density):
+    """Test the UGLA sampler regression."""
+    sampler_old = cuqi.sampler.UGLA(target)
+    sampler_new = cuqi.experimental.mcmc.UGLANew(target)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
 # ============== CWMH ============
 
 @pytest.mark.parametrize("target", targets)
@@ -273,6 +300,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
+    # cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)) #TODO: this cause a error in MHNew
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -283,6 +311,7 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.pCNNew,
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
+    cuqi.experimental.mcmc.UGLANew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
