@@ -1,20 +1,51 @@
 import scipy as sp
-from scipy.linalg.interpolative import estimate_spectral_norm
-from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS
 from cuqi.experimental.mcmc import SamplerNew
-from cuqi.array import CUQIarray
 
 class UGLANew(SamplerNew):
-    def __init__(self, target, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, rng=None, **kwargs):
+    """ Unadjusted (Gaussian) Laplace Approximation sampler
+    
+    Samples an approximate posterior where the prior is approximated
+    by a Gaussian distribution. The likelihood must be Gaussian.
 
-        # Other parameters
+    Currently only works for LMRF priors.
+
+    The inner solver is Conjugate Gradient Least Squares (CGLS) solver.
+
+    For more details see: Uribe, Felipe, et al. "A hybrid Gibbs sampler for edge-preserving 
+    tomographic reconstruction with uncertain view angles." arXiv preprint arXiv:2104.06919 (2021).
+
+    Parameters
+    ----------
+    target : `cuqi.distribution.Posterior`
+        The target posterior distribution to sample.
+
+    initial_point : ndarray
+        Initial parameters. *Optional*
+
+    maxit : int
+        Maximum number of inner iterations for solver when generating one sample.
+
+    tol : float
+        Tolerance for inner solver. Will stop before maxit if the inner solvers convergence check reaches tol.
+
+    beta : float
+        Smoothing parameter for the Gaussian approximation of the Laplace distribution. Larger beta is easier to sample but is a worse approximation.
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of the sample.
+        An example is shown in demos/demo31_callback.py.
+    """
+    def __init__(self, target, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, **kwargs):
+
+        # Parameters (beta is used in target setter)
         self.maxit = maxit
         self.tol = tol
         self.beta = beta
-        self.rng = rng
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -32,13 +63,6 @@ class UGLANew(SamplerNew):
     @property
     def likelihood(self):
         return self.target.likelihood
-    
-    @property
-    def likelihoods(self):
-        if isinstance(self.target, cuqi.distribution.Posterior):
-            return [self.target.likelihood]
-        elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior):
-            return self.target.likelihoods
 
     @property
     def model(self):
@@ -56,9 +80,8 @@ class UGLANew(SamplerNew):
         self._precompute()
 
     def _precompute(self):
-
         # Extract diff_op from target prior
-        D = self.target.prior._diff_op
+        D = self.prior._diff_op
         n = D.shape[0]
 
         # Gaussian approximation of LMRF prior as function of x_k
@@ -68,39 +91,31 @@ class UGLANew(SamplerNew):
             return W.sqrt() @ D
         self.Lk_fun = Lk_fun
 
-        # Now prepare "LinearRTO" type sampler. TODO: Use LinearRTO for this instead
-        self._shift = 0
-
-        # Pre-computations
-        self._model = self.target.likelihood.model   
-        self._data = self.target.likelihood.data
-        self._m = len(self._data)
-        self._L1 = self.target.likelihood.distribution.sqrtprec
+        self._m = len(self.data)
+        self._L1 = self.likelihood.distribution.sqrtprec
 
         # If prior location is scalar, repeat it to match dimensions
-        if len(self.target.prior.location) == 1:
-            self._priorloc = np.repeat(self.target.prior.location, self.dim)
+        if len(self.prior.location) == 1:
+            self._priorloc = np.repeat(self.prior.location, self.dim)
         else:
-            self._priorloc = self.target.prior.location
+            self._priorloc = self.prior.location
 
         # Initial Laplace approx
         # self._L2 = Lk_fun(self.x0)
-        self._L2 = Lk_fun(np.zeros(self.dim))
+        self._L2 = Lk_fun(np.zeros(self.dim)) #TODO: fix this
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
-        
-        #self.n = len(self.x0)
+        self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
         
         # Least squares form
         def M(x, flag):
             if flag == 1:
-                out1 = self._L1 @ self._model.forward(x)
-                out2 = np.sqrt(1/self.target.prior.scale)*(self._L2 @ x)
+                out1 = self._L1 @ self.model.forward(x)
+                out2 = np.sqrt(1/self.prior.scale)*(self._L2 @ x)
                 out  = np.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
-                out1 = self._model.adjoint(self._L1.T@x[:idx])
-                out2 = np.sqrt(1/self.target.prior.scale)*(self._L2.T @ x[idx:])
+                out1 = self.model.adjoint(self._L1.T@x[:idx])
+                out2 = np.sqrt(1/self.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out
         self.M = M
@@ -109,7 +124,7 @@ class UGLANew(SamplerNew):
         # Update Laplace approximation
         self._L2 = self.Lk_fun(self.current_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
+        self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
     
         # Sample from approximate posterior
         e = np.random.randn(len(self._b_tild))
@@ -128,13 +143,13 @@ class UGLANew(SamplerNew):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 
         # Check Linear model
-        if not isinstance(self.target.likelihood.model, cuqi.model.LinearModel):
+        if not isinstance(self.likelihood.model, cuqi.model.LinearModel):
             raise TypeError("Model needs to be linear")
 
         # Check Gaussian likelihood
-        if not hasattr(self.target.likelihood.distribution, "sqrtprec"):
+        if not hasattr(self.likelihood.distribution, "sqrtprec"):
             raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
 
         # Check that prior is LMRF
-        if not isinstance(self.target.prior, cuqi.distribution.LMRF):
+        if not isinstance(self.prior, cuqi.distribution.LMRF):
             raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires LMRF prior')
