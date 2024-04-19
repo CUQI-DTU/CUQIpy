@@ -30,6 +30,7 @@ def test_RegularizedGaussian_guarding_statements():
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
         
 def test_creating_denoiser():
+    """ Test creating the object from denoiser class."""
     denoiser = cuqi.implicit_prior.Denoiser(lambda x : x, True)
     assert np.allclose(denoiser.denoise(np.ones(4)), np.ones(4))
     assert denoiser.info == True
