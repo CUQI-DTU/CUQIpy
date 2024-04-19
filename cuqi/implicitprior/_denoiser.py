@@ -1,6 +1,8 @@
 class Denoiser():
     
-    def __init__(self, denoiser, denoiser_setup, strength_reg):
+    def __init__(self, denoiser, denoiser_setup = None, strength_reg = 0.1):
+        if denoiser_setup is None:
+            denoiser_setup = {}
         self.denoiser = denoiser
         self.denoiser_setup = denoiser_setup
         self.strength_reg = strength_reg
