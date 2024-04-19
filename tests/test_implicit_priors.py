@@ -28,3 +28,9 @@ def test_RegularizedGaussian_guarding_statements():
 
     with pytest.raises(ValueError, match="Projector should take 1 argument"):
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
+        
+def test_creating_denoiser():
+    denoiser = cuqi.implicit_prior.Denoiser(lambda x : x, True)
+    assert np.allclose(denoiser.denoise(np.ones(4)), np.ones(4))
+    assert denoiser.info == True
+    assert np.allclose(denoiser.grad_reg(np.zeros(4)), np.zeros(4))
