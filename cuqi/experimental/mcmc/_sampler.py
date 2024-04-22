@@ -366,24 +366,18 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         """
 
         super().__init__(target, **kwargs)
-
+        self.current_target_logd = None
         self.proposal = proposal
         self.scale = scale
-        self.current_target_logd = None # TODO. Avoid?
         self._acc = [ 1 ] # TODO. Check
 
-    @property
-    def current_target_logd(self):
-        """ The log-density of the target at the current point. """
-        # If the current target log-density is not set yet, calculate it given the current point
-        if self._current_target_logd is None:
-            if self.target is not None and self.current_point is not None:
-                self._current_target_logd = self.target.logd(self.current_point)
-        return self._current_target_logd
-    
-    @current_target_logd.setter
-    def current_target_logd(self, value):
-        self._current_target_logd = value
+    def _pre_sample(self):
+        super()._pre_sample()
+        self.current_target_logd = self.target.logd(self.current_point)
+
+    def _pre_warmup(self):
+        super()._pre_warmup()
+        self.current_target_logd = self.target.logd(self.current_point)
 
     @property
     def proposal(self):
