@@ -340,12 +340,6 @@ class SamplerNew(ABC):
             value = state['state'][key]
             msg += f"\t {key}: {value} \n"
         return msg
-    
-    # For easy "initialization" of the sampler with the target density
-    def __call__(self, target):
-        self.target = target
-        return self
-
 
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
