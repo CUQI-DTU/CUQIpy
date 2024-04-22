@@ -7,7 +7,7 @@ import cuqi
 from cuqi.samples import Samples
 
 try:
-    import progressbar
+    from progressbar import progressbar
 except ImportError:
     def progressbar(iterable, **kwargs):
         warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
@@ -48,14 +48,7 @@ class SamplerNew(ABC):
         self.initial_point = initial_point
         self.current_point = initial_point
         self.callback = callback
-
-        # Choose initial point if not given
-        if initial_point is None:
-            initial_point = np.ones(self.dim)
-
-        self.initial_point = initial_point
-        
-        self._samples = [initial_point] # Remove. See #324.
+        self._samples = []
 
     # ------------ Abstract methods to be implemented by subclasses ------------
     
@@ -180,7 +173,7 @@ class SamplerNew(ABC):
         self._pre_sample()
 
         # Draw samples
-        for _ in progressbar.progressbar( range(Ns) ):
+        for _ in progressbar( range(Ns) ):
             
             # Perform one step of the sampler
             acc = self.step()
@@ -218,7 +211,7 @@ class SamplerNew(ABC):
         self._pre_warmup()
 
         # Draw warmup samples with tuning
-        for idx in progressbar.progressbar(range(Nb)):
+        for idx in progressbar(range(Nb)):
 
             # Perform one step of the sampler
             acc = self.step()
@@ -334,13 +327,9 @@ class SamplerNew(ABC):
         if self.target is None:
             raise ValueError("Cannot get or set default initial point without a target density.")
         self.initial_point = np.ones(self.dim)
-
-    # Temp
-    def __call__(self, target):
-        self.target = target
-        return self
     
     def __repr__(self):
+        """ Return a string representation of the sampler. """
         state = self.get_state()
         msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
         # Sort keys alphabetically
@@ -351,6 +340,11 @@ class SamplerNew(ABC):
             value = state['state'][key]
             msg += f"\t {key}: {value} \n"
         return msg
+    
+    # For easy "initialization" of the sampler with the target density
+    def __call__(self, target):
+        self.target = target
+        return self
 
 
 class ProposalBasedSamplerNew(SamplerNew, ABC):
@@ -381,7 +375,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         self.proposal = proposal
         self.scale = scale
-        self.current_target_logd = None
+        self.current_target_logd = None # TODO. Avoid?
         self._acc = [ 1 ] # TODO. Check
 
     @property
