@@ -86,6 +86,15 @@ class NUTSNew(SamplerNew):
         sampler.epsilon_bar_list
 
     """
+
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
+                                                '_H_bar', '_mu',
+                                                '_alpha', '_n_alpha'})
+
+    _HISTORY_KEYS = SamplerNew._HISTORY_KEYS.union({'num_tree_node_list',
+                                                    'epsilon_list',
+                                                    'epsilon_bar_list'})
+
     def __init__(self, target, initial_point=None, max_depth=15,
                  step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
