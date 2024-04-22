@@ -82,8 +82,7 @@ class NUTSNew(SamplerNew):
         sampler.epsilon_list
 
         # Suggested step size during adaptation (the value of this step size is
-        # only used after adaptation). The suggested step size is None if 
-        # adaptation is not requested.
+        # only used after adaptation).
         sampler.epsilon_bar_list
 
     """
