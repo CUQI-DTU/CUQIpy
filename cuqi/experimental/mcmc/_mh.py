@@ -22,9 +22,9 @@ class MHNew(ProposalBasedSamplerNew):
 
     """
 
-    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union({'_scale_temp'})
+    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union({'scale', '_scale_temp'})
 
-    def __init__(self, target=None, proposal=None, scale=1, **kwargs):
+    def __init__(self, target, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
         # Due to a bug? in old MH, we must keep track of this extra variable to match behavior.
         self._scale_temp = self.scale 

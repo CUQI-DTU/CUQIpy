@@ -73,13 +73,8 @@ def assert_true_if_warmup_is_equivalent(
     # Sampling run is Ns + Nb
     # Tuning frequency parametrized but hard-coded, e.g. to int(0.1*Ns) for MH.
     np.random.seed(0)
-    if strategy == "NUTS":
-        samples_old =\
-            sampler_old.sample_adapt(N=Ns, Nb=Nb).samples[...,old_idx[0]:Nb-1]
-    else:
-        samples_old =\
-            sampler_old.sample_adapt(
-                N=Ns, Nb=Nb).samples[...,old_idx[0]:old_idx[1]]
+    samples_old = sampler_old.sample_adapt(
+        N=Ns, Nb=Nb).samples[...,old_idx[0]:old_idx[1]]
 
     # Get Ns samples from the new sampler
     # Sampling run is Ns + Nb
@@ -89,7 +84,7 @@ def assert_true_if_warmup_is_equivalent(
     if strategy == "NUTS":
         sampler_new.warmup(Nb, tune_freq=tune_freq)
         sampler_new.sample(Ns=Ns-1)
-        samples_new = sampler_new.get_samples().samples[...,new_idx[0]:Nb-1]
+        samples_new = sampler_new.get_samples().samples[...,new_idx[0]:new_idx[1]]
     else:
         sampler_new.warmup(Ns+Nb-1, tune_freq=tune_freq)
         samples_new = \
@@ -282,17 +277,25 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
 def test_NUTS_regression_sample(target: cuqi.density.Density):
     """Test the HMC (NUTS) sampler regression."""
     sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=0.001)
-    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, adapt_step_size=0.001)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, step_size=0.001)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
+
+@pytest.mark.parametrize("target", targets)
+def test_NUTS_regression_sample_tune_first_step_only(
+    target: cuqi.density.Density):
+    """Test the HMC (NUTS) sampler regression."""
+    sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=False)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, step_size=None)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
 
 @pytest.mark.parametrize("target", targets)
 def test_NUTS_regression_warmup(target: cuqi.density.Density):
-    """Test the HMC (NUTS) sampler regression."""
-    sampler_old = cuqi.sampler.NUTS(target)
+    """Test the HMC (NUTS) sampler regression (with warmup)."""
+    sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=True)
     sampler_old._return_burnin = True
-    sampler_new = cuqi.experimental.mcmc.NUTSNew(target)
+    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, step_size=None)
     Ns = 20
-    Nb = Ns
+    Nb = 20
     assert_true_if_warmup_is_equivalent(sampler_old,
                                         sampler_new,
                                         Ns=Ns,
@@ -305,6 +308,7 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
 checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
+    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -313,7 +317,9 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.ProposalBasedSamplerNew,
     cuqi.experimental.mcmc.MHNew,
     cuqi.experimental.mcmc.pCNNew,
-    cuqi.experimental.mcmc.CWMHNew
+    cuqi.experimental.mcmc.CWMHNew,
+    cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
+    cuqi.experimental.mcmc.NUTSNew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -373,10 +379,12 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
 state_history_targets = [
     cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
-    cuqi.experimental.mcmc.pCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.pCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
     cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
+    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=10), stepsize=0.0001),
 ]
 
 

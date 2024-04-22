@@ -48,7 +48,14 @@ class SamplerNew(ABC):
         self.initial_point = initial_point
         self.current_point = initial_point
         self.callback = callback
-        self._samples = []
+
+        # Choose initial point if not given
+        if initial_point is None:
+            initial_point = np.ones(self.dim)
+
+        self.initial_point = initial_point
+        
+        self._samples = [initial_point] # Remove. See #324.
 
     # ------------ Abstract methods to be implemented by subclasses ------------
     
@@ -67,16 +74,16 @@ class SamplerNew(ABC):
         """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
         pass
 
-    #@abstractmethod
+    # -- _pre_sample and _pre_warmup methods: can be overridden by subclasses --
     def _pre_sample(self):
         """ Any code that needs to be run before sampling. """
         pass
 
-    #@abstractmethod
     def _pre_warmup(self):
         """ Any code that needs to be run before warmup. """
         pass
 
+    # ------------ Public attributes ------------
     @property
     def dim(self):
         """ Dimension of the target density. """
