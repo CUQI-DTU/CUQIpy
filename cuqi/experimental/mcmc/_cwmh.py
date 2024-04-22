@@ -67,6 +67,9 @@ class CWMHNew(ProposalBasedSamplerNew):
         samples = sampler.sample(2000).get_samples()
 
     """
+
+    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union(['scale_temp'])
+
     def __init__(self, target:cuqi.density.Density=None, proposal=None, scale=1,
                  initial_point=None, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale,
@@ -74,7 +77,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
         # set initial scale
         self.scale = scale
-        self.scale_temp = None
+        self.scale_temp = self.scale
 
     def _pre_warmup(self):
         super()._pre_warmup()
