@@ -169,8 +169,11 @@ class NUTSNew(SamplerNew):
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
     def validate_target(self):
-        pass #TODO: target needs to have logpdf and gradient methods
-             # https://github.com/CUQI-DTU/CUQIpy/issues/378
+        try:
+            current_target_logd, current_target_grad =\
+            self._nuts_target(self.current_point)
+        except:
+            raise ValueError('Target must have logd and gradient methods.')
 
     def reset(self):
         # Call the parent reset method
