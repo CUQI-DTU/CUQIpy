@@ -92,7 +92,7 @@ class CWMHNew(ProposalBasedSamplerNew):
     def scale_temp(self):
         """ Get the temporary scale parameter. """
         if self._scale_temp is None:
-            self._scale_temp = self.scale
+            self._scale_temp = self.scale.copy()
         return self._scale_temp
     
     @scale_temp.setter

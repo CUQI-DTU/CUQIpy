@@ -256,7 +256,7 @@ def test_CWMH_regression_sample(target: cuqi.density.Density):
                                                  scale=np.ones(target.dim))
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new,
                                           Ns=10,
-                                          old_idx=[0, -1],
+                                          old_idx=[1, -1],
                                           new_idx=[1, -1])
 
 @pytest.mark.parametrize("target", targets)
@@ -269,7 +269,7 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new,
                                         Ns=Ns,
                                         strategy="MH_like",
-                                        old_idx=[0, -1],
+                                        old_idx=[1, -1],
                                         new_idx=[1, None])
 
 # ============= HMC (NUTS) ==============
