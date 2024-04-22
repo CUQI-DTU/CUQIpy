@@ -48,11 +48,6 @@ class LinearRTONew(SamplerNew):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
-        if initial_point is None: #TODO: Replace later with a getter
-            self.initial_point = np.zeros(self.dim)
-            self._samples = [self.initial_point]
-
-        self.current_point = self.initial_point
         self._acc = [1] # TODO. Check if we need this
 
         # Other parameters
@@ -188,6 +183,12 @@ class LinearRTONew(SamplerNew):
 
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
+        
+    def _set_default_initial_point(self):
+        """ Set the default initial point for the sampler. Defaults to an array of zeros. """
+        if self.target is None:
+            raise ValueError("Cannot get or set default initial point without a target density.")
+        self.initial_point = np.zeros(self.dim)
 
 class RegularizedLinearRTONew(LinearRTONew):
     """
