@@ -147,6 +147,15 @@ class NUTSNew(SamplerNew):
             raise TypeError('step_size must be a positive float or None.')
         self._step_size = value
 
+    @property
+    def opt_acc_rate(self):
+        return self._opt_acc_rate
+    
+    @opt_acc_rate.setter
+    def opt_acc_rate(self, value):
+        if not isinstance(value, Number) or value <= 0 or value >= 1:
+            raise ValueError('opt_acc_rate must be a float in (0, 1).')
+        self._opt_acc_rate = value
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
