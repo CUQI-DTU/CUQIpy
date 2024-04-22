@@ -271,6 +271,7 @@ class NUTSNew(SamplerNew):
             np.exp(eta*np.log(self._epsilon) +(1-eta)*np.log(self._epsilon_bar))
 
     def _pre_warmup(self):
+        super()._pre_warmup()
 
         self.current_target_logd, self.current_target_grad =\
             self._nuts_target(self.current_point)
@@ -297,6 +298,7 @@ class NUTSNew(SamplerNew):
             self._H_bar = 0
 
     def _pre_sample(self):
+        super()._pre_sample()
 
         self.current_target_logd, self.current_target_grad =\
             self._nuts_target(self.current_point)
