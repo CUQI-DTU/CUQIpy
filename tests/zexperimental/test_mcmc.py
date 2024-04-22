@@ -371,7 +371,7 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
     # Do some more samples from pre-defined rng state
     np.random.seed(0)
-    samples2 = sampler_fresh.warmup(50).sample(50).get_samples().samples[...,1:] # TODO. This needs to be fixed.. We should likely not store initial point in _samples
+    samples2 = sampler_fresh.warmup(50).sample(50).get_samples().samples
 
     # Check that the samples are the same
     assert np.allclose(samples1, samples2), f"Samples1: {samples1}\nSamples2: {samples2}"
