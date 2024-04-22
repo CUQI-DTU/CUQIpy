@@ -76,6 +76,10 @@ class CWMHNew(ProposalBasedSamplerNew):
         self.scale = scale
         self.scale_temp = None
 
+    def _pre_warmup(self):
+        super()._pre_warmup()
+        self._acc = [np.ones((self.dim))]
+
     @property
     def scale(self):
         """ Get the scale parameter. """
@@ -180,8 +184,8 @@ class CWMHNew(ProposalBasedSamplerNew):
         # Factor zeta ensures that the variation of the scale update vanishes
         zeta = 1/np.sqrt(update_count+1)  
         scale_temp = np.exp(
-            np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
+            np.log(self.scale_temp) + zeta*(hat_acc-star_acc))
 
         # Update the scale parameter
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
-        self._scale_temp = scale_temp
+        self.scale_temp = scale_temp

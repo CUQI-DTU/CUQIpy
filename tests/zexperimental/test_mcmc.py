@@ -380,7 +380,7 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 state_history_targets = [
     cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
     cuqi.experimental.mcmc.pCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
-    cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
