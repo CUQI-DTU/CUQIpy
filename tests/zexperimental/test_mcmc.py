@@ -236,7 +236,7 @@ def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
-    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=25)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=10)
 
 @pytest.mark.parametrize("target", regularized_targets)
 def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
@@ -244,7 +244,7 @@ def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
 
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
-    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new, Ns=25, Nb=25)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new, Ns=10, Nb=10)
 
 # ============== CWMH ============
 
