@@ -5,7 +5,6 @@ import numpy as np
 import cuqi
 from cuqi.solver import CGLS, FISTA
 from cuqi.experimental.mcmc import SamplerNew
-from cuqi.array import CUQIarray
 
 
 class LinearRTONew(SamplerNew):
@@ -44,7 +43,7 @@ class LinearRTONew(SamplerNew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, initial_point=None, maxit=10, tol=1e-6, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, **kwargs):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -183,10 +182,11 @@ class LinearRTONew(SamplerNew):
 
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
-        
-    def _set_default_initial_point(self):
-        """ Set the default initial point for the sampler. Defaults to an array of zeros. """
-        self.initial_point = np.zeros(self.dim)
+    
+    @property
+    def _default_initial_point(self):
+        """ Get the default initial point for the sampler. Defaults to an array of zeros. """
+        return np.zeros(self.dim)
 
 class RegularizedLinearRTONew(LinearRTONew):
     """

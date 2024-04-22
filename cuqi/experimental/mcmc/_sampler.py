@@ -70,11 +70,21 @@ class SamplerNew(ABC):
     # -- _pre_sample and _pre_warmup methods: can be overridden by subclasses --
     def _pre_sample(self):
         """ Any code that needs to be run before sampling. """
-        pass
+        
+        if self.initial_point is None:
+            self._set_default_initial_point()
+
+        if self.current_point is None:
+            self.current_point = self.initial_point
 
     def _pre_warmup(self):
         """ Any code that needs to be run before warmup. """
-        pass
+
+        if self.initial_point is None:
+            self._set_default_initial_point()
+
+        if self.current_point is None:
+            self.current_point = self.initial_point
 
     # ------------ Public attributes ------------
     @property
@@ -99,32 +109,6 @@ class SamplerNew(ABC):
         if self._target is not None:
             self.validate_target()
 
-    @property
-    def current_point(self):
-        """ The current point of the sampler. """
-        if self._current_point is None:
-            self._current_point = self.initial_point
-        return self._current_point
-    
-    @current_point.setter
-    def current_point(self, value):
-        """ Set the current point of the sampler. """
-        self._current_point = value
-
-    @property
-    def initial_point(self):
-        """ The initial point of the sampler. """
-        if self._initial_point is None:
-            if self.target is None:
-                raise ValueError("Cannot get default initial point without a target density.")
-            self._set_default_initial_point()
-        return self._initial_point
-    
-    @initial_point.setter
-    def initial_point(self, value):
-        """ Set the initial point of the sampler. """
-        self._initial_point = value
-
     # ------------ Public methods ------------
 
     def get_samples(self) -> Samples:
@@ -139,6 +123,11 @@ class SamplerNew(ABC):
         """ Save the state of the sampler to a file. """
 
         state = self.get_state()
+
+        # Convert all CUQIarrays to numpy arrays since CUQIarrays do not get pickled correctly
+        for key, value in state['state'].items():
+            if isinstance(value, cuqi.array.CUQIarray):
+                state['state'][key] = value.to_numpy()
 
         with open(path, 'wb') as handle:
             pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
@@ -325,8 +314,15 @@ class SamplerNew(ABC):
             self.callback(sample, sample_index)
 
     def _set_default_initial_point(self):
-        """ Set the default initial point for the sampler. Defaults to an array of ones. """
-        self.initial_point = np.ones(self.dim)
+        """ Set the default initial point for the sampler. """
+        if self.target is None:
+            raise ValueError("Cannot get default initial point without a target density.")
+        self.initial_point = self._default_initial_point
+
+    @property
+    def _default_initial_point(self):
+        """ Return the default initial point for the sampler. Defaults to an array of ones. """
+        return np.ones(self.dim)
     
     def __repr__(self):
         """ Return a string representation of the sampler. """
