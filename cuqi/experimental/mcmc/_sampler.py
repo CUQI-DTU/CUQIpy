@@ -115,6 +115,8 @@ class SamplerNew(ABC):
     def initial_point(self):
         """ The initial point of the sampler. """
         if self._initial_point is None:
+            if self.target is None:
+                raise ValueError("Cannot get default initial point without a target density.")
             self._set_default_initial_point()
         return self._initial_point
     
@@ -324,8 +326,6 @@ class SamplerNew(ABC):
 
     def _set_default_initial_point(self):
         """ Set the default initial point for the sampler. Defaults to an array of ones. """
-        if self.target is None:
-            raise ValueError("Cannot get or set default initial point without a target density.")
         self.initial_point = np.ones(self.dim)
     
     def __repr__(self):

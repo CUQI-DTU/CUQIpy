@@ -186,8 +186,6 @@ class LinearRTONew(SamplerNew):
         
     def _set_default_initial_point(self):
         """ Set the default initial point for the sampler. Defaults to an array of zeros. """
-        if self.target is None:
-            raise ValueError("Cannot get or set default initial point without a target density.")
         self.initial_point = np.zeros(self.dim)
 
 class RegularizedLinearRTONew(LinearRTONew):
