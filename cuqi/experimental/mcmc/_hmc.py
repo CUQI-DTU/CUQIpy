@@ -22,7 +22,8 @@ class NUTSNew(SamplerNew):
         :class:`cuqi.distribution.UserDefinedDistribution`.
     
     initial_point : ndarray
-        Initial parameters. *Optional*
+        Initial parameters. *Optional*. If not provided, the initial point is 
+        an array of ones.
 
     max_depth : int
         Maximum depth of the tree.
