@@ -172,7 +172,7 @@ class NUTSNew(SamplerNew):
         # Check if the target has logd and gradient methods
         try:
             current_target_logd, current_target_grad =\
-            self._nuts_target(self.current_point)
+            self._nuts_target(np.ones(self.dim))
         except:
             raise ValueError('Target must have logd and gradient methods.')
 
