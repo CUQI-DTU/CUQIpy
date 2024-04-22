@@ -7,7 +7,7 @@ import cuqi
 from cuqi.samples import Samples
 
 try:
-    from progressbar import progressbar
+    import progressbar
 except ImportError:
     def progressbar(iterable, **kwargs):
         warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
@@ -173,7 +173,7 @@ class SamplerNew(ABC):
         self._pre_sample()
 
         # Draw samples
-        for _ in progressbar( range(Ns) ):
+        for _ in progressbar.progressbar( range(Ns) ):
             
             # Perform one step of the sampler
             acc = self.step()
@@ -211,7 +211,7 @@ class SamplerNew(ABC):
         self._pre_warmup()
 
         # Draw warmup samples with tuning
-        for idx in progressbar(range(Nb)):
+        for idx in progressbar.progressbar(range(Nb)):
 
             # Perform one step of the sampler
             acc = self.step()
@@ -332,6 +332,18 @@ class SamplerNew(ABC):
     def __call__(self, target):
         self.target = target
         return self
+    
+    def __repr__(self):
+        state = self.get_state()
+        msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
+        # Sort keys alphabetically
+        keys = sorted(state['state'].keys())
+        # Put _ in the end
+        keys = [key for key in keys if key[0] != '_'] + [key for key in keys if key[0] == '_']
+        for key in keys:
+            value = state['state'][key]
+            msg += f"\t {key}: {value} \n"
+        return msg
 
 
 class ProposalBasedSamplerNew(SamplerNew, ABC):
