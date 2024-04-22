@@ -95,7 +95,7 @@ class NUTSNew(SamplerNew):
                                                     'epsilon_list',
                                                     'epsilon_bar_list'})
 
-    def __init__(self, target, initial_point=None, max_depth=15,
+    def __init__(self, target=None, initial_point=None, max_depth=15,
                  step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
@@ -103,9 +103,6 @@ class NUTSNew(SamplerNew):
         self.max_depth = max_depth
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
-        
-        # Set current point 
-        self.current_point = self.initial_point
 
         # Initialize epsilon and epsilon_bar
         # epsilon is the step size used in the current iteration

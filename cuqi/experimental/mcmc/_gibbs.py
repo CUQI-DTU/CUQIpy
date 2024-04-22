@@ -106,10 +106,10 @@ class GibbsNew:
 
         # Run over pre-sample methods for samplers that have it
         for sampler in self.samplers.values():
+            if hasattr(sampler, '_pre_warmup'): # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
+                sampler._pre_warmup()
             if hasattr(sampler, '_pre_sample'):
                 sampler._pre_sample()
-            if hasattr(sampler, '_pre_warmup'):
-                sampler._pre_warmup()
 
         # Sample tuning phase
         for i in range(at_Nb, at_Nb+Nb):
