@@ -26,7 +26,7 @@ class NUTSNew(SamplerNew):
         an array of ones.
 
     max_depth : int
-        Maximum depth of the tree.
+        Maximum depth of the tree >=0 and the default is 15.
 
     adapt_step_size : Bool or float
         Whether to adapt the step size.
@@ -114,6 +114,21 @@ class NUTSNew(SamplerNew):
         self._num_tree_node = 0
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
+
+    #=========================================================================
+    #============================== Properties ===============================
+    #=========================================================================
+    @property
+    def max_depth(self):
+        return self._max_depth
+
+    @max_depth.setter
+    def max_depth(self, value):
+        if not isinstance(value, int):
+            raise TypeError('max_depth must be an integer.')
+        if value < 0:
+            raise ValueError('max_depth must be >= 0.')
+        self._max_depth = value
 
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
