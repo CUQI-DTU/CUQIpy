@@ -6,7 +6,7 @@ import inspect
 def assert_true_if_sampling_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
         sampler_new: cuqi.experimental.mcmc.SamplerNew,
-        Ns=100, atol=1e-1, old_idx=[0, None], new_idx=[0, -1]):
+        Ns=100, atol=1e-1, old_idx=[1, None], new_idx=[0, -1]):
     """ Assert that the samples from the old and new sampler are equivalent.
 
     Ns: int
@@ -38,7 +38,7 @@ def assert_true_if_sampling_is_equivalent(
 def assert_true_if_warmup_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
         sampler_new: cuqi.experimental.mcmc.SamplerNew, Ns=100, Nb=100,
-        strategy="MH_like", old_idx=[0, None], new_idx=[0, None]):
+        strategy="MH_like", old_idx=[1, None], new_idx=[0, None]):
     """ Assert that the samples from the old and new sampler are equivalent.
      
     Ns: int
