@@ -155,6 +155,7 @@ class NUTSNew(SamplerNew):
         if not isinstance(value, Number) or value <= 0 or value >= 1:
             raise ValueError('opt_acc_rate must be a float in (0, 1).')
         self._opt_acc_rate = value
+
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
@@ -259,12 +260,6 @@ class NUTSNew(SamplerNew):
         eta = k**(-kappa)
         self._epsilon_bar =\
             np.exp(eta*np.log(self._epsilon) +(1-eta)*np.log(self._epsilon_bar))
-
-    def get_state(self):
-        pass
-
-    def set_state(self, state):
-        pass
 
     def _pre_warmup(self):
 
