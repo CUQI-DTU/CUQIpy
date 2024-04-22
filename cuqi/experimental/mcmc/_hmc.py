@@ -2,7 +2,7 @@ import numpy as np
 import numpy as np
 from cuqi.experimental.mcmc import SamplerNew
 from cuqi.array import CUQIarray
-
+from numbers import Number
 
 class NUTSNew(SamplerNew):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
@@ -28,15 +28,15 @@ class NUTSNew(SamplerNew):
     max_depth : int
         Maximum depth of the tree >=0 and the default is 15.
 
-    adapt_step_size : Bool or float
-        Whether to adapt the step size.
-        If True, the step size is adapted automatically.
-        If False, the step size is fixed to the initially estimated value.
-        If set to a scalar, the step size will be given by user and not adapted.
+    step_size : None or float
+        If step_size is provided (as positive float), it will be used as initial
+        step size. If None, the step size will be estimated by the sampler.
 
     opt_acc_rate : float
         The optimal acceptance rate to reach if using adaptive step size.
-        Suggested values are 0.6 (default) or 0.8 (as in stan).
+        Suggested values are 0.6 (default) or 0.8 (as in stan). In principle,
+        opt_acc_rate should be in (0, 1), however, choosing a value that is very
+        close to 1 or 0 might lead to poor performance of the sampler.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -88,12 +88,12 @@ class NUTSNew(SamplerNew):
 
     """
     def __init__(self, target, initial_point=None, max_depth=15,
-                 adapt_step_size=True, opt_acc_rate=0.6, **kwargs):
+                 step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
         # Assign parameters as attributes
         self.max_depth = max_depth
-        self.adapt_step_size = adapt_step_size
+        self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
         
         # Set current point 
@@ -105,6 +105,7 @@ class NUTSNew(SamplerNew):
         # to epsilon_bar for the remaining sampling steps.
         self._epsilon = None
         self._epsilon_bar = None
+        self._H_bar = None
 
         # Arrays to store acceptance rate
         self._acc = [None]
@@ -129,6 +130,22 @@ class NUTSNew(SamplerNew):
         if value < 0:
             raise ValueError('max_depth must be >= 0.')
         self._max_depth = value
+
+    @property
+    def step_size(self):
+        return self._step_size
+    
+    @step_size.setter
+    def step_size(self, value):
+        if value is None:
+            pass # NUTS will adapt the step size
+
+        # step_size must be a positive float, raise error otherwise
+        elif isinstance(value, bool)\
+            or not isinstance(value, Number)\
+            or value <= 0:
+            raise TypeError('step_size must be a positive float or None.')
+        self._step_size = value
 
     #=========================================================================
     #================== Implement methods required by SamplerNew =============
@@ -242,27 +259,45 @@ class NUTSNew(SamplerNew):
         pass
 
     def _pre_warmup(self):
-        # parameters that change during the run
-        self._epsilon_bar, self._H_bar = 1, 0
 
-        # parameters dual averaging
-        self._epsilon = self._FindGoodEpsilon()
+        self.current_target_logd, self.current_target_grad =\
+            self._nuts_target(self.current_point)
 
-        # Parameter mu, does not change during the run
-        self._mu = np.log(10*self._epsilon)
+        # Set up tuning parameters (only first time tuning is called)
+        # Note:
+        #  Parameters changes during the tune run
+        #    self._epsilon_bar
+        #    self._H_bar
+        #    self._epsilon
+        #  Parameters that does not change during the run
+        #    self._mu
+
+        if self._epsilon is None:
+            # parameters dual averaging
+            self._epsilon = self._FindGoodEpsilon()
+            # Parameter mu, does not change during the run
+            self._mu = np.log(10*self._epsilon)
+
+        if self._epsilon_bar is None: # Initial value of epsilon_bar
+            self._epsilon_bar = 1
+
+        if self._H_bar is None: # Initial value of H_bar
+            self._H_bar = 0
 
     def _pre_sample(self):
 
         self.current_target_logd, self.current_target_grad =\
             self._nuts_target(self.current_point)
-
-        if self.adapt_step_size is False:
-            self._epsilon = self._FindGoodEpsilon()
-            self._epsilon_bar = self._epsilon
+        
+        # Set up epsilon and epsilon_bar if not set
         if self._epsilon is None:
-            self._epsilon = self.adapt_step_size
-            self._epsilon_bar = self.adapt_step_size
- 
+            if self.step_size is None:
+                step_size = self._FindGoodEpsilon()
+            else:
+                step_size = self.step_size
+            self._epsilon = step_size
+            self._epsilon_bar = step_size
+
     #=========================================================================
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
         return self.target.logd(x), self.target.gradient(x)
