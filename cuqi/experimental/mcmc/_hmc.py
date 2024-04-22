@@ -169,6 +169,7 @@ class NUTSNew(SamplerNew):
     #================== Implement methods required by SamplerNew =============
     #=========================================================================
     def validate_target(self):
+        # Check if the target has logd and gradient methods
         try:
             current_target_logd, current_target_grad =\
             self._nuts_target(self.current_point)
