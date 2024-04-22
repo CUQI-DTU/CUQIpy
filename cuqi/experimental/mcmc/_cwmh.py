@@ -77,7 +77,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
         # set initial scale
         self.scale = scale
-        self.scale_temp = self.scale
+        self.scale_temp = None
 
     def _pre_warmup(self):
         super()._pre_warmup()

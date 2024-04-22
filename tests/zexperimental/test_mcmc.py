@@ -478,3 +478,18 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
         error_details = '\n'.join([f"State '{key}' not updated correctly after warmup. {message}" for key, message in failed_updates.items()])
         error_message = f"Errors occurred in {sampler.__class__.__name__} - issues with keys: {failed_keys}.\n{error_details}"
         assert not failed_updates, error_message
+
+# Samplers that should be tested for target=None initialization
+target_None_Samplers = [
+    cls
+    for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
+    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+]
+
+@pytest.mark.parametrize("sampler_class", target_None_Samplers)
+def test_target_None_init_in_samplers(sampler_class):
+    """ Test all samplers can be initialized with target=None. """
+    sampler = sampler_class(target=None)
+    assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
+
+# TODO. Add tests for consistency in either initializing with target right away or setting it later.

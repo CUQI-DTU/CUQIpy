@@ -326,6 +326,8 @@ class SamplerNew(ABC):
     
     def __repr__(self):
         """ Return a string representation of the sampler. """
+        if self.target is None:
+            return f"Sampler: {self.__class__.__name__} \n Target: None"
         state = self.get_state()
         msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
         # Sort keys alphabetically

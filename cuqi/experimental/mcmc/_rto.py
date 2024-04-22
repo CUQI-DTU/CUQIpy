@@ -79,36 +79,39 @@ class LinearRTONew(SamplerNew):
     @SamplerNew.target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
-        # Accept tuple of inputs and construct posterior
-        if isinstance(value, tuple) and len(value) == 5:
-            # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
-            data = value[0]
-            model = value[1]
-            L_sqrtprec = value[2]
-            P_mean = value[3]
-            P_sqrtprec = value[4]
+        if value is not None:
+            # Accept tuple of inputs and construct posterior
+            if isinstance(value, tuple) and len(value) == 5:
+                # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
+                data = value[0]
+                model = value[1]
+                L_sqrtprec = value[2]
+                P_mean = value[3]
+                P_sqrtprec = value[4]
 
-            # If numpy matrix convert to CUQI model
-            if isinstance(model, np.ndarray) and len(model.shape) == 2:
-                model = cuqi.model.LinearModel(model)
+                # If numpy matrix convert to CUQI model
+                if isinstance(model, np.ndarray) and len(model.shape) == 2:
+                    model = cuqi.model.LinearModel(model)
 
-            # Check model input
-            if not isinstance(model, cuqi.model.LinearModel):
-                raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
+                # Check model input
+                if not isinstance(model, cuqi.model.LinearModel):
+                    raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
 
-            # Likelihood
-            L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
+                # Likelihood
+                L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
 
-            # Prior TODO: allow multiple priors stacked
-            #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
-            #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
-            #else:
-            P = cuqi.distribution.Gaussian(P_mean, sqrtprec=P_sqrtprec)
+                # Prior TODO: allow multiple priors stacked
+                #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
+                #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
+                #else:
+                P = cuqi.distribution.Gaussian(P_mean, sqrtprec=P_sqrtprec)
 
-            # Construct posterior
-            value = cuqi.distribution.Posterior(L, P)
-        super(LinearRTONew, type(self)).target.fset(self, value)
-        self._precompute()
+                # Construct posterior
+                value = cuqi.distribution.Posterior(L, P)
+            super(LinearRTONew, type(self)).target.fset(self, value)
+            self._precompute()
+        else:
+            super(LinearRTONew, type(self)).target.fset(self, value)
 
     def _precompute(self):
         L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
@@ -230,13 +233,23 @@ class RegularizedLinearRTONew(LinearRTONew):
         self.stepsize = stepsize
         self.abstol = abstol   
         self.adaptive = adaptive
-        self.proximal = target.prior.proximal
-        self._stepsize = self._choose_stepsize()
         self.maxit = maxit
+
+    @property
+    def proximal(self):
+        return self.target.prior.proximal
+    
+    def _pre_sample(self):
+        super()._pre_sample()
+        self._stepsize = self._choose_stepsize()
+
+    def _pre_warmup(self):
+        super()._pre_warmup()
+        self._stepsize = self._choose_stepsize()
 
     @LinearRTONew.target.setter
     def target(self, value):
-        if not callable(value.prior.proximal):
+        if value is not None and not callable(value.prior.proximal):
             raise TypeError("Projector needs to be callable")
         return super(RegularizedLinearRTONew, type(self)).target.fset(self, value)
 
