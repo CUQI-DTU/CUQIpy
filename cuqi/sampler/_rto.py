@@ -88,40 +88,9 @@ class LinearRTO(Sampler):
         self.maxit = maxit
         self.tol = tol        
         self.shift = 0
-                
-        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
-        L2 = self.prior.sqrtprec
-        L2mu = self.prior.sqrtprecTimesMean
-
+        
         # pre-computations
-        self.n = len(self.x0)
-        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
-
-        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
-        notcallability = [not c for c in callability]
-        if all(notcallability):
-            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
-        elif all(callability):
-            # in this case, model is a function doing forward and backward operations
-            def M(x, flag):
-                if flag == 1:
-                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
-                    out2 = L2 @ x
-                    out  = np.hstack(out1 + [out2])
-                elif flag == 2:
-                    idx_start = 0
-                    idx_end = 0
-                    out1 = np.zeros(self.n)
-                    for likelihood in self.likelihoods:
-                        idx_end += len(likelihood.data)
-                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
-                        idx_start = idx_end
-                    out2 = L2.T @ x[idx_end:]
-                    out  = out1 + out2                
-                return out   
-            self.M = M  
-        else:
-            raise TypeError("All likelihoods need to be callable or none need to be callable.") 
+        self._stack_posterior()
 
     @property
     def prior(self):
@@ -197,6 +166,39 @@ class LinearRTO(Sampler):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
 
+    def _stack_posterior(self):
+        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
+        L2 = self.prior.sqrtprec
+        L2mu = self.prior.sqrtprecTimesMean
+
+        self.n = len(self.x0)
+        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
+
+        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
+        notcallability = [not c for c in callability]
+        if all(notcallability):
+            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
+        elif all(callability):
+            # in this case, model is a function doing forward and backward operations
+            def M(x, flag):
+                if flag == 1:
+                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
+                    out2 = L2 @ x
+                    out  = np.hstack(out1 + [out2])
+                elif flag == 2:
+                    idx_start = 0
+                    idx_end = 0
+                    out1 = np.zeros(self.n)
+                    for likelihood in self.likelihoods:
+                        idx_end += len(likelihood.data)
+                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+                        idx_start = idx_end
+                    out2 = L2.T @ x[idx_end:]
+                    out  = out1 + out2                
+                return out   
+            self.M = M  
+        else:
+            raise TypeError("All likelihoods need to be callable or none need to be callable.") 
 
 class RegularizedLinearRTO(LinearRTO):
     """
