@@ -89,16 +89,18 @@ class RegularizedGaussian(Distribution):
             raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
 
         if proximal is not None:
-            if not callable(proximal):
-                raise ValueError("Proximal needs to be callable.")
-            if len(get_non_default_args(proximal)) != 2:
-                raise ValueError("Proximal should take 2 arguments.")
+            if callable(proximal):
+                if len(get_non_default_args(proximal)) != 2:
+                    raise ValueError("Proximal should take 2 arguments.")
+            else:
+                pass
             
         if projector is not None:
-            if not callable(projector):
-                raise ValueError("Projector needs to be callable.")
-            if len(get_non_default_args(projector)) != 1:
-                raise ValueError("Projector should take 1 argument.")
+            if callable(projector):
+                if len(get_non_default_args(projector)) != 1:
+                    raise ValueError("Projector should take 1 argument.")
+            else:
+                pass
             
         # Preset information, for use in Gibbs
         self._preset = None
@@ -234,3 +236,15 @@ class RegularizedGaussian(Distribution):
             new_density = new_density.to_likelihood(value)
 
         return new_density
+
+
+class ConstrainedGaussian(RegularizedGaussian):
+    
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, projector=None, constraint=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
+
+        
+class NonnegativeGaussian(RegularizedGaussian):
+    
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)
