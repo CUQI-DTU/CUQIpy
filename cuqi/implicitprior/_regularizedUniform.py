@@ -12,7 +12,7 @@ class RegularizedUniform(RegularizedGaussian):
                     "upper_bound" : kwargs.pop("upper_bound", None),
                     "strength" : kwargs.pop("strength", None)}
             
-            # Underlying explicit GMRF
+            # Underlying explicit Gaussian
             self._gaussian = Gaussian(mean = np.zeros(geometry.par_dim), sqrtprec = np.zeros((geometry.par_dim,geometry.par_dim)), **kwargs)
             
             # Init from abstract distribution class
