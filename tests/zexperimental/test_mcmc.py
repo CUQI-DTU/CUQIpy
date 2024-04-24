@@ -333,8 +333,8 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
 checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
-    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior)#,
-    #cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
+    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -346,7 +346,6 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.NUTSNew,
-    cuqi.experimental.mcmc.UGLANew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -410,9 +409,9 @@ state_history_targets = [
     cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
-    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior)#,
-    #cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=10)),
-    #cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=32)),
+    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=10)),
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=32)),
 ]
 
 
