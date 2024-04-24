@@ -42,11 +42,6 @@ class UGLANew(SamplerNew):
     """
     def __init__(self, target, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, **kwargs):
 
-        # Parameters (beta is used in target setter)
-        self.maxit = maxit
-        self.tol = tol
-        self.beta = beta
-
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         if initial_point is None: #TODO: Replace later with a getter
@@ -55,6 +50,11 @@ class UGLANew(SamplerNew):
 
         self.current_point = self.initial_point
         self._acc = [1] # TODO. Check if we need this
+
+        # Parameters
+        self.maxit = maxit
+        self.tol = tol
+        self.beta = beta
 
     @property
     def prior(self):
