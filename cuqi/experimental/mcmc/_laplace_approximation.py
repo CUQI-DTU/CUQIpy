@@ -72,15 +72,8 @@ class UGLANew(SamplerNew):
     def data(self):
         return self.target.data
 
-    @SamplerNew.target.setter
-    def target(self, value):
-        """ Set the target density. Runs validation of the target. """
-        # Accept tuple of inputs and construct posterior
-        super(UGLANew, type(self)).target.fset(self, value)
-        self._precompute()
-
-    def _precompute(self):
-        # Extract diff_op from target prior
+    def _pre_warmup(self):
+        super()._pre_warmup()
         D = self.prior._diff_op
         n = D.shape[0]
 
@@ -101,8 +94,7 @@ class UGLANew(SamplerNew):
             self._priorloc = self.prior.location
 
         # Initial Laplace approx
-        # self._L2 = Lk_fun(self.x0)
-        self._L2 = Lk_fun(np.zeros(self.dim)) #TODO: fix this
+        self._L2 = Lk_fun(self.initial_point)
         self._L2mu = self._L2@self._priorloc
         self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
         
@@ -119,6 +111,9 @@ class UGLANew(SamplerNew):
                 out  = out1 + out2                
             return out
         self.M = M
+
+    def _pre_sample(self):
+        self._pre_warmup()
 
     def step(self):
         # Update Laplace approximation

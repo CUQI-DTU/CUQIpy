@@ -336,7 +336,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
-    # cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)) #TODO: this cause a error in MHNew
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -347,7 +347,6 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.pCNNew,
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
-    cuqi.experimental.mcmc.UGLANew,
     cuqi.experimental.mcmc.NUTSNew
 ]
 
