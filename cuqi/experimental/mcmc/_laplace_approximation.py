@@ -14,28 +14,35 @@ class UGLANew(SamplerNew):
 
     The inner solver is Conjugate Gradient Least Squares (CGLS) solver.
 
-    For more details see: Uribe, Felipe, et al. "A hybrid Gibbs sampler for edge-preserving 
-    tomographic reconstruction with uncertain view angles." arXiv preprint arXiv:2104.06919 (2021).
+    For more details see: Uribe, Felipe, et al. A hybrid Gibbs sampler for edge-preserving 
+    tomographic reconstruction with uncertain view angles. SIAM/ASA Journal on UQ,
+    https://doi.org/10.1137/21M1412268 (2022).
 
     Parameters
     ----------
     target : `cuqi.distribution.Posterior`
         The target posterior distribution to sample.
 
-    initial_point : ndarray
-        Initial parameters. *Optional*
+    initial_point : ndarray, *Optional*
+        Initial parameters.
+        If not provided, it defaults to zeros.
 
     maxit : int
         Maximum number of inner iterations for solver when generating one sample.
+        If not provided, it defaults to 50.
 
     tol : float
-        Tolerance for inner solver. Will stop before maxit if the inner solvers convergence check reaches tol.
+        Tolerance for inner solver.
+        The inner solvers will stop before maxit if convergence check reaches tol.
+        If not provided, it defaults to 1e-4.
 
     beta : float
-        Smoothing parameter for the Gaussian approximation of the Laplace distribution. Larger beta is easier to sample but is a worse approximation.
+        Smoothing parameter for the Gaussian approximation of the Laplace distribution.
+        A larger beta value makes sampling easier but results in a worse approximation.
+        If not provided, it defaults to 1e-5.
 
     callback : callable, *Optional*
-        If set this function will be called after every sample.
+        If set, this function will be called after every sample.
         The signature of the callback function is `callback(sample, sample_index)`,
         where `sample` is the current sample and `sample_index` is the index of the sample.
         An example is shown in demos/demo31_callback.py.
