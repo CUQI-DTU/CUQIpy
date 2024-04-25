@@ -57,10 +57,14 @@ class RegularizedGaussian(Distribution):
                 Upper bound of box, defaults to one
 
     regularization : string or None
-        Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
+        Preset regularization. Can be set to "l1" or "TV". Required for use in Gibbs in future update.
         For "l1", the following additional parameters can be passed:
             strength : scalar
                 Regularization parameter, i.e., strength*||x||_1 , defaults to one
+
+        For "TV", the following additional parameters can be passed:
+            strength : scalar
+                Regularization parameter, i.e., strength*||x||_TV , defaults to one
 
     """
         
