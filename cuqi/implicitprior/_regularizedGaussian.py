@@ -3,7 +3,7 @@ from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
 
 import numpy as np
-
+import skimage.restoration as restoration
 
 class RegularizedGaussian(Distribution):
     """ Implicit Regularized Gaussian.
@@ -121,6 +121,10 @@ class RegularizedGaussian(Distribution):
             strength = optional_regularization_parameters["strength"]
             self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
             self._preset = "l1"
+        elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
+            strength = optional_regularization_parameters["strength"]
+            self._proximal = lambda z, gamma: restoration.denoise_tv_chambolle(z, gamma*strength)
+            self._preset = "TV"
         else:
             raise ValueError("Regularization not supported")
 
