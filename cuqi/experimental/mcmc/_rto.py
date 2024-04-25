@@ -250,7 +250,7 @@ class RegularizedLinearRTONew(LinearRTONew):
     @LinearRTONew.target.setter
     def target(self, value):
         if value is not None and not callable(value.prior.proximal):
-            raise TypeError("Projector needs to be callable")
+            raise TypeError("Proximal needs to be callable")
         return super(RegularizedLinearRTONew, type(self)).target.fset(self, value)
 
     def _choose_stepsize(self):
