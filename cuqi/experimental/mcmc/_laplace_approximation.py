@@ -38,7 +38,7 @@ class UGLANew(SamplerNew):
 
     beta : float
         Smoothing parameter for the Gaussian approximation of the Laplace distribution.
-        A small value in the range of 1e-7 to 1e-3 is recommended, though vallues out of this 
+        A small value in the range of 1e-7 to 1e-3 is recommended, though values out of this 
         range might give better results in some cases. Generally, a larger beta value makes 
         sampling easier but results in a worse approximation. See details in Section 3.3 of the paper.
         If not provided, it defaults to 1e-5.
