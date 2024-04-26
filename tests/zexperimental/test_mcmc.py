@@ -246,6 +246,31 @@ def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
+def create_lmrf_prior_target(dim=16):
+    """Create a target with LMRF prior."""
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=dim, phantom='square').get_components()
+    x = cuqi.distribution.LMRF(0, 0.1, geometry=dim)
+    y = cuqi.distribution.Gaussian(A@x, 0.001)
+    return cuqi.distribution.JointDistribution(x, y)(y=y_data)
+
+
+
+@pytest.mark.parametrize("target_dim", [32, 64, 128])
+def test_UGLA_regression_sample(target_dim):
+    """Test the UGLA sampler regression."""
+    target = create_lmrf_prior_target(dim=target_dim)
+    sampler_old = cuqi.sampler.UGLA(target)
+    sampler_new = cuqi.experimental.mcmc.UGLANew(target)
+    assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
+
+@pytest.mark.parametrize("target_dim", [32, 64, 128])
+def test_UGLA_regression_warmup(target_dim):
+    """Test the UGLA sampler regression."""
+    target = create_lmrf_prior_target(dim=target_dim)
+    sampler_old = cuqi.sampler.UGLA(target)
+    sampler_new = cuqi.experimental.mcmc.UGLANew(target)
+    assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
+
 # ============== CWMH ============
 
 @pytest.mark.parametrize("target", targets)
@@ -309,6 +334,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -378,13 +404,14 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
 
 state_history_targets = [
-    cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.pCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
     cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=10), stepsize=0.0001),
+    cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=16)),
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=32)),
 ]
 
 
