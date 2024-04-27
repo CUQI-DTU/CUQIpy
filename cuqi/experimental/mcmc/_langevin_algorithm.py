@@ -67,20 +67,22 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
         super().__init__(target, **kwargs)
 
-        self.scale = scale
+        self.initial_scale = scale
+        self.current_target_logd = None # Needed?
+        self.current_target_grad = None # Needed?
+
+    def _set_defaults(self):
+        super()._set_defaults()
+        self.current_target_logd = self.target.logd(self.current_point)
+        self.current_target_grad = self.target.gradient(self.current_point)
+
+    def _initialize_state(self):
+        super()._initialize_state()
+        self.scale = self.initial_scale
+
+    def _initialize_history(self):
+        super()._initialize_history()
         self._acc = [1] # TODO. Check if we need this
-        self.current_target_logd = None
-        self.current_target_grad = None
-
-    def _pre_warmup(self):
-        super()._pre_warmup()
-        self.current_target_logd = self.target.logd(self.current_point)
-        self.current_target_grad = self.target.gradient(self.current_point)
-
-    def _pre_sample(self):
-        super()._pre_sample()
-        self.current_target_logd = self.target.logd(self.current_point)
-        self.current_target_grad = self.target.gradient(self.current_point)
 
     def validate_target(self):
         try:

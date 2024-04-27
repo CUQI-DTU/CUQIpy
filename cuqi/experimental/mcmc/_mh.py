@@ -26,11 +26,14 @@ class MHNew(ProposalBasedSamplerNew):
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
-        # Due to a bug? in old MH, we must keep track of this extra variable to match behavior.
-        self._scale_temp = self.scale 
 
     def validate_target(self):
         pass # All targets are valid
+
+    def _initialize_state(self):
+        super()._initialize_state()
+        # Due to a bug? in old MH, we must keep track of this extra variable to match behavior.
+        self._scale_temp = self.scale
 
     def step(self):
         # propose state

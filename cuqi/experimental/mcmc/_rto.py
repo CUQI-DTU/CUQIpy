@@ -47,11 +47,13 @@ class LinearRTONew(SamplerNew):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
-        self._acc = [1] # TODO. Check if we need this
-
         # Other parameters
         self.maxit = maxit
         self.tol = tol
+
+    def _initialize_history(self):
+        super()._initialize_history()
+        self._acc = [1] # TODO. Check if we need this
 
     @property
     def prior(self):

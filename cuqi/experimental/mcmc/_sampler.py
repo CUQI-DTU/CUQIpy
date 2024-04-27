@@ -48,10 +48,28 @@ class SamplerNew(ABC):
         self.initial_point = initial_point
         self.current_point = initial_point
         self.callback = callback
-        self._samples = []
+        self._is_initialized = False
+
+    def initialize(self):
+        """ Delayed initialization of the sampler. To happen after target is set """
+
+        if self._is_initialized:
+            raise ValueError("Sampler is already initialized.")
+        
+        if self.target is None:
+            raise ValueError("Cannot initialize sampler without a target density.")
+               
+        self._set_defaults()
+
+        self._initialize_state()
+
+        self._initialize_history()
+
+        self._validate_initialization()
+
+        self._is_initialized = True
 
     # ------------ Abstract methods to be implemented by subclasses ------------
-    
     @abstractmethod
     def step(self):
         """ Perform one step of the sampler by transitioning the current point to a new point according to the sampler's transition kernel. """
@@ -70,21 +88,11 @@ class SamplerNew(ABC):
     # -- _pre_sample and _pre_warmup methods: can be overridden by subclasses --
     def _pre_sample(self):
         """ Any code that needs to be run before sampling. """
-        
-        if self.initial_point is None:
-            self._set_default_initial_point()
-
-        if self.current_point is None:
-            self.current_point = self.initial_point
+        pass
 
     def _pre_warmup(self):
         """ Any code that needs to be run before warmup. """
-
-        if self.initial_point is None:
-            self._set_default_initial_point()
-
-        if self.current_point is None:
-            self.current_point = self.initial_point
+        pass
 
     # ------------ Public attributes ------------
     @property
@@ -108,6 +116,7 @@ class SamplerNew(ABC):
         self._target = value
         if self._target is not None:
             self.validate_target()
+            self.initialize()
 
     # ------------ Public methods ------------
 
@@ -115,9 +124,18 @@ class SamplerNew(ABC):
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
         return Samples(np.array(self._samples).T, self.target.geometry)
     
-    def reset(self): # TODO. Issue here. Current point is not reset, and initial point is lost with this reset.
-        self._samples.clear()
-        self._acc.clear()
+    def reset(self):
+        """ Reset sampler state and history. """
+
+        # Loop over state and reset to None
+        for key in self._STATE_KEYS:
+            setattr(self, key, None)
+
+        # Loop over history and reset to None
+        for key in self._HISTORY_KEYS:
+            setattr(self, key, None)
+
+        self.initialize()
     
     def save_checkpoint(self, path):
         """ Save the state of the sampler to a file. """
@@ -313,12 +331,32 @@ class SamplerNew(ABC):
         if self.callback is not None:
             self.callback(sample, sample_index)
 
-    def _set_default_initial_point(self):
+    def _set_defaults(self):
         """ Set the default initial point for the sampler. """
         if self.target is None:
             raise ValueError("Cannot get default initial point without a target density.")
         self.initial_point = self._default_initial_point
+        self.current_point = self.initial_point
 
+    def _initialize_state(self):
+        """ Initialize the state of the sampler. """
+        pass
+
+    def _initialize_history(self):
+        """ Allocate memory for the samples. """
+        self._samples = []
+
+    def _validate_initialization(self):
+        """ Validate the initialization of the sampler. """
+
+        for key in self._STATE_KEYS:
+            if getattr(self, key) is None:
+                raise ValueError(f"Sampler state key {key} is not set after initialization.")
+
+        for key in self._HISTORY_KEYS:
+            if getattr(self, key) is None:
+                raise ValueError(f"Sampler history key {key} is not set after initialization.")
+            
     @property
     def _default_initial_point(self):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
@@ -364,18 +402,22 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         """
 
         super().__init__(target, **kwargs)
-        self.current_target_logd = None
         self.proposal = proposal
-        self.scale = scale
+        self.initial_scale = scale
+        self.current_target_logd = None # remove?
+        self.scale = None # remove?
+
+    def _set_defaults(self):
+        super()._set_defaults()
+        self.current_target_logd = self.target.logd(self.current_point)
+
+    def _initialize_history(self):
+        super()._initialize_history()
         self._acc = [ 1 ] # TODO. Check
 
-    def _pre_sample(self):
-        super()._pre_sample()
-        self.current_target_logd = self.target.logd(self.current_point)
-
-    def _pre_warmup(self):
-        super()._pre_warmup()
-        self.current_target_logd = self.target.logd(self.current_point)
+    def _initialize_state(self):
+        super()._initialize_state()
+        self.scale = self.initial_scale
 
     @property
     def proposal(self):
