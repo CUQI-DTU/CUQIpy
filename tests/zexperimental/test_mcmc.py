@@ -441,3 +441,14 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
         error_details = '\n'.join([f"State '{key}' not updated correctly after warmup. {message}" for key, message in failed_updates.items()])
         error_message = f"Errors occurred in {sampler.__class__.__name__} - issues with keys: {failed_keys}.\n{error_details}"
         assert not failed_updates, error_message
+        
+def test_myula():
+    """ Test creating MYULA sampler."""
+    def func(x):
+        return x, True
+    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(func)
+    likelihood = cuqi.testproblem.Deconvolution1D().posterior.likelihood 
+    myula = cuqi.experimental.mcmc.MYULANew(likelihood, denoise_regularizer)
+    myula.sample(10)
+    samples = myula.get_samples()
+    assert samples.Ns == 10
