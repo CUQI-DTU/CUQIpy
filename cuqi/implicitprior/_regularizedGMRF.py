@@ -54,6 +54,10 @@ class RegularizedGMRF(RegularizedGaussian):
             strength : scalar
                 Regularization parameter, i.e., strength*||x||_1 , defaults to one
 
+        For "TV", the following additional parameters can be passed:
+            strength : scalar
+                Regularization parameter, i.e., strength*||x||_TV , defaults to one
+
     """
     def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
             
