@@ -236,7 +236,7 @@ class RegularizedLinearRTO(LinearRTO):
         if not callable(target.prior.proximal):
             raise TypeError("Projector needs to be callable")
         
-        super().__init__(target, x0=x0, maxit=100, **kwargs)
+        super().__init__(target, x0=x0, maxit=maxit, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
