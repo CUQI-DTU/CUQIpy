@@ -1,4 +1,10 @@
-class Denoiser():
+class DenoiseRegularizer():
+    """
+    1rst paragraph: What is this class ? What does it represent ?
+    2nd paragraph: Connexion between denoisers and proximal operators
+    Explain that proximal \subset denoiser. 
+    Parameters: 
+    """
     
     def __init__(self, denoiser, denoiser_setup = None, strength_reg = 0.1):
         if denoiser_setup is None:
@@ -12,5 +18,5 @@ class Denoiser():
         self.info = info
         return solution 
     
-    def grad_reg(self, x):
+    def gradient(self, x):
         return (x - self.denoise(x))/self.strength_reg
