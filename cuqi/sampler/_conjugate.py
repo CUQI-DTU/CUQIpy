@@ -52,4 +52,4 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            return np.count_nonzero(b) # See 
+            return np.count_nonzero(b)
