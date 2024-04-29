@@ -451,4 +451,4 @@ def test_myula():
     myula = cuqi.experimental.mcmc.MYULANew(likelihood, denoise_regularizer)
     myula.sample(10)
     samples = myula.get_samples()
-    assert samples.Ns == 10
+    assert samples.Ns == 11
