@@ -79,6 +79,7 @@ class RegularizedGaussian(Distribution):
         
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
+        kwargs.pop("geometry", None)
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
@@ -127,7 +128,7 @@ class RegularizedGaussian(Distribution):
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
             strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: restoration.denoise_tv_chambolle(z, gamma*strength)
+            self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*strength))
             self._preset = "TV"
         else:
             raise ValueError("Regularization not supported")
