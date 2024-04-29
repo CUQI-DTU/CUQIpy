@@ -57,17 +57,18 @@ class RegularizedGMRF(RegularizedGaussian):
     """
     def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
             
-            args = {"lower_bound" : kwargs.pop("lower_bound", None),
-                    "upper_bound" : kwargs.pop("upper_bound", None),
-                    "strength" : kwargs.pop("strength", None)}
+        args = {"lower_bound" : kwargs.pop("lower_bound", None),
+                "upper_bound" : kwargs.pop("upper_bound", None),
+                "strength" : kwargs.pop("strength", None)}
             
-            # Underlying explicit GMRF
-            self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
-            
-            # Init from abstract distribution class
-            super(Distribution, self).__init__(**kwargs)
+        # Underlying explicit GMRF
+        self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
+        kwargs.pop("geometry", None)
 
-            self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
+        # Init from abstract distribution class
+        super(Distribution, self).__init__(**kwargs)
+
+        self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
 
 
 
