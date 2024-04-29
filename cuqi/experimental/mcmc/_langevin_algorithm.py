@@ -286,49 +286,23 @@ class MYULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
 
-    def __init__(self, target, scale=1.0, **kwargs):
+    def __init__(self, likelihood, denoise_regularizer, scale=1.0, **kwargs):
 
-        super().__init__(target, **kwargs)
+        super().__init__(likelihood, **kwargs)
 
         self.scale = scale
         self.current_point = self.initial_point
-        self.current_target_logd = self.target.logd(self.current_point)
-        self.current_target_grad = self.target.gradient(self.current_point)
+        self.denoise_regularizer = denoise_regularizer
+        self.current_target_grad = self.target.gradient(self.current_point) + self.denoise_regularizer.gradient(self.current_point)
         self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
-        try:
-            self.target.gradient(np.ones(self.dim))
-            pass
-        except (NotImplementedError, AttributeError):
-            raise ValueError("The target needs to have a gradient method")
-
-    def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
-        """
-        Accepts the proposed state and updates the sampler's state accordingly, i.e.,
-        current_point, current_target_eval, and current_target_grad_eval.
-
-        Parameters
-        ----------
-        x_star : 
-            The proposed state
-
-        target_eval_star: 
-            The log likelihood evaluated at x_star
-
-        target_grad_star: 
-            The gradient of log likelihood evaluated at x_star
-
-        Returns
-        -------
-        scalar
-            1 (accepted)
-        """
-        self.current_point = x_star
-        self.current_target_logd = target_eval_star
-        self.current_target_grad = target_grad_star
-        acc = 1
-        return acc
+        # try:
+        #     self.target.gradient(np.ones(self.dim))
+        #     pass
+        # except (NotImplementedError, AttributeError):
+        #     raise ValueError("The target needs to have a gradient method")
+        pass
 
     def step(self):
         # propose state
@@ -336,12 +310,12 @@ class MYULANew(SamplerNew): # Refactor to Proposal-based sampler?
         x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
 
         # evaluate target
-        target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
+        target_grad_star = self.target.gradient(x_star) + self.denoise_regularizer.gradient(x_star)
 
-        # accept or reject proposal
-        acc = self._accept_or_reject(x_star, target_eval_star, target_grad_star)
+        self.current_point = x_star
+        self.current_target_grad = target_grad_star
 
-        return acc
+        return 1
 
     def tune(self, skip_len, update_count):
         pass
