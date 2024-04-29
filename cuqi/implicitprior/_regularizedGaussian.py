@@ -165,7 +165,7 @@ class RegularizedGaussian(Distribution):
 
     @staticmethod
     def regularization_options():
-        return ["l1"]
+        return ["l1", "TV"]
 
 
     # --- Defer behavior of the underlying Gaussian --- #
