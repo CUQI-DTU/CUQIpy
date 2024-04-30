@@ -19,4 +19,4 @@ class DenoiseRegularizer():
         return solution 
     
     def gradient(self, x):
-        return (x - self.denoise(x))/self.strength_reg
+        return -(x - self.denoise(x))/self.strength_reg
