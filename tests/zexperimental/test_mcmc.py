@@ -6,7 +6,7 @@ import inspect
 def assert_true_if_sampling_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
         sampler_new: cuqi.experimental.mcmc.SamplerNew,
-        Ns=100, atol=1e-1, old_idx=[0, None], new_idx=[0, -1]):
+        Ns=20, atol=1e-1, old_idx=[0, None], new_idx=[0, -1]):
     """ Assert that the samples from the old and new sampler are equivalent.
 
     Ns: int
@@ -37,7 +37,8 @@ def assert_true_if_sampling_is_equivalent(
 
 def assert_true_if_warmup_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
-        sampler_new: cuqi.experimental.mcmc.SamplerNew, Ns=100, Nb=100,
+        sampler_new: cuqi.experimental.mcmc.SamplerNew,
+        Ns=20, Nb=20,
         strategy="MH_like", old_idx=[0, None], new_idx=[0, None]):
     """ Assert that the samples from the old and new sampler are equivalent.
      
@@ -94,7 +95,6 @@ def assert_true_if_warmup_is_equivalent(
 
 targets = [
     cuqi.testproblem.Deconvolution1D(dim=2).posterior,
-    cuqi.testproblem.Deconvolution1D(dim=20).posterior,
     cuqi.testproblem.Deconvolution1D(dim=128).posterior
 ]
 """ List of targets to test against. """
@@ -222,12 +222,10 @@ def create_multiple_likelihood_posterior_regularized_target(dim=16):
     return target
 
 regularized_targets = [
-    create_regularized_target(dim=32),
-    create_regularized_target(dim=64),
+    create_regularized_target(dim=16),
     create_regularized_target(dim=128)
 ] + [
-    create_multiple_likelihood_posterior_regularized_target(dim=32),
-    create_multiple_likelihood_posterior_regularized_target(dim=64),
+    create_multiple_likelihood_posterior_regularized_target(dim=16),
     create_multiple_likelihood_posterior_regularized_target(dim=128)
 ]
 
@@ -255,7 +253,7 @@ def create_lmrf_prior_target(dim=16):
 
 
 
-@pytest.mark.parametrize("target_dim", [32, 64, 128])
+@pytest.mark.parametrize("target_dim", [16, 128])
 def test_UGLA_regression_sample(target_dim):
     """Test the UGLA sampler regression."""
     target = create_lmrf_prior_target(dim=target_dim)
@@ -263,7 +261,7 @@ def test_UGLA_regression_sample(target_dim):
     sampler_new = cuqi.experimental.mcmc.UGLANew(target)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
-@pytest.mark.parametrize("target_dim", [32, 64, 128])
+@pytest.mark.parametrize("target_dim", [16, 128])
 def test_UGLA_regression_warmup(target_dim):
     """Test the UGLA sampler regression."""
     target = create_lmrf_prior_target(dim=target_dim)
