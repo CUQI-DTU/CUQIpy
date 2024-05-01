@@ -1,6 +1,13 @@
-class DenoiseRegularizer():
+class Regularizer():
+    """ A class representing a regularization term in the implicitly defined
+    target distribution. The regularization term is used to enforce certain
+    properties on the solution such as sparsity, smoothness, etc."""
+    def __init__(self):
+        pass
+
+class DenoiseRegularizer(Regularizer):
     """    
-    This class defines implicit regularized priors for which we can apply gradient-based algortihms (ex:MYULA). The regularization is performed using a denoising algorithm as we can encounter in MYULA
+    This class defines implicit regularized priors for which we can apply gradient-based algorithms (ex:MYULA). The regularization is performed using a denoising algorithm as we can encounter in MYULA
     and PnP-ULA.
     
     Ex: Moreau-Yoshida based regularization
@@ -35,12 +42,12 @@ class DenoiseRegularizer():
     ---------- 
     denoiser callable f(x)
         Denoising algorithm
-    denoiser_setup dictionnary
-        Dictionnary containing information such as the denoising strength or the prior regularization strength
+    denoiser_setup dictionary
+        Dictionary containing information such as the denoising strength or the prior regularization strength
     strength_smooth float
         Smoothing strength
     """
-    
+
     def __init__(self, denoiser, denoiser_setup = None, strength_smooth = 0.1):
         if denoiser_setup is None:
             denoiser_setup = {}
