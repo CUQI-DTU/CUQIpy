@@ -54,17 +54,18 @@ A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
 #
 # .. math::
 #    \begin{align*}
-#    \mathbf{x} &\sim \exp (-\gamma \|\nabla x \|_{2,1}\\
+#    \mathbf{x} &\sim \exp (-\gamma \|\nabla x \|_{2,1})\\
 #    \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, 0.05^2\,\mathbf{I})
 #    \end{align*}
 #
 # In CUQI we an easily specify the likelihood as follows:
-
+# %% 
+# We specify the data distribution
 sigma2 = 0.05**2
 y = cuqi.distribution.Gaussian(A, sigma2)
+#%% 
+# We define the likelihood
 likelihood = y(y = y_obs)
-from skimage.metrics import mean_squared_error as mse  
-print("MSE(Ax, y) = ", mse(info.exactData, y_obs))
 
 # %%
 # To apply MYULA, we need to define the implicit prior $\pi_\alpha(x)$. Evaluating this surrogate prior is doable but too intensive from
@@ -73,12 +74,19 @@ print("MSE(Ax, y) = ", mse(info.exactData, y_obs))
 # As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the smoothing parameter $\alpha \approx \sigma^2 $, ie $\texttt{strength_smooth}= 0.5*sigma2$.
 # We set the regularization parameter to $\texttt{stength_reg}=10$.
 from skimage.restoration import denoise_tv_chambolle
+# %%
 strength_reg = 10
-strength_smooth = 0.5*sigma2#np.copy(sigma2)
-weight = strength_reg*strength_smooth
-def prox_g(x):
-    return denoise_tv_chambolle(x, weight = weight, max_num_iter = 100), True
-denoise_regularizer = DenoiseRegularizer(prox_g, strength_reg = strength_smooth)
+strength_smooth = 0.5*sigma2
+# %%
+def prox_g(x, strength_reg=None, strength_smooth=None):
+    weight = strength_reg*strength_smooth
+    return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), True
+# %%
+denoiser_setup={}
+denoiser_setup["strength_reg"]=strength_reg
+denoiser_setup["strength_smooth"]=strength_smooth
+# %%
+denoise_regularizer = DenoiseRegularizer(prox_g, strength_smooth=strength_smooth, denoiser_setup=denoiser_setup)
 
 # %%
 # In this section we define the important parameters for MYULA. We let run MYULA for $\texttt{Ns}=10^4$
@@ -87,29 +95,36 @@ denoise_regularizer = DenoiseRegularizer(prox_g, strength_reg = strength_smooth)
 # correlated samples, we also perform a thinning, ie we only consider 1 samples every $\texttt{Nt}=20$
 # samples to compute our quantities of interest.
 # The scale parameter $\delta$ is set wrt the recommendation of Durmus et al. (https://arxiv.org/pdf/1612.07471).
-Ns = 10000
+Ns = 50000
 Nb = 1000
 Nt = 20
 # Step-size of MYULA
-scale = 0.9/(1/sigma2 + 1/strength_smooth)
+scale = 0.1/(1/sigma2 + 1/strength_smooth)
+# %%
+# In order to get reproducible results, we set the seed parameter to 0.
+np.random.seed(0)
 # %%
 # Definition of the MYULA sampler and run of the chain
 myula_sampler = MYULANew(likelihood = likelihood, denoise_regularizer = denoise_regularizer, scale = scale)
+#%% 
+# Sampling
 myula_sampler.sample(Ns = Ns)
+# %%
+# Retrieve the samples and apply the bunr-in and thinning.
 samples = myula_sampler.get_samples()
 samples_warm = samples.burnthin(Nb = Nb, Nt = Nt)
 #%%
-# Results
+# Mean and CI
 plt.figure(figsize = (10, 10))
-samples_warm.plot_mean(label = "MYULA mean")
-info.exactSolution.plot(label = "Exact solution")
 y_obs.plot(label = "Observation")
-samples_warm.plot_ci()
+samples_warm.plot_ci(exact=info.exactSolution)
 plt.legend()
-
+#%%
+# Standard  devuation
 plt.figure(figsize = (10, 10))
 samples_warm.plot_std()
-
+#%% 
+# Samples autocorrelation
 plt.figure(figsize = (10, 10))
 samples_warm.plot_autocorrelation(max_lag = 300)
 
