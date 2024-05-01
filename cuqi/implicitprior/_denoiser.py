@@ -6,12 +6,12 @@ class DenoiseRegularizer():
     Parameters: 
     """
     
-    def __init__(self, denoiser, denoiser_setup = None, strength_reg = 0.1):
+    def __init__(self, denoiser, denoiser_setup = None, strength_smooth = 0.1):
         if denoiser_setup is None:
             denoiser_setup = {}
         self.denoiser = denoiser
         self.denoiser_setup = denoiser_setup
-        self.strength_reg = strength_reg
+        self.strength_smooth = strength_smooth
         
     def denoise(self, x):
         solution, info = self.denoiser(x, **self.denoiser_setup)
@@ -19,4 +19,4 @@ class DenoiseRegularizer():
         return solution 
     
     def gradient(self, x):
-        return -(x - self.denoise(x))/self.strength_reg
+        return -(x - self.denoise(x))/self.strength_smooth
