@@ -123,15 +123,30 @@ class RegularizedGaussian(Distribution):
             self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
-            strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
+            self._strength = optional_regularization_parameters["strength"]
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
-            strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*strength))
+            self._strength = optional_regularization_parameters["strength"]
+            self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
             self._preset = "TV"
         else:
             raise ValueError("Regularization not supported")
+
+
+    @property
+    def strength(self):
+        return self._strength
+        
+    @strength.setter
+    def strength(self, value):
+        self._strength = value
+        if self._preset == "l1":        
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+        elif self._preset == "TV":
+            self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
+        else:
+            raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
 
     # This is a getter only attribute for the underlying Gaussian
     # It also ensures that the name of the underlying Gaussian
@@ -156,8 +171,7 @@ class RegularizedGaussian(Distribution):
         #    f"The logpdf of a implicit regularized Gaussian is not be defined.")
         
     def _sample(self, N, rng=None):
-        raise ValueError(
-            "Cannot be sampled from.")
+        raise ValueError("Cannot be sampled from.")
   
     @staticmethod
     def constraint_options():
