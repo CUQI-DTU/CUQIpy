@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 #
 # See :class:`~cuqi.testproblem.Deconvolution1D` for more details.
 
-A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
+A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # %%
 # Principles behind MYULA
 # ----------------------
@@ -99,14 +99,14 @@ A, y_obs, info = cuqi.testproblem.Deconvolution1D().get_components()
 # Likelihood definition
 # ---------------------
 # We first specify the data distribution as follows:
-sigma2 = 0.05**2
-y = cuqi.distribution.Gaussian(A, sigma2)
+sigma2=0.05**2
+y=cuqi.distribution.Gaussian(A, sigma2)
 # %% 
 # Then we can define the likelihood with
-likelihood = y(y = y_obs)
+likelihood=y(y=y_obs)
 
 # %%
-# Definition of the implicit  prior
+# Implicit prior definition
 # ---------------------------------
 # To apply MYULA, we need to define the implicit prior :math:`\pi_{\texttt{stength_smooth}}(x)`. Evaluating this surrogate prior is doable but too intensive from
 # a computational point of view as it requires to solve an optimization problem. However to apply MYULA, we only require access to 
@@ -117,9 +117,9 @@ likelihood = y(y = y_obs)
 # We set the regularization parameter to :math:`\texttt{stength_reg}=10`.
 
 # %%
-# Definition of the regularization and smoothing parameters
-strength_reg = 10
-strength_smooth = 0.5*sigma2
+# Regularization and smoothing parameters definition
+strength_reg=10
+strength_smooth=0.5*sigma2
 # %%
 # To estimate :math:`\operatorname{prox}_{\texttt{strength_reg}\  TV}^{\texttt{strength_smooth}}` we use the implementation provided by Scikit-Image. But we can use any solver to compute this quantity.
 #
@@ -131,30 +131,30 @@ strength_smooth = 0.5*sigma2
 # with :math:`\texttt{weight} = \texttt{strength_reg} \times  \texttt{strength_smooth}`.
 from skimage.restoration import denoise_tv_chambolle
 def prox_g(x, strength_reg=None, strength_smooth=None):
-    weight = strength_reg*strength_smooth
+    weight=strength_reg*strength_smooth
     return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), True
 # %%
-# We save all the important variables into the vairable :math:`\texttt{denoiser_setup}`.
+# We save all the important variables into the variable :math:`\texttt{denoiser_setup}`.
 denoiser_setup={}
 denoiser_setup["strength_reg"]=strength_reg
 denoiser_setup["strength_smooth"]=strength_smooth
 # %%
 # Now we can define our implicit prior.
-denoise_regularizer = DenoiseRegularizer(prox_g, strength_smooth=strength_smooth, denoiser_setup=denoiser_setup)
+denoise_regularizer=DenoiseRegularizer(prox_g, strength_smooth=strength_smooth, denoiser_setup=denoiser_setup)
 
 # %%
-# Parameter of the MYULA sampler
+# Parameters of the MYULA sampler
 # ------------------------------
 # We let run MYULA for :math:`\texttt{Ns}=10^4`
 # iterations. We discard the :math:`\texttt{Nb}=1000` first burn-in samples of the Markov chain. Furthermore, as MCMC methods generate
 # correlated samples, we also perform a thinning: we only consider 1 samples every :math:`\texttt{Nt}=20`
 # samples to compute our quantities of interest.
 # :math:`\texttt{scale}` is set wrt the recommendation of Durmus et al. (https://arxiv.org/pdf/1612.07471).
-Ns = 10000
-Nb = 1000
-Nt = 20
+Ns=10000
+Nb=1000
+Nt=20
 # Step-size of MYULA
-scale = 0.9/(1/sigma2 + 1/strength_smooth)
+scale=0.9/(1/sigma2 + 1/strength_smooth)
 # %%
 # In order to get reproducible results, we set the seed parameter to 0.
 np.random.seed(0)
@@ -162,27 +162,29 @@ np.random.seed(0)
 # MYULA sampler
 # -------------
 # Definition of the MYULA sampler.
-myula_sampler = MYULANew(likelihood = likelihood, denoise_regularizer = denoise_regularizer, scale = scale)
+myula_sampler=MYULANew(likelihood=likelihood, denoise_regularizer=denoise_regularizer, scale=scale)
 #%% 
 # Sampling with MYULA.
-myula_sampler.sample(Ns = Ns)
+myula_sampler.sample(Ns=Ns)
 # %%
 # Retrieve the samples. We apply the burnin and perform thinning to the Markov chain.
-samples = myula_sampler.get_samples()
-samples_warm = samples.burnthin(Nb = Nb, Nt = Nt)
-#%%
+samples=myula_sampler.get_samples()
+samples_warm=samples.burnthin(Nb=Nb, Nt=Nt)
+# %%
+# Results
+# -------
 # Mean and CI plot.
-plt.figure(figsize = (10, 10))
-y_obs.plot(label = "Observation")
+plt.figure(figsize=(10, 10))
+y_obs.plot(label="Observation")
 samples_warm.plot_ci(exact=info.exactSolution)
 plt.legend()
 #%%
-# Standard  deviation plot.
-plt.figure(figsize = (10, 10))
+# Standard  deviation plot to estimate the uncertainty.
+plt.figure(figsize=(10, 10))
 samples_warm.plot_std()
 #%% 
 # Samples autocorrelation plot.
-samples_warm.plot_autocorrelation(max_lag = 300)
+samples_warm.plot_autocorrelation(max_lag=100)
 
 
 
