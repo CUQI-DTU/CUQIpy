@@ -198,7 +198,13 @@ class ImplicitlyDefinedPosterior(_GenericPosterior):
 
     @property
     def functionals(self):
-        return [self.likelihood, self.prior] + self.regularizers
+        functionals = []
+        if self.likelihood is not None:
+            functionals.append(self.likelihood)
+        if self.prior is not None:
+            functionals.append(self.prior)
+        functionals += self.regularizers
+        return functionals
     
     @functionals.setter
     def functionals(self, value):
@@ -256,19 +262,30 @@ class ImplicitlyDefinedPosterior(_GenericPosterior):
 
     @property
     def geometry(self):
-        # geometry from prior
-        if self.prior is not None:
-            return self.prior.geometry
-        # geometry from model
+        return self._geometry
+        
+    @geometry.setter
+    def geometry(self, value):
+        #TODO: make this more robust and check for compatibility
+        if value is not None:
+            self._geometry = value
+
+        elif self.prior is not None:
+            self._geometry = self.prior.geometry
+            
         elif self.model is not None:
-            return self.model.domain_geometry
+            self._geometry = self.model.domain_geometry
+        
         else:
-            raise ValueError(
-                "Geometry is not defined for implicitly defined posterior distribution.")
+            raise ValueError("Geometry is not defined for implicitly defined"
+                             +" posterior distribution.")
+        
+        # assert all geometries are the compatible
+
 
     @property
     def model(self):
-        return None
+        return self.likelihood.model if self.likelihood is not None else None
 
     def logpdf(self, *args, **kwargs):
         """ Returns the logpdf of the implicitly defined posterior distribution"""
