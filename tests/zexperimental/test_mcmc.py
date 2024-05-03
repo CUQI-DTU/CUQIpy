@@ -513,7 +513,8 @@ def test_myula():
         return x, True
     denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(func)
     likelihood = cuqi.testproblem.Deconvolution1D().posterior.likelihood 
-    myula = cuqi.experimental.mcmc.MYULANew(likelihood, denoise_regularizer)
+    posterior = cuqi.distribution.ImplicitlyDefinedPosterior(likelihood, denoise_regularizer)
+    myula = cuqi.experimental.mcmc.MYULANew(posterior)
     myula.sample(10)
     samples = myula.get_samples()
     assert samples.Ns == 11
