@@ -75,7 +75,7 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 #       \begin{align*}
 #       x_{k+1} &= x_k + \texttt{scale} \nabla \log \pi_{\texttt{strength_smooth}}(x_k |y) + \sqrt{2 \texttt{scale}} z_{k+1}\\
 #       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) + \texttt{scale} \nabla \log \pi_{\texttt{strength_smooth}}(x_k) + \sqrt{2 \texttt{scale}} z_{k+1}\\
-#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) - \texttt{scale} (x_k - \operatorname{prox}_g^{\texttt{strength_smooth}} (x))/{\texttt{strength_smooth}} + \sqrt{2 \texttt{scale}} z_{k+1}.
+#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) - \texttt{scale} (x_k - \operatorname{prox}_g^{\texttt{strength_smooth}} (x_k))/{\texttt{strength_smooth}} + \sqrt{2 \texttt{scale}} z_{k+1}.
 #       \end{align*}
 #
 # where :math:`\texttt{strength_smooth}` corresponds to the smoothing strength of :math:`g`.
