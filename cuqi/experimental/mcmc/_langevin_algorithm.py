@@ -1,6 +1,8 @@
 import numpy as np
 import cuqi
 from cuqi.experimental.mcmc import SamplerNew
+from cuqi.implicitprior import DenoiseRegularizer
+from cuqi.distribution import ImplicitlyDefinedPosterior
 from cuqi.array import CUQIarray
 
 class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
@@ -61,7 +63,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     # TODO: update demo once sampler merged
     """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_target_grad'})
 
     def __init__(self, target, scale=1.0, **kwargs):
 
@@ -69,9 +71,26 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
         self.scale = scale
         self.current_point = self.initial_point
-        self.current_target_logd = self.target.logd(self.current_point)
+        self.current_target_logd = \
+            self.target.logd(self.current_point) if self._eval_logd else None
         self.current_target_grad = self.target.gradient(self.current_point)
         self._acc = [1] # TODO. Check if we need this
+
+    @property
+    def _eval_logd(self):
+        """Flag to evaluate logd or not, is set to True by default and
+        can be set to False to avoid evaluating logd at each step. This is 
+        useful for methods that do not require the logd value, such as the ULA
+        and MYULA algorithms."""
+
+        if not hasattr(self, '_eval_logd_value'):
+            return False
+        return self._eval_logd_value
+
+    @_eval_logd.setter
+    def _eval_logd(self, value):
+        """Setter for the _eval_logd property."""
+        self._eval_logd_value = value
 
     def validate_target(self):
         try:
@@ -113,7 +132,8 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
 
         # evaluate target
-        target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
+        target_eval_star = self.target.logd(x_star) if self._eval_logd else None
+        target_grad_star = self.target.gradient(x_star)
 
         # accept or reject proposal
         acc = self._accept_or_reject(x_star, target_eval_star, target_grad_star)
@@ -182,6 +202,12 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     # TODO: update demo once sampler merged
     """
 
+    _STATE_KEYS = ULANew._STATE_KEYS.union({'current_target_logd'})
+
+    def __init__(self, target, scale=1.0, **kwargs):
+        self._eval_logd = True
+        super().__init__(target=target, scale=scale, **kwargs)
+
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
         Accepts the proposed state according to a Metropolis step and updates the sampler's state accordingly, i.e., current_point, current_target_eval, and current_target_grad_eval.
@@ -226,7 +252,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
         
 
-class MYULANew(SamplerNew): # Refactor to Proposal-based sampler?
+class MYULANew(ULANew):
     """Moreau-Yoshida Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logpdf and gradient (up to a constant) based on
@@ -283,40 +309,22 @@ class MYULANew(SamplerNew): # Refactor to Proposal-based sampler?
     A Deblur example can be found in demos/demo27_ULA.py
     # TODO: update demo once sampler merged
     """
-
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
-
-    def __init__(self, likelihood, denoise_regularizer, scale=1.0, **kwargs):
-
-        super().__init__(likelihood, **kwargs)
-
-        self.scale = scale
-        self.current_point = self.initial_point
-        self.denoise_regularizer = denoise_regularizer
-        self.current_target_grad = self.target.gradient(self.current_point) + self.denoise_regularizer.gradient(self.current_point)
-        self._acc = [1] # TODO. Check if we need this
-
     def validate_target(self):
-        # try:
-        #     self.target.gradient(np.ones(self.dim))
-        #     pass
-        # except (NotImplementedError, AttributeError):
-        #     raise ValueError("The target needs to have a gradient method")
-        pass
+        super().validate_target()
+        # Assert target of type ImplicitlyDefinedPosterior
 
-    def step(self):
-        # propose state
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
-        x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
+        assert isinstance(self.target, ImplicitlyDefinedPosterior), \
+            "The target needs to be an ImplicitlyDefinedPosterior"
 
-        # evaluate target
-        target_grad_star = self.target.gradient(x_star) + self.denoise_regularizer.gradient(x_star)
+        # Assert target has one likelihood
+        assert self.target.likelihood is not None,\
+            "The target needs to have a likelihood"
 
-        self.current_point = x_star
-        self.current_target_grad = target_grad_star
+        # Assert target has one denoising regularizer
+        assert len(self.target.regularizers)==1 and\
+            isinstance(self.target.regularizers[0], DenoiseRegularizer),\
+                "The target needs to have a single denoising regularizer"
 
-        return 1
-
-    def tune(self, skip_len, update_count):
-        pass
-
+        # Assert target has no prior
+        assert self.target.prior is None,\
+            "The target should not have a prior"
