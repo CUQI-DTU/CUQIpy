@@ -13,6 +13,7 @@ import cuqi
 import numpy as np
 from cuqi.implicitprior import DenoiseRegularizer
 from cuqi.experimental.mcmc import MYULANew
+from cuqi.distribution import ImplicitlyDefinedPosterior
 import matplotlib.pyplot as plt
 
 # %%
@@ -143,6 +144,12 @@ denoiser_setup["strength_smooth"]=strength_smooth
 denoise_regularizer=DenoiseRegularizer(prox_g, strength_smooth=strength_smooth, denoiser_setup=denoiser_setup)
 
 # %%
+# Implicitly defined posterior distribution
+# -----------------------------------------
+# We can now define the implicitly defined posterior distribution as follows:
+posterior=ImplicitlyDefinedPosterior(likelihood, denoise_regularizer)
+
+# %%
 # Parameters of the MYULA sampler
 # ------------------------------
 # We let run MYULA for :math:`\texttt{Ns}=10^4`
@@ -162,7 +169,7 @@ np.random.seed(0)
 # MYULA sampler
 # -------------
 # Definition of the MYULA sampler.
-myula_sampler=MYULANew(likelihood=likelihood, denoise_regularizer=denoise_regularizer, scale=scale)
+myula_sampler=MYULANew(target=posterior, scale=scale)
 #%% 
 # Sampling with MYULA.
 myula_sampler.sample(Ns=Ns)
@@ -185,7 +192,3 @@ samples_warm.plot_std()
 #%% 
 # Samples autocorrelation plot.
 samples_warm.plot_autocorrelation(max_lag=100)
-
-
-
-
