@@ -76,7 +76,7 @@ class CWMHNew(ProposalBasedSamplerNew):
                          initial_point=initial_point, **kwargs)
         
     def _initialize(self):
-        self.scale_temp = None # Check
+        self.scale_temp = self.scale
         self._acc = [np.ones((self.dim))]
 
     @property
@@ -90,12 +90,16 @@ class CWMHNew(ProposalBasedSamplerNew):
     def scale(self, value):
         """ Set the scale parameter. """
         self._scale = value
+        if isinstance(value, np.ndarray):
+            self._scale_temp = value.copy()
+        else:
+            self._scale_temp = value
 
     @property
     def scale_temp(self):
         """ Get the temporary scale parameter. """
-        if self._scale_temp is None:
-            self._scale_temp = self.scale.copy()
+        if isinstance(self._scale_temp, Number):
+            self._scale_temp = np.ones(self.dim)*self._scale_temp
         return self._scale_temp
     
     @scale_temp.setter
