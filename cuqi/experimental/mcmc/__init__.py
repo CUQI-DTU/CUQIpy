@@ -6,4 +6,5 @@ from ._mh import MHNew
 from ._pcn import pCNNew
 from ._rto import LinearRTONew, RegularizedLinearRTONew
 from ._cwmh import CWMHNew
+from ._laplace_approximation import UGLANew
 from ._hmc import NUTSNew
