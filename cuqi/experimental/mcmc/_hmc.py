@@ -133,7 +133,10 @@ class NUTSNew(SamplerNew):
         self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
 
         # parameters dual averaging
-        self._epsilon = self._FindGoodEpsilon()
+        if self.step_size is None:
+            self._epsilon = self._FindGoodEpsilon()
+        else:
+            self._epsilon = self.step_size
         self._epsilon_bar = "unset"
 
         # Parameter mu, does not change during the run
