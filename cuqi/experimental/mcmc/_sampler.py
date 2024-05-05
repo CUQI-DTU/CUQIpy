@@ -44,26 +44,27 @@ class SamplerNew(ABC):
 
         """
 
+        self._is_initialized = False
         self.target = target
         self.initial_point = initial_point
         self.current_point = initial_point
         self.callback = callback
-        self._is_initialized = False
 
     def initialize(self):
-        """ Delayed initialization of the sampler. To happen after target is set """
+        """ Delayed initialization of the sampler. This happens after target is set and before sampling. """
 
         if self._is_initialized:
             raise ValueError("Sampler is already initialized.")
         
         if self.target is None:
             raise ValueError("Cannot initialize sampler without a target density.")
-               
-        self._set_defaults()
+        
+        self.initial_point = self._default_initial_point
+        self.current_point = self.initial_point
 
-        self._initialize_state()
+        self._samples = []
 
-        self._initialize_history()
+        self._initialize() # Subclass specific initialization
 
         self._validate_initialization()
 
@@ -83,6 +84,11 @@ class SamplerNew(ABC):
     @abstractmethod
     def validate_target(self):
         """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
+        pass
+
+    @abstractmethod
+    def _initialize(self):
+        """ Initialization method for the subclassing sampler. Called as part of initialization after target is set. """
         pass
 
     # -- _pre_sample and _pre_warmup methods: can be overridden by subclasses --
@@ -116,7 +122,6 @@ class SamplerNew(ABC):
         self._target = value
         if self._target is not None:
             self.validate_target()
-            self.initialize()
 
     # ------------ Public methods ------------
 
@@ -174,6 +179,8 @@ class SamplerNew(ABC):
 
         """
 
+        self._ensure_initialized()
+
         # Initialize batch handler
         if batch_size > 0:
             batch_handler = _BatchHandler(batch_size, sample_path)
@@ -213,6 +220,8 @@ class SamplerNew(ABC):
             The frequency of tuning. Tuning is performed every tune_freq*Nb samples.
 
         """
+
+        self._ensure_initialized()
 
         tune_interval = max(int(tune_freq * Nb), 1)
 
@@ -331,23 +340,8 @@ class SamplerNew(ABC):
         if self.callback is not None:
             self.callback(sample, sample_index)
 
-    def _set_defaults(self):
-        """ Set the default initial point for the sampler. """
-        if self.target is None:
-            raise ValueError("Cannot get default initial point without a target density.")
-        self.initial_point = self._default_initial_point
-        self.current_point = self.initial_point
-
-    def _initialize_state(self):
-        """ Initialize the state of the sampler. """
-        pass
-
-    def _initialize_history(self):
-        """ Allocate memory for the samples. """
-        self._samples = []
-
     def _validate_initialization(self):
-        """ Validate the initialization of the sampler. """
+        """ Validate the initialization of the sampler by checking all state and history keys are set. """
 
         for key in self._STATE_KEYS:
             if getattr(self, key) is None:
@@ -356,6 +350,11 @@ class SamplerNew(ABC):
         for key in self._HISTORY_KEYS:
             if getattr(self, key) is None:
                 raise ValueError(f"Sampler history key {key} is not set after initialization.")
+            
+    def _ensure_initialized(self):
+        """ Ensure the sampler is initialized. If not initialize it. """
+        if not self._is_initialized:
+            self.initialize()
             
     @property
     def _default_initial_point(self):
@@ -407,17 +406,27 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         self.current_target_logd = None # remove?
         self.scale = None # remove?
 
-    def _set_defaults(self):
-        super()._set_defaults()
-        self.current_target_logd = self.target.logd(self.current_point)
+    def initialize(self):
 
-    def _initialize_history(self):
-        super()._initialize_history()
+        if self._is_initialized:
+            raise ValueError("Sampler is already initialized.")
+        
+        if self.target is None:
+            raise ValueError("Cannot initialize sampler without a target density.")
+        
+        self.initial_point = self._default_initial_point
+        self.current_point = self.initial_point
+        self.current_target_logd = self.target.logd(self.current_point)
+        self.scale = self.initial_scale
+
+        self._samples = []
         self._acc = [ 1 ] # TODO. Check
 
-    def _initialize_state(self):
-        super()._initialize_state()
-        self.scale = self.initial_scale
+        self._initialize() # Subclass specific initialization
+
+        self._validate_initialization()
+
+        self._is_initialized = True        
 
     @property
     def proposal(self):

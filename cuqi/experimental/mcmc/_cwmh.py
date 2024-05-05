@@ -75,12 +75,8 @@ class CWMHNew(ProposalBasedSamplerNew):
         super().__init__(target, proposal=proposal, scale=scale,
                          initial_point=initial_point, **kwargs)
         
-    def _initialize_state(self):
-        super()._initialize_state()
+    def _initialize(self):
         self.scale_temp = None # Check
-
-    def _initialize_history(self):
-        super()._initialize_history()
         self._acc = [np.ones((self.dim))]
 
     @property

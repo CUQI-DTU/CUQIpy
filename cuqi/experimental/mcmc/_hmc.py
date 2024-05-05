@@ -121,6 +121,9 @@ class NUTSNew(SamplerNew):
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
 
+    def _initialize(self):
+        pass
+
     #=========================================================================
     #============================== Properties ===============================
     #=========================================================================

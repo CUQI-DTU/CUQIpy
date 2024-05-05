@@ -12,17 +12,10 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         super().__init__(target, **kwargs)
         self.initial_scale = scale
 
-    def _set_defaults(self):
-        super()._set_defaults()
-        self.current_likelihood_logd = self._loglikelihood(self.current_point)
-
-    def _initialize_state(self):
-        super()._initialize_state()
+    def _initialize(self):
         self.scale = self.initial_scale
-
-    def _initialize_history(self):
-        super()._initialize_history()
-        self._acc = [1] # TODO. Check if we need this
+        self.current_likelihood_logd = self._loglikelihood(self.current_point)
+        self._acc = [1] # TODO. Check if we need this      
 
     def validate_target(self):
         try:

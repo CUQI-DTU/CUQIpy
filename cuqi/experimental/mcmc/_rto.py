@@ -51,9 +51,9 @@ class LinearRTONew(SamplerNew):
         self.maxit = maxit
         self.tol = tol
 
-    def _initialize_history(self):
-        super()._initialize_history()
+    def _initialize(self):
         self._acc = [1] # TODO. Check if we need this
+        self._precompute()
 
     @property
     def prior(self):
@@ -111,7 +111,6 @@ class LinearRTONew(SamplerNew):
                 # Construct posterior
                 value = cuqi.distribution.Posterior(L, P)
             super(LinearRTONew, type(self)).target.fset(self, value)
-            self._precompute()
         else:
             super(LinearRTONew, type(self)).target.fset(self, value)
 
@@ -237,18 +236,14 @@ class RegularizedLinearRTONew(LinearRTONew):
         self.adaptive = adaptive
         self.maxit = maxit
 
+    def _initialize(self):
+        super()._initialize()
+        self._stepsize = self._choose_stepsize()
+
     @property
     def proximal(self):
         return self.target.prior.proximal
     
-    def _pre_sample(self):
-        super()._pre_sample()
-        self._stepsize = self._choose_stepsize()
-
-    def _pre_warmup(self):
-        super()._pre_warmup()
-        self._stepsize = self._choose_stepsize()
-
     @LinearRTONew.target.setter
     def target(self, value):
         if value is not None and not callable(value.prior.proximal):
