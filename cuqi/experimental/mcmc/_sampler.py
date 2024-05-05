@@ -131,10 +131,14 @@ class SamplerNew(ABC):
         for key in self._HISTORY_KEYS:
             setattr(self, key, None)
 
+        self._is_initialized = False
+
         self.initialize()
     
     def save_checkpoint(self, path):
         """ Save the state of the sampler to a file. """
+
+        self._ensure_initialized()
 
         state = self.get_state()
 
@@ -148,6 +152,8 @@ class SamplerNew(ABC):
 
     def load_checkpoint(self, path):
         """ Load the state of the sampler from a file. """
+
+        self._ensure_initialized()
 
         with open(path, 'rb') as handle:
             state = pkl.load(handle)

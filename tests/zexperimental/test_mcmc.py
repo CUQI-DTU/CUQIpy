@@ -382,13 +382,17 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
     # Save checkpoint
     sampler.save_checkpoint('checkpoint.pickle')
 
-    # Reset (soft) the sampler, e.g. remove all samples but keep the state
-    sampler.reset()
+    # Reset the sampler, e.g. remove all samples but keep the state
+    # Calling sampler.reset() would fail since it resets state.
+    # Instead, we want to call a method like reset_history().
+    # Currently we do this:
+    sampler._samples = []
 
     # Do some more samples from pre-defined rng state
     np.random.seed(0)
     samples1 = sampler.warmup(50).sample(50).get_samples().samples
 
+    #TODO Consider changing now that target=None is allowed.
     # Now load the checkpoint on completely fresh sampler not even with target
     sampler_fresh = sampler.__class__(sampler.target) # In principle init with no arguments. Now still with target
     sampler_fresh.load_checkpoint('checkpoint.pickle')
