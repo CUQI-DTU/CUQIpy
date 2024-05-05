@@ -116,7 +116,7 @@ class CWMHNew(ProposalBasedSamplerNew):
     @property
     def proposal(self):
         if self._proposal is None:
-            return cuqi.distribution.Normal(
+            self._proposal = cuqi.distribution.Normal(
                 mean=lambda location: location,
                 std=lambda scale: scale,
                 geometry=self.dim,
