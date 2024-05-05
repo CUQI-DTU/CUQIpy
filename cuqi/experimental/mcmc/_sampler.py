@@ -44,11 +44,11 @@ class SamplerNew(ABC):
 
         """
 
-        self._is_initialized = False
         self.target = target
         self.initial_point = initial_point
         self.current_point = initial_point
         self.callback = callback
+        self._is_initialized = False
 
     def initialize(self):
         """ Delayed initialization of the sampler. This happens after target is set and before sampling. """
