@@ -113,6 +113,12 @@ class CWMHNew(ProposalBasedSamplerNew):
                 "Target should be an instance of "+\
                 f"{cuqi.density.Density.__class__.__name__}")
         
+    def validate_proposal(self):
+        if not isinstance(self.proposal, cuqi.distribution.Distribution):
+            raise ValueError("Proposal must be a cuqi.distribution.Distribution object")
+        if not self.proposal.is_symmetric:
+            raise ValueError("Proposal must be symmetric")
+        
     @property
     def proposal(self):
         if self._proposal is None:

@@ -34,6 +34,12 @@ class MHNew(ProposalBasedSamplerNew):
     def validate_target(self):
         pass # All targets are valid
 
+    def validate_proposal(self):
+        if not isinstance(self.proposal, cuqi.distribution.Distribution):
+            raise ValueError("Proposal must be a cuqi.distribution.Distribution object")
+        if not self.proposal.is_symmetric:
+            raise ValueError("Proposal must be symmetric")
+
     def step(self):
         # propose state
         xi = self.proposal.sample(1)   # sample from the proposal

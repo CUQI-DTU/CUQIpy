@@ -423,19 +423,26 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         self._validate_initialization()
 
-        self._is_initialized = True        
+        self._is_initialized = True
+
+    @abstractmethod
+    def validate_proposal(self):
+        """ Validate the proposal distribution. """
+        pass     
 
     @property
     def proposal(self):
         """ The proposal distribution. """
         if self._proposal is None:
-            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+            self.proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
         return self._proposal
     
     @proposal.setter
     def proposal(self, proposal):
         """ Set the proposal distribution. """
         self._proposal = proposal
+        if self._proposal is not None:
+            self.validate_proposal()
 
 
 class _BatchHandler:
