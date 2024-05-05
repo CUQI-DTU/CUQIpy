@@ -34,4 +34,4 @@ dist/
 *.pickle
 
 # Ignore certain files from demos
-/demos/CUQI_samples/*
+*/CUQI_samples/*
