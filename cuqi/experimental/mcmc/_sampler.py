@@ -91,15 +91,6 @@ class SamplerNew(ABC):
         """ Initialization method for the subclassing sampler. Called as part of initialization after target is set. """
         pass
 
-    # -- _pre_sample and _pre_warmup methods: can be overridden by subclasses --
-    def _pre_sample(self):
-        """ Any code that needs to be run before sampling. """
-        pass
-
-    def _pre_warmup(self):
-        """ Any code that needs to be run before warmup. """
-        pass
-
     # ------------ Public attributes ------------
     @property
     def dim(self):
@@ -186,7 +177,7 @@ class SamplerNew(ABC):
             batch_handler = _BatchHandler(batch_size, sample_path)
 
         # Any code that needs to be run before sampling
-        self._pre_sample()
+        if hasattr(self, "_pre_sample"): self._pre_sample()
 
         # Draw samples
         for _ in progressbar( range(Ns) ):
@@ -226,7 +217,7 @@ class SamplerNew(ABC):
         tune_interval = max(int(tune_freq * Nb), 1)
 
         # Any code that needs to be run before warmup
-        self._pre_warmup()
+        if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
         for idx in progressbar(range(Nb)):
