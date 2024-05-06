@@ -3,7 +3,7 @@ import cuqi
 from cuqi.experimental.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
-class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
+class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_likelihood_logd'})
 
@@ -29,7 +29,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
     def step(self):
         # propose state
         xi = self.prior.sample(1).flatten()   # sample from the prior
-        x_star = np.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # pCN proposal
+        x_star = np.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # PCN proposal
 
         # evaluate target
         loglike_eval_star =  self._loglikelihood(x_star) 

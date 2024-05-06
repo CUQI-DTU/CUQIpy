@@ -115,20 +115,20 @@ def test_MH_regression_warmup(target: cuqi.density.Density):
     sampler_new = cuqi.experimental.mcmc.MHNew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
-# ============ pCN ============
+# ============ PCN ============
 
 @pytest.mark.parametrize("target", targets)
 def test_pCN_regression_sample(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.pCNNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_pCN_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.pCNNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ ULA ============
@@ -339,7 +339,7 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.SamplerNew,
     cuqi.experimental.mcmc.ProposalBasedSamplerNew,
     cuqi.experimental.mcmc.MHNew,
-    cuqi.experimental.mcmc.pCNNew,
+    cuqi.experimental.mcmc.PCNNew,
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.NUTSNew
@@ -402,7 +402,7 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
 state_history_targets = [
     cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
-    cuqi.experimental.mcmc.pCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
+    cuqi.experimental.mcmc.PCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
     cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
@@ -453,7 +453,7 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
 # Dictionary to store keys that are not expected to be updated after warmup.
 # Likely due to not implemented feature in the sampler.
 state_exception_keys = {
-    cuqi.experimental.mcmc.pCNNew: 'scale',
+    cuqi.experimental.mcmc.PCNNew: 'scale',
     cuqi.experimental.mcmc.ULANew: 'scale',
     cuqi.experimental.mcmc.MALANew: 'scale',
 }
