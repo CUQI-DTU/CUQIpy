@@ -47,8 +47,7 @@ class RegularizedUniform(RegularizedGaussian):
                 # Underlying explicit Gaussian
                 
                 # This line throws a warning to due trying to applying get_sqrtprec_from_sqrtprec to an all zero matrix  
-                self._gaussian = Gaussian(mean = np.zeros(geometry.par_dim), sqrtprec = np.zeros((geometry.par_dim,geometry.par_dim)), **kwargs) 
-                kwargs.pop("geometry", None)
+                self._gaussian = Gaussian(mean = np.zeros(geometry.par_dim), sqrtprec = np.zeros((geometry.par_dim,geometry.par_dim)), geometry = geometry, **kwargs) 
 
                 # Init from abstract distribution class
                 super(Distribution, self).__init__(**kwargs)
