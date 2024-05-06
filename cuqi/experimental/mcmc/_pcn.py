@@ -87,5 +87,16 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
             self._dim = self.target[0].dim
         return self._dim
 
+    def _pre_warmup(self):
+        self.lambd = self.scale
+
     def tune(self, skip_len, update_count):
-        pass
+        
+        star_acc = 0.44
+        print("self._acc[-skip_len:]", self._acc[-skip_len:])
+        hat_acc = np.mean(self._acc[-skip_len:])
+
+        zeta = 1/np.sqrt(update_count+1)
+        self.lambd = np.exp(np.log(self.lambd) + zeta*(hat_acc-star_acc))
+
+        self.scale = min(self.lambd, 1)
