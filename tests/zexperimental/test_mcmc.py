@@ -125,7 +125,6 @@ def test_pCN_regression_sample(target: cuqi.density.Density):
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
-@pytest.mark.xfail(reason="The warmup is not equivalent at this point for pCN sampler.")
 def test_pCN_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=1)
