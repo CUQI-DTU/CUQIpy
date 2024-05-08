@@ -2,7 +2,6 @@ import numpy as np
 import cuqi
 from cuqi.experimental.mcmc import SamplerNew
 from cuqi.implicitprior import DenoiseRegularizer
-from cuqi.distribution import ImplicitlyDefinedPosterior
 from cuqi.array import CUQIarray
 
 class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
@@ -313,18 +312,5 @@ class MYULANew(ULANew):
         super().validate_target()
         # Assert target of type ImplicitlyDefinedPosterior
 
-        assert isinstance(self.target, ImplicitlyDefinedPosterior), \
-            "The target needs to be an ImplicitlyDefinedPosterior"
-
-        # Assert target has one likelihood
-        assert self.target.likelihood is not None,\
-            "The target needs to have a likelihood"
-
-        # Assert target has one denoising regularizer
-        assert len(self.target.regularizers)==1 and\
-            isinstance(self.target.regularizers[0], DenoiseRegularizer),\
-                "The target needs to have a single denoising regularizer"
-
-        # Assert target has no prior
-        assert self.target.prior is None,\
-            "The target should not have a prior"
+        # Assert target prior is of type Regularizer
+        assert isinstance(self.target.prior, DenoiseRegularizer), "The prior of the target distribution needs to be a DenoiseRegularizer"

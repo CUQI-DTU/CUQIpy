@@ -511,9 +511,9 @@ def test_myula():
     """ Test creating MYULA sampler."""
     def func(x):
         return x, True
-    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(func)
     likelihood = cuqi.testproblem.Deconvolution1D().posterior.likelihood 
-    posterior = cuqi.distribution.ImplicitlyDefinedPosterior(likelihood, denoise_regularizer)
+    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(func, geometry=likelihood.model.domain_geometry)
+    posterior = cuqi.distribution.Posterior(likelihood, denoise_regularizer)
     myula = cuqi.experimental.mcmc.MYULANew(posterior)
     myula.sample(10)
     samples = myula.get_samples()
