@@ -1,11 +1,15 @@
-class Regularizer():
+#%%
+from abc import ABC, abstractmethod
+from cuqi.distribution import Distribution
+
+class Regularizer(ABC):
     """ A class representing a regularization term in the implicitly defined
     target distribution. The regularization term is used to enforce certain
     properties on the solution such as sparsity, smoothness, etc."""
     def __init__(self):
         pass
 
-class DenoiseRegularizer(Regularizer):
+class DenoiseRegularizer(Distribution, Regularizer):
     """    
     This class defines implicit regularized priors for which we can apply gradient-based algorithms (ex:MYULA). The regularization is performed using a denoising algorithm as we can encounter in MYULA
     and PnP-ULA.
@@ -48,13 +52,14 @@ class DenoiseRegularizer(Regularizer):
         Smoothing strength
     """
 
-    def __init__(self, denoiser, denoiser_setup = None, strength_smooth = 0.1):
+    def __init__(self, denoiser, denoiser_setup = None, strength_smooth = 0.1, **kwargs):
         if denoiser_setup is None:
             denoiser_setup = {}
         self.denoiser = denoiser
         self.denoiser_setup = denoiser_setup
         self.strength_smooth = strength_smooth
-        
+        super().__init__(**kwargs)
+
     def denoise(self, x):
         solution, info = self.denoiser(x, **self.denoiser_setup)
         self.info = info
@@ -62,3 +67,22 @@ class DenoiseRegularizer(Regularizer):
     
     def gradient(self, x):
         return -(x - self.denoise(x))/self.strength_smooth
+    
+    def logpdf(self, x):
+        raise NotImplementedError("The logpdf method is not implemented for the DenoiseRegularizer class.")
+    
+    def _sample(self, N, rng=None):
+        raise NotImplementedError("The sample method is not implemented for the DenoiseRegularizer class.")
+
+    #TODO this method copied from userdefinedistribution
+    @property
+    def _mutable_vars(self):
+        """ Returns the mutable variables of the distribution. """
+        # Currently mutable variables are not supported for user-defined distributions.
+        return []
+
+    #TODO this method copied from userdefinedistribution
+    def get_conditioning_variables(self):
+        """ Returns the conditioning variables of the distribution. """
+        # Currently conditioning variables are not supported for user-defined distributions.
+        return []
