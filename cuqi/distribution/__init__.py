@@ -10,7 +10,7 @@ from ._lmrf import LMRF
 from ._laplace import Laplace
 from ._lognormal import Lognormal
 from ._normal import Normal
-from ._posterior import Posterior, ImplicitlyDefinedPosterior
+from ._posterior import Posterior
 from ._uniform import Uniform
 from ._custom import UserDefinedDistribution, DistributionGallery
 from ._joint_distribution import JointDistribution, _StackedJointDistribution, MultipleLikelihoodPosterior
