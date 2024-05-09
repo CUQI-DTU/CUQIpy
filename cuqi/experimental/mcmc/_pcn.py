@@ -17,6 +17,10 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
         self._acc = [1] # TODO. Check if we need this
 
+        # parameters for tune method
+        self.lambd = self.scale
+        self.star_acc = 0.44
+
     def validate_target(self):
         try:
             if isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
@@ -74,10 +78,6 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
             self._loglikelihood = lambda x : self.likelihood.logd(x)
         else:
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
-        
-        #TODO:
-        #if not isinstance(self.prior,(cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
-        #    raise ValueError("The prior distribution of the target need to be Gaussian")
 
     @property
     def dim(self): # TODO. Check if we need this. Implemented in base class
@@ -86,10 +86,6 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         elif hasattr(self,'target') and isinstance(self.target,tuple) and len(self.target)==2:
             self._dim = self.target[0].dim
         return self._dim
-
-    def _pre_warmup(self):
-        self.lambd = self.scale
-        self.star_acc = 0.44
 
     def tune(self, skip_len, update_count):
 
