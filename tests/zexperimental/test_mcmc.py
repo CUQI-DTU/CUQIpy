@@ -453,7 +453,6 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
 # Dictionary to store keys that are not expected to be updated after warmup.
 # Likely due to not implemented feature in the sampler.
 state_exception_keys = {
-    cuqi.experimental.mcmc.PCNNew: 'scale',
     cuqi.experimental.mcmc.ULANew: 'scale',
     cuqi.experimental.mcmc.MALANew: 'scale',
 }
