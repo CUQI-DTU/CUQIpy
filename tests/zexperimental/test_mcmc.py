@@ -120,15 +120,15 @@ def test_MH_regression_warmup(target: cuqi.density.Density):
 @pytest.mark.parametrize("target", targets)
 def test_pCN_regression_sample(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
-    sampler_old = cuqi.sampler.pCN(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=1)
+    sampler_old = cuqi.sampler.pCN(target, scale=0.001)
+    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=0.001)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_pCN_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
-    sampler_old = cuqi.sampler.pCN(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=1)
+    sampler_old = cuqi.sampler.pCN(target, scale=0.001)
+    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=0.001)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ ULA ============
