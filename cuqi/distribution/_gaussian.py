@@ -191,7 +191,7 @@ class Gaussian(Distribution):
         value = force_ndarray(value)
         self._sqrtcov = value
         self._cov = None # Reset covariance (in case it was computed before)      
-        if (value is not None) and (not callable(value)):  
+        if (value is not None) and (not callable(value)): #TODO: problem here
             if self.dim > config.MIN_DIM_SPARSE:
                 sparse_flag = True # do sparse computations
             else:
