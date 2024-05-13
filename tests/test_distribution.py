@@ -4,6 +4,7 @@ import numpy as np
 import scipy as sp
 import scipy.stats as scipy_stats
 import scipy.sparse as sps
+import numpy.linalg as nplinalg
 
 from pytest import approx
 import pytest
@@ -743,6 +744,7 @@ def test_Gaussian_from_linear_operator_sqrtprec():
     N = 10; M = 5
 
     sqrtprec = sp.sparse.spdiags(np.random.randn(N), 0, N, N)
+    prec = sqrtprec.todense()@sqrtprec.todense().T
 
     def matvec(x):
         return sqrtprec @ x
@@ -750,9 +752,9 @@ def test_Gaussian_from_linear_operator_sqrtprec():
         return sqrtprec.T @ x
     
     sqrtprec_operator = sp.sparse.linalg.LinearOperator((N, N), matvec=matvec, rmatvec=rmatvec)
-    sqrtprec_operator.logdet=0
+    sqrtprec_operator.logdet = -np.log(nplinalg.det(prec))
 
     y_from_sparse = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec_operator)
     y_from_dense = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense())
 
-    assert y_from_dense.logpdf(np.ones(N)) == y_from_sparse.logpdf(np.ones(N))
+    assert np.allclose(y_from_dense.logpdf(np.ones(N)), y_from_sparse.logpdf(np.ones(N)))
