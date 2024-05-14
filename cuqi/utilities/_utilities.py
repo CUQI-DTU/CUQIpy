@@ -72,6 +72,12 @@ def get_indirect_variables(dist):
     return attributes 
 
 def check_if_conditional_from_attr(value):
+    """
+    Check if a distribution is a conditional from its attribute.
+    So far, we assume that a distribution is conditional if
+    - the given attribute is a callable function and
+    - the given attribute is not a LinearOperator.
+    """
     if isinstance(value, spslinalg.LinearOperator):
         return False
     elif callable(value):
