@@ -509,16 +509,49 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
         assert not failed_updates, error_message
 
 # Samplers that should be tested for target=None initialization
-target_None_Samplers = [
+target_None_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
     if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew]
 ]
 
-@pytest.mark.parametrize("sampler_class", target_None_Samplers)
+# Instances of samplers that should be tested for target=None initialization consistency
+target_None_sampler_instances = [
+    cuqi.experimental.mcmc.MHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.pCNNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.CWMHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.ULANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.MALANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
+    cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
+]
+
+
+@pytest.mark.parametrize("sampler_class", target_None_sampler_classes)
 def test_target_None_init_in_samplers(sampler_class):
     """ Test all samplers can be initialized with target=None. """
     sampler = sampler_class(target=None)
     assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
 
-# TODO. Add tests for consistency in either initializing with target right away or setting it later.
+@pytest.mark.parametrize("sampler_class", target_None_sampler_classes)
+def test_sampler_initialization_consistency(sampler_class: cuqi.experimental.mcmc.SamplerNew):
+    """ Test that all samplers initialized with target=None and target set later is equivalent to initializing with target right away. """
+
+    # Find sampler instance that matches the sampler class
+    sampler_instance = next((s for s in target_None_sampler_instances if isinstance(s, sampler_class)), None)
+    if sampler_instance is None:
+        raise ValueError(f"There is no sampler instance in the list of target_None_sampler_instances that matches the sampler class {sampler_class}. Please add an instance to the list.")
+    
+    # Initialize sampler with target=None and set target after
+    sampler_target_None = sampler_class(target=None)
+    sampler_target_None.target = sampler_instance.target
+
+    # Then run samplers and compare the samples
+    np.random.seed(0)
+    samples_target_None = sampler_target_None.warmup(10).sample(10).get_samples().samples
+
+    np.random.seed(0)
+    samples_target = sampler_instance.warmup(10).sample(10).get_samples().samples
+
+    assert np.allclose(samples_target_None, samples_target), f"Sampler {sampler_class} initialized with target=None is not equivalent to initializing with target right away."
