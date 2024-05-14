@@ -61,25 +61,9 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
             return self.target.likelihood
         elif isinstance(self.target,tuple) and len(self.target)==2:
             return self.target[0]
-
-    @SamplerNew.target.setter 
-    def target(self, value):
-        if value is not None:
-            if isinstance(value, cuqi.distribution.Posterior):
-                self._target = value
-                self._loglikelihood = lambda x : self.likelihood.logd(x)
-            elif isinstance(value,tuple) and len(value)==2 and \
-                (isinstance(value[0], cuqi.likelihood.Likelihood) or isinstance(value[0], cuqi.likelihood.UserDefinedLikelihood))  and \
-                isinstance(value[1], cuqi.distribution.Distribution):
-                self._target = value
-                self._loglikelihood = lambda x : self.likelihood.logd(x)
-            else:
-                raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
-        else:
-            self._target = value
-        #TODO:
-        #if not isinstance(self.prior,(cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
-        #    raise ValueError("The prior distribution of the target need to be Gaussian")
+        
+    def _loglikelihood(self, x):
+        return self.likelihood.logd(x)
 
     @property
     def dim(self): # TODO. Check if we need this. Implemented in base class
