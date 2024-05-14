@@ -73,7 +73,7 @@ def get_indirect_variables(dist):
 
 def check_if_conditional_from_attr(value):
     """
-    Check if a distribution is a conditional from its attribute.
+    Check if a distribution is conditional from a given attribute.
     So far, we assume that a distribution is conditional if
     - the given attribute is a callable function and
     - the given attribute is not a LinearOperator.
