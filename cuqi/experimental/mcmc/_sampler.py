@@ -89,7 +89,7 @@ class SamplerNew(ABC):
 
     @abstractmethod
     def _initialize(self):
-        """ Initialization method for the subclassing sampler. Called as part of initialization after target is set. """
+        """ Initialization method for the subclassing sampler. Called as part of initialization after target is set and before sampling starts. """
         pass
 
     # ------------ Public attributes ------------
