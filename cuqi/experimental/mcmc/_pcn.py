@@ -18,13 +18,10 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         self._acc = [1] # TODO. Check if we need this      
 
     def validate_target(self):
-        try:
-            if isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
-                pass
-            else:
-                raise ValueError("The prior distribution of the target need to be Gaussian")
-        except AttributeError:
-            raise ValueError("The target need to have a prior distribution")
+        if not isinstance(self.target, cuqi.distribution.Posterior):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
+        if not isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
+            raise ValueError("The prior distribution of the target need to be Gaussian")
 
     def step(self):
         # propose state
@@ -50,17 +47,11 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
     @property
     def prior(self):
-        if isinstance(self.target, cuqi.distribution.Posterior):
-            return self.target.prior
-        elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[1]
+        return self.target.prior
 
     @property
     def likelihood(self):
-        if isinstance(self.target, cuqi.distribution.Posterior):
-            return self.target.likelihood
-        elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[0]
+        return self.target.likelihood
         
     def _loglikelihood(self, x):
         return self.likelihood.logd(x)
