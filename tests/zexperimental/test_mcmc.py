@@ -522,6 +522,7 @@ target_None_sampler_instances = [
     cuqi.experimental.mcmc.CWMHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.ULANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.MALANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.NUTSNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
