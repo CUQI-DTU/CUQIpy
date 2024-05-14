@@ -133,18 +133,18 @@ strength_smooth=0.5*sigma2
 from skimage.restoration import denoise_tv_chambolle
 def prox_g(x, strength_reg=None, strength_smooth=None):
     weight=strength_reg*strength_smooth
-    return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), True
+    return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), None
 # %%
-# We save all the important variables into the variable :math:`\texttt{denoiser_setup}`.
-denoiser_setup={}
-denoiser_setup["strength_reg"]=strength_reg
-denoiser_setup["strength_smooth"]=strength_smooth
+# We save all the important variables into the variable :math:`\texttt{denoiser_kwargs}`.
+denoiser_kwargs={}
+denoiser_kwargs["strength_reg"]=strength_reg
+denoiser_kwargs["strength_smooth"]=strength_smooth
 # %%
 # Now we can define our implicit prior.
 denoise_regularizer = DenoiseRegularizer(
     prox_g,
     strength_smooth=strength_smooth,
-    denoiser_setup=denoiser_setup,
+    denoiser_kwargs=denoiser_kwargs,
     geometry=likelihood.model.domain_geometry
 )
 
