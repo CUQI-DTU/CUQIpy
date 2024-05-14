@@ -68,7 +68,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
     """
 
-    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union(['scale_temp'])
+    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union(['_scale_temp'])
 
     def __init__(self, target:cuqi.density.Density=None, proposal=None, scale=1,
                  initial_point=None, **kwargs):
@@ -76,36 +76,24 @@ class CWMHNew(ProposalBasedSamplerNew):
                          initial_point=initial_point, **kwargs)
         
     def _initialize(self):
-        self.scale_temp = self.scale
+        if isinstance(self.scale, Number):
+            self.scale = np.ones(self.dim)*self.scale
         self._acc = [np.ones((self.dim))]
+
+        # Handling of temporary scale parameter due to possible bug in old CWMH
+        self._scale_temp = self.scale.copy()
 
     @property
     def scale(self):
         """ Get the scale parameter. """
-        if isinstance(self._scale, Number):
-            self._scale = np.ones(self.dim)*self._scale
         return self._scale
 
     @scale.setter
     def scale(self, value):
         """ Set the scale parameter. """
+        if self._is_initialized and isinstance(value, Number):
+            value = np.ones(self.dim)*value
         self._scale = value
-        if isinstance(value, np.ndarray):
-            self._scale_temp = value.copy()
-        else:
-            self._scale_temp = value
-
-    @property
-    def scale_temp(self):
-        """ Get the temporary scale parameter. """
-        if isinstance(self._scale_temp, Number):
-            self._scale_temp = np.ones(self.dim)*self._scale_temp
-        return self._scale_temp
-    
-    @scale_temp.setter
-    def scale_temp(self, value):
-        """ Set the temporary scale parameter. """
-        self._scale_temp = value
 
     def validate_target(self):
         if not isinstance(self.target, cuqi.density.Density):
@@ -193,8 +181,8 @@ class CWMHNew(ProposalBasedSamplerNew):
         # Factor zeta ensures that the variation of the scale update vanishes
         zeta = 1/np.sqrt(update_count+1)  
         scale_temp = np.exp(
-            np.log(self.scale_temp) + zeta*(hat_acc-star_acc))
+            np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
 
         # Update the scale parameter
         self.scale = np.minimum(scale_temp, np.ones(self.dim))
-        self.scale_temp = scale_temp
+        self._scale_temp = scale_temp
