@@ -59,8 +59,9 @@ class SamplerNew(ABC):
         if self.target is None:
             raise ValueError("Cannot initialize sampler without a target density.")
         
-        self.initial_point = self._default_initial_point
-        self.current_point = self.initial_point
+        if self.initial_point is None:
+            self.initial_point = self._default_initial_point
+            self.current_point = self.initial_point
 
         self._samples = []
 
