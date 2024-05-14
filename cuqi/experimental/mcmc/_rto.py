@@ -77,43 +77,7 @@ class LinearRTONew(SamplerNew):
     @property
     def data(self):
         return self.target.data
-
-    @SamplerNew.target.setter
-    def target(self, value):
-        """ Set the target density. Runs validation of the target. """
-        if value is not None:
-            # Accept tuple of inputs and construct posterior
-            if isinstance(value, tuple) and len(value) == 5:
-                # Structure (data, model, L_sqrtprec, P_mean, P_sqrtprec)
-                data = value[0]
-                model = value[1]
-                L_sqrtprec = value[2]
-                P_mean = value[3]
-                P_sqrtprec = value[4]
-
-                # If numpy matrix convert to CUQI model
-                if isinstance(model, np.ndarray) and len(model.shape) == 2:
-                    model = cuqi.model.LinearModel(model)
-
-                # Check model input
-                if not isinstance(model, cuqi.model.LinearModel):
-                    raise TypeError("Model needs to be cuqi.model.LinearModel or matrix")
-
-                # Likelihood
-                L = cuqi.distribution.Gaussian(model, sqrtprec=L_sqrtprec).to_likelihood(data)
-
-                # Prior TODO: allow multiple priors stacked
-                #if isinstance(P_mean, list) and isinstance(P_sqrtprec, list):
-                #    P = cuqi.distribution.JointGaussianSqrtPrec(P_mean, P_sqrtprec)
-                #else:
-                P = cuqi.distribution.Gaussian(P_mean, sqrtprec=P_sqrtprec)
-
-                # Construct posterior
-                value = cuqi.distribution.Posterior(L, P)
-            super(LinearRTONew, type(self)).target.fset(self, value)
-        else:
-            super(LinearRTONew, type(self)).target.fset(self, value)
-
+    
     def _precompute(self):
         L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
         L2 = self.prior.sqrtprec
@@ -244,11 +208,12 @@ class RegularizedLinearRTONew(LinearRTONew):
     def proximal(self):
         return self.target.prior.proximal
     
-    @LinearRTONew.target.setter
-    def target(self, value):
-        if value is not None and not callable(value.prior.proximal):
+    def validate_target(self):
+        super().validate_target()
+        if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
+            raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
+        if not callable(self.proximal):
             raise TypeError("Proximal needs to be callable")
-        return super(RegularizedLinearRTONew, type(self)).target.fset(self, value)
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
