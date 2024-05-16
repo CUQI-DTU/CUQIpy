@@ -20,7 +20,7 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         # parameters used in the Robbins-Monro recursion for tuning the scale parameter
         # see details and reference in the tune method
         self.lambd = self.scale
-        self.star_acc = 0.44
+        self.star_acc = 0.44 # target acceptance rate
 
     def validate_target(self):
         try:
