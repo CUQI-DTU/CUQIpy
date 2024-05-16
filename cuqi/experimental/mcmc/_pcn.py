@@ -18,6 +18,7 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         self._acc = [1] # TODO. Check if we need this
 
         # parameters used in the Robbins-Monro recursion for tuning the scale parameter
+        # see details and reference in the tune method
         self.lambd = self.scale
         self.star_acc = 0.44
 
