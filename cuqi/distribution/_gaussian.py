@@ -668,7 +668,6 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
 
     # sqrtprec is LinearOperator
     elif isinstance(sqrtprec, spa.linalg.LinearOperator):
-        sqrtprec = sqrtprec
         if hasattr(sqrtprec, 'logdet'):
             logdet = sqrtprec.logdet
         else:
