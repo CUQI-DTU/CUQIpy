@@ -17,7 +17,7 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
         self._acc = [1] # TODO. Check if we need this
 
-        # parameters for tune method
+        # parameters used in the Robbins-Monro recursion for tuning the scale parameter
         self.lambd = self.scale
         self.star_acc = 0.44
 
@@ -88,10 +88,20 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         return self._dim
 
     def tune(self, skip_len, update_count):
+        """
+        Tune the scale parameter of the PCN sampler.
+        The tuning is based on algorithm 4 in Andrieu, Christophe, and Johannes Thoms. 
+        "A tutorial on adaptive MCMC." Statistics and computing 18 (2008): 343-373.
+        """
 
+        # average acceptance rate in the past skip_len iterations
         hat_acc = np.mean(self._acc[-skip_len:])
 
+        # new scaling parameter zeta to be used in the Robbins-Monro recursion
         zeta = 1/np.sqrt(update_count+1)
+
+        # Robbins-Monro recursion to ensure that the variation of lambd vanishes
         self.lambd = np.exp(np.log(self.lambd) + zeta*(hat_acc-self.star_acc))
 
+        # update scale parameter
         self.scale = min(self.lambd, 1)
