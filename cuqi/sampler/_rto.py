@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS, FISTA, ADMM
 from cuqi.sampler import Sampler
 
 
@@ -233,9 +233,12 @@ class RegularizedLinearRTO(LinearRTO):
     """
     def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
 
+        # FIXME: Temporarily disable safety check for implementation ADMM
+        """
         if not callable(target.prior.proximal):
             raise TypeError("Projector needs to be callable")
-        
+        """
+            
         super().__init__(target, x0=x0, maxit=maxit, **kwargs)
 
         # Other parameters
@@ -271,15 +274,23 @@ class RegularizedLinearRTO(LinearRTO):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-
+                
             if self.warmstart_CGLS:
                 ws_sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
                 x0, _ = ws_sim.solve()
             else:
                 x0 = samples[:, s]
 
-            sim = FISTA(self.M, y, x0, self.proximal,
-                        maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+            if callable(self.proximal):
+                sim = FISTA(self.M, y, x0, self.proximal, # Data
+                            maxit = self.maxit, # Solver settings
+                            stepsize = _stepsize,
+                            abstol = self.abstol,
+                            adaptive = self.adaptive)
+            else:
+                rho = self.stepsize # FIXME: Temporary, for testing purposes only
+                sim = ADMM(self.M, y, x0, rho, self.proximal, maxit = self.maxit)
+
             samples[:, s+1], _ = sim.solve()
             
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample

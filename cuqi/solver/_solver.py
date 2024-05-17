@@ -268,8 +268,6 @@ class CGLS(object):
         x = self.x0.copy()
         if self.explicitA:
             r = self.b - (self.A @ x)
-            print(r.shape)
-            print(self.A.T.shape)
             s = (self.A.T @ r) - self.shift*x
         else:        
             r = self.b - self.A(x, 1)
@@ -734,39 +732,57 @@ def DykstrasProjection(x, projectors, reltol = 1e-6, maxiters = 100):
         u_old = u.copy()
 
 
-class ADMM:
+class ADMM(object):
     def __init__(self, A, b, x0, rho, penalties, maxit = 100):
 
         self.A = A
         self.b = b
         self.x_cur = x0
-        self.y_cur = [np.zeros(penalty[1].shape[0]) for penalty in penalties]
-        self.u_cur = [np.zeros(penalty[1].shape[0]) for penalty in penalties]
+
+        dual_len = [penalty[1].shape[0] for penalty in penalties]
+        self.y_cur = [np.zeros(l) for l in dual_len]
+        self.u_cur = [np.zeros(l) for l in dual_len]
+        self.n = penalties[0][1].shape[1]
         
         self.rho = rho
         self.maxit = maxit
 
         self.penalties = penalties
-    
+       
+        self.p = len(self.penalties)
+        self.sqrtrho = np.sqrt(1/self.rho)
+
     def solve(self):
-        p = len(self.penalties)
-        sqrt2rho = np.sqrt(2/self.rho)
-        
-        y_new = p*[0]
-        u_new = p*[0]
+        y_new = self.p*[0]
+        u_new = self.p*[0]
         
         # Preprocessing
-        big_matrix = np.vstack([sqrt2rho*self.A] + [penalty[1] for penalty in self.penalties])
+        if callable(self.A):
+            def big_matrix(x, flag):
+                if flag == 1:
+                    out1 = self.sqrtrho*self.A(x, 1)
+                    out2 = [penalty[1]@x for penalty in self.penalties]
+                    out  = np.hstack([out1] + out2)
+                elif flag == 2:
+                    idx_start = len(x)
+                    idx_end = len(x)
+                    out1 = np.zeros(self.n)
+                    for _, t in reversed(self.penalties):
+                        idx_start -= t.shape[0]
+                        out1 += t.T@x[idx_start:idx_end]
+                        idx_end = idx_start
+                    out2 = self.sqrtrho*self.A(x[:idx_end], 2)
+                    out  = out1 + out2     
+                return out
+        else:
+            big_matrix = np.vstack([self.sqrtrho*self.A] + [penalty[1] for penalty in self.penalties])
 
         # Iterating
         for i in range(self.maxit):
-            
             # Main update (Least Squares)
-            big_vector = np.hstack([sqrt2rho*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(p)])
-            print("matrix shape: ", big_matrix.shape)
-            print("vector shape: ", big_vector.shape)
-            print("x0 shape: ", self.x_cur.shape)
-            solver = CGLS(big_matrix, big_vector, self.x_cur, 13)
+            big_vector = np.hstack([self.sqrtrho*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
+
+            solver = CGLS(big_matrix, big_vector, self.x_cur, 5)
             x_new, _ = solver.solve()
         
             # Regularization update
