@@ -3,9 +3,9 @@ import cuqi
 from cuqi.experimental.mcmc import SamplerNew
 from cuqi.array import CUQIarray
 
-class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
+class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_likelihood_logd'})
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_likelihood_logd', 'lambd'})
 
     def __init__(self, target, scale=1.0, **kwargs):
 
@@ -16,6 +16,11 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         self.current_likelihood_logd = self._loglikelihood(self.current_point)
 
         self._acc = [1] # TODO. Check if we need this
+
+        # parameters used in the Robbins-Monro recursion for tuning the scale parameter
+        # see details and reference in the tune method
+        self.lambd = self.scale
+        self.star_acc = 0.44 #TODO: 0.234 # target acceptance rate
 
     def validate_target(self):
         try:
@@ -29,7 +34,7 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
     def step(self):
         # propose state
         xi = self.prior.sample(1).flatten()   # sample from the prior
-        x_star = np.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # pCN proposal
+        x_star = np.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # PCN proposal
 
         # evaluate target
         loglike_eval_star =  self._loglikelihood(x_star) 
@@ -74,10 +79,6 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
             self._loglikelihood = lambda x : self.likelihood.logd(x)
         else:
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
-        
-        #TODO:
-        #if not isinstance(self.prior,(cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
-        #    raise ValueError("The prior distribution of the target need to be Gaussian")
 
     @property
     def dim(self): # TODO. Check if we need this. Implemented in base class
@@ -88,4 +89,21 @@ class pCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         return self._dim
 
     def tune(self, skip_len, update_count):
-        pass
+        """
+        Tune the scale parameter of the PCN sampler.
+        The tuning is based on algorithm 4 in Andrieu, Christophe, and Johannes Thoms. 
+        "A tutorial on adaptive MCMC." Statistics and computing 18 (2008): 343-373.
+        Note: the tuning algorithm here is the same as the one used in MH sampler.
+        """
+
+        # average acceptance rate in the past skip_len iterations
+        hat_acc = np.mean(self._acc[-skip_len:])
+
+        # new scaling parameter zeta to be used in the Robbins-Monro recursion
+        zeta = 1/np.sqrt(update_count+1)
+
+        # Robbins-Monro recursion to ensure that the variation of lambd vanishes
+        self.lambd = np.exp(np.log(self.lambd) + zeta*(hat_acc-self.star_acc))
+
+        # update scale parameter
+        self.scale = min(self.lambd, 1)
