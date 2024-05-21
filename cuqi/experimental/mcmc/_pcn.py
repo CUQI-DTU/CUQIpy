@@ -20,7 +20,7 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         # parameters used in the Robbins-Monro recursion for tuning the scale parameter
         # see details and reference in the tune method
         self.lambd = self.scale
-        self.star_acc = 0.44 # target acceptance rate
+        self.star_acc = 0.234 # target acceptance rate
 
     def validate_target(self):
         try:
@@ -93,6 +93,7 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         Tune the scale parameter of the PCN sampler.
         The tuning is based on algorithm 4 in Andrieu, Christophe, and Johannes Thoms. 
         "A tutorial on adaptive MCMC." Statistics and computing 18 (2008): 343-373.
+        Note: the tuning algorithm here is the same as the one used in MH sampler.
         """
 
         # average acceptance rate in the past skip_len iterations
