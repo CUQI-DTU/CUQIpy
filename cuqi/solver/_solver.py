@@ -800,13 +800,13 @@ class ADMM(object):
             res_dual = 0.0
             for j, penalty in enumerate(self.penalties):
                 res_dual += LA.norm(penalty[1].T@(y_new[j] - self.y_cur[j]))**2
-            res_dual *= self.rho*self.rho
+            #res_dual *= self.rho*self.rho
 
             if self.adaptive:
                 if res_dual > 1e2*res_primal:
                     self.rho *= 0.5 # More regularization
                 elif res_primal > 1e2*res_dual:
-                    self.rho *= 2 # More data fidelity
+                    self.rho *= 2.0 # More data fidelity
 
             self.x_cur, self.y_cur, self.u_cur = x_new, y_new.copy(), u_new
             
