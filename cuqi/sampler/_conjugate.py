@@ -30,9 +30,9 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if not target.prior.dim == 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
             
-        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and not isinstance(target.likelihood.distribution, (RegularizedUniform)) and target.likelihood.distribution.preset not in ["nonnegativity"]:
+        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and not isinstance(target.likelihood.distribution, (RegularizedUniform)) and target.likelihood.distribution.preset not in ["nonnegativity", "l1", "TV"]:
             raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
-        if isinstance(target.likelihood.distribution, (RegularizedUniform)) and target.likelihood.distribution.preset not in ["l1"]:
+        if isinstance(target.likelihood.distribution, (RegularizedUniform)) and target.likelihood.distribution.preset not in ["l1", "TV"]:
             raise ValueError("Conjugate sampler only works implicit regularized Uniform likelihood with l1 regularization")
         
         self.target = target
@@ -45,9 +45,10 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
         alpha = self.target.prior.shape                                 #alpha
         beta = self.target.prior.rate                                   #beta
-
-        if isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset == "l1":
-            base_rate = np.linalg.norm(x, ord = 1)
+        
+        if isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset in ["l1", "TV"]:
+            s = self.target.likelihood.distribution(np.array([1])).strength[0]
+            base_rate = s*np.linalg.norm(Ax, ord = 1) # I MADE THE *** MISTAKE AGAIN USING x!!!!!!!!!!!!!!
         else:
             base_rate = .5*np.linalg.norm(L@(Ax-b))**2
 
@@ -63,7 +64,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
             if self.target.likelihood.distribution.preset == "nonnegativity":
                 return np.count_nonzero(b)
-            if self.target.likelihood.distribution.preset == "l1":
+            if self.target.likelihood.distribution.preset in ["l1", "TV"]: # TV has a different value of m, but this is easier for testing.
                 return 2*np.count_nonzero(b)
             
         raise Exception("Conjugacy pair not supported... somehow...")
