@@ -2,6 +2,8 @@ from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
 
+from cuqi.operator import FirstOrderFiniteDifference
+
 import numpy as np
 import skimage.restoration as restoration
 
@@ -116,6 +118,7 @@ class RegularizedGaussian(Distribution):
             self._proximal = lambda z, gamma: projector(z)
         elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
             self._proximal = lambda z, gamma: ProjectNonnegative(z)
+            #self._proximal = [(lambda z, gamma: ProjectNonnegative(z), np.eye(self.geometry.par_dim))]
             self._preset = "nonnegativity"
         elif (isinstance(constraint, str) and constraint.lower() == "box"):
             lower = optional_regularization_parameters["lower_bound"]
@@ -124,11 +127,16 @@ class RegularizedGaussian(Distribution):
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
             self._strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            #self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
+
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
             self._strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
+            #self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
+            fd = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
+            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), fd)]
+
             self._preset = "TV"
         else:
             raise ValueError("Regularization not supported")
@@ -142,9 +150,12 @@ class RegularizedGaussian(Distribution):
     def strength(self, value):
         self._strength = value
         if self._preset == "l1":        
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            #self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
         elif self._preset == "TV":
-            self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
+            #self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
+            fd = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
+            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), fd)]
         else:
             raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
 
@@ -231,15 +242,18 @@ class RegularizedGaussian(Distribution):
     def sqrtcov(self, value):
         self.gaussian.sqrtcov = value     
     
-    def get_conditioning_variables(self):
-        return self.gaussian.get_conditioning_variables()
-    
     def get_mutable_variables(self):
-        return self.gaussian.get_mutable_variables()
+        add = []
+        if self.preset in ["l1", "TV"]:
+            add = ["strength"]
+        return self.gaussian.get_mutable_variables() + add
+
     
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
+        if self.preset in ["l1", "TV"]:
+            return super()._condition(*args, **kwargs)
 
         # Handle positional arguments (similar code as in Distribution._condition)
         cond_vars = self.get_conditioning_variables()
@@ -259,8 +273,8 @@ class RegularizedGaussian(Distribution):
             new_density = new_density.to_likelihood(value)
 
         return new_density
-
-
+    
+    
 class ConstrainedGaussian(RegularizedGaussian):
     
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, projector=None, constraint=None, **kwargs):
