@@ -733,7 +733,7 @@ def DykstrasProjection(x, projectors, reltol = 1e-6, maxiters = 100):
 
 
 class ADMM(object):
-    def __init__(self, A, b, x0, rho, penalties, maxit = 100):
+    def __init__(self, A, b, x0, rho, penalties, maxit = 100, adaptive = True):
 
         self.A = A
         self.b = b
@@ -746,53 +746,68 @@ class ADMM(object):
         
         self.rho = rho
         self.maxit = maxit
+        self.adaptive = adaptive
 
         self.penalties = penalties
        
         self.p = len(self.penalties)
-        self.sqrtrho = np.sqrt(1/self.rho)
 
     def solve(self):
         y_new = self.p*[0]
         u_new = self.p*[0]
-        
-        # Preprocessing
-        if callable(self.A):
-            def big_matrix(x, flag):
-                if flag == 1:
-                    out1 = self.sqrtrho*self.A(x, 1)
-                    out2 = [penalty[1]@x for penalty in self.penalties]
-                    out  = np.hstack([out1] + out2)
-                elif flag == 2:
-                    idx_start = len(x)
-                    idx_end = len(x)
-                    out1 = np.zeros(self.n)
-                    for _, t in reversed(self.penalties):
-                        idx_start -= t.shape[0]
-                        out1 += t.T@x[idx_start:idx_end]
-                        idx_end = idx_start
-                    out2 = self.sqrtrho*self.A(x[:idx_end], 2)
-                    out  = out1 + out2     
-                return out
-        else:
-            big_matrix = np.vstack([self.sqrtrho*self.A] + [penalty[1] for penalty in self.penalties])
 
         # Iterating
         for i in range(self.maxit):
-            # Main update (Least Squares)
-            big_vector = np.hstack([self.sqrtrho*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
+            # Preprocessing
+            if callable(self.A):
+                def big_matrix(x, flag):
+                    if flag == 1:
+                        out1 = np.sqrt(1/self.rho)*self.A(x, 1)
+                        out2 = [penalty[1]@x for penalty in self.penalties]
+                        out  = np.hstack([out1] + out2)
+                    elif flag == 2:
+                        idx_start = len(x)
+                        idx_end = len(x)
+                        out1 = np.zeros(self.n)
+                        for _, t in reversed(self.penalties):
+                            idx_start -= t.shape[0]
+                            out1 += t.T@x[idx_start:idx_end]
+                            idx_end = idx_start
+                        out2 = np.sqrt(1/self.rho)*self.A(x[:idx_end], 2)
+                        out  = out1 + out2     
+                    return out
+            else:
+                big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalties])
 
-            solver = CGLS(big_matrix, big_vector, self.x_cur, 5)
+            # Main update (Least Squares)
+            big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
+
+            solver = CGLS(big_matrix, big_vector, self.x_cur, 10)
             x_new, _ = solver.solve()
         
             # Regularization update
-            for i, penalty in enumerate(self.penalties):
-                y_new[i] = penalty[0](penalty[1]@x_new + self.u_cur[i], 1.0/self.rho)
+            for j, penalty in enumerate(self.penalties):
+                y_new[j] = penalty[0](penalty[1]@x_new + self.u_cur[j], 1.0/self.rho)
                 
+            res_primal = 0.0
             # Dual update
-            for i, penalty in enumerate(self.penalties):
-                u_new[i] =  self.u_cur[i] + (penalty[1]@x_new - y_new[i])
+            for j, penalty in enumerate(self.penalties):
+                r_partial = penalty[1]@x_new - y_new[j]
+                res_primal += LA.norm(r_partial)**2
+
+                u_new[j] = self.u_cur[j] + r_partial
             
-            self.x_cur, self.y_cur, self.u_cur = x_new, y_new, u_new
+            res_dual = 0.0
+            for j, penalty in enumerate(self.penalties):
+                res_dual += LA.norm(penalty[1].T@(y_new[j] - self.y_cur[j]))**2
+            res_dual *= self.rho*self.rho
+
+            if self.adaptive:
+                if res_dual > 1e2*res_primal:
+                    self.rho *= 0.5 # More regularization
+                elif res_primal > 1e2*res_dual:
+                    self.rho *= 2 # More data fidelity
+
+            self.x_cur, self.y_cur, self.u_cur = x_new, y_new.copy(), u_new
             
         return self.x_cur, i

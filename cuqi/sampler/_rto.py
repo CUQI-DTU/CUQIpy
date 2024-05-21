@@ -289,7 +289,7 @@ class RegularizedLinearRTO(LinearRTO):
                             adaptive = self.adaptive)
             else:
                 rho = self.stepsize # FIXME: Temporary, for testing purposes only
-                sim = ADMM(self.M, y, x0, rho, self.proximal, maxit = self.maxit)
+                sim = ADMM(self.M, y, x0, rho, self.proximal, maxit = self.maxit, adaptive = self.adaptive)
 
             samples[:, s+1], _ = sim.solve()
             
