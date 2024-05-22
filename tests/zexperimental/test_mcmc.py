@@ -512,7 +512,8 @@ def test_myula():
     def func(x):
         return x, True
     likelihood = cuqi.testproblem.Deconvolution1D().posterior.likelihood 
-    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(func, geometry=likelihood.model.domain_geometry)
+    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(
+        func, geometry=likelihood.model.domain_geometry)
     posterior = cuqi.distribution.Posterior(likelihood, denoise_regularizer)
     myula = cuqi.experimental.mcmc.MYULANew(posterior)
     myula.sample(10)
