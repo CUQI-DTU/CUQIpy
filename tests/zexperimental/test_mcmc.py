@@ -559,10 +559,6 @@ def test_sampler_initialization_consistency(sampler_class: cuqi.experimental.mcm
 
     assert np.allclose(samples_target_None, samples_target), f"Sampler {sampler_class} initialized with target=None is not equivalent to initializing with target right away."
 
-import pytest
-import numpy as np
-from numbers import Number
-
 def compare_attributes(attr1, attr2, key=''):
     """ Recursively compare attributes. """
     try:
@@ -610,6 +606,3 @@ def test_sampler_reinitialization_restores_to_initial_configuration(sampler_clas
         attr1 = getattr(instance1, key, None)
         attr2 = getattr(instance2, key, None)
         compare_attributes(attr1, attr2, key)
-
-
- 
