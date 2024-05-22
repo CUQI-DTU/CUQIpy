@@ -59,7 +59,6 @@ class UGLANew(SamplerNew):
         self.beta = beta
     
     def _initialize(self):
-        self._acc = [1] # TODO. Check if we need this
         self._precompute()
 
     @property

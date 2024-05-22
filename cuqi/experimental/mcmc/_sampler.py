@@ -79,6 +79,7 @@ class SamplerNew(ABC):
 
         # History variables
         self._samples = []
+        self._acc = [ 1 ] # TODO. Check if we need to put 1 here.
 
         self._initialize() # Subclass specific initialization
 
@@ -439,7 +440,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         # History variables
         self._samples = []
-        self._acc = [ 1 ] # TODO. Check
+        self._acc = [ 1 ] # TODO. Check if we need to put 1 here.
 
         # Parameter variables
         if self.proposal is None:

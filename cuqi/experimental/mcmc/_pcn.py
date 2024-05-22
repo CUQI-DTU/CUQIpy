@@ -15,7 +15,6 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
     def _initialize(self):
         self.scale = self.initial_scale
         self.current_likelihood_logd = self._loglikelihood(self.current_point)
-        self._acc = [1] # TODO. Check if we need this      
 
         # parameters used in the Robbins-Monro recursion for tuning the scale parameter
         # see details and reference in the tune method

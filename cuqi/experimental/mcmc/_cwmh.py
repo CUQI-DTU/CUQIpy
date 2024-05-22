@@ -78,7 +78,7 @@ class CWMHNew(ProposalBasedSamplerNew):
     def _initialize(self):
         if isinstance(self.scale, Number):
             self.scale = np.ones(self.dim)*self.scale
-        self._acc = [np.ones((self.dim))]
+        self._acc = [np.ones((self.dim))] # Overwrite acc from ProposalBasedSamplerNew with list of arrays
 
         # Handling of temporary scale parameter due to possible bug in old CWMH
         self._scale_temp = self.scale.copy()

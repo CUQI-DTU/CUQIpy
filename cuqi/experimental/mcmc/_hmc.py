@@ -116,9 +116,6 @@ class NUTSNew(SamplerNew):
         self._n_alpha = None
         self._alpha = None
 
-        # Arrays to store acceptance rate
-        self._acc = [None]
-
         # NUTS run diagnostic:
         # number of tree nodes created each NUTS iteration
         self._num_tree_node = 0
@@ -126,6 +123,9 @@ class NUTSNew(SamplerNew):
         self._create_run_diagnostic_attributes()
 
     def _initialize(self):
+
+        # Arrays to store acceptance rate
+        self._acc = [None] # Overwrites acc from SamplerNew. TODO. Check if this is necessary
 
         self._alpha = 0 # check if meaningful value
         self._n_alpha = 0 # check if meaningful value

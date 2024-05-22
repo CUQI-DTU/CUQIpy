@@ -73,7 +73,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         self.scale = self.initial_scale
         self.current_target_logd = self.target.logd(self.current_point)
         self.current_target_grad = self.target.gradient(self.current_point)
-        self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
         try:

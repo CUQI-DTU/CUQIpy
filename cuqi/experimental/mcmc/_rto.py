@@ -52,7 +52,6 @@ class LinearRTONew(SamplerNew):
         self.tol = tol
 
     def _initialize(self):
-        self._acc = [1] # TODO. Check if we need this
         self._precompute()
 
     @property
