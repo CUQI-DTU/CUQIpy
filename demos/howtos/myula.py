@@ -31,9 +31,12 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # %%
 # Principles behind MYULA
 # ----------------------
-# The goal is to solve this inverse problem by sampling from the posterior distribution given by :math:`\pi(x|y) \propto \pi(x) \pi(y|x)`.
-# We assume a Gaussian likelihood, ie :math:`- \log \pi(y|x) = \|Ax-y \|_2^2/2 \texttt{sigma2}` and a prior such that :math:`- \log \pi (x) =  g(x)` with :math:`g` convex.
-# To sample from :math:`\pi(x|y)`, we are going to apply a ULA based algorithm, MYULA (https://arxiv.org/pdf/1612.07471).
+# The goal is to solve this inverse problem by sampling from the posterior
+# distribution given by :math:`\pi(x|y) \propto \pi(x) \pi(y|x)`.
+# We assume a Gaussian likelihood, ie :math:`- \log \pi(y|x) = \|Ax-y \|_2^2/2 \texttt{sigma2}`
+# and a prior such that :math:`- \log \pi (x) =  g(x)` with :math:`g` convex.
+# To sample from :math:`\pi(x|y)`, we are going to apply a ULA based algorithm,
+# MYULA (https://arxiv.org/pdf/1612.07471).
 # We recall that ULA
 #
 # .. math::
@@ -42,11 +45,14 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # .. math::
 #       x_{k+1} = x_k + \texttt{scale} \nabla \log \pi(y | x_k) + \texttt{scale} \nabla \log \pi(x_k) + \sqrt{2 \texttt{scale}} z_{k+1}
 #
-# with :math:`(z_k)_{k \in \mathbb{N}^*}` a sequence of independent and identically distributed Gaussian random variables
+# with :math:`(z_k)_{k \in \mathbb{N}^*}` a sequence of independent and
+# identically distributed Gaussian random variables
 # with zero mean and identity covariance.
 #
-# In the case where :math:`\log \pi(x)` is not differentiable we can unfortunately not apply ULA. The idea is to consider a surrogate
-# posterior density :math:`\pi_{\texttt{strength_smooth}} (x|y) \propto \pi(y|x) \pi_{\texttt{strength_smooth}} (x)` where
+# In the case where :math:`\log \pi(x)` is not differentiable we can
+# unfortunately not apply ULA. The idea is to consider a surrogate
+# posterior density :math:`\pi_{\texttt{strength_smooth}} (x|y) \propto \pi(y|x) \pi_{\texttt{strength_smooth}} (x)`
+# where
 #
 # .. math::
 #       \pi_{\texttt{strength_smooth}}(x) \propto \exp(- g_{\texttt{strength_smooth}} (x))
@@ -81,7 +87,8 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # where :math:`\texttt{strength_smooth}` corresponds to the smoothing strength of :math:`g`.
 #
 # To illustrate MYULA, we will consider :math:`g(x) = \texttt{strength_reg} \  TV(x) = \texttt{strength_reg} \|\nabla x \|_{2, 1}`,
-# where :math:`\texttt{strength_reg}` is the regularization parameter which controls the regularization strength induced by TV.
+# where :math:`\texttt{strength_reg}` is the regularization parameter which
+# controls the regularization strength induced by TV.
 
 # %%
 # Bayesian model definition
@@ -109,11 +116,15 @@ likelihood=y(y=y_obs)
 # %%
 # Implicit prior definition
 # ---------------------------------
-# To apply MYULA, we need to define the implicit prior :math:`\pi_{\texttt{stength_smooth}}(x)`. Evaluating this surrogate prior is doable but too intensive from
-# a computational point of view as it requires to solve an optimization problem. However to apply MYULA, we only require access to
+# To apply MYULA, we need to define the implicit prior :math:`\pi_{\texttt{stength_smooth}}(x)`.
+# Evaluating this surrogate prior is doable but too intensive from
+# a computational point of view as it requires to solve an optimization problem.
+# However to apply MYULA, we only require access to
 # :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{strength_smooth}}`.
 #
-# As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the smoothing parameter :math:`\texttt{strength_smooth} \approx \texttt{sigma2}`, ie :math:`\texttt{strength_smooth}= 0.5 \ \texttt{sigma2}`.
+# As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the
+# smoothing parameter :math:`\texttt{strength_smooth} \approx \texttt{sigma2}`,
+# ie :math:`\texttt{strength_smooth}= 0.5 \ \texttt{sigma2}`.
 #
 # We set the regularization parameter to :math:`\texttt{stength_reg}=10`.
 
@@ -122,7 +133,9 @@ likelihood=y(y=y_obs)
 strength_reg=10
 strength_smooth=0.5*sigma2
 # %%
-# To estimate :math:`\operatorname{prox}_{\texttt{strength_reg}\  TV}^{\texttt{strength_smooth}}` we use the implementation provided by Scikit-Image. But we can use any solver to compute this quantity.
+# To estimate :math:`\operatorname{prox}_{\texttt{strength_reg}\  TV}^{\texttt{strength_smooth}}`
+# we use the implementation provided by Scikit-Image. But we can use any solver
+# to compute this quantity.
 #
 # We emphasize that we have for any :math:`g`
 #
@@ -135,7 +148,8 @@ def prox_g(x, strength_reg=None, strength_smooth=None):
     weight=strength_reg*strength_smooth
     return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), None
 # %%
-# We save all the important variables into the variable :math:`\texttt{denoiser_kwargs}`.
+# We save all the important variables into the variable
+# :math:`\texttt{denoiser_kwargs}`.
 denoiser_kwargs={}
 denoiser_kwargs["strength_reg"]=strength_reg
 denoiser_kwargs["strength_smooth"]=strength_smooth
@@ -158,10 +172,13 @@ posterior=Posterior(likelihood, denoise_regularizer)
 # Parameters of the MYULA sampler
 # ------------------------------
 # We let run MYULA for :math:`\texttt{Ns}=10^4`
-# iterations. We discard the :math:`\texttt{Nb}=1000` first burn-in samples of the Markov chain. Furthermore, as MCMC methods generate
-# correlated samples, we also perform a thinning: we only consider 1 samples every :math:`\texttt{Nt}=20`
+# iterations. We discard the :math:`\texttt{Nb}=1000` first burn-in samples of
+# the Markov chain. Furthermore, as MCMC methods generate
+# correlated samples, we also perform a thinning: we only consider 1 samples
+# every :math:`\texttt{Nt}=20`
 # samples to compute our quantities of interest.
-# :math:`\texttt{scale}` is set wrt the recommendation of Durmus et al. (https://arxiv.org/pdf/1612.07471).
+# :math:`\texttt{scale}` is set wrt the recommendation of Durmus et al.
+# (https://arxiv.org/pdf/1612.07471).
 Ns=10000
 Nb=1000
 Nt=20
@@ -179,7 +196,8 @@ myula_sampler=MYULANew(target=posterior, scale=scale)
 # Sampling with MYULA.
 myula_sampler.sample(Ns=Ns)
 # %%
-# Retrieve the samples. We apply the burnin and perform thinning to the Markov chain.
+# Retrieve the samples. We apply the burnin and perform thinning to the Markov
+# chain.
 samples=myula_sampler.get_samples()
 samples_warm=samples.burnthin(Nb=Nb, Nt=Nt)
 # %%
