@@ -196,9 +196,9 @@ class NUTSNew(SamplerNew):
         except:
             raise ValueError('Target must have logd and gradient methods.')
 
-    def reset(self):
+    def reinitialize(self):
         # Call the parent reset method
-        super().reset()
+        super().reinitialize()
         # Reset NUTS run diagnostic attributes
         self._reset_run_diagnostic_attributes()
 

@@ -121,8 +121,8 @@ class SamplerNew(ABC):
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
         return Samples(np.array(self._samples).T, self.target.geometry)
     
-    def reset(self):
-        """ Reset sampler state and history. """
+    def reinitialize(self):
+        """ Re-initialize the sampler. This resets the state and history and initializes the sampler again. """
 
         # Loop over state and reset to None
         for key in self._STATE_KEYS:
