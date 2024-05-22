@@ -20,7 +20,16 @@ class SamplerNew(ABC):
 
     Samples are stored in a list to allow for dynamic growth of the sample set. Returning samples is done by creating a new Samples object from the list of samples.
 
+    The sampler maintains sets of state and history keys, which are used for features like checkpointing and resuming sampling.
+
+    The state of the sampler represents all variables that are updated (replaced) in a Markov Monte Carlo step, i.e. the current point of the sampler.
+
+    The history of the sampler represents all variables that are updated (appended) in a Markov Monte Carlo step, i.e. the samples and acceptance rates.
+
+    Subclasses should ensure that any new variables that are updated in a Markov Monte Carlo step are added to the state or history keys.
+
     """
+
     _STATE_KEYS = {'current_point'}
     """ Set of keys for the state dictionary. """
 
@@ -29,6 +38,10 @@ class SamplerNew(ABC):
 
     def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
         """ Initializer for abstract base class for all samplers.
+
+        Any subclassing samplers should simply store input parameters as part of the __init__ method. 
+
+        The actual initialization of the sampler should be done in the _initialize method.
         
         Parameters
         ----------
@@ -46,12 +59,11 @@ class SamplerNew(ABC):
 
         self.target = target
         self.initial_point = initial_point
-        self.current_point = initial_point
         self.callback = callback
         self._is_initialized = False
 
     def initialize(self):
-        """ Delayed initialization of the sampler. This happens after target is set and before sampling. """
+        """ Initialize the sampler by setting and allocating the state and history before sampling starts. """
 
         if self._is_initialized:
             raise ValueError("Sampler is already initialized.")
@@ -61,8 +73,11 @@ class SamplerNew(ABC):
         
         if self.initial_point is None:
             self.initial_point = self._default_initial_point
-            self.current_point = self.initial_point
 
+        # State variables
+        self.current_point = self.initial_point
+
+        # History variables
         self._samples = []
 
         self._initialize() # Subclass specific initialization
@@ -89,17 +104,17 @@ class SamplerNew(ABC):
 
     @abstractmethod
     def _initialize(self):
-        """ Initialization method for the subclassing sampler. Called as part of initialization after target is set and before sampling starts. """
+        """ Subclass specific sampler initialization. Called during the initialization of the sampler which is done before sampling starts. """
         pass
 
     # ------------ Public attributes ------------
     @property
-    def dim(self):
+    def dim(self) -> int:
         """ Dimension of the target density. """
         return self.target.dim
 
     @property
-    def geometry(self):
+    def geometry(self) -> cuqi.geometry.Geometry:
         """ Geometry of the target density. """
         return self.target.geometry
     
@@ -116,7 +131,6 @@ class SamplerNew(ABC):
             self.validate_target()
 
     # ------------ Public methods ------------
-
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
         return Samples(np.array(self._samples).T, self.target.geometry)
@@ -332,7 +346,6 @@ class SamplerNew(ABC):
                 raise ValueError(f"Key {key} not recognized in history dictionary of sampler {self.__class__.__name__}.")
 
     # ------------ Private methods ------------
-
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
@@ -380,7 +393,11 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale'})
 
     def __init__(self, target=None, proposal=None, scale=1, **kwargs):
-        """ Initializer for proposal based samplers. 
+        """ Initializer for abstract base class for samplers that use a proposal distribution.
+
+        Any subclassing samplers should simply store input parameters as part of the __init__ method.
+
+        Initialization of the sampler should be done in the _initialize method.
 
         Parameters
         ----------
@@ -401,10 +418,9 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         super().__init__(target, **kwargs)
         self.proposal = proposal
         self.initial_scale = scale
-        self.current_target_logd = None # remove?
-        self.scale = None # remove?
 
     def initialize(self):
+        """ Initialize the sampler by setting and allocating the state and history before sampling starts. """
 
         if self._is_initialized:
             raise ValueError("Sampler is already initialized.")
@@ -412,11 +428,16 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         if self.target is None:
             raise ValueError("Cannot initialize sampler without a target density.")
         
-        self.initial_point = self._default_initial_point
+        if self.initial_point is None:
+            self.initial_point = self._default_initial_point
+
+        # State variables
         self.current_point = self.initial_point
-        self.current_target_logd = self.target.logd(self.current_point)
         self.scale = self.initial_scale
 
+        self.current_target_logd = self.target.logd(self.current_point)
+
+        # History variables
         self._samples = []
         self._acc = [ 1 ] # TODO. Check
 
