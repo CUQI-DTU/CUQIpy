@@ -346,6 +346,7 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.MYULANew,
+    cuqi.experimental.mcmc.PnPULANew,
     cuqi.experimental.mcmc.NUTSNew
 ]
 
