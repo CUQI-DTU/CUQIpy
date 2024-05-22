@@ -441,6 +441,10 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         self._samples = []
         self._acc = [ 1 ] # TODO. Check
 
+        # Parameter variables
+        if self.proposal is None:
+            self.proposal = self._default_proposal
+
         self._initialize() # Subclass specific initialization
 
         self._validate_initialization()
@@ -453,10 +457,13 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         pass     
 
     @property
+    def _default_proposal(self):
+        """ Return the default proposal distribution. Defaults to a Gaussian distribution with zero mean and unit variance. """
+        return cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+
+    @property
     def proposal(self):
         """ The proposal distribution. """
-        if self._proposal is None:
-            self.proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
         return self._proposal
     
     @proposal.setter
