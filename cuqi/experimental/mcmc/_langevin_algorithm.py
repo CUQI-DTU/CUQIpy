@@ -70,26 +70,9 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
         self.scale = scale
         self.current_point = self.initial_point
-        self.current_target_logd = \
-            self.target.logd(self.current_point) if self._eval_logd else None
+        self.current_target_logd = self._eval_target_logd(self.current_point)
         self.current_target_grad = self.target.gradient(self.current_point)
         self._acc = [1] # TODO. Check if we need this
-
-    @property
-    def _eval_logd(self):
-        """Flag to evaluate logd or not, is set to True by default and
-        can be set to False to avoid evaluating logd at each step. This is 
-        useful for methods that do not require the logd value, such as the ULA
-        and MYULA algorithms."""
-
-        if not hasattr(self, '_eval_logd_value'):
-            return False
-        return self._eval_logd_value
-
-    @_eval_logd.setter
-    def _eval_logd(self, value):
-        """Setter for the _eval_logd property."""
-        self._eval_logd_value = value
 
     def validate_target(self):
         try:
@@ -97,6 +80,9 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             pass
         except (NotImplementedError, AttributeError):
             raise ValueError("The target needs to have a gradient method")
+
+    def _eval_target_logd(self, x):
+        return None
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
@@ -131,7 +117,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
 
         # evaluate target
-        target_eval_star = self.target.logd(x_star) if self._eval_logd else None
+        target_eval_star = self._eval_target_logd(x_star)
         target_grad_star = self.target.gradient(x_star)
 
         # accept or reject proposal
@@ -204,8 +190,10 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     _STATE_KEYS = ULANew._STATE_KEYS.union({'current_target_logd'})
 
     def __init__(self, target, scale=1.0, **kwargs):
-        self._eval_logd = True
         super().__init__(target=target, scale=scale, **kwargs)
+
+    def _eval_target_logd(self, x):
+        return self.target.logd(x)
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
