@@ -516,7 +516,7 @@ target_None_sampler_classes = [
 # Instances of samplers that should be tested for target=None initialization consistency
 target_None_sampler_instances = [
     cuqi.experimental.mcmc.MHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.pCNNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.PCNNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.CWMHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.ULANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.MALANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
