@@ -116,11 +116,6 @@ class NUTSNew(SamplerNew):
         self._n_alpha = None
         self._alpha = None
 
-        # NUTS run diagnostic:
-        # number of tree nodes created each NUTS iteration
-        self._num_tree_node = 0
-        # Create lists to store NUTS run diagnostics
-        self._create_run_diagnostic_attributes()
 
     def _initialize(self):
 
@@ -143,6 +138,13 @@ class NUTSNew(SamplerNew):
         self._mu = np.log(10*self._epsilon)
 
         self._H_bar = 0
+
+        # NUTS run diagnostic:
+        # number of tree nodes created each NUTS iteration
+        self._num_tree_node = 0
+
+        # Create lists to store NUTS run diagnostics
+        self._create_run_diagnostic_attributes()
 
     #=========================================================================
     #============================== Properties ===============================

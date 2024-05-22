@@ -559,49 +559,57 @@ def test_sampler_initialization_consistency(sampler_class: cuqi.experimental.mcm
 
     assert np.allclose(samples_target_None, samples_target), f"Sampler {sampler_class} initialized with target=None is not equivalent to initializing with target right away."
 
-def compare_attributes(sampler1, sampler2):
-    """ Compare all attributes of two samplers. If no simple comparrison is possible, we simply check if the types are the same. """
-    for key in sampler1.__dict__.keys() | sampler2.__dict__.keys():
-        attr1 = getattr(sampler1, key, None)
-        attr2 = getattr(sampler2, key, None)
-        try:
-            if isinstance(attr1, np.ndarray):
-                assert np.allclose(attr1, attr2), f"ndarray: Sampler attribute '{key}' differs between samplers"
-            elif isinstance(attr1, list):
-                assert all(np.allclose(a1, a2) for a1, a2 in zip(attr1, attr2)), f"List: Sampler attribute '{key}' differs between samplers"
-            elif isinstance(attr1, dict):
-                assert all(np.allclose(attr1[k], attr2[k]) for k in attr1.keys()), f"Dict: Sampler attribute '{key}' differs between samplers"
-            elif isinstance(attr1, Number):
-                assert np.allclose(attr1, attr2), f"Number: Sampler attribute '{key}' differs between samplers"
-            elif isinstance(attr1, str):
-                assert attr1 == attr2, f"String: Sampler attribute '{key}' differs between samplers"
-            else:
-                assert type(attr1) == type(attr2), f"Type: Sampler attribute '{key}' differs between samplers"
-        except AssertionError as e:
-            raise AssertionError(f"{e}. Ensure the attribute '{key}' is correctly defined and initialized in the _initialize method.")
+import pytest
+import numpy as np
+from numbers import Number
 
+def compare_attributes(attr1, attr2, key=''):
+    """ Recursively compare attributes. """
+    try:
+        if isinstance(attr1, np.ndarray):
+            assert np.allclose(attr1, attr2), f"ndarray: Attribute '{key}' differs after initialization"
+        elif isinstance(attr1, list):
+            assert len(attr1) == len(attr2), f"List length: Attribute '{key}' differs after initialization"
+            for i, (a1, a2) in enumerate(zip(attr1, attr2)):
+                compare_attributes(a1, a2, f"{key}[{i}]")
+        elif isinstance(attr1, dict):
+            assert attr1.keys() == attr2.keys(), f"Dict keys: Attribute '{key}' differs after initialization"
+            for k in attr1.keys():
+                compare_attributes(attr1[k], attr2[k], f"{key}['{k}']")
+        elif isinstance(attr1, Number):
+            assert np.allclose(attr1, attr2), f"Number: Attribute '{key}' differs after initialization"
+        elif isinstance(attr1, str):
+            assert attr1 == attr2, f"String: Attribute '{key}' differs after initialization"
+        else:
+            assert type(attr1) == type(attr2), f"Type: Attribute '{key}' differs after initialization"
+    except AssertionError as e:
+        raise AssertionError(f"{e}. Ensure the attribute '{key}' is correctly defined and initialized in the _initialize method.")
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
 def test_sampler_reinitialization_restores_to_initial_configuration(sampler_class):
 
     # Find sampler instance that matches the sampler class
     sampler_instance = next((s for s in initialize_testing_sampler_instances if isinstance(s, sampler_class)), None)
-    if sampler_instance is None:
+    if (sampler_instance is None):
         raise ValueError(
-            f"No sampler instance in the list of initialize_testing_sampler_instances matches the sampler class {sampler_class}. "
+            f"No instance in the list of initialize_testing_sampler_instances matches the class {sampler_class}. "
             "Please add an instance to the list."
         )
     
-    # Initialize two samplers with equivalent initial configuration
-    sampler1 = sampler_class(target=sampler_instance.target)
-    sampler2 = sampler_class(target=sampler_instance.target)
+    # Initialize two instances with equivalent initial configuration
+    instance1 = sampler_class(target=sampler_instance.target)
+    instance2 = sampler_class(target=sampler_instance.target)
 
-    # Run sampler1 for a bit. Then reinitialize it and initialize sampler2
-    sampler1.warmup(10).sample(10)
-    sampler1.reinitialize()
-    sampler2.initialize()
+    # Run instance1 for a bit. Then reinitialize it and initialize instance2
+    instance1.warmup(10).sample(10)
+    instance1.reinitialize()
+    instance2.initialize()
 
-    # Compare all attributes of the two samplers. They should be equivalent.
-    compare_attributes(sampler1, sampler2)
-    compare_attributes(sampler2, sampler1)
+    # Compare all attributes of the two instances. They should be equivalent.
+    for key in instance1.__dict__.keys() | instance2.__dict__.keys():
+        attr1 = getattr(instance1, key, None)
+        attr2 = getattr(instance2, key, None)
+        compare_attributes(attr1, attr2, key)
+
+
  
