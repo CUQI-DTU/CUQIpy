@@ -209,7 +209,9 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
-        Accepts the proposed state according to a Metropolis step and updates the sampler's state accordingly, i.e., current_point, current_target_eval, and current_target_grad_eval.
+        Accepts the proposed state according to a Metropolis step and updates
+        the sampler's state accordingly, i.e., current_point, current_target_eval,
+        and current_target_grad_eval.
 
         Parameters
         ----------
@@ -252,60 +254,41 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         
 
 class MYULANew(ULANew):
-    """Moreau-Yoshida Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
+    """Moreau-Yoshida Unadjusted Langevin algorithm (MYUULA) (Durmus et al., 2018)
 
-    Samples a distribution given its logpdf and gradient (up to a constant) based on
+    Samples a distribution given its logpdf gradient based on
     Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
     the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
+    It targets a density (partially) regularized by the Moreau-Yoshida envelope. 
 
-    For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
-    of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
+    For more details see: Durmus, Alain, Eric Moulines, and Marcelo Pereyra.
+    "Efficient Bayesian
+    computation by proximal Markov chain Monte Carlo: when Langevin meets Moreau."
+    SIAM Journal on Imaging Sciences 11.1 (2018): 473-506.
 
     Parameters
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample. Must have logd and gradient method. Custom logpdfs 
+        The target distribution to sample. Must have gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     initial_point : ndarray
         Initial parameters. *Optional*
 
     scale : int
-        The Langevin diffusion discretization time step (In practice, a scale of 1/dim**2 is
-        recommended but not guaranteed to be the optimal choice).
+        The Langevin diffusion discretization time step (In practice, a scale of
+        1/L, where L is the Lipschitz of the gradient of the log target density
+        is recommended but not guaranteed to be the optimal choice).
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
         The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
+        where `sample` is the current sample and `sample_index` is the index of
+        the sample.
         An example is shown in demos/demo31_callback.py.
 
-
-    Example
-    -------
-    .. code-block:: python
-
-        # Parameters
-        dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
-        std = 1 # standard deviation of Gaussian
-
-        # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
-        gradient_func = lambda x: -2/(std**2)*(x - mu)
-
-        # Define distribution from logpdf and gradient as UserDefinedDistribution
-        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,
-            gradient_func=gradient_func)
-
-        # Set up sampler
-        sampler = cuqi.experimental.mcmc.ULANew(target, scale=1/dim**2)
-
-        # Sample
-        sampler.sample(2000)
-
-    A Deblur example can be found in demos/demo27_ULA.py
+    A Deblur example can be found in demos/howtos/myula.py
     # TODO: update demo once sampler merged
     """
     def validate_target(self):
@@ -313,4 +296,47 @@ class MYULANew(ULANew):
         # Assert target of type ImplicitlyDefinedPosterior
 
         # Assert target prior is of type Regularizer
-        assert isinstance(self.target.prior, DenoiseRegularizer), "The prior of the target distribution needs to be a DenoiseRegularizer"
+        assert isinstance(self.target.prior, DenoiseRegularizer), \
+            "The prior of the target distribution needs to be a DenoiseRegularizer"
+
+class PnPULANew(MYULANew):
+    """Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)
+    (Laumont et al., 2022)
+
+    Samples a distribution given its logpdf gradient based on
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
+    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
+    It targets a density (partially) regularized by a convolution with a Gaussian
+    kernel. 
+
+    For more details see: Laumont, R., Bortoli, V. D., Almansa, A., Delon, J.,
+    Durmus, A., & Pereyra, M. (2022). Bayesian imaging using plug & play priors:
+    when Langevin meets Tweedie. SIAM Journal on Imaging Sciences, 15(2), 701-737.
+
+    Parameters
+    ----------
+
+    target : `cuqi.distribution.Distribution`
+        The target distribution to sample. Must have gradient method. Custom logpdfs 
+        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+    
+    initial_point : ndarray
+        Initial parameters. *Optional*
+
+    scale : int
+        The Langevin diffusion discretization time step (In practice, a scale of
+        1/L, where L is the Lipschitz of the gradient of the log target density
+        is recommended but not guaranteed to be the optimal choice).
+
+    callback : callable, *Optional*
+        If set this function will be called after every sample.
+        The signature of the callback function is `callback(sample, sample_index)`,
+        where `sample` is the current sample and `sample_index` is the index of
+        the sample.
+        An example is shown in demos/demo31_callback.py.
+
+    # TODO: update demo once sampler merged
+    """
+    def __init__ (self, target, scale=1.0, **kwargs):
+        print("This an alias for MYULANew...")
+        super().__init__(target, scale, **kwargs)
