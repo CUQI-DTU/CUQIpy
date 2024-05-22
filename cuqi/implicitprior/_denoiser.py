@@ -61,15 +61,17 @@ class DenoiseRegularizer(Distribution, Regularizer):
     
     Parameters
     ---------- 
-    denoiser callable f(x)
+    denoiser : callable f(x)
         Denoising function f that accepts input x to be denoised and returns the
         denoised version of x and information about the denoising algorithm in a
         dictionary such as the number of iterations, the accuracy, eg
         {"num_itr": 100, "accuracy":  0.1}
-    denoiser_kwargs dictionary
+        
+    denoiser_kwargs : dictionary
         Dictionary containing information such as the denoising strength or the
         prior regularization strength
-    strength_smooth float
+        
+    strength_smooth : float
         Smoothing strength
     """
 
@@ -83,6 +85,9 @@ class DenoiseRegularizer(Distribution, Regularizer):
         super().__init__(**kwargs)
 
     def denoise(self, x):
+        """This function allows us to denoise the input x and returns the
+        denoised version of x.
+        """
         solution, info = self.denoiser(x, **self.denoiser_kwargs)
         self.info = info
         return solution
