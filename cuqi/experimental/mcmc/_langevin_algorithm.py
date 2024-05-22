@@ -68,8 +68,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         super().__init__(target, **kwargs)
 
         self.initial_scale = scale
-        self.current_target_logd = None # Needed?
-        self.current_target_grad = None # Needed?
 
     def _initialize(self):
         self.scale = self.initial_scale
