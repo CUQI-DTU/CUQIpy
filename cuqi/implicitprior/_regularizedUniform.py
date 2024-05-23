@@ -45,8 +45,7 @@ class RegularizedUniform(RegularizedGaussian):
                         "strength" : kwargs.pop("strength", None)}
                 
                 # Underlying explicit Gaussian
-                
-                # This line throws a warning to due trying to applying get_sqrtprec_from_sqrtprec to an all zero matrix  
+                # This line throws a warning due trying to applying get_sqrtprec_from_sqrtprec to an all zero matrix  
                 self._gaussian = Gaussian(mean = np.zeros(geometry.par_dim), sqrtprec = np.zeros((geometry.par_dim,geometry.par_dim)), geometry = geometry, **kwargs) 
 
                 # Init from abstract distribution class
@@ -54,19 +53,18 @@ class RegularizedUniform(RegularizedGaussian):
 
                 self._parse_regularization_input_arguments(proximal, None, None, regularization, args)
 
-
+        
+        # Overwritten to hide the underlying Gaussian
         def get_conditioning_variables(self):
                 return super(RegularizedGaussian, self).get_conditioning_variables()
         
+        # Overwritten to hide the underlying Gaussian
         def get_mutable_variables(self):
-                # The following line will still return all Gaussian parameters
-                #return super(RegularizedGaussian, self).get_mutable_variables()
-                # Hence we manually return them.
-                if self.preset in ["l1", "TV"]:
+                if self.preset in ["l1", "TV", "NNTV"]:
                         return ["strength"]
                 else:
                         return []
-
+        
         # Revert back to the original conditioning, as this underlying Gaussian should not be modified.
         def _condition(self, *args, **kwargs):
                 return super(RegularizedGaussian, self)._condition(*args, **kwargs)

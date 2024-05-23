@@ -129,19 +129,26 @@ class RegularizedGaussian(Distribution):
             self._strength = optional_regularization_parameters["strength"]
             self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
             #self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
-
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
             self._strength = optional_regularization_parameters["strength"]
-            #self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
-            fd = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
-            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), fd)]
-
+            self._transformation = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
+            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation)]
             self._preset = "TV"
+        elif (isinstance(regularization, str) and regularization.lower() in ["nntv"]):
+            self._strength = optional_regularization_parameters["strength"]
+            self._transformation = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
+            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation),
+                              (lambda z, gamma: ProjectNonnegative(z), np.eye(self.geometry.par_dim))]
+            self._preset = "NNTV"
         else:
             raise ValueError("Regularization not supported")
 
 
+    @property
+    def transformation(self):
+        return self._transformation
+    
     @property
     def strength(self):
         return self._strength
@@ -151,11 +158,11 @@ class RegularizedGaussian(Distribution):
         self._strength = value
         if self._preset == "l1":        
             self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-            #self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
         elif self._preset == "TV":
-            #self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
-            fd = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
-            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), fd)]
+            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation)]
+        elif self._preset == "NNTV":
+            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation),
+                              (lambda z, gamma: ProjectNonnegative(z), np.eye(self.geometry.par_dim))]
         else:
             raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
 
@@ -190,7 +197,7 @@ class RegularizedGaussian(Distribution):
 
     @staticmethod
     def regularization_options():
-        return ["l1", "TV"]
+        return ["l1", "TV", "NNTV"]
 
 
     # --- Defer behavior of the underlying Gaussian --- #
@@ -244,15 +251,15 @@ class RegularizedGaussian(Distribution):
     
     def get_mutable_variables(self):
         add = []
-        if self.preset in ["l1", "TV"]:
+        print("PRESET: ", self.preset)
+        if self.preset in ["l1", "TV", "NNTV"]:
             add = ["strength"]
         return self.gaussian.get_mutable_variables() + add
 
-    
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
-        if self.preset in ["l1", "TV"]:
+        if self.preset in ["l1", "TV", "NNTV"]:
             return super()._condition(*args, **kwargs)
 
         # Handle positional arguments (similar code as in Distribution._condition)
