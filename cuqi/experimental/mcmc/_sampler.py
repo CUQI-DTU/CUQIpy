@@ -22,11 +22,15 @@ class SamplerNew(ABC):
 
     The sampler maintains sets of state and history keys, which are used for features like checkpointing and resuming sampling.
 
-    The state of the sampler represents all variables that are updated (replaced) in a Markov Monte Carlo step, i.e. the current point of the sampler.
+    The state of the sampler represents all variables that are updated (replaced) in a Markov Monte Carlo step, e.g. the current point of the sampler.
 
-    The history of the sampler represents all variables that are updated (appended) in a Markov Monte Carlo step, i.e. the samples and acceptance rates.
+    The history of the sampler represents all variables that are updated (appended) in a Markov Monte Carlo step, e.g. the samples and acceptance rates.
 
     Subclasses should ensure that any new variables that are updated in a Markov Monte Carlo step are added to the state or history keys.
+
+    Saving and loading checkpoints saves and loads the state of the sampler (not the history).
+
+    Batching samples via the batch_size parameter saves the sampler history to disk in batches of the specified size.
 
     """
 
