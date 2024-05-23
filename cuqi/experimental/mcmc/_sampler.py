@@ -145,7 +145,7 @@ class SamplerNew(ABC):
         return Samples(np.array(self._samples).T, self.target.geometry)
     
     def reinitialize(self):
-        """ Re-initialize the sampler. This resets the state and history and initializes the sampler again. """
+        """ Re-initialize the sampler. This clears the state and history and initializes the sampler again by setting state and history to their original values. """
 
         # Loop over state and reset to None
         for key in self._STATE_KEYS:
