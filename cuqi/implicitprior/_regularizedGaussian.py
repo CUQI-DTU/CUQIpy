@@ -127,8 +127,8 @@ class RegularizedGaussian(Distribution):
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
             self._strength = optional_regularization_parameters["strength"]
-            #self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-            self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            #self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
 
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
@@ -150,8 +150,8 @@ class RegularizedGaussian(Distribution):
     def strength(self, value):
         self._strength = value
         if self._preset == "l1":        
-            #self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-            self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            #self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
         elif self._preset == "TV":
             #self._proximal = lambda z, gamma: self.geometry.fun2par(restoration.denoise_tv_chambolle(self.geometry.par2fun(z), gamma*self._strength))
             fd = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T

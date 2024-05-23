@@ -23,6 +23,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     """
 
     def __init__(self, target: Posterior):
+        
         if not isinstance(target.likelihood.distribution, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF, RegularizedUniform)):
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
         if not isinstance(target.prior, Gamma):
@@ -48,7 +49,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         
         if isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset in ["l1", "TV"]:
             s = self.target.likelihood.distribution(np.array([1])).strength[0]
-            base_rate = s*np.linalg.norm(Ax, ord = 1) # I MADE THE *** MISTAKE AGAIN USING x!!!!!!!!!!!!!!
+            base_rate = s*np.linalg.norm(b, ord = 1) # I MADE THE *** MISTAKE AGAIN USING x!!!!!!!!!!!!!!
         else:
             base_rate = .5*np.linalg.norm(L@(Ax-b))**2
 
@@ -62,9 +63,10 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
+            threshold = 1e-6
             if self.target.likelihood.distribution.preset == "nonnegativity":
                 return np.count_nonzero(b)
             if self.target.likelihood.distribution.preset in ["l1", "TV"]: # TV has a different value of m, but this is easier for testing.
-                return 2*np.count_nonzero(b)
+                return 2*np.sum([np.abs(v) < threshold for v in b])
             
         raise Exception("Conjugacy pair not supported... somehow...")
