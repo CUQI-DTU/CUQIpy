@@ -75,6 +75,7 @@ class SamplerNew(ABC):
         if self.target is None:
             raise ValueError("Cannot initialize sampler without a target density.")
         
+        # Default values
         if self.initial_point is None:
             self.initial_point = self._default_initial_point
 
@@ -435,8 +436,12 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         if self.target is None:
             raise ValueError("Cannot initialize sampler without a target density.")
         
+        # Default values
         if self.initial_point is None:
             self.initial_point = self._default_initial_point
+
+        if self.proposal is None:
+            self.proposal = self._default_proposal
 
         # State variables
         self.current_point = self.initial_point
@@ -447,10 +452,6 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         # History variables
         self._samples = []
         self._acc = [ 1 ] # TODO. Check if we need to put 1 here.
-
-        # Parameter variables
-        if self.proposal is None:
-            self.proposal = self._default_proposal
 
         self._initialize() # Subclass specific initialization
 
