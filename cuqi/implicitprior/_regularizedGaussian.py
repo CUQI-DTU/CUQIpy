@@ -251,7 +251,6 @@ class RegularizedGaussian(Distribution):
     
     def get_mutable_variables(self):
         add = []
-        print("PRESET: ", self.preset)
         if self.preset in ["l1", "TV", "NNTV"]:
             add = ["strength"]
         return self.gaussian.get_mutable_variables() + add
