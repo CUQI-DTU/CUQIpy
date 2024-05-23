@@ -404,6 +404,8 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         Initialization of the sampler should be done in the _initialize method.
 
+        See :class:`SamplerNew` for additional details.
+
         Parameters
         ----------
         target : cuqi.density.Density
