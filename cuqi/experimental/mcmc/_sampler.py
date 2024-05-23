@@ -32,6 +32,9 @@ class SamplerNew(ABC):
 
     Batching samples via the batch_size parameter saves the sampler history to disk in batches of the specified size.
 
+    Any other attribute stored as part of the sampler (e.g. target, initial_point) is not supposed to be updated
+    during sampling and should not be part of the state or history.
+
     """
 
     _STATE_KEYS = {'current_point'}
