@@ -29,6 +29,16 @@ class Gibbs:
         Keys are parameter names.
         Values are sampler objects.
 
+    sampling_order : list
+        List of parameter names in the order in which they will be sampled.
+        If None, then the order cannot be guaranteed.
+
+    initial_guess : dict
+        Dictionary of initial guesses for the parameters.
+        Keys are parameter names.
+        Values are sampler objects.
+        Unspecified parameters will be defaulted to an all ones vector.
+
     Example
     -------
     .. code-block:: python
@@ -69,7 +79,7 @@ class Gibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler], sampling_order = None, initial_guess = None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -85,6 +95,9 @@ class Gibbs:
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
+
+        self._sampling_order = sampling_order
+        self._initial_guess = initial_guess
 
     # ------------ Public methods ------------
     def sample(self, Ns, Nb=0):
@@ -123,8 +136,7 @@ class Gibbs:
         par_names = self.par_names
 
         # Sample from each conditional distribution
-        for par_name in par_names:
-
+        for par_name in par_names if self._sampling_order is None else self._sampling_order:
             # Dict of all other parameters to condition on
             other_params = {par_name_: current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
 
@@ -182,6 +194,8 @@ class Gibbs:
                 initial_points[par_name] = self.samples_warmup[par_name][:, -1]
             elif hasattr(self.target.get_density(par_name), 'init_point'):
                 initial_points[par_name] = self.target.get_density(par_name).init_point
+            elif par_name in self._initial_guess:
+                initial_points[par_name] = self._initial_guess[par_name]
             else:
                 initial_points[par_name] = np.ones(self.target.get_density(par_name).dim)
         return initial_points
