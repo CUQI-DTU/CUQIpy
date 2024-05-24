@@ -59,12 +59,14 @@ class RegularizedGMRF(RegularizedGaussian):
                 Regularization parameter, i.e., strength*||x||_TV , defaults to one
 
     """
-    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
+    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
             
         args = {"lower_bound" : kwargs.pop("lower_bound", None),
                 "upper_bound" : kwargs.pop("upper_bound", None),
                 "strength" : kwargs.pop("strength", None)}
-            
+        
+        self._force_list = force_list
+        
         # Underlying explicit GMRF
         self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
         kwargs.pop("geometry", None)

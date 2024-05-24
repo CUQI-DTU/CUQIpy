@@ -21,6 +21,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
 
     """
+    # TODO: Update the documentation
 
     def __init__(self, target: Posterior):
         
@@ -31,10 +32,15 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if not target.prior.dim == 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
             
-        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and not isinstance(target.likelihood.distribution, (RegularizedUniform)) and target.likelihood.distribution.preset not in ["nonnegativity", "l1", "TV", "NNTV"]:
-            raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
-        if isinstance(target.likelihood.distribution, (RegularizedUniform)) and target.likelihood.distribution.preset not in ["l1", "TV", "NNTV"]:
-            raise ValueError("Conjugate sampler only works implicit regularized Uniform likelihood with l1 regularization")
+        if (isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and
+            not isinstance(target.likelihood.distribution, (RegularizedUniform)) and
+            target.likelihood.distribution.preset["constraint"] not in ["nonnegativity"] and
+            target.likelihood.distribution.preset["regularization"] not in ["l1", "TV"]):
+                raise ValueError("Conjugate sampler does not support the constraint and/or regularization options.")
+        if (isinstance(target.likelihood.distribution, (RegularizedUniform)) and
+            target.likelihood.distribution.preset["regularization"] not in ["l1", "TV"] and
+            target.likelihood.distribution.preset["constraint"] not in [None, "nonnegativity"]):
+                raise ValueError("Conjugate sampler does not support the constraint and/or regularization options.")
         
         self.target = target
 
@@ -49,10 +55,10 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         alpha = self.target.prior.shape                                 #alpha
         beta = self.target.prior.rate                                   #beta
         
-        if isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset in ["l1"]:
+        if isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset["regularization"] == "l1":
             s = likelihood.strength[0]
             base_rate = s*np.linalg.norm(b, ord = 1) # I MADE THE *** MISTAKE AGAIN USING x!!!!!!!!!!!!!!
-        elif isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset in ["TV", "NNTV"]:
+        elif isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset["regularization"] == "TV":
             s = likelihood.strength[0]
             base_rate = s*np.linalg.norm(likelihood.transformation@b, ord = 1)
         else:
@@ -68,14 +74,22 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            threshold = 1e-6
-            if self.target.likelihood.distribution.preset == "nonnegativity":
+            threshold = 1e-6 # TODO: This could become a property of the class after the Conjugacy rework
+
+            preset_constraint = self.target.likelihood.distribution.preset["constraint"]
+            preset_regularization = self.target.likelihood.distribution.preset["regularization"]
+
+            if preset_constraint == "nonnegativity" and preset_regularization is None:
                 return np.count_nonzero(b) # Counting strict zeros, due to the solver used by RegularizedLinearRTO introducing actual zeros.
-            if self.target.likelihood.distribution.preset == "l1": # TV has a different value of m, but this is easier for testing.
+            
+            if ((preset_constraint is None and preset_regularization == "l1") or
+                (preset_constraint == "nonnegativity" and preset_regularization == "l1")):
                 return 2*np.sum([np.abs(v) < threshold for v in b])
-            if self.target.likelihood.distribution.preset in "TV":
-                return len(b) # TODO: Replace with the number of piecewise connected components
-            if self.target.likelihood.distribution.preset in "NNTV":
+            
+            if preset_constraint is None and preset_regularization == "TV":
                 return len(b) # TODO: Replace with the number of piecewise connected components
             
-        raise Exception("Conjugacy pair not supported... somehow...")
+            if preset_constraint == "nonnegativity" and preset_regularization == "TV":
+                return len(b) # TODO: Replace with the number of piecewise connected components
+            
+        raise Exception("Conjugacy pair not supported, although initial guards accepted it.")

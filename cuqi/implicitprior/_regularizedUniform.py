@@ -38,12 +38,14 @@ class RegularizedUniform(RegularizedGaussian):
                         Regularization parameter, i.e., strength*||x||_TV , defaults to one
 
         """
-        def __init__(self, proximal = None , regularization = None, geometry = None, **kwargs):
+        def __init__(self, geometry, proximal = None , regularization = None, force_list = False, **kwargs):
                 
                 args = {"lower_bound" : kwargs.pop("lower_bound", None),
                         "upper_bound" : kwargs.pop("upper_bound", None),
                         "strength" : kwargs.pop("strength", None)}
                 
+                self._force_list = force_list
+
                 # Underlying explicit Gaussian
                 # This line throws a warning due trying to applying get_sqrtprec_from_sqrtprec to an all zero matrix  
                 self._gaussian = Gaussian(mean = np.zeros(geometry.par_dim), sqrtprec = np.zeros((geometry.par_dim,geometry.par_dim)), geometry = geometry, **kwargs) 
@@ -60,7 +62,7 @@ class RegularizedUniform(RegularizedGaussian):
         
         # Overwritten to hide the underlying Gaussian
         def get_mutable_variables(self):
-                if self.preset in ["l1", "TV", "NNTV"]:
+                if self.preset['regularization'] in ["l1", "TV"]:
                         return ["strength"]
                 else:
                         return []

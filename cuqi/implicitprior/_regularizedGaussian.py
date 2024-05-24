@@ -69,8 +69,9 @@ class RegularizedGaussian(Distribution):
                 Regularization parameter, i.e., strength*||x||_TV , defaults to one
 
     """
+    # TODO: Update the documentation
         
-    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
         
         # Store regularization parameters and remove them from kwargs passed to Gaussian
         optional_regularization_parameters = {
@@ -79,6 +80,8 @@ class RegularizedGaussian(Distribution):
             "strength" : kwargs.pop("strength", 1)
         }
         
+        self._force_list = force_list
+
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
         kwargs.pop("geometry", None)
@@ -90,59 +93,110 @@ class RegularizedGaussian(Distribution):
 
     def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization, optional_regularization_parameters):
         """ Parse regularization input arguments with guarding statements and store internal states """
+   
+        # Guards checking whether the regularization inputs are valid
+        if (proximal is not None) + (projector is not None) + max((constraint is not None), (regularization is not None)) == 0:
+            raise ValueError("At least some constraint or regularization has to be specified.")
+            
+        if (proximal is not None) + (projector is not None) == 2:
+            raise ValueError("Only one of proximal or projector can be used.")
 
-        # Check that only one of proximal, projector, constraint or regularization is provided        
-        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
-            raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
+        if (proximal is not None) + (projector is not None) + max((constraint is not None), (regularization is not None)) > 1:
+            raise ValueError("User-defined proximals an projectors cannot be combined with pre-defined constraints and regularization.")
 
         if proximal is not None:
             if callable(proximal):
                 if len(get_non_default_args(proximal)) != 2:
                     raise ValueError("Proximal should take 2 arguments.")
             else:
-                pass
+                pass # TODO: Add error checking for list of regularizations
             
         if projector is not None:
             if callable(projector):
                 if len(get_non_default_args(projector)) != 1:
                     raise ValueError("Projector should take 1 argument.")
             else:
-                pass
+                pass # TODO: Add error checking for list of regularizations
             
-        # Preset information, for use in Gibbs
-        self._preset = None
-        
+
+        # Set user-defined proximals or projectors
         if proximal is not None:
+            self._preset = None
             self._proximal = proximal
-        elif projector is not None:
+            return
+        
+        if projector is not None:
+            self._preset = None
             self._proximal = lambda z, gamma: projector(z)
-        elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
-            self._proximal = lambda z, gamma: ProjectNonnegative(z)
-            #self._proximal = [(lambda z, gamma: ProjectNonnegative(z), np.eye(self.geometry.par_dim))]
-            self._preset = "nonnegativity"
-        elif (isinstance(constraint, str) and constraint.lower() == "box"):
-            lower = optional_regularization_parameters["lower_bound"]
-            upper = optional_regularization_parameters["upper_bound"]
-            self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
-            self._preset = "box" # Not supported in Gibbs
-        elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
+            return
+        
+
+        # Set constraint and regularization presets for use with Gibbs
+        self._preset = {"constraint": None,
+                        "regularization": None}
+
+        self._constraint_prox = None
+        self._constraint_oper = None
+        if constraint is not None:
+            if not isinstance(constraint, str):
+                raise ValueError("Constraint needs to be specified as a string.")
+            
+            c_lower = constraint.lower()
+            if c_lower == "nonnegativity":
+                self._constraint_prox = lambda z, gamma: ProjectNonnegative(z)
+                self._preset["constraint"] = "nonnegativity"
+            elif c_lower == "box":
+                lower = optional_regularization_parameters["lower_bound"]
+                upper = optional_regularization_parameters["upper_bound"]
+                self._constraint_prox = lambda z, gamma: ProjectBox(z, lower, upper)
+                self._preset["constraint"] = "box"
+            else:
+                raise ValueError("Constraint not supported.")
+                
+
+        self._regularization_prox = None
+        self._regularization_oper = None
+        if regularization is not None:
+            if not isinstance(regularization, str):
+                raise ValueError("Regularization needs to be specified as a string.")
+                
             self._strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-            #self._proximal = [(lambda z, gamma: ProximalL1(z, gamma*self._strength), np.eye(self.geometry.par_dim))]
-            self._preset = "l1"
-        elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
-            self._strength = optional_regularization_parameters["strength"]
-            self._transformation = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
-            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation)]
-            self._preset = "TV"
-        elif (isinstance(regularization, str) and regularization.lower() in ["nntv"]):
-            self._strength = optional_regularization_parameters["strength"]
-            self._transformation = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
-            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation),
-                              (lambda z, gamma: ProjectNonnegative(z), np.eye(self.geometry.par_dim))]
-            self._preset = "NNTV"
-        else:
-            raise ValueError("Regularization not supported")
+            r_lower = regularization.lower()
+            if r_lower == "l1":
+                self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+                self._preset["regularization"] = "l1"
+            elif r_lower == "tv":
+                # Store the transformation to reuse when modifying the strength
+                # TODO: Replace with sparse transformation
+                self._transformation = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
+                self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+                self._regularization_oper = self._transformation
+                self._preset["regularization"] = "TV"
+            else:
+                raise ValueError("Regularization not supported.")
+                
+
+        self._merge_predefined_option()
+
+
+    def _merge_predefined_option(self):
+        # Check whether it is a single proximal and hence FISTA could be used in RegularizedLinearRTO 
+        if ((not self._force_list) and
+            ((self._constraint_prox is not None) + (self._regularization_prox is not None) == 1) and
+            ((self._constraint_oper is not None) + (self._regularization_oper is not None) == 0)):
+                if self._constraint_prox is not None:
+                    self._proximal = self._constraint_prox
+                else:
+                    self._proximal = self._regularization_prox 
+                return
+
+        # Merge regularization choices in list for use in ADMM by RegularizedLinearRTO
+        # TODO: Replace dense identity matrices with sparse ones
+        self._proximal = []
+        if self._constraint_prox is not None:
+            self._proximal += [(self._constraint_prox, self._constraint_oper if self._constraint_oper is not None else np.eye(self.geometry.par_dim))]
+        if self._regularization_prox is not None:
+            self._proximal += [(self._regularization_prox, self._regularization_oper if self._regularization_oper is not None else np.eye(self.geometry.par_dim))]
 
 
     @property
@@ -155,16 +209,15 @@ class RegularizedGaussian(Distribution):
         
     @strength.setter
     def strength(self, value):
-        self._strength = value
-        if self._preset == "l1":        
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-        elif self._preset == "TV":
-            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation)]
-        elif self._preset == "NNTV":
-            self._proximal = [(lambda x, gamma: ProximalL1(x, gamma*self._strength), self._transformation),
-                              (lambda z, gamma: ProjectNonnegative(z), np.eye(self.geometry.par_dim))]
-        else:
+        if self._preset is None or self._preset["regularization"] is None:
             raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
+
+        self._strength = value
+        if self._preset["regularization"] in ["l1", "TV"]:        
+            self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+
+        self._merge_predefined_option()
+
 
     # This is a getter only attribute for the underlying Gaussian
     # It also ensures that the name of the underlying Gaussian
@@ -197,7 +250,7 @@ class RegularizedGaussian(Distribution):
 
     @staticmethod
     def regularization_options():
-        return ["l1", "TV", "NNTV"]
+        return ["l1", "TV"]
 
 
     # --- Defer behavior of the underlying Gaussian --- #
@@ -251,14 +304,14 @@ class RegularizedGaussian(Distribution):
     
     def get_mutable_variables(self):
         add = []
-        if self.preset in ["l1", "TV", "NNTV"]:
+        if self.preset['regularization'] in ["l1", "TV"]:
             add = ["strength"]
         return self.gaussian.get_mutable_variables() + add
 
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
-        if self.preset in ["l1", "TV", "NNTV"]:
+        if self.preset['regularization'] in ["l1", "TV"]:
             return super()._condition(*args, **kwargs)
 
         # Handle positional arguments (similar code as in Distribution._condition)
