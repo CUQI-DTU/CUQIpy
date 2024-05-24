@@ -1,11 +1,12 @@
 from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
+from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 from cuqi.operator import FirstOrderFiniteDifference
 
 import numpy as np
-import skimage.restoration as restoration
+import scipy.sparse as sparse
 
 class RegularizedGaussian(Distribution):
     """ Implicit Regularized Gaussian.
@@ -168,7 +169,12 @@ class RegularizedGaussian(Distribution):
             elif r_lower == "tv":
                 # Store the transformation to reuse when modifying the strength
                 # TODO: Replace with sparse transformation
-                self._transformation = np.array(FirstOrderFiniteDifference(self.geometry.par_dim-1, bc_type='zero').get_matrix().todense()).T
+                if isinstance(self.geometry, (Continuous1D)):
+                    self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='zero')
+                elif isinstance(self.geometry, (Continuous2D, Image2D)):
+                    self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='zero')
+                else:
+                    raise ValueError("Geometry not supported for total variation")
                 self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
                 self._regularization_oper = self._transformation
                 self._preset["regularization"] = "TV"
@@ -194,9 +200,9 @@ class RegularizedGaussian(Distribution):
         # TODO: Replace dense identity matrices with sparse ones
         self._proximal = []
         if self._constraint_prox is not None:
-            self._proximal += [(self._constraint_prox, self._constraint_oper if self._constraint_oper is not None else np.eye(self.geometry.par_dim))]
+            self._proximal += [(self._constraint_prox, self._constraint_oper if self._constraint_oper is not None else sparse.eye(self.geometry.par_dim))]
         if self._regularization_prox is not None:
-            self._proximal += [(self._regularization_prox, self._regularization_oper if self._regularization_oper is not None else np.eye(self.geometry.par_dim))]
+            self._proximal += [(self._regularization_prox, self._regularization_oper if self._regularization_oper is not None else sparse.eye(self.geometry.par_dim))]
 
 
     @property
@@ -304,14 +310,14 @@ class RegularizedGaussian(Distribution):
     
     def get_mutable_variables(self):
         add = []
-        if self.preset['regularization'] in ["l1", "TV"]:
+        if self.preset is not None and self.preset['regularization'] in ["l1", "TV"]:
             add = ["strength"]
         return self.gaussian.get_mutable_variables() + add
 
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
-        if self.preset['regularization'] in ["l1", "TV"]:
+        if self.preset is not None and self.preset['regularization'] in ["l1", "TV"]:
             return super()._condition(*args, **kwargs)
 
         # Handle positional arguments (similar code as in Distribution._condition)

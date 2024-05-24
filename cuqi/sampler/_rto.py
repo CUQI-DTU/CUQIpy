@@ -231,7 +231,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
+    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", rho = 10, abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
 
         # FIXME: Temporarily disable safety check for implementation ADMM
         """
@@ -243,6 +243,7 @@ class RegularizedLinearRTO(LinearRTO):
 
         # Other parameters
         self.stepsize = stepsize
+        self.rho = rho
         self.abstol = abstol   
         self.adaptive = adaptive
         self.warmstart_CGLS = warmstart_CGLS
@@ -288,8 +289,7 @@ class RegularizedLinearRTO(LinearRTO):
                             abstol = self.abstol,
                             adaptive = self.adaptive)
             else:
-                rho = self.stepsize # FIXME: Temporary, for testing purposes only
-                sim = ADMM(self.M, y, x0, rho, self.proximal, maxit = self.maxit, adaptive = self.adaptive)
+                sim = ADMM(self.M, y, x0, self.rho, self.proximal, maxit = self.maxit, adaptive = self.adaptive)
 
             samples[:, s+1], _ = sim.solve()
             

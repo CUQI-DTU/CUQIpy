@@ -194,7 +194,7 @@ class Gibbs:
                 initial_points[par_name] = self.samples_warmup[par_name][:, -1]
             elif hasattr(self.target.get_density(par_name), 'init_point'):
                 initial_points[par_name] = self.target.get_density(par_name).init_point
-            elif par_name in self._initial_guess:
+            elif self._initial_guess is not None and par_name in self._initial_guess:
                 initial_points[par_name] = self._initial_guess[par_name]
             else:
                 initial_points[par_name] = np.ones(self.target.get_density(par_name).dim)

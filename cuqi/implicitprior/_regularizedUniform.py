@@ -38,7 +38,7 @@ class RegularizedUniform(RegularizedGaussian):
                         Regularization parameter, i.e., strength*||x||_TV , defaults to one
 
         """
-        def __init__(self, geometry, proximal = None , regularization = None, force_list = False, **kwargs):
+        def __init__(self, geometry, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
                 
                 args = {"lower_bound" : kwargs.pop("lower_bound", None),
                         "upper_bound" : kwargs.pop("upper_bound", None),
@@ -53,7 +53,7 @@ class RegularizedUniform(RegularizedGaussian):
                 # Init from abstract distribution class
                 super(Distribution, self).__init__(**kwargs)
 
-                self._parse_regularization_input_arguments(proximal, None, None, regularization, args)
+                self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
 
         
         # Overwritten to hide the underlying Gaussian

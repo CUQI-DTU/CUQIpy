@@ -1,5 +1,6 @@
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUniform
+from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 import numpy as np
 
 class Conjugate: # TODO: Subclass from Sampler once updated
@@ -84,12 +85,75 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             
             if ((preset_constraint is None and preset_regularization == "l1") or
                 (preset_constraint == "nonnegativity" and preset_regularization == "l1")):
-                return 2*np.sum([np.abs(v) < threshold for v in b])
+                return 2*Conjugate._count_weak_nonzero(b, threshold = threshold)
             
             if preset_constraint is None and preset_regularization == "TV":
-                return len(b) # TODO: Replace with the number of piecewise connected components
+                if isinstance(self.geometry, (Continuous1D)):
+                    return 2*Conjugate._count_weak_nonzero(self.likelihood.transformation@b, threshold = threshold)
+                elif isinstance(self.geometry, (Continuous2D, Image2D)):
+                    return 2*Conjugate._count_weak_components_2d(b, threshold = threshold)
+                else:
+                    raise ValueError("Geometry not supported.")
             
             if preset_constraint == "nonnegativity" and preset_regularization == "TV":
-                return len(b) # TODO: Replace with the number of piecewise connected components
+                if isinstance(self.geometry, (Continuous1D)):
+                    return 2*Conjugate._count_weak_components_1D(b, threshold = threshold, lower = 0.0)
+                elif isinstance(self.geometry, (Continuous2D, Image2D)):
+                    return 2*Conjugate._count_weak_components_2d(b, threshold = threshold, lower = 0.0)
+                else:
+                    raise ValueError("Geometry not supported.")
             
         raise Exception("Conjugacy pair not supported, although initial guards accepted it.")
+    
+    def _count_weak_nonzero(x, threshold = 1e-6):
+        return np.sum([np.abs(v) >= threshold for v in x])
+    
+    def _count_weak_components_1D(x, threshold = 1e-6, lower = -np.inf, upper = np.inf):
+        counter = 0
+        if x[0] > lower and x[0] < upper:
+            counter += 1
+        
+        x_previous = x[0]
+
+        for x_current in x[1:]:
+            if (abs(x_previous - x_current) >= threshold and
+                x_current > lower and
+                x_current < upper):
+                    counter += 1
+
+            x_previous = x_current
+    
+        return counter
+        
+    def _count_weak_components_2d(x, threshold = 1e-6, lower = -np.inf, upper = np.inf):
+        filled = np.zeros_like(x, dtype = int)
+        counter = 0
+
+        def process(i, j):
+            queue = []
+            queue.append((i,j))
+            filled[i, j] = 1
+            while len(queue) != 0:
+                (icur, jcur) = queue.pop(0)
+                
+                if icur > 0 and filled[icur - 1, jcur] == 0 and abs(x[icur, jcur] - x[icur - 1, jcur]) >= threshold:
+                    filled[icur - 1, jcur] = 1
+                    queue.append((icur-1, jcur))
+                if jcur > 0 and filled[icur, jcur-1] == 0 and abs(x[icur, jcur] - x[icur, jcur - 1]) >= threshold:
+                    filled[icur, jcur-1] = 1
+                    queue.append((icur, jcur-1))
+                if icur < x.shape[0]-1 and filled[icur + 1, jcur] == 0 and abs(x[icur, jcur] - x[icur + 1, jcur]) >= threshold:
+                    filled[icur + 1, jcur] = 1
+                    queue.append((icur+1, jcur))
+                if jcur < x.shape[1]-1 and filled[icur, jcur + 1] == 0 and abs(x[icur, jcur] - x[icur, jcur + 1]) >= threshold:
+                    filled[icur, jcur + 1] = 1
+                    queue.append((icur, jcur+1))
+        
+        for i in range(x.shape[0]):
+            for j in range(x.shape[1]):
+                if filled[i,j] == 0:
+                    if x[i,j] > lower and x[i,j] < upper:
+                        counter += 1
+                    process(i, j)
+        return counter
+                    
