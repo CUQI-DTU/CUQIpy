@@ -168,7 +168,6 @@ class RegularizedGaussian(Distribution):
                 self._preset["regularization"] = "l1"
             elif r_lower == "tv":
                 # Store the transformation to reuse when modifying the strength
-                # TODO: Replace with sparse transformation
                 if isinstance(self.geometry, (Continuous1D)):
                     self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='zero')
                 elif isinstance(self.geometry, (Continuous2D, Image2D)):
@@ -197,7 +196,6 @@ class RegularizedGaussian(Distribution):
                 return
 
         # Merge regularization choices in list for use in ADMM by RegularizedLinearRTO
-        # TODO: Replace dense identity matrices with sparse ones
         self._proximal = []
         if self._constraint_prox is not None:
             self._proximal += [(self._constraint_prox, self._constraint_oper if self._constraint_oper is not None else sparse.eye(self.geometry.par_dim))]

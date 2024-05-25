@@ -1,4 +1,4 @@
-from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
+from cuqi.distribution import Posterior, Gaussian, Gamma, ModifiedHalfNormal, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUniform
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 import numpy as np
@@ -46,35 +46,108 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         self.target = target
 
     def step(self, x=None):
+
+        if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)) and isinstance(self.target.prior, Gamma):
+            return self._case_Gaussian_Gamma_prior()
+        
+        if isinstance(self.target.prior, Gamma):
+            if isinstance(self.target.likelihood.distribution, RegularizedUniform):
+                return self._case_RegularizedUniform_Gamma_prior()
+            elif isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset["regularization"] is None:
+                return self._case_RegularizedUniform_Gamma_prior()
+            
+        if isinstance(self.target.likelihood.distribution, (RegularizedGaussian)) and isinstance(self.target.prior, (Gamma, ModifiedHalfNormal)):
+            return self._case_RegularizedGaussian_ModifiedHalfNormal_prior()
+
+    def _case_Gaussian_Gamma_prior(self):
+
         # Extract variables
         b = self.target.likelihood.data                                 #mu
-        m = self._calc_m_for_Gaussians(b)                               #n
+        m = len(b)                                                      #n
         Ax = self.target.likelihood.distribution.mean                   #x_i
+        L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
 
-        likelihood = self.target.likelihood.distribution(np.array([1]))
-        L = likelihood.sqrtprec #L
         alpha = self.target.prior.shape                                 #alpha
         beta = self.target.prior.rate                                   #beta
-        
-        if isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset["regularization"] == "l1":
-            s = likelihood.strength[0]
-            base_rate = s*np.linalg.norm(b, ord = 1) # I MADE THE *** MISTAKE AGAIN USING x!!!!!!!!!!!!!!
-        elif isinstance(self.target.likelihood.distribution, RegularizedGaussian) and self.target.likelihood.distribution.preset["regularization"] == "TV":
-            s = likelihood.strength[0]
-            base_rate = s*np.linalg.norm(likelihood.transformation@b, ord = 1)
-        else:
-            base_rate = .5*np.linalg.norm(L@(Ax-b))**2
+
+        base_rate = .5*np.linalg.norm(L@(Ax-b))**2
 
         # Create Gamma distribution and sample
         dist = Gamma(shape=m/2+alpha, rate=base_rate+beta)
 
         return dist.sample()
+    
+    def _case_RegularizedUniform_Gamma_prior(self):
 
-    def _calc_m_for_Gaussians(self, b):
+        # Extract variables
+        b = self.target.likelihood.data                                 #mu
+        m = self._calc_m_for_RegularizedGaussians(b)                    #n
+        Ax = self.target.likelihood.distribution.mean                   #x_i
+        likelihood = self.target.likelihood.distribution(np.array([1]))
+        L = likelihood.sqrtprec                                         #L
+
+        alpha = self.target.prior.shape                                 #alpha
+        beta = self.target.prior.rate                                   #beta
+
+        base_rate = .5*np.linalg.norm(L@(Ax-b))**2
+
+        if self.target.likelihood.distribution.preset["regularization"] == "l1":
+            s = likelihood.strength[0]
+            base_rate = s*np.linalg.norm(b, ord = 1)
+        elif self.target.likelihood.distribution.preset["regularization"] == "TV":
+            s = likelihood.strength[0]
+            base_rate = s*np.linalg.norm(likelihood.transformation@b, ord = 1)
+        else:
+            base_rate = .5*np.linalg.norm(L@(Ax-b))**2
+
+        base_shape = m
+        if self.target.likelihood.distribution.preset["regularization"] is None:
+            base_shape *= 0.5
+
+        # Create Gamma distribution and sample
+        dist = Gamma(shape=base_shape+alpha, rate=base_rate+beta)
+
+        return dist.sample()
+    
+    def _case_RegularizedGaussian_ModifiedHalfNormal_prior(self):
+
+        # Extract variables
+        b = self.target.likelihood.data                                 #mu
+        m = self._calc_m_for_RegularizedGaussians(b)                    #n
+        Ax = self.target.likelihood.distribution.mean                   #x_i
+        likelihood = self.target.likelihood.distribution(np.array([1]))
+        L = likelihood.sqrtprec                                         #L
+
+        # Turn Gamma into ModifiedHalfNormal
+        if isinstance(self.target.prior, Gamma):
+            alpha = self.target.prior.shape
+            beta = self.target.prior.rate
+            gamma = 0.0
+        else:
+            alpha = self.target.prior.alpha
+            beta = self.target.prior.beta
+            gamma = self.target.prior.gamma
+
+        base_alpha = m
+        base_beta = .5*np.linalg.norm(L@(Ax-b))**2
+
+        if self.target.likelihood.distribution.preset["regularization"] == "l1":
+            s = likelihood.strength[0]
+            base_gamma = -s*np.linalg.norm(b, ord = 1)
+        elif self.target.likelihood.distribution.preset["regularization"] == "TV":
+            s = likelihood.strength[0]
+            base_gamma = -s*np.linalg.norm(likelihood.transformation@b, ord = 1)
+
+        # Create ModifiedHalfNormal distribution and sample
+        dist = ModifiedHalfNormal(alpha = base_alpha + alpha,
+                                  beta  = base_beta  + beta,
+                                  gamma = base_gamma + gamma)
+
+        return dist.sample()
+
+    def _calc_m_for_RegularizedGaussians(self, b):
         """ Helper method to calculate m parameter for Gaussian-Gamma conjugate pair. """
-        if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
-            return len(b)
-        elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
+        if isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
             threshold = 1e-6 # TODO: This could become a property of the class after the Conjugacy rework
 
             preset_constraint = self.target.likelihood.distribution.preset["constraint"]
@@ -85,21 +158,21 @@ class Conjugate: # TODO: Subclass from Sampler once updated
             
             if ((preset_constraint is None and preset_regularization == "l1") or
                 (preset_constraint == "nonnegativity" and preset_regularization == "l1")):
-                return 2*Conjugate._count_weak_nonzero(b, threshold = threshold)
+                return Conjugate._count_weak_nonzero(b, threshold = threshold)
             
             if preset_constraint is None and preset_regularization == "TV":
-                if isinstance(self.geometry, (Continuous1D)):
-                    return 2*Conjugate._count_weak_nonzero(self.likelihood.transformation@b, threshold = threshold)
-                elif isinstance(self.geometry, (Continuous2D, Image2D)):
-                    return 2*Conjugate._count_weak_components_2d(b, threshold = threshold)
+                if isinstance(self.target.geometry, (Continuous1D)):
+                    return Conjugate._count_weak_nonzero(self.target.likelihood.distribution.transformation@b, threshold = threshold)
+                elif isinstance(self.target.geometry, (Continuous2D, Image2D)):
+                    return Conjugate._count_weak_components_2d(b, threshold = threshold)
                 else:
                     raise ValueError("Geometry not supported.")
             
             if preset_constraint == "nonnegativity" and preset_regularization == "TV":
-                if isinstance(self.geometry, (Continuous1D)):
-                    return 2*Conjugate._count_weak_components_1D(b, threshold = threshold, lower = 0.0)
-                elif isinstance(self.geometry, (Continuous2D, Image2D)):
-                    return 2*Conjugate._count_weak_components_2d(b, threshold = threshold, lower = 0.0)
+                if isinstance(self.target.geometry, (Continuous1D)):
+                    return Conjugate._count_weak_components_1D(b, threshold = threshold, lower = 0.0)
+                elif isinstance(self.target.geometry, (Continuous2D, Image2D)):
+                    return Conjugate._count_weak_components_2d(b, threshold = threshold, lower = 0.0)
                 else:
                     raise ValueError("Geometry not supported.")
             

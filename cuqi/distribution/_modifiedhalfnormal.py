@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.stats as sps
+import scipy.special as special
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
 
@@ -56,7 +57,7 @@ class ModifiedHalfNormal(Distribution):
         
         delta = beta + (gamma*gamma - gamma*np.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
         K2  = np.power(beta/delta, 0.5*alpha)
-        K2 *= sps.special.gamma(alpha/2.0)
+        K2 *= special.gamma(alpha/2.0)
         K2 *= np.exp(gamma*gamma/(4*(beta-delta)))
 
         if K2 > K1: # Use normal proposal
@@ -73,7 +74,6 @@ class ModifiedHalfNormal(Distribution):
             
         if m is None:
             if alpha <= 1.0:
-                print("m None, alpha below 1, NO MODE")
                 m = 1.0
             else:
                 m = "mode"
