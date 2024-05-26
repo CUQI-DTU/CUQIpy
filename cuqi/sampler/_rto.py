@@ -215,14 +215,21 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the inner FISTA solver. *Optional*.
+        Maximum number of iterations of the inner FISTA or ADMM solver. *Optional*.
         
     stepsize : string or float
+        Stepsize used by the inner FISTA solver.
         If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
         If stepsize is a float, then this stepsize is used.
 
+    tradeoff : float
+        Trade-off parameter used by the inner ADMM solver.
+
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
+
+    adaptive : boolean
+        Whether to use an adaptive version of the inner solver.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -231,7 +238,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", rho = 10, abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
+    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", tradeoff = 10, abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
 
         # FIXME: Temporarily disable safety check for implementation ADMM
         """
@@ -243,7 +250,7 @@ class RegularizedLinearRTO(LinearRTO):
 
         # Other parameters
         self.stepsize = stepsize
-        self.rho = rho
+        self.rho = tradeoff
         self.abstol = abstol   
         self.adaptive = adaptive
         self.warmstart_CGLS = warmstart_CGLS
