@@ -10,6 +10,7 @@ from ._utilities import (
     ProblemInfo,
     sparse_cholesky,
     approx_derivative,
+    check_if_conditional_from_attr,
 )
 
 from ._get_python_variable_name import _get_python_variable_name
