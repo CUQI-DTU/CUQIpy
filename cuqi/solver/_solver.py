@@ -582,8 +582,8 @@ class FISTA(object):
     ----------
     A : ndarray or callable f(x,*args).
     b : ndarray.
-    x0 : ndarray. Initial guess.
     proximal : callable f(x, gamma) for proximal mapping.
+    x0 : ndarray. Initial guess.
     maxit : The maximum number of iterations.
     stepsize : The stepsize of the gradient step.
     abstol : The numerical tolerance for convergence checks.
@@ -604,11 +604,11 @@ class FISTA(object):
         b = rng.standard_normal(m)
         stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
         x0 = np.zeros(n)
-        fista = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
+        fista = FISTA(A, b, proximal = ProximalL1, x0, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
         sol, _ = fista.solve()
 
     """  
-    def __init__(self, A, b, x0, proximal, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
+    def __init__(self, A, b, proximal, x0, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
         
         self.A = A
         self.b = b
@@ -648,92 +648,45 @@ class FISTA(object):
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
             x = x_new.copy()
-    
-    
-def ProjectNonnegative(x):
-    """(Euclidean) projection onto the nonnegative orthant.
-    
-    Parameters
-    ----------
-    x : array_like.
-    """  
-    return np.maximum(x, 0)
-
-def ProjectBox(x, lower = None, upper = None):
-    """(Euclidean) projection onto a box.
-    
-    Parameters
-    ----------
-    x : array_like.
-    lower : array_like. Lower bound of box. Zero if None.
-    upper : array_like. Upper bound of box. One if None.
-    """  
-    if lower is None:
-        lower = np.zeros_like(x)
-    
-    if upper is None:
-        upper = np.ones_like(x)
-    
-    return np.minimum(np.maximum(x, lower), upper)
-
-def ProjectHalfspace(x, a, b):
-    """(Euclidean) projection onto the halfspace defined {z|<a,z> <= b}.
-    
-    Parameters
-    ----------
-    x : array_like.
-    a : array_like.
-    b : array_like.
-    """  
-
-    ax_b = np.inner(a,x)-b
-    if ax_b <= 0:
-        return x
-    else:
-        return x - (ax_b/np.inner(a,a))*a
-
-def ProximalL1(x, gamma):
-    """(Euclidean) proximal operator of the \|x\|_1 norm.
-    Also known as the shrinkage or soft thresholding operator.
-    
-    Parameters
-    ----------
-    x : array_like.
-    gamma : scale parameter.
-    """
-    return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))
-
-
-def DykstrasProjection(x, projectors, reltol = 1e-6, maxiters = 100):
-    """(Euclidean) projection onto the intersection of the domains of the projectors.
-    
-    Parameters
-    ----------
-    x : array_like.
-    projectors : List of projectors.
-    maxiters : The maximum number of iterations.
-    """
-        
-    n_proj = len(projectors)
-    
-    u = x.copy()
-    u_old = u.copy()
-    duals = n_proj*[np.zeros_like(u)]
-
-    k = 0
-    while True:
-        k+=1
-        for i in range(n_proj):
-            d = u + duals[i]
-            u = projectors[i](d)
-            duals[i] = d - u
-        if k >= maxiters or LA.norm(u-u_old) <= reltol*LA.norm(u_old):
-            return u
-        u_old = u.copy()
-
 
 class ADMM(object):
-    def __init__(self, A, b, x0, rho, penalties, maxit = 100, adaptive = True):
+    """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
+    Minimize ||Ax-b||^2 + sum_i f_i(L_i x).
+
+    Reference:
+    Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
+
+    
+    Parameters
+    ----------
+    A : ndarray or callable f(x,*args).
+    b : ndarray.
+    penalties : List of tuples (callable proximal operator of f_i, linear operator L_i).
+    x0 : ndarray. Initial guess.
+    tradeoff : Trade-off between linear least squares and regularization term in the solver iterates.
+    maxit : The maximum number of iterations.
+    adapative : Whether to adaptively update the tradeoff parameter each iteration.
+    
+    Example
+    -----------
+    .. code-block:: python
+    
+        from cuqi.solver import ADMM,  ProximalL1, ProjectNonnegative
+        import scipy as sp
+        import numpy as np
+
+        rng = np.random.default_rng()
+
+        m, n = 10, 5
+        A = rng.standard_normal((m, n))
+        b = rng.standard_normal(m)
+        x0 = np.zeros(n)
+        admm = ADMM(A, b, x0, penalties = [(ProximalL1, np.eye(n)), (lambda z, _ : ProjectNonnegative(z))], tradeoff = 10)
+        sol, _ = admm.solve()
+
+    """  
+
+    def __init__(self, A, b, penalties, x0, tradeoff, maxit = 100, adaptive = True):
 
         self.A = A
         self.b = b
@@ -744,7 +697,7 @@ class ADMM(object):
         self.u_cur = [np.zeros(l) for l in dual_len]
         self.n = penalties[0][1].shape[1]
         
-        self.rho = rho
+        self.rho = tradeoff
         self.maxit = maxit
         self.adaptive = adaptive
 
@@ -811,3 +764,57 @@ class ADMM(object):
             self.x_cur, self.y_cur, self.u_cur = x_new, y_new.copy(), u_new
             
         return self.x_cur, i
+    
+
+def ProjectNonnegative(x):
+    """(Euclidean) projection onto the nonnegative orthant.
+    
+    Parameters
+    ----------
+    x : array_like.
+    """  
+    return np.maximum(x, 0)
+
+def ProjectBox(x, lower = None, upper = None):
+    """(Euclidean) projection onto a box.
+    
+    Parameters
+    ----------
+    x : array_like.
+    lower : array_like. Lower bound of box. Zero if None.
+    upper : array_like. Upper bound of box. One if None.
+    """  
+    if lower is None:
+        lower = np.zeros_like(x)
+    
+    if upper is None:
+        upper = np.ones_like(x)
+    
+    return np.minimum(np.maximum(x, lower), upper)
+
+def ProjectHalfspace(x, a, b):
+    """(Euclidean) projection onto the halfspace defined {z|<a,z> <= b}.
+    
+    Parameters
+    ----------
+    x : array_like.
+    a : array_like.
+    b : array_like.
+    """  
+
+    ax_b = np.inner(a,x)-b
+    if ax_b <= 0:
+        return x
+    else:
+        return x - (ax_b/np.inner(a,a))*a
+
+def ProximalL1(x, gamma):
+    """(Euclidean) proximal operator of the \|x\|_1 norm.
+    Also known as the shrinkage or soft thresholding operator.
+    
+    Parameters
+    ----------
+    x : array_like.
+    gamma : scale parameter.
+    """
+    return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))

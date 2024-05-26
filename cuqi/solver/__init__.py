@@ -11,6 +11,5 @@ from ._solver import (
     ProjectNonnegative,
     ProjectBox,
     ProjectHalfspace,
-    DykstrasProjection,
     ProximalL1
 )

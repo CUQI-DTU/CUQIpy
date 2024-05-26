@@ -283,13 +283,14 @@ class RegularizedLinearRTO(LinearRTO):
                 x0 = samples[:, s]
 
             if callable(self.proximal):
-                sim = FISTA(self.M, y, x0, self.proximal, # Data
-                            maxit = self.maxit, # Solver settings
+                sim = FISTA(self.M, y, self.proximal, # Data
+                            x0,                       # Solver settings
+                            maxit = self.maxit,
                             stepsize = _stepsize,
                             abstol = self.abstol,
                             adaptive = self.adaptive)
             else:
-                sim = ADMM(self.M, y, x0, self.rho, self.proximal, maxit = self.maxit, adaptive = self.adaptive)
+                sim = ADMM(self.M, y, self.proximal, x0, self.rho, maxit = self.maxit, adaptive = self.adaptive)
 
             samples[:, s+1], _ = sim.solve()
             
