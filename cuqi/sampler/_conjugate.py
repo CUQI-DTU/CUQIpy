@@ -11,9 +11,9 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     Currently supported conjugate pairs are:
     - (Gaussian, Gamma)
     - (GMRF, Gamma)
-    - (RegularizedGaussian, Gamma) with nonnegativity constraints only
-    - (RegularizedGMRF, Gamma) with nonnegativity constraints only
-    - (RegularizedUniform, Gamma) with l1 regularization only
+    - (RegularizedGaussian, Gamma)
+    - (RegularizedGMRF, Gamma)
+    - (RegularizedUniform, Gamma)
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
@@ -22,7 +22,6 @@ class Conjugate: # TODO: Subclass from Sampler once updated
     [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
 
     """
-    # TODO: Update the documentation
 
     def __init__(self, target: Posterior):
         

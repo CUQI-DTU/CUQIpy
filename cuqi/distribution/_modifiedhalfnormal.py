@@ -6,7 +6,30 @@ from cuqi.utilities import force_ndarray
 
 class ModifiedHalfNormal(Distribution):
     """
+    Represents a modified half-normal (MHN) distribution, a three-parameter family of distributions generalizing the Gamma distribution.
+    The distribution is continuous with pdf 
     f(x; alpha, beta, gamma) propto x^(alpha-1) * exp(-beta * x^2 + gamma * x)
+
+    The MHN generalizes the half-normal distribution, because
+    f(x; 1, beta, 0) propto exp(-beta * x^2)
+
+    The MHN generalizes the gamma distribution because
+    f(x; alpha, 0, -gamma) propto x^(alpha-1) * exp(- gamma * x)
+
+    Reference:
+    [1] Sun, et al. "The Modified-Half-Normal distribution: Properties and an efficient sampling scheme." Communications in Statistics-Theory and Methods
+    
+    Parameters
+    ----------
+    alpha : float
+        The polynomial exponent parameter of the MHN distribution. Must be positive.
+
+    beta : float
+        The quadratic exponential parameter of the MHN distribution. Must be positive.
+
+    gamma : float
+        The linear exponential parameter of the MHN distribution.
+
     """
     def __init__(self, alpha, beta, gamma, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
@@ -16,7 +39,7 @@ class ModifiedHalfNormal(Distribution):
         self.beta = beta
         self.gamma = gamma
 
-    def logpdf(self, x):
+    def logpdf(self, x): # Unnormalized
         return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
 
 

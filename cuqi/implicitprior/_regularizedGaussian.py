@@ -15,10 +15,10 @@ class RegularizedGaussian(Distribution):
     The regularization can be defined in the form of a proximal operator or a projector. 
     Alternatively, preset constraints and regularization can be used.
 
-    Precisely one of proximal, projector, constraint or regularization needs to be provided. Otherwise, an error is raised.
-
-    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
-
+    For regularization of the form f(x), provide a single proximal operator.
+    For regularization of the form sum_i f_i(L_i x), provide a list of proximal and linear operator pairs.
+    
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler
 
     For more details on implicit regularized Gaussian see the following paper:
 
@@ -42,10 +42,9 @@ class RegularizedGaussian(Distribution):
     sqrtprec
         See :class:`~cuqi.distribution.Gaussian` for details.
 
-    proximal : callable f(x, scale) or None
+    proximal : callable f(x, scale), list of (callable f(x, scale), linear operator) or None
         Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
         min_z 0.5||x-z||_2^2+scale*g(x).
-
 
     projector : callable f(x) or None
         Euclidean projection onto the constraint C, that is, a solver for the optimization problem
@@ -70,7 +69,6 @@ class RegularizedGaussian(Distribution):
                 Regularization parameter, i.e., strength*||x||_TV , defaults to one
 
     """
-    # TODO: Update the documentation
         
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
         

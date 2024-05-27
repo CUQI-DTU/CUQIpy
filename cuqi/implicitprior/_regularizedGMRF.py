@@ -8,10 +8,10 @@ class RegularizedGMRF(RegularizedGaussian):
     The regularization can be defined in the form of a proximal operator or a projector.
     Alternatively, preset constraints and regularization can be used.
 
-    Only one of proximal, projector, constraint or regularization can be provided. Otherwise, an error is raised.
+    For regularization of the form f(x), provide a single proximal operator.
+    For regularization of the form sum_i f_i(L_i x), provide a list of proximal and linear operator pairs.
 
     Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
-
 
     For more details on implicit regularized Gaussian see the following paper:
 
