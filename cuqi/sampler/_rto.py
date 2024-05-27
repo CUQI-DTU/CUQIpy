@@ -206,6 +206,8 @@ class RegularizedLinearRTO(LinearRTO):
 
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
 
+    The implicit Gaussian prior needs to be an instance of RegularizedGaussian, RegularizedGMRF or RegularizedUniform.
+
     Parameters
     ------------
     target : `cuqi.distribution.Posterior`
