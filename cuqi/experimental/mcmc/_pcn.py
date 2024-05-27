@@ -7,15 +7,14 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_likelihood_logd', 'lambd'})
 
-    def __init__(self, target, scale=1.0, **kwargs):
+    def __init__(self, target=None, scale=1.0, **kwargs):
 
         super().__init__(target, **kwargs)
+        self.initial_scale = scale
 
-        self.scale = scale
-        self.current_point = self.initial_point
+    def _initialize(self):
+        self.scale = self.initial_scale
         self.current_likelihood_logd = self._loglikelihood(self.current_point)
-
-        self._acc = [1] # TODO. Check if we need this
 
         # parameters used in the Robbins-Monro recursion for tuning the scale parameter
         # see details and reference in the tune method
@@ -23,13 +22,10 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
         self.star_acc = 0.44 #TODO: 0.234 # target acceptance rate
 
     def validate_target(self):
-        try:
-            if isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
-                pass
-            else:
-                raise ValueError("The prior distribution of the target need to be Gaussian")
-        except AttributeError:
-            raise ValueError("The target need to have a prior distribution")
+        if not isinstance(self.target, cuqi.distribution.Posterior):
+            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
+        if not isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
+            raise ValueError("The prior distribution of the target need to be Gaussian")
 
     def step(self):
         # propose state
@@ -55,30 +51,14 @@ class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
 
     @property
     def prior(self):
-        if isinstance(self.target, cuqi.distribution.Posterior):
-            return self.target.prior
-        elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[1]
+        return self.target.prior
 
     @property
     def likelihood(self):
-        if isinstance(self.target, cuqi.distribution.Posterior):
-            return self.target.likelihood
-        elif isinstance(self.target,tuple) and len(self.target)==2:
-            return self.target[0]
-
-    @SamplerNew.target.setter 
-    def target(self, value):
-        if isinstance(value, cuqi.distribution.Posterior):
-            self._target = value
-            self._loglikelihood = lambda x : self.likelihood.logd(x)
-        elif isinstance(value,tuple) and len(value)==2 and \
-             (isinstance(value[0], cuqi.likelihood.Likelihood) or isinstance(value[0], cuqi.likelihood.UserDefinedLikelihood))  and \
-             isinstance(value[1], cuqi.distribution.Distribution):
-            self._target = value
-            self._loglikelihood = lambda x : self.likelihood.logd(x)
-        else:
-            raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
+        return self.target.likelihood
+        
+    def _loglikelihood(self, x):
+        return self.likelihood.logd(x)
 
     @property
     def dim(self): # TODO. Check if we need this. Implemented in base class

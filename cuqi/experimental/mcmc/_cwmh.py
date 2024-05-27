@@ -67,16 +67,21 @@ class CWMHNew(ProposalBasedSamplerNew):
         samples = sampler.sample(2000).get_samples()
 
     """
-    def __init__(self, target: cuqi.density.Density, proposal=None, scale=1,
+
+    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union(['_scale_temp'])
+
+    def __init__(self, target:cuqi.density.Density=None, proposal=None, scale=1,
                  initial_point=None, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale,
                          initial_point=initial_point, **kwargs)
+        
+    def _initialize(self):
+        if isinstance(self.scale, Number):
+            self.scale = np.ones(self.dim)*self.scale
+        self._acc = [np.ones((self.dim))] # Overwrite acc from ProposalBasedSamplerNew with list of arrays
 
-        # set initial scale
-        self.scale = scale
-
-        # set initial acceptance rate
-        self._acc = [np.ones((self.dim))]
+        # Handling of temporary scale parameter due to possible bug in old CWMH
+        self._scale_temp = self.scale.copy()
 
     @property
     def scale(self):
@@ -86,53 +91,35 @@ class CWMHNew(ProposalBasedSamplerNew):
     @scale.setter
     def scale(self, value):
         """ Set the scale parameter. """
-        if isinstance(value, Number):
-            self._scale = np.ones(self.dim)*value
-        elif isinstance(value, np.ndarray):
-            self._scale = value
-        self._scale_temp = self._scale.copy()
+        if self._is_initialized and isinstance(value, Number):
+            value = np.ones(self.dim)*value
+        self._scale = value
 
     def validate_target(self):
         if not isinstance(self.target, cuqi.density.Density):
             raise ValueError(
                 "Target should be an instance of "+\
                 f"{cuqi.density.Density.__class__.__name__}")
-
-    @ProposalBasedSamplerNew.proposal.setter
-    # TODO. Check if we can refactor this.
-    # We can work with a validate_proposal method instead?
-    def proposal(self, value):
-        fail_msg = "Proposal should be either None, "+\
-            f"{cuqi.distribution.Distribution.__class__.__name__} "+\
-            "conditioned only on 'location' and 'scale', lambda function, "+\
-            f"or {cuqi.distribution.Normal.__class__.__name__} conditioned "+\
-            "only on 'mean' and 'std'"
-
-        if value is None:
+        
+    def validate_proposal(self):
+        if not isinstance(self.proposal, cuqi.distribution.Distribution):
+            raise ValueError("Proposal must be a cuqi.distribution.Distribution object")
+        if not self.proposal.is_symmetric:
+            raise ValueError("Proposal must be symmetric")
+        
+    @property
+    def proposal(self):
+        if self._proposal is None:
             self._proposal = cuqi.distribution.Normal(
                 mean=lambda location: location,
                 std=lambda scale: scale,
                 geometry=self.dim,
             )
-
-        elif isinstance(value, cuqi.distribution.Distribution) and sorted(
-            value.get_conditioning_variables()
-        ) == ["location", "scale"]:
-            self._proposal = value
-
-        elif isinstance(value, cuqi.distribution.Normal) and sorted(
-            value.get_conditioning_variables()
-        ) == ["mean", "std"]:
-            self._proposal = value(
-                mean=lambda location: location, std=lambda scale: scale
-            )
-
-        elif not isinstance(value, cuqi.distribution.Distribution) and callable(
-            value):
-            self._proposal = value
-
-        else:
-            raise ValueError(fail_msg)
+        return self._proposal
+    
+    @proposal.setter
+    def proposal(self, value):
+        self._proposal = value
 
     def step(self):
         # Initialize x_t which is used to store the current CWMH sample
