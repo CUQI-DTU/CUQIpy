@@ -111,8 +111,7 @@ class GibbsNew:
         # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
         # This is not ideal and should be fixed in the future
         for sampler in self.samplers.values():
-            if hasattr(sampler, '_pre_warmup'): sampler._pre_warmup()
-            if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
+            self._pre_warmup_and_pre_sample_sampler(sampler)
 
         # Validate all targets for samplers.
         self.validate_targets()
@@ -157,10 +156,16 @@ class GibbsNew:
             sampler = self.samplers[par_name]
 
             # Set initial point using current samples and reinitalize sampler
-            # With careful implementation in subclasses and unit tests, we may
-            # be able to avoid reinitializing the sampler
+            # This makes the sampler loose all of its state
+            # We need to design tests that allow samplers to change target
+            # and not require reinitialization. This is needed to keep properties
+            # like the internal state of NUTS for the next Gibbs step.
             sampler.initial_point = self.current_samples[par_name]
             sampler.reinitialize()
+
+            # Run pre_warmup and pre_sample methods for sampler
+            # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
+            self._pre_warmup_and_pre_sample_sampler(sampler)
 
             # Take a MCMC step
             sampler.step()
@@ -178,6 +183,10 @@ class GibbsNew:
             self.samplers[par_name].tune(skip_len=1, update_count=idx)
 
     # ------------ Private methods ------------
+    def _pre_warmup_and_pre_sample_sampler(self, sampler):
+        if hasattr(sampler, '_pre_warmup'): sampler._pre_warmup()
+        if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
+
     def _set_targets(self):
         """ Set targets for all samplers """
         par_names = self.par_names
