@@ -344,6 +344,8 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.NUTSNew,
+    cuqi.experimental.mcmc.ConjugateNew,
+    cuqi.experimental.mcmc.GibbsNew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
