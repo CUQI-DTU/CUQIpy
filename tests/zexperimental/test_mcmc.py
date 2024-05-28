@@ -324,6 +324,15 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
                                         Ns=Ns,
                                         Nb=Nb,
                                         strategy="NUTS")
+    
+def create_conjugate_target(type:str):
+    if type.lower() == 'gaussian-gamma':
+        y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+    else:
+        raise ValueError(f"Conjugate target type {type} not recognized.")
+
 # ============ Checkpointing ============
 
 
@@ -332,7 +341,9 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
-    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.Direct(cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(create_conjugate_target("Gaussian-Gamma")),
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -344,7 +355,6 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.NUTSNew,
-    cuqi.experimental.mcmc.ConjugateNew,
     cuqi.experimental.mcmc.GibbsNew
 ]
 
@@ -513,7 +523,7 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
 initialize_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
-    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew, cuqi.experimental.mcmc.GibbsNew]
 ]
 
 # Instances of samplers that should be tested for target=None initialization consistency
@@ -527,6 +537,8 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.Direct(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma"))
 ]
 
 
