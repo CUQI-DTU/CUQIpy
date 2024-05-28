@@ -165,11 +165,8 @@ class GibbsNew:
             # Take a MCMC step
             sampler.step()
 
-            # Extract samples
-            self.current_samples[par_name] = sampler.current_point
-
-            # Ensure even 1-dimensional samples are 1D arrays
-            self.current_samples[par_name] = self.current_samples[par_name].reshape(-1)
+            # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
+            self.current_samples[par_name] = sampler.current_point.reshape(-1)
 
     def step_tune(self, idx):
         """ Perform a single MCMC step for each parameter and tune the sampler """

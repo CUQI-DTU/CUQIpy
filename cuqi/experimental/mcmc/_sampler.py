@@ -102,7 +102,7 @@ class SamplerNew(ABC):
         pass
 
     @abstractmethod
-    def tune(self):
+    def tune(self, skip_len, update_count):
         """ Tune the parameters of the sampler. This method is called after each step of the warmup phase. """
         pass
 
