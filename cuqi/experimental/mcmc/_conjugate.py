@@ -5,10 +5,13 @@ from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 
 class ConjugateNew(SamplerNew):
 
-    def __init__(self, target:Posterior=None):
-        self.target = target
+    def _initialize(self):
+        pass
 
     def validate_target(self):
+
+        if not isinstance(self.target, Posterior):
+            raise TypeError("Conjugate sampler requires a target of type Posterior")
 
         if not isinstance(self.target.likelihood.distribution, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)):
             raise ValueError("Conjugate sampler only works with a Gaussian-type likelihood function")
