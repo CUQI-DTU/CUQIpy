@@ -1,12 +1,20 @@
 from cuqi.distribution import JointDistribution
 from cuqi.experimental.mcmc import SamplerNew
 from cuqi.samples import Samples
-from typing import Dict, Union
+from typing import Dict
 import numpy as np
-import sys
+import warnings
 
+try:
+    from progressbar import progressbar
+except ImportError:
+    def progressbar(iterable, **kwargs):
+        warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
+        return iterable
 
-class GibbsNew:
+# Not subclassed from SamplerNew as Gibbs handles multiple samplers and samples multiple parameters
+# Similar approach as for JointDistribution
+class GibbsNew: 
     """
     Gibbs sampler for sampling a joint distribution.
 
@@ -73,81 +81,77 @@ class GibbsNew:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], SamplerNew]):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, SamplerNew]):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
 
-        # Parse samplers and split any keys that are tuple into separate keys
-        self.samplers = {}
-        for par_name in sampling_strategy.keys():
-            if isinstance(par_name, tuple):
-                for par_name_ in par_name:
-                    self.samplers[par_name_] = sampling_strategy[par_name]
-            else:
-                self.samplers[par_name] = sampling_strategy[par_name]
+        # Store sampler instances (again as a copy to avoid modifying the original)
+        self.samplers = sampling_strategy.copy()
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
 
-    # ------------ Public methods ------------
-    def sample(self, Ns, Nb=0):
-        """ Sample from target distribution """
+        # Initialize sampler (after target is set)
+        self._initialize()
+
+    def _initialize(self):
+        """ Initialize sampler """
 
         # Initial points
-        current_samples = self._get_initial_points()
+        self.current_samples = self._get_initial_points()
 
-        # Compute how many samples were already taken previously
-        at_Nb = self._Nb
-        at_Ns = self._Ns
+        # Allocate samples
+        self._allocate_samples()
 
-        # Allocate memory for samples
-        self._allocate_samples_warmup(Nb)
-        self._allocate_samples(Ns)
-
-        # Set targets for all samplers
-        self._set_targets(current_samples)
+        # Set targets
+        self._set_targets()
 
         # Run over pre-sample methods for samplers that have it
+        # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
+        # This is not ideal and should be fixed in the future
         for sampler in self.samplers.values():
-            if hasattr(sampler, '_pre_warmup'): # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
-                sampler._pre_warmup()
-            if hasattr(sampler, '_pre_sample'):
-                sampler._pre_sample()
+            if hasattr(sampler, '_pre_warmup'): sampler._pre_warmup()
+            if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
 
-        # Sample tuning phase
-        for i in range(at_Nb, at_Nb+Nb):
-            current_samples = self.step_tune(current_samples, i)
-            self._store_samples(self.samples_warmup, current_samples, i)
-            self._print_progress(i+1+at_Nb, at_Nb+Nb, 'Warmup')
+        # Validate all targets for samplers.
+        self.validate_targets()
 
-        # Sample phase
-        for i in range(at_Ns, at_Ns+Ns):
-            current_samples = self.step(current_samples)
-            self._store_samples(self.samples, current_samples, i)
-            self._print_progress(i+1, at_Ns+Ns, 'Sample')
+    # ------------ Public methods ------------
+    def validate_targets(self):
+        """ Validate each of the conditional targets used in the Gibbs steps """
+        if not isinstance(self.target, JointDistribution):
+            raise ValueError('Target distribution must be a JointDistribution.')
+        for sampler in self.samplers.values():
+            sampler.validate_target()
 
-        # Convert to samples objects and return
-        return self._convert_to_Samples(self.samples)
+    def sample(self, Ns) -> 'GibbsNew':
+        """ Sample from the joint distribution using Gibbs sampling """
+        for _ in progressbar(range(Ns)):
+            self.step()
+            self._store_samples()
+
+    def warmup(self, Nb) -> 'GibbsNew':
+        """ Warmup (tune) the Gibbs sampler """
+        for idx in progressbar(range(Nb)):
+            self.step_tune(idx)
+            self._store_samples()
+
+    def get_samples(self) -> Dict[str, Samples]:
+        samples_object = {}
+        for par_name in self.par_names:
+            samples_array = np.array(self.samples[par_name]).T
+            samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)
+        return samples_object
     
-    def _set_targets(self, current_samples):
-        """ Set targets for all samplers """
-        par_names = self.par_names
-        for par_name in par_names:
-            other_params = {par_name_: current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
-            self.samplers[par_name].target = self.target(**other_params)
-
-    def step(self, current_samples):
+    def step(self):
         """ Sequentially go through all parameters and sample them conditionally on each other """
 
-        # Extract par names
-        par_names = self.par_names
-
         # Sample from each conditional distribution
-        for par_name in par_names:
+        for par_name in self.par_names:
 
-            # Set targets
-            self._set_targets(current_samples)
+            # Set targets (TODO: This is inefficient. Instead we should only update the target for the current parameter)
+            self._set_targets()
 
             # Get sampler
             sampler = self.samplers[par_name]
@@ -155,116 +159,53 @@ class GibbsNew:
             # Set initial point using current samples and reinitalize sampler
             # With careful implementation in subclasses and unit tests, we may
             # be able to avoid reinitializing the sampler
-            sampler.initial_point = current_samples[par_name]
+            sampler.initial_point = self.current_samples[par_name]
             sampler.reinitialize()
 
             # Take a MCMC step
             sampler.step()
 
             # Extract samples
-            current_samples[par_name] = sampler.current_point
+            self.current_samples[par_name] = sampler.current_point
 
             # Ensure even 1-dimensional samples are 1D arrays
-            current_samples[par_name] = current_samples[par_name].reshape(-1)
-        
-        return current_samples
+            self.current_samples[par_name] = self.current_samples[par_name].reshape(-1)
 
-    def step_tune(self, current_samples, idx):
+    def step_tune(self, idx):
         """ Perform a single MCMC step for each parameter and tune the sampler """
             
-        current_samples = self.step(current_samples)
-    
-        par_names = self.par_names
+        self.step()
     
         # Tune each sampler
-        for par_name in par_names:
-        
-            # Get sampler
-            sampler = self.samplers[par_name]
-
-            # Tune sampler
-            sampler.tune(skip_len=1, update_count=idx)
-
-        return current_samples
+        for par_name in self.par_names:
+            self.samplers[par_name].tune(skip_len=1, update_count=idx)
 
     # ------------ Private methods ------------
-    def _allocate_samples(self, Ns):
+    def _set_targets(self):
+        """ Set targets for all samplers """
+        par_names = self.par_names
+        for par_name in par_names:
+            other_params = {par_name_: self.current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
+            self.samplers[par_name].target = self.target(**other_params)
+
+    def _allocate_samples(self):
         """ Allocate memory for samples """
-        # Allocate memory for samples
         samples = {}
         for par_name in self.par_names:
-            samples[par_name] = np.zeros((self.target.get_density(par_name).dim, Ns))
-        
-        # Store samples in self
-        if hasattr(self, 'samples'):
-            # Append to existing samples (This makes a copy)
-            for par_name in self.par_names:
-                samples[par_name] = np.hstack((self.samples[par_name], samples[par_name]))
+            samples[par_name] = []
         self.samples = samples
-
-    def _allocate_samples_warmup(self, Nb):
-        """ Allocate memory for samples """
-        
-        # If we already have warmup samples and more are requested raise error
-        if hasattr(self, 'samples_warmup') and Nb != 0:
-            raise ValueError('Sampler already has run warmup phase. Cannot run warmup phase again.')
-
-        # Allocate memory for samples
-        samples = {}
-        for par_name in self.par_names:
-            samples[par_name] = np.zeros((self.target.get_density(par_name).dim, Nb))
-        self.samples_warmup = samples
 
     def _get_initial_points(self):
         """ Get initial points for each parameter """
         initial_points = {}
         for par_name in self.par_names:
-            if hasattr(self, 'samples'):
-                initial_points[par_name] = self.samples[par_name][:, -1]
-            elif hasattr(self, 'samples_warmup'):
-                initial_points[par_name] = self.samples_warmup[par_name][:, -1]
-            elif hasattr(self.target.get_density(par_name), 'init_point'):
+            if hasattr(self.target.get_density(par_name), 'init_point'):
                 initial_points[par_name] = self.target.get_density(par_name).init_point
             else:
                 initial_points[par_name] = np.ones(self.target.get_density(par_name).dim)
         return initial_points
 
-    def _store_samples(self, samples, current_samples, i):
+    def _store_samples(self):
         """ Store current samples at index i of samples dict """
         for par_name in self.par_names:
-            samples[par_name][:, i] = current_samples[par_name]
-
-    def _convert_to_Samples(self, samples):
-        """ Convert each parameter in samples dict to cuqi.samples.Samples object with correct geometry """
-        samples_object = {}
-        for par_name in self.par_names:
-            samples_object[par_name] = Samples(samples[par_name], self.target.get_density(par_name).geometry)
-        return samples_object
-
-    def _print_progress(self, s, Ns, phase):
-        """Prints sampling progress"""
-        if Ns < 2: # Don't print progress if only one sample
-            return
-        if (s % (max(Ns//100,1))) == 0:
-            msg = f'{phase} {s} / {Ns}'
-            sys.stdout.write('\r'+msg)
-        if s==Ns:
-            msg = f'{phase} {s} / {Ns}'
-            sys.stdout.write('\r'+msg+'\n')
-
-    # ------------ Private properties ------------
-    @property
-    def _Ns(self):
-        """ Number of samples already taken """
-        if hasattr(self, 'samples'):
-            return self.samples[self.par_names[0]].shape[-1]
-        else:
-            return 0
-    
-    @property
-    def _Nb(self):
-        """ Number of samples already taken in warmup phase """
-        if hasattr(self, 'samples_warmup'):
-            return self.samples_warmup[self.par_names[0]].shape[-1]
-        else:
-            return 0
+            self.samples[par_name].append(self.current_samples[par_name])
