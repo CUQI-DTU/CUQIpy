@@ -19,6 +19,9 @@ class GibbsNew:
     This is often a very efficient way of sampling from a joint distribution
     if the conditional distributions are easy to sample from.
 
+    In each Gibbs step, the corresponding sampler has the initial_point set
+    to the previous sample and the sampler is reinitialized.
+
     Parameters
     ----------
     target : cuqi.distribution.JointDistribution
@@ -52,12 +55,13 @@ class GibbsNew:
 
         # Define sampling strategy
         sampling_strategy = {
-            'x': cuqi.sampler.LinearRTO,
-            ('d', 'l'): cuqi.sampler.Conjugate,
+            'x': cuqi.experimental.mcmc.LinearRTONew(maxit=15),
+            'd': cuqi.experimental.mcmc.ConjugateNew(),
+            'l': cuqi.experimental.mcmc.ConjugateNew(),
         }
 
         # Define Gibbs sampler
-        sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+        sampler = cuqi.experimental.mcmc.GibbsNew(posterior, sampling_strategy)
 
         # Run sampler
         samples = sampler.sample(Ns=1000, Nb=200)
@@ -131,7 +135,7 @@ class GibbsNew:
         par_names = self.par_names
         for par_name in par_names:
             other_params = {par_name_: current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
-            self.samplers[par_name](self.target(**other_params))
+            self.samplers[par_name].target = self.target(**other_params)
 
     def step(self, current_samples):
         """ Sequentially go through all parameters and sample them conditionally on each other """
@@ -148,8 +152,13 @@ class GibbsNew:
             # Get sampler
             sampler = self.samplers[par_name]
 
+            # Set initial point using current samples and reinitalize sampler
+            # With careful implementation in subclasses and unit tests, we may
+            # be able to avoid reinitializing the sampler
+            sampler.initial_point = current_samples[par_name]
+            sampler.reinitialize()
+
             # Take a MCMC step
-            sampler.current_point = current_samples[par_name] # Needed? Can perhaps remove.
             sampler.step()
 
             # Extract samples

@@ -43,7 +43,7 @@ class SamplerNew(ABC):
     _HISTORY_KEYS = {'_samples', '_acc'}
     """ Set of keys for the history dictionary. """
 
-    def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
+    def __init__(self, target:cuqi.density.Density=None, initial_point=None, callback=None):
         """ Initializer for abstract base class for all samplers.
 
         Any subclassing samplers should simply store input parameters as part of the __init__ method. 
@@ -385,6 +385,7 @@ class SamplerNew(ABC):
         """ Return a string representation of the sampler. """
         if self.target is None:
             return f"Sampler: {self.__class__.__name__} \n Target: None"
+        self._ensure_initialized()
         state = self.get_state()
         msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
         # Sort keys alphabetically
