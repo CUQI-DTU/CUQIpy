@@ -27,8 +27,11 @@ class GibbsNew:
     This is often a very efficient way of sampling from a joint distribution
     if the conditional distributions are easy to sample from.
 
-    In each Gibbs step, the corresponding sampler has the initial_point set
-    to the previous sample and the sampler is reinitialized.
+    In each Gibbs step, the corresponding sampler has the initial_point 
+    and initial_scale (if applicable) set to the value of the previous step
+    and the sampler is reinitialized. This means that the sampling is not 
+    fully stateful at this point. This means samplers like NUTS will loose
+    their internal state between Gibbs steps.
 
     Parameters
     ----------
