@@ -133,7 +133,8 @@ class GibbsNew:
     def warmup(self, Nb) -> 'GibbsNew':
         """ Warmup (tune) the Gibbs sampler """
         for idx in progressbar(range(Nb)):
-            self.step_tune(idx)
+            self.step()
+            self.tune(idx)
             self._store_samples()
 
     def get_samples(self) -> Dict[str, Samples]:
@@ -173,12 +174,9 @@ class GibbsNew:
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
             self.current_samples[par_name] = sampler.current_point.reshape(-1)
 
-    def step_tune(self, idx):
-        """ Perform a single MCMC step for each parameter and tune the sampler """
-            
-        self.step()
-    
-        # Tune each sampler
+    def tune(self, idx):
+        """ Tune each of the samplers """
+
         for par_name in self.par_names:
             self.samplers[par_name].tune(skip_len=1, update_count=idx)
 
