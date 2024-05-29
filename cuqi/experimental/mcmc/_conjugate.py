@@ -4,7 +4,22 @@ from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 
 class ConjugateNew(SamplerNew):
+    """ Conjugate sampler
 
+    Sampler for sampling a posterior distribution where the likelihood and prior are conjugate.
+
+    Currently supported conjugate pairs are:
+    - (Gaussian, Gamma)
+    - (GMRF, Gamma)
+    - (RegularizedGaussian, Gamma) with nonnegativity constraints only
+
+    For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
+
+    For implicit regularized Gaussians see:
+    
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
+
+    """
     def _initialize(self):
         pass
 

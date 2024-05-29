@@ -1,6 +1,16 @@
 from cuqi.experimental.mcmc import SamplerNew
 
 class DirectNew(SamplerNew):
+    """ Direct sampler
+
+    This sampler is used to sample from a target distribution directly. It simply calls the sample method of the target object to generate a sample.
+
+    Parameters
+    ----------
+    target : Distribution
+        The target distribution to sample from.
+
+    """
             
     def _initialize(self):
         pass
