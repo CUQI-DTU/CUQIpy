@@ -40,6 +40,12 @@ class GibbsNew:
         Keys are parameter names.
         Values are sampler objects.
 
+    sampling_steps : dict, *optional*
+        Dictionary of number of sampling steps for each parameter.
+        The sampling steps are defined as the number of times the sampler
+        will call its step method in each Gibbs step.
+        Default is 1 for all parameters.
+
     Example
     -------
     .. code-block:: python
@@ -81,13 +87,16 @@ class GibbsNew:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, SamplerNew]):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, SamplerNew], sampling_steps: Dict[str, int] = None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
 
         # Store sampler instances (again as a copy to avoid modifying the original)
         self.samplers = sampling_strategy.copy()
+
+        # Store number of sampling steps for each parameter
+        self.sampling_steps = sampling_steps
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
@@ -101,11 +110,17 @@ class GibbsNew:
         # Initial points
         self.current_samples = self._get_initial_points()
 
+        # Initialize sampling steps
+        self._initialize_sampling_steps()
+
         # Allocate samples
         self._allocate_samples()
 
         # Set targets
         self._set_targets()
+
+        # Initialize the samplers
+        self._initialize_samplers() 
 
         # Run over pre-sample methods for samplers that have it
         # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
@@ -156,20 +171,24 @@ class GibbsNew:
             # Get sampler
             sampler = self.samplers[par_name]
 
-            # Set initial point using current samples and reinitalize sampler
+            # Set initial parameters using current point and scale (subset of state)
             # This makes the sampler loose all of its state
             # We need to design tests that allow samplers to change target
             # and not require reinitialization. This is needed to keep properties
             # like the internal state of NUTS for the next Gibbs step.
             sampler.initial_point = self.current_samples[par_name]
+            if hasattr(sampler, 'initial_scale'): sampler.initial_scale = sampler.scale
+
+            # Reinitialize sampler
             sampler.reinitialize()
 
             # Run pre_warmup and pre_sample methods for sampler
             # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
             self._pre_warmup_and_pre_sample_sampler(sampler)
 
-            # Take a MCMC step
-            sampler.step()
+            # Take MCMC steps
+            for _ in range(self.sampling_steps[par_name]):
+                sampler.step()
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
             self.current_samples[par_name] = sampler.current_point.reshape(-1)
@@ -181,6 +200,22 @@ class GibbsNew:
             self.samplers[par_name].tune(skip_len=1, update_count=idx)
 
     # ------------ Private methods ------------
+    def _initialize_samplers(self):
+        """ Initialize samplers """
+        for sampler in self.samplers.values():
+            sampler.initialize()
+
+    def _initialize_sampling_steps(self):
+        """ Initialize sampling steps for each sampler. Defaults to 1 if not set by user """
+
+        if self.sampling_steps is None:
+            self.sampling_steps = {par_name: 1 for par_name in self.par_names}
+
+        for par_name in self.par_names:
+            if par_name not in self.sampling_steps:
+                self.sampling_steps[par_name] = 1
+
+
     def _pre_warmup_and_pre_sample_sampler(self, sampler):
         if hasattr(sampler, '_pre_warmup'): sampler._pre_warmup()
         if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
