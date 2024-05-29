@@ -1,6 +1,6 @@
 from cuqi.experimental.mcmc import SamplerNew
 
-class Direct(SamplerNew):
+class DirectNew(SamplerNew):
             
     def _initialize(self):
         pass

@@ -10,4 +10,4 @@ from ._laplace_approximation import UGLANew
 from ._hmc import NUTSNew
 from ._gibbs import GibbsNew
 from ._conjugate import ConjugateNew
-from ._direct import Direct
+from ._direct import DirectNew

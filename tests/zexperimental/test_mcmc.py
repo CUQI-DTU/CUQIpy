@@ -342,7 +342,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
     cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)),
-    cuqi.experimental.mcmc.Direct(cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.DirectNew(cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.ConjugateNew(create_conjugate_target("Gaussian-Gamma")),
 ]
     
@@ -537,7 +537,7 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
-    cuqi.experimental.mcmc.Direct(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma"))
 ]
 
