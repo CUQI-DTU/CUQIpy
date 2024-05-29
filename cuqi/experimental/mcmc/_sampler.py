@@ -103,7 +103,17 @@ class SamplerNew(ABC):
 
     @abstractmethod
     def tune(self, skip_len, update_count):
-        """ Tune the parameters of the sampler. This method is called after each step of the warmup phase. """
+        """ Tune the parameters of the sampler. This method is called after each step of the warmup phase.
+
+        Parameters
+        ----------
+        skip_len : int
+            Defines the number of steps in between tuning (i.e. the tuning interval).
+
+        update_count : int
+            The number of times tuning has been performed. Can be used for internal bookkeeping.
+        
+        """
         pass
 
     @abstractmethod
