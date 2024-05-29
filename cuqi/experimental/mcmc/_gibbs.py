@@ -180,14 +180,15 @@ class GibbsNew:
             sampler = self.samplers[par_name]
 
             # Set initial parameters using current point and scale (subset of state)
-            # This makes the sampler lose all of its state
-            # We need to design tests that allow samplers to change target
-            # and not require reinitialization. This is needed to keep properties
-            # like the internal state of NUTS for the next Gibbs step.
+            # This does not store the full state from e.g. NUTS sampler
+            # But works on samplers like MH, PCN, ULA, MALA, LinearRTO, UGLA, CWMH
+            # that only use initial_point and initial_scale
             sampler.initial_point = self.current_samples[par_name]
             if hasattr(sampler, 'initial_scale'): sampler.initial_scale = sampler.scale
 
             # Reinitialize sampler
+            # This makes the sampler loose all of its state.
+            # This is only OK because we set the initial values above from the previous state
             sampler.reinitialize()
 
             # Run pre_warmup and pre_sample methods for sampler

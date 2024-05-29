@@ -189,7 +189,7 @@ class RegularizedLinearRTONew(LinearRTONew):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 

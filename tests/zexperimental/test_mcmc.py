@@ -330,6 +330,10 @@ def create_conjugate_target(type:str):
         y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
         s = cuqi.distribution.Gamma(1, 1e-4, name='s')
         return cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+    if type.lower() == 'lmrf-gamma':
+        x = cuqi.distribution.LMRF(0, lambda s: 1/s, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
     else:
         raise ValueError(f"Conjugate target type {type} not recognized.")
 
@@ -344,6 +348,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)),
     cuqi.experimental.mcmc.DirectNew(cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.ConjugateNew(create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(create_conjugate_target("LMRF-Gamma"))
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -538,14 +543,15 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
     cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
-    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma"))
+    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
 ]
 
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
 def test_target_None_init_in_samplers(sampler_class):
     """ Test all samplers can be initialized with target=None. """
-    sampler = sampler_class(target=None)
+    sampler = sampler_class()
     assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
