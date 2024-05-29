@@ -175,7 +175,7 @@ class GibbsNew:
             sampler = self.samplers[par_name]
 
             # Set initial parameters using current point and scale (subset of state)
-            # This makes the sampler loose all of its state
+            # This makes the sampler lose all of its state
             # We need to design tests that allow samplers to change target
             # and not require reinitialization. This is needed to keep properties
             # like the internal state of NUTS for the next Gibbs step.
@@ -198,7 +198,6 @@ class GibbsNew:
 
     def tune(self, idx):
         """ Tune each of the samplers """
-
         for par_name in self.par_names:
             self.samplers[par_name].tune(skip_len=1, update_count=idx)
 
