@@ -25,7 +25,12 @@ class GibbsNew:
     The sampling of each variable is done by sampling from the conditional
     distribution of that variable given the values of the other variables.
     This is often a very efficient way of sampling from a joint distribution
-    if the conditional distributions are easy to sample from.
+    if the conditional distributions are easy to sample from. 
+    
+    When the conditionals are sampled exactly, the samples from the Gibbs 
+    sampler converge to the joint distribution. See e.g.
+    Gelman et al. "Bayesian Data Analysis" (2014), Third Edition
+    for more details.
 
     In each Gibbs step, the corresponding sampler has the initial_point 
     and initial_scale (if applicable) set to the value of the previous step
