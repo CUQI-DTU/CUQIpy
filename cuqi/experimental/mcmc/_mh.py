@@ -1,7 +1,6 @@
 import numpy as np
 import cuqi
 from cuqi.experimental.mcmc import ProposalBasedSamplerNew
-from cuqi.array import CUQIarray
 
 
 class MHNew(ProposalBasedSamplerNew):
@@ -27,25 +26,19 @@ class MHNew(ProposalBasedSamplerNew):
 
     def __init__(self, target, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
+
+    def _initialize(self):
         # Due to a bug? in old MH, we must keep track of this extra variable to match behavior.
-        self._scale_temp = self.scale 
+        self._scale_temp = self.scale
 
     def validate_target(self):
         pass # All targets are valid
 
-    @ProposalBasedSamplerNew.proposal.setter  # TODO. Check if we can refactor this. We can work with a validate_proposal method instead?
-    def proposal(self, value):
-        fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
-
-        if value is None:
-            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
-        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
-            raise NotImplementedError(fail_msg)
-        elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
-            self._proposal = value
-        else:
-            raise ValueError(fail_msg)
-        self._proposal.geometry = self.target.geometry
+    def validate_proposal(self):
+        if not isinstance(self.proposal, cuqi.distribution.Distribution):
+            raise ValueError("Proposal must be a cuqi.distribution.Distribution object")
+        if not self.proposal.is_symmetric:
+            raise ValueError("Proposal must be symmetric")
 
     def step(self):
         # propose state

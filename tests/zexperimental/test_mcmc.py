@@ -2,11 +2,12 @@ import cuqi
 import pytest
 import numpy as np
 import inspect
+from numbers import Number
 
 def assert_true_if_sampling_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
         sampler_new: cuqi.experimental.mcmc.SamplerNew,
-        Ns=20, atol=1e-1, old_idx=[0, None], new_idx=[0, -1]):
+        Ns=20, atol=1e-1, old_idx=[1, None], new_idx=[0, -1]):
     """ Assert that the samples from the old and new sampler are equivalent.
 
     Ns: int
@@ -39,7 +40,7 @@ def assert_true_if_warmup_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
         sampler_new: cuqi.experimental.mcmc.SamplerNew,
         Ns=20, Nb=20,
-        strategy="MH_like", old_idx=[0, None], new_idx=[0, None]):
+        strategy="MH_like", old_idx=[1, None], new_idx=[0, None]):
     """ Assert that the samples from the old and new sampler are equivalent.
      
     Ns: int
@@ -278,7 +279,7 @@ def test_CWMH_regression_sample(target: cuqi.density.Density):
                                                  scale=np.ones(target.dim))
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new,
                                           Ns=10,
-                                          old_idx=[0, -1],
+                                          old_idx=[1, -1],
                                           new_idx=[1, -1])
 
 @pytest.mark.parametrize("target", targets)
@@ -291,7 +292,7 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new,
                                         Ns=Ns,
                                         strategy="MH_like",
-                                        old_idx=[0, -1],
+                                        old_idx=[1, -1],
                                         new_idx=[1, None])
 
 # ============= HMC (NUTS) ==============
@@ -342,7 +343,7 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.PCNNew,
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
-    cuqi.experimental.mcmc.NUTSNew
+    cuqi.experimental.mcmc.NUTSNew,
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -381,20 +382,24 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
     # Save checkpoint
     sampler.save_checkpoint('checkpoint.pickle')
 
-    # Reset (soft) the sampler, e.g. remove all samples but keep the state
-    sampler.reset()
+    # Reset the sampler, e.g. remove all samples but keep the state
+    # Calling sampler.reset() would fail since it resets state.
+    # Instead, we want to call a method like reset_history().
+    # Currently we do this:
+    sampler._samples = []
 
     # Do some more samples from pre-defined rng state
     np.random.seed(0)
     samples1 = sampler.warmup(50).sample(50).get_samples().samples
 
+    #TODO Consider changing now that target=None is allowed.
     # Now load the checkpoint on completely fresh sampler not even with target
     sampler_fresh = sampler.__class__(sampler.target) # In principle init with no arguments. Now still with target
     sampler_fresh.load_checkpoint('checkpoint.pickle')
 
     # Do some more samples from pre-defined rng state
     np.random.seed(0)
-    samples2 = sampler_fresh.warmup(50).sample(50).get_samples().samples[...,1:] # TODO. This needs to be fixed.. We should likely not store initial point in _samples
+    samples2 = sampler_fresh.warmup(50).sample(50).get_samples().samples
 
     # Check that the samples are the same
     assert np.allclose(samples1, samples2), f"Samples1: {samples1}\nSamples2: {samples2}"
@@ -403,7 +408,7 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 state_history_targets = [
     cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.PCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
-    cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.5),
+    cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
@@ -501,3 +506,103 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
         error_details = '\n'.join([f"State '{key}' not updated correctly after warmup. {message}" for key, message in failed_updates.items()])
         error_message = f"Errors occurred in {sampler.__class__.__name__} - issues with keys: {failed_keys}.\n{error_details}"
         assert not failed_updates, error_message
+
+# Samplers that should be tested for target=None initialization
+initialize_testing_sampler_classes = [
+    cls
+    for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
+    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+]
+
+# Instances of samplers that should be tested for target=None initialization consistency
+initialize_testing_sampler_instances = [
+    cuqi.experimental.mcmc.MHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.PCNNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.CWMHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.ULANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.MALANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.NUTSNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
+    cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
+]
+
+
+@pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
+def test_target_None_init_in_samplers(sampler_class):
+    """ Test all samplers can be initialized with target=None. """
+    sampler = sampler_class(target=None)
+    assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
+
+@pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
+def test_sampler_initialization_consistency(sampler_class: cuqi.experimental.mcmc.SamplerNew):
+    """ Test that all samplers initialized with target=None and target set later is equivalent to initializing with target right away. """
+
+    # Find sampler instance that matches the sampler class
+    sampler_instance = next((s for s in initialize_testing_sampler_instances if isinstance(s, sampler_class)), None)
+    if sampler_instance is None:
+        raise ValueError(
+            f"No sampler instance in the list of initialize_testing_sampler_instances matches the sampler class {sampler_class}. "
+            "Please add an instance to the list."
+        )
+    
+    # Initialize sampler with target=None and set target after
+    sampler_target_None = sampler_class(target=None)
+    sampler_target_None.target = sampler_instance.target
+
+    # Then run samplers and compare the samples
+    np.random.seed(0)
+    samples_target_None = sampler_target_None.warmup(10).sample(10).get_samples().samples
+
+    np.random.seed(0)
+    samples_target = sampler_instance.warmup(10).sample(10).get_samples().samples
+
+    assert np.allclose(samples_target_None, samples_target), f"Sampler {sampler_class} initialized with target=None is not equivalent to initializing with target right away."
+
+def compare_attributes(attr1, attr2, key=''):
+    """ Recursively compare attributes. """
+    try:
+        if isinstance(attr1, np.ndarray):
+            assert np.allclose(attr1, attr2), f"ndarray: Attribute '{key}' differs after initialization"
+        elif isinstance(attr1, list):
+            assert len(attr1) == len(attr2), f"List length: Attribute '{key}' differs after initialization"
+            for i, (a1, a2) in enumerate(zip(attr1, attr2)):
+                compare_attributes(a1, a2, f"{key}[{i}]")
+        elif isinstance(attr1, dict):
+            assert attr1.keys() == attr2.keys(), f"Dict keys: Attribute '{key}' differs after initialization"
+            for k in attr1.keys():
+                compare_attributes(attr1[k], attr2[k], f"{key}['{k}']")
+        elif isinstance(attr1, Number):
+            assert np.allclose(attr1, attr2), f"Number: Attribute '{key}' differs after initialization"
+        elif isinstance(attr1, str):
+            assert attr1 == attr2, f"String: Attribute '{key}' differs after initialization"
+        else:
+            assert type(attr1) == type(attr2), f"Type: Attribute '{key}' differs after initialization"
+    except AssertionError as e:
+        raise AssertionError(f"{e}. Ensure the attribute '{key}' is correctly defined and initialized in the _initialize method.")
+
+@pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
+def test_sampler_reinitialization_restores_to_initial_configuration(sampler_class):
+
+    # Find sampler instance that matches the sampler class
+    sampler_instance = next((s for s in initialize_testing_sampler_instances if isinstance(s, sampler_class)), None)
+    if (sampler_instance is None):
+        raise ValueError(
+            f"No instance in the list of initialize_testing_sampler_instances matches the class {sampler_class}. "
+            "Please add an instance to the list."
+        )
+    
+    # Initialize two instances with equivalent initial configuration
+    instance1 = sampler_class(target=sampler_instance.target)
+    instance2 = sampler_class(target=sampler_instance.target)
+
+    # Run instance1 for a bit. Then reinitialize it and initialize instance2
+    instance1.warmup(10).sample(10)
+    instance1.reinitialize()
+    instance2.initialize()
+
+    # Compare all attributes of the two instances. They should be equivalent.
+    for key in instance1.__dict__.keys() | instance2.__dict__.keys():
+        attr1 = getattr(instance1, key, None)
+        attr2 = getattr(instance2, key, None)
+        compare_attributes(attr1, attr2, key)
