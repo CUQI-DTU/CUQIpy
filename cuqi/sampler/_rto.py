@@ -203,6 +203,8 @@ class RegularizedLinearRTO(LinearRTO):
 
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
 
+    The implicit Gaussian prior needs to be an instance of RegularizedGaussian, RegularizedGMRF or RegularizedUniform.
+
     Parameters
     ------------
     target : `cuqi.distribution.Posterior`
@@ -212,14 +214,21 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the inner FISTA solver. *Optional*.
+        Maximum number of iterations of the inner FISTA or ADMM solver. *Optional*.
         
     stepsize : string or float
+        Stepsize used by the inner FISTA solver.
         If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
         If stepsize is a float, then this stepsize is used.
 
+    tradeoff : float
+        Trade-off parameter used by the inner ADMM solver.
+
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
+
+    adaptive : boolean
+        Whether to use an adaptive version of the inner solver.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -228,17 +237,22 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", tradeoff = 10, abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
 
+        # FIXME: Temporarily disable safety check for implementation ADMM
+        """
         if not callable(target.prior.proximal):
             raise TypeError("Projector needs to be callable")
-        
-        super().__init__(target, x0=x0, maxit=100, **kwargs)
+        """
+            
+        super().__init__(target, x0=x0, maxit=maxit, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
+        self.rho = tradeoff
         self.abstol = abstol   
         self.adaptive = adaptive
+        self.warmstart_CGLS = warmstart_CGLS
         self.proximal = target.prior.proximal
 
     @property
@@ -267,9 +281,23 @@ class RegularizedLinearRTO(LinearRTO):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = FISTA(self.M, y, self.proximal,
-                        samples[:, s],
-                        maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+                
+            if self.warmstart_CGLS:
+                ws_sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+                x0, _ = ws_sim.solve()
+            else:
+                x0 = samples[:, s]
+
+            if callable(self.proximal):
+                sim = FISTA(self.M, y, self.proximal, # Data
+                            x0,                       # Solver settings
+                            maxit = self.maxit,
+                            stepsize = _stepsize,
+                            abstol = self.abstol,
+                            adaptive = self.adaptive)
+            else:
+                sim = ADMM(self.M, y, self.proximal, x0, self.rho, maxit = self.maxit, adaptive = self.adaptive)
+
             samples[:, s+1], _ = sim.solve()
             
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
