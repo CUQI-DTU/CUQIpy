@@ -63,7 +63,7 @@ class RegularizedGMRF(RegularizedGaussian):
             
         args = {"lower_bound" : kwargs.pop("lower_bound", None),
                 "upper_bound" : kwargs.pop("upper_bound", None),
-                "strength" : kwargs.pop("strength", None)}
+                "strength" : kwargs.pop("strength", 1)}
         
         self._force_list = force_list
         

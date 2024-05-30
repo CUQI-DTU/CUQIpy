@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS, FISTA, ADMM
 from cuqi.sampler import Sampler
 
 

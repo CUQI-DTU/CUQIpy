@@ -7,7 +7,9 @@ from ._solver import (
     LM,
     PDHG,
     FISTA,
+    ADMM,
     ProjectNonnegative,
     ProjectBox,
+    ProjectHalfspace,
     ProximalL1
 )
