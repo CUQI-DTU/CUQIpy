@@ -234,3 +234,15 @@ class RegularizedGaussian(Distribution):
             new_density = new_density.to_likelihood(value)
 
         return new_density
+
+
+class ConstrainedGaussian(RegularizedGaussian):
+    # TODO: Documentation
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, projector=None, constraint=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
+
+        
+class NonnegativeGaussian(RegularizedGaussian):
+    # TODO: Documentation
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)

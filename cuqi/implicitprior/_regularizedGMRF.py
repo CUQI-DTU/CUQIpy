@@ -68,3 +68,16 @@ class RegularizedGMRF(RegularizedGaussian):
             super(Distribution, self).__init__(**kwargs)
 
             self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
+
+
+
+class ConstrainedGMRF(RegularizedGMRF):
+    # TODO: Documentation
+    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, projector=None, constraint=None, **kwargs):
+        super().__init__(mean=mean, prec=prec, bc_type=bc_type, order=order, projector=projector, constraint=constraint, **kwargs)
+
+        
+class NonnegativeGMRF(RegularizedGMRF):
+    # TODO: Documentation
+    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, **kwargs):
+        super().__init__(mean=mean, prec=prec, bc_type=bc_type, order=order, constraint="nonnegativity", **kwargs)
