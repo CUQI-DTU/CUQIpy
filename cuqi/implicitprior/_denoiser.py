@@ -72,7 +72,7 @@ class DenoiseRegularizer(Distribution):
         self.strength_smooth = strength_smooth
         super().__init__(**kwargs)
 
-    def denoise(self, x):
+    def regularize(self, x):
         """This function allows us to denoise the input x and returns the
         denoised version of x.
         """
@@ -82,7 +82,7 @@ class DenoiseRegularizer(Distribution):
     
     def gradient(self, x):
         """This is the gradient of the regularizer."""
-        return -(x - self.denoise(x))/self.strength_smooth
+        return -(x - self.regularize(x))/self.strength_smooth
     
     def logpdf(self, x):
         raise NotImplementedError("The logpdf method is not implemented for" + 
