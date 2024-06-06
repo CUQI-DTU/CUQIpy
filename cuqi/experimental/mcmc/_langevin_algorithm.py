@@ -281,7 +281,6 @@ class MYULANew(ULANew):
     """
     def validate_target(self):
         super().validate_target()
-        # Assert target of type ImplicitlyDefinedPosterior
 
         # Assert target prior is of type Regularizer
         assert isinstance(self.target.prior, DenoiseRegularizer), \
