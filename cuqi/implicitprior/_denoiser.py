@@ -85,8 +85,7 @@ class DenoiseRegularizer(Distribution):
         return -(x - self.regularize(x))/self.strength_smooth
     
     def logpdf(self, x):
-        raise NotImplementedError("The logpdf method is not implemented for" + 
-                                  "the DenoiseRegularizer class.")
+        return np.nan
     
     def _sample(self, N, rng=None):
         raise NotImplementedError("The sample method is not implemented for the"
