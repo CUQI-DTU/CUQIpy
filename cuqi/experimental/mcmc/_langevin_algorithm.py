@@ -325,5 +325,4 @@ class PnPULANew(MYULANew):
     # TODO: update demo once sampler merged
     """
     def __init__ (self, target, scale=1.0, **kwargs):
-        print("This an alias for MYULANew...")
         super().__init__(target, scale, **kwargs)
