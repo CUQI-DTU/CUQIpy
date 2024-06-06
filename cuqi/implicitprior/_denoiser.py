@@ -2,19 +2,7 @@
 from abc import ABC, abstractmethod
 from cuqi.distribution import Distribution
 
-class Regularizer(ABC):
-    """ A class representing a regularization term in the implicitly defined
-    target distribution. The regularization term is used to enforce certain
-    properties on the solution such as sparsity, smoothness, etc."""
-    def __init__(self):
-        pass
-
-    def gradient(self, x):
-        """This is the gradient of the regularizer."""
-        raise NotImplementedError("The gradient method is not implemented for" +
-                                  " the {self.__class__.__name__} class")
-
-class DenoiseRegularizer(Distribution, Regularizer):
+class DenoiseRegularizer(Distribution):
     """    
     This class defines implicit regularized priors for which we can apply 
     gradient-based algorithms (ex:MYULA). The regularization is performed using
@@ -93,6 +81,7 @@ class DenoiseRegularizer(Distribution, Regularizer):
         return solution
     
     def gradient(self, x):
+        """This is the gradient of the regularizer."""
         return -(x - self.denoise(x))/self.strength_smooth
     
     def logpdf(self, x):
