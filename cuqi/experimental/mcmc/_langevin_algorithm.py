@@ -106,7 +106,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             1 (accepted)
         """
         self.current_point = x_star
-        self.current_target_logd = target_eval_star
         self.current_target_grad = target_grad_star
         acc = 1
         return acc
@@ -191,6 +190,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     def __init__(self, target, scale=1.0, **kwargs):
         super().__init__(target=target, scale=scale, **kwargs)
+        self.current_target_logd = self.target.logd(self.current_point)
 
     def _eval_target_logd(self, x):
         return self.target.logd(x)
