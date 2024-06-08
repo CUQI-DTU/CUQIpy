@@ -32,3 +32,6 @@ dist/
 # Ignore pickle files
 *.pkl
 *.pickle
+
+# Ignore certain files from demos
+*/CUQI_samples/*

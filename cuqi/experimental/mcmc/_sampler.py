@@ -20,7 +20,23 @@ class SamplerNew(ABC):
 
     Samples are stored in a list to allow for dynamic growth of the sample set. Returning samples is done by creating a new Samples object from the list of samples.
 
+    The sampler maintains sets of state and history keys, which are used for features like checkpointing and resuming sampling.
+
+    The state of the sampler represents all variables that are updated (replaced) in a Markov Monte Carlo step, e.g. the current point of the sampler.
+
+    The history of the sampler represents all variables that are updated (appended) in a Markov Monte Carlo step, e.g. the samples and acceptance rates.
+
+    Subclasses should ensure that any new variables that are updated in a Markov Monte Carlo step are added to the state or history keys.
+
+    Saving and loading checkpoints saves and loads the state of the sampler (not the history).
+
+    Batching samples via the batch_size parameter saves the sampler history to disk in batches of the specified size.
+
+    Any other attribute stored as part of the sampler (e.g. target, initial_point) is not supposed to be updated
+    during sampling and should not be part of the state or history.
+
     """
+
     _STATE_KEYS = {'current_point'}
     """ Set of keys for the state dictionary. """
 
@@ -29,6 +45,10 @@ class SamplerNew(ABC):
 
     def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
         """ Initializer for abstract base class for all samplers.
+
+        Any subclassing samplers should simply store input parameters as part of the __init__ method. 
+
+        The actual initialization of the sampler should be done in the _initialize method.
         
         Parameters
         ----------
@@ -45,18 +65,37 @@ class SamplerNew(ABC):
         """
 
         self.target = target
-        self.callback = callback
-
-        # Choose initial point if not given
-        if initial_point is None:
-            initial_point = np.ones(self.dim)
-
         self.initial_point = initial_point
+        self.callback = callback
+        self._is_initialized = False
+
+    def initialize(self):
+        """ Initialize the sampler by setting and allocating the state and history before sampling starts. """
+
+        if self._is_initialized:
+            raise ValueError("Sampler is already initialized.")
         
-        self._samples = [initial_point] # Remove. See #324.
+        if self.target is None:
+            raise ValueError("Cannot initialize sampler without a target density.")
+        
+        # Default values
+        if self.initial_point is None:
+            self.initial_point = self._default_initial_point
+
+        # State variables
+        self.current_point = self.initial_point
+
+        # History variables
+        self._samples = []
+        self._acc = [ 1 ] # TODO. Check if we need to put 1 here.
+
+        self._initialize() # Subclass specific initialization
+
+        self._validate_initialization()
+
+        self._is_initialized = True
 
     # ------------ Abstract methods to be implemented by subclasses ------------
-    
     @abstractmethod
     def step(self):
         """ Perform one step of the sampler by transitioning the current point to a new point according to the sampler's transition kernel. """
@@ -72,23 +111,19 @@ class SamplerNew(ABC):
         """ Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. """
         pass
 
-    # -- _pre_sample and _pre_warmup methods: can be overridden by subclasses --
-    def _pre_sample(self):
-        """ Any code that needs to be run before sampling. """
-        pass
-
-    def _pre_warmup(self):
-        """ Any code that needs to be run before warmup. """
+    @abstractmethod
+    def _initialize(self):
+        """ Subclass specific sampler initialization. Called during the initialization of the sampler which is done before sampling starts. """
         pass
 
     # ------------ Public attributes ------------
     @property
-    def dim(self):
+    def dim(self) -> int:
         """ Dimension of the target density. """
         return self.target.dim
 
     @property
-    def geometry(self):
+    def geometry(self) -> cuqi.geometry.Geometry:
         """ Geometry of the target density. """
         return self.target.geometry
     
@@ -101,38 +136,48 @@ class SamplerNew(ABC):
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
         self._target = value
-        self.validate_target()
-
-    @property
-    def current_point(self):
-        """ The current point of the sampler. """
-        return self._current_point
-    
-    @current_point.setter
-    def current_point(self, value):
-        """ Set the current point of the sampler. """
-        self._current_point = value
+        if self._target is not None:
+            self.validate_target()
 
     # ------------ Public methods ------------
-
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
         return Samples(np.array(self._samples).T, self.target.geometry)
     
-    def reset(self): # TODO. Issue here. Current point is not reset, and initial point is lost with this reset.
-        self._samples.clear()
-        self._acc.clear()
+    def reinitialize(self):
+        """ Re-initialize the sampler. This clears the state and history and initializes the sampler again by setting state and history to their original values. """
+
+        # Loop over state and reset to None
+        for key in self._STATE_KEYS:
+            setattr(self, key, None)
+
+        # Loop over history and reset to None
+        for key in self._HISTORY_KEYS:
+            setattr(self, key, None)
+
+        self._is_initialized = False
+
+        self.initialize()
     
     def save_checkpoint(self, path):
         """ Save the state of the sampler to a file. """
 
+        self._ensure_initialized()
+
         state = self.get_state()
+
+        # Convert all CUQIarrays to numpy arrays since CUQIarrays do not get pickled correctly
+        for key, value in state['state'].items():
+            if isinstance(value, cuqi.array.CUQIarray):
+                state['state'][key] = value.to_numpy()
 
         with open(path, 'wb') as handle:
             pkl.dump(state, handle, protocol=pkl.HIGHEST_PROTOCOL)
 
     def load_checkpoint(self, path):
         """ Load the state of the sampler from a file. """
+
+        self._ensure_initialized()
 
         with open(path, 'rb') as handle:
             state = pkl.load(handle)
@@ -155,12 +200,14 @@ class SamplerNew(ABC):
 
         """
 
+        self._ensure_initialized()
+
         # Initialize batch handler
         if batch_size > 0:
             batch_handler = _BatchHandler(batch_size, sample_path)
 
         # Any code that needs to be run before sampling
-        self._pre_sample()
+        if hasattr(self, "_pre_sample"): self._pre_sample()
 
         # Draw samples
         for _ in progressbar( range(Ns) ):
@@ -195,10 +242,12 @@ class SamplerNew(ABC):
 
         """
 
+        self._ensure_initialized()
+
         tune_interval = max(int(tune_freq * Nb), 1)
 
         # Any code that needs to be run before warmup
-        self._pre_warmup()
+        if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
         for idx in progressbar(range(Nb)):
@@ -306,20 +355,60 @@ class SamplerNew(ABC):
                 raise ValueError(f"Key {key} not recognized in history dictionary of sampler {self.__class__.__name__}.")
 
     # ------------ Private methods ------------
-
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
             self.callback(sample, sample_index)
 
+    def _validate_initialization(self):
+        """ Validate the initialization of the sampler by checking all state and history keys are set. """
+
+        for key in self._STATE_KEYS:
+            if getattr(self, key) is None:
+                raise ValueError(f"Sampler state key {key} is not set after initialization.")
+
+        for key in self._HISTORY_KEYS:
+            if getattr(self, key) is None:
+                raise ValueError(f"Sampler history key {key} is not set after initialization.")
+            
+    def _ensure_initialized(self):
+        """ Ensure the sampler is initialized. If not initialize it. """
+        if not self._is_initialized:
+            self.initialize()
+            
+    @property
+    def _default_initial_point(self):
+        """ Return the default initial point for the sampler. Defaults to an array of ones. """
+        return np.ones(self.dim)
+    
+    def __repr__(self):
+        """ Return a string representation of the sampler. """
+        if self.target is None:
+            return f"Sampler: {self.__class__.__name__} \n Target: None"
+        state = self.get_state()
+        msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
+        # Sort keys alphabetically
+        keys = sorted(state['state'].keys())
+        # Put _ in the end
+        keys = [key for key in keys if key[0] != '_'] + [key for key in keys if key[0] == '_']
+        for key in keys:
+            value = state['state'][key]
+            msg += f"\t {key}: {value} \n"
+        return msg
 
 class ProposalBasedSamplerNew(SamplerNew, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale'})
 
-    def __init__(self, target, proposal=None, scale=1, **kwargs):
-        """ Initializer for proposal based samplers. 
+    def __init__(self, target=None, proposal=None, scale=1, **kwargs):
+        """ Initializer for abstract base class for samplers that use a proposal distribution.
+
+        Any subclassing samplers should simply store input parameters as part of the __init__ method.
+
+        Initialization of the sampler should be done in the _initialize method.
+
+        See :class:`SamplerNew` for additional details.
 
         Parameters
         ----------
@@ -338,35 +427,62 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         """
 
         super().__init__(target, **kwargs)
-
-        self.current_point = self.initial_point
-        self.current_target_logd = self.target.logd(self.current_point)
         self.proposal = proposal
-        self.scale = scale
+        self.initial_scale = scale
 
-        self._acc = [ 1 ] # TODO. Check
+    def initialize(self):
+        """ Initialize the sampler by setting and allocating the state and history before sampling starts. """
 
-    @property 
-    def proposal(self):
-        return self._proposal 
+        if self._is_initialized:
+            raise ValueError("Sampler is already initialized.")
+        
+        if self.target is None:
+            raise ValueError("Cannot initialize sampler without a target density.")
+        
+        # Default values
+        if self.initial_point is None:
+            self.initial_point = self._default_initial_point
 
-    @proposal.setter 
-    def proposal(self, value):
-        self._proposal = value
+        if self.proposal is None:
+            self.proposal = self._default_proposal
+
+        # State variables
+        self.current_point = self.initial_point
+        self.scale = self.initial_scale
+
+        self.current_target_logd = self.target.logd(self.current_point)
+
+        # History variables
+        self._samples = []
+        self._acc = [ 1 ] # TODO. Check if we need to put 1 here.
+
+        self._initialize() # Subclass specific initialization
+
+        self._validate_initialization()
+
+        self._is_initialized = True
+
+    @abstractmethod
+    def validate_proposal(self):
+        """ Validate the proposal distribution. """
+        pass     
 
     @property
-    def geometry(self): # TODO. Check if we can refactor this
-        geom1, geom2 = None, None
-        if hasattr(self, 'proposal') and hasattr(self.proposal, 'geometry') and self.proposal.geometry.par_dim is not None:
-            geom1=  self.proposal.geometry
-        if hasattr(self, 'target') and hasattr(self.target, 'geometry') and self.target.geometry.par_dim is not None:
-            geom2 = self.target.geometry
-        if not isinstance(geom1,cuqi.geometry._DefaultGeometry) and geom1 is not None:
-            return geom1
-        elif not isinstance(geom2,cuqi.geometry._DefaultGeometry) and geom2 is not None: 
-            return geom2
-        else:
-            return cuqi.geometry._DefaultGeometry(self.dim)
+    def _default_proposal(self):
+        """ Return the default proposal distribution. Defaults to a Gaussian distribution with zero mean and unit variance. """
+        return cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+
+    @property
+    def proposal(self):
+        """ The proposal distribution. """
+        return self._proposal
+    
+    @proposal.setter
+    def proposal(self, proposal):
+        """ Set the proposal distribution. """
+        self._proposal = proposal
+        if self._proposal is not None:
+            self.validate_proposal()
 
 
 class _BatchHandler:

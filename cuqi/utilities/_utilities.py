@@ -64,12 +64,26 @@ def get_indirect_variables(dist):
     attributes = []
     for attribute in dist.get_mutable_variables():
         value = getattr(dist, attribute)
-        if callable(value):
+        if check_if_conditional_from_attr(value):
             keys = get_non_default_args(value)
             for key in keys:
                 if key not in attributes: #Ensure we did not already find this key
                     attributes.append(key)
     return attributes 
+
+def check_if_conditional_from_attr(value):
+    """
+    Check if a distribution is conditional from a given attribute.
+    So far, we assume that a distribution is conditional if
+    - the given attribute is a callable function and
+    - the given attribute is not a LinearOperator.
+    """
+    if isinstance(value, spslinalg.LinearOperator):
+        return False
+    elif callable(value):
+        return True
+    else:
+        return False
 
 def get_writeable_attributes(dist):
     """ Get writeable attributes of object instance. """

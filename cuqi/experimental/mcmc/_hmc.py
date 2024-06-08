@@ -95,7 +95,7 @@ class NUTSNew(SamplerNew):
                                                     'epsilon_list',
                                                     'epsilon_bar_list'})
 
-    def __init__(self, target, initial_point=None, max_depth=15,
+    def __init__(self, target=None, initial_point=None, max_depth=15,
                  step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
@@ -103,9 +103,6 @@ class NUTSNew(SamplerNew):
         self.max_depth = max_depth
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
-        
-        # Set current point 
-        self.current_point = self.initial_point
 
         # Initialize epsilon and epsilon_bar
         # epsilon is the step size used in the current iteration
@@ -115,12 +112,37 @@ class NUTSNew(SamplerNew):
         self._epsilon_bar = None
         self._H_bar = None
 
+        # Extra parameters for tuning
+        self._n_alpha = None
+        self._alpha = None
+
+
+    def _initialize(self):
+
         # Arrays to store acceptance rate
-        self._acc = [None]
+        self._acc = [None] # Overwrites acc from SamplerNew. TODO. Check if this is necessary
+
+        self._alpha = 0 # check if meaningful value
+        self._n_alpha = 0 # check if meaningful value
+
+        self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
+
+        # parameters dual averaging
+        if self.step_size is None:
+            self._epsilon = self._FindGoodEpsilon()
+        else:
+            self._epsilon = self.step_size
+        self._epsilon_bar = "unset"
+
+        # Parameter mu, does not change during the run
+        self._mu = np.log(10*self._epsilon)
+
+        self._H_bar = 0
 
         # NUTS run diagnostic:
         # number of tree nodes created each NUTS iteration
         self._num_tree_node = 0
+
         # Create lists to store NUTS run diagnostics
         self._create_run_diagnostic_attributes()
 
@@ -176,9 +198,9 @@ class NUTSNew(SamplerNew):
         except:
             raise ValueError('Target must have logd and gradient methods.')
 
-    def reset(self):
+    def reinitialize(self):
         # Call the parent reset method
-        super().reset()
+        super().reinitialize()
         # Reset NUTS run diagnostic attributes
         self._reset_run_diagnostic_attributes()
 
@@ -275,10 +297,6 @@ class NUTSNew(SamplerNew):
             np.exp(eta*np.log(self._epsilon) +(1-eta)*np.log(self._epsilon_bar))
 
     def _pre_warmup(self):
-        super()._pre_warmup()
-
-        self.current_target_logd, self.current_target_grad =\
-            self._nuts_target(self.current_point)
 
         # Set up tuning parameters (only first time tuning is called)
         # Note:
@@ -289,32 +307,14 @@ class NUTSNew(SamplerNew):
         #  Parameters that does not change during the run
         #    self._mu
 
-        if self._epsilon is None:
-            # parameters dual averaging
-            self._epsilon = self._FindGoodEpsilon()
-            # Parameter mu, does not change during the run
-            self._mu = np.log(10*self._epsilon)
-
-        if self._epsilon_bar is None: # Initial value of epsilon_bar
+        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
             self._epsilon_bar = 1
 
-        if self._H_bar is None: # Initial value of H_bar
-            self._H_bar = 0
-
     def _pre_sample(self):
-        super()._pre_sample()
 
-        self.current_target_logd, self.current_target_grad =\
-            self._nuts_target(self.current_point)
-        
-        # Set up epsilon and epsilon_bar if not set
-        if self._epsilon is None:
-            if self.step_size is None:
-                step_size = self._FindGoodEpsilon()
-            else:
-                step_size = self.step_size
-            self._epsilon = step_size
-            self._epsilon_bar = step_size
+        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
+            self._epsilon_bar = self._epsilon
+            
 
     #=========================================================================
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
