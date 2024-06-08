@@ -326,6 +326,27 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
                                         Ns=Ns,
                                         Nb=Nb,
                                         strategy="NUTS")
+    
+# ============= MYULA ==============
+def create_myula_target(dim=16):
+    """Create a target for MYULA."""
+    def func(x):
+        return x, True
+    likelihood = cuqi.testproblem.Deconvolution1D(
+        dim=dim).posterior.likelihood 
+    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(
+        func, geometry=likelihood.model.domain_geometry)
+    posterior = cuqi.distribution.Posterior(
+        likelihood, denoise_regularizer)
+    return posterior
+
+def test_myula():
+    """ Test creating MYULA sampler."""
+    posterior = create_myula_target(dim=128)
+    myula = cuqi.experimental.mcmc.MYULANew(posterior)
+    myula.sample(10)
+    samples = myula.get_samples()
+    assert samples.Ns == 11
 # ============ Checkpointing ============
 
 
@@ -414,7 +435,32 @@ state_history_targets = [
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=32)),
+    cuqi.experimental.mcmc.MYULANew(create_myula_target(dim=128)),
+    cuqi.experimental.mcmc.NUTSNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, step_size=0.001),
+    cuqi.experimental.mcmc.PnPULANew(create_myula_target(dim=128)),
 ]
+
+# List of all classes subclassing samplers.
+all_subclassing_sampler_classes= [
+    cls
+    for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
+    if cls not in [cuqi.experimental.mcmc.SamplerNew,
+                   cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+]
+
+# Make sure that all samplers are tested for state history
+@pytest.mark.parametrize("sampler_class", all_subclassing_sampler_classes)
+def test_sampler_is_tested_for_state_history(
+    sampler_class: cuqi.experimental.mcmc.SamplerNew):
+
+    # Find sampler instance that matches the sampler class
+    sampler_instance = next(
+        (s for s in state_history_targets if isinstance(s, sampler_class)), None)
+    if sampler_instance is None:
+        raise ValueError(
+            f"No sampler instance in the list of state_history_targets matches the sampler class {sampler_class}. "
+            "Please add an instance to the list."
+        )
 
 
 @pytest.mark.parametrize("sampler", state_history_targets)
@@ -507,16 +553,3 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
         error_details = '\n'.join([f"State '{key}' not updated correctly after warmup. {message}" for key, message in failed_updates.items()])
         error_message = f"Errors occurred in {sampler.__class__.__name__} - issues with keys: {failed_keys}.\n{error_details}"
         assert not failed_updates, error_message
-        
-def test_myula():
-    """ Test creating MYULA sampler."""
-    def func(x):
-        return x, True
-    likelihood = cuqi.testproblem.Deconvolution1D().posterior.likelihood 
-    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(
-        func, geometry=likelihood.model.domain_geometry)
-    posterior = cuqi.distribution.Posterior(likelihood, denoise_regularizer)
-    myula = cuqi.experimental.mcmc.MYULANew(posterior)
-    myula.sample(10)
-    samples = myula.get_samples()
-    assert samples.Ns == 11
