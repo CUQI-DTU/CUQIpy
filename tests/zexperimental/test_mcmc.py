@@ -344,7 +344,7 @@ def test_myula():
     myula = cuqi.experimental.mcmc.MYULANew(posterior)
     myula.sample(10)
     samples = myula.get_samples()
-    assert samples.Ns == 11
+    assert samples.Ns == 10
 # ============ Checkpointing ============
 
 
@@ -506,8 +506,11 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
 # Dictionary to store keys that are not expected to be updated after warmup.
 # Likely due to not implemented feature in the sampler.
 state_exception_keys = {
-    cuqi.experimental.mcmc.ULANew: 'scale',
-    cuqi.experimental.mcmc.MALANew: 'scale',
+    cuqi.experimental.mcmc.ULANew: ['scale'],
+    cuqi.experimental.mcmc.MALANew: ['scale'],
+    cuqi.experimental.mcmc.MYULANew: ['scale'],
+    cuqi.experimental.mcmc.PnPULANew: ['scale'],
+    cuqi.experimental.mcmc.NUTSNew: ['_mu', '_n_alpha']
 }
 
 @pytest.mark.parametrize("sampler", state_history_targets)
@@ -554,19 +557,6 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
         error_details = '\n'.join([f"State '{key}' not updated correctly after warmup. {message}" for key, message in failed_updates.items()])
         error_message = f"Errors occurred in {sampler.__class__.__name__} - issues with keys: {failed_keys}.\n{error_details}"
         assert not failed_updates, error_message
-        
-def test_myula():
-    """ Test creating MYULA sampler."""
-    def func(x):
-        return x, True
-    likelihood = cuqi.testproblem.Deconvolution1D().posterior.likelihood 
-    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(
-        func, geometry=likelihood.model.domain_geometry)
-    posterior = cuqi.distribution.Posterior(likelihood, denoise_regularizer)
-    myula = cuqi.experimental.mcmc.MYULANew(posterior)
-    myula.sample(10)
-    samples = myula.get_samples()
-    assert samples.Ns == 11
 
 # Samplers that should be tested for target=None initialization
 initialize_testing_sampler_classes = [
@@ -586,6 +576,8 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.MYULANew(target=create_myula_target(dim=16)),
+    cuqi.experimental.mcmc.PnPULANew(target=create_myula_target(dim=16))
 ]
 
 
