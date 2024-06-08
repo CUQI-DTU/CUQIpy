@@ -71,7 +71,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     def _initialize(self):
         self.scale = self.initial_scale
-        self.current_target_logd = self.target.logd(self.current_point)
         self.current_target_grad = self.target.gradient(self.current_point)
 
     def validate_target(self):
@@ -188,8 +187,8 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     _STATE_KEYS = ULANew._STATE_KEYS.union({'current_target_logd'})
 
-    def __init__(self, target, scale=1.0, **kwargs):
-        super().__init__(target=target, scale=scale, **kwargs)
+    def _initialize(self):
+        super()._initialize()
         self.current_target_logd = self.target.logd(self.current_point)
 
     def _eval_target_logd(self, x):
