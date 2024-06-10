@@ -44,29 +44,29 @@ class ModifiedHalfNormal(Distribution):
         return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
 
 
-    def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, delta = None):
+    def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, rng, delta=None):
         if delta is None:
             delta = beta + (gamma*gamma - gamma*np.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
             
         while True:
-            T = np.random.gamma(alpha/2, 1.0/delta)
+            T = rng.gamma(alpha/2, 1.0/delta)
             X = np.sqrt(T)
-            U = np.random.uniform()
+            U = rng.uniform()
             if X > 0 and np.log(U) < -(beta-delta)*T + gamma*X - gamma*gamma/(4*(beta-delta)):
                 return X
             
-    def _MHN_sample_normal_proposal(self, alpha, beta, gamma, mu):
+    def _MHN_sample_normal_proposal(self, alpha, beta, gamma, mu, rng):
         if mu is None:
             mu = (gamma + np.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)    
         
         while True:
-            X = np.random.normal(mu, np.sqrt(0.5/beta))
-            U = np.random.uniform()
+            X = rng.normal(mu, np.sqrt(0.5/beta))
+            U = rng.uniform()
             if X > 0 and np.log(U) < (alpha-1)*np.log(X) - np.log(mu) + (2*beta*mu-gamma)*(mu-X):
                 return X
 
     # Sample from MHN when alpha > 1, beta > 0 and gamma > 0  (Algorithm 1 from [1])
-    def _MHN_sample_positive_gamma_1(self, alpha, beta, gamma):
+    def _MHN_sample_positive_gamma_1(self, alpha, beta, gamma, rng):
         if gamma <= 0.0:
             raise ValueError("gamma needs to be positive")
             
@@ -85,14 +85,14 @@ class ModifiedHalfNormal(Distribution):
         K2 *= np.exp(gamma*gamma/(4*(beta-delta)))
 
         if K2 > K1: # Use normal proposal
-            return self._MHN_sample_normal_proposal(alpha, beta, gamma, mu)
+            return self._MHN_sample_normal_proposal(alpha, beta, gamma, mu, rng)
         else: # Use sqrt(gamma) proposal
-            return self._MHN_sample_gamma_proposal(alpha, beta, gamma, delta)
+            return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng, delta)
 
 
     # Sample from MHN when alpha > 0, beta > 0 and gamma <= 0 (Algorithm 3 from [1])
     # ""
-    def _MHN_sample_negative_gamma(self, alpha, beta, gamma, m = None):
+    def _MHN_sample_negative_gamma(self, alpha, beta, gamma, rng, m=None):
         if gamma > 0.0:
             raise ValueError("gamma needs to be negative")
             
@@ -109,9 +109,9 @@ class ModifiedHalfNormal(Distribution):
         while True:
             val1 = (beta*m-gamma)/(2*beta*m-gamma)
             val2 = m*(beta*m-gamma)
-            T = np.random.gamma(alpha*val1, 1.0/val2)
+            T = rng.gamma(alpha*val1, 1.0/val2)
             X = m*np.power(T,val1)
-            U = np.random.uniform()
+            U = rng.uniform()
             if np.log(U) < val2*T-beta*X*X+gamma*X:
                 return X
             
@@ -120,15 +120,18 @@ class ModifiedHalfNormal(Distribution):
     Sample from distribution with density proportional to
     x^(alpha - 1)*exp*(-beta*x^2 + gamma*x)
     """
-    def _MHN_sample(self, alpha, beta, gamma, m = None):
+    def _MHN_sample(self, alpha, beta, gamma, m=None, rng=None):
+        if rng == None:
+            rng = np.random
+
         if gamma <= 0.0:
-            return self._MHN_sample_negative_gamma(alpha, beta, gamma, m = m)
+            return self._MHN_sample_negative_gamma(alpha, beta, gamma, m=m, rng=rng)
         
         if alpha >= 1:
-            return self._MHN_sample_positive_gamma_1(alpha, beta, gamma)
+            return self._MHN_sample_positive_gamma_1(alpha, beta, gamma, rng=rng)
         
-        return self._MHN_sample_gamma_proposal(alpha, beta, gamma)
+        return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng=rng)
 
     def _sample(self, N, rng=None):
-        return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma,) for _ in range(N)])
+        return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for _ in range(N)])
             
