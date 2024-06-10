@@ -14,6 +14,8 @@ class ConjugateNew(SamplerNew):
     - (RegularizedGaussian, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
     - (RegularizedGMRF, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
 
+    Currently, the sampler does NOT automatically check that the conjugate distributions are defined on the correct parameters.
+
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
     For implicit regularized Gaussians see:
