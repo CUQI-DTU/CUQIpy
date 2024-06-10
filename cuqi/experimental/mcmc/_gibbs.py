@@ -173,8 +173,8 @@ class GibbsNew:
         # Sample from each conditional distribution
         for par_name in self.par_names:
 
-            # Set targets (TODO: This is inefficient. Instead we should only update the target for the current parameter)
-            self._set_targets()
+            # Set target for current parameter
+            self._set_target(par_name)
 
             # Get sampler
             sampler = self.samplers[par_name]
@@ -229,13 +229,17 @@ class GibbsNew:
         if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
 
     def _set_targets(self):
-        """ Set targets for all samplers """
+        """ Set targets for all samplers using the current samples """
         par_names = self.par_names
         for par_name in par_names:
-            # Get all other conditional parameters other than the current parameter and update the target
-            # This defines - from a joint p(x,y,z) - the conditional distribution p(x|y,z) or p(y|x,z) or p(z|x,y)
-            conditional_params = {par_name_: self.current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
-            self.samplers[par_name].target = self.target(**conditional_params)
+            self._set_target(par_name)
+
+    def _set_target(self, par_name):
+        """ Set target conditional distribution for a single parameter using the current samples """
+        # Get all other conditional parameters other than the current parameter and update the target
+        # This defines - from a joint p(x,y,z) - the conditional distribution p(x|y,z) or p(y|x,z) or p(z|x,y)
+        conditional_params = {par_name_: self.current_samples[par_name_] for par_name_ in self.par_names if par_name_ != par_name}
+        self.samplers[par_name].target = self.target(**conditional_params)
 
     def _allocate_samples(self):
         """ Allocate memory for samples """
