@@ -86,7 +86,7 @@ class HybridGibbsNew:
         }
 
         # Define Gibbs sampler
-        sampler = cuqi.experimental.mcmc.GibbsNew(posterior, sampling_strategy)
+        sampler = cuqi.experimental.mcmc.HybridGibbsNew(posterior, sampling_strategy)
 
         # Run sampler
         samples = sampler.sample(Ns=1000, Nb=200)
