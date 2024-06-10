@@ -38,7 +38,7 @@ class ConjugateNew(SamplerNew):
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
         
         if isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and self.target.likelihood.distribution.preset not in ["nonnegativity"]:
-            raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
+            raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
     def step(self):
         # Extract variables
@@ -62,4 +62,4 @@ class ConjugateNew(SamplerNew):
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            return np.count_nonzero(b) # See 
+            return np.count_nonzero(b)

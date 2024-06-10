@@ -35,7 +35,7 @@ class GibbsNew:
     In each Gibbs step, the corresponding sampler has the initial_point 
     and initial_scale (if applicable) set to the value of the previous step
     and the sampler is reinitialized. This means that the sampling is not 
-    fully stateful at this point. This means samplers like NUTS will loose
+    fully stateful at this point. This means samplers like NUTS will lose
     their internal state between Gibbs steps.
 
     Parameters
@@ -44,15 +44,15 @@ class GibbsNew:
         Target distribution to sample from.
     
     sampling_strategy : dict
-        Dictionary of sampling strategies for each parameter.
-        Keys are parameter names.
+        Dictionary of sampling strategies for each variable.
+        Keys are variable names.
         Values are sampler objects.
 
     sampling_steps : dict, *optional*
-        Dictionary of number of sampling steps for each parameter.
+        Dictionary of number of sampling steps for each variable.
         The sampling steps are defined as the number of times the sampler
         will call its step method in each Gibbs step.
-        Default is 1 for all parameters.
+        Default is 1 for all variable.
 
     Example
     -------
@@ -187,7 +187,7 @@ class GibbsNew:
             if hasattr(sampler, 'initial_scale'): sampler.initial_scale = sampler.scale
 
             # Reinitialize sampler
-            # This makes the sampler loose all of its state.
+            # This makes the sampler lose all of its state.
             # This is only OK because we set the initial values above from the previous state
             sampler.reinitialize()
 
@@ -214,7 +214,7 @@ class GibbsNew:
             sampler.initialize()
 
     def _initialize_sampling_steps(self):
-        """ Initialize sampling steps for each sampler. Defaults to 1 if not set by user """
+        """ Initialize the number of sampling steps for each sampler. Defaults to 1 if not set by user """
 
         if self.sampling_steps is None:
             self.sampling_steps = {par_name: 1 for par_name in self.par_names}
