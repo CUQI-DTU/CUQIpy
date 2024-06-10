@@ -48,7 +48,7 @@ class GibbsNew:
         Keys are variable names.
         Values are sampler objects.
 
-    sampling_steps : dict, *optional*
+    num_sampling_steps : dict, *optional*
         Dictionary of number of sampling steps for each variable.
         The sampling steps are defined as the number of times the sampler
         will call its step method in each Gibbs step.
@@ -95,7 +95,7 @@ class GibbsNew:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, SamplerNew], sampling_steps: Dict[str, int] = None):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, SamplerNew], num_sampling_steps: Dict[str, int] = None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -104,7 +104,7 @@ class GibbsNew:
         self.samplers = sampling_strategy.copy()
 
         # Store number of sampling steps for each parameter
-        self.sampling_steps = sampling_steps
+        self.num_sampling_steps = num_sampling_steps
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
@@ -119,7 +119,7 @@ class GibbsNew:
         self.current_samples = self._get_initial_points()
 
         # Initialize sampling steps
-        self._initialize_sampling_steps()
+        self._initialize_num_sampling_steps()
 
         # Allocate samples
         self._allocate_samples()
@@ -196,7 +196,7 @@ class GibbsNew:
             self._pre_warmup_and_pre_sample_sampler(sampler)
 
             # Take MCMC steps
-            for _ in range(self.sampling_steps[par_name]):
+            for _ in range(self.num_sampling_steps[par_name]):
                 sampler.step()
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
@@ -213,15 +213,15 @@ class GibbsNew:
         for sampler in self.samplers.values():
             sampler.initialize()
 
-    def _initialize_sampling_steps(self):
+    def _initialize_num_sampling_steps(self):
         """ Initialize the number of sampling steps for each sampler. Defaults to 1 if not set by user """
 
-        if self.sampling_steps is None:
-            self.sampling_steps = {par_name: 1 for par_name in self.par_names}
+        if self.num_sampling_steps is None:
+            self.num_sampling_steps = {par_name: 1 for par_name in self.par_names}
 
         for par_name in self.par_names:
-            if par_name not in self.sampling_steps:
-                self.sampling_steps[par_name] = 1
+            if par_name not in self.num_sampling_steps:
+                self.num_sampling_steps[par_name] = 1
 
 
     def _pre_warmup_and_pre_sample_sampler(self, sampler):
