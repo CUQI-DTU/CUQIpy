@@ -10,7 +10,12 @@ class ConjugateApproxNew(SamplerNew):
     by a conjugate pair.
 
     Currently supported pairs are:
-    - (LMRF, Gamma): Approximated by (Gaussian, Gamma)
+    - (LMRF, Gamma): Approximated by (Gaussian, Gamma) where Gamma is defined on the inverse of the scale parameter of the LMRF distribution.
+
+    Gamma distribution must be univariate.
+
+    Currently, the sampler does NOT automatically check that the conjugate distributions are defined on the correct parameters.
+
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
