@@ -31,9 +31,10 @@ class ModifiedHalfNormal(Distribution):
         The linear exponential parameter of the MHN distribution.
 
     """
-    def __init__(self, alpha, beta, gamma, is_symmetric=False, **kwargs):
+    def __init__(self, alpha=None, beta=None, gamma=None, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
-        super().__init__(is_symmetric=is_symmetric,**kwargs) 
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+
 
         self.alpha = alpha
         self.beta = beta
