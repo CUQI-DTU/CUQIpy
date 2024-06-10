@@ -43,8 +43,10 @@ class ModifiedHalfNormal(Distribution):
     def logpdf(self, x): # Unnormalized
         return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
 
-
     def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, rng, delta=None):
+        """
+            Sample from a modified half-normal distribution using a Gamma distribution proposal.
+        """
         if delta is None:
             delta = beta + (gamma*gamma - gamma*np.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
             
@@ -56,6 +58,9 @@ class ModifiedHalfNormal(Distribution):
                 return X
             
     def _MHN_sample_normal_proposal(self, alpha, beta, gamma, mu, rng):
+        """
+            Sample from a modified half-normal distribution using a Normal/Gaussian distribution proposal.
+        """
         if mu is None:
             mu = (gamma + np.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)    
         
@@ -65,8 +70,10 @@ class ModifiedHalfNormal(Distribution):
             if X > 0 and np.log(U) < (alpha-1)*np.log(X) - np.log(mu) + (2*beta*mu-gamma)*(mu-X):
                 return X
 
-    # Sample from MHN when alpha > 1, beta > 0 and gamma > 0  (Algorithm 1 from [1])
     def _MHN_sample_positive_gamma_1(self, alpha, beta, gamma, rng):
+        """
+            Sample from a modified half-normal distribution, assuming alpha is greater than one and gamma is positive.
+        """
         if gamma <= 0.0:
             raise ValueError("gamma needs to be positive")
             
@@ -90,9 +97,11 @@ class ModifiedHalfNormal(Distribution):
             return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng, delta)
 
 
-    # Sample from MHN when alpha > 0, beta > 0 and gamma <= 0 (Algorithm 3 from [1])
-    # ""
     def _MHN_sample_negative_gamma(self, alpha, beta, gamma, rng, m=None):
+        """
+            Sample from a modified half-normal distribution, assuming gamma is negative.
+            The argument 'm' is the matching point, see Algorithm 3 from [1] for details.
+        """
         if gamma > 0.0:
             raise ValueError("gamma needs to be negative")
             
