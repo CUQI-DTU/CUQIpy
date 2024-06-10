@@ -9,9 +9,10 @@ class ConjugateNew(SamplerNew):
     Sampler for sampling a posterior distribution where the likelihood and prior are conjugate.
 
     Currently supported conjugate pairs are:
-    - (Gaussian, Gamma)
-    - (GMRF, Gamma)
-    - (RegularizedGaussian, Gamma) with nonnegativity constraints only
+    - (Gaussian, Gamma) where Gamma is defined on the precision parameter of the Gaussian
+    - (GMRF, Gamma) where Gamma is defined on the precision parameter of the GMRF
+    - (RegularizedGaussian, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
+    - (RegularizedGMRF, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
 
     For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
 
@@ -65,7 +66,7 @@ class ConjugateNew(SamplerNew):
         However, for implicit regularized Gaussians, m is the number of non-zero elements in the data vector b see [1].
            
         """
-        
+
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
