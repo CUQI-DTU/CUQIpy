@@ -360,7 +360,7 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.NUTSNew,
-    cuqi.experimental.mcmc.GibbsNew
+    cuqi.experimental.mcmc.HybridGibbsNew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -528,7 +528,7 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
 initialize_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
-    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew, cuqi.experimental.mcmc.GibbsNew]
+    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew, cuqi.experimental.mcmc.HybridGibbsNew]
 ]
 
 # Instances of samplers that should be tested for target=None initialization consistency

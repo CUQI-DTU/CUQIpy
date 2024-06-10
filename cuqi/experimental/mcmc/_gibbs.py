@@ -14,9 +14,9 @@ except ImportError:
 
 # Not subclassed from SamplerNew as Gibbs handles multiple samplers and samples multiple parameters
 # Similar approach as for JointDistribution
-class GibbsNew: 
+class HybridGibbsNew: 
     """
-    Gibbs sampler for sampling a joint distribution.
+    Hybrid Gibbs sampler for sampling a joint distribution.
 
     Gibbs sampling samples the variables of the distribution sequentially,
     one variable at a time. When a variable represents a random vector, the
@@ -26,6 +26,9 @@ class GibbsNew:
     distribution of that variable given the values of the other variables.
     This is often a very efficient way of sampling from a joint distribution
     if the conditional distributions are easy to sample from. 
+
+    Hybrid Gibbs sampler is a generalization of the Gibbs sampler where the
+    conditional distributions are sampled using different MCMC samplers.
     
     When the conditionals are sampled exactly, the samples from the Gibbs 
     sampler converge to the joint distribution. See e.g.
@@ -147,13 +150,13 @@ class GibbsNew:
         for sampler in self.samplers.values():
             sampler.validate_target()
 
-    def sample(self, Ns) -> 'GibbsNew':
+    def sample(self, Ns) -> 'HybridGibbsNew':
         """ Sample from the joint distribution using Gibbs sampling """
         for _ in progressbar(range(Ns)):
             self.step()
             self._store_samples()
 
-    def warmup(self, Nb) -> 'GibbsNew':
+    def warmup(self, Nb) -> 'HybridGibbsNew':
         """ Warmup (tune) the Gibbs sampler """
         for idx in progressbar(range(Nb)):
             self.step()
