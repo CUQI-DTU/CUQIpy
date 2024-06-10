@@ -232,8 +232,10 @@ class GibbsNew:
         """ Set targets for all samplers """
         par_names = self.par_names
         for par_name in par_names:
-            other_params = {par_name_: self.current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
-            self.samplers[par_name].target = self.target(**other_params)
+            # Get all other conditional parameters other than the current parameter and update the target
+            # This defines - from a joint p(x,y,z) - the conditional distribution p(x|y,z) or p(y|x,z) or p(z|x,y)
+            conditional_params = {par_name_: self.current_samples[par_name_] for par_name_ in par_names if par_name_ != par_name}
+            self.samplers[par_name].target = self.target(**conditional_params)
 
     def _allocate_samples(self):
         """ Allocate memory for samples """
