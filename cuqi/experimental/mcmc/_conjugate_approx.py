@@ -14,6 +14,8 @@ class ConjugateApproxNew(SamplerNew):
 
     Gamma distribution must be univariate.
 
+    LMRF likelihood must have zero mean.
+
     Currently, the sampler does NOT automatically check that the conjugate distributions are defined on the correct parameters.
 
 
@@ -30,7 +32,7 @@ class ConjugateApproxNew(SamplerNew):
             raise TypeError("Approximate conjugate sampler requires a target of type Posterior")
 
         if not isinstance(self.target.likelihood.distribution, LMRF):
-            raise ValueError("Approximate conjugate sampler only works with Laplace diff likelihood function")
+            raise ValueError("Approximate conjugate sampler only works with LMRF likelihood function")
         
         if not isinstance(self.target.prior, Gamma):
             raise ValueError("Approximate conjugate sampler only works with Gamma prior")
@@ -38,9 +40,12 @@ class ConjugateApproxNew(SamplerNew):
         if not self.target.prior.dim == 1:
             raise ValueError("Approximate conjugate sampler only works with univariate Gamma prior")
         
+        if np.sum(self.target.likelihood.distribution.location) != 0:
+            raise ValueError("Approximate conjugate sampler only works with zero mean LMRF likelihood")
+        
     def step(self):
         # Extract variables
-        # Here we approximate the Laplace diff with a Gaussian
+        # Here we approximate the LMRF with a Gaussian
 
         # Extract diff_op from target likelihood
         D = self.target.likelihood.distribution._diff_op
