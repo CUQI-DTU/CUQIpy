@@ -58,7 +58,14 @@ class ConjugateNew(SamplerNew):
         pass
 
     def _calc_m_for_Gaussians(self, b):
-        """ Helper method to calculate m parameter for Gaussian-Gamma conjugate pair. """
+        """ Helper method to calculate m parameter for Gaussian-Gamma conjugate pair.
+         
+        Classically m defines the number of observations in the Gaussian likelihood function.
+
+        However, for implicit regularized Gaussians, m is the number of non-zero elements in the data vector b see [1].
+           
+        """
+        
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
