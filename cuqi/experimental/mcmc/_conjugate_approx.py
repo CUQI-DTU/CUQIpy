@@ -27,16 +27,16 @@ class ConjugateApproxNew(SamplerNew):
     def validate_target(self):
 
         if not isinstance(self.target, Posterior):
-            raise TypeError("Conjugate sampler requires a target of type Posterior")
+            raise TypeError("Approximate conjugate sampler requires a target of type Posterior")
 
         if not isinstance(self.target.likelihood.distribution, LMRF):
-            raise ValueError("Conjugate sampler only works with Laplace diff likelihood function")
+            raise ValueError("Approximate conjugate sampler only works with Laplace diff likelihood function")
         
         if not isinstance(self.target.prior, Gamma):
-            raise ValueError("Conjugate sampler only works with Gamma prior")
+            raise ValueError("Approximate conjugate sampler only works with Gamma prior")
         
         if not self.target.prior.dim == 1:
-            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+            raise ValueError("Approximate conjugate sampler only works with univariate Gamma prior")
         
     def step(self):
         # Extract variables
