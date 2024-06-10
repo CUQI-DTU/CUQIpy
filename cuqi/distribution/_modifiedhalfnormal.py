@@ -35,7 +35,6 @@ class ModifiedHalfNormal(Distribution):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
@@ -96,7 +95,6 @@ class ModifiedHalfNormal(Distribution):
         else: # Use sqrt(gamma) proposal
             return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng, delta)
 
-
     def _MHN_sample_negative_gamma(self, alpha, beta, gamma, rng, m=None):
         """
             Sample from a modified half-normal distribution, assuming gamma is negative.
@@ -124,12 +122,10 @@ class ModifiedHalfNormal(Distribution):
             if np.log(U) < val2*T-beta*X*X+gamma*X:
                 return X
             
-
-    """
-    Sample from distribution with density proportional to
-    x^(alpha - 1)*exp*(-beta*x^2 + gamma*x)
-    """
     def _MHN_sample(self, alpha, beta, gamma, m=None, rng=None):
+        """
+        Sample from a modified half-normal distribution using an algorithm from [1].
+        """
         if rng == None:
             rng = np.random
 
