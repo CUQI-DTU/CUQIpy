@@ -66,8 +66,6 @@ class ModifiedHalfNormal(Distribution):
     def gamma(self, value):
         self._gamma = force_ndarray(value, flatten=True)
 
-
-
     def logpdf(self, x): # Unnormalized
         return np.sum((self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x)
 
@@ -166,11 +164,15 @@ class ModifiedHalfNormal(Distribution):
         if gamma <= 0.0:
             return self._MHN_sample_negative_gamma(alpha, beta, gamma, m=m, rng=rng)
         
-        if alpha >= 1:
+        if alpha > 1:
             return self._MHN_sample_positive_gamma_1(alpha, beta, gamma, rng=rng)
         
         return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng=rng)
 
     def _sample(self, N, rng=None):
-        return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for _ in range(N)])
+        if hasattr(self.alpha, '__getitem__'):
+            return np.array([self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(N)])
+        else:
+            return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for i in range(N)])
+
             
