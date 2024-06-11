@@ -69,7 +69,7 @@ class ModifiedHalfNormal(Distribution):
 
 
     def logpdf(self, x): # Unnormalized
-        return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
+        return np.sum((self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x)
 
     def _gradient(self, val, *args, **kwargs):
         if val <= 0.0:
