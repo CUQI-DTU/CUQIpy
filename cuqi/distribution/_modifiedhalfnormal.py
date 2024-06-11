@@ -42,6 +42,11 @@ class ModifiedHalfNormal(Distribution):
     def logpdf(self, x): # Unnormalized
         return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
 
+    def _gradient(self, val, *args, **kwargs):
+        if val <= 0.0:
+            return np.nan
+        return (self.alpha - 1)/val - 2*self.beta*val + self.gamma
+    
     def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, rng, delta=None):
         """
             Sample from a modified half-normal distribution using a Gamma distribution proposal.
