@@ -25,7 +25,6 @@ skip_sample = [
 ]
 skip_gradient = [
     cuqi.distribution.Gamma, # Missing force_ndarray
-    cuqi.distribution.ModifiedHalfNormal, # Missing force_ndarray
     cuqi.distribution.Lognormal,
     cuqi.distribution.InverseGamma,
 ]

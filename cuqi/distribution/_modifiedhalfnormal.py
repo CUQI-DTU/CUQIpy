@@ -69,10 +69,16 @@ class ModifiedHalfNormal(Distribution):
     def logpdf(self, x): # Unnormalized
         return np.sum((self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x)
 
-    def _gradient(self, val, *args, **kwargs):
+    def _gradient_scalar(self, val):
         if val <= 0.0:
             return np.nan
         return (self.alpha - 1)/val - 2*self.beta*val + self.gamma
+
+    def _gradient(self, val, *args, **kwargs):
+        if hasattr(self.alpha, '__iter__'):
+            return np.array([self._gradient_scalar(v) for v in val])
+        else:
+            return np.array([self.dim*[self._gradient_scalar(v)] for v in val])
     
     def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, rng, delta=None):
         """
