@@ -18,11 +18,9 @@ ignore_list = [
 # Define cases to skip (these are TODO)
 skip_logd = [
     cuqi.distribution.Gamma, # Missing force_ndarray
-    cuqi.distribution.ModifiedHalfNormal, # Missing force_ndarray
 ]
 skip_sample = [
     cuqi.distribution.Gamma, # Missing force_ndarray
-    cuqi.distribution.ModifiedHalfNormal, # Missing force_ndarray
     cuqi.distribution.Lognormal,
 ]
 skip_gradient = [

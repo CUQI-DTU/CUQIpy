@@ -35,9 +35,38 @@ class ModifiedHalfNormal(Distribution):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self.alpha = alpha
-        self.beta = beta
-        self.gamma = gamma
+        self._alpha = alpha
+        self._beta = beta
+        self._gamma = gamma
+
+    @property
+    def alpha(self):
+        """ The polynomial exponent parameter of the MHN distribution. Must be positive. """
+        return self._alpha
+    
+    @alpha.setter
+    def shape(self, value):
+        self._shape = force_ndarray(value, flatten=True)
+
+    @property
+    def beta(self):
+        """ The quadratic exponential parameter of the MHN distribution. Must be positive. """
+        return self._alpha
+    
+    @beta.setter
+    def beta(self, value):
+        self._beta = force_ndarray(value, flatten=True)
+
+    @property
+    def gamma(self):
+        """ The linear exponential parameter of the MHN distribution. """
+        return self._alpha
+    
+    @gamma.setter
+    def gamma(self, value):
+        self._gamma = force_ndarray(value, flatten=True)
+
+
 
     def logpdf(self, x): # Unnormalized
         return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
