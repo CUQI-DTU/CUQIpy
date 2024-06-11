@@ -55,7 +55,7 @@ class HybridGibbsNew:
         Dictionary of number of sampling steps for each variable.
         The sampling steps are defined as the number of times the sampler
         will call its step method in each Gibbs step.
-        Default is 1 for all variable.
+        Default is 1 for all variables.
 
     Example
     -------
