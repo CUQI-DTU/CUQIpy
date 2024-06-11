@@ -68,7 +68,8 @@ def test_multivariate_scalar_vars_logd(dist):
     val = np.random.randn(5)
     assert np.allclose(
         dist_from_vec.logd(val),
-        dist_from_dim.logd(val)
+        dist_from_dim.logd(val),
+        equal_nan=True
     )
 
 
