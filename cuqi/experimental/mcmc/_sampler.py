@@ -43,7 +43,7 @@ class SamplerNew(ABC):
     _HISTORY_KEYS = {'_samples', '_acc'}
     """ Set of keys for the history dictionary. """
 
-    def __init__(self, target: cuqi.density.Density, initial_point=None, callback=None):
+    def __init__(self, target:cuqi.density.Density=None, initial_point=None, callback=None):
         """ Initializer for abstract base class for all samplers.
 
         Any subclassing samplers should simply store input parameters as part of the __init__ method. 
@@ -102,8 +102,18 @@ class SamplerNew(ABC):
         pass
 
     @abstractmethod
-    def tune(self):
-        """ Tune the parameters of the sampler. This method is called after each step of the warmup phase. """
+    def tune(self, skip_len, update_count):
+        """ Tune the parameters of the sampler. This method is called after each step of the warmup phase.
+
+        Parameters
+        ----------
+        skip_len : int
+            Defines the number of steps in between tuning (i.e. the tuning interval).
+
+        update_count : int
+            The number of times tuning has been performed. Can be used for internal bookkeeping.
+        
+        """
         pass
 
     @abstractmethod
@@ -385,6 +395,7 @@ class SamplerNew(ABC):
         """ Return a string representation of the sampler. """
         if self.target is None:
             return f"Sampler: {self.__class__.__name__} \n Target: None"
+        self._ensure_initialized()
         state = self.get_state()
         msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
         # Sort keys alphabetically
