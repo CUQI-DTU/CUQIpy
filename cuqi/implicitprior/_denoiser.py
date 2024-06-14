@@ -1,6 +1,7 @@
 #%%
 from abc import ABC, abstractmethod
 from cuqi.distribution import Distribution
+import numpy as np
 
 class DenoiseRegularizer(Distribution):
     """    
