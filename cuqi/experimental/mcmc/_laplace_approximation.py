@@ -49,7 +49,7 @@ class UGLANew(SamplerNew):
         where `sample` is the current sample and `sample_index` is the index of the sample.
         An example is shown in demos/demo31_callback.py.
     """
-    def __init__(self, target, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, **kwargs):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 

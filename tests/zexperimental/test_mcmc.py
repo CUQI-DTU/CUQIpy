@@ -345,6 +345,19 @@ def test_myula():
     myula.sample(10)
     samples = myula.get_samples()
     assert samples.Ns == 10
+
+def create_conjugate_target(type:str):
+    if type.lower() == 'gaussian-gamma':
+        y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+    if type.lower() == 'lmrf-gamma':
+        x = cuqi.distribution.LMRF(0, lambda s: 1/s, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+    else:
+        raise ValueError(f"Conjugate target type {type} not recognized.")
+
 # ============ Checkpointing ============
 
 
@@ -353,7 +366,10 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
-    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.DirectNew(cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(create_conjugate_target("LMRF-Gamma"))
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -366,7 +382,9 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.MYULANew,
     cuqi.experimental.mcmc.PnPULANew,
-    cuqi.experimental.mcmc.NUTSNew
+    cuqi.experimental.mcmc.NUTSNew,
+    cuqi.experimental.mcmc.NUTSNew,
+    cuqi.experimental.mcmc.HybridGibbsNew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -562,7 +580,7 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
 initialize_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
-    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew, cuqi.experimental.mcmc.HybridGibbsNew]
 ]
 
 # Instances of samplers that should be tested for target=None initialization consistency
@@ -577,14 +595,17 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
     cuqi.experimental.mcmc.MYULANew(target=create_myula_target(dim=16)),
-    cuqi.experimental.mcmc.PnPULANew(target=create_myula_target(dim=16))
+    cuqi.experimental.mcmc.PnPULANew(target=create_myula_target(dim=16)),
+    cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
 ]
 
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
 def test_target_None_init_in_samplers(sampler_class):
     """ Test all samplers can be initialized with target=None. """
-    sampler = sampler_class(target=None)
+    sampler = sampler_class()
     assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
