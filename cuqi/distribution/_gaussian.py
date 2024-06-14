@@ -9,7 +9,7 @@ import scipy.linalg as splinalg
 
 from cuqi import config
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import force_ndarray, sparse_cholesky
+from cuqi.utilities import force_ndarray, sparse_cholesky, check_if_conditional_from_attr
 from cuqi.distribution import Distribution
 
 # We potentially allow the use of sksparse.cholmod for sparse Cholesky
@@ -191,7 +191,7 @@ class Gaussian(Distribution):
         value = force_ndarray(value)
         self._sqrtcov = value
         self._cov = None # Reset covariance (in case it was computed before)      
-        if (value is not None) and (not callable(value)):  
+        if (value is not None) and (not callable(value)):
             if self.dim > config.MIN_DIM_SPARSE:
                 sparse_flag = True # do sparse computations
             else:
@@ -214,7 +214,7 @@ class Gaussian(Distribution):
         value = force_ndarray(value)
         self._sqrtprec = value
         self._cov = None # Reset covariance (in case it was computed before)
-        if (value is not None) and (not callable(value)):  
+        if not check_if_conditional_from_attr(value):
             if self.dim > config.MIN_DIM_SPARSE:
                 sparse_flag = True # do sparse computations
             else:
@@ -631,7 +631,7 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
     dim : int
         Dimension of the sqrtprec matrix.
     
-    sqrtprec : 1-d or 2-d ndarray or sparse matrix
+    sqrtprec : 1-d or 2-d ndarray or sparse matrix or scipy.sparse.linalg.LinearOperator
         Square root of precision matrix. If 1-dimensional, then assumed to be a diagonal matrix.
 
     sparse_flag: bool
@@ -664,6 +664,14 @@ def get_sqrtprec_from_sqrtprec(dim, sqrtprec, sparse_flag):
     # sqrtprec is sparse diagonal
     elif spa.isspmatrix_dia(sqrtprec):
         logdet = np.sum(-np.log(sqrtprec.data**2))
+        rank = dim
+
+    # sqrtprec is LinearOperator
+    elif isinstance(sqrtprec, spa.linalg.LinearOperator):
+        if hasattr(sqrtprec, 'logdet'):
+            logdet = sqrtprec.logdet
+        else:
+            logdet = None
         rank = dim
 
     # sqrtprec diagonal

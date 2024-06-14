@@ -49,21 +49,17 @@ class UGLANew(SamplerNew):
         where `sample` is the current sample and `sample_index` is the index of the sample.
         An example is shown in demos/demo31_callback.py.
     """
-    def __init__(self, target, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=50, tol=1e-4, beta=1e-5, **kwargs):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
-
-        if initial_point is None: #TODO: Replace later with a getter
-            self.initial_point = np.zeros(self.dim)
-            self._samples = [self.initial_point]
-
-        self.current_point = self.initial_point
-        self._acc = [1] # TODO. Check if we need this
 
         # Parameters
         self.maxit = maxit
         self.tol = tol
         self.beta = beta
+    
+    def _initialize(self):
+        self._precompute()
 
     @property
     def prior(self):
@@ -81,8 +77,8 @@ class UGLANew(SamplerNew):
     def data(self):
         return self.target.data
 
-    def _pre_warmup(self):
-        super()._pre_warmup()
+    def _precompute(self):
+
         D = self.prior._diff_op
         n = D.shape[0]
 
@@ -121,9 +117,6 @@ class UGLANew(SamplerNew):
             return out
         self.M = M
 
-    def _pre_sample(self):
-        self._pre_warmup()
-
     def step(self):
         # Update Laplace approximation
         self._L2 = self.Lk_fun(self.current_point)
@@ -157,3 +150,8 @@ class UGLANew(SamplerNew):
         # Check that prior is LMRF
         if not isinstance(self.prior, cuqi.distribution.LMRF):
             raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires LMRF prior')
+        
+    @property
+    def _default_initial_point(self):
+        """ Get the default initial point for the sampler. Defaults to an array of zeros. """
+        return np.zeros(self.dim)

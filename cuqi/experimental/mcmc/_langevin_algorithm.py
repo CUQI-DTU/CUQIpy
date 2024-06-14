@@ -64,15 +64,14 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_target_grad'})
 
-    def __init__(self, target, scale=1.0, **kwargs):
+    def __init__(self, target=None, scale=1.0, **kwargs):
 
         super().__init__(target, **kwargs)
+        self.initial_scale = scale
 
-        self.scale = scale
-        self.current_point = self.initial_point
-        self.current_target_logd = self._eval_target_logd(self.current_point)
+    def _initialize(self):
+        self.scale = self.initial_scale
         self.current_target_grad = self.target.gradient(self.current_point)
-        self._acc = [1] # TODO. Check if we need this
 
     def validate_target(self):
         try:
@@ -106,7 +105,6 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             1 (accepted)
         """
         self.current_point = x_star
-        self.current_target_logd = target_eval_star
         self.current_target_grad = target_grad_star
         acc = 1
         return acc
@@ -189,8 +187,9 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 
     _STATE_KEYS = ULANew._STATE_KEYS.union({'current_target_logd'})
 
-    def __init__(self, target, scale=1.0, **kwargs):
-        super().__init__(target=target, scale=scale, **kwargs)
+    def _initialize(self):
+        super()._initialize()
+        self.current_target_logd = self.target.logd(self.current_point)
 
     def _eval_target_logd(self, x):
         return self.target.logd(x)
@@ -324,5 +323,5 @@ class PnPULANew(MYULANew):
 
     # TODO: update demo once sampler merged
     """
-    def __init__ (self, target, scale=1.0, **kwargs):
+    def __init__ (self, target=None, scale=1.0, **kwargs):
         super().__init__(target, scale, **kwargs)
