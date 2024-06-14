@@ -458,6 +458,9 @@ state_history_targets = [
     cuqi.experimental.mcmc.MYULANew(create_myula_target(dim=128)),
     cuqi.experimental.mcmc.NUTSNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, step_size=0.001),
     cuqi.experimental.mcmc.PnPULANew(create_myula_target(dim=128)),
+    cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
 ]
 
 # List of all classes subclassing samplers.
@@ -465,7 +468,8 @@ all_subclassing_sampler_classes= [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
     if cls not in [cuqi.experimental.mcmc.SamplerNew,
-                   cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+                   cuqi.experimental.mcmc.ProposalBasedSamplerNew,
+                   cuqi.experimental.mcmc.HybridGibbsNew]
 ]
 
 # Make sure that all samplers are tested for state history
