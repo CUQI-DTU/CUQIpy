@@ -35,6 +35,6 @@ def test_creating_denoiser():
     def func(x):
         return x, True
     denoiser = cuqi.implicitprior.DenoiseRegularizer(func)
-    assert np.allclose(denoiser.denoise(np.ones(4)), np.ones(4))
+    assert np.allclose(denoiser.regularize(np.ones(4)), np.ones(4))
     assert denoiser.info == True
     assert np.allclose(denoiser.gradient(np.zeros(4)), np.zeros(4))
