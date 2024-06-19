@@ -249,7 +249,7 @@ class Distribution(Density, ABC):
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
-                s = s.ravel()
+                s = s.ravel()[0]
             else:
                 s = s.flatten()
             s = CUQIarray(s, geometry=self.geometry)
@@ -283,6 +283,12 @@ class Distribution(Density, ABC):
         # EVALUATE CONDITIONAL DISTRIBUTION
         new_dist = self._make_copy() #New cuqi distribution conditioned on the kwargs
         processed_kwargs = set() # Keep track of processed (unique) elements in kwargs
+
+        # Check if kwargs contain any mutable variables that are not conditioning variables
+        # If so we raise an error since these are not allowed to be specified.
+        for kw_key in kwargs.keys():
+            if kw_key in mutable_vars and kw_key not in cond_vars:
+                raise ValueError(f"The mutable variable \"{kw_key}\" is not a conditioning variable of this distribution.")
 
         # Go through every mutable variable and assign value from kwargs if present
         for var_key in mutable_vars:

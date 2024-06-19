@@ -1,9 +1,5 @@
 from ._sampler import Sampler, ProposalBasedSampler
-from ._conjugate import (Conjugate,
-                        ConjugatePair,
-                        GaussianGammaPair,
-                        RegularizedGaussianGammaPair,
-                        GammaGammaPair)
+from ._conjugate import Conjugate
 from ._conjugate_approx import ConjugateApprox
 from ._cwmh import CWMH
 from ._gibbs import Gibbs
