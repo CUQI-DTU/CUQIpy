@@ -1,8 +1,9 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import Sampler
+from cuqi.experimental.mcmc import SamplerNew
+from cuqi.array import CUQIarray
 
-class ULA(Sampler):
+class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logpdf and gradient (up to a constant) based on
@@ -19,16 +20,12 @@ class ULA(Sampler):
         The target distribution to sample. Must have logd and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
     scale : int
         The Langevin diffusion discretization time step (In practice, a scale of 1/dim**2 is
         recommended but not guaranteed to be the optimal choice).
-
-    dim : int
-        Dimension of parameter space. Required if target logpdf and gradient are callable 
-        functions. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -55,61 +52,80 @@ class ULA(Sampler):
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.ULA(target, scale=1/dim**2)
+        sampler = cuqi.experimental.mcmc.ULANew(target, scale=1/dim**2)
 
         # Sample
-        samples = sampler.sample(2000)
+        sampler.sample(2000)
 
     A Deblur example can be found in demos/demo27_ULA.py
+    # TODO: update demo once sampler merged
     """
-    def __init__(self, target, scale, x0=None, dim=None, rng=None, **kwargs):
-        super().__init__(target, x0=x0, dim=dim, **kwargs)
-        self.scale = scale
-        self.rng = rng
 
-    def _sample_adapt(self, N, Nb):
-        return self._sample(N, Nb)
+    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
 
-    def _sample(self, N, Nb):    
-        # allocation
-        Ns = Nb+N
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        g_target_eval = np.empty((self.dim, Ns))
-        acc = np.zeros(Ns)
+    def __init__(self, target=None, scale=1.0, **kwargs):
 
-        # initial state
-        samples[:, 0] = self.x0
-        target_eval[0], g_target_eval[:,0] = self.target.logd(self.x0), self.target.gradient(self.x0)
-        acc[0] = 1
+        super().__init__(target, **kwargs)
 
-        # ULA
-        for s in range(Ns-1):
-            samples[:, s+1], target_eval[s+1], g_target_eval[:,s+1], acc[s+1] = \
-                self.single_update(samples[:, s], target_eval[s], g_target_eval[:,s])            
-            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+1)
-    
-        # apply burn-in 
-        samples = samples[:, Nb:]
-        target_eval = target_eval[Nb:]
-        acc = acc[Nb:]
-        return samples, target_eval, np.mean(acc)
+        self.initial_scale = scale
 
-    def single_update(self, x_t, target_eval_t, g_target_eval_t):
-        # approximate Langevin diffusion
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
-        x_star = x_t + 0.5*self.scale*g_target_eval_t + xi
-        logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
+    def _initialize(self):
+        self.scale = self.initial_scale
+        self.current_target_logd = self.target.logd(self.current_point)
+        self.current_target_grad = self.target.gradient(self.current_point)
 
-        # msg
-        if np.isnan(logpi_eval_star):
-            raise NameError('NaN potential func. Consider using smaller scale parameter')
+    def validate_target(self):
+        try:
+            self.target.gradient(np.ones(self.dim))
+            pass
+        except (NotImplementedError, AttributeError):
+            raise ValueError("The target needs to have a gradient method")
 
-        return x_star, logpi_eval_star, g_logpi_star, 1 # sample always accepted without Metropolis correction
+    def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
+        """
+        Accepts the proposed state and updates the sampler's state accordingly, i.e.,
+        current_point, current_target_eval, and current_target_grad_eval.
+
+        Parameters
+        ----------
+        x_star : 
+            The proposed state
+
+        target_eval_star: 
+            The log likelihood evaluated at x_star
+
+        target_grad_star: 
+            The gradient of log likelihood evaluated at x_star
+
+        Returns
+        -------
+        scalar
+            1 (accepted)
+        """
+        self.current_point = x_star
+        self.current_target_logd = target_eval_star
+        self.current_target_grad = target_grad_star
+        acc = 1
+        return acc
+
+    def step(self):
+        # propose state
+        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
+        x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
+
+        # evaluate target
+        target_eval_star, target_grad_star = self.target.logd(x_star), self.target.gradient(x_star)
+
+        # accept or reject proposal
+        acc = self._accept_or_reject(x_star, target_eval_star, target_grad_star)
+
+        return acc
+
+    def tune(self, skip_len, update_count):
+        pass
 
 
-class MALA(ULA):
+class MALANew(ULANew): # Refactor to Proposal-based sampler?
     """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logd and gradient (up to a constant) based on
@@ -127,15 +143,11 @@ class MALA(ULA):
         The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs 
         and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
     
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
     scale : int
         The Langevin diffusion discretization time step.
-
-    dim : int
-        Dimension of parameter space. Required if target logpdf and gradient are callable 
-        functions. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -162,37 +174,54 @@ class MALA(ULA):
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.MALA(target, scale=1/5**2)
+        sampler = cuqi.experimental.mcmc.MALANew(target, scale=1/5**2)
 
         # Sample
-        samples = sampler.sample(2000)
+        sampler.sample(2000)
 
     A Deblur example can be found in demos/demo28_MALA.py
+    # TODO: update demo once sampler merged
     """
-    def __init__(self, target, scale, x0=None, dim=None, rng=None, **kwargs):
-        super().__init__(target, scale, x0=x0, dim=dim, rng=rng, **kwargs)
 
-    def single_update(self, x_t, target_eval_t, g_target_eval_t):
-        # approximate Langevin diffusion
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
-        x_star = x_t + (self.scale/2)*g_target_eval_t + xi
-        logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
+    def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
+        """
+        Accepts the proposed state according to a Metropolis step and updates the sampler's state accordingly, i.e., current_point, current_target_eval, and current_target_grad_eval.
 
-        # Metropolis step
-        log_target_ratio = logpi_eval_star - target_eval_t
-        log_prop_ratio = self.log_proposal(x_t, x_star, g_logpi_star) \
-            - self.log_proposal(x_star, x_t,  g_target_eval_t)
+        Parameters
+        ----------
+        x_star : 
+            The proposed state
+
+        target_eval_star: 
+            The log likelihood evaluated at x_star
+
+        target_grad_star: 
+            The gradient of log likelihood evaluated at x_star
+
+        Returns
+        -------
+        scaler
+            1 if accepted, 0 otherwise
+        """
+        log_target_ratio = target_eval_star - self.current_target_logd
+        log_prop_ratio = self._log_proposal(self.current_point, x_star, target_grad_star) \
+            - self._log_proposal(x_star, self.current_point,  self.current_target_grad)
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
-        # accept/reject
-        log_u = np.log(cuqi.distribution.Uniform(low=0, high=1).sample(rng=self.rng))
-        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star) == False):
-            return x_star, logpi_eval_star, g_logpi_star, 1
-        else:
-            return x_t.copy(), target_eval_t, g_target_eval_t.copy(), 0
+        # accept/reject with Metropolis
+        acc = 0
+        log_u = np.log(np.random.rand())
+        if (log_u <= log_alpha) and (np.isnan(target_eval_star) == False):
+            self.current_point = x_star
+            self.current_target_logd = target_eval_star
+            self.current_target_grad = target_grad_star
+            acc = 1
+        return acc
 
-    def log_proposal(self, theta_star, theta_k, g_logpi_k):
+    def tune(self, skip_len, update_count):
+        pass
+
+    def _log_proposal(self, theta_star, theta_k, g_logpi_k):
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
-

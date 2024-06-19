@@ -4,6 +4,7 @@ import numpy as np
 import scipy as sp
 import scipy.stats as scipy_stats
 import scipy.sparse as sps
+import numpy.linalg as nplinalg
 
 from pytest import approx
 import pytest
@@ -375,6 +376,32 @@ def test_InverseGamma(a, location, scale, x, func):
 
     else:
         raise ValueError
+    
+@pytest.mark.parametrize("shape", [1, 2, 3, 5])
+@pytest.mark.parametrize("rate", [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e4, 1e5])
+@pytest.mark.parametrize("value", [1, 2, 3, 4, 5])
+def test_Gamma_pdf(shape, rate, value):
+    G = cuqi.distribution.Gamma(shape, rate)
+    assert np.isclose(G.pdf(value), scipy_stats.gamma(shape, scale=1/rate).pdf(value))
+
+@pytest.mark.parametrize("shape", [1, 2, 3, 5])
+@pytest.mark.parametrize("rate", [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e4, 1e5])
+@pytest.mark.parametrize("value", [1, 2, 3, 4, 5])
+def test_Gamma_cdf(shape, rate, value):
+    G = cuqi.distribution.Gamma(shape, rate)
+    assert np.isclose(G.cdf(value), scipy_stats.gamma(shape, scale=1/rate).cdf(value))
+
+@pytest.mark.parametrize("shape", [1, 2, 3, 5])
+@pytest.mark.parametrize("rate", [1e-4, 1e-3, 1e-2, 1e-1, 1, 1e4, 1e5])
+def test_Gamma_sample(shape, rate):
+    rng = np.random.RandomState(3)
+    G = cuqi.distribution.Gamma(shape, rate)
+    cuqi_samples = G.sample(3, rng=rng)
+
+    rng2 = np.random.RandomState(3)
+    np_samples = rng2.gamma(shape=shape, scale=1/rate, size=(3, 1)).T
+
+    assert np.allclose(cuqi_samples.samples, np_samples)
 
 @pytest.mark.parametrize("location", [-1, -2, -3, 0, 1, 2, 3])
 @pytest.mark.parametrize("scale", [1e-3, 1e-1, 1e0, 1e1, 1e3])
@@ -563,6 +590,31 @@ def test_beta(): #TODO. Make more tests
     FD_gradient = cuqi.utilities.approx_gradient(BD.logpdf, x, epsilon=0.000000001)
     assert np.allclose(BD.gradient(x),FD_gradient,rtol=1e-3) or (np.all(np.isnan(FD_gradient)) and np.all(np.isnan(BD.gradient(x))))
 
+# Fixture for beta distribution where beta is a likelihood
+@pytest.fixture
+def beta_likelihood():
+    # simple forward model
+    A = cuqi.model.Model(
+        lambda x: x**2,
+        range_geometry=1,
+        domain_geometry=1,
+        gradient=lambda direction, wrt: 2*wrt*direction)
+    
+    # set a gaussian prior
+    x = cuqi.distribution.Gaussian(0, 1)
+    # Beta data distribution
+    y = cuqi.distribution.Beta(A(x),1)
+    # set the observed data
+    y=y(y=0.5)
+    return y
+
+def test_gradient_for_Beta_as_likelihood_raises_error(beta_likelihood):
+    """Test computing the gradient of the Beta distribution as a likelihood
+    raises a NotImplementedError"""
+
+    with pytest.raises(NotImplementedError, 
+                       match=r"Gradient is not implemented for CUQI Beta."):
+        beta_likelihood.gradient(1)
 
 @pytest.mark.parametrize("C",[1, np.ones(5), np.eye(5), sps.eye(5), sps.diags(np.ones(5))])
 def test_Gaussian_Cov_sample(C):
@@ -687,3 +739,22 @@ def test_Gaussian_from_sparse_sqrtprec():
 
     assert y_from_dense.logpdf(np.ones(N)) == y_from_sparse.logpdf(np.ones(N))
 
+def test_Gaussian_from_linear_operator_sqrtprec():
+    """ Test Gaussian distribution from LinearOperator sqrtprec is equal to dense sqrtprec """
+    N = 10; M = 5
+
+    sqrtprec = sp.sparse.spdiags(np.random.randn(N), 0, N, N)
+    prec = sqrtprec.todense()@sqrtprec.todense().T
+
+    def matvec(x):
+        return sqrtprec @ x
+    def rmatvec(x):
+        return sqrtprec.T @ x
+    
+    sqrtprec_operator = sp.sparse.linalg.LinearOperator((N, N), matvec=matvec, rmatvec=rmatvec)
+    sqrtprec_operator.logdet = -np.log(nplinalg.det(prec))
+
+    y_from_sparse = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec_operator)
+    y_from_dense = cuqi.distribution.Gaussian(mean = np.zeros(N), sqrtprec = sqrtprec.todense())
+
+    assert np.allclose(y_from_dense.logpdf(np.ones(N)), y_from_sparse.logpdf(np.ones(N)))
