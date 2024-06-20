@@ -13,9 +13,10 @@ class DenoiseRegularizer(Distribution):
     There are several denoising based regularization types. See https://arxiv.org/pdf/1612.07471
     where the negative logpdf of the prior is regularized with infimal convolution and 
     https://universite-paris-saclay.hal.science/hal-03161400/ where the prior is
-    regularized with convolution.
+    regularized with convolution. In the following we give a detailed with the
+    Moreau-Yoshida based regularization.
     
-    Ex: Moreau-Yoshida based regularization
+    Example: Moreau-Yoshida based regularization
         We consider a density such that - \log\pi(x) = -g(x) with g convex, lsc,
         proper but not differentiable. Consequently, we cannot apply any
         algorithm requiring the gradient of g.
