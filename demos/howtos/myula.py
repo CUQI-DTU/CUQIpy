@@ -178,7 +178,11 @@ posterior=Posterior(likelihood, denoise_regularizer)
 # every :math:`\texttt{Nt}=20`
 # samples to compute our quantities of interest.
 # :math:`\texttt{scale}` is set wrt the recommendation of Durmus et al.
-# (https://arxiv.org/pdf/1612.07471).
+# (https://arxiv.org/pdf/1612.07471). It must be smaller than the inverse of the
+# Lipschitz constant of the gradient of the log-posterior density. In this setting,
+# The Lipschitz constant of the gradient of likelihood log-density is 
+# :math:`\|A^TA \|_2^2/\texttt{sigma2}` and the one of the log-prior is
+# :math:`1/\texttt{strength_smooth}`.
 Ns=10000
 Nb=1000
 Nt=20
