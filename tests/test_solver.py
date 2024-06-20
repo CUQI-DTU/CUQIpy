@@ -54,7 +54,7 @@ def test_FISTA():
     
     stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
     x0 = np.zeros(n)
-    sol, _ = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True).solve()
+    sol, _ = FISTA(A, b, proximal = ProximalL1, x0, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True).solve()
 
     ref_sol = np.array([-1.83273787e-03, -1.72094582e-13,  0.0, -3.35835639e-01, -1.27795593e-01])
     # Compare
