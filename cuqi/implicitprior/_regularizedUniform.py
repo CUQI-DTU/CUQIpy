@@ -24,6 +24,9 @@ class RegularizedUniform(RegularizedGaussian):
 
         Parameters
         ----------
+        geometry : :class:`~cuqi.geometry.Geometry`
+                The geometry of the underlying variable.
+
         proximal : callable f(x, scale) or None
                 Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
                 min_z 0.5||x-z||_2^2+scale*g(x).

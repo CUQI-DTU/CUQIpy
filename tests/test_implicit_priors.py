@@ -65,6 +65,6 @@ def test_RegularizedUniform():
     """ Test that the implicit regularized uniform create a Regularized Gaussian with zero sqrtprec """
     # NOTE: Test is based on the current assumption that the regularized uniform is modeled as a Gaussian with zero precision. This might change in the future.
 
-    x = cuqi.implicitprior.RegularizedUniform(np.zeros(5), 1, regularization="l1", strength = 5.0)
+    x = cuqi.implicitprior.RegularizedUniform(cuqi.geometry.Continuous1D(5), regularization="l1", strength = 5.0)
     
     assert np.allclose(x.gaussian.sqrtprec, 0.0)
