@@ -13,7 +13,6 @@ ignore_list = [
     "Posterior",
     "Distribution",
     "JointGaussianSqrtPrec",
-    "ImplicitlyDefinedPosterior",
 ]
 
 # Define cases to skip (these are TODO)
