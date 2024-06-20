@@ -10,6 +10,11 @@ class DenoiseRegularizer(Distribution):
     a denoising algorithm as we can encounter in MYULA
     and PnP-ULA.
     
+    There are several denoising based regularization types. See https://arxiv.org/pdf/1612.07471
+    where the negative logpdf of the prior is regularized with infimal convolution and 
+    https://universite-paris-saclay.hal.science/hal-03161400/ where the prior is
+    regularized with convolution.
+    
     Ex: Moreau-Yoshida based regularization
         We consider a density such that - \log\pi(x) = -g(x) with g convex, lsc,
         proper but not differentiable. Consequently, we cannot apply any
@@ -82,10 +87,13 @@ class DenoiseRegularizer(Distribution):
         return solution
     
     def gradient(self, x):
-        """This is the gradient of the regularizer."""
+        """This is the gradient of the regularizer ie gradient of the negative
+        logpdf of the implicit prior."""
         return -(x - self.regularize(x))/self.strength_smooth
     
     def logpdf(self, x):
+        """The logpdf function. It returns nan because we don't know the 
+        logpdf of the implicit prior."""
         return np.nan
     
     def _sample(self, N, rng=None):
