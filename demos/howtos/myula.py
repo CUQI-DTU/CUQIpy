@@ -93,7 +93,7 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # %%
 # Bayesian model definition
 # -------------------------
-# Then consider the following Bayesian model
+# Then consider the following Bayesian Inverse Problem:
 #
 # .. math::
 #    \begin{align*}
