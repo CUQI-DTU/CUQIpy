@@ -15,6 +15,8 @@ class RegularizedUniform(RegularizedGaussian):
 
         Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
+        Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with zero mean and zero sqrtprec.
+
         For more details on implicit regularized Gaussian see the following paper:
 
         [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized

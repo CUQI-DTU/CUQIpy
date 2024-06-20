@@ -246,6 +246,7 @@ class ConstrainedGaussian(RegularizedGaussian):
 
     Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
+    Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with only constraints available.
 
     For more details on implicit regularized Gaussian see the following paper:
 
@@ -293,6 +294,7 @@ class NonnegativeGaussian(RegularizedGaussian):
 
     Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
 
+    Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with only nonnegativity constraints.
 
     For more details on implicit regularized Gaussian see the following paper:
 
