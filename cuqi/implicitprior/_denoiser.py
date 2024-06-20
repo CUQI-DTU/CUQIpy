@@ -13,7 +13,7 @@ class DenoiseRegularizer(Distribution):
     There are several denoising based regularization types. See https://arxiv.org/pdf/1612.07471
     where the negative logpdf of the prior is regularized with infimal convolution and 
     https://universite-paris-saclay.hal.science/hal-03161400/ where the prior is
-    regularized with convolution. In the following we give a detailed with the
+    regularized with convolution. In the following we give a detailed example with the
     Moreau-Yoshida based regularization.
     
     Example: Moreau-Yoshida based regularization
