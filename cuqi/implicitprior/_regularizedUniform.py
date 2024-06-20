@@ -5,9 +5,9 @@ import numpy as np
 
 
 class RegularizedUniform(RegularizedGaussian):
-        """ Implicit Regularized GMRF (Gaussian Markov Random Field). 
+        """ Implicit Regularized Uniform. 
 
-        Defines a so-called implicit prior based on a Gaussian distribution with implicit regularization and zero precision.
+        Defines a so-called implicit prior with implicit regularization on a Gaussian distribution with zero precision.
         The regularization can be defined in the form of a proximal operator or a projector.
         Alternatively, preset constraints and regularization can be used.
 
@@ -39,7 +39,7 @@ class RegularizedUniform(RegularizedGaussian):
                         Upper bound of box, defaults to one
 
         regularization : string or None
-                Preset regularization. Can be set to "l1" or "TV". Required for use in Gibbs in future update.
+                Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
                 For "l1", the following additional parameters can be passed:
                 strength : scalar
                         Regularization parameter, i.e., strength*||x||_1 , defaults to one
