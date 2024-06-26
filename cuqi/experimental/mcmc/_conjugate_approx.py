@@ -50,8 +50,8 @@ class _LMRFGammaPair(_ConjugatePair):
         
         key, value = _get_conjugate_parameter(self.target)
         if key == "scale":
-            assert _check_conjugate_parameter_is_scalar_reciprocal(value), \
-                "Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood"
+            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
+                raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
         else:
             raise ValueError(f"No approximate conjugate pair defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}")
         

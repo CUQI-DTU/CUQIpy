@@ -41,8 +41,7 @@ class ConjugateNew(SamplerNew):
             self.validate_target()
 
     def validate_target(self):
-        if not isinstance(self.target, Posterior):
-            raise TypeError("Conjugate sampler requires a target of type Posterior")
+        self._ensure_posterior_target()
         self._conjugatepair.validate_target()
         
     def step(self):
@@ -51,8 +50,14 @@ class ConjugateNew(SamplerNew):
     def tune(self, skip_len, update_count):
         pass # No tuning required for conjugate sampler
 
+    def _ensure_posterior_target(self):
+        """ Ensure that the target is a Posterior distribution. """
+        if not isinstance(self.target, Posterior):
+            raise TypeError("Conjugate sampler requires a target of type Posterior")
+
     def _set_conjugatepair(self):
         """ Set the conjugate pair based on the likelihood and prior. This requires target to be set. """
+        self._ensure_posterior_target()
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)) and isinstance(self.target.prior, Gamma):
             self._conjugatepair = _GaussianGammaPair(self.target)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(self.target.prior, Gamma):
@@ -87,7 +92,7 @@ class _GaussianGammaPair(_ConjugatePair):
     """ Implementation for the Gaussian-Gamma conjugate pair."""
 
     def validate_target(self):
-        if not isinstance(self.target.likelihood.distribution, Gaussian):
+        if not isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             raise ValueError("Conjugate sampler only works with a Gaussian likelihood function")
 
         if not isinstance(self.target.prior, Gamma):
@@ -98,11 +103,11 @@ class _GaussianGammaPair(_ConjugatePair):
 
         key, value = _get_conjugate_parameter(self.target)
         if key == "cov":
-            assert _check_conjugate_parameter_is_scalar_reciprocal(value), \
-                "Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter"
+            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
+                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
         elif key == "prec":
-            assert _check_conjugate_paramter_is_scalar_identity(value), \
-                "Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter"
+            if not _check_conjugate_paramter_is_scalar_identity(value):
+                raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
         else:
             raise ValueError("Conjugate sampler only works with Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
 
@@ -125,7 +130,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
     """Implementation for the Regularized Gaussian-Gamma conjugate pair."""
 
     def validate_target(self):
-        if not isinstance(self.target.likelihood.distribution, RegularizedGaussian):
+        if not isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
             raise ValueError("Conjugate sampler only works with a Regularized Gaussian likelihood function")
 
         if not isinstance(self.target.prior, Gamma):
@@ -139,11 +144,11 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
 
         key, value = _get_conjugate_parameter(self.target)
         if key == "cov":
-            assert _check_conjugate_parameter_is_scalar_reciprocal(value), \
-                "Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter"
+            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
+                raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
         elif key == "prec":
-            assert _check_conjugate_paramter_is_scalar_identity(value), \
-                "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter"
+            if not _check_conjugate_paramter_is_scalar_identity(value):
+                raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
         else:
             raise ValueError("Conjugate sampler only works with Regularized Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
 

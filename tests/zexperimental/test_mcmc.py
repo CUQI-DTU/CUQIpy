@@ -626,3 +626,107 @@ def test_sampler_reinitialization_restores_to_initial_configuration(sampler_clas
         attr1 = getattr(instance1, key, None)
         attr2 = getattr(instance2, key, None)
         compare_attributes(attr1, attr2, key)
+
+# ============ Testing of Conjugate handling ============
+
+def test_conjugate_invalid_target_type():
+    """ Test that the Conjugate sampler requires a target of type Posterior. """
+    sampler = cuqi.experimental.mcmc.ConjugateNew()
+    invalid_target = cuqi.distribution.Gaussian(0, 1) # Not a Posterior
+    with pytest.raises(TypeError, match="Conjugate sampler requires a target of type Posterior"):
+        sampler.target = invalid_target
+
+def test_conjugate_invalid_pair():
+    """ Test that useful error message is raised when conjugate pair is not supported. """
+    prior = cuqi.distribution.Gaussian(0, 1, name="x")
+    likelihood = cuqi.distribution.Gamma(lambda x: x, 1, name="y").to_likelihood([0])
+    posterior = cuqi.distribution.Posterior(likelihood, prior)
+
+    with pytest.raises(ValueError, match="No conjugate pair defined for likelihood"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def test_conjugate_wrong_name_for_conjugate_parameter():
+    """ Test that useful error message is raised when name of conjugate parameter is wrong. """
+    posterior = create_conjugate_target("Gaussian-Gamma")
+    # Modify likelihood to use wrong name for conjugate parameter
+    posterior.likelihood.distribution.cov = lambda d: 1/d
+
+    with pytest.raises(ValueError, match="Unable to find conjugate parameter"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def test_conjugate_wrong_var_for_conjugate_parameter():
+    """ Test that useful error message is raised when conjugate parameter is defined on wrong mutable variable. """
+    y = cuqi.distribution.Gaussian(0, sqrtprec=lambda s: 1/s, name='y')
+    s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+    posterior =  cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+
+    with pytest.raises(ValueError, match="Conjugate sampler only works with Gaussian likelihood functions where conjugate parameter is defined via covariance or precision"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def test_conjugate_wrong_equation_for_conjugate_parameter():
+    """ Test that useful error message is raised when equation for conjugate parameter is not supported. """
+    posterior = create_conjugate_target("Gaussian-Gamma")
+    # Modify likelihood to not invert parameter in covariance
+    posterior.likelihood.distribution.cov = lambda s: s
+
+    with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_func):
+    """ Create a target with invalid conjugate parameter equations. """
+
+    if target_type.lower() == 'gaussian-gamma':
+        if param_name == "cov":
+            y = cuqi.distribution.Gaussian(0, invalid_func, name='y')
+        elif param_name == "prec":
+            y = cuqi.distribution.Gaussian(0, prec=invalid_func, name='y')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+    
+    elif target_type.lower() == 'regularizedgaussian-gamma':
+        if param_name == "cov":
+            x = cuqi.implicitprior.RegularizedGaussian(0, invalid_func, constraint="nonnegativity", name='x')
+        elif param_name == "prec":
+            x = cuqi.implicitprior.RegularizedGaussian(0, prec=invalid_func, constraint="nonnegativity", name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood([0]), s)
+    
+    elif target_type.lower() == 'lmrf-gamma':
+        if param_name == "scale":
+            x = cuqi.distribution.LMRF(0, scale=invalid_func, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+
+    elif target_type.lower() == 'gmrf-gamma':
+        if param_name == "prec":
+            x = cuqi.distribution.GMRF(0, prec=invalid_func, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+    
+    elif target_type.lower() == 'regularizedgmrf-gamma':
+        if param_name == "prec":
+            x = cuqi.implicitprior.RegularizedGMRF(np.zeros(10), prec=invalid_func, constraint="nonnegativity", name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+    
+    else:
+        raise ValueError(f"Conjugate target type {target_type} not recognized.")
+
+@pytest.mark.parametrize("target_type, param_name, invalid_func, expected_error", [
+    ("gaussian-gamma", "cov", lambda s: s, "Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x"),
+    ("gaussian-gamma", "prec", lambda s: 2 * s, "Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x"),
+    ("regularizedgaussian-gamma", "cov", lambda s: s, "Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x"),
+    ("regularizedgaussian-gamma", "prec", lambda s: 2 * s, "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x"),
+    ("lmrf-gamma", "scale", lambda s: s, "Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood"),
+    ("gmrf-gamma", "prec", lambda s: 2 * s, "Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x"),
+    ("regularizedgmrf-gamma", "prec", lambda s: 2 * s, "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x")
+])
+def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target_type, param_name, invalid_func, expected_error):
+    """ Test that useful error message is raised when conjugate parameter has the wrong equation. """
+    posterior = create_invalid_conjugate_target(target_type, param_name, invalid_func)
+    
+    with pytest.raises(ValueError, match=expected_error):
+        if target_type == "lmrf-gamma":
+            cuqi.experimental.mcmc.ConjugateApproxNew(target=posterior)
+        else:
+            cuqi.experimental.mcmc.ConjugateNew(target=posterior)
