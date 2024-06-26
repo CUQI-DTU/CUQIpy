@@ -4,8 +4,8 @@ from cuqi.distribution import Distribution, Gaussian
 import numpy as np
 
 
-class RegularizedUniform(RegularizedGaussian):
-        """ Implicit Regularized Uniform. 
+class RegularizedUnboundedUniform(RegularizedGaussian):
+        """ Implicit Regularized Unbounded Uniform. 
 
         Defines a so-called implicit prior with implicit regularization on a Gaussian distribution with zero precision.
         The regularization can be defined in the form of a proximal operator or a projector.
