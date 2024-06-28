@@ -650,7 +650,7 @@ def test_find_valid_samplers_direct():
 
     assert(set(valid_samplers) == set(['DirectNew']))
 
-def test_find_valid_samplers_implicit():
+def test_find_valid_samplers_implicit_posterior():
     A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
 
     x = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
@@ -661,9 +661,9 @@ def test_find_valid_samplers_implicit():
 
     assert(set(valid_samplers) == set(['RegularizedLinearRTONew']))
 
-
+def test_find_valid_samplers_implicit_prior():
     target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['']))
+    assert(len(set(valid_samplers)) == 0)

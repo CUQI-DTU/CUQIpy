@@ -100,6 +100,8 @@ class CWMHNew(ProposalBasedSamplerNew):
             raise ValueError(
                 "Target should be an instance of "+\
                 f"{cuqi.density.Density.__class__.__name__}")
+        if np.isnan(self.target.logd(self._default_initial_point)):
+            raise ValueError("Target does not have valid logd")
         
     def validate_proposal(self):
         if not isinstance(self.proposal, cuqi.distribution.Distribution):

@@ -561,7 +561,7 @@ class _BatchHandler:
     def finalize(self):
         """ Finalize the batch handler. Flush any remaining samples to disk. """
         self.flush()
-        
+
 def find_valid_samplers(target):
     """ Finds all samplers in the cuqi.experimental.mcmc module that accept the provided target. """
 
@@ -572,6 +572,7 @@ def find_valid_samplers(target):
         try:
             sampler_instance = sampler(target)
             sampler_instance.initialize()
+            sampler_instance.validate_target()
             valid_samplers += [name]
         except:
             pass
