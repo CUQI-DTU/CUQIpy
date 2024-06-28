@@ -644,9 +644,26 @@ def test_find_valid_samplers_conjugate():
     assert(set(valid_samplers) == set(['ConjugateNew']))
 
 def test_find_valid_samplers_direct():
-    taget = cuqi.distribution.Gamma(1,1)
+    target = cuqi.distribution.Gamma(1,1)
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
     assert(set(valid_samplers) == set(['DirectNew']))
 
+def test_find_valid_samplers_implicit():
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
+
+    x = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
+    y = cuqi.distribution.Gaussian(A@x, 1)
+    target =  cuqi.distribution.JointDistribution(y, x)(y = y_obs)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['RegularizedLinearRTONew']))
+
+
+    target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['']))
