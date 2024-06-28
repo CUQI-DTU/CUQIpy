@@ -570,9 +570,7 @@ def find_valid_samplers(target):
 
     for name, sampler in all_samplers:
         try:
-            sampler_instance = sampler(target)
-            sampler_instance.initialize()
-            sampler_instance.validate_target()
+            sampler(target)
             valid_samplers += [name]
         except:
             pass
