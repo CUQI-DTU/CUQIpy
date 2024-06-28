@@ -626,3 +626,27 @@ def test_sampler_reinitialization_restores_to_initial_configuration(sampler_clas
         attr1 = getattr(instance1, key, None)
         attr2 = getattr(instance2, key, None)
         compare_attributes(attr1, attr2, key)
+
+def test_find_valid_samplers_linearGaussianGaussian():
+    target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+    
+    assert(set(valid_samplers) == set(['CWMHNew', 'LinearRTONew', 'MALANew', 'MHNew', 'NUTSNew', 'PCNNew', 'ULANew']))
+
+def test_find_valid_samplers_conjugate():
+    x = cuqi.distribution.Gamma(1,1)
+    y = cuqi.distribution.Gaussian(np.zeros(2), lambda x : x)
+    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['ConjugateNew']))
+
+def test_find_valid_samplers_direct():
+    taget = cuqi.distribution.Gamma(1,1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['DirectNew']))
+
