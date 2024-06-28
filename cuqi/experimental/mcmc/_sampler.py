@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pickle as pkl
 import warnings
+import inspect
 import cuqi
 from cuqi.samples import Samples
 
@@ -560,3 +561,19 @@ class _BatchHandler:
     def finalize(self):
         """ Finalize the batch handler. Flush any remaining samples to disk. """
         self.flush()
+        
+def find_valid_samplers(target):
+    """ Finds all samplers in the cuqi.experimental.mcmc module that accept the provided target. """
+
+    all_samplers = [(name, cls) for name, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass) if issubclass(cls, SamplerNew)]
+    valid_samplers = []
+
+    for name, sampler in all_samplers:
+        try:
+            sampler_instance = sampler(target)
+            sampler_instance.initialize()
+            valid_samplers += [name]
+        except:
+            pass
+
+    return valid_samplers

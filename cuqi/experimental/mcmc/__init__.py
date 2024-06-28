@@ -1,6 +1,6 @@
 """ Re-implementation of sampler module in a more object oriented way. """
 
-from ._sampler import SamplerNew, ProposalBasedSamplerNew
+from ._sampler import SamplerNew, ProposalBasedSamplerNew, find_valid_samplers
 from ._langevin_algorithm import ULANew, MALANew
 from ._mh import MHNew
 from ._pcn import PCNNew
