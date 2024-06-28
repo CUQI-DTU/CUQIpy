@@ -634,6 +634,13 @@ def test_find_valid_samplers_linearGaussianGaussian():
     
     assert(set(valid_samplers) == set(['CWMHNew', 'LinearRTONew', 'MALANew', 'MHNew', 'NUTSNew', 'PCNNew', 'ULANew']))
 
+def test_find_valid_samplers_nonlinearGaussianGaussian():
+    posterior = cuqi.testproblem.Poisson1D(dim=2).posterior
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(posterior)
+
+    print(set(valid_samplers) == set(['CWMHNew', 'MHNew', 'PCNNew']))
+
 def test_find_valid_samplers_conjugate():
     x = cuqi.distribution.Gamma(1,1)
     y = cuqi.distribution.Gaussian(np.zeros(2), lambda x : x)
@@ -641,14 +648,14 @@ def test_find_valid_samplers_conjugate():
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['ConjugateNew']))
+    assert(set(valid_samplers) == set(['CWMHNew', 'ConjugateNew', 'MHNew']))
 
 def test_find_valid_samplers_direct():
     target = cuqi.distribution.Gamma(1,1)
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['DirectNew']))
+    assert(set(valid_samplers) == set(['CWMHNew', 'DirectNew', 'MHNew']))
 
 def test_find_valid_samplers_implicit_posterior():
     A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
