@@ -780,3 +780,29 @@ def test_MHN_regression(alpha, beta, gamma, expected_logpdf, expected_gradient):
     gradient = dist._gradient(np.array([1.0, 2.0, 3.0, 4.0, 5.0]))
     assert np.allclose( logpdf, np.array(expected_logpdf))
     assert np.allclose( gradient, np.array(expected_gradient))
+
+def test_Smoothed_Laplace():
+    """ Test Smoothed Laplace distribution logpdf, cdf, pdf, gradient """
+
+    location = np.array([1, 2])
+    scale = np.array([1, 2])
+    scaller_laplace_0 = cuqi.distribution.Laplace(location[0], scale[0])
+
+    scalar_smoothed_laplace_0 = cuqi.distribution.SmoothedLaplace(location[0], scale[0], 1e-8)
+    scalar_smoothed_laplace_1 = cuqi.distribution.SmoothedLaplace(location[1], scale[1], 1e-8)
+    vector_smoothed_laplace = cuqi.distribution.SmoothedLaplace(location, scale, 1e-6)
+
+    x = np.array([3, 4])
+
+    # logpdf (scalar Laplace vs scalar Smoothed Laplace)
+    assert np.allclose(scaller_laplace_0.logpdf([x[0]]), scalar_smoothed_laplace_0.logpdf(x[0]))
+
+    # logpdf (scalar smoothed Laplace * scalar smoothed Laplace vs vector smoothed Laplace)
+    assert np.allclose(scalar_smoothed_laplace_0.logpdf(x[0])+scalar_smoothed_laplace_1.logpdf(x[1]),
+                       vector_smoothed_laplace.logpdf(x))
+    
+    # gradient (scalar Smoothed Laplace vs analytical)
+    assert np.allclose(scalar_smoothed_laplace_0.gradient(x[0]), -1/scale[0])
+
+    # gradient (vector Smoothed Laplace vs analytical)
+    assert np.allclose(vector_smoothed_laplace.gradient(x), -1/scale)
