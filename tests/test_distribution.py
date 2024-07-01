@@ -782,7 +782,7 @@ def test_MHN_regression(alpha, beta, gamma, expected_logpdf, expected_gradient):
     assert np.allclose( gradient, np.array(expected_gradient))
 
 def test_Smoothed_Laplace():
-    """ Test Smoothed Laplace distribution logpdf, cdf, pdf, gradient """
+    """ Test Smoothed Laplace distribution logpdf and gradient """
 
     location = np.array([1, 2])
     scale = np.array([1, 2])
@@ -790,7 +790,7 @@ def test_Smoothed_Laplace():
 
     scalar_smoothed_laplace_0 = cuqi.distribution.SmoothedLaplace(location[0], scale[0], 1e-8)
     scalar_smoothed_laplace_1 = cuqi.distribution.SmoothedLaplace(location[1], scale[1], 1e-8)
-    vector_smoothed_laplace = cuqi.distribution.SmoothedLaplace(location, scale, 1e-6)
+    vector_smoothed_laplace = cuqi.distribution.SmoothedLaplace(location, scale, 1e-8)
 
     x = np.array([3, 4])
 
