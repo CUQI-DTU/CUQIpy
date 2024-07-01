@@ -2,7 +2,7 @@ import numpy as np
 from cuqi.distribution import Distribution
 
 class SmoothedLaplace(Distribution):
-    """ Laplace distribution. 
+    """ Smoothed Laplace distribution. 
 
     Defines a smoothed Laplace distribution given a location, a scale and a smoothing parameter
     beta. The smoothed Laplace distribution is defined as
