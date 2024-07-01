@@ -797,7 +797,7 @@ def test_Smoothed_Laplace():
     # logpdf (scalar Laplace vs scalar Smoothed Laplace)
     assert np.allclose(scaller_laplace_0.logpdf([x[0]]), scalar_smoothed_laplace_0.logpdf(x[0]))
 
-    # logpdf (scalar smoothed Laplace * scalar smoothed Laplace vs vector smoothed Laplace)
+    # logpdf (scalar Smoothed Laplace * scalar Smoothed Laplace vs vector Smoothed Laplace)
     assert np.allclose(scalar_smoothed_laplace_0.logpdf(x[0])+scalar_smoothed_laplace_1.logpdf(x[1]),
                        vector_smoothed_laplace.logpdf(x))
     
