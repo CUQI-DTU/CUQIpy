@@ -24,8 +24,8 @@ class RegularizedUnboundedUniform(RegularizedGaussian):
 
         Parameters
         ----------
-        geometry : :class:`~cuqi.geometry.Geometry`
-                The geometry of the underlying variable.
+        geometry : :class:`~cuqi.geometry.Geometry` or integer
+                The geometry of the underlying variable. Defines the dimension of the distribution. 
 
         proximal : callable f(x, scale) or None
                 Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem

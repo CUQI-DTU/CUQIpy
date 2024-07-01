@@ -284,7 +284,7 @@ class ConstrainedGaussian(RegularizedGaussian):
 
     """
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, projector=None, constraint=None, **kwargs):
-        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
 
         
 class NonnegativeGaussian(RegularizedGaussian):
@@ -320,4 +320,4 @@ class NonnegativeGaussian(RegularizedGaussian):
 
     """
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, **kwargs):
-        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)

@@ -61,7 +61,7 @@ def test_NonnegativeGMRF_alias():
     assert isinstance(x, cuqi.implicitprior.RegularizedGMRF)
     assert x.preset == "nonnegativity"
 
-def test_RegularizedUnboundedUniform():
+def test_RegularizedUnboundedUniform_is_RegularizedGaussian():
     """ Test that the implicit regularized unbounded uniform create a Regularized Gaussian with zero sqrtprec """
     # NOTE: Test is based on the current assumption that the regularized uniform is modeled as a Gaussian with zero precision. This might change in the future.
 
