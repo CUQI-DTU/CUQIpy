@@ -54,12 +54,6 @@ class SmoothedLaplace(Distribution):
     def logpdf(self, x):
         """
         Computes the logarithm of the probability density function at the given values of x.
-
-        Parameters:
-            x (float, int, list, tuple, or ndarray): The values at which to compute the logarithm of the probability density function.
-
-        Returns:
-            float, ndarray: The logarithm of the probability density function evaluated at x.
         """
         # x accepts scalar, list, tuple, or ndarray
         if isinstance(x, (float, int)):
@@ -71,12 +65,6 @@ class SmoothedLaplace(Distribution):
     def gradient(self, x):
         """
         Computes the gradient of the distribution at the given values of x.
-
-        Parameters:
-            x (float, int, list, tuple, or ndarray): The values at which to compute the gradient.
-
-        Returns:
-            ndarray: The gradient of the distribution evaluated at x.
         """
         # x accepts scalar, list, tuple, or ndarray
         if isinstance(x, (float, int)):
@@ -88,12 +76,5 @@ class SmoothedLaplace(Distribution):
     def _sample(self, N=1, rng=None):
         """
         Generates random samples from the distribution.
-
-        Parameters:
-            N (int, optional): The number of samples to generate. Default is 1.
-            rng (RandomState, optional): The random number generator to use. Default is None.
-
-        Raises:
-            NotImplementedError: This method is not implemented for the SmoothedLaplace class.
         """
         raise NotImplementedError(f"sample is not implemented for {self.__class__.__name__}.")
