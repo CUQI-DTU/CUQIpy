@@ -64,7 +64,7 @@ class SmoothedLaplace(Distribution):
 
     def gradient(self, x):
         """
-        Computes the gradient of the distribution at the given values of x.
+        Computes the gradient of logpdf at the given values of x.
         """
         # x accepts scalar, list, tuple, or ndarray
         if isinstance(x, (float, int)):
