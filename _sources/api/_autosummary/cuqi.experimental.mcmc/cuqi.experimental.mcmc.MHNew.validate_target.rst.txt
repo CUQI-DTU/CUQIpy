@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.validate\_target
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MHNew.validate_target

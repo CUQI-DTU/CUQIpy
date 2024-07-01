@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.warmup
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: DirectNew.warmup

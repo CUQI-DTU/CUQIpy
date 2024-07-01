@@ -1,0 +1,46 @@
+MALANew
+=======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: MALANew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MALANew.__init__
+      ~MALANew.get_history
+      ~MALANew.get_samples
+      ~MALANew.get_state
+      ~MALANew.initialize
+      ~MALANew.load_checkpoint
+      ~MALANew.reinitialize
+      ~MALANew.sample
+      ~MALANew.save_checkpoint
+      ~MALANew.set_history
+      ~MALANew.set_state
+      ~MALANew.step
+      ~MALANew.tune
+      ~MALANew.validate_target
+      ~MALANew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MALANew.dim
+      ~MALANew.geometry
+      ~MALANew.target
+   
+   

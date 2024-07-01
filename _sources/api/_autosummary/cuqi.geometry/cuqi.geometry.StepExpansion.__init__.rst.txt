@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.\_\_init\_\_
+========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: StepExpansion.__init__

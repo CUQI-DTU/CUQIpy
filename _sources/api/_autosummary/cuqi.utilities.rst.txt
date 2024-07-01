@@ -1,0 +1,57 @@
+utilities
+=========
+
+Module path: cuqi.utilities
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.utilities
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree: cuqi.utilities
+      :nosignatures:
+      :recursive:
+
+   
+      approx_derivative
+      approx_gradient
+      check_if_conditional_from_attr
+      force_ndarray
+      get_direct_attributes
+      get_indirect_variables
+      get_non_default_args
+      get_writeable_attributes
+      get_writeable_properties
+      infer_len
+      sparse_cholesky
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.utilities
+    :nosignatures:
+    :recursive:
+
+   
+      ProblemInfo
+   
+   
+
+   
+   
+   
+
+
+

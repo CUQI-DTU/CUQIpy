@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.step
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCNNew.step

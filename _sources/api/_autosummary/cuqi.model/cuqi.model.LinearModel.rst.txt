@@ -1,0 +1,36 @@
+LinearModel
+===========
+
+.. currentmodule:: cuqi.model
+
+.. autoclass:: LinearModel
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearModel.__init__
+      ~LinearModel.adjoint
+      ~LinearModel.forward
+      ~LinearModel.get_matrix
+      ~LinearModel.gradient
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearModel.T
+      ~LinearModel.domain_dim
+      ~LinearModel.range_dim
+   
+   

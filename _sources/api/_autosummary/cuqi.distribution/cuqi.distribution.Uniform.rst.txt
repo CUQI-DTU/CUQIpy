@@ -1,0 +1,46 @@
+Uniform
+=======
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Uniform
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Uniform.__init__
+      ~Uniform.disable_FD
+      ~Uniform.enable_FD
+      ~Uniform.get_conditioning_variables
+      ~Uniform.get_mutable_variables
+      ~Uniform.get_parameter_names
+      ~Uniform.gradient
+      ~Uniform.logd
+      ~Uniform.logpdf
+      ~Uniform.pdf
+      ~Uniform.sample
+      ~Uniform.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Uniform.FD_enabled
+      ~Uniform.FD_epsilon
+      ~Uniform.dim
+      ~Uniform.geometry
+      ~Uniform.is_cond
+      ~Uniform.name
+   
+   

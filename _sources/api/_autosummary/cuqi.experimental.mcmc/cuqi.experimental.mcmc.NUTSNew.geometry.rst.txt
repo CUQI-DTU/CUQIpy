@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.geometry
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: NUTSNew.geometry

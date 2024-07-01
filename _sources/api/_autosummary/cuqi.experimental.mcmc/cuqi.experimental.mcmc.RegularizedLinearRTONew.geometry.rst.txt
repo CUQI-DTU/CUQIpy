@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTONew.geometry
+=======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: RegularizedLinearRTONew.geometry

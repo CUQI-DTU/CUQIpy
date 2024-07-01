@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.warmup
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.warmup

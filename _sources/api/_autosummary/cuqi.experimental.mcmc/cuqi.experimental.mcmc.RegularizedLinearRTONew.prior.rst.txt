@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTONew.prior
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: RegularizedLinearRTONew.prior

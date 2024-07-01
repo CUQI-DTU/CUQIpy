@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTONew.get\_state
+=========================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: RegularizedLinearRTONew.get_state

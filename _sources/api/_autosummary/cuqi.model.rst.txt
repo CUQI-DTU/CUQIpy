@@ -1,0 +1,39 @@
+model
+=====
+
+Module path: cuqi.model
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.model
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.model
+    :nosignatures:
+    :recursive:
+
+   
+      LinearModel
+      Model
+      PDEModel
+   
+   
+
+   
+   
+   
+
+
+

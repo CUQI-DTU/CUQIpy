@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTONew.sample
+=====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: RegularizedLinearRTONew.sample

@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.step\_tune
+============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ProposalBasedSampler.step_tune

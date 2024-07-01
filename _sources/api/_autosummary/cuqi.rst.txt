@@ -1,0 +1,53 @@
+﻿cuqi
+====
+
+Module path: cuqi
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   cuqi.array
+   cuqi.config
+   cuqi.data
+   cuqi.density
+   cuqi.diagnostics
+   cuqi.distribution
+   cuqi.experimental
+   cuqi.geometry
+   cuqi.implicitprior
+   cuqi.likelihood
+   cuqi.model
+   cuqi.operator
+   cuqi.pde
+   cuqi.problem
+   cuqi.sampler
+   cuqi.samples
+   cuqi.solver
+   cuqi.testproblem
+   cuqi.utilities
+

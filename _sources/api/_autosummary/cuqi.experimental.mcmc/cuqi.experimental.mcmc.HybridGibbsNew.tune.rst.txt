@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbsNew.tune
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: HybridGibbsNew.tune

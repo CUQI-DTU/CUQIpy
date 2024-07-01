@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.get\_state
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALANew.get_state

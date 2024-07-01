@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULANew.geometry
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ULANew.geometry

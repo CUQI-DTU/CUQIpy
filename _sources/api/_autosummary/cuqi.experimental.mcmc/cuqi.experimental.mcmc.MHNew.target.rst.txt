@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.target
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MHNew.target

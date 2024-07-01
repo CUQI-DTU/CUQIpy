@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTONew.save\_checkpoint
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTONew.save_checkpoint

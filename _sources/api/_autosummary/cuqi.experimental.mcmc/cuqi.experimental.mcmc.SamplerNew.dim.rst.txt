@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.dim
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: SamplerNew.dim

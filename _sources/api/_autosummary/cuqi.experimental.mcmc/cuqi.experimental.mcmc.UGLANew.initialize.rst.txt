@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.initialize
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.initialize

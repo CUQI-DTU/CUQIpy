@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.validate\_target
+=================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: DirectNew.validate_target

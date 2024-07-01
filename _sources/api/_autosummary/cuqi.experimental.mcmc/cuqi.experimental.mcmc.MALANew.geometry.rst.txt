@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.geometry
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MALANew.geometry

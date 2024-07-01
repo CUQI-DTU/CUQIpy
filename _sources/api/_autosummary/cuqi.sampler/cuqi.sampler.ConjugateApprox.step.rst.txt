@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.step
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ConjugateApprox.step

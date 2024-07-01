@@ -1,0 +1,46 @@
+ConjugateApproxNew
+==================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: ConjugateApproxNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConjugateApproxNew.__init__
+      ~ConjugateApproxNew.get_history
+      ~ConjugateApproxNew.get_samples
+      ~ConjugateApproxNew.get_state
+      ~ConjugateApproxNew.initialize
+      ~ConjugateApproxNew.load_checkpoint
+      ~ConjugateApproxNew.reinitialize
+      ~ConjugateApproxNew.sample
+      ~ConjugateApproxNew.save_checkpoint
+      ~ConjugateApproxNew.set_history
+      ~ConjugateApproxNew.set_state
+      ~ConjugateApproxNew.step
+      ~ConjugateApproxNew.tune
+      ~ConjugateApproxNew.validate_target
+      ~ConjugateApproxNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConjugateApproxNew.dim
+      ~ConjugateApproxNew.geometry
+      ~ConjugateApproxNew.target
+   
+   

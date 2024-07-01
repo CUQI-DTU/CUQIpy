@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbsNew.step
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: HybridGibbsNew.step

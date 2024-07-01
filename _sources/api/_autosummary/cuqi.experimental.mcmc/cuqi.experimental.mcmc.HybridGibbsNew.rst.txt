@@ -1,0 +1,29 @@
+HybridGibbsNew
+==============
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: HybridGibbsNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~HybridGibbsNew.__init__
+      ~HybridGibbsNew.get_samples
+      ~HybridGibbsNew.sample
+      ~HybridGibbsNew.step
+      ~HybridGibbsNew.tune
+      ~HybridGibbsNew.validate_targets
+      ~HybridGibbsNew.warmup
+   
+   
+
+   
+   
+   

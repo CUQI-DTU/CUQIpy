@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTONew.dim
+==================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: RegularizedLinearRTONew.dim

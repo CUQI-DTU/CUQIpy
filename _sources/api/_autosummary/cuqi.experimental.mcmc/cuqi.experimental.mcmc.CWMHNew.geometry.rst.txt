@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.geometry
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: CWMHNew.geometry

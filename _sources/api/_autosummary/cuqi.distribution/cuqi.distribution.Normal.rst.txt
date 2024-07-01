@@ -1,0 +1,47 @@
+Normal
+======
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Normal
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Normal.__init__
+      ~Normal.cdf
+      ~Normal.disable_FD
+      ~Normal.enable_FD
+      ~Normal.get_conditioning_variables
+      ~Normal.get_mutable_variables
+      ~Normal.get_parameter_names
+      ~Normal.gradient
+      ~Normal.logd
+      ~Normal.logpdf
+      ~Normal.pdf
+      ~Normal.sample
+      ~Normal.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Normal.FD_enabled
+      ~Normal.FD_epsilon
+      ~Normal.dim
+      ~Normal.geometry
+      ~Normal.is_cond
+      ~Normal.name
+   
+   

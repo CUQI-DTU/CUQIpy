@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.validate\_proposal
+=================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMHNew.validate_proposal

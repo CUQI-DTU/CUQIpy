@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.likelihood
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: UGLANew.likelihood

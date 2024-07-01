@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.set\_history
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: DirectNew.set_history

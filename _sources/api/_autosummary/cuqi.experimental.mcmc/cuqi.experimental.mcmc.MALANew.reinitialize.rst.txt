@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.reinitialize
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALANew.reinitialize

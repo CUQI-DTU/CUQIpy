@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.set\_state
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: SamplerNew.set_state

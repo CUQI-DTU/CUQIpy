@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTONew.geometry
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: LinearRTONew.geometry

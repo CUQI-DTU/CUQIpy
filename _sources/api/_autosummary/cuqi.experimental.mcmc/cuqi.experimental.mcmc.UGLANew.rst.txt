@@ -1,0 +1,50 @@
+UGLANew
+=======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: UGLANew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UGLANew.__init__
+      ~UGLANew.get_history
+      ~UGLANew.get_samples
+      ~UGLANew.get_state
+      ~UGLANew.initialize
+      ~UGLANew.load_checkpoint
+      ~UGLANew.reinitialize
+      ~UGLANew.sample
+      ~UGLANew.save_checkpoint
+      ~UGLANew.set_history
+      ~UGLANew.set_state
+      ~UGLANew.step
+      ~UGLANew.tune
+      ~UGLANew.validate_target
+      ~UGLANew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UGLANew.data
+      ~UGLANew.dim
+      ~UGLANew.geometry
+      ~UGLANew.likelihood
+      ~UGLANew.model
+      ~UGLANew.prior
+      ~UGLANew.target
+   
+   

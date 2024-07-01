@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.set\_state
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: DirectNew.set_state

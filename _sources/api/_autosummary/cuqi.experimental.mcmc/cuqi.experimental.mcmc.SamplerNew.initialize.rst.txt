@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.initialize
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: SamplerNew.initialize

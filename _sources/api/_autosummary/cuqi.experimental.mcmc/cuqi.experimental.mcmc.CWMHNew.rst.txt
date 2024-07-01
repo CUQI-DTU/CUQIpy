@@ -1,0 +1,49 @@
+CWMHNew
+=======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: CWMHNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CWMHNew.__init__
+      ~CWMHNew.get_history
+      ~CWMHNew.get_samples
+      ~CWMHNew.get_state
+      ~CWMHNew.initialize
+      ~CWMHNew.load_checkpoint
+      ~CWMHNew.reinitialize
+      ~CWMHNew.sample
+      ~CWMHNew.save_checkpoint
+      ~CWMHNew.set_history
+      ~CWMHNew.set_state
+      ~CWMHNew.step
+      ~CWMHNew.tune
+      ~CWMHNew.validate_proposal
+      ~CWMHNew.validate_target
+      ~CWMHNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CWMHNew.dim
+      ~CWMHNew.geometry
+      ~CWMHNew.proposal
+      ~CWMHNew.scale
+      ~CWMHNew.target
+   
+   

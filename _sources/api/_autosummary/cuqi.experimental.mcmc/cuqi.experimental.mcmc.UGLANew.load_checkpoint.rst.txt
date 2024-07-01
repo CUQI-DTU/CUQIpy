@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.load\_checkpoint
+===============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.load_checkpoint

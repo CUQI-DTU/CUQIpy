@@ -1,0 +1,56 @@
+distribution
+============
+
+Module path: cuqi.distribution
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.distribution
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.distribution
+    :nosignatures:
+    :recursive:
+
+   
+      Beta
+      CMRF
+      Cauchy
+      Distribution
+      DistributionGallery
+      GMRF
+      Gamma
+      Gaussian
+      InverseGamma
+      JointDistribution
+      JointGaussianSqrtPrec
+      LMRF
+      Laplace
+      Lognormal
+      ModifiedHalfNormal
+      MultipleLikelihoodPosterior
+      Normal
+      Posterior
+      Uniform
+      UserDefinedDistribution
+   
+   
+
+   
+   
+   
+
+
+

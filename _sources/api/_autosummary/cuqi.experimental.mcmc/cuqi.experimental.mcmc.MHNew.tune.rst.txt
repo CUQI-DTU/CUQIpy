@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.tune
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MHNew.tune

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULANew.get\_samples
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULANew.get_samples

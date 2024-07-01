@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.tune
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.tune

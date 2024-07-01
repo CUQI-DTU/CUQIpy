@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.likelihood
+============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: RegularizedLinearRTO.likelihood

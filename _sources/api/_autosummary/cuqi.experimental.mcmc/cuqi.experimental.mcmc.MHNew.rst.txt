@@ -1,0 +1,48 @@
+MHNew
+=====
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: MHNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MHNew.__init__
+      ~MHNew.get_history
+      ~MHNew.get_samples
+      ~MHNew.get_state
+      ~MHNew.initialize
+      ~MHNew.load_checkpoint
+      ~MHNew.reinitialize
+      ~MHNew.sample
+      ~MHNew.save_checkpoint
+      ~MHNew.set_history
+      ~MHNew.set_state
+      ~MHNew.step
+      ~MHNew.tune
+      ~MHNew.validate_proposal
+      ~MHNew.validate_target
+      ~MHNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MHNew.dim
+      ~MHNew.geometry
+      ~MHNew.proposal
+      ~MHNew.target
+   
+   

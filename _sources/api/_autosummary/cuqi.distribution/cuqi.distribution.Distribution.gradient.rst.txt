@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.gradient
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Distribution.gradient

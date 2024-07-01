@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.reinitialize
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCNNew.reinitialize

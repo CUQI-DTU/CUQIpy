@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.step
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTSNew.step

@@ -1,0 +1,6 @@
+cuqi.operator.PrecisionFiniteDifference.dim
+===========================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: PrecisionFiniteDifference.dim

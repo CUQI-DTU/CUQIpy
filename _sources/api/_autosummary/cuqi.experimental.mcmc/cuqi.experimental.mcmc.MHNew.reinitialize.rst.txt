@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.reinitialize
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MHNew.reinitialize

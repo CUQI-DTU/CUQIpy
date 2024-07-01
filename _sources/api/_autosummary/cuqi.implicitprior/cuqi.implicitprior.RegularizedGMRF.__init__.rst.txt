@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.\_\_init\_\_
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.__init__

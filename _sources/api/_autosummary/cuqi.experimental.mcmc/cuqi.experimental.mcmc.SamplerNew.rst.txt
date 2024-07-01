@@ -1,0 +1,46 @@
+SamplerNew
+==========
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: SamplerNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SamplerNew.__init__
+      ~SamplerNew.get_history
+      ~SamplerNew.get_samples
+      ~SamplerNew.get_state
+      ~SamplerNew.initialize
+      ~SamplerNew.load_checkpoint
+      ~SamplerNew.reinitialize
+      ~SamplerNew.sample
+      ~SamplerNew.save_checkpoint
+      ~SamplerNew.set_history
+      ~SamplerNew.set_state
+      ~SamplerNew.step
+      ~SamplerNew.tune
+      ~SamplerNew.validate_target
+      ~SamplerNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~SamplerNew.dim
+      ~SamplerNew.geometry
+      ~SamplerNew.target
+   
+   

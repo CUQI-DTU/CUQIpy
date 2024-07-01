@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.target
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: NUTSNew.target

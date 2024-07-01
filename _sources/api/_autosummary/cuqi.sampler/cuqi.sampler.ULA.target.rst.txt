@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.target
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ULA.target

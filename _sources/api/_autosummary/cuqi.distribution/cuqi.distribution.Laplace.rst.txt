@@ -1,0 +1,46 @@
+Laplace
+=======
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Laplace
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Laplace.__init__
+      ~Laplace.disable_FD
+      ~Laplace.enable_FD
+      ~Laplace.get_conditioning_variables
+      ~Laplace.get_mutable_variables
+      ~Laplace.get_parameter_names
+      ~Laplace.gradient
+      ~Laplace.logd
+      ~Laplace.logpdf
+      ~Laplace.pdf
+      ~Laplace.sample
+      ~Laplace.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Laplace.FD_enabled
+      ~Laplace.FD_epsilon
+      ~Laplace.dim
+      ~Laplace.geometry
+      ~Laplace.is_cond
+      ~Laplace.name
+   
+   
