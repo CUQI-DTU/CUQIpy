@@ -29,7 +29,7 @@ class ConjugateApproxNew(ConjugateNew):
         if isinstance(self.target.likelihood.distribution, LMRF) and isinstance(self.target.prior, Gamma):
             self._conjugatepair = _LMRFGammaPair(self.target)
         else:
-            raise ValueError(f"No conjugate pair defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}")
+            raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
 
 
 class _LMRFGammaPair(_ConjugatePair):
@@ -53,7 +53,7 @@ class _LMRFGammaPair(_ConjugatePair):
             if not _check_conjugate_parameter_is_scalar_reciprocal(value):
                 raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
         else:
-            raise ValueError(f"No approximate conjugate pair defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}")
+            raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
         
     def sample(self):
         # Extract variables

@@ -63,7 +63,7 @@ class ConjugateNew(SamplerNew):
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(self.target.prior, Gamma):
             self._conjugatepair = _RegularizedGaussianGammaPair(self.target)
         else:
-            raise ValueError(f"No conjugate pair defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}")
+            raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
 
     def __repr__(self):
         msg = super().__repr__()
@@ -104,10 +104,10 @@ class _GaussianGammaPair(_ConjugatePair):
         key, value = _get_conjugate_parameter(self.target)
         if key == "cov":
             if not _check_conjugate_parameter_is_scalar_reciprocal(value):
-                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
+                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
         elif key == "prec":
             if not _check_conjugate_parameter_is_scalar_identity(value):
-                raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+                raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter")
         else:
             raise ValueError("Conjugate sampler only works with Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
 
