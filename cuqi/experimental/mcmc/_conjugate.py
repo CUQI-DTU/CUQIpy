@@ -106,7 +106,7 @@ class _GaussianGammaPair(_ConjugatePair):
             if not _check_conjugate_parameter_is_scalar_reciprocal(value):
                 raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
         elif key == "prec":
-            if not _check_conjugate_paramter_is_scalar_identity(value):
+            if not _check_conjugate_parameter_is_scalar_identity(value):
                 raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
         else:
             raise ValueError("Conjugate sampler only works with Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
@@ -147,7 +147,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
             if not _check_conjugate_parameter_is_scalar_reciprocal(value):
                 raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
         elif key == "prec":
-            if not _check_conjugate_paramter_is_scalar_identity(value):
+            if not _check_conjugate_parameter_is_scalar_identity(value):
                 raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
         else:
             raise ValueError("Conjugate sampler only works with Regularized Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
@@ -177,7 +177,7 @@ def _get_conjugate_parameter(target):
             return var_key, attr
     raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
 
-def _check_conjugate_paramter_is_scalar_identity(f):
+def _check_conjugate_parameter_is_scalar_identity(f):
     """Tests whether a function (scalar to scalar) is the identity (lambda x : x)."""
     return all(f(x) == x for x in [1.0, 10.0, 100.0])
 
