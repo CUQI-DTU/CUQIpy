@@ -181,15 +181,6 @@ def _check_conjugate_parameter_is_scalar_identity(f):
     """Tests whether a function (scalar to scalar) is the identity (lambda x : x)."""
     return all(f(x) == x for x in [1.0, 10.0, 100.0])
 
-def _regression_test_linear(f):
-    """Tests whether a function (scalar to scalar or array to array) is linear."""
-    reference = f(1.0)
-    if isinstance(reference, np.ndarray):
-        reference = reference.flatten()[0]
-        return all(math.isclose(f(x).flatten()[0], x * reference) for x in [10.0, 100.0])
-    else:
-        return all(math.isclose(f(x), x * reference) for x in [10.0, 100.0])
-
 def _check_conjugate_parameter_is_scalar_reciprocal(f):
     """Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x)."""
     return all(math.isclose(f(x), 1.0 / x) for x in [1.0, 10.0, 100.0])
