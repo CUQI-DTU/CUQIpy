@@ -319,7 +319,7 @@ class NUTS(Sampler):
             # recursion: build the left/right subtrees
             theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
             theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime = \
-                self._BuildTree(theta, r, grad, log_u, v, j-1, epsilon)
+                self._BuildTree(theta, r, grad, nHam, log_u, v, j-1, epsilon)
             if (s_prime == 1): # do only if the stopping criteria does not verify at the first subtree
                 if (v == -1):
                     theta_minus, r_minus, grad_minus, _, _, _, \
