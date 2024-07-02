@@ -41,7 +41,7 @@ class ConjugateNew(SamplerNew):
             self.validate_target()
 
     def validate_target(self):
-        self._ensure_posterior_target()
+        self._ensure_target_is_posterior()
         self._conjugatepair.validate_target()
         
     def step(self):
@@ -50,14 +50,14 @@ class ConjugateNew(SamplerNew):
     def tune(self, skip_len, update_count):
         pass # No tuning required for conjugate sampler
 
-    def _ensure_posterior_target(self):
+    def _ensure_target_is_posterior(self):
         """ Ensure that the target is a Posterior distribution. """
         if not isinstance(self.target, Posterior):
             raise TypeError("Conjugate sampler requires a target of type Posterior")
 
     def _set_conjugatepair(self):
         """ Set the conjugate pair based on the likelihood and prior. This requires target to be set. """
-        self._ensure_posterior_target()
+        self._ensure_target_is_posterior()
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)) and isinstance(self.target.prior, Gamma):
             self._conjugatepair = _GaussianGammaPair(self.target)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(self.target.prior, Gamma):
