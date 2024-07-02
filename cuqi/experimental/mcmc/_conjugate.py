@@ -1,3 +1,5 @@
+import sys
+import inspect
 import numpy as np
 from abc import ABC, abstractmethod
 import math
@@ -5,6 +7,7 @@ from cuqi.experimental.mcmc import SamplerNew
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.utilities import get_non_default_args
+
 
 class ConjugateNew(SamplerNew):
     """ Conjugate sampler
@@ -58,18 +61,33 @@ class ConjugateNew(SamplerNew):
     def _set_conjugatepair(self):
         """ Set the conjugate pair based on the likelihood and prior. This requires target to be set. """
         self._ensure_target_is_posterior()
-        if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)) and isinstance(self.target.prior, Gamma):
-            self._conjugatepair = _GaussianGammaPair(self.target)
-        elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(self.target.prior, Gamma):
-            self._conjugatepair = _RegularizedGaussianGammaPair(self.target)
-        else:
-            raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
+        for conjugate_pair in _get_all_conjugate_pairs():
+            try:
+                pair = conjugate_pair(self.target)
+                pair.validate_target()
+                self._conjugatepair = pair
+                return
+            except Exception: # Catch any exception since we are brute force trying all conjugate pairs
+                pass
+        # No conjugate pair found
+        raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
 
     def __repr__(self):
         msg = super().__repr__()
         if hasattr(self, "_conjugatepair"):
             msg += f"\n Conjugate pair:\n\t {type(self._conjugatepair).__name__.removeprefix('_')}"
         return msg
+    
+def _get_all_conjugate_pairs():
+    """Get all available conjugate pairs."""
+    
+    # Find all classes in the current module
+    all_classes = inspect.getmembers(sys.modules[__name__], inspect.isclass)
+    
+    # Filter out classes that inherit from _ConjugatePair but are not _ConjugatePair itself
+    conjugate_pairs = [cls for _, cls in all_classes if issubclass(cls, _ConjugatePair) and cls != _ConjugatePair]
+    
+    return conjugate_pairs
         
 class _ConjugatePair(ABC):
     """ Abstract base class for conjugate pairs used in the Conjugate sampler. """
