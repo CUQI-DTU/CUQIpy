@@ -167,14 +167,14 @@ class NUTS(Sampler):
             self._num_tree_node = 0
 
             theta_k, joint_k = theta[:, k-1], joint_eval[k-1] # initial position (parameters)
-            r_k = self._Kfun(1, 'sample') # resample momentum vector
-            Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
+            r_k = self._neg_kinetic_func(1, 'sample') # resample momentum vector
+            nHam = self._neg_Hamiltonian(joint_k, r_k) # Hamiltonian
 
             # slice variable
-            log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
+            log_u = np.log(np.random.uniform(0, np.exp(nHam)))
 
             # initialization
-            j, s, n = 0, 1, 1
+            j, n, s = 0, 1, 1
             theta[:, k], joint_eval[k] = theta_k, joint_k
             theta_minus, theta_plus = np.copy(theta_k), np.copy(theta_k)
             grad_minus, grad_plus = np.copy(grad), np.copy(grad)
@@ -189,11 +189,11 @@ class NUTS(Sampler):
                 if (v == -1):
                     theta_minus, r_minus, grad_minus, _, _, _, \
                     theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                        self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j, epsilon)
+                        self._BuildTree(theta_minus, r_minus, grad_minus, log_u, v, j, epsilon)
                 else:
                     _, _, _, theta_plus, r_plus, grad_plus, \
                     theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                        self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j, epsilon)
+                        self._BuildTree(theta_plus, r_plus, grad_plus, log_u, v, j, epsilon)
 
                 # Metropolis step
                 alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
@@ -211,7 +211,7 @@ class NUTS(Sampler):
             # update run diagnostic attributes
             self._update_run_diagnostic_attributes(
                 k, self._num_tree_node, epsilon, epsilon_bar)
-            
+
             # adapt epsilon during burn-in using dual averaging
             if (k <= Nb) and (self.adapt_step_size == True):
                 eta1 = 1/(k + t_0)
@@ -222,14 +222,14 @@ class NUTS(Sampler):
             elif (k == Nb+1) and (self.adapt_step_size == True):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
             step_sizes[k] = epsilon
-            
+
             # msg
             self._print_progress(k+1, Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
             self._call_callback(theta[:, k], k)
-            
+
             if np.isnan(joint_eval[k]):
                 raise NameError('NaN potential func')
-            
+
         # apply burn-in
         if not self._return_burnin: 
             theta = theta[:, Nb:]
@@ -237,41 +237,54 @@ class NUTS(Sampler):
         return theta, joint_eval, step_sizes
 
     #=========================================================================
-    # auxiliary standard Gaussian PDF: kinetic energy function
+    # kinetic energy function (negative log PDF): assumed to be standard Gaussian PDF
     # d_log_2pi = d*np.log(2*np.pi)
-    def _Kfun(self, r, flag):
+    # here we implement the negative kinetic fun
+    def _neg_kinetic_func(self, r, flag):
         if flag == 'eval': # evaluate
-            return -0.5*(r.T @ r) #+ d_log_2pi 
+            return -0.5*(r.T @ r) #- d_log_2pi 
         if flag == 'sample': # sample
             return np.random.standard_normal(size=self.dim)
 
     #=========================================================================
+    # Hamiltonian function (negative log)
+    def _neg_Hamiltonian(self, nU, r):
+        # here nU is the log-posterior (so it is the negative potential) 
+        # and we work with negative kinetic fun, but the Hamiltonian is:
+        # H(q,r) = U(q) + K(r)
+        # U(q): potential energy: negative log-posterior
+        # K(r): kinetic energy: negative log-assumed-density
+        nK = self._neg_kinetic_func(r, 'eval')
+        return nU + nK
+
+    #=========================================================================
     def _FindGoodEpsilon(self, theta, joint, grad, epsilon=1):
-        r = self._Kfun(1, 'sample')    # resample a momentum
-        Ham = joint - self._Kfun(r, 'eval')     # initial Hamiltonian
-        _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon)
+        r = self._neg_kinetic_func(1, 'sample')         # resample a momentum
+        nHam = self._neg_Hamiltonian(joint, r)   # initial Hamiltonian
+        _, r_prime, joint_prime, grad_prime = self._Leapfrog_single(theta, r, grad, epsilon)
 
         # trick to make sure the step is not huge, leading to infinite values of the likelihood
         k = 1
         while np.isinf(joint_prime) or np.isinf(grad_prime).any():
             k *= 0.5
-            _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon*k)
+            _, r_prime, joint_prime, grad_prime = self._Leapfrog_single(theta, r, grad, epsilon*k)
         epsilon = 0.5*k*epsilon
 
         # doubles/halves the value of epsilon until the accprob of the Langevin proposal crosses 0.5
-        Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
-        log_ratio = Ham_prime - Ham
+        nHam_prime = self._neg_Hamiltonian(joint_prime, r_prime)
+        log_ratio = nHam_prime - nHam
         a = 1 if log_ratio > np.log(0.5) else -1
         while (a*log_ratio > -a*np.log(2)):
             epsilon = (2**a)*epsilon
-            _, r_prime, joint_prime, _ = self._Leapfrog(theta, r, grad, epsilon)
-            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
-            log_ratio = Ham_prime - Ham
+            _, r_prime, joint_prime, _ = self._Leapfrog_single(theta, r, grad, epsilon)
+            nHam_prime = self._neg_Hamiltonian(joint_prime, r_prime)
+            log_ratio = nHam_prime - nHam
         return epsilon
 
     #=========================================================================
-    def _Leapfrog(self, theta_old, r_old, grad_old, epsilon):
+    def _Leapfrog_single(self, theta_old, r_old, grad_old, epsilon):
         # symplectic integrator: trajectories preserve phase space volumen
+        # single-step update
         r_new = r_old + 0.5*epsilon*grad_old     # half-step
         theta_new = theta_old + epsilon*r_new     # full-step
         joint_new, grad_new = self._nuts_target(theta_new)     # new gradient
@@ -280,43 +293,42 @@ class NUTS(Sampler):
 
     #=========================================================================
     # @functools.lru_cache(maxsize=128)
-    def _BuildTree(self, theta, r, grad, Ham, log_u, v, j, epsilon, Delta_max=1000):
+    def _BuildTree(self, theta, r, grad, nHam, log_u, v, j, epsilon, Delta_max=1000):
         # Increment the number of tree nodes counter
         self._num_tree_node += 1
 
         if (j == 0):     # base case
             # single leapfrog step in the direction v
-            theta_prime, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, v*epsilon)
-            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')     # Hamiltonian eval
-            n_prime = int(log_u <= Ham_prime)     # if particle is in the slice
-            s_prime = int(log_u < Delta_max + Ham_prime)     # check U-turn
-            #
-            diff_Ham = Ham_prime - Ham
+            theta_prime, r_prime, joint_prime, grad_prime = self._Leapfrog_single(theta, r, grad, v*epsilon)
+            nHam_prime = self._neg_Hamiltonian(joint_prime, r_prime)     # Hamiltonian eval
+            n_prime = int(log_u <= nHam_prime)     # if particle is in the slice
+            s_prime = int(log_u < Delta_max + nHam_prime)     # check U-turn
 
             # Compute the acceptance probability
-            # alpha_prime = min(1, np.exp(diff_Ham))
+            # alpha_prime = min(1, np.exp(nHam_prime - nHam))
             # written in a stable way to avoid overflow when computing
-            # exp(diff_Ham) for large values of diff_Ham
+            # exp(nHam_prime - nHam) for large values of diff_Ham            
+            diff_Ham = nHam_prime - nHam
             alpha_prime = 1 if diff_Ham > 0 else np.exp(diff_Ham)
             n_alpha_prime = 1
-            #
-            theta_minus, theta_plus = theta_prime, theta_prime
-            r_minus, r_plus = r_prime, r_prime
-            grad_minus, grad_plus = grad_prime, grad_prime
+
+            return theta_prime, r_prime, grad_prime, theta_prime, r_prime, grad_prime, \
+                theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
+ 
         else: 
             # recursion: build the left/right subtrees
             theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
             theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime = \
-                self._BuildTree(theta, r, grad, Ham, log_u, v, j-1, epsilon)
+                self._BuildTree(theta, r, grad, log_u, v, j-1, epsilon)
             if (s_prime == 1): # do only if the stopping criteria does not verify at the first subtree
                 if (v == -1):
                     theta_minus, r_minus, grad_minus, _, _, _, \
                     theta_2prime, joint_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
-                        self._BuildTree(theta_minus, r_minus, grad_minus, Ham, log_u, v, j-1, epsilon)
+                        self._BuildTree(theta_minus, r_minus, grad_minus, nHam, log_u, v, j-1, epsilon)
                 else:
                     _, _, _, theta_plus, r_plus, grad_plus, \
                     theta_2prime, joint_2prime, grad_2prime, n_2prime, s_2prime, alpha_2prime, n_alpha_2prime = \
-                        self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j-1, epsilon)
+                        self._BuildTree(theta_plus, r_plus, grad_plus, nHam, log_u, v, j-1, epsilon)
 
                 # Metropolis step
                 alpha2 = n_2prime / max(1, (n_prime + n_2prime))
@@ -328,9 +340,9 @@ class NUTS(Sampler):
                 # update number of particles and stopping criterion
                 alpha_prime += alpha_2prime
                 n_alpha_prime += n_alpha_2prime
+                #
                 dtheta = theta_plus - theta_minus
                 s_prime = s_2prime * int((dtheta@r_minus.T)>=0) * int((dtheta@r_plus.T)>=0)
                 n_prime += n_2prime
-        return theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
+            return theta_minus, r_minus, grad_minus, theta_plus, r_plus, grad_plus, \
                 theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha_prime, n_alpha_prime
-

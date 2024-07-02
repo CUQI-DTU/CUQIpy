@@ -173,18 +173,20 @@ class HMC(Sampler):
         # run HMC
         for k in range(Ns-1):
             q_k = theta[:, k]                # initial position (parameters)
-            p_k = self._Kfun(1, 'sample')    # initial momentum vector
+            r_k = self._Kfun(1, 'sample')    # initial momentum vector
 
             # LEAPFROG: alternate full steps for position and momentum
-            q_star, p_star = self._Leapfrog(q_k, p_k, grad, epsilon, L)
+            q_star, r_star = self._Leapfrog(q_k, r_k, grad, epsilon, L)
 
             # evaluate neg-potential and neg-kinetic energies at start and end of trajectory
             U_k = joint_eval[k]
+            nHam_k = self._neg_Hamiltonian(U_k, r_k) # Hamiltonian
+            #
             U_star, grad_star = self._hmc_target(q_star)
-            K_star, K_k = self._Kfun(p_star, 'eval'), self._Kfun(p_k, 'eval')
+            nHam_star = self._neg_Hamiltonian(U_star, r_star) # Hamiltonian
 
             # accept/reject
-            log_alpha = min( 0, (U_star+K_star)-(U_k+K_k) )
+            log_alpha = min( 0, nHam_star-nHam_k )
             log_u = np.log(np.random.rand())
             if (log_u <= log_alpha):
                 theta[:, k+1] = q_star
@@ -231,36 +233,50 @@ class HMC(Sampler):
         return theta, joint_eval, step_sizes, traject_lengths, acc_rate
 
     #=========================================================================
-    # auxiliary standard Gaussian PDF: neg-kinetic energy function
+    # kinetic energy function (negative log PDF): assumed to be standard Gaussian PDF
     # d_log_2pi = d*np.log(2*np.pi)
-    def _Kfun(self, r, flag):
+    # here we implement the negative kinetic fun
+    def _neg_kinetic_func(self, r, flag):
         if flag == 'eval': # evaluate
             return -0.5*(r.T @ r) #- d_log_2pi 
         if flag == 'sample': # sample
             return np.random.standard_normal(size=self.dim)
 
     #=========================================================================
+    # Hamiltonian function (negative log)
+    def _neg_Hamiltonian(self, nU, r):
+        # here nU is the log-posterior (so it is the negative potential) 
+        # and we work with negative kinetic fun, but the Hamiltonian is:
+        # H(q,r) = U(q) + K(r)
+        # U(q): potential energy: negative log-posterior
+        # K(r): kinetic energy: negative log-assumed-density
+        nK = self._neg_kinetic_func(r, 'eval')
+
+        return nU + nK
+
+    #=========================================================================
     def _FindGoodEpsilon(self, theta, joint, grad, epsilon=1):
-        r = self._Kfun(1, 'sample')    # resample a momentum
-        Ham = joint - self._Kfun(r, 'eval')     # initial Hamiltonian
-        _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon)
+        r = self._neg_kinetic_func(1, 'sample')         # resample a momentum
+        nHam = self._neg_Hamiltonian(joint, r)   # initial Hamiltonian
+        _, r_prime, joint_prime, grad_prime = self._Leapfrog_single(theta, r, grad, epsilon)
 
         # trick to make sure the step is not huge, leading to infinite values of the likelihood
         k = 1
         while np.isinf(joint_prime) or np.isinf(grad_prime).any():
             k *= 0.5
-            _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon*k)
+            _, r_prime, joint_prime, grad_prime = self._Leapfrog_single(theta, r, grad, epsilon*k)
         epsilon = 0.5*k*epsilon
 
         # doubles/halves the value of epsilon until the accprob of the Langevin proposal crosses 0.5
-        Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
-        log_ratio = Ham_prime - Ham
+        nHam_prime = self._neg_Hamiltonian(joint_prime, r_prime)
+        log_ratio = nHam_prime - nHam
         a = 1 if log_ratio > np.log(0.5) else -1
         while (a*log_ratio > -a*np.log(2)):
             epsilon = (2**a)*epsilon
-            _, r_prime, joint_prime, _ = self._Leapfrog(theta, r, grad, epsilon)
-            Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
-            log_ratio = Ham_prime - Ham
+            _, r_prime, joint_prime, _ = self._Leapfrog_single(theta, r, grad, epsilon)
+            nHam_prime = self._neg_Hamiltonian(joint_prime, r_prime)
+            log_ratio = nHam_prime - nHam
+
         return epsilon
 
     #=========================================================================
