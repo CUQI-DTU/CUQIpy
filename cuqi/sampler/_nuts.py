@@ -189,11 +189,11 @@ class NUTS(Sampler):
                 if (v == -1):
                     theta_minus, r_minus, grad_minus, _, _, _, \
                     theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                        self._BuildTree(theta_minus, r_minus, grad_minus, log_u, v, j, epsilon)
+                        self._BuildTree(theta_minus, r_minus, grad_minus, nHam, log_u, v, j, epsilon)
                 else:
                     _, _, _, theta_plus, r_plus, grad_plus, \
                     theta_prime, joint_prime, grad_prime, n_prime, s_prime, alpha, n_alpha = \
-                        self._BuildTree(theta_plus, r_plus, grad_plus, log_u, v, j, epsilon)
+                        self._BuildTree(theta_plus, r_plus, grad_plus, nHam, log_u, v, j, epsilon)
 
                 # Metropolis step
                 alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
