@@ -178,7 +178,7 @@ class HMC(Sampler):
             r_k = self._neg_kinetic_func(1, 'sample')    # initial momentum vector
 
             # LEAPFROG: alternate full steps for position and momentum
-            q_star, r_star, joint_star, grad_star = self._leapfrog_all(q_k, r_k, grad, epsilon, L)
+            q_star, r_star, joint_star, grad_star = self._Leapfrog(q_k, r_k, grad, epsilon, L)
 
             # evaluate neg-potential and neg-kinetic energies at start and end of trajectory
             joint_k = joint_eval[k-1]
@@ -280,28 +280,13 @@ class HMC(Sampler):
         return epsilon
 
     #=========================================================================
-    def _leapfrog_all(self, q0, r0, grad, epsilon, L):
-        # symplectic integrator: trajectories preserve phase space volumen
-        q, r = np.copy(q0), np.copy(r0)
-        r += (epsilon/2)*grad   # initial half step for momentum 
-        for n in range(L):
-            q += epsilon*r   # full step for the position
-            if (n != L-1):
-                joint, grad = self._hmc_target(q)     # new gradient
-                r += epsilon*grad   # full step for the momentum, skip last one
-        joint, grad = self._hmc_target(q)     # new gradient
-        r += (epsilon/2)*grad       # final half step for momentum
-
-        return q, -r, joint, grad # negate momentum to make proposal symmetric
-
-    #=========================================================================
     def _Leapfrog(self, q0, r0, grad, epsilon, L):
         # symplectic integrator: trajectories preserve phase space volumen
         q, r = np.copy(q0), np.copy(r0)
         for n in range(L):
             q, r, joint, grad = self._Leapfrog_single(q, r, grad, epsilon)
 
-        return q, r, joint, grad
+        return q, -r, joint, grad  # negate momentum to make proposal symmetric
 
     #=========================================================================
     def _Leapfrog_single(self, theta_old, r_old, grad_old, epsilon):

@@ -5,7 +5,7 @@
 # Version 2022
 # =================================================================
 import sys
-sys.path.append("/home/felipe/github/cuqi/CUQIpy/") 
+sys.path.append("..") 
 import numpy as np
 import scipy as sp
 import scipy.stats as sps
@@ -36,14 +36,6 @@ x0 = mu_q #np.random.rand(d)
 Ns = int(2e3)
 Nb = int(5e2)
 
-# NUTS
-MCMC = cuqi.sampler.NUTS(target, x0)
-solution_nuts = MCMC.sample(Ns, Nb)
-x_chain_nuts = solution_nuts.samples.T
-steps_nuts = solution_nuts.acc_rate
-mu_nuts = np.mean(x_chain_nuts, axis=0)
-sigma_nuts = np.std(x_chain_nuts, axis=0, ddof=1)
-
 # HMC
 traject_length = 150
 MCMC = cuqi.sampler.HMC(target, x0, adapt_traject_length=traject_length)
@@ -52,6 +44,14 @@ x_chain_hmc = solution_hmc.samples.T
 steps_hmc = solution_hmc.acc_rate
 mu_hmc = np.mean(x_chain_hmc, axis=0)
 sigma_hmc = np.std(x_chain_hmc, axis=0, ddof=1)
+
+# NUTS
+MCMC = cuqi.sampler.NUTS(target, x0)
+solution_nuts = MCMC.sample(Ns, Nb)
+x_chain_nuts = solution_nuts.samples.T
+steps_nuts = solution_nuts.acc_rate
+mu_nuts = np.mean(x_chain_nuts, axis=0)
+sigma_nuts = np.std(x_chain_nuts, axis=0, ddof=1)
 
 # =================================================================
 # plots
@@ -79,26 +79,18 @@ ax2.legend()
 plt.tight_layout()
 
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-ax1.plot(sigma_q, mu_nuts, 'b.')
+ax1.plot(sigma_q, mu_nuts, 'bo', label='NUTS')
+ax1.plot(sigma_q, mu_hmc, 'r.', label='HMC')
+ax1.legend()
 ax1.set_ylabel('sample mean at each coordinate')
 ax1.set_xlim(0, 1)
 ax1.set_ylim(-0.6, 0.6)
-ax2.plot(sigma_q, sigma_nuts, 'b.')
+ax2.plot(sigma_q, sigma_nuts, 'bo', label='NUTS')
+ax2.plot(sigma_q, sigma_hmc, 'r.', label='HMC')
 ax2.set_ylabel('sample std at each coordinate')
 ax2.set_xlim(0, 1)
 ax2.set_ylim(0, 1.1)
 fig.suptitle('NUTS')
-plt.tight_layout()
-#
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-ax1.plot(sigma_q, mu_hmc, 'r.')
-ax1.set_ylabel('sample mean at each coordinate')
-ax1.set_xlim(0, 1)
-ax1.set_ylim(-0.6, 0.6)
-ax2.plot(sigma_q, sigma_hmc, 'r.')
-ax2.set_ylabel('sample std at each coordinate')
-ax2.set_xlim(0, 1)
-ax2.set_ylim(0, 1.1)
-fig.suptitle('HMC')
+fig.suptitle('stats comparison')
 plt.tight_layout()
 plt.show()

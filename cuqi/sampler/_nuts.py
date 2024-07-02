@@ -197,8 +197,7 @@ class NUTS(Sampler):
 
                 # Metropolis step
                 alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
-                if (s_prime == 1) and (np.random.rand() <= alpha2) and not np.isnan(joint_prime) \
-                and not np.isinf(joint_prime) and not np.isneginf(joint_prime):
+                if (s_prime == 1) and (np.random.rand() <= alpha2) and not np.isnan(joint_prime) and not np.isinf(joint_prime):
                     theta[:, k] = theta_prime
                     joint_eval[k] = joint_prime
                     grad = np.copy(grad_prime)
