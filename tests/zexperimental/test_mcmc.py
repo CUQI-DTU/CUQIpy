@@ -730,3 +730,50 @@ def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target
             cuqi.experimental.mcmc.ConjugateApproxNew(target=posterior)
         else:
             cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+def test_find_valid_samplers_linearGaussianGaussian():
+    target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+    
+    assert(set(valid_samplers) == set(['CWMHNew', 'LinearRTONew', 'MALANew', 'MHNew', 'NUTSNew', 'PCNNew', 'ULANew']))
+
+def test_find_valid_samplers_nonlinearGaussianGaussian():
+    posterior = cuqi.testproblem.Poisson1D(dim=2).posterior
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(posterior)
+
+    print(set(valid_samplers) == set(['CWMHNew', 'MHNew', 'PCNNew']))
+
+def test_find_valid_samplers_conjugate():
+    x = cuqi.distribution.Gamma(1,1)
+    y = cuqi.distribution.Gaussian(np.zeros(2), lambda x : x)
+    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['CWMHNew', 'ConjugateNew', 'MHNew']))
+
+def test_find_valid_samplers_direct():
+    target = cuqi.distribution.Gamma(1,1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['CWMHNew', 'DirectNew', 'MHNew']))
+
+def test_find_valid_samplers_implicit_posterior():
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
+
+    x = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
+    y = cuqi.distribution.Gaussian(A@x, 1)
+    target =  cuqi.distribution.JointDistribution(y, x)(y = y_obs)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['RegularizedLinearRTONew']))
+
+def test_find_valid_samplers_implicit_prior():
+    target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(len(set(valid_samplers)) == 0)
