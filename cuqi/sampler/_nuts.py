@@ -152,8 +152,8 @@ class NUTS(Sampler):
         if (self.adapt_step_size == True):
             epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
             mu = np.log(10*epsilon)
+            log_epsilon_bar, H_bar = 0, 0
             gamma, t_0, kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
-            epsilon_bar, H_bar = 1, 0
             delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
             step_sizes[0] = epsilon
         elif (self.adapt_step_size == False):
@@ -197,7 +197,8 @@ class NUTS(Sampler):
 
                 # Metropolis step
                 alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
-                if (s_prime == 1) and (np.random.rand() <= alpha2):
+                if (s_prime == 1) and (np.random.rand() <= alpha2) and not np.isnan(joint_prime) \
+                and not np.isinf(joint_prime) and not np.isneginf(joint_prime):
                     theta[:, k] = theta_prime
                     joint_eval[k] = joint_prime
                     grad = np.copy(grad_prime)
@@ -214,11 +215,13 @@ class NUTS(Sampler):
 
             # adapt epsilon during burn-in using dual averaging
             if (k <= Nb) and (self.adapt_step_size == True):
-                eta1 = 1/(k + t_0)
+                eta1, eta2 = 1/(k+t_0), k**(-kappa)
+                #
                 H_bar = (1-eta1)*H_bar + eta1*(delta - (alpha/n_alpha))
-                epsilon = np.exp(mu - (np.sqrt(k)/gamma)*H_bar)
-                eta = k**(-kappa)
-                epsilon_bar = np.exp(eta*np.log(epsilon) + (1-eta)*np.log(epsilon_bar))
+                log_epsilon = mu - (np.sqrt(k)/gamma)*H_bar                
+                log_epsilon_bar = eta2*log_epsilon + (1-eta2)*log_epsilon_bar
+                #
+                epsilon, epsilon_bar = np.exp(log_epsilon), np.exp(log_epsilon_bar)
             elif (k == Nb+1) and (self.adapt_step_size == True):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
             step_sizes[k] = epsilon
@@ -265,7 +268,7 @@ class NUTS(Sampler):
 
         # trick to make sure the step is not huge, leading to infinite values of the likelihood
         k = 1
-        while np.isinf(joint_prime) or np.isinf(grad_prime).any():
+        while np.isnan(joint_prime) or np.isnan(grad_prime).any() or np.isinf(joint_prime) or np.isinf(grad_prime).any():
             k *= 0.5
             _, r_prime, joint_prime, grad_prime = self._Leapfrog_single(theta, r, grad, epsilon*k)
         epsilon = 0.5*k*epsilon
