@@ -660,7 +660,7 @@ def test_conjugate_wrong_var_for_conjugate_parameter():
     s = cuqi.distribution.Gamma(1, 1e-4, name='s')
     posterior =  cuqi.distribution.Posterior(y.to_likelihood([0]), s)
 
-    with pytest.raises(ValueError, match="Conjugate sampler only works with Gaussian likelihood functions where conjugate parameter is defined via covariance or precision"):
+    with pytest.raises(ValueError, match="Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision"):
         cuqi.experimental.mcmc.ConjugateNew(target=posterior)
 
 def test_conjugate_wrong_equation_for_conjugate_parameter():
