@@ -171,11 +171,18 @@ def _get_conjugate_parameter(target):
     par_name = target.prior.name
     mutable_likelihood_vars  = target.likelihood.distribution.get_mutable_variables()
 
+    found_parameter_pairs = []
+
     for var_key in mutable_likelihood_vars:
         attr = getattr(target.likelihood.distribution, var_key)
         if callable(attr) and par_name in get_non_default_args(attr):
-            return var_key, attr
-    raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
+            found_parameter_pairs.append((var_key, attr))
+    if len(found_parameter_pairs) == 1:
+        return found_parameter_pairs[0]
+    elif len(found_parameter_pairs) > 1:
+        raise ValueError(f"Multiple conjugate parameters found in likelihood function for conjugate sampler with target {target}")
+    else
+        raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
 
 def _check_conjugate_parameter_is_scalar_identity(f):
     """Tests whether a function (scalar to scalar) is the identity (lambda x : x)."""
