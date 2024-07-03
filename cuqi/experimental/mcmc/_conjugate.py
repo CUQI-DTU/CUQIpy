@@ -181,7 +181,7 @@ def _get_conjugate_parameter(target):
         return found_parameter_pairs[0]
     elif len(found_parameter_pairs) > 1:
         raise ValueError(f"Multiple conjugate parameters found in likelihood function for conjugate sampler with target {target}")
-    else
+    else:
         raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
 
 def _check_conjugate_parameter_is_scalar_identity(f):
