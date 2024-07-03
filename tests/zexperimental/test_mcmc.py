@@ -744,14 +744,25 @@ def test_find_valid_samplers_nonlinearGaussianGaussian():
 
     print(set(valid_samplers) == set(['CWMHNew', 'MHNew', 'PCNNew']))
 
-def test_find_valid_samplers_conjugate():
+def test_find_valid_samplers_conjugate_valid():
+    """ Test that conjugate sampler is valid for Gaussian-Gamma conjugate pair when parameter is defined as the precision."""
     x = cuqi.distribution.Gamma(1,1)
-    y = cuqi.distribution.Gaussian(np.zeros(2), lambda x : x)
+    y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : 1/x) # Valid on precision only, e.g. cov=lambda x : 1/x
     target = cuqi.distribution.JointDistribution(y, x)(y = 1)
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
     assert(set(valid_samplers) == set(['CWMHNew', 'ConjugateNew', 'MHNew']))
+
+def test_find_valid_samplers_conjugate_invalid():
+    """ Test that conjugate sampler is invalid for Gaussian-Gamma conjugate pair when parameter is defined as the covariance."""
+    x = cuqi.distribution.Gamma(1,1)
+    y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : x) # Invalid if defined via covariance as cov=lambda x : x
+    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['CWMHNew', 'MHNew']))
 
 def test_find_valid_samplers_direct():
     target = cuqi.distribution.Gamma(1,1)
