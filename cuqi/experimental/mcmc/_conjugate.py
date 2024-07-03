@@ -46,6 +46,7 @@ class ConjugateNew(SamplerNew):
         
     def step(self):
         self.current_point = self._conjugatepair.sample()
+        return 1 # Returns acceptance rate of 1
 
     def tune(self, skip_len, update_count):
         pass # No tuning required for conjugate sampler
@@ -109,7 +110,7 @@ class _GaussianGammaPair(_ConjugatePair):
             if not _check_conjugate_parameter_is_scalar_identity(value):
                 raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter")
         else:
-            raise ValueError("Conjugate sampler only works with Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
+            raise ValueError("Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
 
     def sample(self):
         # Extract variables
@@ -150,7 +151,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
             if not _check_conjugate_parameter_is_scalar_identity(value):
                 raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
         else:
-            raise ValueError("Conjugate sampler only works with Regularized Gaussian likelihood functions where conjugate parameter is defined via covariance or precision")
+            raise ValueError("Conjugate sampler for a Regularized Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
 
     def sample(self):
         # Extract variables
