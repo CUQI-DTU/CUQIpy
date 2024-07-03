@@ -180,7 +180,7 @@ def _get_conjugate_parameter(target):
     if len(found_parameter_pairs) == 1:
         return found_parameter_pairs[0]
     elif len(found_parameter_pairs) > 1:
-        raise ValueError(f"Multiple conjugate parameters found in likelihood function for conjugate sampler with target {target}")
+        raise ValueError(f"Multiple references of parameter {par_name} found in likelihood function for conjugate sampler with target {target}. This is not supported.")
     else:
         raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
 
