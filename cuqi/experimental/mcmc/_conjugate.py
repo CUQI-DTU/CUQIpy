@@ -186,8 +186,9 @@ def _get_conjugate_parameter(target):
         raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
 
 def _check_conjugate_parameter_is_scalar_identity(f):
-    """Tests whether a function (scalar to scalar) is the identity (lambda x : x)."""
-    return all(f(x) == x for x in [1.0, 10.0, 100.0])
+    """Tests whether a function (scalar to scalar) is the identity (lambda x: x)."""
+    test_values = [1.0, 10.0, 100.0]
+    return all(np.allclose(f(x), x) for x in test_values)
 
 def _check_conjugate_parameter_is_scalar_reciprocal(f):
     """Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x)."""
