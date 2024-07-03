@@ -730,7 +730,6 @@ def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target
             cuqi.experimental.mcmc.ConjugateApproxNew(target=posterior)
         else:
             cuqi.experimental.mcmc.ConjugateNew(target=posterior)
-            
 def test_find_valid_samplers_linearGaussianGaussian():
     target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
 
