@@ -167,7 +167,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         return dist.sample()
 
 def _get_conjugate_parameter(target):
-    """Extract the parameter name, attribute and variable location of the conjugate parameter."""
+    """Extract the conjugate parameter name (e.g. d), and returns the mutable variable that is defined by the conjugate parameter, e.g. cov and its value e.g. lambda d:1/d"""
     par_name = target.prior.name
     mutable_likelihood_vars  = target.likelihood.distribution.get_mutable_variables()
 
