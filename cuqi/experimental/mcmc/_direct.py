@@ -23,6 +23,7 @@ class DirectNew(SamplerNew):
         
     def step(self):
         self.current_point = self.target.sample()
+        return 1 # Returns acceptance rate of 1
 
     def tune(self, skip_len, update_count):
         pass     
