@@ -10,10 +10,10 @@ class SmoothedLaplace(Distribution):
 
     .. math::
 
-        p(x) = \\frac{1}{2b} \exp\left(-\\frac{\sqrt{(x-\mu)^2 + \beta}}{b}\\right),
+        p(x) = \\frac{1}{2b} \exp\left(-\\frac{\sqrt{(x-\mu)^2 + \\beta}}{b}\\right),
 
     where :math:`\mu` is the location (mean), :math:`b` is the scale (decay) parameter and
-    :math:`\beta` is the smoothing parameter.
+    :math:`\\beta` is the smoothing parameter.
 
     The rate parameter is defined as :math:`\lambda = \\frac{1}{b}`.
 
