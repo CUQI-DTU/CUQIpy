@@ -21,6 +21,8 @@ class ConjugateNew(SamplerNew):
 
     A conjugate pair defines implicitly a so-called conjugate distribution which can be sampled from directly.
 
+    The conjugate parameter is the parameter that both the likelihood and prior PDF depend on.
+
     For more information on conjugacy and conjugate distributions see https://en.wikipedia.org/wiki/Conjugate_prior.
 
     For implicit regularized Gaussians see:
