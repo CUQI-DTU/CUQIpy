@@ -28,6 +28,7 @@ class SmoothedLaplace(Distribution):
         The scale parameter of the distribution.
     
     beta : scalar
+        The smoothing parameter of the distribution.
 
     """
 
