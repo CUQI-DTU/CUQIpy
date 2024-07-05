@@ -50,13 +50,13 @@ class UserDefinedDistribution(Distribution):
         if self.logpdf_func is not None:
             return self.logpdf_func(x)
         else:
-            raise Exception("logpdf_func is not defined.")
+            raise NotImplementedError("logpdf_func is not defined.")
     
     def _gradient(self, x):
         if self.gradient_func is not None:
             return self.gradient_func(x)
         else:
-            raise Exception("gradient_func is not defined.")
+            raise NotImplementedError("gradient_func is not defined.")
 
     def _sample(self, N=1, rng=None):
         #TODO(nabr) allow sampling more than 1 sample and potentially rng?
