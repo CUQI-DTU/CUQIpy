@@ -786,7 +786,7 @@ def test_Smoothed_Laplace():
 
     location = np.array([1, 2])
     scale = np.array([1, 2])
-    scaller_laplace_0 = cuqi.distribution.Laplace(location[0], scale[0])
+    scalar_laplace_0 = cuqi.distribution.Laplace(location[0], scale[0])
 
     scalar_smoothed_laplace_0 = cuqi.distribution.SmoothedLaplace(location[0], scale[0], 1e-8)
     scalar_smoothed_laplace_1 = cuqi.distribution.SmoothedLaplace(location[1], scale[1], 1e-8)
@@ -795,7 +795,7 @@ def test_Smoothed_Laplace():
     x = np.array([3, 4])
 
     # logpdf (scalar Laplace vs scalar Smoothed Laplace)
-    assert np.allclose(scaller_laplace_0.logpdf([x[0]]), scalar_smoothed_laplace_0.logpdf(x[0]))
+    assert np.allclose(scalar_laplace_0.logpdf([x[0]]), scalar_smoothed_laplace_0.logpdf(x[0]))
 
     # logpdf (scalar Smoothed Laplace * scalar Smoothed Laplace vs vector Smoothed Laplace)
     assert np.allclose(scalar_smoothed_laplace_0.logpdf(x[0])+scalar_smoothed_laplace_1.logpdf(x[1]),
