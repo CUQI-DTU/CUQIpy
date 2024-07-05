@@ -234,3 +234,90 @@ class RegularizedGaussian(Distribution):
             new_density = new_density.to_likelihood(value)
 
         return new_density
+
+
+class ConstrainedGaussian(RegularizedGaussian):
+    """ Implicit Constrained Gaussian.
+
+    Defines a so-called implicit prior based on a Gaussian distribution with implicit constraints.
+    The constraint can be defined as a preset or in the form of a projector. 
+
+    Precisely one of projector or constraint needs to be provided. Otherwise, an error is raised.
+
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
+    Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with only constraints available.
+
+    For more details on implicit regularized Gaussian see the following paper:
+
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized
+    Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
+
+    Parameters
+    ----------
+    mean
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    cov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    prec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtcov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtprec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    projector : callable f(x) or None
+        Euclidean projection onto the constraint C, that is, a solver for the optimization problem
+        min_(z in C) 0.5||x-z||_2^2.
+
+    constraint : string or None
+        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
+        For "box", the following additional parameters can be passed:
+            lower_bound : array_like or None
+                Lower bound of box, defaults to zero
+            upper_bound : array_like
+                Upper bound of box, defaults to one
+
+    """
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, projector=None, constraint=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
+
+        
+class NonnegativeGaussian(RegularizedGaussian):
+    """ Implicit Nonnegative Gaussian.
+
+    Defines a so-called implicit prior based on a Gaussian distribution with implicit nonnegativity constraints.
+
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
+    Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with only nonnegativity constraints.
+
+    For more details on implicit regularized Gaussian see the following paper:
+
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized
+    Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
+
+    Parameters
+    ----------
+    mean
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    cov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    prec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtcov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtprec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    """
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)
