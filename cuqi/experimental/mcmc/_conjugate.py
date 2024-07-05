@@ -9,7 +9,7 @@ from cuqi.utilities import get_non_default_args
 class ConjugateNew(SamplerNew):
     """ Conjugate sampler
 
-    Sampler for sampling a posterior distribution where the likelihood and prior are conjugate to each other - denoted as a conjugate pair.   
+    Sampler for sampling a posterior distribution which is a so-called "conjugate" distribution, i.e., where the likelihood and prior are conjugate to each other - denoted as a conjugate pair.   
 
     Currently supported conjugate pairs are:
     - (Gaussian, Gamma) where Gamma is defined on the precision parameter of the Gaussian
