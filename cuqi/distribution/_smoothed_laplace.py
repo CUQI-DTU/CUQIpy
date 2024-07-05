@@ -31,7 +31,7 @@ class SmoothedLaplace(Distribution):
 
     """
 
-    def __init__(self, location, scale, beta=1e-3, **kwargs):
+    def __init__(self, location=None, scale=None, beta=1e-3, **kwargs):
         super().__init__(**kwargs)
 
         self.location = location
