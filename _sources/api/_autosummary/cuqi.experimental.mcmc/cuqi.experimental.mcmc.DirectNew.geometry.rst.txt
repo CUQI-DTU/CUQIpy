@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.geometry
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: DirectNew.geometry

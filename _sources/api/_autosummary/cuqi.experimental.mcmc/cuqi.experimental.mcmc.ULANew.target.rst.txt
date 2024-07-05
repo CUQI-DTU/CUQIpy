@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULANew.target
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ULANew.target

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.target
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: CWMHNew.target

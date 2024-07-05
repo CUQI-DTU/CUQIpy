@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.set\_history
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCNNew.set_history

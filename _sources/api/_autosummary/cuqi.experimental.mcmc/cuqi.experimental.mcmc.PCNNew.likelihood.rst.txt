@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.likelihood
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: PCNNew.likelihood

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.tune
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCNNew.tune

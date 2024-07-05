@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MHNew.sample
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MHNew.sample

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApproxNew.target
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ConjugateApproxNew.target

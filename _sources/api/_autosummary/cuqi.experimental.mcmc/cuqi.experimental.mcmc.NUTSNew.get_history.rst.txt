@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.get\_history
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTSNew.get_history

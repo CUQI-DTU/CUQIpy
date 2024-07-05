@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTONew.step
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTONew.step

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateNew.step
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateNew.step

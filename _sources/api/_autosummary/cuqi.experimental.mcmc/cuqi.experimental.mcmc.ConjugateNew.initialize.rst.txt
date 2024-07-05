@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateNew.initialize
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateNew.initialize

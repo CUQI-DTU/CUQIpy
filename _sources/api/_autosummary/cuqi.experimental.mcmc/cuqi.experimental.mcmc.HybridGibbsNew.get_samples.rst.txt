@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbsNew.get\_samples
+==================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: HybridGibbsNew.get_samples

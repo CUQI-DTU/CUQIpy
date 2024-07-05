@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.dim
+=================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: MultipleLikelihoodPosterior.dim

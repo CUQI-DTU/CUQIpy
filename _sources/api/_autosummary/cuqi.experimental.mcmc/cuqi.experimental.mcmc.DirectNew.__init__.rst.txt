@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.\_\_init\_\_
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: DirectNew.__init__

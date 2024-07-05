@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateNew.tune
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateNew.tune

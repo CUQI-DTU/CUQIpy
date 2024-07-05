@@ -1,0 +1,1311 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Uncertainty Quantification in one-dimensional deconvolution &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=61a4c737" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_tutorials/UQ_in_Deconvolution1D';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Support vector representation of function values in CUQIpy geometries and samples" href="fun_vec_representation.html" />
+    <link rel="prev" title="Joint Distribution tutorial" href="JointDistribution.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <script>document.write(`<img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark" alt="cuqipy  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="1-Basics.html">CUQIpy Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2-Models.html">Deterministic models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3-Distributions.html">Distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4-Samplers.html">Samplers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5-Samples.html">Samples (Analysis and Visualization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="JointDistribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../_auto_howtos/index.html">How-To Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_howtos/Deconvolution2D.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_howtos/Defining_Posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_howtos/TimeDependentLinearPDE.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_howtos/custom_model.html">Custom models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorials</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Uncertainty...</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-tutorials-uq-in-deconvolution1d-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="uncertainty-quantification-in-one-dimensional-deconvolution">
+<span id="sphx-glr-user-auto-tutorials-uq-in-deconvolution1d-py"></span><h1>Uncertainty Quantification in one-dimensional deconvolution<a class="headerlink" href="#uncertainty-quantification-in-one-dimensional-deconvolution" title="Link to this heading">#</a></h1>
+<blockquote>
+<div><p>This tutorial walks through the process of solving a simple 1D
+deconvolution problem in a Bayesian setting. It also shows how
+to define such a convolution model in CUQIpy.</p>
+</div></blockquote>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<p>We start by importing the necessary modules</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-forward-model">
+<h2>Setting up the forward model<a class="headerlink" href="#setting-up-the-forward-model" title="Link to this heading">#</a></h2>
+<p>We start by defining the forward model. In this case, we will use a simple
+convolution model. The forward model is defined by the following equation:</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y} = \mathbf{A} \mathbf{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is the data, <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is the convolution (forward model)
+operator, and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> is the solution.</p>
+<p>The easiest way to define the forward model is to use the testproblem module.
+This module contains a number of pre-defined test problems that contain the
+forward model and synthetic data. In this case, we will use the
+<a class="reference internal" href="../../api/_autosummary/cuqi.testproblem/cuqi.testproblem.Deconvolution1D.html#cuqi.testproblem.Deconvolution1D" title="cuqi.testproblem.Deconvolution1D"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.testproblem.Deconvolution1D</span></code></a> test problem. We extract the forward model
+and synthetic data from the test problem by calling the <code class="xref py py-func docutils literal notranslate"><span class="pre">get_components()</span></code>
+method.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Forward model and data</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">testproblem</span><span class="o">.</span><span class="n">Deconvolution1D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>There are many parameters that can be set when creating the test problem. For more details
+see the <a class="reference internal" href="../../api/_autosummary/cuqi.testproblem/cuqi.testproblem.Deconvolution1D.html#cuqi.testproblem.Deconvolution1D" title="cuqi.testproblem.Deconvolution1D"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.testproblem.Deconvolution1D</span></code></a> documentation. In this case, we will use
+the default parameters. The <code class="xref py py-func docutils literal notranslate"><span class="pre">get_components()</span></code> method returns the forward model,
+synthetic data, and a <code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemInfo</span></code> object that contains information about the
+test problem.</p>
+<p>Let’s take a look at the forward model</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>CUQI LinearModel: Continuous1D(128,) -&gt; Continuous1D(128,).
+    Forward parameters: [&#39;x&#39;].
+</pre></div>
+</div>
+<p>We see that the forward model is a a <a class="reference internal" href="../../api/_autosummary/cuqi.model/cuqi.model.LinearModel.html#cuqi.model.LinearModel" title="cuqi.model.LinearModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearModel</span></code></a> object. This
+object contains the forward model and the adjoint model. We also see that the domain and
+range of the forward model are both continuous 1D spaces. Finally, we see that the default
+forward parameters are set to <span class="math notranslate nohighlight">\(\mathbf{x}\)</span>.</p>
+<p>Let’s take a look at the synthetic data and compare with the exact solution
+that we can find in the <code class="xref py py-class docutils literal notranslate"><span class="pre">ProblemInfo</span></code> object.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y_data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Synthetic data&quot;</span><span class="p">)</span>
+<span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Exact solution&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Deconvolution 1D problem&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_001.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_001.png" alt="Deconvolution 1D problem" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7f3c342332b0&gt;
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-prior">
+<h2>Setting up the prior<a class="headerlink" href="#setting-up-the-prior" title="Link to this heading">#</a></h2>
+<p>We now need to define the prior distribution for the solution. In this case, we will use
+a Gaussian Markov Random Field (GMRF) prior. For more details on the GMRF prior, see the
+<a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.GMRF.html#cuqi.distribution.GMRF" title="cuqi.distribution.GMRF"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.distribution.GMRF</span></code></a> documentation.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">GMRF</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">),</span> <span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="setting-up-the-likelihood">
+<h2>Setting up the likelihood<a class="headerlink" href="#setting-up-the-likelihood" title="Link to this heading">#</a></h2>
+<p>We now need to define the likelihood. First let us take a look at the information provided
+by the test problem.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">infoString</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Noise type: Additive Gaussian with std: 0.01
+</pre></div>
+</div>
+<p>We see that the noise level is known and that the noise is Gaussian. We can use this
+information to define the likelihood. In this case, we will use a <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gaussian.html#cuqi.distribution.Gaussian" title="cuqi.distribution.Gaussian"><code class="xref py py-class docutils literal notranslate"><span class="pre">Gaussian</span></code></a>
+distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="mf">0.01</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="bayesian-problem-joint-distribution">
+<h2>Bayesian problem (Joint distribution)<a class="headerlink" href="#bayesian-problem-joint-distribution" title="Link to this heading">#</a></h2>
+<p>After defining the prior and likelihood, we can now define the Bayesian problem. The
+Bayesian problem is defined by the joint distribution of the solution and the data.
+This can be seen when we print the Bayesian problem.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ JointDistribution(
+    Equation:
+        p(y,x) = p(y|x)p(x)
+    Densities:
+        y ~ CUQI Gaussian. Conditioning variables [&#39;x&#39;].
+        x ~ CUQI GMRF.
+)
+</pre></div>
+</div>
+</section>
+<section id="setting-the-data-posterior">
+<h2>Setting the data (posterior)<a class="headerlink" href="#setting-the-data-posterior" title="Link to this heading">#</a></h2>
+<p>Now to set the data, we need to call the <a class="reference internal" href="../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.set_data.html#cuqi.problem.BayesianProblem.set_data" title="cuqi.problem.BayesianProblem.set_data"><code class="xref py py-func docutils literal notranslate"><span class="pre">set_data()</span></code></a></p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ Posterior(
+    Equation:
+         p(x|y) ∝ L(x|y)p(x)
+    Densities:
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;].
+        x ~ CUQI GMRF.
+ )
+</pre></div>
+</div>
+</section>
+<section id="sampling-from-the-posterior">
+<h2>Sampling from the posterior<a class="headerlink" href="#sampling-from-the-posterior" title="Link to this heading">#</a></h2>
+<p>We can then use the automatic sampling method to sample from the posterior distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span> <span class="o">=</span> <span class="n">BP</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is experimental. !!!
+!!!    Always validate the computed results.     !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using LinearRTO sampler.
+burn-in: 20%
+
+Sample 12 / 1200
+Sample 24 / 1200
+Sample 36 / 1200
+Sample 48 / 1200
+Sample 60 / 1200
+Sample 72 / 1200
+Sample 84 / 1200
+Sample 96 / 1200
+Sample 108 / 1200
+Sample 120 / 1200
+Sample 132 / 1200
+Sample 144 / 1200
+Sample 156 / 1200
+Sample 168 / 1200
+Sample 180 / 1200
+Sample 192 / 1200
+Sample 204 / 1200
+Sample 216 / 1200
+Sample 228 / 1200
+Sample 240 / 1200
+Sample 252 / 1200
+Sample 264 / 1200
+Sample 276 / 1200
+Sample 288 / 1200
+Sample 300 / 1200
+Sample 312 / 1200
+Sample 324 / 1200
+Sample 336 / 1200
+Sample 348 / 1200
+Sample 360 / 1200
+Sample 372 / 1200
+Sample 384 / 1200
+Sample 396 / 1200
+Sample 408 / 1200
+Sample 420 / 1200
+Sample 432 / 1200
+Sample 444 / 1200
+Sample 456 / 1200
+Sample 468 / 1200
+Sample 480 / 1200
+Sample 492 / 1200
+Sample 504 / 1200
+Sample 516 / 1200
+Sample 528 / 1200
+Sample 540 / 1200
+Sample 552 / 1200
+Sample 564 / 1200
+Sample 576 / 1200
+Sample 588 / 1200
+Sample 600 / 1200
+Sample 612 / 1200
+Sample 624 / 1200
+Sample 636 / 1200
+Sample 648 / 1200
+Sample 660 / 1200
+Sample 672 / 1200
+Sample 684 / 1200
+Sample 696 / 1200
+Sample 708 / 1200
+Sample 720 / 1200
+Sample 732 / 1200
+Sample 744 / 1200
+Sample 756 / 1200
+Sample 768 / 1200
+Sample 780 / 1200
+Sample 792 / 1200
+Sample 804 / 1200
+Sample 816 / 1200
+Sample 828 / 1200
+Sample 840 / 1200
+Sample 852 / 1200
+Sample 864 / 1200
+Sample 876 / 1200
+Sample 888 / 1200
+Sample 900 / 1200
+Sample 912 / 1200
+Sample 924 / 1200
+Sample 936 / 1200
+Sample 948 / 1200
+Sample 960 / 1200
+Sample 972 / 1200
+Sample 984 / 1200
+Sample 996 / 1200
+Sample 1008 / 1200
+Sample 1020 / 1200
+Sample 1032 / 1200
+Sample 1044 / 1200
+Sample 1056 / 1200
+Sample 1068 / 1200
+Sample 1080 / 1200
+Sample 1092 / 1200
+Sample 1104 / 1200
+Sample 1116 / 1200
+Sample 1128 / 1200
+Sample 1140 / 1200
+Sample 1152 / 1200
+Sample 1164 / 1200
+Sample 1176 / 1200
+Sample 1188 / 1200
+Sample 1200 / 1200
+Sample 1200 / 1200
+Elapsed time: 2.7824783325195312
+</pre></div>
+</div>
+</section>
+<section id="plotting-the-results">
+<h2>Plotting the results<a class="headerlink" href="#plotting-the-results" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_002.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_002.png" alt="UQ in Deconvolution1D" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D object at 0x7f3c34379f00&gt;, &lt;matplotlib.lines.Line2D object at 0x7f3c34379720&gt;, &lt;matplotlib.collections.PolyCollection object at 0x7f3c3437a7d0&gt;]
+</pre></div>
+</div>
+</section>
+<section id="unknown-noise-level">
+<h2>Unknown noise level<a class="headerlink" href="#unknown-noise-level" title="Link to this heading">#</a></h2>
+<p>In the previous example, we assumed that we knew the noise level of the data. In
+many cases, this is not the case. If we do not know the noise level, we can
+use a <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.Gamma.html#cuqi.distribution.Gamma" title="cuqi.distribution.Gamma"><code class="xref py py-class docutils literal notranslate"><span class="pre">Gamma</span></code></a> distribution to model the noise level.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="update-likelihood-with-unknown-noise-level">
+<h2>Update likelihood with unknown noise level<a class="headerlink" href="#update-likelihood-with-unknown-noise-level" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h2>Bayesian problem (Joint distribution)<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ JointDistribution(
+    Equation:
+        p(y,x,s) = p(y|x,s)p(x)p(s)
+    Densities:
+        y ~ CUQI Gaussian. Conditioning variables [&#39;x&#39;, &#39;s&#39;].
+        x ~ CUQI GMRF.
+        s ~ CUQI Gamma.
+)
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>Setting the data (posterior)<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_data</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">BP</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>BayesianProblem with target:
+ JointDistribution(
+    Equation:
+        p(x,s|y) ∝ L(x,s|y)p(x)p(s)
+    Densities:
+        y ~ CUQI Gaussian Likelihood function. Parameters [&#39;x&#39;, &#39;s&#39;].
+        x ~ CUQI GMRF.
+        s ~ CUQI Gamma.
+)
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>Sampling from the posterior<a class="headerlink" href="#id3" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span> <span class="o">=</span> <span class="n">BP</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is experimental. !!!
+!!!    Always validate the computed results.     !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using Gibbs sampler
+burn-in: 20%
+
+Automatically determined sampling strategy:
+        x: LinearRTO
+        s: Conjugate
+
+
+Warmup 2 / 200
+Warmup 4 / 200
+Warmup 6 / 200
+Warmup 8 / 200
+Warmup 10 / 200
+Warmup 12 / 200
+Warmup 14 / 200
+Warmup 16 / 200
+Warmup 18 / 200
+Warmup 20 / 200
+Warmup 22 / 200
+Warmup 24 / 200
+Warmup 26 / 200
+Warmup 28 / 200
+Warmup 30 / 200
+Warmup 32 / 200
+Warmup 34 / 200
+Warmup 36 / 200
+Warmup 38 / 200
+Warmup 40 / 200
+Warmup 42 / 200
+Warmup 44 / 200
+Warmup 46 / 200
+Warmup 48 / 200
+Warmup 50 / 200
+Warmup 52 / 200
+Warmup 54 / 200
+Warmup 56 / 200
+Warmup 58 / 200
+Warmup 60 / 200
+Warmup 62 / 200
+Warmup 64 / 200
+Warmup 66 / 200
+Warmup 68 / 200
+Warmup 70 / 200
+Warmup 72 / 200
+Warmup 74 / 200
+Warmup 76 / 200
+Warmup 78 / 200
+Warmup 80 / 200
+Warmup 82 / 200
+Warmup 84 / 200
+Warmup 86 / 200
+Warmup 88 / 200
+Warmup 90 / 200
+Warmup 92 / 200
+Warmup 94 / 200
+Warmup 96 / 200
+Warmup 98 / 200
+Warmup 100 / 200
+Warmup 102 / 200
+Warmup 104 / 200
+Warmup 106 / 200
+Warmup 108 / 200
+Warmup 110 / 200
+Warmup 112 / 200
+Warmup 114 / 200
+Warmup 116 / 200
+Warmup 118 / 200
+Warmup 120 / 200
+Warmup 122 / 200
+Warmup 124 / 200
+Warmup 126 / 200
+Warmup 128 / 200
+Warmup 130 / 200
+Warmup 132 / 200
+Warmup 134 / 200
+Warmup 136 / 200
+Warmup 138 / 200
+Warmup 140 / 200
+Warmup 142 / 200
+Warmup 144 / 200
+Warmup 146 / 200
+Warmup 148 / 200
+Warmup 150 / 200
+Warmup 152 / 200
+Warmup 154 / 200
+Warmup 156 / 200
+Warmup 158 / 200
+Warmup 160 / 200
+Warmup 162 / 200
+Warmup 164 / 200
+Warmup 166 / 200
+Warmup 168 / 200
+Warmup 170 / 200
+Warmup 172 / 200
+Warmup 174 / 200
+Warmup 176 / 200
+Warmup 178 / 200
+Warmup 180 / 200
+Warmup 182 / 200
+Warmup 184 / 200
+Warmup 186 / 200
+Warmup 188 / 200
+Warmup 190 / 200
+Warmup 192 / 200
+Warmup 194 / 200
+Warmup 196 / 200
+Warmup 198 / 200
+Warmup 200 / 200
+Warmup 200 / 200
+
+Sample 10 / 1000
+Sample 20 / 1000
+Sample 30 / 1000
+Sample 40 / 1000
+Sample 50 / 1000
+Sample 60 / 1000
+Sample 70 / 1000
+Sample 80 / 1000
+Sample 90 / 1000
+Sample 100 / 1000
+Sample 110 / 1000
+Sample 120 / 1000
+Sample 130 / 1000
+Sample 140 / 1000
+Sample 150 / 1000
+Sample 160 / 1000
+Sample 170 / 1000
+Sample 180 / 1000
+Sample 190 / 1000
+Sample 200 / 1000
+Sample 210 / 1000
+Sample 220 / 1000
+Sample 230 / 1000
+Sample 240 / 1000
+Sample 250 / 1000
+Sample 260 / 1000
+Sample 270 / 1000
+Sample 280 / 1000
+Sample 290 / 1000
+Sample 300 / 1000
+Sample 310 / 1000
+Sample 320 / 1000
+Sample 330 / 1000
+Sample 340 / 1000
+Sample 350 / 1000
+Sample 360 / 1000
+Sample 370 / 1000
+Sample 380 / 1000
+Sample 390 / 1000
+Sample 400 / 1000
+Sample 410 / 1000
+Sample 420 / 1000
+Sample 430 / 1000
+Sample 440 / 1000
+Sample 450 / 1000
+Sample 460 / 1000
+Sample 470 / 1000
+Sample 480 / 1000
+Sample 490 / 1000
+Sample 500 / 1000
+Sample 510 / 1000
+Sample 520 / 1000
+Sample 530 / 1000
+Sample 540 / 1000
+Sample 550 / 1000
+Sample 560 / 1000
+Sample 570 / 1000
+Sample 580 / 1000
+Sample 590 / 1000
+Sample 600 / 1000
+Sample 610 / 1000
+Sample 620 / 1000
+Sample 630 / 1000
+Sample 640 / 1000
+Sample 650 / 1000
+Sample 660 / 1000
+Sample 670 / 1000
+Sample 680 / 1000
+Sample 690 / 1000
+Sample 700 / 1000
+Sample 710 / 1000
+Sample 720 / 1000
+Sample 730 / 1000
+Sample 740 / 1000
+Sample 750 / 1000
+Sample 760 / 1000
+Sample 770 / 1000
+Sample 780 / 1000
+Sample 790 / 1000
+Sample 800 / 1000
+Sample 810 / 1000
+Sample 820 / 1000
+Sample 830 / 1000
+Sample 840 / 1000
+Sample 850 / 1000
+Sample 860 / 1000
+Sample 870 / 1000
+Sample 880 / 1000
+Sample 890 / 1000
+Sample 900 / 1000
+Sample 910 / 1000
+Sample 920 / 1000
+Sample 930 / 1000
+Sample 940 / 1000
+Sample 950 / 1000
+Sample 960 / 1000
+Sample 970 / 1000
+Sample 980 / 1000
+Sample 990 / 1000
+Sample 1000 / 1000
+Sample 1000 / 1000
+Elapsed time: 4.581410884857178
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>Plotting the results<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<p>Let is first look at the estimated noise level
+and compare it with the true noise level</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s2">&quot;s&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="mf">0.01</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_003.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_003.png" alt="s, s" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([[&lt;Axes: title={&#39;center&#39;: &#39;s&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;s&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<p>We see that the estimated noise level is close to the true noise level. Let’s
+now look at the estimated solution</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_004.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_004.png" alt="UQ in Deconvolution1D" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&lt;matplotlib.lines.Line2D object at 0x7f3c345fa950&gt;, &lt;matplotlib.lines.Line2D object at 0x7f3c345fb1c0&gt;, &lt;matplotlib.collections.PolyCollection object at 0x7f3c4cf0a140&gt;]
+</pre></div>
+</div>
+<p>We can even plot traces of “x” for a few cases and compare</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_005.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_005.png" alt="x24, x24, x41, x41, x6, x6, x74, x74, x79, x79" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Selecting 5 randomly chosen variables
+
+array([[&lt;Axes: title={&#39;center&#39;: &#39;x24&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x24&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x41&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x41&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x6&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x6&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x74&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x74&#39;}&gt;],
+       [&lt;Axes: title={&#39;center&#39;: &#39;x79&#39;}&gt;, &lt;Axes: title={&#39;center&#39;: &#39;x79&#39;}&gt;]],
+      dtype=object)
+</pre></div>
+</div>
+<p>And finally we note that the UQ method does this analysis automatically and shows a selected number of plots</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">BP</span><span class="o">.</span><span class="n">UQ</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="mf">0.01</span><span class="o">**</span><span class="mi">2</span><span class="p">})</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_006.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_006.png" alt="UQ in Deconvolution1D" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_UQ_in_Deconvolution1D_007.png" srcset="../../_images/sphx_glr_UQ_in_Deconvolution1D_007.png" alt="s, s" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Computing 1000 samples
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is experimental. !!!
+!!!    Always validate the computed results.     !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using Gibbs sampler
+burn-in: 20%
+
+Automatically determined sampling strategy:
+        x: LinearRTO
+        s: Conjugate
+
+
+Warmup 2 / 200
+Warmup 4 / 200
+Warmup 6 / 200
+Warmup 8 / 200
+Warmup 10 / 200
+Warmup 12 / 200
+Warmup 14 / 200
+Warmup 16 / 200
+Warmup 18 / 200
+Warmup 20 / 200
+Warmup 22 / 200
+Warmup 24 / 200
+Warmup 26 / 200
+Warmup 28 / 200
+Warmup 30 / 200
+Warmup 32 / 200
+Warmup 34 / 200
+Warmup 36 / 200
+Warmup 38 / 200
+Warmup 40 / 200
+Warmup 42 / 200
+Warmup 44 / 200
+Warmup 46 / 200
+Warmup 48 / 200
+Warmup 50 / 200
+Warmup 52 / 200
+Warmup 54 / 200
+Warmup 56 / 200
+Warmup 58 / 200
+Warmup 60 / 200
+Warmup 62 / 200
+Warmup 64 / 200
+Warmup 66 / 200
+Warmup 68 / 200
+Warmup 70 / 200
+Warmup 72 / 200
+Warmup 74 / 200
+Warmup 76 / 200
+Warmup 78 / 200
+Warmup 80 / 200
+Warmup 82 / 200
+Warmup 84 / 200
+Warmup 86 / 200
+Warmup 88 / 200
+Warmup 90 / 200
+Warmup 92 / 200
+Warmup 94 / 200
+Warmup 96 / 200
+Warmup 98 / 200
+Warmup 100 / 200
+Warmup 102 / 200
+Warmup 104 / 200
+Warmup 106 / 200
+Warmup 108 / 200
+Warmup 110 / 200
+Warmup 112 / 200
+Warmup 114 / 200
+Warmup 116 / 200
+Warmup 118 / 200
+Warmup 120 / 200
+Warmup 122 / 200
+Warmup 124 / 200
+Warmup 126 / 200
+Warmup 128 / 200
+Warmup 130 / 200
+Warmup 132 / 200
+Warmup 134 / 200
+Warmup 136 / 200
+Warmup 138 / 200
+Warmup 140 / 200
+Warmup 142 / 200
+Warmup 144 / 200
+Warmup 146 / 200
+Warmup 148 / 200
+Warmup 150 / 200
+Warmup 152 / 200
+Warmup 154 / 200
+Warmup 156 / 200
+Warmup 158 / 200
+Warmup 160 / 200
+Warmup 162 / 200
+Warmup 164 / 200
+Warmup 166 / 200
+Warmup 168 / 200
+Warmup 170 / 200
+Warmup 172 / 200
+Warmup 174 / 200
+Warmup 176 / 200
+Warmup 178 / 200
+Warmup 180 / 200
+Warmup 182 / 200
+Warmup 184 / 200
+Warmup 186 / 200
+Warmup 188 / 200
+Warmup 190 / 200
+Warmup 192 / 200
+Warmup 194 / 200
+Warmup 196 / 200
+Warmup 198 / 200
+Warmup 200 / 200
+Warmup 200 / 200
+
+Sample 10 / 1000
+Sample 20 / 1000
+Sample 30 / 1000
+Sample 40 / 1000
+Sample 50 / 1000
+Sample 60 / 1000
+Sample 70 / 1000
+Sample 80 / 1000
+Sample 90 / 1000
+Sample 100 / 1000
+Sample 110 / 1000
+Sample 120 / 1000
+Sample 130 / 1000
+Sample 140 / 1000
+Sample 150 / 1000
+Sample 160 / 1000
+Sample 170 / 1000
+Sample 180 / 1000
+Sample 190 / 1000
+Sample 200 / 1000
+Sample 210 / 1000
+Sample 220 / 1000
+Sample 230 / 1000
+Sample 240 / 1000
+Sample 250 / 1000
+Sample 260 / 1000
+Sample 270 / 1000
+Sample 280 / 1000
+Sample 290 / 1000
+Sample 300 / 1000
+Sample 310 / 1000
+Sample 320 / 1000
+Sample 330 / 1000
+Sample 340 / 1000
+Sample 350 / 1000
+Sample 360 / 1000
+Sample 370 / 1000
+Sample 380 / 1000
+Sample 390 / 1000
+Sample 400 / 1000
+Sample 410 / 1000
+Sample 420 / 1000
+Sample 430 / 1000
+Sample 440 / 1000
+Sample 450 / 1000
+Sample 460 / 1000
+Sample 470 / 1000
+Sample 480 / 1000
+Sample 490 / 1000
+Sample 500 / 1000
+Sample 510 / 1000
+Sample 520 / 1000
+Sample 530 / 1000
+Sample 540 / 1000
+Sample 550 / 1000
+Sample 560 / 1000
+Sample 570 / 1000
+Sample 580 / 1000
+Sample 590 / 1000
+Sample 600 / 1000
+Sample 610 / 1000
+Sample 620 / 1000
+Sample 630 / 1000
+Sample 640 / 1000
+Sample 650 / 1000
+Sample 660 / 1000
+Sample 670 / 1000
+Sample 680 / 1000
+Sample 690 / 1000
+Sample 700 / 1000
+Sample 710 / 1000
+Sample 720 / 1000
+Sample 730 / 1000
+Sample 740 / 1000
+Sample 750 / 1000
+Sample 760 / 1000
+Sample 770 / 1000
+Sample 780 / 1000
+Sample 790 / 1000
+Sample 800 / 1000
+Sample 810 / 1000
+Sample 820 / 1000
+Sample 830 / 1000
+Sample 840 / 1000
+Sample 850 / 1000
+Sample 860 / 1000
+Sample 870 / 1000
+Sample 880 / 1000
+Sample 890 / 1000
+Sample 900 / 1000
+Sample 910 / 1000
+Sample 920 / 1000
+Sample 930 / 1000
+Sample 940 / 1000
+Sample 950 / 1000
+Sample 960 / 1000
+Sample 970 / 1000
+Sample 980 / 1000
+Sample 990 / 1000
+Sample 1000 / 1000
+Sample 1000 / 1000
+Elapsed time: 4.589714050292969
+Plotting results
+
+{&#39;x&#39;: &lt;cuqi.samples._samples.Samples object at 0x7f3c342332b0&gt;, &#39;s&#39;: &lt;cuqi.samples._samples.Samples object at 0x7f3c34232140&gt;}
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 13.232 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-tutorials-uq-in-deconvolution1d-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/f272c34a77b0f2392a8a56f3ef651fc7/UQ_in_Deconvolution1D.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">UQ_in_Deconvolution1D.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/467131d3f0aebd68b16f0e65f5ddff88/UQ_in_Deconvolution1D.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">UQ_in_Deconvolution1D.py</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-forward-model">Setting up the forward model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-prior">Setting up the prior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-likelihood">Setting up the likelihood</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesian-problem-joint-distribution">Bayesian problem (Joint distribution)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-the-data-posterior">Setting the data (posterior)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-from-the-posterior">Sampling from the posterior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-the-results">Plotting the results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unknown-noise-level">Unknown noise level</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#update-likelihood-with-unknown-noise-level">Update likelihood with unknown noise level</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Bayesian problem (Joint distribution)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Setting the data (posterior)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Sampling from the posterior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Plotting the results</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/user/_auto_tutorials/UQ_in_Deconvolution1D.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.15.4.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

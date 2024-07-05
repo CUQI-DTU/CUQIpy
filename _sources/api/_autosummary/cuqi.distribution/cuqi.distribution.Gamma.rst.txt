@@ -1,0 +1,50 @@
+Gamma
+=====
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Gamma
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Gamma.__init__
+      ~Gamma.cdf
+      ~Gamma.disable_FD
+      ~Gamma.enable_FD
+      ~Gamma.get_conditioning_variables
+      ~Gamma.get_mutable_variables
+      ~Gamma.get_parameter_names
+      ~Gamma.gradient
+      ~Gamma.logd
+      ~Gamma.logpdf
+      ~Gamma.pdf
+      ~Gamma.sample
+      ~Gamma.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Gamma.FD_enabled
+      ~Gamma.FD_epsilon
+      ~Gamma.dim
+      ~Gamma.geometry
+      ~Gamma.is_cond
+      ~Gamma.name
+      ~Gamma.rate
+      ~Gamma.scale
+      ~Gamma.shape
+   
+   

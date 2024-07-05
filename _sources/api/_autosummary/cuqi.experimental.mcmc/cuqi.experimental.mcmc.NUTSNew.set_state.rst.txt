@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.set\_state
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTSNew.set_state

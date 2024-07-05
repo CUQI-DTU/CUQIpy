@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULANew.reinitialize
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULANew.reinitialize

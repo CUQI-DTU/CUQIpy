@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbsNew.validate\_targets
+=======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: HybridGibbsNew.validate_targets

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.tune
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: SamplerNew.tune

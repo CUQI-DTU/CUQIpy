@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.set\_state
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.set_state

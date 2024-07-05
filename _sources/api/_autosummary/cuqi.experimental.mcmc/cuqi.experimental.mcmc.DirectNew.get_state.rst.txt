@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.get\_state
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: DirectNew.get_state

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.save\_checkpoint
+===============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMHNew.save_checkpoint

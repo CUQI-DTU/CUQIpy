@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Geometry.__init__

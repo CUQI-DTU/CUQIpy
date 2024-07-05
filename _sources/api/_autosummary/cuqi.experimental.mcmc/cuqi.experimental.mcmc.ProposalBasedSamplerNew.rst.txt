@@ -1,0 +1,48 @@
+ProposalBasedSamplerNew
+=======================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: ProposalBasedSamplerNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ProposalBasedSamplerNew.__init__
+      ~ProposalBasedSamplerNew.get_history
+      ~ProposalBasedSamplerNew.get_samples
+      ~ProposalBasedSamplerNew.get_state
+      ~ProposalBasedSamplerNew.initialize
+      ~ProposalBasedSamplerNew.load_checkpoint
+      ~ProposalBasedSamplerNew.reinitialize
+      ~ProposalBasedSamplerNew.sample
+      ~ProposalBasedSamplerNew.save_checkpoint
+      ~ProposalBasedSamplerNew.set_history
+      ~ProposalBasedSamplerNew.set_state
+      ~ProposalBasedSamplerNew.step
+      ~ProposalBasedSamplerNew.tune
+      ~ProposalBasedSamplerNew.validate_proposal
+      ~ProposalBasedSamplerNew.validate_target
+      ~ProposalBasedSamplerNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ProposalBasedSamplerNew.dim
+      ~ProposalBasedSamplerNew.geometry
+      ~ProposalBasedSamplerNew.proposal
+      ~ProposalBasedSamplerNew.target
+   
+   

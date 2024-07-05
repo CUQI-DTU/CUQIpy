@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.validate\_target
+===============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.validate_target

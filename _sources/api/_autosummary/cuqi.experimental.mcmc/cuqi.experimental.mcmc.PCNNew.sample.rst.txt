@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.sample
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCNNew.sample

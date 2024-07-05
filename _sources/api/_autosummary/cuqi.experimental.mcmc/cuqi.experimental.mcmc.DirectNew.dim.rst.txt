@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.dim
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: DirectNew.dim

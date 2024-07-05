@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMHNew.warmup
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMHNew.warmup

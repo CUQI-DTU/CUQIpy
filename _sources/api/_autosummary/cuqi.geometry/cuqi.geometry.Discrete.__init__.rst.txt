@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Discrete.__init__

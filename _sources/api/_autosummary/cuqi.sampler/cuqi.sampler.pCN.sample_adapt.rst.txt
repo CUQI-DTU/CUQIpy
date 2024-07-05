@@ -1,0 +1,6 @@
+cuqi.sampler.pCN.sample\_adapt
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: pCN.sample_adapt

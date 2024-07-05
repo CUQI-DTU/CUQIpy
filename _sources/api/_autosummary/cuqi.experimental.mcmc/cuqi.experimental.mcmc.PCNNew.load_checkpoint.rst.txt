@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCNNew.load\_checkpoint
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCNNew.load_checkpoint

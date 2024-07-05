@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateNew.get\_state
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateNew.get_state

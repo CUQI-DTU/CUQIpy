@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.\_\_init\_\_
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALANew.__init__

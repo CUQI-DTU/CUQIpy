@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTONew.validate\_target
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTONew.validate_target

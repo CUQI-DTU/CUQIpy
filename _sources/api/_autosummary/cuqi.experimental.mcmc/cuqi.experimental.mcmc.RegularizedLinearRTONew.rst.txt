@@ -1,0 +1,52 @@
+RegularizedLinearRTONew
+=======================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: RegularizedLinearRTONew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedLinearRTONew.__init__
+      ~RegularizedLinearRTONew.get_history
+      ~RegularizedLinearRTONew.get_samples
+      ~RegularizedLinearRTONew.get_state
+      ~RegularizedLinearRTONew.initialize
+      ~RegularizedLinearRTONew.load_checkpoint
+      ~RegularizedLinearRTONew.reinitialize
+      ~RegularizedLinearRTONew.sample
+      ~RegularizedLinearRTONew.save_checkpoint
+      ~RegularizedLinearRTONew.set_history
+      ~RegularizedLinearRTONew.set_state
+      ~RegularizedLinearRTONew.step
+      ~RegularizedLinearRTONew.tune
+      ~RegularizedLinearRTONew.validate_target
+      ~RegularizedLinearRTONew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedLinearRTONew.data
+      ~RegularizedLinearRTONew.dim
+      ~RegularizedLinearRTONew.geometry
+      ~RegularizedLinearRTONew.likelihood
+      ~RegularizedLinearRTONew.likelihoods
+      ~RegularizedLinearRTONew.model
+      ~RegularizedLinearRTONew.prior
+      ~RegularizedLinearRTONew.proximal
+      ~RegularizedLinearRTONew.target
+   
+   

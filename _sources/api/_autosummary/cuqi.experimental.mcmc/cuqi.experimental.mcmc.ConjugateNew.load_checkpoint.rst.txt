@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateNew.load\_checkpoint
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateNew.load_checkpoint

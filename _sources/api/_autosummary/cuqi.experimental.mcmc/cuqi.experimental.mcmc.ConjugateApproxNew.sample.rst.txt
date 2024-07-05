@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApproxNew.sample
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApproxNew.sample

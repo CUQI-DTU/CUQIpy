@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.tune
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTSNew.tune

@@ -1,0 +1,6 @@
+cuqi.samples.Samples.std
+========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.std

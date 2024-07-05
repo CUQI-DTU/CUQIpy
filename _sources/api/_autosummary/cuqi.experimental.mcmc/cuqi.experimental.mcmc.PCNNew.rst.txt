@@ -1,0 +1,48 @@
+PCNNew
+======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: PCNNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PCNNew.__init__
+      ~PCNNew.get_history
+      ~PCNNew.get_samples
+      ~PCNNew.get_state
+      ~PCNNew.initialize
+      ~PCNNew.load_checkpoint
+      ~PCNNew.reinitialize
+      ~PCNNew.sample
+      ~PCNNew.save_checkpoint
+      ~PCNNew.set_history
+      ~PCNNew.set_state
+      ~PCNNew.step
+      ~PCNNew.tune
+      ~PCNNew.validate_target
+      ~PCNNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PCNNew.dim
+      ~PCNNew.geometry
+      ~PCNNew.likelihood
+      ~PCNNew.prior
+      ~PCNNew.target
+   
+   

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTONew.\_\_init\_\_
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTONew.__init__

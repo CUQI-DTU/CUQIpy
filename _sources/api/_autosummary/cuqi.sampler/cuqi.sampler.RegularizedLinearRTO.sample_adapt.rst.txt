@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.sample\_adapt
+===============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: RegularizedLinearRTO.sample_adapt

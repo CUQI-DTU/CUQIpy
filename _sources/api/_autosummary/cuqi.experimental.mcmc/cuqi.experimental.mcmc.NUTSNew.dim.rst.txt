@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.dim
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: NUTSNew.dim

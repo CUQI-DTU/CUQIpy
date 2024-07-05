@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.warmup
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTSNew.warmup

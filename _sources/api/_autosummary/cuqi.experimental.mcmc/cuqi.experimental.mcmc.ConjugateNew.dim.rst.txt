@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateNew.dim
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ConjugateNew.dim

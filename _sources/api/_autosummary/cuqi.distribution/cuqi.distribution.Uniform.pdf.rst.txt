@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.pdf
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Uniform.pdf

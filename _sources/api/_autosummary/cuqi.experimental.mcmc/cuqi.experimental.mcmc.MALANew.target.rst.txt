@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALANew.target
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MALANew.target

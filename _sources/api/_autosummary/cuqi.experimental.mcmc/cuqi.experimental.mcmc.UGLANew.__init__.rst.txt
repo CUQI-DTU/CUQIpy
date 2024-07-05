@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.\_\_init\_\_
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.__init__

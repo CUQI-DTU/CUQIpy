@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.constraint\_options
+==========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.constraint_options

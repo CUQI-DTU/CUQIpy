@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous.fun2par
+================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: Continuous.fun2par

@@ -1,0 +1,49 @@
+NUTSNew
+=======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: NUTSNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NUTSNew.__init__
+      ~NUTSNew.get_history
+      ~NUTSNew.get_samples
+      ~NUTSNew.get_state
+      ~NUTSNew.initialize
+      ~NUTSNew.load_checkpoint
+      ~NUTSNew.reinitialize
+      ~NUTSNew.sample
+      ~NUTSNew.save_checkpoint
+      ~NUTSNew.set_history
+      ~NUTSNew.set_state
+      ~NUTSNew.step
+      ~NUTSNew.tune
+      ~NUTSNew.validate_target
+      ~NUTSNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NUTSNew.dim
+      ~NUTSNew.geometry
+      ~NUTSNew.max_depth
+      ~NUTSNew.opt_acc_rate
+      ~NUTSNew.step_size
+      ~NUTSNew.target
+   
+   

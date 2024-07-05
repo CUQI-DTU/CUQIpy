@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.dim
+===========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointGaussianSqrtPrec.dim

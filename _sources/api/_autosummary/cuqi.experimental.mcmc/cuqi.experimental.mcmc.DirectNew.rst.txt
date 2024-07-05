@@ -1,0 +1,46 @@
+DirectNew
+=========
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: DirectNew
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~DirectNew.__init__
+      ~DirectNew.get_history
+      ~DirectNew.get_samples
+      ~DirectNew.get_state
+      ~DirectNew.initialize
+      ~DirectNew.load_checkpoint
+      ~DirectNew.reinitialize
+      ~DirectNew.sample
+      ~DirectNew.save_checkpoint
+      ~DirectNew.set_history
+      ~DirectNew.set_state
+      ~DirectNew.step
+      ~DirectNew.tune
+      ~DirectNew.validate_target
+      ~DirectNew.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~DirectNew.dim
+      ~DirectNew.geometry
+      ~DirectNew.target
+   
+   

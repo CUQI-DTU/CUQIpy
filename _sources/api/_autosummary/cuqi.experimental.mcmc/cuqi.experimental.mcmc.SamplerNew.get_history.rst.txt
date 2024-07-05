@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.SamplerNew.get\_history
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: SamplerNew.get_history

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbsNew.\_\_init\_\_
+==================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: HybridGibbsNew.__init__

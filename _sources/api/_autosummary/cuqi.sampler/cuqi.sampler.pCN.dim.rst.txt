@@ -1,0 +1,6 @@
+cuqi.sampler.pCN.dim
+====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: pCN.dim

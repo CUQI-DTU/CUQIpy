@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.sample
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.sample

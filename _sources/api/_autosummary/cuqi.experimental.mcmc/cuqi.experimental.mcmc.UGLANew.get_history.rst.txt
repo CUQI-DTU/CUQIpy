@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLANew.get\_history
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: UGLANew.get_history

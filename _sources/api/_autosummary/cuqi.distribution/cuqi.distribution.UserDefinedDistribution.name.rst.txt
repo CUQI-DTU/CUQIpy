@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.name
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UserDefinedDistribution.name

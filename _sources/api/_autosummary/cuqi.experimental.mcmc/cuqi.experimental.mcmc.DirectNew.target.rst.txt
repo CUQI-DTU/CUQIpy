@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.DirectNew.target
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: DirectNew.target

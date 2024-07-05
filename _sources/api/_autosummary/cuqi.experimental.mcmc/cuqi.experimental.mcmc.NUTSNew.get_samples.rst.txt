@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTSNew.get\_samples
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTSNew.get_samples
