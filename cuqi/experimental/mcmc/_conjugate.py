@@ -9,7 +9,7 @@ from cuqi.utilities import get_non_default_args
 class ConjugateNew(SamplerNew):
     """ Conjugate sampler
 
-    Sampler for sampling a posterior distribution where the likelihood and prior are conjugate.
+    Sampler for sampling a posterior distribution where the likelihood and prior are conjugate to each other - denoted as a conjugate pair.   
 
     Currently supported conjugate pairs are:
     - (Gaussian, Gamma) where Gamma is defined on the precision parameter of the Gaussian
@@ -17,11 +17,11 @@ class ConjugateNew(SamplerNew):
     - (RegularizedGaussian, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
     - (RegularizedGMRF, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
 
-    Gamma distribution must be univariate.
+    Currently the Gamma distribution must be univariate.
 
-    Currently, the sampler does NOT automatically check that the conjugate distributions are defined on the correct parameters.
+    A conjugate pair defines implicitly a so-called conjugate distribution which can be sampled from directly.
 
-    For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
+    For more information on conjugacy and conjugate distributions see https://en.wikipedia.org/wiki/Conjugate_prior.
 
     For implicit regularized Gaussians see:
     
@@ -73,7 +73,7 @@ class ConjugateNew(SamplerNew):
         return msg
         
 class _ConjugatePair(ABC):
-    """ Abstract base class for conjugate pairs used in the Conjugate sampler. """
+    """ Abstract base class for conjugate pairs (likelihood, prior) used in the Conjugate sampler. """
 
     def __init__(self, target):
         self.target = target

@@ -17,10 +17,7 @@ class ConjugateApproxNew(ConjugateNew):
 
     LMRF likelihood must have zero mean.
 
-    Currently, the sampler does NOT automatically check that the conjugate distributions are defined on the correct parameters.
-
-
-    For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
+    For more details on conjugacy see :class:`ConjugateNew`.
 
     """
 
