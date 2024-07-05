@@ -1,4 +1,5 @@
 import numpy as np
+from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
 
 class SmoothedLaplace(Distribution):
@@ -33,23 +34,36 @@ class SmoothedLaplace(Distribution):
     def __init__(self, location, scale, beta=1e-3, **kwargs):
         super().__init__(**kwargs)
 
-        # location accepts scalar, list, tuple, or ndarray
-        if isinstance(location, (float, int)):
-            self.location = np.array([location])
-        elif isinstance(location, (list, tuple)):
-            self.location = np.array(location)
-        else:
-            self.location = location
-
-        # scale accepts scalar, list, tuple, or ndarray
-        if isinstance(scale, (float, int)):
-            self.scale = np.array([scale])
-        elif isinstance(scale, (list, tuple)):
-            self.scale = np.array(scale)
-        else:
-            self.scale = scale
-
+        self.location = location
+        self.scale = scale
         self.beta = beta
+
+    @property
+    def location(self):
+        """ Location parameter """
+        return self._location
+    
+    @location.setter
+    def location(self, value):
+        self._location = force_ndarray(value, flatten=True)
+
+    @property
+    def scale(self):
+        """ Scale parameter """
+        return self._scale
+    
+    @scale.setter
+    def scale(self, value):
+        self._scale = force_ndarray(value, flatten=True)
+
+    @property
+    def beta(self):
+        """ Beta parameter """
+        return self._beta
+    
+    @beta.setter
+    def beta(self, value):
+        self._beta = value
 
     def logpdf(self, x):
         """
