@@ -1,8 +1,9 @@
 import numpy as np
 import cuqi
 from cuqi.experimental.mcmc import SamplerNew
-from cuqi.implicitprior import DenoiseRegularizer
+from cuqi.implicitprior import DenoiseRegularizer, RestorationPrior, MoreauYoshidaPrior
 from cuqi.array import CUQIarray
+from copy import deepcopy
 
 class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
@@ -278,12 +279,27 @@ class MYULANew(ULANew):
     A Deblur example can be found in demos/howtos/myula.py
     # TODO: update demo once sampler merged
     """
+    def __init__(self, target=None, scale=1.0, smoothing_strength=0.1, **kwargs):
+        super().__init__(target=target, **kwargs)
+        self.smoothing_strength = smoothing_strength        
+    
+    @SamplerNew.target.setter
+    def target(self, value):
+        """ Set the target density. Runs validation of the target. """
+        if isinstance(value.prior, RestorationPrior):
+            copied_value = deepcopy(value)
+            copied_value.prior = MoreauYoshidaPrior(copied_value.prior,
+                                                    self.smoothing_strength)    
+        self._target = copied_value.prior
+        if self._target is not None:
+            self.validate_target()
+            
     def validate_target(self):
         super().validate_target()
-
         # Assert target prior is of type Regularizer
-        assert isinstance(self.target.prior, DenoiseRegularizer), \
-            "The prior of the target distribution needs to be a DenoiseRegularizer"
+        assert isinstance(self.target.prior, (DenoiseRegularizer, MoreauYoshidaPrior)), \
+            "The prior of the target distribution needs to be a " \
+            + "DenoiseRegularizer or MoreauYoshidaPrior"
 
 class PnPULANew(MYULANew):
     """Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)
@@ -323,5 +339,6 @@ class PnPULANew(MYULANew):
 
     # TODO: update demo once sampler merged
     """
-    def __init__ (self, target=None, scale=1.0, **kwargs):
-        super().__init__(target, scale, **kwargs)
+    def __init__ (self, target=None, scale=1.0, smoothing_strength=0.1, **kwargs):
+        super().__init__(target=target, scale=scale, 
+                         smoothing_strength=smoothing_strength, **kwargs)
