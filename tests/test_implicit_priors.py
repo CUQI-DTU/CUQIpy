@@ -38,3 +38,61 @@ def test_creating_denoiser():
     assert np.allclose(denoiser.regularize(np.ones(4)), np.ones(4))
     assert denoiser.info == True
     assert np.allclose(denoiser.gradient(np.zeros(4)), np.zeros(4))
+    
+
+def test_creating_restorator():
+    """ Test creating the object from restorator class."""
+
+    def func(x, restoration_strength=0.1):
+        return x, True
+    restorator = cuqi.implicitprior.RestorationPrior(func)
+    assert np.allclose(restorator.restorate(np.ones(4)), np.ones(4))
+    assert restorator.info == True
+
+
+def test_creating_restorator_with_potential():
+    """ Test creating the object from restorator class with a potential."""
+
+    def func(x, restoration_strength=1):
+        return x/(1+restoration_strength), True
+    def potential(x):
+        return (x**2).sum()/2
+    restorator = cuqi.implicitprior.RestorationPrior(restorator=func, potential=potential, restoration_strength=1)
+    assert np.allclose(restorator.restorate(np.ones(1)), np.ones(1)/(1+restorator.restoration_strength))
+    assert restorator.info == True
+    assert restorator.logpdf(np.ones(4)) == -2
+    
+
+def test_creating_moreau_yoshida_prior_gradient():
+    """ Test creating the object from denoiser class."""
+
+    def func(x, restoration_strength=1):
+        return x/(1+restoration_strength), True
+    def potential(x):
+        return (x**2).sum()/2
+    restorator = cuqi.implicitprior.RestorationPrior(func, restoration_strength=0.1,
+                                                     potential=potential)
+    myprior = cuqi.implicitprior.MoreauYoshidaPrior(restorator, smoothing_strength=0.1)
+    assert np.allclose(myprior.smoothing_strength, restorator.restoration_strength)
+    assert np.allclose(myprior.gradient(np.ones(1)), -np.ones(1)/(1+myprior.smoothing_strength))
+    assert myprior.logpdf(np.ones(1)) == -0.5*myprior.smoothing_strength/(1+myprior.smoothing_strength)
+    
+def test_mismatch_smoothing_strength_restoration_strength_raises_error():
+    """ Test that rises an error when smoothing_strength of the MoreauYoshidaPrior
+    is not equal to restoration_strength in the restorator."""
+
+    def func(x, restoration_strength=1):
+        return x/(1+restoration_strength), True
+    restorator = cuqi.implicitprior.RestorationPrior(func, restoration_strength=0.1)
+    with pytest.raises(ValueError, 
+                       match=r"must be equal to restoration_strength"):
+        myprior = cuqi.implicitprior.MoreauYoshidaPrior(restorator, smoothing_strength=0.2)
+        
+@pytest.mark.parametrize("restoration_strength",[0.1, None, 0.09999999999999999])
+def test_compatible_values_of_smoothing_strength_restoration_strength(restoration_strength):
+    def func(x, restoration_strength=1):
+        return x/(1+restoration_strength), True
+    restorator = cuqi.implicitprior.RestorationPrior(func, restoration_strength=restoration_strength)
+    myprior = cuqi.implicitprior.MoreauYoshidaPrior(restorator, smoothing_strength=0.1)
+
+    
