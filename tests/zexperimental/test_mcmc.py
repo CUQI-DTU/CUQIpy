@@ -328,23 +328,47 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
 # ============= MYULA ==============
 def create_myula_target(dim=16):
     """Create a target for MYULA."""
-    def func(x):
+    def func(x, restoration_strength=1):
         return x, True
     likelihood = cuqi.testproblem.Deconvolution1D(
         dim=dim).posterior.likelihood 
-    denoise_regularizer = cuqi.implicitprior.DenoiseRegularizer(
-        func, geometry=likelihood.model.domain_geometry)
+    restoration_prior = cuqi.implicitprior.RestorationPrior(
+        func, restoration_strength=0.1, geometry=likelihood.model.domain_geometry)
     posterior = cuqi.distribution.Posterior(
-        likelihood, denoise_regularizer)
+        likelihood, restoration_prior)
+    return posterior
+
+def create_myula_smoothed_target(dim=16):
+    """Create a target for MYULA."""
+    def func(x, restoration_strength=1):
+        return x, True
+    likelihood = cuqi.testproblem.Deconvolution1D(
+        dim=dim).posterior.likelihood 
+    restoration_prior = cuqi.implicitprior.RestorationPrior(
+        func, restoration_strength=0.1, geometry=likelihood.model.domain_geometry)
+    myprior = cuqi.implicitprior.MoreauYoshidaPrior(prior=restoration_prior, smoothing_strength=0.1,
+                                                    geometry=likelihood.model.domain_geometry)
+    posterior = cuqi.distribution.Posterior(
+        likelihood, myprior)
     return posterior
 
 def test_myula():
     """ Test creating MYULA sampler."""
+    np.random.seed(0)
     posterior = create_myula_target(dim=128)
-    myula = cuqi.experimental.mcmc.MYULANew(posterior)
+    np.random.seed(0)
+    posterior_smoothed = create_myula_smoothed_target(dim=128)
+    np.random.seed(0)
+    myula = cuqi.experimental.mcmc.MYULANew(posterior, smoothing_strength=0.1)
     myula.sample(10)
-    samples = myula.get_samples()
-    assert samples.Ns == 10
+    np.random.seed(0)
+    ula = cuqi.experimental.mcmc.ULANew(posterior_smoothed)
+    ula.sample(10)
+    samples_myula = myula.get_samples()
+    samples_ula = ula.get_samples()
+    assert samples_ula.Ns == 10
+    assert samples_myula.Ns == 10
+    assert np.allclose(samples_myula.samples, samples_ula.samples)
 
 def create_conjugate_target(type:str):
     if type.lower() == 'gaussian-gamma':
