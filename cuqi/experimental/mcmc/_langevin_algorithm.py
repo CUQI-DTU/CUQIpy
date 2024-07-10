@@ -280,17 +280,26 @@ class MYULANew(ULANew):
     # TODO: update demo once sampler merged
     """
     def __init__(self, target=None, scale=1.0, smoothing_strength=0.1, **kwargs):
-        super().__init__(target=target, **kwargs)
-        self.smoothing_strength = smoothing_strength        
+        self.smoothing_strength = smoothing_strength
+        super().__init__(target=target, scale=scale, **kwargs)
     
     @SamplerNew.target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
-        if isinstance(value.prior, RestorationPrior):
-            copied_value = deepcopy(value)
-            copied_value.prior = MoreauYoshidaPrior(copied_value.prior,
-                                                    self.smoothing_strength)    
-        self._target = copied_value.prior
+        copied_value = value
+        if value is not None:
+            if isinstance(value.prior, MoreauYoshidaPrior):
+                raise ValueError("The prior is already smoothed, \
+                                apply ULA when using a MoreauYoshidaPrior.")
+            if not isinstance(value.prior, RestorationPrior):
+                raise NotImplementedError("Using MYULA with non RestorationPrior \
+                                        is not implemented yet.")
+            else:
+                copied_value = deepcopy(value)
+                copied_value.prior = MoreauYoshidaPrior(copied_value.prior,
+                                                        self.smoothing_strength,
+                                                        geometry=value.prior.geometry)   
+        self._target = copied_value
         if self._target is not None:
             self.validate_target()
             
