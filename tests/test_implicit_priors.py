@@ -29,17 +29,6 @@ def test_RegularizedGaussian_guarding_statements():
     with pytest.raises(ValueError, match="Projector should take 1 argument"):
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
         
-def test_creating_denoiser():
-    """ Test creating the object from denoiser class."""
-
-    def func(x):
-        return x, True
-    denoiser = cuqi.implicitprior.DenoiseRegularizer(func)
-    assert np.allclose(denoiser.regularize(np.ones(4)), np.ones(4))
-    assert denoiser.info == True
-    assert np.allclose(denoiser.gradient(np.zeros(4)), np.zeros(4))
-    
-
 def test_creating_restorator():
     """ Test creating the object from restorator class."""
 
@@ -64,7 +53,7 @@ def test_creating_restorator_with_potential():
     
 
 def test_creating_moreau_yoshida_prior_gradient():
-    """ Test creating the object from denoiser class."""
+    """ Test creating MoreauYoshidaPrior."""
 
     def func(x, restoration_strength=1):
         return x/(1+restoration_strength), True
