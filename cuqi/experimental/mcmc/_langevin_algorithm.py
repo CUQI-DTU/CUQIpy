@@ -1,7 +1,7 @@
 import numpy as np
 import cuqi
 from cuqi.experimental.mcmc import SamplerNew
-from cuqi.implicitprior import DenoiseRegularizer, RestorationPrior, MoreauYoshidaPrior
+from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
 from cuqi.array import CUQIarray
 from copy import deepcopy
 
@@ -306,9 +306,9 @@ class MYULANew(ULANew):
     def validate_target(self):
         super().validate_target()
         # Assert target prior is of type Regularizer
-        assert isinstance(self.target.prior, (DenoiseRegularizer, MoreauYoshidaPrior)), \
+        assert isinstance(self.target.prior, MoreauYoshidaPrior), \
             "The prior of the target distribution needs to be a " \
-            + "DenoiseRegularizer or MoreauYoshidaPrior"
+            + "MoreauYoshidaPrior"
 
 class PnPULANew(MYULANew):
     """Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)
