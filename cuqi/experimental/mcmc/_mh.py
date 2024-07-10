@@ -32,7 +32,9 @@ class MHNew(ProposalBasedSamplerNew):
         self._scale_temp = self.scale
 
     def validate_target(self):
-        pass # All targets are valid
+        # Fail only when there is no log density, which is currently assumed to be the case in case NaN is returned.
+        if np.isnan(self.target.logd(self._default_initial_point)):
+            raise ValueError("Target does not have valid logd")
 
     def validate_proposal(self):
         if not isinstance(self.proposal, cuqi.distribution.Distribution):
