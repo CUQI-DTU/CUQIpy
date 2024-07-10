@@ -11,8 +11,8 @@ data to obtain the posterior distribution as shown in the examples below.
 # %%
 import cuqi
 import numpy as np
-from cuqi.implicitprior import DenoiseRegularizer
-from cuqi.experimental.mcmc import MYULANew
+from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
+from cuqi.experimental.mcmc import ULANew, MYULANew
 from cuqi.distribution import Posterior
 import matplotlib.pyplot as plt
 
@@ -51,27 +51,27 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 #
 # In the case where :math:`\log \pi(x)` is not differentiable we can
 # unfortunately not apply ULA. The idea is to consider a surrogate
-# posterior density :math:`\pi_{\texttt{strength_smooth}} (x|y) \propto \pi(y|x) \pi_{\texttt{strength_smooth}} (x)`
+# posterior density :math:`\pi_{\texttt{smoothing_strength}} (x|y) \propto \pi(y|x) \pi_{\texttt{smoothing_strength}} (x)`
 # where
 #
 # .. math::
-#       \pi_{\texttt{strength_smooth}}(x) \propto \exp(- g_{\texttt{strength_smooth}} (x))
+#       \pi_{\texttt{smoothing_strength}}(x) \propto \exp(- g_{\texttt{smoothing_strength}} (x))
 #
-# and :math:`g_{\texttt{strength_smooth}}` is the
-# :math:`\texttt{strength_smooth}`-Moreau envelope of :math:`g`, ie
-#
-# .. math::
-#       g_\texttt{strength_smooth}(x) = \operatorname{inf}_z \| x- z \|_2^2/2\texttt{strength_smooth} + g(z).
-#
-# :math:`g_{\texttt{strength_smooth}}` is continuously differentiable with :math:`1/\texttt{strength_smooth}`-Lipschitz gradient and s.t
+# and :math:`g_{\texttt{smoothing_strength}}` is the
+# :math:`\texttt{smoothing_strength}`-Moreau envelope of :math:`g`, ie
 #
 # .. math::
-#       \nabla g_{\texttt{strength_smooth}} (x) = (x- \operatorname{prox}_g^{\texttt{strength_smooth}} (x))/\texttt{strength_smooth}
+#       g_\texttt{smoothing_strength}(x) = \operatorname{inf}_z \| x- z \|_2^2/2\texttt{smoothing_strength} + g(z).
+#
+# :math:`g_{\texttt{smoothing_strength}}` is continuously differentiable with :math:`1/\texttt{smoothing_strength}`-Lipschitz gradient and s.t
+#
+# .. math::
+#       \nabla g_{\texttt{smoothing_strength}} (x) = (x- \operatorname{prox}_g^{\texttt{smoothing_strength}} (x))/\texttt{smoothing_strength}
 #
 # with
 #
 # .. math::
-#       \operatorname{prox}_g^{\texttt{strength_smooth}} (x) = \operatorname{argmin}_z \|x-z \|_2^2/2\texttt{strength_smooth} + g(z)
+#       \operatorname{prox}_g^{\texttt{smoothing_strength}} (x) = \operatorname{argmin}_z \|x-z \|_2^2/2\texttt{smoothing_strength} + g(z)
 #
 # See https://link.springer.com/chapter/10.1007/978-3-319-48311-5_31 for more details.
 #
@@ -79,12 +79,12 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 #
 # .. math::
 #       \begin{align*}
-#       x_{k+1} &= x_k + \texttt{scale} \nabla \log \pi_{\texttt{strength_smooth}}(x_k |y) + \sqrt{2 \texttt{scale}} z_{k+1}\\
-#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) + \texttt{scale} \nabla \log \pi_{\texttt{strength_smooth}}(x_k) + \sqrt{2 \texttt{scale}} z_{k+1}\\
-#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) - \texttt{scale} (x_k - \operatorname{prox}_g^{\texttt{strength_smooth}} (x_k))/{\texttt{strength_smooth}} + \sqrt{2 \texttt{scale}} z_{k+1}.
+#       x_{k+1} &= x_k + \texttt{scale} \nabla \log \pi_{\texttt{smoothing_strength}}(x_k |y) + \sqrt{2 \texttt{scale}} z_{k+1}\\
+#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) + \texttt{scale} \nabla \log \pi_{\texttt{smoothing_strength}}(x_k) + \sqrt{2 \texttt{scale}} z_{k+1}\\
+#       &= x_k + \texttt{scale} \nabla \log \pi(y | x_k) - \texttt{scale} (x_k - \operatorname{prox}_g^{\texttt{smoothing_strength}} (x_k))/{\texttt{smoothing_strength}} + \sqrt{2 \texttt{scale}} z_{k+1}.
 #       \end{align*}
 #
-# where :math:`\texttt{strength_smooth}` corresponds to the smoothing strength of :math:`g`.
+# where :math:`\texttt{smoothing_strength}` corresponds to the smoothing strength of :math:`g`.
 #
 # To illustrate MYULA, we will consider :math:`g(x) = \texttt{strength_reg} \  TV(x) = \texttt{strength_reg} \|\nabla x \|_{2, 1}`,
 # where :math:`\texttt{strength_reg}` is the regularization parameter which
@@ -120,53 +120,56 @@ likelihood=y(y=y_obs)
 # Evaluating this surrogate prior is doable but too intensive from
 # a computational point of view as it requires to solve an optimization problem.
 # However to apply MYULA, we only require access to
-# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{strength_smooth}}`.
+# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`.
 #
 # As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the
-# smoothing parameter :math:`\texttt{strength_smooth} \approx \texttt{sigma2}`,
-# ie :math:`\texttt{strength_smooth}= 0.5 \ \texttt{sigma2}`.
+# smoothing parameter :math:`\texttt{smoothing_strength} \approx \texttt{sigma2}`,
+# ie :math:`\texttt{smoothing_strength}= 0.5 \ \texttt{sigma2}`.
 #
 # We set the regularization parameter to :math:`\texttt{stength_reg}=10`.
 
 # %%
 # Regularization and smoothing parameters definition
 strength_reg=10
-strength_smooth=0.5*sigma2
+restoration_strength=0.5*sigma2
 # %%
-# To estimate :math:`\operatorname{prox}_{\texttt{strength_reg}\  TV}^{\texttt{strength_smooth}}`
+# To estimate :math:`\operatorname{prox}_{\texttt{strength_reg}\  TV}^{\texttt{smoothing_strength}}`
 # we use the implementation provided by Scikit-Image. But we can use any solver
 # to compute this quantity.
 #
 # We emphasize that we have for any :math:`g`
 #
 # .. math::
-#       \operatorname{prox}_{\texttt{strength_reg}\  g}^{\texttt{strength_smooth}} = \operatorname{prox}_{g}^{\texttt{weight}} ,
+#       \operatorname{prox}_{\texttt{strength_reg}\  g}^{\texttt{smoothing_strength}} = \operatorname{prox}_{g}^{\texttt{weight}} ,
 #
-# with :math:`\texttt{weight} = \texttt{strength_reg} \times  \texttt{strength_smooth}`.
+# with :math:`\texttt{weight} = \texttt{strength_reg} \times  \texttt{smoothing_strength}`.
 from skimage.restoration import denoise_tv_chambolle
-def prox_g(x, strength_reg=None, strength_smooth=None):
-    weight=strength_reg*strength_smooth
+def prox_g(x, strength_reg=None, restoration_strength=None):
+    weight=strength_reg*restoration_strength
     return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), None
 # %%
 # We save all the important variables into the variable
-# :math:`\texttt{denoiser_kwargs}`.
-denoiser_kwargs={}
-denoiser_kwargs["strength_reg"]=strength_reg
-denoiser_kwargs["strength_smooth"]=strength_smooth
+# :math:`\texttt{restorator_kwargs}`.
+restorator_kwargs={}
+restorator_kwargs["strength_reg"]=strength_reg
 # %%
 # Now we can define our implicit prior.
-denoise_regularizer = DenoiseRegularizer(
+restorator = RestorationPrior(
     prox_g,
-    strength_smooth=strength_smooth,
-    denoiser_kwargs=denoiser_kwargs,
+    restoration_strength=restoration_strength,
+    restorator_kwargs=restorator_kwargs,
     geometry=likelihood.model.domain_geometry
 )
+
+#%%
+myprior = MoreauYoshidaPrior(prior=restorator, smoothing_strength=restoration_strength,
+                            geometry=restorator.geometry)
 
 # %%
 # Implicitly defined posterior distribution
 # -----------------------------------------
 # We can now define the implicitly defined posterior distribution as follows:
-posterior=Posterior(likelihood, denoise_regularizer)
+smoothed_posterior=Posterior(likelihood, myprior)
 
 # %%
 # Parameters of the MYULA sampler
@@ -182,12 +185,12 @@ posterior=Posterior(likelihood, denoise_regularizer)
 # Lipschitz constant of the gradient of the log-posterior density. In this setting,
 # The Lipschitz constant of the gradient of likelihood log-density is 
 # :math:`\|A^TA \|_2^2/\texttt{sigma2}` and the one of the log-prior is
-# :math:`1/\texttt{strength_smooth}`.
+# :math:`1/\texttt{smoothing_strength}`.
 Ns=10000
 Nb=1000
 Nt=20
 # Step-size of MYULA
-scale=0.9/(1/sigma2 + 1/strength_smooth)
+scale=0.9/(1/sigma2 + 1/restoration_strength)
 # %%
 # In order to get reproducible results, we set the seed parameter to 0.
 np.random.seed(0)
@@ -195,14 +198,14 @@ np.random.seed(0)
 # MYULA sampler
 # -------------
 # Definition of the MYULA sampler.
-myula_sampler=MYULANew(target=posterior, scale=scale)
+ula_sampler=ULANew(target=smoothed_posterior, scale=scale)
 # %%
 # Sampling with MYULA.
-myula_sampler.sample(Ns=Ns)
+ula_sampler.sample(Ns=Ns)
 # %%
 # Retrieve the samples. We apply the burnin and perform thinning to the Markov
 # chain.
-samples=myula_sampler.get_samples()
+samples=ula_sampler.get_samples()
 samples_warm=samples.burnthin(Nb=Nb, Nt=Nt)
 # %%
 # Results
@@ -219,3 +222,17 @@ samples_warm.plot_std()
 # %%
 # Samples autocorrelation plot.
 samples_warm.plot_autocorrelation(max_lag=100)
+#%%
+# Other way to use MYULA.
+posterior=Posterior(likelihood, restorator)
+#%%
+myula_sampler=MYULANew(target=posterior, scale=scale, smoothing_strength=restoration_strength)
+#%%
+np.random.seed(0)
+myula_sampler.sample(Ns=Ns)
+samples_myula=myula_sampler.get_samples()
+samples_myula_warm=samples_myula.burnthin(Nb=Nb, Nt=Nt)
+assert np.allclose(samples_warm.samples, samples_myula_warm.samples)
+print("MYULA samples of the posterior are the same ULA samples from the smoothed \
+posterior")
+
