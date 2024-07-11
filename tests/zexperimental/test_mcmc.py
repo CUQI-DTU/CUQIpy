@@ -373,10 +373,10 @@ def test_myula():
 def test_myula_object_creation_fails_with_classical_target():
     """ Test that MYULA object creation fails with classical target (prior is a
     distribution and not a restoration prior)."""
+    posterior = cuqi.testproblem.Deconvolution1D(dim=128).posterior
     with pytest.raises(NotImplementedError,
                        match="Using MYULA with other than RestorationPrior"):
-        cuqi.experimental.mcmc.MYULANew(
-            cuqi.testproblem.Deconvolution1D(dim=128).posterior)
+        cuqi.experimental.mcmc.MYULANew(posterior)
 
 def test_myula_object_creation_fails_with_smoothed_target():
     """ Test that MYULA object creation fails with smoothed target."""
