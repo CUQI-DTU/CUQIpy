@@ -202,6 +202,15 @@ class MoreauYoshidaPrior(Distribution):
                              +"must be equal to restoration_strength of the" 
                              + f"{self.prior.__class__.__name__}.")
         self._smoothing_strength = value
+        
+    @property
+    def prior(self):
+        """Getter for the MoreauYoshida prior."""
+        return self._prior
+
+    @prior.setter
+    def prior(self, value):
+        self._prior = value
     
     def gradient(self, x):
         """This is the gradient of the regularizer ie gradient of the negative
