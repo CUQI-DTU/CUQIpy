@@ -72,17 +72,20 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
     def _initialize(self):
         self.scale = self.initial_scale
-        self.current_target_grad = self.target.gradient(self.current_point)
+        self.current_target_grad = self._eval_target_grad(self.current_point)
 
     def validate_target(self):
         try:
-            self.target.gradient(np.ones(self.dim))
+            self._eval_target_grad(np.ones(self.dim))
             pass
         except (NotImplementedError, AttributeError):
             raise ValueError("The target needs to have a gradient method")
 
     def _eval_target_logd(self, x):
         return None
+
+    def _eval_target_grad(self, x):
+        return self.target.gradient(x)
 
     def _accept_or_reject(self, x_star, target_eval_star, target_grad_star):
         """
@@ -117,7 +120,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
 
         # evaluate target
         target_eval_star = self._eval_target_logd(x_star)
-        target_grad_star = self.target.gradient(x_star)
+        target_grad_star = self._eval_target_grad(x_star)
 
         # accept or reject proposal
         acc = self._accept_or_reject(x_star, target_eval_star, target_grad_star)
@@ -286,29 +289,36 @@ class MYULANew(ULANew):
     @SamplerNew.target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
-        copied_value = value
-        if value is not None:
-            if isinstance(value.prior, MoreauYoshidaPrior):
-                raise ValueError("The prior is already smoothed, \
-                                apply ULA when using a MoreauYoshidaPrior.")
-            if not isinstance(value.prior, RestorationPrior):
-                raise NotImplementedError("Using MYULA with non RestorationPrior \
-                                        is not implemented yet.")
-            else:
-                copied_value = deepcopy(value)
-                copied_value.prior = MoreauYoshidaPrior(copied_value.prior,
-                                                        self.smoothing_strength,
-                                                        geometry=value.prior.geometry)   
-        self._target = copied_value
+        self._target = value
+
         if self._target is not None:
+            # Create a smoothed target
+            copied_value = deepcopy(value)
+            if isinstance(copied_value.prior, RestorationPrior):
+                copied_value.prior = MoreauYoshidaPrior(
+                    copied_value.prior,
+                    self.smoothing_strength,
+                    geometry=copied_value.prior.geometry)
+            self._smoothed_target = copied_value
+
+            # Validate the target
             self.validate_target()
             
     def validate_target(self):
+        # Call ULANew target validation
         super().validate_target()
-        # Assert target prior is of type Regularizer
-        assert isinstance(self.target.prior, MoreauYoshidaPrior), \
-            "The prior of the target distribution needs to be a " \
-            + "MoreauYoshidaPrior"
+
+        # Additional validation for MYULA target
+        if isinstance(self.target.prior, MoreauYoshidaPrior):
+            raise ValueError(("The prior is already smoothed, apply"
+                              " ULA when using a MoreauYoshidaPrior."))
+        if not isinstance(self.target.prior, RestorationPrior):
+            raise NotImplementedError(("Using MYULA with other than"
+                                       " RestorationPrior prior"
+                                       " is not implemented yet."))
+
+    def _eval_target_grad(self, x):
+        return self._smoothed_target.gradient(x)
 
 class PnPULANew(MYULANew):
     """Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)
