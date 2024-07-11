@@ -370,6 +370,23 @@ def test_myula():
     assert samples_myula.Ns == 10
     assert np.allclose(samples_myula.samples, samples_ula.samples)
 
+def test_myula_object_creation_fails_with_classical_target():
+    """ Test that MYULA object creation fails with classical target (prior is a
+    distribution and not a restoration prior)."""
+    with pytest.raises(NotImplementedError,
+                       match="Using MYULA with other than RestorationPrior"):
+        cuqi.experimental.mcmc.MYULANew(
+            cuqi.testproblem.Deconvolution1D(dim=128).posterior)
+
+def test_myula_object_creation_fails_with_smoothed_target():
+    """ Test that MYULA object creation fails with smoothed target."""
+    with pytest.raises(ValueError,
+                       match="The prior is already smoothed, apply ULA"):
+        cuqi.experimental.mcmc.MYULANew(
+            create_myula_smoothed_target(dim=128))
+
+# ============= Conjugate ==============
+
 def create_conjugate_target(type:str):
     if type.lower() == 'gaussian-gamma':
         y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
