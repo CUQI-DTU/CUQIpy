@@ -247,7 +247,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 class MYULANew(ULANew):
     """Moreau-Yoshida Unadjusted Langevin algorithm (MYUULA) (Durmus et al., 2018)
 
-    Samples a distribution given its logpdf gradient based on
+    Samples a smoothed target distribution given its logpdf gradient based on
     Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
     the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
     It targets a density (partially) regularized by the Moreau-Yoshida envelope. 
@@ -261,8 +261,8 @@ class MYULANew(ULANew):
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample. Must have gradient method. Custom logpdfs 
-        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+        The target distribution to sample. The target distribution result from
+        a differentiable likelihood and prior of type RestorationPrior.
     
     initial_point : ndarray
         Initial parameters. *Optional*
@@ -271,6 +271,10 @@ class MYULANew(ULANew):
         The Langevin diffusion discretization time step (In practice, a scale of
         1/L, where L is the Lipschitz of the gradient of the log target density
         is recommended but not guaranteed to be the optimal choice).
+        
+    smoothing_strength : int
+        This parameter controls the smoothing strength of MYULA. smoothing_strength
+        must be equal to restoration_strength of the RestoratioPrior.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -318,6 +322,11 @@ class MYULANew(ULANew):
                                        " is not implemented yet."))
 
     def _eval_target_grad(self, x):
+        if isinstance(self.target.prior, cuqi.implicitprior.RestorationPrior) \
+        and not np.isclose(self.smoothing_strength, self.target.prior.restoration_strength):
+            raise ValueError(f"smoothing_strength of the {self.__class__.__name__}"
+                            +"must be equal to restoration_strength of the prior " 
+                            + f"{self.target.prior.__class__.__name__}.")
         return self._smoothed_target.gradient(x)
 
 class PnPULANew(MYULANew):
@@ -338,8 +347,8 @@ class PnPULANew(MYULANew):
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample. Must have gradient method. Custom logpdfs 
-        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+        The target distribution to sample. The target distribution result from
+        a differentiable likelihood and prior of type RestorationPrior.
     
     initial_point : ndarray
         Initial parameters. *Optional*
@@ -348,6 +357,11 @@ class PnPULANew(MYULANew):
         The Langevin diffusion discretization time step (In practice, a scale of
         1/L, where L is the Lipschitz of the gradient of the log target density
         is recommended but not guaranteed to be the optimal choice).
+        
+    smoothing_strength : int
+        This parameter controls the smoothing strength of PnP-ULA. smoothing_strength
+        must be equal to restoration_strength of the RestoratioPrior.
+
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
