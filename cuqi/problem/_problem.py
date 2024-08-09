@@ -710,8 +710,7 @@ class BayesianProblem(object):
         # Require gradient?
         if must_have_gradient:
             try: 
-                posterior.prior.gradient(np.zeros(posterior.prior.dim))
-                posterior.likelihood.gradient(np.zeros(posterior.likelihood.dim))
+                posterior.posterior.gradient(np.zeros(posterior.posterior.dim))
                 G = True
             except (NotImplementedError, AttributeError):
                 G = False

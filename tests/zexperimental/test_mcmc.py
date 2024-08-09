@@ -324,6 +324,19 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
                                         Ns=Ns,
                                         Nb=Nb,
                                         strategy="NUTS")
+    
+def create_conjugate_target(type:str):
+    if type.lower() == 'gaussian-gamma':
+        y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+    if type.lower() == 'lmrf-gamma':
+        x = cuqi.distribution.LMRF(0, lambda s: 1/s, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+    else:
+        raise ValueError(f"Conjugate target type {type} not recognized.")
+
 # ============ Checkpointing ============
 
 
@@ -332,7 +345,10 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
-    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16))
+    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.DirectNew(cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(create_conjugate_target("LMRF-Gamma"))
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -344,6 +360,7 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.NUTSNew,
+    cuqi.experimental.mcmc.HybridGibbsNew
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -511,7 +528,7 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
 initialize_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
-    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew]
+    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew, cuqi.experimental.mcmc.HybridGibbsNew]
 ]
 
 # Instances of samplers that should be tested for target=None initialization consistency
@@ -525,13 +542,16 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
 ]
 
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
 def test_target_None_init_in_samplers(sampler_class):
     """ Test all samplers can be initialized with target=None. """
-    sampler = sampler_class(target=None)
+    sampler = sampler_class()
     assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
@@ -606,3 +626,165 @@ def test_sampler_reinitialization_restores_to_initial_configuration(sampler_clas
         attr1 = getattr(instance1, key, None)
         attr2 = getattr(instance2, key, None)
         compare_attributes(attr1, attr2, key)
+
+# ============ Testing of Conjugate handling ============
+
+def test_conjugate_invalid_target_type():
+    """ Test that the Conjugate sampler requires a target of type Posterior. """
+    sampler = cuqi.experimental.mcmc.ConjugateNew()
+    invalid_target = cuqi.distribution.Gaussian(0, 1) # Not a Posterior
+    with pytest.raises(TypeError, match="Conjugate sampler requires a target of type Posterior"):
+        sampler.target = invalid_target
+
+def test_conjugate_invalid_pair():
+    """ Test that useful error message is raised when conjugate pair is not supported. """
+    prior = cuqi.distribution.Gaussian(0, 1, name="x")
+    likelihood = cuqi.distribution.Gamma(lambda x: x, 1, name="y").to_likelihood([0])
+    posterior = cuqi.distribution.Posterior(likelihood, prior)
+
+    with pytest.raises(ValueError, match="Conjugacy is not defined for likelihood"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def test_conjugate_wrong_name_for_conjugate_parameter():
+    """ Test that useful error message is raised when name of conjugate parameter is wrong. """
+    posterior = create_conjugate_target("Gaussian-Gamma")
+    # Modify likelihood to use wrong name for conjugate parameter
+    posterior.likelihood.distribution.cov = lambda d: 1/d
+
+    with pytest.raises(ValueError, match="Unable to find conjugate parameter"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def test_conjugate_wrong_var_for_conjugate_parameter():
+    """ Test that useful error message is raised when conjugate parameter is defined on wrong mutable variable. """
+    y = cuqi.distribution.Gaussian(0, sqrtprec=lambda s: 1/s, name='y')
+    s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+    posterior =  cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+
+    with pytest.raises(ValueError, match="Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def test_conjugate_wrong_equation_for_conjugate_parameter():
+    """ Test that useful error message is raised when equation for conjugate parameter is not supported. """
+    posterior = create_conjugate_target("Gaussian-Gamma")
+    # Modify likelihood to not invert parameter in covariance
+    posterior.likelihood.distribution.cov = lambda s: s
+
+    with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"):
+        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+
+def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_func):
+    """ Create a target with invalid conjugate parameter equations. """
+
+    if target_type.lower() == 'gaussian-gamma':
+        if param_name == "cov":
+            y = cuqi.distribution.Gaussian(0, invalid_func, name='y')
+        elif param_name == "prec":
+            y = cuqi.distribution.Gaussian(0, prec=invalid_func, name='y')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(y.to_likelihood([0]), s)
+    
+    elif target_type.lower() == 'regularizedgaussian-gamma':
+        if param_name == "cov":
+            x = cuqi.implicitprior.RegularizedGaussian(0, invalid_func, constraint="nonnegativity", name='x')
+        elif param_name == "prec":
+            x = cuqi.implicitprior.RegularizedGaussian(0, prec=invalid_func, constraint="nonnegativity", name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood([0]), s)
+    
+    elif target_type.lower() == 'lmrf-gamma':
+        if param_name == "scale":
+            x = cuqi.distribution.LMRF(0, scale=invalid_func, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+
+    elif target_type.lower() == 'gmrf-gamma':
+        if param_name == "prec":
+            x = cuqi.distribution.GMRF(0, prec=invalid_func, geometry=10, name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+    
+    elif target_type.lower() == 'regularizedgmrf-gamma':
+        if param_name == "prec":
+            x = cuqi.implicitprior.RegularizedGMRF(np.zeros(10), prec=invalid_func, constraint="nonnegativity", name='x')
+        s = cuqi.distribution.Gamma(1, 1e-4, name='s')
+        return cuqi.distribution.Posterior(x.to_likelihood(np.zeros(10)), s)
+    
+    else:
+        raise ValueError(f"Conjugate target type {target_type} not recognized.")
+
+@pytest.mark.parametrize("target_type, param_name, invalid_func, expected_error", [
+    ("gaussian-gamma", "cov", lambda s: s, "Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"),
+    ("gaussian-gamma", "prec", lambda s: 2 * s, "Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter"),
+    ("regularizedgaussian-gamma", "cov", lambda s: s, "Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x"),
+    ("regularizedgaussian-gamma", "prec", lambda s: 2 * s, "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x"),
+    ("lmrf-gamma", "scale", lambda s: s, "Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood"),
+    ("gmrf-gamma", "prec", lambda s: 2 * s, "Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter"),
+    ("regularizedgmrf-gamma", "prec", lambda s: 2 * s, "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x")
+])
+def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target_type, param_name, invalid_func, expected_error):
+    """ Test that useful error message is raised when conjugate parameter has the wrong equation. """
+    posterior = create_invalid_conjugate_target(target_type, param_name, invalid_func)
+    
+    with pytest.raises(ValueError, match=expected_error):
+        if target_type == "lmrf-gamma":
+            cuqi.experimental.mcmc.ConjugateApproxNew(target=posterior)
+        else:
+            cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+def test_find_valid_samplers_linearGaussianGaussian():
+    target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+    
+    assert(set(valid_samplers) == set(['CWMHNew', 'LinearRTONew', 'MALANew', 'MHNew', 'NUTSNew', 'PCNNew', 'ULANew']))
+
+def test_find_valid_samplers_nonlinearGaussianGaussian():
+    posterior = cuqi.testproblem.Poisson1D(dim=2).posterior
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(posterior)
+
+    print(set(valid_samplers) == set(['CWMHNew', 'MHNew', 'PCNNew']))
+
+def test_find_valid_samplers_conjugate_valid():
+    """ Test that conjugate sampler is valid for Gaussian-Gamma conjugate pair when parameter is defined as the precision."""
+    x = cuqi.distribution.Gamma(1,1)
+    y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : 1/x) # Valid on precision only, e.g. cov=lambda x : 1/x
+    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['CWMHNew', 'ConjugateNew', 'MHNew']))
+
+def test_find_valid_samplers_conjugate_invalid():
+    """ Test that conjugate sampler is invalid for Gaussian-Gamma conjugate pair when parameter is defined as the covariance."""
+    x = cuqi.distribution.Gamma(1,1)
+    y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : x) # Invalid if defined via covariance as cov=lambda x : x
+    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['CWMHNew', 'MHNew']))
+
+def test_find_valid_samplers_direct():
+    target = cuqi.distribution.Gamma(1,1)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['CWMHNew', 'DirectNew', 'MHNew']))
+
+def test_find_valid_samplers_implicit_posterior():
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
+
+    x = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
+    y = cuqi.distribution.Gaussian(A@x, 1)
+    target =  cuqi.distribution.JointDistribution(y, x)(y = y_obs)
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(set(valid_samplers) == set(['RegularizedLinearRTONew']))
+
+def test_find_valid_samplers_implicit_prior():
+    target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
+
+    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
+
+    assert(len(set(valid_samplers)) == 0)
