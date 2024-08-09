@@ -325,6 +325,68 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
                                         Nb=Nb,
                                         strategy="NUTS")
     
+# ============= MYULA ==============
+def create_myula_target(dim=16):
+    """Create a target for MYULA."""
+    def func(x, restoration_strength=1):
+        return x, True
+    likelihood = cuqi.testproblem.Deconvolution1D(
+        dim=dim).posterior.likelihood 
+    restoration_prior = cuqi.implicitprior.RestorationPrior(
+        func, restoration_strength=0.1, geometry=likelihood.model.domain_geometry)
+    posterior = cuqi.distribution.Posterior(
+        likelihood, restoration_prior)
+    return posterior
+
+def create_myula_smoothed_target(dim=16):
+    """Create a target for MYULA."""
+    def func(x, restoration_strength=1):
+        return x, True
+    likelihood = cuqi.testproblem.Deconvolution1D(
+        dim=dim).posterior.likelihood 
+    restoration_prior = cuqi.implicitprior.RestorationPrior(
+        func, restoration_strength=0.1, geometry=likelihood.model.domain_geometry)
+    myprior = cuqi.implicitprior.MoreauYoshidaPrior(prior=restoration_prior, smoothing_strength=0.1,
+                                                    geometry=likelihood.model.domain_geometry)
+    posterior = cuqi.distribution.Posterior(
+        likelihood, myprior)
+    return posterior
+
+def test_myula():
+    """ Test creating MYULA sampler."""
+    np.random.seed(0)
+    posterior = create_myula_target(dim=128)
+    np.random.seed(0)
+    posterior_smoothed = create_myula_smoothed_target(dim=128)
+    np.random.seed(0)
+    myula = cuqi.experimental.mcmc.MYULANew(posterior, smoothing_strength=0.1)
+    myula.sample(10)
+    np.random.seed(0)
+    ula = cuqi.experimental.mcmc.ULANew(posterior_smoothed)
+    ula.sample(10)
+    samples_myula = myula.get_samples()
+    samples_ula = ula.get_samples()
+    assert samples_ula.Ns == 10
+    assert samples_myula.Ns == 10
+    assert np.allclose(samples_myula.samples, samples_ula.samples)
+
+def test_myula_object_creation_fails_with_classical_target():
+    """ Test that MYULA object creation fails with classical target (prior is a
+    distribution and not a restoration prior)."""
+    posterior = cuqi.testproblem.Deconvolution1D(dim=128).posterior
+    with pytest.raises(NotImplementedError,
+                       match="Using MYULA with other than RestorationPrior"):
+        cuqi.experimental.mcmc.MYULANew(posterior)
+
+def test_myula_object_creation_fails_with_smoothed_target():
+    """ Test that MYULA object creation fails with smoothed target."""
+    with pytest.raises(ValueError,
+                       match="The prior is already smoothed, apply ULA"):
+        cuqi.experimental.mcmc.MYULANew(
+            create_myula_smoothed_target(dim=128))
+
+# ============= Conjugate ==============
+
 def create_conjugate_target(type:str):
     if type.lower() == 'gaussian-gamma':
         y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
@@ -359,6 +421,9 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.PCNNew,
     cuqi.experimental.mcmc.CWMHNew,
     cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
+    cuqi.experimental.mcmc.MYULANew,
+    cuqi.experimental.mcmc.PnPULANew,
+    cuqi.experimental.mcmc.NUTSNew,
     cuqi.experimental.mcmc.NUTSNew,
     cuqi.experimental.mcmc.HybridGibbsNew
 ]
@@ -431,7 +496,36 @@ state_history_targets = [
     cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=32)),
+    cuqi.experimental.mcmc.MYULANew(create_myula_target(dim=128)),
+    cuqi.experimental.mcmc.NUTSNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, step_size=0.001),
+    cuqi.experimental.mcmc.PnPULANew(create_myula_target(dim=128)),
+    cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
 ]
+
+# List of all classes subclassing samplers.
+all_subclassing_sampler_classes= [
+    cls
+    for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
+    if cls not in [cuqi.experimental.mcmc.SamplerNew,
+                   cuqi.experimental.mcmc.ProposalBasedSamplerNew,
+                   cuqi.experimental.mcmc.HybridGibbsNew]
+]
+
+# Make sure that all samplers are tested for state history
+@pytest.mark.parametrize("sampler_class", all_subclassing_sampler_classes)
+def test_sampler_is_tested_for_state_history(
+    sampler_class: cuqi.experimental.mcmc.SamplerNew):
+
+    # Find sampler instance that matches the sampler class
+    sampler_instance = next(
+        (s for s in state_history_targets if isinstance(s, sampler_class)), None)
+    if sampler_instance is None:
+        raise ValueError(
+            f"No sampler instance in the list of state_history_targets matches the sampler class {sampler_class}. "
+            "Please add an instance to the list."
+        )
 
 
 @pytest.mark.parametrize("sampler", state_history_targets)
@@ -475,8 +569,11 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
 # Dictionary to store keys that are not expected to be updated after warmup.
 # Likely due to not implemented feature in the sampler.
 state_exception_keys = {
-    cuqi.experimental.mcmc.ULANew: 'scale',
-    cuqi.experimental.mcmc.MALANew: 'scale',
+    cuqi.experimental.mcmc.ULANew: ['scale'],
+    cuqi.experimental.mcmc.MALANew: ['scale'],
+    cuqi.experimental.mcmc.MYULANew: ['scale'],
+    cuqi.experimental.mcmc.PnPULANew: ['scale'],
+    cuqi.experimental.mcmc.NUTSNew: ['_mu', '_n_alpha']
 }
 
 @pytest.mark.parametrize("sampler", state_history_targets)
@@ -542,6 +639,8 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.MYULANew(target=create_myula_target(dim=16)),
+    cuqi.experimental.mcmc.PnPULANew(target=create_myula_target(dim=16)),
     cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
     cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
