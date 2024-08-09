@@ -5,69 +5,31 @@ import numpy as np
     
 class RestorationPrior(Distribution):
     """    
-    This class defines implicit regularized priors for which we can apply 
-    gradient-based algorithms (ex:MYULA). The regularization is performed using
-    a denoising algorithm as we can encounter in MYULA
-    and PnP-ULA.
-    
-    There are several denoising based regularization types. See https://arxiv.org/pdf/1612.07471
-    where the negative logpdf of the prior is regularized with infimal convolution and 
-    https://universite-paris-saclay.hal.science/hal-03161400/ where the prior is
-    regularized with convolution. In the following we give a detailed example with the
-    Moreau-Yoshida based regularization.
-    
-    Example: Moreau-Yoshida based regularization
-        We consider a density such that - \log\pi(x) = -g(x) with g convex, lsc,
-        proper but not differentiable. Consequently, we cannot apply any
-        algorithm requiring the gradient of g.
-        Idea:
-        We consider the Moreau envelope of g defined as
-        
-        g_{strength_smooth} (x) = inf_z 0.5*\| x-z \|_2^2/strength_smooth + g(z).
-        
-        g_{strength_smooth} has some nice properties
-            - g_{strength_smooth}(x)-->g(x) as strength_smooth-->0 for all x
-            - \nabla g_{strength_smooth} is 1/strength_smooth-Lipschitz
-            - \nabla g_{strength_smooth}(x) = (x - prox_g^{strength_smooth}(x))/strength_smooth for all x with 
-            
-            prox_g^{strength_smooth}(x) = argmin_z 0.5*\| x-z \|_2^2/strength_smooth + g(z) .
-
-        Consequently, we can apply any gradient-based algorithm with
-        g_{strength_smooth} in lieu of g. These algorithms do not require the
-        full knowledge of g_{strength_smooth} but only its gradient.
-        It is important as, although there exists an explicit formula for
-        g_{strength_smooth}, it is not useable in practice, as it would require
-        us to solve an optimization problem each time we want to 
-        estimate g_{strength_smooth}.
-        The gradient of g_{strength_smooth} is fully determined by
-        prox_g^{strength_smooth}.
-
-    Remark (Proximal operators are denoisers):
-        We consider the denoising inverse problem x = u + n, with
-        n \sim \mathcal{N}(0, strength_smooth I).
-        We assume a prior density \pi(u) \propto exp(- g(u)).
-        Then the MAP estimate is given by 
-            x_MAP = \argmin_z 0.5 \| x - z \|_2^2/strength_smooth + g(z) = prox_g^strength_smooth(x) ()
-        Then proximal operators are denoisers. 
-    
-    Remark (Denoisers are not necessarily proximal operators): Data-driven
-    denoisers are not necessarily proximal operators
-    (see https://arxiv.org/pdf/2201.13256)
+    This class defines an implicit distribution associated with a restoration operator
+    (eg denoiser). They are several works relating restorations operators with
+    priors, see 
+        -Laumont et al. https://arxiv.org/abs/2103.04715
+        -Hu et al. https://openreview.net/pdf?id=x7d1qXEn1e
+    We cannot sample from this distribution, neither compute its logpdf. It allows
+    us to apply algorithms such as MYULA and PnPULA.
     
     Parameters
     ---------- 
-    denoiser : callable f(x)
-        Denoising function f that accepts input x to be denoised and returns the
-        denoised version of x and information about the denoising algorithm in a
-        dictionary such as the number of iterations, the accuracy, eg
-        {"num_itr": 100, "accuracy":  0.1}
+    restorator : callable f(x)
+        Function f that accepts input x to be restored and returns the
+        restored version of x and information about the restoration operation.
         
-    denoiser_kwargs : dictionary
-        Dictionary containing information such as the denoising strength or the
-        prior regularization strength
+    restorator_strength : float
+        Strength of the restoration operation. In the case where the restorator is
+        a denoiser, this parameter might correspond to the noise level.
         
-    strength_smooth : float
-        Smoothing strength
+    restorator_kwargs : dictionary
+        Dictionary containing information about the restorator.
+    
+    potential : callable function
+        In the case, where the restoration operator is the proximal operator of
+        the function potential. This function is a mapping from the image domain
+        to the real set. 
     """
 
     def __init__(self, restorator, restoration_strength=None, restorator_kwargs
@@ -118,49 +80,46 @@ class RestorationPrior(Distribution):
 ############################################################################################   
 class MoreauYoshidaPrior(Distribution):
     """    
-    This class defines implicit regularized priors for which we can apply 
-    gradient-based algorithms (ex:MYULA). The regularization is performed using
-    a denoising algorithm as we can encounter in MYULA
-    and PnP-ULA.
+    This class defines (implicit) smoothed priors for which we can apply 
+    gradient-based algorithms. The smoothing is performed using
+    the Moreau-Yoshida envelope of the target prior potential.
     
-    There are several denoising based regularization types. See https://arxiv.org/pdf/1612.07471
-    where the negative logpdf of the prior is regularized with infimal convolution and 
-    https://universite-paris-saclay.hal.science/hal-03161400/ where the prior is
-    regularized with convolution. In the following we give a detailed example with the
-    Moreau-Yoshida based regularization.
+    In the following we give a detailed explanation of the
+    Moreau-Yoshida smoothing.
     
-    Example: Moreau-Yoshida based regularization
-        We consider a density such that - \log\pi(x) = -g(x) with g convex, lsc,
-        proper but not differentiable. Consequently, we cannot apply any
-        algorithm requiring the gradient of g.
-        Idea:
-        We consider the Moreau envelope of g defined as
+    We consider a density such that - \log\pi(x) = -g(x) with g convex, lsc,
+    proper but not differentiable. Consequently, we cannot apply any
+    algorithm requiring the gradient of g.
+    Idea:
+    We consider the Moreau envelope of g defined as
+    
+    g_{smoothing_strength} (x) = inf_z 0.5*\| x-z \|_2^2/smoothing_strength + g(z).
+    
+    g_{smoothing_strength} has some nice properties
+        - g_{smoothing_strength}(x)-->g(x) as smoothing_strength-->0 for all x
+        - \nabla g_{smoothing_strength} is 1/smoothing_strength-Lipschitz
+        - \nabla g_{smoothing_strength}(x) = (x - prox_g^{smoothing_strength}(x))/smoothing_strength for all x with 
         
-        g_{strength_smooth} (x) = inf_z 0.5*\| x-z \|_2^2/strength_smooth + g(z).
-        
-        g_{strength_smooth} has some nice properties
-            - g_{strength_smooth}(x)-->g(x) as strength_smooth-->0 for all x
-            - \nabla g_{strength_smooth} is 1/strength_smooth-Lipschitz
-            - \nabla g_{strength_smooth}(x) = (x - prox_g^{strength_smooth}(x))/strength_smooth for all x with 
-            
-            prox_g^{strength_smooth}(x) = argmin_z 0.5*\| x-z \|_2^2/strength_smooth + g(z) .
+        prox_g^{smoothing_strength}(x) = argmin_z 0.5*\| x-z \|_2^2/smoothing_strength + g(z) .
 
-        Consequently, we can apply any gradient-based algorithm with
-        g_{strength_smooth} in lieu of g. These algorithms do not require the
-        full knowledge of g_{strength_smooth} but only its gradient.
-        It is important as, although there exists an explicit formula for
-        g_{strength_smooth}, it is not useable in practice, as it would require
-        us to solve an optimization problem each time we want to 
-        estimate g_{strength_smooth}.
-        The gradient of g_{strength_smooth} is fully determined by
-        prox_g^{strength_smooth}.
+    Consequently, we can apply any gradient-based algorithm with
+    g_{smoothing_strength} in lieu of g. These algorithms do not require the
+    full knowledge of g_{smoothing_strength} but only its gradient. The gradient
+    of g_{smoothing_strength} is fully determined by prox_g^{smoothing_strength}
+    and smoothing_strength.
+    It is important as, although there exists an explicit formula for
+    g_{smoothing_strength}, it is rarely used in practice, as it would require
+    us to solve an optimization problem each time we want to 
+    estimate g_{smoothing_strength}. Furthermore, there exist cases where we dont't
+    the regularization g with which the mapping prox_g^{smoothing_strength} is
+    associated.
 
     Remark (Proximal operators are denoisers):
         We consider the denoising inverse problem x = u + n, with
-        n \sim \mathcal{N}(0, strength_smooth I).
+        n \sim \mathcal{N}(0, smoothing_strength I).
         We assume a prior density \pi(u) \propto exp(- g(u)).
         Then the MAP estimate is given by 
-            x_MAP = \argmin_z 0.5 \| x - z \|_2^2/strength_smooth + g(z) = prox_g^strength_smooth(x) ()
+            x_MAP = \argmin_z 0.5 \| x - z \|_2^2/smoothing_strength + g(z) = prox_g^smoothing_strength(x) ()
         Then proximal operators are denoisers. 
     
     Remark (Denoisers are not necessarily proximal operators): Data-driven
@@ -169,18 +128,14 @@ class MoreauYoshidaPrior(Distribution):
     
     Parameters
     ---------- 
-    denoiser : callable f(x)
-        Denoising function f that accepts input x to be denoised and returns the
-        denoised version of x and information about the denoising algorithm in a
-        dictionary such as the number of iterations, the accuracy, eg
-        {"num_itr": 100, "accuracy":  0.1}
+    prior : RestorationPrior
+        Prior of the Restoration Prior type. In order to stay within the MYULA
+        framework the restorator of RestorationPrior must be a proximal operator.
         
-    denoiser_kwargs : dictionary
-        Dictionary containing information such as the denoising strength or the
-        prior regularization strength
-        
-    strength_smooth : float
-        Smoothing strength
+    smoothing_strength : float
+        Smoothing strength of the Moreau-Yoshida envelope of the prior potential.
+        smoothing_strength needs to be equal to restoration_strength of the prior
+        ResotrationPrior.
     """
 
     def __init__(self, prior:RestorationPrior, smoothing_strength=0.1, 
