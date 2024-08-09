@@ -169,9 +169,9 @@ restorator = RestorationPrior(
     geometry=likelihood.model.domain_geometry
 )
 #%% Illustration of the effect of the denoising restoration operator.
-# We first apply the restorate method of our restorator to ::math`\mathbf{y}_obs`.
-# This operator should restore ::math`\mathbf{y}_obs` and generate a signal close
-# to ::math`\mathbf{A}\mathbf{x}`.
+# We first apply the restorate method of our restorator to :math:`\mathbf{y}_obs`.
+# This operator should restore :math:`\mathbf{y}_obs` and generate a signal close
+# to :math:`\mathbf{A}\mathbf{x}`.
 res = restorator.restorate(y_obs)
 #%%
 # In this cell, we show the effect of the restorator both from a visual
