@@ -8,10 +8,10 @@ class RegularizedGMRF(RegularizedGaussian):
     The regularization can be defined in the form of a proximal operator or a projector.
     Alternatively, preset constraints and regularization can be used.
 
-    Only one of proximal, projector, constraint or regularization can be provided. Otherwise, an error is raised.
+    For regularization of the form f(x), provide a single proximal operator.
+    For regularization of the form sum_i f_i(L_i x), provide a list of proximal and linear operator pairs.
 
     Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
-
 
     For more details on implicit regularized Gaussian see the following paper:
 
@@ -54,21 +54,27 @@ class RegularizedGMRF(RegularizedGaussian):
             strength : scalar
                 Regularization parameter, i.e., strength*||x||_1 , defaults to one
 
+        For "TV", the following additional parameters can be passed:
+            strength : scalar
+                Regularization parameter, i.e., strength*||x||_TV , defaults to one
+
     """
-    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
+    def __init__(self, mean=None, prec=None, bc_type='zero', order=1, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
             
-            args = {"lower_bound" : kwargs.pop("lower_bound", None),
-                    "upper_bound" : kwargs.pop("upper_bound", None),
-                    "strength" : kwargs.pop("strength", None)}
-            
-            # Underlying explicit GMRF
-            self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
-            
-            # Init from abstract distribution class
-            super(Distribution, self).__init__(**kwargs)
+        args = {"lower_bound" : kwargs.pop("lower_bound", None),
+                "upper_bound" : kwargs.pop("upper_bound", None),
+                "strength" : kwargs.pop("strength", 1)}
+        
+        self._force_list = force_list
+        
+        # Underlying explicit GMRF
+        self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
+        kwargs.pop("geometry", None)
 
-            self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
+        # Init from abstract distribution class
+        super(Distribution, self).__init__(**kwargs)
 
+        self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
 
 
 class ConstrainedGMRF(RegularizedGMRF):
@@ -150,3 +156,4 @@ class NonnegativeGMRF(RegularizedGMRF):
     """
     def __init__(self, mean=None, prec=None, bc_type='zero', order=1, **kwargs):
         super().__init__(mean=mean, prec=prec, bc_type=bc_type, order=order, constraint="nonnegativity", **kwargs)
+
