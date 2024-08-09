@@ -31,41 +31,86 @@ class ModifiedHalfNormal(Distribution):
         The linear exponential parameter of the MHN distribution.
 
     """
-    def __init__(self, alpha, beta, gamma, is_symmetric=False, **kwargs):
+    def __init__(self, alpha=None, beta=None, gamma=None, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
-        super().__init__(is_symmetric=is_symmetric,**kwargs) 
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self.alpha = alpha
-        self.beta = beta
-        self.gamma = gamma
+        self._alpha = alpha
+        self._beta = beta
+        self._gamma = gamma
+
+    @property
+    def alpha(self):
+        """ The polynomial exponent parameter of the MHN distribution. Must be positive. """
+        return self._alpha
+    
+    @alpha.setter
+    def shape(self, value):
+        self._shape = force_ndarray(value, flatten=True)
+
+    @property
+    def beta(self):
+        """ The quadratic exponential parameter of the MHN distribution. Must be positive. """
+        return self._alpha
+    
+    @beta.setter
+    def beta(self, value):
+        self._beta = force_ndarray(value, flatten=True)
+
+    @property
+    def gamma(self):
+        """ The linear exponential parameter of the MHN distribution. """
+        return self._alpha
+    
+    @gamma.setter
+    def gamma(self, value):
+        self._gamma = force_ndarray(value, flatten=True)
 
     def logpdf(self, x): # Unnormalized
-        return (self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x
+        return np.sum((self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x)
 
+    def _gradient_scalar(self, val):
+        if val <= 0.0:
+            return np.nan
+        return (self.alpha - 1)/val - 2*self.beta*val + self.gamma
 
-    def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, delta = None):
+    def _gradient(self, val, *args, **kwargs):
+        if hasattr(self.alpha, '__iter__'):
+            return np.array([self._gradient_scalar(v) for v in val])
+        else:
+            return np.array([self.dim*[self._gradient_scalar(v)] for v in val])
+    
+    def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, rng, delta=None):
+        """
+            Sample from a modified half-normal distribution using a Gamma distribution proposal.
+        """
         if delta is None:
             delta = beta + (gamma*gamma - gamma*np.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
             
         while True:
-            T = np.random.gamma(alpha/2, 1.0/delta)
+            T = rng.gamma(alpha/2, 1.0/delta)
             X = np.sqrt(T)
-            U = np.random.uniform()
+            U = rng.uniform()
             if X > 0 and np.log(U) < -(beta-delta)*T + gamma*X - gamma*gamma/(4*(beta-delta)):
                 return X
             
-    def _MHN_sample_normal_proposal(self, alpha, beta, gamma, mu):
+    def _MHN_sample_normal_proposal(self, alpha, beta, gamma, mu, rng):
+        """
+            Sample from a modified half-normal distribution using a Normal/Gaussian distribution proposal.
+        """
         if mu is None:
             mu = (gamma + np.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)    
         
         while True:
-            X = np.random.normal(mu, np.sqrt(0.5/beta))
-            U = np.random.uniform()
+            X = rng.normal(mu, np.sqrt(0.5/beta))
+            U = rng.uniform()
             if X > 0 and np.log(U) < (alpha-1)*np.log(X) - np.log(mu) + (2*beta*mu-gamma)*(mu-X):
                 return X
 
-    # Sample from MHN when alpha > 1, beta > 0 and gamma > 0  (Algorithm 1 from [1])
-    def _MHN_sample_positive_gamma_1(self, alpha, beta, gamma):
+    def _MHN_sample_positive_gamma_1(self, alpha, beta, gamma, rng):
+        """
+            Sample from a modified half-normal distribution, assuming alpha is greater than one and gamma is positive.
+        """
         if gamma <= 0.0:
             raise ValueError("gamma needs to be positive")
             
@@ -84,14 +129,15 @@ class ModifiedHalfNormal(Distribution):
         K2 *= np.exp(gamma*gamma/(4*(beta-delta)))
 
         if K2 > K1: # Use normal proposal
-            return self._MHN_sample_normal_proposal(alpha, beta, gamma, mu)
+            return self._MHN_sample_normal_proposal(alpha, beta, gamma, mu, rng)
         else: # Use sqrt(gamma) proposal
-            return self._MHN_sample_gamma_proposal(alpha, beta, gamma, delta)
+            return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng, delta)
 
-
-    # Sample from MHN when alpha > 0, beta > 0 and gamma <= 0 (Algorithm 3 from [1])
-    # ""
-    def _MHN_sample_negative_gamma(self, alpha, beta, gamma, m = None):
+    def _MHN_sample_negative_gamma(self, alpha, beta, gamma, rng, m=None):
+        """
+            Sample from a modified half-normal distribution, assuming gamma is negative.
+            The argument 'm' is the matching point, see Algorithm 3 from [1] for details.
+        """
         if gamma > 0.0:
             raise ValueError("gamma needs to be negative")
             
@@ -108,26 +154,31 @@ class ModifiedHalfNormal(Distribution):
         while True:
             val1 = (beta*m-gamma)/(2*beta*m-gamma)
             val2 = m*(beta*m-gamma)
-            T = np.random.gamma(alpha*val1, 1.0/val2)
+            T = rng.gamma(alpha*val1, 1.0/val2)
             X = m*np.power(T,val1)
-            U = np.random.uniform()
+            U = rng.uniform()
             if np.log(U) < val2*T-beta*X*X+gamma*X:
                 return X
             
+    def _MHN_sample(self, alpha, beta, gamma, m=None, rng=None):
+        """
+        Sample from a modified half-normal distribution using an algorithm from [1].
+        """
+        if rng == None:
+            rng = np.random
 
-    """
-    Sample from distribution with density proportional to
-    x^(alpha - 1)*exp*(-beta*x^2 + gamma*x)
-    """
-    def _MHN_sample(self, alpha, beta, gamma, m = None):
         if gamma <= 0.0:
-            return self._MHN_sample_negative_gamma(alpha, beta, gamma, m = m)
+            return self._MHN_sample_negative_gamma(alpha, beta, gamma, m=m, rng=rng)
         
-        if alpha >= 1:
-            return self._MHN_sample_positive_gamma_1(alpha, beta, gamma)
+        if alpha > 1:
+            return self._MHN_sample_positive_gamma_1(alpha, beta, gamma, rng=rng)
         
-        return self._MHN_sample_gamma_proposal(alpha, beta, gamma)
+        return self._MHN_sample_gamma_proposal(alpha, beta, gamma, rng=rng)
 
     def _sample(self, N, rng=None):
-        return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma,) for _ in range(N)])
+        if hasattr(self.alpha, '__getitem__'):
+            return np.array([self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(N)])
+        else:
+            return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for i in range(N)])
+
             

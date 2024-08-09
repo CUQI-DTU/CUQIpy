@@ -1,12 +1,9 @@
 from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
-from cuqi.geometry import Continuous1D, Continuous2D, Image2D
-
-from cuqi.operator import FirstOrderFiniteDifference
 
 import numpy as np
-import scipy.sparse as sparse
+
 
 class RegularizedGaussian(Distribution):
     """ Implicit Regularized Gaussian.
@@ -15,10 +12,10 @@ class RegularizedGaussian(Distribution):
     The regularization can be defined in the form of a proximal operator or a projector. 
     Alternatively, preset constraints and regularization can be used.
 
-    For regularization of the form f(x), provide a single proximal operator.
-    For regularization of the form sum_i f_i(L_i x), provide a list of proximal and linear operator pairs.
-    
-    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler
+    Precisely one of proximal, projector, constraint or regularization needs to be provided. Otherwise, an error is raised.
+
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
 
     For more details on implicit regularized Gaussian see the following paper:
 
@@ -42,9 +39,10 @@ class RegularizedGaussian(Distribution):
     sqrtprec
         See :class:`~cuqi.distribution.Gaussian` for details.
 
-    proximal : callable f(x, scale), list of (callable f(x, scale), linear operator) or None
+    proximal : callable f(x, scale) or None
         Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
         min_z 0.5||x-z||_2^2+scale*g(x).
+
 
     projector : callable f(x) or None
         Euclidean projection onto the constraint C, that is, a solver for the optimization problem
@@ -59,18 +57,14 @@ class RegularizedGaussian(Distribution):
                 Upper bound of box, defaults to one
 
     regularization : string or None
-        Preset regularization. Can be set to "l1" or "TV". Required for use in Gibbs in future update.
+        Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
         For "l1", the following additional parameters can be passed:
             strength : scalar
                 Regularization parameter, i.e., strength*||x||_1 , defaults to one
 
-        For "TV", the following additional parameters can be passed:
-            strength : scalar
-                Regularization parameter, i.e., strength*||x||_TV , defaults to one
-
     """
         
-    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
+    def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None, sqrtprec=None, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
         
         # Store regularization parameters and remove them from kwargs passed to Gaussian
         optional_regularization_parameters = {
@@ -79,11 +73,8 @@ class RegularizedGaussian(Distribution):
             "strength" : kwargs.pop("strength", 1)
         }
         
-        self._force_list = force_list
-
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
-        kwargs.pop("geometry", None)
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
@@ -92,134 +83,44 @@ class RegularizedGaussian(Distribution):
 
     def _parse_regularization_input_arguments(self, proximal, projector, constraint, regularization, optional_regularization_parameters):
         """ Parse regularization input arguments with guarding statements and store internal states """
-   
-        # Guards checking whether the regularization inputs are valid
-        if (proximal is not None) + (projector is not None) + max((constraint is not None), (regularization is not None)) == 0:
-            raise ValueError("At least some constraint or regularization has to be specified.")
-            
-        if (proximal is not None) + (projector is not None) == 2:
-            raise ValueError("Only one of proximal or projector can be used.")
 
-        if (proximal is not None) + (projector is not None) + max((constraint is not None), (regularization is not None)) > 1:
-            raise ValueError("User-defined proximals an projectors cannot be combined with pre-defined constraints and regularization.")
+        # Check that only one of proximal, projector, constraint or regularization is provided        
+        if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
+            raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
 
         if proximal is not None:
-            if callable(proximal):
-                if len(get_non_default_args(proximal)) != 2:
-                    raise ValueError("Proximal should take 2 arguments.")
-            else:
-                pass # TODO: Add error checking for list of regularizations
+            if not callable(proximal):
+                raise ValueError("Proximal needs to be callable.")
+            if len(get_non_default_args(proximal)) != 2:
+                raise ValueError("Proximal should take 2 arguments.")
             
         if projector is not None:
-            if callable(projector):
-                if len(get_non_default_args(projector)) != 1:
-                    raise ValueError("Projector should take 1 argument.")
-            else:
-                pass # TODO: Add error checking for list of regularizations
+            if not callable(projector):
+                raise ValueError("Projector needs to be callable.")
+            if len(get_non_default_args(projector)) != 1:
+                raise ValueError("Projector should take 1 argument.")
             
-
-        # Set user-defined proximals or projectors
+        # Preset information, for use in Gibbs
+        self._preset = None
+        
         if proximal is not None:
-            self._preset = None
             self._proximal = proximal
-            return
-        
-        if projector is not None:
-            self._preset = None
+        elif projector is not None:
             self._proximal = lambda z, gamma: projector(z)
-            return
-        
-
-        # Set constraint and regularization presets for use with Gibbs
-        self._preset = {"constraint": None,
-                        "regularization": None}
-
-        self._constraint_prox = None
-        self._constraint_oper = None
-        if constraint is not None:
-            if not isinstance(constraint, str):
-                raise ValueError("Constraint needs to be specified as a string.")
-            
-            c_lower = constraint.lower()
-            if c_lower == "nonnegativity":
-                self._constraint_prox = lambda z, gamma: ProjectNonnegative(z)
-                self._preset["constraint"] = "nonnegativity"
-            elif c_lower == "box":
-                lower = optional_regularization_parameters["lower_bound"]
-                upper = optional_regularization_parameters["upper_bound"]
-                self._constraint_prox = lambda z, gamma: ProjectBox(z, lower, upper)
-                self._preset["constraint"] = "box"
-            else:
-                raise ValueError("Constraint not supported.")
-                
-
-        self._regularization_prox = None
-        self._regularization_oper = None
-        if regularization is not None:
-            if not isinstance(regularization, str):
-                raise ValueError("Regularization needs to be specified as a string.")
-                
-            self._strength = optional_regularization_parameters["strength"]
-            r_lower = regularization.lower()
-            if r_lower == "l1":
-                self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-                self._preset["regularization"] = "l1"
-            elif r_lower == "tv":
-                # Store the transformation to reuse when modifying the strength
-                if isinstance(self.geometry, (Continuous1D)):
-                    self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='zero')
-                elif isinstance(self.geometry, (Continuous2D, Image2D)):
-                    self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='zero')
-                else:
-                    raise ValueError("Geometry not supported for total variation")
-                self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-                self._regularization_oper = self._transformation
-                self._preset["regularization"] = "TV"
-            else:
-                raise ValueError("Regularization not supported.")
-                
-
-        self._merge_predefined_option()
-
-
-    def _merge_predefined_option(self):
-        # Check whether it is a single proximal and hence FISTA could be used in RegularizedLinearRTO 
-        if ((not self._force_list) and
-            ((self._constraint_prox is not None) + (self._regularization_prox is not None) == 1) and
-            ((self._constraint_oper is not None) + (self._regularization_oper is not None) == 0)):
-                if self._constraint_prox is not None:
-                    self._proximal = self._constraint_prox
-                else:
-                    self._proximal = self._regularization_prox 
-                return
-
-        # Merge regularization choices in list for use in ADMM by RegularizedLinearRTO
-        self._proximal = []
-        if self._constraint_prox is not None:
-            self._proximal += [(self._constraint_prox, self._constraint_oper if self._constraint_oper is not None else sparse.eye(self.geometry.par_dim))]
-        if self._regularization_prox is not None:
-            self._proximal += [(self._regularization_prox, self._regularization_oper if self._regularization_oper is not None else sparse.eye(self.geometry.par_dim))]
-
-
-    @property
-    def transformation(self):
-        return self._transformation
-    
-    @property
-    def strength(self):
-        return self._strength
-        
-    @strength.setter
-    def strength(self, value):
-        if self._preset is None or self._preset["regularization"] is None:
-            raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
-
-        self._strength = value
-        if self._preset["regularization"] in ["l1", "TV"]:        
-            self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-
-        self._merge_predefined_option()
-
+        elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
+            self._proximal = lambda z, gamma: ProjectNonnegative(z)
+            self._preset = "nonnegativity"
+        elif (isinstance(constraint, str) and constraint.lower() == "box"):
+            lower = optional_regularization_parameters["lower_bound"]
+            upper = optional_regularization_parameters["upper_bound"]
+            self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
+            self._preset = "box" # Not supported in Gibbs
+        elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
+            strength = optional_regularization_parameters["strength"]
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
+            self._preset = "l1"
+        else:
+            raise ValueError("Regularization not supported")
 
     # This is a getter only attribute for the underlying Gaussian
     # It also ensures that the name of the underlying Gaussian
@@ -244,7 +145,8 @@ class RegularizedGaussian(Distribution):
         #    f"The logpdf of a implicit regularized Gaussian is not be defined.")
         
     def _sample(self, N, rng=None):
-        raise ValueError("Cannot be sampled from.")
+        raise ValueError(
+            "Cannot be sampled from.")
   
     @staticmethod
     def constraint_options():
@@ -252,7 +154,7 @@ class RegularizedGaussian(Distribution):
 
     @staticmethod
     def regularization_options():
-        return ["l1", "TV"]
+        return ["l1"]
 
 
     # --- Defer behavior of the underlying Gaussian --- #
@@ -304,17 +206,15 @@ class RegularizedGaussian(Distribution):
     def sqrtcov(self, value):
         self.gaussian.sqrtcov = value     
     
+    def get_conditioning_variables(self):
+        return self.gaussian.get_conditioning_variables()
+    
     def get_mutable_variables(self):
-        add = []
-        if self.preset is not None and self.preset['regularization'] in ["l1", "TV"]:
-            add = ["strength"]
-        return self.gaussian.get_mutable_variables() + add
-
+        return self.gaussian.get_mutable_variables()
+    
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
-        if self.preset is not None and self.preset['regularization'] in ["l1", "TV"]:
-            return super()._condition(*args, **kwargs)
 
         # Handle positional arguments (similar code as in Distribution._condition)
         cond_vars = self.get_conditioning_variables()
@@ -334,15 +234,90 @@ class RegularizedGaussian(Distribution):
             new_density = new_density.to_likelihood(value)
 
         return new_density
-    
-    
+
+
 class ConstrainedGaussian(RegularizedGaussian):
-    
+    """ Implicit Constrained Gaussian.
+
+    Defines a so-called implicit prior based on a Gaussian distribution with implicit constraints.
+    The constraint can be defined as a preset or in the form of a projector. 
+
+    Precisely one of projector or constraint needs to be provided. Otherwise, an error is raised.
+
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
+    Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with only constraints available.
+
+    For more details on implicit regularized Gaussian see the following paper:
+
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized
+    Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
+
+    Parameters
+    ----------
+    mean
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    cov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    prec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtcov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtprec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    projector : callable f(x) or None
+        Euclidean projection onto the constraint C, that is, a solver for the optimization problem
+        min_(z in C) 0.5||x-z||_2^2.
+
+    constraint : string or None
+        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
+        For "box", the following additional parameters can be passed:
+            lower_bound : array_like or None
+                Lower bound of box, defaults to zero
+            upper_bound : array_like
+                Upper bound of box, defaults to one
+
+    """
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, projector=None, constraint=None, **kwargs):
-        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, projector=projector, constraint=constraint, **kwargs)
 
         
 class NonnegativeGaussian(RegularizedGaussian):
-    
+    """ Implicit Nonnegative Gaussian.
+
+    Defines a so-called implicit prior based on a Gaussian distribution with implicit nonnegativity constraints.
+
+    Can be used as a prior in a posterior which can be sampled with the RegularizedLinearRTO sampler.
+
+    Alias for :class:`~cuqi.implicitprior.RegularizedGaussian` with only nonnegativity constraints.
+
+    For more details on implicit regularized Gaussian see the following paper:
+
+    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized
+    Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
+
+    Parameters
+    ----------
+    mean
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    cov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    prec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtcov
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    sqrtprec
+        See :class:`~cuqi.distribution.Gaussian` for details.
+
+    """
     def __init__(self, mean=None, cov=None, prec=None, sqrtcov=None,sqrtprec=None, **kwargs):
-        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov,sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)
+        super().__init__(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, constraint="nonnegativity", **kwargs)
