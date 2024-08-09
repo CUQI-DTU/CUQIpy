@@ -16,6 +16,9 @@ from cuqi.experimental.mcmc import ULANew, MYULANew
 from cuqi.distribution import Posterior
 import matplotlib.pyplot as plt
 
+from skimage.metrics import normalized_root_mse as nrmse
+from skimage.metrics import mean_squared_error as mse
+
 # %%
 # A simple Bayesian inverse problem
 # ---------------------------------
@@ -75,7 +78,7 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 #
 # See https://link.springer.com/chapter/10.1007/978-3-319-48311-5_31 for more details.
 #
-# Consequently, MYULA reads as follows
+# MYULA consists in applying ULA to a smoothed target distribution. It reads
 #
 # .. math::
 #       \begin{align*}
@@ -98,7 +101,7 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # .. math::
 #    \begin{align*}
 #    \mathbf{x} &\sim \exp (- \texttt{strength_reg} \|\nabla x \|_{2,1})\\
-#    \mathbf{y} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \texttt{sigma2}\,\mathbf{I}) \ ,
+#    \mathbf{y}_obs &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \texttt{sigma2}\,\mathbf{I}) \ ,
 #    \end{align*}
 #
 # with :math:`\texttt{sigma2}=0.05^2`.
@@ -114,66 +117,100 @@ y=cuqi.distribution.Gaussian(A, sigma2)
 likelihood=y(y=y_obs)
 
 # %%
-# Implicit prior definition
-# ---------------------------------
-# To apply MYULA, we need to define the implicit prior :math:`\pi_{\texttt{stength_smooth}}(x)`.
+# RestorationPrior and MoreauYoshidaPrior
+# ---------------------------------------
+# To apply MYULA, we need to define the Moreau-Yoshida prior 
+# :math:`\pi_{\texttt{smoothing_stength}}(x)`.
 # Evaluating this surrogate prior is doable but too intensive from
 # a computational point of view as it requires to solve an optimization problem.
 # However to apply MYULA, we only require access to
 # :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`.
-#
-# As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the
-# smoothing parameter :math:`\texttt{smoothing_strength} \approx \texttt{sigma2}`,
-# ie :math:`\texttt{smoothing_strength}= 0.5 \ \texttt{sigma2}`.
-#
-# We set the regularization parameter to :math:`\texttt{stength_reg}=10`.
+# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`
+# is a denoising operator, which takes a signal as input and returns a less noisy
+# signal. In CUQIPy, we talk about restoration operators. It is an operator at the
+# core of a specific type of priors called RestorationPrior. We cannot sample from
+# these priors but they allow us to define other types of priors.
 
-# %%
-# Regularization and smoothing parameters definition
-strength_reg=10
-restoration_strength=0.5*sigma2
-# %%
-# To estimate :math:`\operatorname{prox}_{\texttt{strength_reg}\  TV}^{\texttt{smoothing_strength}}`
-# we use the implementation provided by Scikit-Image. But we can use any solver
+#%%
+# RestorationPrior definition
+# ---------------------------
+# A restoration operator is associated with a parameter called
+# :math:`\texttt{restoration_strength}`. This parameter indicates how strong is
+# the restoration. For example, when this restoration is a denoiser, an operator
+# taking an signal as input and returning a less noisy signal, :math:`\texttt{restoration_strength}`
+# can correspond to the  denoising level.
+# In the following, we consider the denoising restoration operator
+# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{restoration_strength}}`.
+# We use the implementation provided by Scikit-Image. But we can use any solver
 # to compute this quantity.
-#
 # We emphasize that we have for any :math:`g`
 #
 # .. math::
 #       \operatorname{prox}_{\texttt{strength_reg}\  g}^{\texttt{smoothing_strength}} = \operatorname{prox}_{g}^{\texttt{weight}} ,
 #
 # with :math:`\texttt{weight} = \texttt{strength_reg} \times  \texttt{smoothing_strength}`.
+strength_reg = 10
+restoration_strength = 0.5*sigma2
 from skimage.restoration import denoise_tv_chambolle
 def prox_g(x, strength_reg=None, restoration_strength=None):
-    weight=strength_reg*restoration_strength
+    weight = strength_reg*restoration_strength
     return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), None
 # %%
 # We save all the important variables into the variable
 # :math:`\texttt{restorator_kwargs}`.
-restorator_kwargs={}
-restorator_kwargs["strength_reg"]=strength_reg
+restorator_kwargs = {}
+restorator_kwargs["strength_reg"] = strength_reg
 # %%
-# Now we can define our implicit prior.
+# Now we can define our RestorationPrior.
 restorator = RestorationPrior(
     prox_g,
     restoration_strength=restoration_strength,
     restorator_kwargs=restorator_kwargs,
     geometry=likelihood.model.domain_geometry
 )
-
+#%% Illustration of the effect of the denoising restoration operator.
+# We first apply the restorate method of our restorator to ::math`\mathbf{y}_obs`.
+# This operator should restore ::math`\mathbf{y}_obs` and generate a signal close
+# to ::math`\mathbf{A}\mathbf{x}`.
+res = restorator.restorate(y_obs)
 #%%
+# In this cell, we show the effect of the restorator both from a visual
+# and quantitative point of view. We use the relative error and the mean-squared
+# error. The smaller are these quantities, the better it is.
+
+plt.figure(figsize = (10, 10))
+y_obs.plot(label = "observation (Relative error={:.5f})".format(nrmse(info.exactData, y_obs)))
+res.plot(label = "restoration (Relative error={:.5f})".format(nrmse(info.exactData, res)))
+info.exactData.plot(label= "groundtruth")
+plt.legend()
+
+print("MSE(Ax, y_obs) is ", mse(info.exactData, y_obs)/mse(info.exactData, res), 
+    " times larger than MSE(Ax, res).")
+
+#%% 
+# Definition of the Moreau-Yoshida prior
+# --------------------------------------
+# It is a smoothed version from the target prior. Its definition requires a prior
+# of type RestorationPrior and a scalar parameter :math:`\texttt{smoothing_strength}`
+# which controls the strength of the smoothing. We must have
+# :math:`\texttt{smoothing_strength}=\texttt{restoration_strength}`.
+#
+# As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the
+# smoothing parameter :math:`\texttt{smoothing_strength} \approx \texttt{sigma2}`,
+# ie :math:`\texttt{smoothing_strength}= 0.5 \ \texttt{sigma2}`.
 myprior = MoreauYoshidaPrior(prior=restorator, smoothing_strength=restoration_strength,
                             geometry=restorator.geometry)
 
 # %%
 # Implicitly defined posterior distribution
 # -----------------------------------------
-# We can now define the implicitly defined posterior distribution as follows:
+# We can now define the implicitly defined smoothed posterior distribution as 
+# follows:
 smoothed_posterior=Posterior(likelihood, myprior)
 
 # %%
 # Parameters of the MYULA sampler
-# ------------------------------
+# -------------------------------
 # We let run MYULA for :math:`\texttt{Ns}=10^4`
 # iterations. We discard the :math:`\texttt{Nb}=1000` first burn-in samples of
 # the Markov chain. Furthermore, as MCMC methods generate
@@ -195,12 +232,12 @@ scale=0.9/(1/sigma2 + 1/restoration_strength)
 # In order to get reproducible results, we set the seed parameter to 0.
 np.random.seed(0)
 # %%
-# MYULA sampler
+# ULA sampler
 # -------------
-# Definition of the MYULA sampler.
+# Definition of the ULA sampler which aims at sampling from the smoothed posterior.
 ula_sampler=ULANew(target=smoothed_posterior, scale=scale)
 # %%
-# Sampling with MYULA.
+# Sampling with ULA from the smoothed target posterior.
 ula_sampler.sample(Ns=Ns)
 # %%
 # Retrieve the samples. We apply the burnin and perform thinning to the Markov
@@ -223,11 +260,24 @@ samples_warm.plot_std()
 # Samples autocorrelation plot.
 samples_warm.plot_autocorrelation(max_lag=100)
 #%%
-# Other way to use MYULA.
+# Other way to sample with MYULA
+# ------------------------------
+# To sample with MYULA, we can also define an implicit posterior with a 
+# RestorationPrior object (instead of MoreauYoshidaPrior object) and then automatically
+# perform the Moreau-Yoshida smoothing when defining
+# the MYULA sampler.
 posterior=Posterior(likelihood, restorator)
 #%%
+# Definition of the MYULA sampler
+# -------------------------------
+# Again, we must have :math:`\texttt{smoothing_strength}=\texttt{restoration_strength}`.
 myula_sampler=MYULANew(target=posterior, scale=scale, smoothing_strength=restoration_strength)
 #%%
+# We then sample using the MYULA sampler. It targets the same smoothed distribution
+# as the ULA sampler applied with the smoothed posterior distribution.
+# If the samples generated by ULA and MYULA are the same, then a message "MYULA
+# samples of the posterior are the same ULA samples from the smoothed
+# posterior" 
 np.random.seed(0)
 myula_sampler.sample(Ns=Ns)
 samples_myula=myula_sampler.get_samples()
