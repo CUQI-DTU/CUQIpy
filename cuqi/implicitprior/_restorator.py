@@ -15,7 +15,7 @@ class RestorationPrior(Distribution):
     
     Parameters
     ---------- 
-    restorator : callable f(x)
+    restorator : callable f(x, restoration_strength)
         Function f that accepts input x to be restored and returns the
         restored version of x and information about the restoration operation.
         
