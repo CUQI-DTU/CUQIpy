@@ -101,7 +101,7 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 # .. math::
 #    \begin{align*}
 #    \mathbf{x} &\sim \exp (- \texttt{strength_reg} \|\nabla x \|_{2,1})\\
-#    \mathbf{y}_obs &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \texttt{sigma2}\,\mathbf{I}) \ ,
+#    \mathbf{y}_{obs} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \texttt{sigma2}\,\mathbf{I}) \ ,
 #    \end{align*}
 #
 # with :math:`\texttt{sigma2}=0.05^2`.
@@ -169,8 +169,8 @@ restorator = RestorationPrior(
     geometry=likelihood.model.domain_geometry
 )
 #%% Illustration of the effect of the denoising restoration operator.
-# We first apply the restorate method of our restorator to :math:`\mathbf{y}_obs`.
-# This operator should restore :math:`\mathbf{y}_obs` and generate a signal close
+# We first apply the restorate method of our restorator to :math:`\mathbf{y}_{obs}`.
+# This operator should restore :math:`\mathbf{y}_{obs}` and generate a signal close
 # to :math:`\mathbf{A}\mathbf{x}`.
 res = restorator.restorate(y_obs)
 #%%
