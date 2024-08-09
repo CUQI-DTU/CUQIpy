@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS, FISTA, ADMM
 from cuqi.sampler import Sampler
 
 
@@ -88,40 +88,9 @@ class LinearRTO(Sampler):
         self.maxit = maxit
         self.tol = tol        
         self.shift = 0
-                
-        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
-        L2 = self.prior.sqrtprec
-        L2mu = self.prior.sqrtprecTimesMean
-
+        
         # pre-computations
-        self.n = len(self.x0)
-        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
-
-        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
-        notcallability = [not c for c in callability]
-        if all(notcallability):
-            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
-        elif all(callability):
-            # in this case, model is a function doing forward and backward operations
-            def M(x, flag):
-                if flag == 1:
-                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
-                    out2 = L2 @ x
-                    out  = np.hstack(out1 + [out2])
-                elif flag == 2:
-                    idx_start = 0
-                    idx_end = 0
-                    out1 = np.zeros(self.n)
-                    for likelihood in self.likelihoods:
-                        idx_end += len(likelihood.data)
-                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
-                        idx_start = idx_end
-                    out2 = L2.T @ x[idx_end:]
-                    out  = out1 + out2                
-                return out   
-            self.M = M  
-        else:
-            raise TypeError("All likelihoods need to be callable or none need to be callable.") 
+        self._stack_posterior()
 
     @property
     def prior(self):
@@ -169,6 +138,7 @@ class LinearRTO(Sampler):
         return self._sample(N,Nb)
     
     def _check_posterior(self):
+        
         # Check target type
         if not isinstance(self.target, (cuqi.distribution.Posterior, cuqi.distribution.MultipleLikelihoodPosterior)):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior' or 'cuqi.distribution.MultipleLikelihoodPosterior'.")       
@@ -196,12 +166,47 @@ class LinearRTO(Sampler):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
 
+    def _stack_posterior(self):
+        L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
+        L2 = self.prior.sqrtprec
+        L2mu = self.prior.sqrtprecTimesMean
+
+        self.n = len(self.x0)
+        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
+
+        callability = [callable(likelihood.model) for likelihood in self.likelihoods]
+        notcallability = [not c for c in callability]
+        if all(notcallability):
+            self.M = sp.sparse.vstack([L@likelihood.model for (L, likelihood) in zip(L1, self.likelihoods)] + [L2])
+        elif all(callability):
+            # in this case, model is a function doing forward and backward operations
+            def M(x, flag):
+                if flag == 1:
+                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
+                    out2 = L2 @ x
+                    out  = np.hstack(out1 + [out2])
+                elif flag == 2:
+                    idx_start = 0
+                    idx_end = 0
+                    out1 = np.zeros(self.n)
+                    for likelihood in self.likelihoods:
+                        idx_end += len(likelihood.data)
+                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+                        idx_start = idx_end
+                    out2 = L2.T @ x[idx_end:]
+                    out  = out1 + out2                
+                return out   
+            self.M = M  
+        else:
+            raise TypeError("All likelihoods need to be callable or none need to be callable.") 
 
 class RegularizedLinearRTO(LinearRTO):
     """
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
+
+    The implicit Gaussian prior needs to be an instance of RegularizedGaussian, RegularizedGMRF or RegularizedUniform.
 
     Parameters
     ------------
@@ -212,14 +217,21 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the inner FISTA solver. *Optional*.
+        Maximum number of iterations of the inner FISTA or ADMM solver. *Optional*.
         
     stepsize : string or float
+        Stepsize used by the inner FISTA solver.
         If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
         If stepsize is a float, then this stepsize is used.
 
+    tradeoff : float
+        Trade-off parameter used by the inner ADMM solver.
+
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
+
+    adaptive : boolean
+        Whether to use an adaptive version of the inner solver.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -228,17 +240,22 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", abstol=1e-10, adaptive = True, **kwargs):
+    def __init__(self, target, x0=None, maxit=100, stepsize = "automatic", tradeoff = 10, abstol=1e-10, adaptive = True, warmstart_CGLS = False, **kwargs):
 
+        # FIXME: Temporarily disable safety check for implementation ADMM
+        """
         if not callable(target.prior.proximal):
             raise TypeError("Projector needs to be callable")
-        
-        super().__init__(target, x0=x0, maxit=100, **kwargs)
+        """
+            
+        super().__init__(target, x0=x0, maxit=maxit, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
+        self.rho = tradeoff
         self.abstol = abstol   
         self.adaptive = adaptive
+        self.warmstart_CGLS = warmstart_CGLS
         self.proximal = target.prior.proximal
 
     @property
@@ -267,8 +284,23 @@ class RegularizedLinearRTO(LinearRTO):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = FISTA(self.M, y, samples[:, s], self.proximal,
-                        maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+                
+            if self.warmstart_CGLS:
+                ws_sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
+                x0, _ = ws_sim.solve()
+            else:
+                x0 = samples[:, s]
+
+            if callable(self.proximal):
+                sim = FISTA(self.M, y, self.proximal, # Data
+                            x0,                       # Solver settings
+                            maxit = self.maxit,
+                            stepsize = _stepsize,
+                            abstol = self.abstol,
+                            adaptive = self.adaptive)
+            else:
+                sim = ADMM(self.M, y, self.proximal, x0, self.rho, maxit = self.maxit, adaptive = self.adaptive)
+
             samples[:, s+1], _ = sim.solve()
             
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample

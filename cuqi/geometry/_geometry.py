@@ -225,7 +225,7 @@ class Geometry(ABC):
         return self._all_values_equal(obj)
 
     def __repr__(self) -> str:
-        return "{}{}".format(self.__class__.__name__,self.par_shape)
+        return "{}{}".format(self.__class__.__name__,self.fun_shape)
 
     def _all_values_equal(self, obj):
         """Returns true of all values of the object and self are equal"""
@@ -608,6 +608,7 @@ class Image2D(Geometry):
         else:
             values = values[..., np.newaxis]
         return values
+
 
 class Discrete(Geometry):
     """ Discrete geometry defined by a list of variables.
