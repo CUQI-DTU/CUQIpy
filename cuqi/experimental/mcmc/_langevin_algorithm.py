@@ -8,9 +8,11 @@ from copy import deepcopy
 class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
-    Samples a distribution given its logpdf and gradient (up to a constant) based on
-    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
-    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
+    It approximately samples a distribution given its logpdf gradient based on
+    the Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt, where
+    W_t is the `dim`-dimensional standard Brownian motion.
+    ULA results from the Euler-Maruyama discretization of this Langevin stochastic
+    differential equation (SDE). 
 
     For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
     of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
@@ -25,9 +27,10 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     initial_point : ndarray
         Initial parameters. *Optional*
 
-    scale : int
-        The Langevin diffusion discretization time step (In practice, a scale of 1/dim**2 is
-        recommended but not guaranteed to be the optimal choice).
+    scale : float
+        The Langevin diffusion discretization time step (In practice, scale must
+        be smaller than 1/L, where L is the Lipschitz of the gradient of the log
+        target density, logd).
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -135,9 +138,11 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logd and gradient (up to a constant) based on
-    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
-    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion. 
-    The sample is then accepted or rejected according to Metropolis–Hastings algorithm.
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,
+    W_t is the `dim`-dimensional standard Brownian motion.
+    A sample is firstly proposed by ULA and is then accepted or rejected according
+    to a Metropolis–Hastings step.
+    This accept-reject step allows us to remove the asymptotic bias of ULA.
 
     For more details see: Roberts, G. O., & Tweedie, R. L. (1996). Exponential convergence
     of Langevin distributions and their discrete approximations. Bernoulli, 341-363.
@@ -152,8 +157,10 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
     initial_point : ndarray
         Initial parameters. *Optional*
 
-    scale : int
-        The Langevin diffusion discretization time step.
+    scale : float
+        The Langevin diffusion discretization time step (In practice, scale must
+        be smaller than 1/L, where L is the Lipschitz of the gradient of the log
+        target density, logd).
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -247,10 +254,12 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
 class MYULANew(ULANew):
     """Moreau-Yoshida Unadjusted Langevin algorithm (MYUULA) (Durmus et al., 2018)
 
-    Samples a smoothed target distribution given its logpdf gradient based on
-    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
-    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
-    It targets a density (partially) regularized by the Moreau-Yoshida envelope. 
+    Samples a smoothed target distribution given its smoothed logpdf gradient.
+    It is based on the Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt, 
+    where W_t is a `dim`-dimensional standard Brownian motion.
+    It targets a differentiable density (partially) smoothed by the Moreau-Yoshida
+    envelope. The smoothed target density can be made arbitrarily closed to the
+    true unsmoothed target density.
 
     For more details see: Durmus, Alain, Eric Moulines, and Marcelo Pereyra.
     "Efficient Bayesian
@@ -261,18 +270,18 @@ class MYULANew(ULANew):
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample. The target distribution result from
+        The target distribution to sample from. The target distribution result from
         a differentiable likelihood and prior of type RestorationPrior.
     
     initial_point : ndarray
         Initial parameters. *Optional*
 
-    scale : int
-        The Langevin diffusion discretization time step (In practice, a scale of
-        1/L, where L is the Lipschitz of the gradient of the log target density
-        is recommended but not guaranteed to be the optimal choice).
+    scale : float
+        The Langevin diffusion discretization time step (In practice, scale must
+        be smaller than 1/L, where L is the Lipschitz of the gradient of the log
+        target density, logd).
         
-    smoothing_strength : int
+    smoothing_strength : float
         This parameter controls the smoothing strength of MYULA. smoothing_strength
         must be equal to restoration_strength of the RestoratioPrior.
 
@@ -333,11 +342,13 @@ class PnPULANew(MYULANew):
     """Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)
     (Laumont et al., 2022)
 
-    Samples a distribution given its logpdf gradient based on
-    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,  where L_t is 
-    the Langevin diffusion and W_t is the `dim`-dimensional standard Brownian motion.
-    It targets a density (partially) regularized by a convolution with a Gaussian
-    kernel. 
+    Samples a smoothed target distribution given its smoothed logpdf gradient based on
+    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt, where W_t is
+    a `dim`-dimensional standard Brownian motion.
+    It targets a differentiable density (partially) smoothed by a convolution
+    with Gaussian kernel with zero mean and smoothing_strength variance. The
+    smoothed target density can be made arbitrarily closed to the
+    true unsmoothed target density. 
 
     For more details see: Laumont, R., Bortoli, V. D., Almansa, A., Delon, J.,
     Durmus, A., & Pereyra, M. (2022). Bayesian imaging using plug & play priors:
@@ -353,12 +364,12 @@ class PnPULANew(MYULANew):
     initial_point : ndarray
         Initial parameters. *Optional*
 
-    scale : int
+    scale : float
         The Langevin diffusion discretization time step (In practice, a scale of
         1/L, where L is the Lipschitz of the gradient of the log target density
         is recommended but not guaranteed to be the optimal choice).
         
-    smoothing_strength : int
+    smoothing_strength : float
         This parameter controls the smoothing strength of PnP-ULA. smoothing_strength
         must be equal to restoration_strength of the RestoratioPrior.
 
