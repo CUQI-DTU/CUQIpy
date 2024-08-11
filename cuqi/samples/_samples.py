@@ -873,3 +873,6 @@ class Samples(object):
         ax =  arviz.plot_violin(datadict, **kwargs)
 
         return ax
+
+    def __repr__(self) -> str:
+        return "A CUQIpy samples object with shape {}".format(self.samples.shape)
