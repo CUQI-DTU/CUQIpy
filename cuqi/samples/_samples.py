@@ -875,4 +875,4 @@ class Samples(object):
         return ax
 
     def __repr__(self) -> str:
-        return "A CUQIpy samples object with shape {}".format(self.samples.shape)
+        return f"A CUQIpy samples object containging {self.Ns} samples, each of length {self.samples.shape[1]}."
