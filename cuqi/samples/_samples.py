@@ -875,4 +875,4 @@ class Samples(object):
         return ax
 
     def __repr__(self) -> str:
-        return f"A CUQIpy samples object containging {self.Ns} samples, each of length {self.geometry.par_dim}."
+        return f"A CUQIpy Samples object containging {self.Ns} samples, each of length {self.geometry.par_dim}."
