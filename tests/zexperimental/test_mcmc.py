@@ -346,8 +346,7 @@ def create_myula_smoothed_target(dim=16):
         dim=dim).posterior.likelihood 
     restoration_prior = cuqi.implicitprior.RestorationPrior(
         func, restoration_strength=0.1, geometry=likelihood.model.domain_geometry)
-    myprior = cuqi.implicitprior.MoreauYoshidaPrior(prior=restoration_prior, smoothing_strength=0.1,
-                                                    geometry=likelihood.model.domain_geometry)
+    myprior = cuqi.implicitprior.MoreauYoshidaPrior(prior=restoration_prior, smoothing_strength=0.1)
     posterior = cuqi.distribution.Posterior(
         likelihood, myprior)
     return posterior
