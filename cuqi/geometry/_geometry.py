@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import numpy.matlib as matlib
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import math
 from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
@@ -409,6 +410,7 @@ class Continuous1D(Continuous):
     def _plot_config(self):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
+        plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
 
 
 class Continuous2D(Continuous):
