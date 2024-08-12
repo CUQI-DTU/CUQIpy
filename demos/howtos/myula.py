@@ -198,8 +198,7 @@ print("MSE(Ax, y_obs) is ", mse(info.exactData, y_obs)/mse(info.exactData, res),
 # As suggested by Durmus et al. (https://arxiv.org/pdf/1612.07471), we set the
 # smoothing parameter :math:`\texttt{smoothing_strength} \approx \texttt{sigma2}`,
 # ie :math:`\texttt{smoothing_strength}= 0.5 \ \texttt{sigma2}`.
-myprior = MoreauYoshidaPrior(prior=restorator, smoothing_strength=restoration_strength,
-                            geometry=restorator.geometry)
+myprior = MoreauYoshidaPrior(prior=restorator, smoothing_strength=restoration_strength)
 
 # %%
 # Implicitly defined posterior distribution
