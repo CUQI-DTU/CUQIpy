@@ -142,8 +142,25 @@ class MoreauYoshidaPrior(Distribution):
                  **kwargs):
         self.prior = prior
         self.smoothing_strength = smoothing_strength
+
+        # if kwargs does not contain the geometry,
+        # we set it to the geometry of the prior, if it exists
+        if "geometry" not in kwargs:
+            try:
+                kwargs["geometry"] = self.prior.geometry
+            except:
+                pass
+
         super().__init__(**kwargs)
-        
+
+    @property
+    def geoemtry(self):
+        return self.prior.geometry
+
+    @geoemtry.setter
+    def geometry(self, value):
+        self.prior.geometry = value
+
     @property
     def smoothing_strength(self):
         """ smoothing_strength of the distribution"""
