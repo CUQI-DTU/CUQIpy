@@ -34,7 +34,7 @@ def assert_true_if_sampling_is_equivalent(
         sampler_new.sample(Ns).get_samples().samples[..., new_idx[0]:new_idx[1]]
     )
 
-    assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\n: {samples_new}"
+    assert np.allclose(samples_old, samples_new, atol=atol), f"Old: {samples_old}\nNew: {samples_new}"
 
 def assert_true_if_warmup_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
@@ -92,7 +92,7 @@ def assert_true_if_warmup_is_equivalent(
         samples_new = \
             sampler_new.get_samples().samples[...,Nb+new_idx[0]:new_idx[1]]
 
-    assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\n: {samples_new[0]}"
+    assert np.allclose(samples_old, samples_new), f"Old: {samples_old[0]}\nNew: {samples_new[0]}"
 
 targets = [
     cuqi.testproblem.Deconvolution1D(dim=2).posterior,
