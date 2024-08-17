@@ -1,11 +1,11 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.mcmc import Sampler
 from cuqi.array import CUQIarray
 
-class PCNNew(SamplerNew):  # Refactor to Proposal-based sampler?
+class PCN(Sampler):  # Refactor to Proposal-based sampler?
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'scale', 'current_likelihood_logd', 'lambd'})
+    _STATE_KEYS = Sampler._STATE_KEYS.union({'scale', 'current_likelihood_logd', 'lambd'})
 
     def __init__(self, target=None, scale=1.0, **kwargs):
 

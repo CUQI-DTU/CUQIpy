@@ -1,10 +1,10 @@
 import numpy as np
-from cuqi.experimental.mcmc import ConjugateNew
-from cuqi.experimental.mcmc._conjugate import _ConjugatePair, _get_conjugate_parameter, _check_conjugate_parameter_is_scalar_reciprocal
+from cuqi.mcmc import Conjugate
+from cuqi.mcmc._conjugate import _ConjugatePair, _get_conjugate_parameter, _check_conjugate_parameter_is_scalar_reciprocal
 from cuqi.distribution import LMRF, Gamma
 import scipy as sp
 
-class ConjugateApproxNew(ConjugateNew):
+class ConjugateApprox(Conjugate):
     """ Approximate Conjugate sampler
 
     Sampler for sampling a posterior distribution where the likelihood and prior can be approximated
@@ -17,7 +17,7 @@ class ConjugateApproxNew(ConjugateNew):
 
     LMRF likelihood must have zero mean.
 
-    For more details on conjugacy see :class:`ConjugateNew`.
+    For more details on conjugacy see :class:`Conjugate`.
 
     """
 

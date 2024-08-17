@@ -4,10 +4,10 @@ from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS, FISTA
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.mcmc import Sampler
 
 
-class LinearRTONew(SamplerNew):
+class LinearRTO(Sampler):
     """
     Linear RTO (Randomize-Then-Optimize) sampler.
 
@@ -155,7 +155,7 @@ class LinearRTONew(SamplerNew):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
         return np.zeros(self.dim)
 
-class RegularizedLinearRTONew(LinearRTONew):
+class RegularizedLinearRTO(LinearRTO):
     """
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 

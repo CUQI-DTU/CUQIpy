@@ -1,10 +1,10 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import ProposalBasedSamplerNew
+from cuqi.mcmc import ProposalBasedSampler
 from cuqi.array import CUQIarray
 from numbers import Number
 
-class CWMHNew(ProposalBasedSamplerNew):
+class CWMH(ProposalBasedSampler):
     """Component-wise Metropolis Hastings sampler.
 
     Allows sampling of a target distribution by a component-wise random-walk
@@ -40,7 +40,7 @@ class CWMHNew(ProposalBasedSamplerNew):
 
     kwargs : dict
         Additional keyword arguments to be passed to the base class 
-        :class:`ProposalBasedSamplerNew`.
+        :class:`ProposalBasedSampler`.
 
     Example
     -------
@@ -61,14 +61,14 @@ class CWMHNew(ProposalBasedSamplerNew):
             dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.CWMHNew(target, scale=1)
+        sampler = cuqi.mcmc.CWMH(target, scale=1)
 
         # Sample
         samples = sampler.sample(2000).get_samples()
 
     """
 
-    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union(['_scale_temp'])
+    _STATE_KEYS = ProposalBasedSampler._STATE_KEYS.union(['_scale_temp'])
 
     def __init__(self, target:cuqi.density.Density=None, proposal=None, scale=1,
                  initial_point=None, **kwargs):
@@ -78,7 +78,7 @@ class CWMHNew(ProposalBasedSamplerNew):
     def _initialize(self):
         if isinstance(self.scale, Number):
             self.scale = np.ones(self.dim)*self.scale
-        self._acc = [np.ones((self.dim))] # Overwrite acc from ProposalBasedSamplerNew with list of arrays
+        self._acc = [np.ones((self.dim))] # Overwrite acc from ProposalBasedSampler with list of arrays
 
         # Handling of temporary scale parameter due to possible bug in old CWMH
         self._scale_temp = self.scale.copy()

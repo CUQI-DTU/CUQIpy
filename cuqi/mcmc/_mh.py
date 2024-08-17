@@ -1,9 +1,9 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import ProposalBasedSamplerNew
+from cuqi.mcmc import ProposalBasedSampler
 
 
-class MHNew(ProposalBasedSamplerNew):
+class MH(ProposalBasedSampler):
     """ Metropolis-Hastings (MH) sampler.
 
     Parameters
@@ -18,11 +18,11 @@ class MHNew(ProposalBasedSamplerNew):
         Scaling parameter for the proposal distribution.
 
     kwargs : dict
-        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSamplerNew`.
+        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSampler`.
 
     """
 
-    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union({'scale', '_scale_temp'})
+    _STATE_KEYS = ProposalBasedSampler._STATE_KEYS.union({'scale', '_scale_temp'})
 
     def __init__(self, target=None, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)

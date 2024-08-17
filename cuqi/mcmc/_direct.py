@@ -1,6 +1,6 @@
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.mcmc import Sampler
 
-class DirectNew(SamplerNew):
+class Direct(Sampler):
     """ Direct sampler
 
     This sampler is used to sample from a target distribution directly. It simply calls the sample method of the target object to generate a sample.
