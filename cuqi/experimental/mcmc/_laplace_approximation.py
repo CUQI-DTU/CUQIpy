@@ -2,9 +2,9 @@ import scipy as sp
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 
-class UGLANew(SamplerNew):
+class UGLA(Sampler):
     """ Unadjusted (Gaussian) Laplace Approximation sampler
     
     Samples an approximate posterior where the prior is approximated

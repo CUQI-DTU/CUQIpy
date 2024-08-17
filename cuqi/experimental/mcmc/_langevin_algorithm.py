@@ -1,9 +1,9 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 from cuqi.array import CUQIarray
 
-class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
+class ULA(Sampler): # Refactor to Proposal-based sampler?
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logpdf and gradient (up to a constant) based on
@@ -52,7 +52,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.ULANew(target, scale=1/dim**2)
+        sampler = cuqi.experimental.mcmc.ULA(target, scale=1/dim**2)
 
         # Sample
         sampler.sample(2000)
@@ -61,7 +61,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
     # TODO: update demo once sampler merged
     """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
+    _STATE_KEYS = Sampler._STATE_KEYS.union({'current_target_logd', 'scale', 'current_target_grad'})
 
     def __init__(self, target=None, scale=1.0, **kwargs):
 
@@ -125,7 +125,7 @@ class ULANew(SamplerNew): # Refactor to Proposal-based sampler?
         pass
 
 
-class MALANew(ULANew): # Refactor to Proposal-based sampler?
+class MALA(ULA): # Refactor to Proposal-based sampler?
     """  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)
 
     Samples a distribution given its logd and gradient (up to a constant) based on
@@ -174,7 +174,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.MALANew(target, scale=1/5**2)
+        sampler = cuqi.experimental.mcmc.MALA(target, scale=1/5**2)
 
         # Sample
         sampler.sample(2000)

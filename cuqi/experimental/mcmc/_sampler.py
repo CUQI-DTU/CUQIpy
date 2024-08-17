@@ -13,7 +13,7 @@ except ImportError:
         warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
         return iterable
 
-class SamplerNew(ABC):
+class Sampler(ABC):
     """ Abstract base class for all samplers.
     
     Provides a common interface for all samplers. The interface includes methods for sampling, warmup and getting the samples in an object oriented way.
@@ -194,7 +194,7 @@ class SamplerNew(ABC):
 
         self.set_state(state)
 
-    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'SamplerNew':
+    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'Sampler':
         """ Sample Ns samples from the target density.
 
         Parameters
@@ -239,7 +239,7 @@ class SamplerNew(ABC):
         return self
     
 
-    def warmup(self, Nb, tune_freq=0.1) -> 'SamplerNew':
+    def warmup(self, Nb, tune_freq=0.1) -> 'Sampler':
         """ Warmup the sampler by drawing Nb samples.
 
         Parameters
@@ -407,10 +407,10 @@ class SamplerNew(ABC):
             msg += f"\t {key}: {value} \n"
         return msg
 
-class ProposalBasedSamplerNew(SamplerNew, ABC):
+class ProposalBasedSampler(Sampler, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale'})
+    _STATE_KEYS = Sampler._STATE_KEYS.union({'current_target_logd', 'scale'})
 
     def __init__(self, target=None, proposal=None, scale=1, **kwargs):
         """ Initializer for abstract base class for samplers that use a proposal distribution.
@@ -419,7 +419,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         Initialization of the sampler should be done in the _initialize method.
 
-        See :class:`SamplerNew` for additional details.
+        See :class:`Sampler` for additional details.
 
         Parameters
         ----------
@@ -433,7 +433,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
             The scale parameter for the proposal distribution.
 
         **kwargs : dict
-            Additional keyword arguments passed to the :class:`SamplerNew` initializer.
+            Additional keyword arguments passed to the :class:`Sampler` initializer.
 
         """
 
