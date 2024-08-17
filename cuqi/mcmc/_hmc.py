@@ -1,6 +1,6 @@
 import numpy as np
 import numpy as np
-from cuqi.experimental.mcmc import Sampler
+from cuqi.mcmc import Sampler
 from cuqi.array import CUQIarray
 from numbers import Number
 
@@ -58,7 +58,7 @@ class NUTS(Sampler):
         target = tp.posterior
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.NUTS(target)
+        sampler = cuqi.mcmc.NUTS(target)
 
         # Sample
         sampler.warmup(5000)

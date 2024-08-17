@@ -2,9 +2,9 @@ import cuqi
 import inspect
 
 def find_valid_samplers(target):
-    """ Finds all samplers in the cuqi.experimental.mcmc module that accept the provided target. """
+    """ Finds all samplers in the cuqi.mcmc module that accept the provided target. """
 
-    all_samplers = [(name, cls) for name, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass) if issubclass(cls, cuqi.experimental.mcmc.Sampler)]
+    all_samplers = [(name, cls) for name, cls in inspect.getmembers(cuqi.mcmc, inspect.isclass) if issubclass(cls, cuqi.mcmc.Sampler)]
     valid_samplers = []
 
     for name, sampler in all_samplers:

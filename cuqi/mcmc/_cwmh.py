@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import ProposalBasedSampler
+from cuqi.mcmc import ProposalBasedSampler
 from cuqi.array import CUQIarray
 from numbers import Number
 
@@ -61,7 +61,7 @@ class CWMH(ProposalBasedSampler):
             dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.CWMH(target, scale=1)
+        sampler = cuqi.mcmc.CWMH(target, scale=1)
 
         # Sample
         samples = sampler.sample(2000).get_samples()

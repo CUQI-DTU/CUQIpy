@@ -1,7 +1,7 @@
 import numpy as np
 from abc import ABC, abstractmethod
 import math
-from cuqi.experimental.mcmc import Sampler
+from cuqi.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.utilities import get_non_default_args

@@ -2,7 +2,7 @@ import scipy as sp
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS
-from cuqi.experimental.mcmc import Sampler
+from cuqi.mcmc import Sampler
 
 class UGLA(Sampler):
     """ Unadjusted (Gaussian) Laplace Approximation sampler

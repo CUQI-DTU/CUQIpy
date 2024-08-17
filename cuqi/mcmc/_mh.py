@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import ProposalBasedSampler
+from cuqi.mcmc import ProposalBasedSampler
 
 
 class MH(ProposalBasedSampler):

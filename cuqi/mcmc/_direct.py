@@ -1,4 +1,4 @@
-from cuqi.experimental.mcmc import Sampler
+from cuqi.mcmc import Sampler
 
 class Direct(Sampler):
     """ Direct sampler
