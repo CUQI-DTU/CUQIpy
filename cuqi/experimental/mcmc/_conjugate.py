@@ -1,12 +1,12 @@
 import numpy as np
 from abc import ABC, abstractmethod
 import math
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.utilities import get_non_default_args
 
-class ConjugateNew(SamplerNew):
+class Conjugate(Sampler):
     """ Conjugate sampler
 
     Sampler for sampling a posterior distribution which is a so-called "conjugate" distribution, i.e., where the likelihood and prior are conjugate to each other - denoted as a conjugate pair.   
@@ -34,7 +34,7 @@ class ConjugateNew(SamplerNew):
     def _initialize(self):
         pass
 
-    @SamplerNew.target.setter # Overwrite the target setter to set the conjugate pair
+    @Sampler.target.setter # Overwrite the target setter to set the conjugate pair
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
         self._target = value

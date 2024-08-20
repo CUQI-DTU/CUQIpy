@@ -1,5 +1,5 @@
 from cuqi.distribution import JointDistribution
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples
 from typing import Dict
 import numpy as np
@@ -12,9 +12,9 @@ except ImportError:
         warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
         return iterable
 
-# Not subclassed from SamplerNew as Gibbs handles multiple samplers and samples multiple parameters
+# Not subclassed from Sampler as Gibbs handles multiple samplers and samples multiple parameters
 # Similar approach as for JointDistribution
-class HybridGibbsNew: 
+class HybridGibbs: 
     """
     Hybrid Gibbs sampler for sampling a joint distribution.
 
@@ -80,13 +80,13 @@ class HybridGibbsNew:
 
         # Define sampling strategy
         sampling_strategy = {
-            'x': cuqi.experimental.mcmc.LinearRTONew(maxit=15),
-            'd': cuqi.experimental.mcmc.ConjugateNew(),
-            'l': cuqi.experimental.mcmc.ConjugateNew(),
+            'x': cuqi.experimental.mcmc.LinearRTO(maxit=15),
+            'd': cuqi.experimental.mcmc.Conjugate(),
+            'l': cuqi.experimental.mcmc.Conjugate(),
         }
 
         # Define Gibbs sampler
-        sampler = cuqi.experimental.mcmc.HybridGibbsNew(posterior, sampling_strategy)
+        sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
 
         # Run sampler
         samples = sampler.sample(Ns=1000, Nb=200)
@@ -98,7 +98,7 @@ class HybridGibbsNew:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, SamplerNew], num_sampling_steps: Dict[str, int] = None):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -150,13 +150,13 @@ class HybridGibbsNew:
         for sampler in self.samplers.values():
             sampler.validate_target()
 
-    def sample(self, Ns) -> 'HybridGibbsNew':
+    def sample(self, Ns) -> 'HybridGibbs':
         """ Sample from the joint distribution using Gibbs sampling """
         for _ in progressbar(range(Ns)):
             self.step()
             self._store_samples()
 
-    def warmup(self, Nb) -> 'HybridGibbsNew':
+    def warmup(self, Nb) -> 'HybridGibbs':
         """ Warmup (tune) the Gibbs sampler """
         for idx in progressbar(range(Nb)):
             self.step()

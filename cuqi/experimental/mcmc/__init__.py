@@ -1,15 +1,15 @@
 """ Re-implementation of sampler module in a more object oriented way. """
 
-from ._sampler import SamplerNew, ProposalBasedSamplerNew
-from ._langevin_algorithm import ULANew, MALANew
-from ._mh import MHNew
-from ._pcn import PCNNew
-from ._rto import LinearRTONew, RegularizedLinearRTONew
-from ._cwmh import CWMHNew
-from ._laplace_approximation import UGLANew
-from ._hmc import NUTSNew
-from ._gibbs import HybridGibbsNew
-from ._conjugate import ConjugateNew
-from ._conjugate_approx import ConjugateApproxNew
-from ._direct import DirectNew
+from ._sampler import Sampler, ProposalBasedSampler
+from ._langevin_algorithm import ULA, MALA
+from ._mh import MH
+from ._pcn import PCN
+from ._rto import LinearRTO, RegularizedLinearRTO
+from ._cwmh import CWMH
+from ._laplace_approximation import UGLA
+from ._hmc import NUTS
+from ._gibbs import HybridGibbs
+from ._conjugate import Conjugate
+from ._conjugate_approx import ConjugateApprox
+from ._direct import Direct
 from ._utilities import find_valid_samplers

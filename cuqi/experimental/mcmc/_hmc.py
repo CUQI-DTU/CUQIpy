@@ -1,10 +1,10 @@
 import numpy as np
 import numpy as np
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 from cuqi.array import CUQIarray
 from numbers import Number
 
-class NUTSNew(SamplerNew):
+class NUTS(Sampler):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
     Samples a distribution given its logpdf and gradient using a Hamiltonian
@@ -58,7 +58,7 @@ class NUTSNew(SamplerNew):
         target = tp.posterior
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.NUTSNew(target)
+        sampler = cuqi.experimental.mcmc.NUTS(target)
 
         # Sample
         sampler.warmup(5000)
@@ -87,11 +87,11 @@ class NUTSNew(SamplerNew):
 
     """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
+    _STATE_KEYS = Sampler._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
                                                 '_H_bar', '_mu',
                                                 '_alpha', '_n_alpha'})
 
-    _HISTORY_KEYS = SamplerNew._HISTORY_KEYS.union({'num_tree_node_list',
+    _HISTORY_KEYS = Sampler._HISTORY_KEYS.union({'num_tree_node_list',
                                                     'epsilon_list',
                                                     'epsilon_bar_list'})
 
@@ -120,7 +120,7 @@ class NUTSNew(SamplerNew):
     def _initialize(self):
 
         # Arrays to store acceptance rate
-        self._acc = [None] # Overwrites acc from SamplerNew. TODO. Check if this is necessary
+        self._acc = [None] # Overwrites acc from Sampler. TODO. Check if this is necessary
 
         self._alpha = 0 # check if meaningful value
         self._n_alpha = 0 # check if meaningful value
@@ -188,7 +188,7 @@ class NUTSNew(SamplerNew):
         self._opt_acc_rate = value
 
     #=========================================================================
-    #================== Implement methods required by SamplerNew =============
+    #================== Implement methods required by Sampler =============
     #=========================================================================
     def validate_target(self):
         # Check if the target has logd and gradient methods
