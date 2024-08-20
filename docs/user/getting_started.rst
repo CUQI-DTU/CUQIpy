@@ -23,7 +23,19 @@ easily be installed through anaconda.
 Installation
 ------------
 
-Installing CUQIpy is easy. Open your terminal (Linux and Mac) or Anaconda Prompt (Windows) and install it using pip:
+Before installing CUQIpy, We highly recommend creating a new Python environment using conda. This will ensure that CUQIpy's dependencies do not interfere with other Python packages you may have installed. Additinally, we also install pip in the environment.
+
+.. code-block:: sh
+
+   conda create -n cuqipy-env pip
+
+Activate the environment:
+
+.. code-block:: sh
+
+   conda activate cuqipy-env
+
+Then install CUQIpy and all its dependencies:
 
 .. code-block:: sh
 
@@ -106,3 +118,8 @@ Then run the tests from the terminal (Linux or Mac) or Anaconda Prompt (Windows)
 .. code-block:: sh
 
    python -m pytest -v
+
+Working with VS Code (optional)
+-------------------------------
+
+To improve your coding experience with Python in VS Code, you might want to install the [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) and [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extensions in VS Code. In VS Code, don't forget to select a Python interpreter in the environment that CUQIpy is installed. More information on how to work with Python in VS Code can be found [here](https://code.visualstudio.com/docs/languages/python).
