@@ -175,6 +175,10 @@ class JointDistribution:
                 kwargs[ordered_keys[index]] = arg
         return kwargs
 
+    def _sum_evaluated_densities(self):
+        """ Return the sum of the evaluated densities in the joint distribution """
+        return sum([density.logd() for density in self._evaluated_densities])
+
     def _reduce_to_single_density(self):
         """ Reduce the joint distribution to a single density if possible.
 
@@ -201,7 +205,10 @@ class JointDistribution:
             # Ensure parameter names match, otherwise return the joint distribution
             if set(self._likelihoods[0].get_parameter_names()) != set(self._distributions[0].get_parameter_names()):
                 return self
-            return Posterior(self._likelihoods[0], self._distributions[0])
+            # If match, create posterior and set constant to the sum of the EvaluatedDensities
+            posterior = Posterior(self._likelihoods[0], self._distributions[0])
+            posterior._constant = self._sum_evaluated_densities()
+            return posterior
         
         # If exactly one distribution and no likelihoods its a Distribution
         if n_dist == 1 and n_likelihood == 0:
