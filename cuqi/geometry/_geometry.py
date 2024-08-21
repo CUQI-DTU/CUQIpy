@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 import numpy as np
 import numpy.matlib as matlib
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
 import math
 from scipy.fftpack import dst, idst
 import scipy.sparse as sparse
