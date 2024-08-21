@@ -876,3 +876,10 @@ class Samples(object):
 
     def __repr__(self) -> str:
         return f"A CUQIpy Samples object containging {self.Ns} samples, each of length {self.geometry.par_dim}."
+    def __repr__(self) -> str: 
+        return "CUQIpy Samples:\n" + \
+               "---------------\n\n" + \
+               "Ns (number of samples):\n {}\n\n".format(self.Ns) + \
+               "Geometry:\n {}\n\n".format(self.geometry) + \
+               "Shape:\n {}\n\n".format(self.shape) + \
+               "Samples:\n {}\n\n".format(self.samples)
