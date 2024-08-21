@@ -410,6 +410,7 @@ class Continuous1D(Continuous):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
 
+
 class Continuous2D(Continuous):
 
     def __init__(self,grid=None,axis_labels=None):
