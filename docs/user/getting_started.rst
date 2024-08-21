@@ -16,24 +16,29 @@ We recommend installing python via the anaconda distribution:
 
 Anaconda comes with many useful python libraries pre-installed and makes it easy to run CUQIpy code
 via the jupyter notebook app. In addition, CUQIpy plugins often require 3rd party libraries that can most
-easily be installed through anaconda.
+easily be installed through anaconda. |Miniconda| is a lightweight alternative to Anaconda if storage is a concern.
+
+.. |Miniconda| raw:: html
+
+   <a href="https://docs.anaconda.com/miniconda/miniconda-install/" target="_blank">Miniconda</a>
+
 
 .. _install:
 
 Installation
 ------------
 
-Before installing CUQIpy, We highly recommend creating a new Python environment using conda. This will ensure that CUQIpy's dependencies do not interfere with other Python packages you may have installed. Additinally, we also install pip in the environment.
+Before installing CUQIpy, We highly recommend creating a new Python environment using conda. This will ensure that CUQIpy's dependencies do not interfere with other Python packages you may have installed. Here we choose `cuqipy` as the environment's name and also install pip in it.
 
 .. code-block:: sh
 
-   conda create -n cuqipy-env pip
+   conda create -n cuqipy pip
 
 Activate the environment:
 
 .. code-block:: sh
 
-   conda activate cuqipy-env
+   conda activate cuqipy
 
 Then install CUQIpy and all its dependencies:
 
@@ -42,6 +47,13 @@ Then install CUQIpy and all its dependencies:
    pip install cuqipy
 
 This will install the latest version of CUQIpy and all its dependencies.
+
+It is also suggested to install ipykernel as we usually work with jupyter notebooks a lot:
+
+.. code-block:: sh
+
+   pip install ipykernel
+
 
 Verification
 ------------
@@ -122,4 +134,16 @@ Then run the tests from the terminal (Linux or Mac) or Anaconda Prompt (Windows)
 Working with VS Code (optional)
 -------------------------------
 
-To improve your coding experience with Python in VS Code, you might want to install the [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python) and [Jupyter](https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter) extensions in VS Code. In VS Code, don't forget to select a Python interpreter in the environment that CUQIpy is installed. More information on how to work with Python in VS Code can be found [here](https://code.visualstudio.com/docs/languages/python).
+To improve your coding experience with Python in VS Code, you might want to install the |Python-extension| and |Jupyter-extension| extensions in VS Code. In VS Code, don't forget to select a Python interpreter in the environment that CUQIpy is installed. More information on how to work with Python in VS Code can be found |Python-setup-VSCode|(https://code.visualstudio.com/docs/languages/python).
+
+.. |Python-extension| raw:: html
+
+   <a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python" target="_blank">Python extension</a>
+
+.. |Jupyter-extension| raw:: html
+
+   <a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter" target="_blank">Jupyter extension</a>
+
+.. |Python-setup-VSCode| raw:: html
+
+   <a href="https://code.visualstudio.com/docs/languages/python" target="_blank">Python in VS Code</a>
