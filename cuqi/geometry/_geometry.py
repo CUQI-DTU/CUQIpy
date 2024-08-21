@@ -410,8 +410,6 @@ class Continuous1D(Continuous):
     def _plot_config(self):
         if self.axis_labels is not None:
             plt.xlabel(self.axis_labels[0])
-        plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-
 
 class Continuous2D(Continuous):
 
