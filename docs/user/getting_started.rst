@@ -134,16 +134,16 @@ Then run the tests from the terminal (Linux or Mac) or Anaconda Prompt (Windows)
 Working with VS Code (optional)
 -------------------------------
 
-To improve your coding experience with Python in VS Code, you might want to install the |Python-extension| and |Jupyter-extension| extensions in VS Code. In VS Code, don't forget to select a Python interpreter in the environment that CUQIpy is installed. More information on how to work with Python in VS Code can be found |Python-setup-VSCode|(https://code.visualstudio.com/docs/languages/python).
+To improve your coding experience with Python in VS Code, you might want to install the |Python-extension| and |Jupyter-extension| extensions in VS Code. In VS Code, don't forget to select a Python interpreter in the environment that CUQIpy is installed. More information on how to work with Python in VS Code can be found |Python-VSCode|.
 
 .. |Python-extension| raw:: html
 
-   <a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python" target="_blank">Python extension</a>
+   <a href="https://marketplace.visualstudio.com/items?itemName=ms-python.python" target="_blank">Python</a>
 
 .. |Jupyter-extension| raw:: html
 
-   <a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter" target="_blank">Jupyter extension</a>
+   <a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter" target="_blank">Jupyter</a>
 
-.. |Python-setup-VSCode| raw:: html
+.. |Python-VSCode| raw:: html
 
-   <a href="https://code.visualstudio.com/docs/languages/python" target="_blank">Python in VS Code</a>
+   <a href="https://code.visualstudio.com/docs/languages/python" target="_blank">here</a>
