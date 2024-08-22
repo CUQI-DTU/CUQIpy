@@ -812,7 +812,7 @@ def test_HybridGibbs_initial_point_setting():
     # Sampling strategy
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
-        "s" : cuqi.experimental.mcmc.MH(initial_point=2),
+        "s" : cuqi.experimental.mcmc.MH(),
         "x" : cuqi.experimental.mcmc.MALA(initial_point=0.5*np.ones(10))
     }
 
@@ -821,6 +821,5 @@ def test_HybridGibbs_initial_point_setting():
 
     # Test that the initial point is set correctly in Gibbs
     assert sampler.current_samples["d"] == 3
-    assert sampler.current_samples["s"] == 2
+    assert sampler.current_samples["s"] == 1 # Default initial point of MH is 1.
     assert np.allclose(sampler.current_samples["x"], 0.5*np.ones(10))
-        
