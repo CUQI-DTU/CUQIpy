@@ -205,18 +205,24 @@ class JointDistribution:
             # Ensure parameter names match, otherwise return the joint distribution
             if set(self._likelihoods[0].get_parameter_names()) != set(self._distributions[0].get_parameter_names()):
                 return self
-            # If match, create posterior and set constant to the sum of the EvaluatedDensities
-            posterior = Posterior(self._likelihoods[0], self._distributions[0])
-            posterior._constant = self._sum_evaluated_densities()
-            return posterior
-        
+            return self._add_constants_to_density(Posterior(self._likelihoods[0], self._distributions[0]))
+
         # If exactly one distribution and no likelihoods its a Distribution
         if n_dist == 1 and n_likelihood == 0:
-            return self._distributions[0]
-
+            return self._add_constants_to_density(self._distributions[0])        
+        
         # If no distributions and exactly one likelihood its a Likelihood
         if n_likelihood == 1 and n_dist == 0:
             return self._likelihoods[0]
+        
+    def _add_constants_to_density(self, density: Density):
+        """ Add the constants (evaluated densities) to a single density. Used when reducing to single density. """
+        constant = self._sum_evaluated_densities()
+        if isinstance(density, EvaluatedDensity):
+            density.value += constant
+        else:
+            density._constant += constant
+        return density
 
     def _as_stacked(self) -> _StackedJointDistribution:
         """ Return a stacked JointDistribution with the same densities. """
