@@ -48,7 +48,7 @@ Then install CUQIpy and all its dependencies:
 
 This will install the latest version of CUQIpy and all its dependencies.
 
-It is also suggested to install ipykernel as we usually work with jupyter notebooks a lot:
+We also suggest installing ipykernel to be able to run `cuqipy` jupyter notebook examples:
 
 .. code-block:: sh
 
