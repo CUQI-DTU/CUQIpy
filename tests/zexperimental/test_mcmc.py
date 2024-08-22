@@ -788,3 +788,39 @@ def test_find_valid_samplers_implicit_prior():
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
     assert(len(set(valid_samplers)) == 0)
+
+# ============ Testing of HybridGibbs ============
+
+def test_HybridGibbs_initial_point_setting():
+    """ Test that the HybridGibbs sampler adheres to the initial point set by sampling strategy. """
+
+    # Forward model
+    A, y_data, _ = cuqi.testproblem.Deconvolution1D(dim=10).get_components()
+
+    # Bayesian Problem
+    d = cuqi.distribution.Uniform(0, 100)
+    s = cuqi.distribution.Uniform(0, 100)
+    x = cuqi.distribution.Gaussian(0, lambda d: 1/d, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+
+    # Joint distribution
+    joint = cuqi.distribution.JointDistribution(x, y, d, s)
+
+    # Posterior
+    posterior = joint(y=y_data)
+
+    # Sampling strategy
+    sampling_strategy = {
+        "d" : cuqi.experimental.mcmc.MH(initial_point=3),
+        "s" : cuqi.experimental.mcmc.MH(initial_point=2),
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0.5*np.ones(10))
+    }
+
+    # Hybrid Gibbs sampler
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy=sampling_strategy)
+
+    # Test that the initial point is set correctly in Gibbs
+    assert sampler.current_samples["d"] == 3
+    assert sampler.current_samples["s"] == 2
+    assert np.allclose(sampler.current_samples["x"], 0.5*np.ones(10))
+        

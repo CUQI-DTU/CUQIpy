@@ -255,8 +255,8 @@ class HybridGibbs:
         """ Get initial points for each parameter """
         initial_points = {}
         for par_name in self.par_names:
-            sampler = samplers[par_name]
-            if not sampler.initial_point:
+            sampler = self.samplers[par_name]
+            if sampler.initial_point is None:
                 sampler.initial_point = sampler._get_default_initial_point(self.target.get_density(par_name).dim)
             initial_points[par_name] = sampler.initial_point
             
