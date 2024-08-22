@@ -34,7 +34,7 @@ Before installing CUQIpy, We highly recommend creating a new Python environment 
 
    conda create -n cuqipy pip
 
-Activate the environment:
+Then to activate the environment:
 
 .. code-block:: sh
 
