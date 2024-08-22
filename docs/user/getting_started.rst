@@ -40,7 +40,7 @@ Then to activate the environment:
 
    conda activate cuqipy
 
-Then install CUQIpy and all its dependencies:
+Then install CUQIpy and all its dependencies in the activated environment `cuqipy`:
 
 .. code-block:: sh
 
