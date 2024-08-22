@@ -28,7 +28,7 @@ easily be installed through anaconda. |Miniconda| is a lightweight alternative t
 Installation
 ------------
 
-Before installing CUQIpy, We highly recommend creating a new Python environment using conda. This will ensure that CUQIpy's dependencies do not interfere with other Python packages you may have installed. Here we choose `cuqipy` as the environment's name and also install pip in it.
+Before installing CUQIpy, We highly recommend creating a new Python environment using conda. This will ensure that CUQIpy's dependencies do not interfere with other Python packages you may have installed. Here we choose `cuqipy` as the environment's name and also install pip in it with the following command
 
 .. code-block:: sh
 
