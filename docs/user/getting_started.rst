@@ -134,7 +134,7 @@ Then run the tests from the terminal (Linux or Mac) or Anaconda Prompt (Windows)
 Working with VS Code (optional)
 -------------------------------
 
-To improve your coding experience with Python in VS Code, you might want to install the |Python-extension| and |Jupyter-extension| extensions in VS Code. In VS Code, don't forget to select a Python interpreter in the environment that CUQIpy is installed. More information on how to work with Python in VS Code can be found |Python-VSCode|.
+To improve your coding experience with Python in VS Code, we recommend installing the |Python-extension| and |Jupyter-extension| extensions in VS Code. In VS Code, don't forget to select the Python interpreter of the environment in which CUQIpy is installed, `cuqipy` in this case. More information on how to work with Python in VS Code can be found |Python-VSCode|.
 
 .. |Python-extension| raw:: html
 
