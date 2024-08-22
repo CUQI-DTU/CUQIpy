@@ -150,10 +150,9 @@ class LinearRTO(Sampler):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
     
-    @property
-    def _default_initial_point(self):
+    def _get_default_initial_point(self, dim):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
-        return np.zeros(self.dim)
+        return np.zeros(dim)
 
 class RegularizedLinearRTO(LinearRTO):
     """
