@@ -320,8 +320,13 @@ class Distribution(Density, ABC):
 
                 elif len(var_args)>0:                      #Some keywords found
                     # Define new partial function with partially defined args
-                    func = partial(var_val, **var_args)
-                    setattr(new_dist, var_key, func)
+                    # Try evaluating function partially with keywords
+                    try:
+                        setattr(new_dist, var_key, var_val(**var_args))
+                    # If fails define new partial function with partially defined args
+                    except TypeError:
+                        func = partial(var_val, **var_args)
+                        setattr(new_dist, var_key, func)
                 
                 # Store processed keywords
                 processed_kwargs.update(var_args.keys())
