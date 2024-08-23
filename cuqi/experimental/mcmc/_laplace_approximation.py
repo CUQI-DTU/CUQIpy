@@ -75,7 +75,7 @@ class UGLA(Sampler):
     
     @property
     def data(self):
-        return self.target.data
+        return self.target.data - self.target.model._shift
 
     def _precompute(self):
 
@@ -106,12 +106,12 @@ class UGLA(Sampler):
         # Least squares form
         def M(x, flag):
             if flag == 1:
-                out1 = self._L1 @ self.model.forward(x)
+                out1 = self._L1 @ self.model._forward_no_shift(x) # Use forward function which excludes shift
                 out2 = np.sqrt(1/self.prior.scale)*(self._L2 @ x)
                 out  = np.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
-                out1 = self.model.adjoint(self._L1.T@x[:idx])
+                out1 = self.model._adjoint_no_shift(self._L1.T@x[:idx]) # Use forward function which excludes shift
                 out2 = np.sqrt(1/self.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out
@@ -139,9 +139,9 @@ class UGLA(Sampler):
         if not isinstance(self.target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 
-        # Check Linear model
-        if not isinstance(self.likelihood.model, cuqi.model.LinearModel):
-            raise TypeError("Model needs to be linear")
+        # Check Affine model
+        if not isinstance(self.likelihood.model, cuqi.model.AffineModel):
+            raise TypeError("Model needs to be affine or linear")
 
         # Check Gaussian likelihood
         if not hasattr(self.likelihood.distribution, "sqrtprec"):

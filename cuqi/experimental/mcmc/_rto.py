@@ -11,7 +11,7 @@ class LinearRTO(Sampler):
     """
     Linear RTO (Randomize-Then-Optimize) sampler.
 
-    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is Linear.
+    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is affine.
 
     Parameters
     ------------
@@ -22,7 +22,7 @@ class LinearRTO(Sampler):
         
         Here:
         data: is a m-dimensional numpy array containing the measured data.
-        model: is a m by n dimensional matrix or LinearModel representing the forward model.
+        model: is a m by n dimensional matrix, AffineModel or LinearModel representing the forward model.
         L_sqrtprec: is the squareroot of the precision matrix of the Gaussian likelihood.
         P_mean: is the prior mean.
         P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
@@ -75,7 +75,7 @@ class LinearRTO(Sampler):
     
     @property
     def data(self):
-        return self.target.data
+        return self.target.data - self.target.model._shift # Include shift from AffineModel here
     
     def _precompute(self):
         L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
@@ -84,7 +84,7 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = self.prior.dim
-        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) 
+        self.b_tild = np.hstack([L@likelihood.data - self.target.model._shift for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) #TODO: shift in data here?
 
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
@@ -94,7 +94,7 @@ class LinearRTO(Sampler):
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
                 if flag == 1:
-                    out1 = [L @ likelihood.model.forward(x) for (L, likelihood) in zip(L1, self.likelihoods)]
+                    out1 = [L @ likelihood.model._forward_no_shift(x) for (L, likelihood) in zip(L1, self.likelihoods)] # Use forward function which excludes shift
                     out2 = L2 @ x
                     out  = np.hstack(out1 + [out2])
                 elif flag == 2:
@@ -103,7 +103,7 @@ class LinearRTO(Sampler):
                     out1 = np.zeros(self.n)
                     for likelihood in self.likelihoods:
                         idx_end += len(likelihood.data)
-                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+                        out1 += likelihood.model._adjoint_no_shift(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end]) # Use adjoint function which excludes shift
                         idx_start = idx_end
                     out2 = L2.T @ x[idx_end:]
                     out  = out1 + out2                
@@ -129,16 +129,16 @@ class LinearRTO(Sampler):
 
         # Check Linear model and Gaussian likelihood(s)
         if isinstance(self.target, cuqi.distribution.Posterior):
-            if not isinstance(self.model, cuqi.model.LinearModel):
-                raise TypeError("Model needs to be linear")
+            if not isinstance(self.model, cuqi.model.AffineModel):
+                raise TypeError("Model needs to be affine")
 
             if not hasattr(self.likelihood.distribution, "sqrtprec"):
                 raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
             
         elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior): # Elif used for further alternatives, e.g., stacked posterior
             for likelihood in self.likelihoods:
-                if not isinstance(likelihood.model, cuqi.model.LinearModel):
-                    raise TypeError("Model needs to be linear")
+                if not isinstance(likelihood.model, cuqi.model.AffineModel):
+                    raise TypeError("Model needs to be affine")
 
                 if not hasattr(likelihood.distribution, "sqrtprec"):
                     raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
