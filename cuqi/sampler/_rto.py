@@ -95,7 +95,7 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = len(self.x0)
-        self.b_tild = np.hstack([L@likelihood.data for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) #TODO: shift in data here?
+        self.b_tild = np.hstack([L@likelihood.data - self.target.model._shift for (L, likelihood) in zip(L1, self.likelihoods)]+ [L2mu]) # shift in data here, since self.data is not used
 
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
@@ -144,7 +144,7 @@ class LinearRTO(Sampler):
     
     @property
     def data(self):
-        return self.target.data - self.target.model._shift # Include shift from AffineModel here
+        return self.target.data - self.target.model._shift # Include shift from AffineModel here, self.data never used
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
