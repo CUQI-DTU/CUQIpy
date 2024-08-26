@@ -493,7 +493,7 @@ class AffineModel(Model):
             adjoint_func_noshift = lambda y: self._matrix.T@y
             matrix = linear_operator
         else:
-            forward_func = lambda x, *args, **kwargs: linear_operator(x, *args, **kwargs) + shift
+            forward_func = lambda *args, **kwargs: linear_operator(*args, **kwargs) + shift
             forward_func_noshift = linear_operator
             adjoint_func_noshift = linear_operator_adjoint
             matrix = None
