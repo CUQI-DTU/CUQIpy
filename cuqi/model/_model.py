@@ -613,8 +613,21 @@ class LinearModel(AffineModel):
     # Linear forward model with forward and adjoint (transpose).
     
     def __init__(self,forward,adjoint=None,range_geometry=None,domain_geometry=None):
+
         #Initialize as AffineModel with shift=0
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
+
+        if not callable(forward):
+            adjoint_func = lambda y: self._matrix.T@y
+        else:
+            adjoint_func = adjoint
+
+        #Check if input is callable
+        if not callable(adjoint_func):
+            raise TypeError("Adjoint of linear operator must be defined as a callable function of some kind")
+        
+        #Add adjoint
+        self._adjoint_func = adjoint_func
 
     def adjoint(self, y, is_par=True):
         """ Adjoint of the model.
