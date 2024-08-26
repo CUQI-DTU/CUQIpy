@@ -151,7 +151,6 @@ class UGLA(Sampler):
         if not isinstance(self.prior, cuqi.distribution.LMRF):
             raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires LMRF prior')
         
-    @property
-    def _default_initial_point(self):
+    def _get_default_initial_point(self, dim):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
-        return np.zeros(self.dim)
+        return np.zeros(dim)
