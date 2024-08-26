@@ -366,7 +366,7 @@ def test_logd_consistency_when_conditioning(joint, variables):
     
     """
 
-    # True value og logd by fully evaluating the joint distribution
+    # True value of logd by fully evaluating the joint distribution
     true_value = joint.logd(**variables)
 
     # Loop over all variables and evaluate the logd value
