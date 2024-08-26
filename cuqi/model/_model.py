@@ -483,6 +483,11 @@ class AffineModel(Model):
     domain_geometry : cuqi.geometry.Geometry
         The geometry representing the domain.
 
+    Methods
+    -----------
+    :meth:`forward` the forward operator.
+    :meth:`get_matrix` returns an ndarray with the matrix representing the forward operator.
+
     """
 
     def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
@@ -512,21 +517,20 @@ class AffineModel(Model):
         #Initialize Model class
         super().__init__(forward_func, range_geometry, domain_geometry)
 
-        #Add adjoint
+        #Store matrix privately
+        self._matrix = matrix
+
+        #Store shift privatly
+        self._shift = shift # Should this be hidden? Not easily accessible for the user to see how you defined the model
+
+        #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
 
-        #Store forwardoperator/matrix privately
-        self._matrix = matrix
+        #Add forward without shift
         self._forward_func_noshift = forward_func_noshift 
 
         #Add gradient
         self._gradient_func = lambda direction, wrt: self._adjoint_func_noshift(direction)
-
-        #Add shift
-        self._shift = shift # Should this be hidden? Not easily accessible for the user to see how you defined the model
-
-    def forward(self, *args, is_par=True, **kwargs):
-        return super().forward(*args, is_par=is_par, **kwargs)
     
     def _forward_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
@@ -605,10 +609,7 @@ class LinearModel(AffineModel):
 
     Methods
     -----------
-    :meth:`forward` the forward operator.
-    :meth:`range_dim` the dimension of the range.
-    :meth:`domain_dim` the dimension of the domain.
-    :meth:`get_matrix` returns an ndarray with the matrix representing the forward operator.
+    :meth:`adjoint` the adjoint operator.
     """
     # Linear forward model with forward and adjoint (transpose).
     
