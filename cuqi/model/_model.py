@@ -497,7 +497,6 @@ class AffineModel(Model):
 
     Methods
     -----------
-    :meth:`forward` the forward operator.
     :meth:`get_matrix` returns an ndarray with the matrix representing the forward operator.
 
     """
@@ -526,14 +525,14 @@ class AffineModel(Model):
             if domain_geometry is None:
                 domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])  
 
-        #Initialize Model class
-        super().__init__(forward_func, range_geometry, domain_geometry)
-
         #Store matrix privately
         self._matrix = matrix
 
         #Store shift privatly
         self._shift = shift # Should this be hidden? Not easily accessible for the user to see how you defined the model
+
+        #Define gradient
+        gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
 
         #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
@@ -541,8 +540,12 @@ class AffineModel(Model):
         #Add forward without shift
         self._forward_func_noshift = forward_func_noshift 
 
-        #Add gradient
-        self._gradient_func = lambda direction, wrt: self._adjoint_func_noshift(direction)
+        #Initialize Model class
+        super().__init__(forward_func, range_geometry, domain_geometry, gradient=gradient_func)
+
+        # Use arguments from user's callable linear operator
+        if callable(linear_operator):
+            self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
     
     def _forward_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
