@@ -9,9 +9,10 @@ from cuqi.distribution import Gaussian, LMRF, GMRF, JointDistribution
 from cuqi.geometry import Discrete, Continuous1D
 from cuqi.array import CUQIarray
 
+#%% Test problem 
+### y = Ax + b
+### Infer x, given the model A and b, and noisy observations of y
 
-
-#%% Test problem
 # Dimensions
 n = 2
 m = 5
@@ -38,7 +39,7 @@ np.random.seed(10)
 y_std = np.ones(m)
 y_obs = Gaussian(Amat@x_truevec + b, sqrtcov=y_std, geometry = range_geometry).sample()
 
-#%% Linear model
+#%% Linear model, include b in data term such that data = y-b
 # CUQI Model
 Alinear = LinearModel(Amat, domain_geometry = domain_geometry, range_geometry = range_geometry)
 
@@ -50,13 +51,11 @@ posterior = JointDistribution(x, y)(y=y_obs-b)
 
 # Sample posterior with linear RTO
 np.random.seed(1000000)
-# Linearsampler = LinearRTO(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
-# Linearsampler.warmup(200)
-# Linearsampler.sample(10000)
-# samplesLinear = Linearsampler.get_samples()
-# samplesLinear_burnin = samplesLinear.burnthin(200)
-Linearsampler = LinearRTO(posterior, x0 = x_mean)
-samplesLinear_burnin = Linearsampler.sample_adapt(10000, 200)
+Linearsampler = LinearRTO(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
+Linearsampler.warmup(200)
+Linearsampler.sample(10000)
+samplesLinear = Linearsampler.get_samples()
+samplesLinear_burnin = samplesLinear.burnthin(200)
 
 meanLinear = samplesLinear_burnin.mean()
 varLinear = samplesLinear_burnin.variance()
@@ -71,14 +70,12 @@ ax.plot(t, y_obs-b, 'o', label="Noisy data")
 ax.set_xlabel('t')
 ax.set_ylabel('y')
 plt.legend()
-plt.savefig("Linear_mean_dataspace.png")
 
 fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(5,4), squeeze=False)
 cs = samplesLinear_burnin.plot_pair(marginals = True)
-plt.savefig("Linear_pairplot.png")
 
 
-#%% Affine model
+#%% Affine model, include b in affine model such that data = y
 # CUQI Model
 Aaffine = AffineModel(Amat, b, domain_geometry = domain_geometry, range_geometry = range_geometry)
 
@@ -93,13 +90,11 @@ print(posterior.likelihood.model._forward_no_shift(np.array([1,1])))
 
 # Sample posterior with MH
 np.random.seed(1000000)
-# Affinesampler = LinearRTO(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
-# Affinesampler.warmup(200)
-# Affinesampler.sample(10000)
-# samplesAffine = Affinesampler.get_samples()
-# samplesAffine_burnin = samplesAffine.burnthin(200)
-Affinesampler = LinearRTO(posterior, x0 = x_mean)
-samplesAffine_burnin = Affinesampler.sample_adapt(10000, 200)
+Affinesampler = LinearRTO(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
+Affinesampler.warmup(200)
+Affinesampler.sample(10000)
+samplesAffine = Affinesampler.get_samples()
+samplesAffine_burnin = samplesAffine.burnthin(200)
 
 meanAffine = samplesAffine_burnin.mean()
 varAffine = samplesAffine_burnin.variance()
@@ -114,8 +109,6 @@ ax.plot(t, y_obs, 'o', label="Noisy data")
 ax.set_xlabel('t')
 ax.set_ylabel('y')
 plt.legend()
-plt.savefig("Affine_mean_dataspace.png")
 
 fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(5,4), squeeze=False)
 cs = samplesAffine_burnin.plot_pair(marginals = True)
-plt.savefig("Affine_pairplot.png")
