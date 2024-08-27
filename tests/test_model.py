@@ -471,3 +471,20 @@ def test_model_allows_jacobian_or_gradient():
 
     assert np.allclose(model_grad.gradient(dir, wrt), model_jac.gradient(dir, wrt))
 
+# Parametrize over models
+@pytest.mark.parametrize("model", [cuqi.testproblem.Deconvolution1D().model,
+                                   cuqi.testproblem.Heat1D().model])
+def test_AffineModel_Correct_result(model):
+    """ Test creating a shifted linear model from a linear model """
+
+    # Random vectors
+    x = np.random.randn(model.domain_dim)
+    b = np.random.randn(model.range_dim)
+
+    A_affine = cuqi.model.AffineModel(model, b, range_geometry = model.range_geometry, domain_geometry = model.domain_geometry)
+
+    # Dimension check
+    assert A_affine.range_dim == model.range_dim
+
+    # Check that the shifted linear model is correct
+    assert np.allclose(A_affine(x), model(x) + b)
