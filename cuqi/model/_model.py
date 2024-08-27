@@ -515,8 +515,8 @@ class AffineModel(Model):
             matrix = None
 
         #Check if input is callable
-        if not callable(adjoint_func_noshift):
-            raise TypeError("Adjoint of linear operator must be defined as a callable function of some kind")
+        if not callable(forward_func_noshift):
+            raise TypeError("Linear operator must be defined as a matrix or a callable function of some kind")
 
         # Use matrix to derive range_geometry and domain_geometry
         if matrix is not None:
