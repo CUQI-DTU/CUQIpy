@@ -487,6 +487,50 @@ class LinearModel(Model):
 
     :ivar range_geometry: The geometry representing the range.
     :ivar domain_geometry: The geometry representing the domain.
+
+    Example
+    -------
+
+    Consider a linear model represented by a matrix, i.e., :math:`y=Ax` where 
+    :math:`A` is a matrix.
+    
+    We can define such a linear model by passing the matrix :math:`A`:
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi.model import LinearModel
+
+        A = np.random.randn(2,3)
+
+        model = LinearModel(A)
+
+    The dimension of the range and domain geometries will be automatically 
+    inferred from the matrix :math:`A`.
+        
+    Meanwhile, such a linear model can also be defined by a forward function 
+    and an adjoint function:
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi.model import LinearModel
+
+        A = np.random.randn(2,3)
+
+        def forward(x):
+            return A@x
+
+        def adjoint(y):
+            return A.T@y
+
+        model = LinearModel(forward,
+                            adjoint=adjoint,
+                            range_geometry=2,
+                            domain_geometry=3)
+
+    Note that you would need to specify the range and domain geometries in this 
+     case as they cannot be inferred from the forward and adjoint functions.
     """
     # Linear forward model with forward and adjoint (transpose).
     
