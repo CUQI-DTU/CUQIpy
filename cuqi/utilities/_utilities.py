@@ -1,4 +1,5 @@
 from cuqi.array import CUQIarray
+from cuqi.density import Density
 import numpy as np
 import inspect
 from numbers import Number
@@ -7,6 +8,7 @@ from scipy.sparse import linalg as spslinalg
 from dataclasses import dataclass
 from abc import ABCMeta
 import copy
+import matplotlib.pyplot as plt
 
 
 def force_ndarray(value,flatten=False):
@@ -229,3 +231,88 @@ def approx_gradient(func, x, epsilon= 0.000001):
         eps_vec[i] = 0.0
         
     return FD_gradient
+
+
+# Function for plotting 1D density functions
+def plot_1D_density(density:Density,
+                    v_min, v_max,
+                    N=500):
+    """ Plot 1D density function 
+
+    Parameters
+    ----------
+    density : CUQIpy Density
+        The density to be plotted.
+
+    v_min : float
+        Minimum value for the variable.
+    
+    v_max : float
+        Maximum value for the variable.
+
+    N : int
+        Number of grid points for the variable.
+
+    """
+    # Assert that the density is 1D
+    assert density.dim == 1, "The density must be for a scalar variable"
+    ls = np.linspace(v_min, v_max, N)
+    y = [np.exp(density.logd(grid_point)) for grid_point in ls]
+    plt.plot(ls, y)
+
+# Function for plotting 2D density functions
+def plot_2D_density(density: Density, 
+                    v1_min, v1_max,
+                    v2_min, v2_max,
+                    N1=201, N2=201):
+    """ Plot 2D density function 
+
+    Parameters
+    ----------
+    density : CUQIpy Density
+        The density to be plotted.
+
+    v1_min : float
+        Minimum value for the first variable.
+    
+    v1_max : float
+        Maximum value for the first variable.
+    
+    v2_min : float
+        Minimum value for the second variable.
+
+    v2_max : float  
+        Maximum value for the second variable.
+
+    N1 : int
+        Number of grid points for the first variable.
+
+    N2 : int
+        Number of grid points for the second variable.
+
+    """
+    # Assert that the density is 2D
+    assert density.dim == 2,\
+        "The density must be for a two-dimensional variable"
+    # Create grid
+    ls1 = np.linspace(v1_min, v1_max, N1)
+    ls2 = np.linspace(v2_min, v2_max, N2)
+    grid1, grid2 = np.meshgrid(ls1, ls2)
+
+    # Evaluate density on grid
+    evaluated_density = np.zeros((N1, N2))
+    for ii in range(N1):
+        for jj in range(N2):
+            evaluated_density[ii,jj] = np.exp(
+                density.logd([grid1[ii,jj], grid2[ii,jj]])) 
+
+    # Plot
+    pixelwidth_x = (v1_max-v1_min)/(N2-1)
+    pixelwidth_y = (v2_max-v2_min)/(N2-1)
+
+    hp_x = 0.5*pixelwidth_x
+    hp_y = 0.5*pixelwidth_y
+
+    extent = (v1_min-hp_x, v1_max+hp_x, v2_min-hp_y, v2_max+hp_y)
+
+    plt.imshow(evaluated_density, origin='lower', extent=extent)
