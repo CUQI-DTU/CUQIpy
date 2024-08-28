@@ -396,6 +396,8 @@ class Continuous1D(Continuous):
 
     def _plot(self, values, *args, **kwargs):
         p = plt.plot(self.grid, values, *args, **kwargs)
+        if self.par_dim==1:
+            p = plt.plot(values.flatten(), 'o', *args, **kwargs)
         self._plot_config()
         return p
 
