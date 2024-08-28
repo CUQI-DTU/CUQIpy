@@ -19,10 +19,10 @@ class Model(object):
         Forward operator.
 
     range_geometry : integer or cuqi.geometry.Geometry
-        If integer is given a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a _DefaultGeometry is created with dimension of the integer.
 
     domain_geometry : integer or cuqi.geometry.Geometry
-        If integer is given a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.distribution._DefaultGeometry is created with dimension of the integer.
 
     gradient : callable function, optional
         The direction-Jacobian product of the forward operator Jacobian with 
@@ -35,14 +35,18 @@ class Model(object):
         The Jacobian of the forward operator with respect to the forward operator input,
         evaluated at a point (`wrt`). The signature of the Jacobian function should be (`wrt`).
         The Jacobian function should return a 2D ndarray of shape (range_dim, domain_dim).
-        The Jacobian function is used to specify the gradient function (vector-Jacobian product)
+        The Jacobian function is used to specify the gradient function (direction-Jacobian product)
         automatically and thus the gradient function should not be specified when the Jacobian
         function is specified.
+
+
+    :ivar range_geometry: The geometry representing the range.
+    :ivar domain_geometry: The geometry representing the domain.
 
     Example
     -------
 
-    Consider a forward model :math:`F: \mathbb{R}^2 \rightarrow \mathbb{R}` defined by the following forward operator:
+    Consider a forward model :math:`F: \mathbb{R}^2 \\rightarrow \mathbb{R}` defined by the following forward operator:
 
     .. math::
 
@@ -141,11 +145,17 @@ class Model(object):
         self._non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
 
     @property
-    def domain_dim(self): 
+    def domain_dim(self):
+        """
+        The dimension of the domain
+        """
         return self.domain_geometry.par_dim
 
     @property
     def range_dim(self): 
+        """
+        The dimension of the domain
+        """
         return self.range_geometry.par_dim
 
     def _2fun(self, x, geometry, is_par):
@@ -474,20 +484,9 @@ class LinearModel(Model):
     domain_geometry : integer or cuqi.geometry.Geometry (optional)
         If integer is given a _DefaultGeometry is created with dimension of the integer.
 
-    Attributes
-    -----------
-    range_geometry : cuqi.geometry.Geometry
-        The geometry representing the range.
 
-    domain_geometry : cuqi.geometry.Geometry
-        The geometry representing the domain.
-
-    Methods
-    -----------
-    :meth:`forward` the forward operator.
-    :meth:`range_dim` the dimension of the range.
-    :meth:`domain_dim` the dimension of the domain.
-    :meth:`get_matrix` returns an ndarray with the matrix representing the forward operator.
+    :ivar range_geometry: The geometry representing the range.
+    :ivar domain_geometry: The geometry representing the domain.
     """
     # Linear forward model with forward and adjoint (transpose).
     
@@ -552,6 +551,9 @@ class LinearModel(Model):
 
 
     def get_matrix(self):
+        """
+        Returns an ndarray with the matrix representing the forward operator.
+        """
         if self._matrix is not None: #Matrix exists so return it
             return self._matrix
         else:
@@ -599,19 +601,9 @@ class PDEModel(Model):
     domain_geometry : integer or cuqi.geometry.Geometry (optional)
         If integer is given a _DefaultGeometry is created with dimension of the integer.
 
-    Attributes
-    -----------
-    range_geometry : cuqi.geometry.Geometry
-        The geometry representing the range.
 
-    domain_geometry : cuqi.geometry.Geometry
-        The geometry representing the domain.
-
-    Methods
-    -----------
-    :meth:`forward` the forward operator.
-    :meth:`range_dim` the dimension of the range.
-    :meth:`domain_dim` the dimension of the domain.
+    :ivar range_geometry: The geometry representing the range.
+    :ivar domain_geometry: The geometry representing the domain.
     """
     def __init__(self, PDE: cuqi.pde.PDE, range_geometry, domain_geometry):
 
