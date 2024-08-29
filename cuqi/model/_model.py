@@ -478,7 +478,7 @@ class LinearModel(Model):
     forward : 2D ndarray or callable function.
         Forward operator.
 
-    adjoint : 2d ndarray or callable function. (optional if matrix is passed as forward)
+    adjoint : 2D ndarray or callable function. (optional if matrix is passed as forward)
 
     range_geometry : integer or cuqi.geometry.Geometry (optional)
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
@@ -531,8 +531,8 @@ class LinearModel(Model):
                             range_geometry=2,
                             domain_geometry=3)
 
-    Note that you would need to specify the range and domain geometries in this 
-     case as they cannot be inferred from the forward and adjoint functions.
+    Note that you would need to specify the range and domain geometries in this
+    case as they cannot be inferred from the forward and adjoint functions.
     """
     # Linear forward model with forward and adjoint (transpose).
     
