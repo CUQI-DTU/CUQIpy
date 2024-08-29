@@ -56,11 +56,13 @@ def posterior_2D():
     likelihood_2D(),
     posterior_2D()
 ])
-def test_plot_density(density):
+@pytest.mark.parametrize("log_scale", [True, False])
+def test_plot_density(density, log_scale):
     """ Test the 1D and 2D density plot. """
     if density.dim == 1:
-        plot_1D_density(density, -1, 1)
+        plot_1D_density(density, -1, 1, color='green', log_scale=log_scale)
     elif density.dim == 2:
-        plot_2D_density(density, -3, 3, -3, 3, 60, 60)
+        plot_2D_density(
+            density, -3, 3, -3, 3, 60, 60, cmap='gray', log_scale=log_scale)
     else:
         raise ValueError("Density must be 1D or 2D.")
