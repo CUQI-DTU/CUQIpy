@@ -35,7 +35,9 @@ class Model(object):
         The Jacobian of the forward operator with respect to the forward operator input,
         evaluated at a point (`wrt`). The signature of the Jacobian function should be (`wrt`).
         The Jacobian function should return a 2D ndarray of shape (range_dim, domain_dim).
-        The Jacobian function is used to specify the gradient function (direction-Jacobian product)
+        The Jacobian function is used to specify the gradient function by computing the vector-Jacobian
+        product (VJP), here we refer to the vector in the VJP as the `direction` since it is the direction at 
+        which the gradient is computed.
         automatically and thus the gradient function should not be specified when the Jacobian
         function is specified.
 
