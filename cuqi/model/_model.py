@@ -22,7 +22,7 @@ class Model(object):
         If integer is given, a _DefaultGeometry is created with dimension of the integer.
 
     domain_geometry : integer or cuqi.geometry.Geometry
-        If integer is given, a cuqi.distribution._DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
     gradient : callable function, optional
         The direction-Jacobian product of the forward operator Jacobian with 
