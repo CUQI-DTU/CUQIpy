@@ -19,7 +19,7 @@ class Model(object):
         Forward operator.
 
     range_geometry : integer or cuqi.geometry.Geometry
-        If integer is given, a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
     domain_geometry : integer or cuqi.geometry.Geometry
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
@@ -481,10 +481,10 @@ class LinearModel(Model):
     adjoint : 2d ndarray or callable function. (optional if matrix is passed as forward)
 
     range_geometry : integer or cuqi.geometry.Geometry (optional)
-        If integer is given a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
     domain_geometry : integer or cuqi.geometry.Geometry (optional)
-        If integer is given a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
 
     :ivar range_geometry: The geometry representing the range.
@@ -642,10 +642,10 @@ class PDEModel(Model):
         Forward operator assembling, solving and observing the pde.
 
     range_geometry : integer or cuqi.geometry.Geometry (optional)
-        If integer is given a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
     domain_geometry : integer or cuqi.geometry.Geometry (optional)
-        If integer is given a _DefaultGeometry is created with dimension of the integer.
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
 
     :ivar range_geometry: The geometry representing the range.
