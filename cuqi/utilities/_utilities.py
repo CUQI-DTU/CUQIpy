@@ -236,7 +236,8 @@ def approx_gradient(func, x, epsilon= 0.000001):
 # Function for plotting 1D density functions
 def plot_1D_density(density:Density,
                     v_min, v_max,
-                    N=501):
+                    N=501, log_scale=False,
+                    **kwargs):
     """ Plot 1D density function 
 
     Parameters
@@ -253,18 +254,34 @@ def plot_1D_density(density:Density,
     N : int
         Number of grid points for the variable.
 
+    log_scale : bool
+        If True, the density is plotted in log scale.
+    
+    kwargs : dict
+        Additional keyword arguments for the plot that are passed to the
+        underlying plotting method: `matplotlib.pyplot.plot` function 
+        in this case.
+
     """
     # Assert that the density is 1D
     assert density.dim == 1, "The density must be for a scalar variable"
     ls = np.linspace(v_min, v_max, N)
-    y = [np.exp(density.logd(grid_point)) for grid_point in ls]
-    plt.plot(ls, y)
+
+    # Create a map to evaluate density
+    density_map = (lambda x: x) if log_scale else (lambda x: np.exp(x))
+
+    # Evaluate density on grid
+    y = [density_map(density.logd(grid_point)) for grid_point in ls]
+    p = plt.plot(ls, y, **kwargs)
+    return p
 
 # Function for plotting 2D density functions
 def plot_2D_density(density: Density, 
                     v1_min, v1_max,
                     v2_min, v2_max,
-                    N1=201, N2=201):
+                    N1=201, N2=201,
+                    log_scale=False,
+                    **kwargs):
     """ Plot 2D density function 
 
     Parameters
@@ -289,6 +306,14 @@ def plot_2D_density(density: Density,
 
     N2 : int
         Number of grid points for the second variable.
+    
+    log_scale : bool
+        If True, the density is plotted in log scale.
+
+    kwargs : dict
+        Additional keyword arguments for the plot that are passed to the
+        underlying plotting method: `matplotlib.pyplot.imshow` function 
+        in this case.
 
     """
     # Assert that the density is 2D
@@ -299,11 +324,14 @@ def plot_2D_density(density: Density,
     ls2 = np.linspace(v2_min, v2_max, N2)
     grid1, grid2 = np.meshgrid(ls1, ls2)
 
+    # Create a map to evaluate density
+    density_map = (lambda x: x) if log_scale else (lambda x: np.exp(x))
+
     # Evaluate density on grid
     evaluated_density = np.zeros((N1, N2))
     for ii in range(N1):
         for jj in range(N2):
-            evaluated_density[ii,jj] = np.exp(
+            evaluated_density[ii,jj] = density_map(
                 density.logd([grid1[ii,jj], grid2[ii,jj]])) 
 
     # Plot
@@ -315,4 +343,5 @@ def plot_2D_density(density: Density,
 
     extent = (v1_min-hp_x, v1_max+hp_x, v2_min-hp_y, v2_max+hp_y)
 
-    plt.imshow(evaluated_density, origin='lower', extent=extent)
+    im = plt.imshow(evaluated_density, origin='lower', extent=extent, **kwargs)
+    return im
