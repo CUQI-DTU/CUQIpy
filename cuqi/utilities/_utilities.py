@@ -236,7 +236,7 @@ def approx_gradient(func, x, epsilon= 0.000001):
 # Function for plotting 1D density functions
 def plot_1D_density(density:Density,
                     v_min, v_max,
-                    N=500):
+                    N=501):
     """ Plot 1D density function 
 
     Parameters
