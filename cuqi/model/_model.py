@@ -154,7 +154,7 @@ class Model(object):
     @property
     def range_dim(self): 
         """
-        The dimension of the domain
+        The dimension of the range
         """
         return self.range_geometry.par_dim
 
