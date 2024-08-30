@@ -4,7 +4,7 @@ import sys
 sys.path.append("..") 
 
 from cuqi.model import AffineModel, LinearModel
-from cuqi.sampler import MH, LinearRTO
+from cuqi.experimental.mcmc import MH, LinearRTO
 from cuqi.distribution import Gaussian, LMRF, GMRF, JointDistribution
 from cuqi.geometry import Discrete, Continuous1D
 from cuqi.array import CUQIarray
@@ -51,7 +51,7 @@ posterior = JointDistribution(x, y)(y=y_obs-b)
 
 # Sample posterior with linear RTO
 np.random.seed(1000000)
-Linearsampler = LinearRTO(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
+Linearsampler = MH(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
 Linearsampler.warmup(200)
 Linearsampler.sample(10000)
 samplesLinear = Linearsampler.get_samples()
@@ -90,7 +90,7 @@ print(posterior.likelihood.model._forward_no_shift(np.array([1,1])))
 
 # Sample posterior with MH
 np.random.seed(1000000)
-Affinesampler = LinearRTO(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
+Affinesampler = MH(posterior, initial_point = x_mean) # Init point must be float (NOT AFFINE MODEL SPECIFIC)
 Affinesampler.warmup(200)
 Affinesampler.sample(10000)
 samplesAffine = Affinesampler.get_samples()
