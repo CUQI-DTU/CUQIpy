@@ -285,7 +285,7 @@ class Model(object):
         is_CUQIarray = type(x) is CUQIarray
 
         x = self._2fun(x, func_domain_geometry, is_par=is_par)
-        out = func(x, **kwargs)
+        out = func(self, x, **kwargs)
 
         # Return output as parameters 
         # (and wrapped in CUQIarray if input was CUQIarray)
@@ -422,7 +422,7 @@ class Model(object):
                                self.range_geometry,
                                is_par=is_direction_par)
 
-        grad = self._gradient_func(direction, wrt)
+        grad = self._gradient_func(self, direction, wrt)
         grad_is_par = False # Assume gradient is function values
         
         # If domain_geometry has gradient attribute, we apply it to the gradient
@@ -503,13 +503,16 @@ class AffineModel(Model):
 
     def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
 
+        #Store shift
+        self._shift = shift
+
         if not callable(linear_operator):
-            forward_func = lambda x: self._matrix@x + shift
-            forward_func_noshift = lambda x: self._matrix@x
-            adjoint_func_noshift = lambda y: self._matrix.T@y
+            forward_func = lambda self, x: self._matrix@x + self.shift
+            forward_func_noshift = lambda self, x: self._matrix@x
+            adjoint_func_noshift = lambda self, y: self._matrix.T@y
             matrix = linear_operator
         else:
-            forward_func = lambda *args, **kwargs: linear_operator(*args, **kwargs) + shift
+            forward_func = lambda self, *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self.shift
             forward_func_noshift = linear_operator
             adjoint_func_noshift = linear_operator_adjoint
             matrix = None
@@ -528,11 +531,8 @@ class AffineModel(Model):
         #Store matrix privately
         self._matrix = matrix
 
-        #Store shift privatly
-        self._shift = shift # Should this be hidden? Not easily accessible for the user to see how you defined the model
-
         #Define gradient
-        gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
+        gradient_func = lambda self, direction, wrt: adjoint_func_noshift(self, direction)
 
         #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
@@ -547,6 +547,10 @@ class AffineModel(Model):
         if callable(linear_operator):
             self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
     
+    @property
+    def shift(self):
+        return self._shift
+
     def _forward_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
         return self._apply_func(self._forward_func_noshift,
@@ -584,7 +588,7 @@ class AffineModel(Model):
             return self._matrix   
 
     # Related to model algebra
-    # def __add__(self, shift) -> Union[Model, LinearModel, SumOfModels]:
+    # def __add__(self, shift) -> Union[Model, LinearModel]:
     #     """ Creates an AffineModel with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
     #     if isinstance(shift, numbers.Number) and shift == 0:
     #         return copy(self)
@@ -670,7 +674,7 @@ class LinearModel(AffineModel):
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
 
         if not callable(forward):
-            adjoint_func = lambda y: self._matrix.T@y
+            adjoint_func = lambda self, y: self._matrix.T@y
         else:
             adjoint_func = adjoint
 
