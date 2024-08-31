@@ -187,7 +187,6 @@ class JointDistribution:
         This method is a hack to allow our current samplers to work with
         the joint distribution. It should be removed in the future.
         """
-
         # Count number of distributions and likelihoods
         n_dist = len(self._distributions)
         n_likelihood = len(self._likelihoods)
@@ -214,14 +213,18 @@ class JointDistribution:
         # If no distributions and exactly one likelihood its a Likelihood
         if n_likelihood == 1 and n_dist == 0:
             return self._likelihoods[0]
+
+        # If only evaluated densities left return joint to ensure logd method is available
+        if n_dist == 0 and n_likelihood == 0:
+            return self
         
     def _add_constants_to_density(self, density: Density):
         """ Add the constants (evaluated densities) to a single density. Used when reducing to single density. """
-        constant = self._sum_evaluated_densities()
+
         if isinstance(density, EvaluatedDensity):
-            density.value += constant
-        else:
-            density._constant += constant
+            raise ValueError("Cannot add the sum of all evaluated densities to an EvaluatedDensity.")
+
+        density._constant += self._sum_evaluated_densities()
         return density
 
     def _as_stacked(self) -> _StackedJointDistribution:
