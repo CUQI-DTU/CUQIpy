@@ -391,7 +391,7 @@ class BayesianProblem(object):
         # Now sample prior problem
         return prior_problem.sample_posterior(Ns, Nb, callback)
 
-    def UQ(self, Ns=1000, Nb=None, percent=95, exact=None) -> cuqi.samples.Samples:
+    def UQ(self, Ns=1000, Nb=None, percent=95, exact=None, experimental=False) -> cuqi.samples.Samples:
         """ Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.
         
         Parameters
@@ -409,13 +409,16 @@ class BayesianProblem(object):
         percent : float, *Optional*
             The credible interval to plot. Defaults to 95%.
 
+        experimental : bool, *Optional*
+            If set to True, the sampler selection will use the samplers from the experimental mcmc module.
+
         Returns
         -------
         samples : cuqi.samples.Samples
             Samples from the posterior. The samples can be used to compute further statistics and plots.
         """
         print(f"Computing {Ns} samples")
-        samples = self.sample_posterior(Ns, Nb)
+        samples = self.sample_posterior(Ns, Nb, experimental=experimental)
 
         print("Plotting results")
         # Gibbs case
