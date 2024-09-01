@@ -29,6 +29,9 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
 
     for experimental in experimental_options:
 
+        if isinstance(prior, RegularizedGMRF) and not sys.platform.startswith('win') and experimental:
+            pytest.skip("RegularizedGMRF with experimental sampler is not implemented for this platform")
+
         np.random.seed(19937)
 
         # Generate TP using this seed (for data consistency)
@@ -53,8 +56,8 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
         else:
             ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
 
-        #if isinstance(prior, LMRF): #Put the case you want to update for here.
-        #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
+        if isinstance(prior, RegularizedGMRF): #Put the case you want to update for here.
+            np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
         
         ref_file = copy_reference(f"data/{ref_fname}.npz")
         ref = np.load(ref_file)
