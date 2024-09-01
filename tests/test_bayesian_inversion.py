@@ -11,6 +11,7 @@ from cuqi.problem import BayesianProblem
 from cuqi.density import Density
 
 #All Ns are reduced by a factor of 10 for speed. Best results are obtained by increasing Ns by at least 10 times.
+@pytest.mark.parametrize("experimental", [False, True])
 @pytest.mark.parametrize("TP_type, phantom, prior, Ns, use_legacy", 
                          [
                              (Deconvolution1D, "gauss", Gaussian(np.zeros(128), 0.071**2), 20, True),
@@ -20,51 +21,49 @@ from cuqi.density import Density
                              (Deconvolution1D, "square", RegularizedGaussian(np.zeros(128), 0.1, constraint="nonnegativity"), 100, False),
                              (Deconvolution1D, "square", RegularizedGMRF(np.zeros(128), 50, constraint="nonnegativity"), 100, False),
                          ])
-def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy):
+def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy, experimental):
     # SKIP NUTS test if not windows (for now)
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
 
-    for experimental in [False, True]: # Test both experimental and non-experimental samplers
+    np.random.seed(19937)
 
-        np.random.seed(19937)
+    # Generate TP using this seed (for data consistency)
+    # Legacy convolution is used for consistency with the reference data.
+    TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=use_legacy, noise_std=0.05) 
 
-        # Generate TP using this seed (for data consistency)
-        # Legacy convolution is used for consistency with the reference data.
-        TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=use_legacy, noise_std=0.05) 
+    # set the prior of testproblem
+    TP.prior = prior
 
-        # set the prior of testproblem
-        TP.prior = prior
+    # Sample posterior
+    samples = TP.sample_posterior(Ns=Ns, experimental=experimental)
 
-        # Sample posterior
-        samples = TP.sample_posterior(Ns=Ns, experimental=experimental)
+    # Extract samples and compute properties
+    res = samples.samples    
+    med_xpos = np.median(res, axis=1)
+    sigma_xpos = res.std(axis=1)
+    lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
 
-        # Extract samples and compute properties
-        res = samples.samples    
-        med_xpos = np.median(res, axis=1)
-        sigma_xpos = res.std(axis=1)
-        lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
+    # Load reference file into temp folder and load
+    if experimental:
+        ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}_experimental"
+    else:
+        ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
 
-        # Load reference file into temp folder and load
-        if experimental:
-            ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}_experimental"
-        else:
-            ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
+    #if isinstance(prior, RegularizedGMRF): #Put the case you want to update for here.
+    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
+    
+    ref_file = copy_reference(f"data/{ref_fname}.npz")
+    ref = np.load(ref_file)
 
-        #if isinstance(prior, RegularizedGMRF): #Put the case you want to update for here.
-        #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
-        
-        ref_file = copy_reference(f"data/{ref_fname}.npz")
-        ref = np.load(ref_file)
-
-        # Check results with reference data
-        if isinstance(prior, RegularizedGMRF) and not sys.platform.startswith('win') and experimental:
-            pass # Skip this case
-        else:
-            assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
-            assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
-            assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
-            assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
+    # Check results with reference data
+    if isinstance(prior, RegularizedGMRF) and not sys.platform.startswith('win') and experimental:
+        pass # Skip this case
+    else:
+        assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
+        assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
+        assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
+        assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
 
 @pytest.mark.parametrize("TP_type, phantom, priors, Ns",
     [
