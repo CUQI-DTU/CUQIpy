@@ -25,9 +25,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
 
-    experimental_options = [False, True] # Test both experimental and non-experimental samplers
-
-    for experimental in experimental_options:
+    for experimental in [False, True]: # Test both experimental and non-experimental samplers
 
         np.random.seed(19937)
 
@@ -154,9 +152,7 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
     # Bayesian problem
     BP = BayesianProblem(data_dist, *priors).set_data(y=y_data)
 
-    experimental_options = [False, True] # Test both experimental and non-experimental samplers
-
-    for experimental in experimental_options:
+    for experimental in [False, True]: # Test both experimental and non-experimental samplers
 
         # Sample posterior using UQ method
         if len(priors) == 1: # No hyperparameters
