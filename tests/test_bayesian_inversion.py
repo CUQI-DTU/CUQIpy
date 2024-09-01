@@ -25,36 +25,45 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
 
-    np.random.seed(19937)
+    experimental_options = [False, True] # Test both experimental and non-experimental samplers
 
-    # Generate TP using this seed (for data consistency)
-    # Legacy convolution is used for consistency with the reference data.
-    TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=use_legacy, noise_std=0.05) 
+    for experimental in experimental_options:
 
-    # set the prior of testproblem
-    TP.prior = prior
+        np.random.seed(19937)
 
-    # Sample posterior
-    samples = TP.sample_posterior(Ns=Ns)
+        # Generate TP using this seed (for data consistency)
+        # Legacy convolution is used for consistency with the reference data.
+        TP = TP_type(dim=prior.dim, phantom=phantom, use_legacy=use_legacy, noise_std=0.05) 
 
-    # Extract samples and compute properties
-    res = samples.samples    
-    med_xpos = np.median(res, axis=1)
-    sigma_xpos = res.std(axis=1)
-    lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
+        # set the prior of testproblem
+        TP.prior = prior
 
-    # Load reference file into temp folder and load
-    ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
-    #if isinstance(prior, LMRF): #Put the case you want to update for here.
-    #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
-    ref_file = copy_reference(f"data/{ref_fname}.npz")
-    ref = np.load(ref_file)
+        # Sample posterior
+        samples = TP.sample_posterior(Ns=Ns, experimental=experimental)
 
-    # Check results with reference data
-    assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
-    assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
-    assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
-    assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
+        # Extract samples and compute properties
+        res = samples.samples    
+        med_xpos = np.median(res, axis=1)
+        sigma_xpos = res.std(axis=1)
+        lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
+
+        # Load reference file into temp folder and load
+        if experimental:
+            ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}_experimental"
+        else:
+            ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
+
+        #if isinstance(prior, LMRF): #Put the case you want to update for here.
+        #    np.savez(ref_fname, median=med_xpos, sigma=sigma_xpos, lo95=lo95, up95=up95) #uncomment to update
+        
+        ref_file = copy_reference(f"data/{ref_fname}.npz")
+        ref = np.load(ref_file)
+
+        # Check results with reference data
+        assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
+        assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
+        assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
+        assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
 
 @pytest.mark.parametrize("TP_type, phantom, priors, Ns",
     [
@@ -142,15 +151,19 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
     # Bayesian problem
     BP = BayesianProblem(data_dist, *priors).set_data(y=y_data)
 
-    # Sample posterior using UQ method
-    if len(priors) == 1: # No hyperparameters
-        samples = BP.UQ(Ns=Ns, exact=probInfo.exactSolution)
-    else:
-        samples = BP.UQ(Ns=Ns, exact={priors[0].name: probInfo.exactSolution})
+    experimental_options = [False, True] # Test both experimental and non-experimental samplers
 
-    # No regression test yet, just check that the samples are the right shape
-    if isinstance(samples, dict): # Gibbs case
-        for prior in priors:
-            assert samples[prior.name].shape == (prior.dim, Ns)
-    else:
-        assert samples.shape == (priors[0].dim, Ns)
+    for experimental in experimental_options:
+
+        # Sample posterior using UQ method
+        if len(priors) == 1: # No hyperparameters
+            samples = BP.UQ(Ns=Ns, exact=probInfo.exactSolution, experimental=experimental)
+        else:
+            samples = BP.UQ(Ns=Ns, exact={priors[0].name: probInfo.exactSolution}, experimental=experimental)
+
+        # No regression test yet, just check that the samples are the right shape
+        if isinstance(samples, dict): # Gibbs case
+            for prior in priors:
+                assert samples[prior.name].shape == (prior.dim, Ns)
+        else:
+            assert samples.shape == (priors[0].dim, Ns)

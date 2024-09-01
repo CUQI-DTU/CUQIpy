@@ -498,7 +498,7 @@ class BayesianProblem(object):
 
             sampler.warmup(Nb)
             sampler.sample(Ns)
-            samples = sampler.get_samples().burnin(Nb)
+            samples = sampler.get_samples().burnthin(Nb)
 
             print('Elapsed time:', time.time() - ti)
 
@@ -576,7 +576,7 @@ class BayesianProblem(object):
 
             sampler.warmup(Nb)
             sampler.sample(Ns)
-            x_s = sampler.get_samples().burnin(Nb)
+            x_s = sampler.get_samples().burnthin(Nb)
 
             print('Elapsed time:', time.time() - ti)
 
@@ -618,7 +618,7 @@ class BayesianProblem(object):
 
             sampler.warmup(Nb)
             sampler.sample(Ns)
-            x_s = sampler.get_samples().burnin(Nb)
+            x_s = sampler.get_samples().burnthin(Nb)
 
             print('Elapsed time:', time.time() - ti)
 
@@ -651,7 +651,7 @@ class BayesianProblem(object):
 
             sampler.warmup(Nb)
             sampler.sample(Ns)
-            x_s = sampler.get_samples().burnin(Nb)
+            x_s = sampler.get_samples().burnthin(Nb)
 
             print('Elapsed time:', time.time() - ti)
 
@@ -682,7 +682,7 @@ class BayesianProblem(object):
 
             sampler.warmup(Nb)
             sampler.sample(Ns)
-            samples = sampler.get_samples().burnin(Nb)
+            samples = sampler.get_samples().burnthin(Nb)
 
             print('Elapsed time:', time.time() - ti)
 
@@ -716,7 +716,7 @@ class BayesianProblem(object):
 
             sampler.warmup(Nb)
             sampler.sample(Ns)
-            samples = sampler.get_samples().burnin(Nb)
+            samples = sampler.get_samples().burnthin(Nb)
 
             print('Elapsed time:', time.time() - ti)
         
