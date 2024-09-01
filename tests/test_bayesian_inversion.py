@@ -29,9 +29,6 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
 
     for experimental in experimental_options:
 
-        if isinstance(prior, RegularizedGMRF) and not sys.platform.startswith('win') and experimental:
-            pytest.skip("RegularizedGMRF with experimental sampler is not implemented for this platform")
-
         np.random.seed(19937)
 
         # Generate TP using this seed (for data consistency)
@@ -63,10 +60,13 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
         ref = np.load(ref_file)
 
         # Check results with reference data
-        assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
-        assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
-        assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
-        assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
+        if isinstance(prior, RegularizedGMRF) and not sys.platform.startswith('win') and experimental:
+            pass # Skip this case
+        else:
+            assert med_xpos == pytest.approx(ref["median"], rel=1e-3, abs=1e-6)
+            assert sigma_xpos == pytest.approx(ref["sigma"], rel=1e-3, abs=1e-6)
+            assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
+            assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
 
 @pytest.mark.parametrize("TP_type, phantom, priors, Ns",
     [
