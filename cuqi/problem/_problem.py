@@ -710,7 +710,7 @@ class BayesianProblem(object):
             print("Using experimental Regularized LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
-            sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(self.posterior, callback=callback)
+            sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
 
             ti = time.time()
 
