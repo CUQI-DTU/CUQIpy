@@ -1,6 +1,7 @@
 from cuqi.distribution import JointDistribution
 from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples
+from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
@@ -182,17 +183,25 @@ class HybridGibbs:
             # Get sampler
             sampler = self.samplers[par_name]
 
-            # Set initial parameters using current point and scale (subset of state)
-            # This does not store the full state from e.g. NUTS sampler
-            # But works on samplers like MH, PCN, ULA, MALA, LinearRTO, UGLA, CWMH
-            # that only use initial_point and initial_scale
-            sampler.initial_point = self.current_samples[par_name]
-            if hasattr(sampler, 'initial_scale'): sampler.initial_scale = sampler.scale
+            # Instead of simply changing the target of the sampler, we reinitialize it.
+            # This is to ensure that all internal variables are set to match the new target.
+            # To return the sampler to the old state and history, we first extract the state and history
+            # before reinitializing the sampler and then set the state and history back to the sampler
+
+            # Extract state and history from sampler
+            if isinstance(sampler, NUTS): # Special case for NUTS as it is not playing nice with get_state and get_history
+                sampler.initial_point = sampler.current_point
+            else:
+                sampler_state = sampler.get_state()
+                sampler_history = sampler.get_history()
 
             # Reinitialize sampler
-            # This makes the sampler lose all of its state.
-            # This is only OK because we set the initial values above from the previous state
             sampler.reinitialize()
+
+            # Set state and history back to sampler
+            if not isinstance(sampler, NUTS): # Again, special case for NUTS.
+                sampler.set_state(sampler_state)
+                sampler.set_history(sampler_history)
 
             # Run pre_warmup and pre_sample methods for sampler
             # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
