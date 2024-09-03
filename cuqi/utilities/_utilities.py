@@ -51,7 +51,7 @@ def get_non_default_args(func):
 
     nonDefaultArgs = []
     for key in para:
-        if key != "kwargs" and key != "args" and para[key].default is inspect._empty: #no default and not kwargs
+        if key != "kwargs" and key != "args" and key != "self" and para[key].default is inspect._empty: #no default and not kwargs
             nonDefaultArgs.append(key)
     return nonDefaultArgs
 
