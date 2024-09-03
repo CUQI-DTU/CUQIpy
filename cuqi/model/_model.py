@@ -508,8 +508,8 @@ class AffineModel(Model):
 
         if not callable(linear_operator):
             forward_func = lambda self, x: self._matrix@x + self.shift
-            forward_func_noshift = lambda self, x: self._matrix@x
-            adjoint_func_noshift = lambda self, y: self._matrix.T@y
+            forward_func_noshift = lambda x: self._matrix@x
+            adjoint_func_noshift = lambda y: self._matrix.T@y
             matrix = linear_operator
         else:
             forward_func = lambda self, *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self.shift
@@ -530,7 +530,7 @@ class AffineModel(Model):
 
         #Initialize Model class
         super().__init__(forward_func, range_geometry, domain_geometry)
-        
+
         #Store matrix privately
         self._matrix = matrix
 
@@ -674,7 +674,7 @@ class LinearModel(AffineModel):
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
 
         if not callable(forward):
-            adjoint_func = lambda self, y: self._matrix.T@y
+            adjoint_func = lambda y: self._matrix.T@y
         else:
             adjoint_func = adjoint
 
