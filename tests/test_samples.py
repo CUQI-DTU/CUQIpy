@@ -54,6 +54,22 @@ def test_samples_plot(geom, to_funvals, plot_par):
     with pytest.raises(ValueError,match=r"Cannot pass is_par as a plotting argument"):
         s.plot(is_par=not to_funvals,plot_par=plot_par)
 
+@pytest.mark.parametrize("geom",[
+						(cuqi.geometry.Discrete(1)),
+						(cuqi.geometry.Continuous1D(1))
+						])
+@pytest.mark.parametrize("kwargs",[
+                        ({}),
+                        ({"marker":"o"}),
+                        ])
+def test_samples_plot(geom, kwargs, plot_par):
+    # Make basic distribution and sample
+    my_gaussian = cuqi.distribution.Gaussian(mean=1, cov=1)
+    samples = my_gaussian.sample(10)
+    samples.geometry = geom
+    fig1 = samples.plot(**kwargs)
+    fig2 = samples.plot(0, **kwargs)
+
 @pytest.mark.parametrize("to_funvals, plot_par", [(True,False),(True,True),(False,False),(False,True)])
 @pytest.mark.parametrize("plot_method, plot_par_supported, arviz",
                          [(Samples.plot_autocorrelation, False, True),
