@@ -7,10 +7,10 @@ import cuqi
 from cuqi.samples import Samples
 
 try:
-    from progressbar import progressbar
+    from tqdm import tqdm
 except ImportError:
-    def progressbar(iterable, **kwargs):
-        warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
+    def tqdm(iterable, **kwargs):
+        warnings.warn("Module mcmc: tqdm not found. Install tqdm to get sampling progress.")
         return iterable
 
 class Sampler(ABC):
@@ -220,7 +220,7 @@ class Sampler(ABC):
         if hasattr(self, "_pre_sample"): self._pre_sample()
 
         # Draw samples
-        for _ in progressbar( range(Ns) ):
+        for _ in tqdm( range(Ns) ):
             
             # Perform one step of the sampler
             acc = self.step()
@@ -260,7 +260,7 @@ class Sampler(ABC):
         if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
-        for idx in progressbar(range(Nb)):
+        for idx in tqdm(range(Nb)):
 
             # Perform one step of the sampler
             acc = self.step()
