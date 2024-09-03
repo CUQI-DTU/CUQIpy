@@ -422,7 +422,7 @@ class Model(object):
                                self.range_geometry,
                                is_par=is_direction_par)
 
-        grad = self._gradient_func(self, direction, wrt)
+        grad = self._gradient_func(direction, wrt)
         grad_is_par = False # Assume gradient is function values
         
         # If domain_geometry has gradient attribute, we apply it to the gradient
@@ -532,7 +532,7 @@ class AffineModel(Model):
         self._matrix = matrix
 
         #Define gradient
-        gradient_func = lambda self, direction, wrt: adjoint_func_noshift(self, direction)
+        gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
 
         #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
