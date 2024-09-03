@@ -528,20 +528,20 @@ class AffineModel(Model):
             if domain_geometry is None:
                 domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])  
 
+        #Initialize Model class
+        super().__init__(forward_func, range_geometry, domain_geometry)
+        
         #Store matrix privately
         self._matrix = matrix
 
         #Define gradient
-        gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
+        self._gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
 
         #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
 
         #Add forward without shift
         self._forward_func_noshift = forward_func_noshift 
-
-        #Initialize Model class
-        super().__init__(forward_func, range_geometry, domain_geometry, gradient=gradient_func)
 
         # Use arguments from user's callable linear operator
         if callable(linear_operator):
