@@ -306,7 +306,7 @@ class BayesianProblem(object):
             An example is shown in demos/demo31_callback.py.
 
         experimental : bool, *Optional*
-            If set to True, the sampler selection will use the samplers from the experimental mcmc module.
+            If set to True, the sampler selection will use the samplers from the :mod:`cuqi.experimental.mcmc` module.
 
         Returns
         -------
@@ -410,7 +410,7 @@ class BayesianProblem(object):
             The credible interval to plot. Defaults to 95%.
 
         experimental : bool, *Optional*
-            If set to True, the sampler selection will use the samplers from the experimental mcmc module.
+            If set to True, the sampler selection will use the samplers from the :mod:`cuqi.experimental.mcmc` module.
 
         Returns
         -------
