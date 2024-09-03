@@ -60,7 +60,7 @@ def test_samples_plot(geom, to_funvals, plot_par):
 						])
 @pytest.mark.parametrize("kwargs",[
                         ({}),
-                        ({"marker":"o"}),
+                        ({"marker":"*"}),
                         ])
 def test_1D_samples_plot(geom, kwargs):
     # Make basic distribution and sample
