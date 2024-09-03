@@ -62,7 +62,7 @@ def test_samples_plot(geom, to_funvals, plot_par):
                         ({}),
                         ({"marker":"o"}),
                         ])
-def test_samples_plot(geom, kwargs, plot_par):
+def test_1Dsamples_plot(geom, kwargs, plot_par):
     # Make basic distribution and sample
     my_gaussian = cuqi.distribution.Gaussian(mean=1, cov=1)
     samples = my_gaussian.sample(10)
