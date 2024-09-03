@@ -395,9 +395,9 @@ class Continuous1D(Continuous):
         self._grid = self._create_dimension(value)
 
     def _plot(self, values, *args, **kwargs):
+        if self.par_dim==1 and "marker" not in kwargs.keys():
+            kwargs["marker"] = "o"
         p = plt.plot(self.grid, values, *args, **kwargs)
-        if self.par_dim==1:
-            p = plt.plot(values.flatten(), 'o', *args, **kwargs)
         self._plot_config()
         return p
 
