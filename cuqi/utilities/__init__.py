@@ -11,6 +11,8 @@ from ._utilities import (
     sparse_cholesky,
     approx_derivative,
     check_if_conditional_from_attr,
+    plot_1D_density,
+    plot_2D_density
 )
 
 from ._get_python_variable_name import _get_python_variable_name

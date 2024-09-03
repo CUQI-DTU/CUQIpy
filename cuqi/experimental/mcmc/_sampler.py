@@ -80,7 +80,7 @@ class Sampler(ABC):
         
         # Default values
         if self.initial_point is None:
-            self.initial_point = self._default_initial_point
+            self.initial_point = self._get_default_initial_point(self.dim)
 
         # State variables
         self.current_point = self.initial_point
@@ -386,10 +386,9 @@ class Sampler(ABC):
         if not self._is_initialized:
             self.initialize()
             
-    @property
-    def _default_initial_point(self):
+    def _get_default_initial_point(self, dim):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
-        return np.ones(self.dim)
+        return np.ones(dim)
     
     def __repr__(self):
         """ Return a string representation of the sampler. """
@@ -452,7 +451,7 @@ class ProposalBasedSampler(Sampler, ABC):
         
         # Default values
         if self.initial_point is None:
-            self.initial_point = self._default_initial_point
+            self.initial_point = self._get_default_initial_point(self.dim)
 
         if self.proposal is None:
             self.proposal = self._default_proposal
