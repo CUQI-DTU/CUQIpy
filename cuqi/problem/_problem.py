@@ -218,10 +218,10 @@ class BayesianProblem(object):
         """
         if disp:
             # Print warning to user about the automatic solver selection
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!! Automatic solver selection is experimental. !!!")
-            print("!!!    Always validate the computed results.    !!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!! Automatic solver selection is work-in-progress !!!")
+            print("!!!     Always validate the computed results.      !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
         x_ML, solver_info = self._solve_max_point(self.likelihood, disp=disp, x0=x0)
@@ -254,10 +254,10 @@ class BayesianProblem(object):
 
         if disp:
             # Print warning to user about the automatic solver selection
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!! Automatic solver selection is experimental. !!!")
-            print("!!!    Always validate the computed results.    !!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!! Automatic solver selection is work-in-progress !!!")
+            print("!!!     Always validate the computed results.      !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
         if self._check_posterior(self, Gaussian, Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
@@ -316,14 +316,16 @@ class BayesianProblem(object):
         """
 
         # Print warning to user about the automatic sampler selection
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!! Automatic sampler selection is experimental. !!!")
-        print("!!!    Always validate the computed results.     !!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!! Automatic sampler selection is work-in-progress. !!!")
+        print("!!!      Always validate the computed results.       !!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print("")
 
         if experimental:
-            print("!!! Using experimental samplers from mcmc module. !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!  Using samplers from cuqi.experimental.mcmc  !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
         # Set up burn-in if not provided
@@ -489,7 +491,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental LinearRTO sampler.")
+            print("Using cuqi.experimental.mcmc LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             sampler = cuqi.experimental.mcmc.LinearRTO(self.posterior, callback=callback)
@@ -504,7 +506,7 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using LinearRTO sampler.")
+            print("Using cuqi.sampler LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             # Start timing
@@ -564,7 +566,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental Component-wise Metropolis-Hastings (CWMH) sampler.")
+            print("Using cuqi.experimental.mcmc Component-wise Metropolis-Hastings (CWMH) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
             scale = 0.05*np.ones(self.prior.dim)
@@ -582,7 +584,7 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
+            print("Using cuqi.sampler Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
             # Dimension
@@ -607,7 +609,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental preconditioned Crank-Nicolson (pCN) sampler.")
+            print("Using cuqi.experimental.mcmc preconditioned Crank-Nicolson (pCN) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.02")
 
             scale = 0.02
@@ -624,7 +626,7 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
+            print("Using cuqi.sampler preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.02")
 
             scale = 0.02
@@ -642,7 +644,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental No-U-Turn (NUTS) sampler.")
+            print("Using cuqi.experimental.mcmc No-U-Turn (NUTS) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             sampler = cuqi.experimental.mcmc.NUTS(self.posterior, callback=callback)
@@ -657,7 +659,7 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using No-U-Turn (NUTS) sampler")
+            print("Using cuqi.sampler No-U-Turn (NUTS) sampler")
             print(f"burn-in: {Nb/Ns*100:g}%")
             
             MCMC = cuqi.sampler.NUTS(self.posterior, callback=callback)
@@ -673,7 +675,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental Unadjusted Gaussian Laplace Approximation (UGLA) sampler.")
+            print("Using cuqi.experimental.mcmc Unadjusted Gaussian Laplace Approximation (UGLA) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             sampler = cuqi.experimental.mcmc.UGLA(self.posterior, callback=callback)
@@ -688,7 +690,7 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using UGLA sampler")
+            print("Using cuqi.sampler UGLA sampler")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             # Start timing
@@ -707,7 +709,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental Regularized LinearRTO sampler.")
+            print("Using cuqi.experimental.mcmc Regularized LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
@@ -722,7 +724,7 @@ class BayesianProblem(object):
         
         else:
 
-            print("Using Regularized LinearRTO sampler.")
+            print("Using cuqi.sampler Regularized LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             # Start timing
@@ -842,7 +844,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using experimental HybridGibbs sampler")
+            print("Using cuqi.experimental.mcmc HybridGibbs sampler")
             print(f"burn-in: {Nb/Ns*100:g}%")
             print("")
 
