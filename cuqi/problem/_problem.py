@@ -218,10 +218,10 @@ class BayesianProblem(object):
         """
         if disp:
             # Print warning to user about the automatic solver selection
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!! Automatic solver selection is work-in-progress !!!")
-            print("!!!     Always validate the computed results.      !!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!! Automatic solver selection is a work-in-progress !!!")
+            print("!!!      Always validate the computed results.       !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
         x_ML, solver_info = self._solve_max_point(self.likelihood, disp=disp, x0=x0)
@@ -254,10 +254,10 @@ class BayesianProblem(object):
 
         if disp:
             # Print warning to user about the automatic solver selection
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!! Automatic solver selection is work-in-progress !!!")
-            print("!!!     Always validate the computed results.      !!!")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print("!!! Automatic solver selection is a work-in-progress !!!")
+            print("!!!      Always validate the computed results.       !!!")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
         if self._check_posterior(self, Gaussian, Gaussian, LinearModel, max_dim=config.MAX_DIM_INV):
@@ -316,10 +316,10 @@ class BayesianProblem(object):
         """
 
         # Print warning to user about the automatic sampler selection
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("!!! Automatic sampler selection is work-in-progress. !!!")
-        print("!!!      Always validate the computed results.       !!!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        print("!!! Automatic sampler selection is a work-in-progress. !!!")
+        print("!!!       Always validate the computed results.        !!!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print("")
 
         if experimental:
