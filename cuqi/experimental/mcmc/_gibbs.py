@@ -157,11 +157,16 @@ class HybridGibbs:
             self.step()
             self._store_samples()
 
-    def warmup(self, Nb) -> 'HybridGibbs':
+    def warmup(self, Nb, tune_freq=0.1) -> 'HybridGibbs':
+
+        tune_interval = max(int(tune_freq * Nb), 1)
+
         """ Warmup (tune) the Gibbs sampler """
         for idx in progressbar(range(Nb)):
             self.step()
-            self.tune(idx)
+            # Tune the sampler at tuning intervals
+            if (idx + 1) % tune_interval == 0:
+                self.tune(tune_interval, idx // tune_interval) 
             self._store_samples()
 
     def get_samples(self) -> Dict[str, Samples]:
@@ -209,15 +214,16 @@ class HybridGibbs:
 
             # Take MCMC steps
             for _ in range(self.num_sampling_steps[par_name]):
-                sampler.step()
+                acc = sampler.step()
+                self.samplers[par_name]._acc.append(acc)
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
             self.current_samples[par_name] = sampler.current_point.reshape(-1)
 
-    def tune(self, idx):
+    def tune(self, skip_len, idx):
         """ Tune each of the samplers """
         for par_name in self.par_names:
-            self.samplers[par_name].tune(skip_len=1, update_count=idx)
+            self.samplers[par_name].tune(skip_len=skip_len, update_count=idx) # When hardcoded like this, the acceptance rate is always 1 or 0, giving issues in the tuning method
 
     # ------------ Private methods ------------
     def _initialize_samplers(self):
