@@ -223,7 +223,7 @@ class HybridGibbs:
     def tune(self, skip_len, idx):
         """ Tune each of the samplers """
         for par_name in self.par_names:
-            self.samplers[par_name].tune(skip_len=skip_len, update_count=idx) # When hardcoded like this, the acceptance rate is always 1 or 0, giving issues in the tuning method
+            self.samplers[par_name].tune(skip_len=skip_len, update_count=idx)
 
     # ------------ Private methods ------------
     def _initialize_samplers(self):
