@@ -9,7 +9,7 @@ class Gamma(Distribution):
 
     .. math::
     
-    f(x_i; \alpha, \beta) = \beta^\alpha x_i^{\alpha-1} \exp(-\beta x_i) / \Gamma(\alpha)
+        f(x_i; \alpha, \beta) = \beta^\alpha x_i^{\alpha-1} \exp(-\beta x_i) / \Gamma(\alpha)
 
     where shape :math:`\alpha` and rate :math:`\beta` are the parameters of the distribution, and Gamma is the Gamma function.
 
@@ -17,7 +17,7 @@ class Gamma(Distribution):
 
     .. math::
     
-    f(x_i; \alpha_i, \beta_i) = \beta_i^{\alpha_i} x_i^{\alpha_i-1} \exp(-\beta_i x_i) / \Gamma(\alpha_i)
+        f(x_i; \alpha_i, \beta_i) = \beta_i^{\alpha_i} x_i^{\alpha_i-1} \exp(-\beta_i x_i) / \Gamma(\alpha_i)
 
     Parameters
     ----------
