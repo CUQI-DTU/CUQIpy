@@ -28,37 +28,6 @@ class Distribution(Density, ABC):
     is_symmetric : bool, default None
         Indicator if distribution is symmetric.
 
-    Attributes
-    ----------
-    dim : int or None
-        Dimension of distribution.
-
-    name : str or None
-        Name of distribution.
-    
-    geometry : Geometry or None
-        Geometry of distribution.
-
-    is_cond : bool
-        Indicator if distribution is conditional.
-
-    Methods
-    -------
-    pdf():
-        Evaluate the probability density function.
-
-    logpdf():
-        Evaluate the log probability density function.
-
-    sample():
-        Generate one or more random samples.
-
-    get_conditioning_variables():
-        Return the conditioning variables of distribution.
-
-    get_mutable_variables():
-        Return the mutable variables (attributes and properties) of distribution.
-
     Notes
     -----
     A distribution can be conditional if one or more mutable variables are unspecified.

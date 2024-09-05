@@ -6,14 +6,18 @@ from cuqi.utilities import force_ndarray
 class Gamma(Distribution):
     """
     Represents a multivariate Gamma distribution characterized by shape and rate parameters of independent random variables x_i. Each is distributed according to the PDF function
-    
-    f(x_i; shape, rate) = rate^shape * x_i^(shape-1) * exp(-rate * x_i) / Gamma(shape)
 
-    where `shape` and `rate` are the parameters of the distribution, and Gamma is the Gamma function.
+    .. math::
+    
+    f(x_i; \alpha, \beta) = \beta^\alpha x_i^{\alpha-1} \exp(-\beta x_i) / \Gamma(\alpha)
+
+    where shape :math:`\alpha` and rate :math:`\beta` are the parameters of the distribution, and Gamma is the Gamma function.
 
     In case shape and/or rate are arrays, the pdf looks like
 
-    f(x_i; shape_i, rate_i) = rate_i^shape_i * x_i^(shape_i-1) * exp(-rate_i * x_i) / Gamma(shape_i)
+    .. math::
+    
+    f(x_i; \alpha_i, \beta_i) = \beta_i^{\alpha_i} x_i^{\alpha_i-1} \exp(-\beta_i x_i) / \Gamma(\alpha_i)
 
     Parameters
     ----------
