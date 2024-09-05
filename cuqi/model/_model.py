@@ -11,7 +11,7 @@ from cuqi.utilities import infer_len
 import numbers
 import cuqi
 import matplotlib.pyplot as plt
-from copy import copy
+from copy import copy, deepcopy
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -285,7 +285,7 @@ class Model(object):
         is_CUQIarray = type(x) is CUQIarray
 
         x = self._2fun(x, func_domain_geometry, is_par=is_par)
-        out = func(self, x, **kwargs)
+        out = func(x, **kwargs)
 
         # Return output as parameters 
         # (and wrapped in CUQIarray if input was CUQIarray)
@@ -507,12 +507,12 @@ class AffineModel(Model):
         self._shift = shift
 
         if not callable(linear_operator):
-            forward_func = lambda self, x: self._matrix@x + self.shift
+            forward_func = lambda x: self._matrix@x + self.shift
             forward_func_noshift = lambda x: self._matrix@x
             adjoint_func_noshift = lambda y: self._matrix.T@y
             matrix = linear_operator
         else:
-            forward_func = lambda self, *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self.shift
+            forward_func = lambda *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self.shift
             forward_func_noshift = linear_operator
             adjoint_func_noshift = linear_operator_adjoint
             matrix = None
@@ -529,13 +529,16 @@ class AffineModel(Model):
                 domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])  
 
         #Initialize Model class
-        super().__init__(forward_func, range_geometry, domain_geometry)
+        super().__init__(self._forward_func, range_geometry, domain_geometry)
 
         #Store matrix privately
         self._matrix = matrix
 
         #Define gradient
         self._gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
+
+        #Store forward function
+        self._forward = forward_func
 
         #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
@@ -550,6 +553,17 @@ class AffineModel(Model):
     @property
     def shift(self):
         return self._shift
+
+    @shift.setter
+    def shift(self, value):
+        self._shift = value
+
+    def _forward_func(self, x, is_par=True):
+        """ Helper function for computing the forward operator where self is updated. """
+        return self._apply_func(self._forward,
+                self.range_geometry,
+                self.domain_geometry,
+                x, is_par)
 
     def _forward_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
