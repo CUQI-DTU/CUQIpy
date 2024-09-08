@@ -234,18 +234,31 @@ class HybridGibbs:
             # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
             self._pre_warmup_and_pre_sample_sampler(sampler)
 
-            # Take MCMC steps
+            # Allow for multiple sampling steps in each Gibbs step
             for _ in range(self.num_sampling_steps[par_name]):
+                # Sampling step
                 acc = sampler.step()
+
+                # Store acceptance rate in sampler (mathcing behavior of Sampler class Sample method)
                 self.samplers[par_name]._acc.append(acc)
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
             self.current_samples[par_name] = sampler.current_point.reshape(-1)
 
-    def tune(self, skip_len, idx):
-        """ Tune each of the samplers """
+    def tune(self, skip_len, update_count):
+        """ Tune each of the samplers in the Gibbs sampling scheme
+
+        Parameters
+        ----------
+        skip_len : int
+            Defines the number of steps in between tuning (i.e. the tuning interval).
+
+        update_count : int
+            The number of times tuning has been performed. Can be used for internal bookkeeping.
+
+        """
         for par_name in self.par_names:
-            self.samplers[par_name].tune(skip_len=skip_len, update_count=idx)
+            self.samplers[par_name].tune(skip_len=skip_len, update_count=update_count)
 
     # ------------ Private methods ------------
     def _initialize_samplers(self):
