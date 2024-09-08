@@ -160,9 +160,14 @@ class HybridGibbs:
             Number of sampling iterations.
 
         """
+
         for _ in progressbar(range(Ns)):
+
             self.step()
+
             self._store_samples()
+
+        return self
 
     def warmup(self, Nb, tune_freq=0.1) -> 'HybridGibbs':
         """ Warmup (tune) the samplers in the Gibbs sampling scheme
@@ -190,6 +195,8 @@ class HybridGibbs:
                 self.tune(tune_interval, idx // tune_interval) 
                 
             self._store_samples()
+
+        return self
 
     def get_samples(self) -> Dict[str, Samples]:
         samples_object = {}
@@ -243,7 +250,10 @@ class HybridGibbs:
                 self.samplers[par_name]._acc.append(acc)
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
-            self.current_samples[par_name] = sampler.current_point.reshape(-1)
+            if isinstance(sampler.current_point, np.ndarray):
+                self.current_samples[par_name] = sampler.current_point.reshape(-1)
+            else:
+                self.current_samples[par_name] = sampler.current_point
 
     def tune(self, skip_len, update_count):
         """ Tune each of the samplers in the Gibbs sampling scheme

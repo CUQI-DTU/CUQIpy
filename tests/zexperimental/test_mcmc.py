@@ -823,3 +823,47 @@ def test_HybridGibbs_initial_point_setting():
     assert sampler.current_samples["d"] == 3
     assert sampler.current_samples["s"] == 1 # Default initial point of MH is 1.
     assert np.allclose(sampler.current_samples["x"], 0.5*np.ones(10))
+
+def test_HybridGibbs_handling_samplers_states():
+    """ Test that HybridGibbs is correctly using sampler states and history after changing targets. """
+
+        Ns = 10
+        Nb = 10
+      
+        # Bayesian Problem
+        s = cuqi.distribution.Gaussian(1, 1)
+        d = cuqi.distribution.Uniform(1, 100)
+        x = cuqi.distribution.Gaussian(lambda s: s, lambda d: 1/d, geometry=1)
+
+        # Joint distribution
+        joint = cuqi.distribution.JointDistribution(x, d, s)
+    
+        # Sampling strategy
+        sampling_strategy = {
+            "d" : cuqi.experimental.mcmc.MH(initial_point=3),
+            "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
+            "x" : cuqi.experimental.mcmc.MALA(initial_point=0)
+        }
+    
+        # Hybrid Gibbs sampler
+        sampler = cuqi.experimental.mcmc.HybridGibbs(joint, sampling_strategy=sampling_strategy)
+    
+        # Run the sampler for a few steps
+        sampler.warmup(Nb).sample(Ns)
+    
+        # Check that the samplers have acc rate correctly updated and maintained
+        assert len(sampler.samplers["d"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+        assert len(sampler.samplers["s"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+        assert len(sampler.samplers["x"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+
+        # Store states of samplers
+        sampler_states = {key: sampler.samplers[key].get_state() for key in sampler.samplers.keys()}
+
+        # Run warmup and sampling again
+        sampler.warmup(Nb).sample(Ns)
+
+        # Check that the state is different after running the sampler again
+        for key in sampler.samplers.keys():
+            new_state = sampler.samplers[key].get_state()
+            assert sampler_states[key] != new_state, f"Sampler {key} state is not updated after Gibbs sampling. State: \n {new_state}"
+            
