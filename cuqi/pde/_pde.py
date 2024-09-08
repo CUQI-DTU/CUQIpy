@@ -208,7 +208,9 @@ class TimeDependentLinearPDE(LinearPDE):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
+        self.time_step_indices = np.arange(len(time_steps))
         self.method = method
+        self.dt = time_steps[1] - time_steps[0]
 
         # Set time_obs
         if time_obs is None:
@@ -238,21 +240,21 @@ class TimeDependentLinearPDE(LinearPDE):
         """Assemble PDE"""
         self._parameter = parameter
 
-    def assemble_step(self, t):
+    def assemble_step(self, t, idx):
         """Assemble time step at time t"""
-        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t)
+        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t, idx, self.dt )
 
     def solve(self):
         """Solve PDE by time-stepping"""
         # initialize time-dependent solution
-        self.assemble_step(self.time_steps[0])
+        self.assemble_step(self.time_steps[0], self.time_step_indices[0])
         u = np.empty((len(self.initial_condition), len(self.time_steps)))
         u[:, 0] = self.initial_condition
 
         if self.method == 'forward_euler':
             for idx, t in enumerate(self.time_steps[:-1]):
                 dt = self.time_steps[idx+1] - t
-                self.assemble_step(t)
+                self.assemble_step(t, self.time_step_indices[idx])
                 u_pre = u[:, idx]
                 u[:, idx+1] = (dt*self.diff_op + np.eye(len(u_pre)))@u_pre + dt*self.rhs  # from u at time t, gives u at t+dt
             info = None
@@ -260,7 +262,7 @@ class TimeDependentLinearPDE(LinearPDE):
         if self.method == 'backward_euler':
             for idx, t in enumerate(self.time_steps[1:]):
                 dt = t - self.time_steps[idx]
-                self.assemble_step(t)
+                self.assemble_step(t, self.time_step_indices[idx+1])
                 u_pre = u[:, idx]
                 A = np.eye(len(u_pre)) - dt*self.diff_op
                 # from u at time t-dt, gives u at t
