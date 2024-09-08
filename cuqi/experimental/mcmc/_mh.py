@@ -61,7 +61,6 @@ class MH(ProposalBasedSampler):
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             acc = 1
-        #self._acc.append(acc)
         
         return acc
 
