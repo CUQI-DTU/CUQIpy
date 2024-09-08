@@ -7,10 +7,10 @@ import numpy as np
 import warnings
 
 try:
-    from progressbar import progressbar
+    from tqdm import tqdm
 except ImportError:
-    def progressbar(iterable, **kwargs):
-        warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
+    def tqdm(iterable, **kwargs):
+        warnings.warn("Module mcmc: tqdm not found. Install tqdm to get sampling progress.")
         return iterable
 
 # Not subclassed from Sampler as Gibbs handles multiple samplers and samples multiple parameters
@@ -161,7 +161,7 @@ class HybridGibbs:
 
         """
 
-        for _ in progressbar(range(Ns)):
+        for _ in tqdm(range(Ns)):
 
             self.step()
 
@@ -184,9 +184,7 @@ class HybridGibbs:
 
         tune_interval = max(int(tune_freq * Nb), 1)
 
-        """ Warmup (tune) the Gibbs sampler """
-
-        for idx in progressbar(range(Nb)):
+        for idx in tqdm(range(Nb)):
 
             self.step()
 
