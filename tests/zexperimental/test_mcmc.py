@@ -827,8 +827,8 @@ def test_HybridGibbs_initial_point_setting():
 def test_HybridGibbs_handling_samplers_states():
     """ Test that HybridGibbs is correctly using sampler states and history after changing targets. """
 
-    Ns = 10
-    Nb = 10
+    Ns = 25
+    Nb = 25
     
     # Bayesian Problem
     s = cuqi.distribution.Gaussian(1, 1)
@@ -842,7 +842,7 @@ def test_HybridGibbs_handling_samplers_states():
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
         "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
-        "x" : cuqi.experimental.mcmc.MALA(initial_point=0)
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-4) # Low scale to ensure at least one sample is accepted
     }
 
     # Hybrid Gibbs sampler
