@@ -865,5 +865,9 @@ def test_HybridGibbs_handling_samplers_states():
     # Check that the state is different after running the sampler again
     for key in sampler.samplers.keys():
         new_state = sampler.samplers[key].get_state()
-        assert sampler_states[key] != new_state, f"Sampler {key} state is not updated after Gibbs sampling. State: \n {new_state}"
+        # If sampler has no accepeted samples in last run (rare), the state should not be updated
+        if (np.sum(sampler.samplers[key].get_history()["history"]["_acc"][Ns+Nb+1:]) == 0):
+            assert sampler_states[key] == new_state, f"Sampler {key} state is updated after Gibbs sampling, but no accepted samples. State: \n {new_state}"
+        else:
+            assert sampler_states[key] != new_state, f"Sampler {key} state is not updated after Gibbs sampling. State: \n {new_state}"
             
