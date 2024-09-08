@@ -152,21 +152,43 @@ class HybridGibbs:
             sampler.validate_target()
 
     def sample(self, Ns) -> 'HybridGibbs':
-        """ Sample from the joint distribution using Gibbs sampling """
+        """ Sample from the joint distribution using Gibbs sampling
+
+        Parameters
+        ----------
+        Ns : int
+            Number of sampling iterations.
+
+        """
         for _ in progressbar(range(Ns)):
             self.step()
             self._store_samples()
 
     def warmup(self, Nb, tune_freq=0.1) -> 'HybridGibbs':
+        """ Warmup (tune) the samplers in the Gibbs sampling scheme
+
+        Parameters
+        ----------
+        Nb : int
+            Number of warmup iterations.
+
+        tune_freq : float, optional
+            Frequency of tuning the samplers. Tuning is performed every tune_freq*Nb steps.
+
+        """
 
         tune_interval = max(int(tune_freq * Nb), 1)
 
         """ Warmup (tune) the Gibbs sampler """
+
         for idx in progressbar(range(Nb)):
+
             self.step()
-            # Tune the sampler at tuning intervals
+
+            # Tune the sampler at tuning intervals (matching behavior of Sampler class)
             if (idx + 1) % tune_interval == 0:
                 self.tune(tune_interval, idx // tune_interval) 
+                
             self._store_samples()
 
     def get_samples(self) -> Dict[str, Samples]:
