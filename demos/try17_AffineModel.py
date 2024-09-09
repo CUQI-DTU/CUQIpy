@@ -79,19 +79,6 @@ cs = samplesLinear_burnin.plot_pair(marginals = True)
 # CUQI Model
 Aaffine = AffineModel(Amat, b, domain_geometry = domain_geometry, range_geometry = range_geometry)
 
-print(Aaffine(x_true))
-Aaffine.shift = 0
-print(Aaffine(x_true))
-print(Alinear(x_true))
-Alinear.shift = b
-print(Alinear(x_true))
-
-from copy import deepcopy, copy
-Atemp = deepcopy(Alinear)
-Atemp.shift = 2
-print(Atemp(x_true))
-
-sys.exit()
 # Likelihood
 y = Gaussian(Aaffine(x), sqrtcov=y_std, geometry = range_geometry)
 

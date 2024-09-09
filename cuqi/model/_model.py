@@ -503,16 +503,16 @@ class AffineModel(Model):
 
     def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
 
-        #Store shift
+        #Store shift as private attribute
         self._shift = shift
 
         if not callable(linear_operator):
-            forward_func = lambda x: self._matrix@x + self.shift
+            forward_func = lambda x: self._matrix@x + self._shift
             forward_func_noshift = lambda x: self._matrix@x
             adjoint_func_noshift = lambda y: self._matrix.T@y
             matrix = linear_operator
         else:
-            forward_func = lambda *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self.shift
+            forward_func = lambda *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self._shift
             forward_func_noshift = linear_operator
             adjoint_func_noshift = linear_operator_adjoint
             matrix = None
@@ -529,16 +529,16 @@ class AffineModel(Model):
                 domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])  
 
         #Initialize Model class
-        super().__init__(self._forward_func, range_geometry, domain_geometry)
+        super().__init__(forward_func, range_geometry, domain_geometry)
 
         #Store matrix privately
         self._matrix = matrix
 
+        #Store linear operator privately
+        self._linear_operator = linear_operator
+
         #Define gradient
         self._gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
-
-        #Store forward function
-        self._forward = forward_func
 
         #Add adjoint without shift
         self._adjoint_func_noshift = adjoint_func_noshift
@@ -550,20 +550,15 @@ class AffineModel(Model):
         if callable(linear_operator):
             self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
     
-    @property
-    def shift(self):
-        return self._shift
-
-    @shift.setter
-    def shift(self, value):
+    def update_shift(self, value):
         self._shift = value
 
-    def _forward_func(self, x, is_par=True):
-        """ Helper function for computing the forward operator where self is updated. """
-        return self._apply_func(self._forward,
-                self.range_geometry,
-                self.domain_geometry,
-                x, is_par)
+        # update forward function with new shift
+        if not callable(self._linear_operator):
+            forward_func = lambda x: self._matrix@x + self._shift
+        else:
+            forward_func = lambda *args, **kwargs: self._2par(self._linear_operator(*args, **kwargs), self.range_geometry) + self._shift
+        self._forward_func = forward_func
 
     def _forward_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
