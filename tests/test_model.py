@@ -5,6 +5,7 @@ import scipy as sp
 import cuqi
 import pytest
 from scipy import optimize
+from copy import copy
 
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
@@ -488,3 +489,28 @@ def test_AffineModel_Correct_result(model):
 
     # Check that the shifted linear model is correct
     assert np.allclose(A_affine(x), model(x) + b)
+
+def test_AffineModel_update_shift():
+
+    A = np.eye(2)
+    b = np.array([1, 2])
+    x = np.array([1, 1])
+    new_shift = np.array([2,-1])
+    model = cuqi.model.AffineModel(A, b)
+    model_copy = copy(model)
+
+    # check model output
+    assert model(x) == np.array([2,3])
+
+    # check model output with updated shift
+    model.update_shift(new_shift)
+    assert model(x) == np.array([3,0])
+
+    # check model output of copied model
+    assert model_copy(x) == np.array([2,3])
+
+    # check model output of copied model with updated shift
+    model_copy.update_shift(new_shift)
+    assert model_copy(x) == np.array([3,0])
+
+
