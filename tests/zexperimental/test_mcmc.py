@@ -843,7 +843,7 @@ def test_HybridGibbs_stores_acc_rate():
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
         "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
-        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1) # Relatively high scale may lead to no accepted samples
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0)
     }
 
     # Hybrid Gibbs sampler
@@ -876,7 +876,7 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
         "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
-        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-4) # Low scale to ensure at least one sample is accepted
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1) # Relatively high scale may lead to no accepted samples
     }
 
     # Hybrid Gibbs sampler
