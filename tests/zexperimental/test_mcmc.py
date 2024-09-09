@@ -824,9 +824,43 @@ def test_HybridGibbs_initial_point_setting():
     assert sampler.current_samples["s"] == 1 # Default initial point of MH is 1.
     assert np.allclose(sampler.current_samples["x"], 0.5*np.ones(10))
 
-def test_HybridGibbs_handling_samplers_states():
-    """ Test that HybridGibbs is correctly using sampler states and history after changing targets. """
+def test_HybridGibbs_stores_acc_rate():
+    """ Test that the HybridGibbs sampler stores the acceptance rate of the samplers correctly. Also ensures that history is maintained during warmup and sampling. """
 
+    # Number of warmup and sampling steps
+    Ns = 25
+    Nb = 25
+    
+    # Bayesian Problem
+    s = cuqi.distribution.Gaussian(1, 1)
+    d = cuqi.distribution.Uniform(1, 100)
+    x = cuqi.distribution.Gaussian(lambda s: s, lambda d: 1/d, geometry=1)
+
+    # Joint distribution
+    joint = cuqi.distribution.JointDistribution(x, d, s)
+
+    # Sampling strategy
+    sampling_strategy = {
+        "d" : cuqi.experimental.mcmc.MH(initial_point=3),
+        "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1) # Relatively high scale may lead to no accepted samples
+    }
+
+    # Hybrid Gibbs sampler
+    sampler = cuqi.experimental.mcmc.HybridGibbs(joint, sampling_strategy=sampling_strategy)
+
+    # Run the sampler for a few steps
+    sampler.warmup(Nb).sample(Ns)
+
+    # Check that the samplers have acc rate correctly updated and maintained
+    assert len(sampler.samplers["d"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+    assert len(sampler.samplers["s"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+    assert len(sampler.samplers["x"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+
+def test_HybridGibbs_updates_state_only_after_accepting_sample():
+    """ Test that the HybridGibbs sampler updates the state only after accepting a sample. """
+
+    # Number of warmup and sampling steps
     Ns = 25
     Nb = 25
     
@@ -851,23 +885,22 @@ def test_HybridGibbs_handling_samplers_states():
     # Run the sampler for a few steps
     sampler.warmup(Nb).sample(Ns)
 
-    # Check that the samplers have acc rate correctly updated and maintained
-    assert len(sampler.samplers["d"].get_history()["history"]["_acc"]) == Nb + Ns + 1
-    assert len(sampler.samplers["s"].get_history()["history"]["_acc"]) == Nb + Ns + 1
-    assert len(sampler.samplers["x"].get_history()["history"]["_acc"]) == Nb + Ns + 1
-
     # Store states of samplers
     sampler_states = {key: sampler.samplers[key].get_state() for key in sampler.samplers.keys()}
 
     # Run warmup and sampling again
     sampler.warmup(Nb).sample(Ns)
 
-    # Check that the state is different after running the sampler again
+    # Veryify that the state is only updated if a sample is accepted.
     for key in sampler.samplers.keys():
+
+        # Get new state for specific sampler
         new_state = sampler.samplers[key].get_state()
-        # If sampler has no accepeted samples in last run (rare), the state should not be updated
+
+        # In case sampler has no accepted samples, the state should not have been updated
         if (np.sum(sampler.samplers[key].get_history()["history"]["_acc"][Ns+Nb+1:]) == 0):
-            assert sampler_states[key] == new_state, f"Sampler {key} state is updated after Gibbs sampling, but no accepted samples. State: \n {new_state}"
+            assert sampler_states[key] == new_state, f"Sampler {key} state was erroneously updated in Gibbs scheme, but no accepted samples. State: \n {new_state}"
+        # In case sampler has accepted samples, the state should have been updated
         else:
-            assert sampler_states[key] != new_state, f"Sampler {key} state is not updated after Gibbs sampling. State: \n {new_state}"
+            assert sampler_states[key] != new_state, f"Sampler {key} state was erroneously not updated in Gibbs scheme, even when new samples were accepted. State: \n {new_state}"
             
