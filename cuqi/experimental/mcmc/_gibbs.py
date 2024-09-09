@@ -254,7 +254,7 @@ class HybridGibbs:
                 self.current_samples[par_name] = sampler.current_point
 
     def tune(self, skip_len, update_count):
-        """ Tune each of the samplers in the Gibbs sampling scheme
+        """ Run a single tuning step on each of the samplers in the Gibbs sampling scheme
 
         Parameters
         ----------
