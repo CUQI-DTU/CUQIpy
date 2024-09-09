@@ -157,7 +157,7 @@ class HybridGibbs:
         Parameters
         ----------
         Ns : int
-            Number of sampling iterations.
+            The number of samples to draw.
 
         """
 
@@ -175,7 +175,7 @@ class HybridGibbs:
         Parameters
         ----------
         Nb : int
-            Number of warmup iterations.
+            The number of samples to draw during warmup.
 
         tune_freq : float, optional
             Frequency of tuning the samplers. Tuning is performed every tune_freq*Nb steps.
@@ -244,8 +244,8 @@ class HybridGibbs:
                 # Sampling step
                 acc = sampler.step()
 
-                # Store acceptance rate in sampler (mathcing behavior of Sampler class Sample method)
-                self.samplers[par_name]._acc.append(acc)
+                # Store acceptance rate in sampler (matching behavior of Sampler class Sample method)
+                sampler._acc.append(acc)
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
             if isinstance(sampler.current_point, np.ndarray):
