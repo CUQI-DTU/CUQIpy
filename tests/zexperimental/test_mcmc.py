@@ -891,7 +891,7 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
     # Run warmup and sampling again
     sampler.warmup(Nb).sample(Ns)
 
-    # Veryify that the state is only updated if a sample is accepted.
+    # Verify that the state is only updated if a sample is accepted.
     for key in sampler.samplers.keys():
 
         # Get new state for specific sampler
