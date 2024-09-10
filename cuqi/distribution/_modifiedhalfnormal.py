@@ -25,13 +25,13 @@ class ModifiedHalfNormal(Distribution):
     Parameters
     ----------
     alpha : float
-        The polynomial exponent parameter of the MHN distribution. Must be positive.
+        The polynomial exponent parameter :math:`\\alpha` of the MHN distribution. Must be positive.
 
     beta : float
-        The quadratic exponential parameter of the MHN distribution. Must be positive.
+        The quadratic exponential parameter :math:`\\beta` of the MHN distribution. Must be positive.
 
     gamma : float
-        The linear exponential parameter of the MHN distribution.
+        The linear exponential parameter :math:`\\gamma` of the MHN distribution.
 
     """
     def __init__(self, alpha=None, beta=None, gamma=None, is_symmetric=False, **kwargs):

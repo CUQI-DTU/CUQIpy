@@ -18,8 +18,10 @@ class Beta(Distribution):
     Parameters
     ------------
     alpha: float or array_like
+           The shape parameter :math:`\\alpha` of the beta distribution.
 
     beta: float or array_like
+          The shape parameter :math:`\\beta` of the beta distribution.
     
     Example
     -------
