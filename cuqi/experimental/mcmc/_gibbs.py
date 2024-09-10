@@ -272,6 +272,8 @@ class HybridGibbs:
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():
+            if isinstance(sampler, NUTS):
+                print(f'Warning: NUTS sampler is not fully stateful in HybridGibbs. Sampler will be reinitialized in each Gibbs step.')
             sampler.initialize()
 
     def _initialize_num_sampling_steps(self):
