@@ -7,14 +7,17 @@ from cuqi.utilities import force_ndarray
 class ModifiedHalfNormal(Distribution):
     """
     Represents a modified half-normal (MHN) distribution, a three-parameter family of distributions generalizing the Gamma distribution.
-    The distribution is continuous with pdf 
-    f(x; alpha, beta, gamma) propto x^(alpha-1) * exp(-beta * x^2 + gamma * x)
+    The distribution is continuous with pdf
+
+    .. math::
+    
+        f(x; \\alpha, \\beta, \\gamma) \propto x^{(\\alpha-1)} * \exp(-\\beta * x^2 + \\gamma * x)
 
     The MHN generalizes the half-normal distribution, because
-    f(x; 1, beta, 0) propto exp(-beta * x^2)
+    :math:`f(x; 1, \\beta, 0) \propto \exp(-\\beta * x^2)`
 
     The MHN generalizes the gamma distribution because
-    f(x; alpha, 0, -gamma) propto x^(alpha-1) * exp(- gamma * x)
+    :math:`f(x; \\alpha, 0, -\\gamma) \propto x^{(\\alpha-1)} * \exp(- \\gamma * x)`
 
     Reference:
     [1] Sun, et al. "The Modified-Half-Normal distribution: Properties and an efficient sampling scheme." Communications in Statistics-Theory and Methods
