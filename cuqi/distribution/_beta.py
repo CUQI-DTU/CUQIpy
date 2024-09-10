@@ -11,7 +11,7 @@ class Beta(Distribution):
 
     .. math::
 
-        f(x) = x^{(\alpha-1)}(1-x)^{(\beta-1)}\Gamma(\alpha+\beta) / (\Gamma(\alpha)\Gamma(\beta))
+        f(x) = x^{(\\alpha-1)}(1-x)^{(\\beta-1)}\Gamma(\\alpha+\\beta) / (\Gamma(\\alpha)\Gamma(\\beta))
 
     where :math:`\Gamma` is the Gamma function.
 
