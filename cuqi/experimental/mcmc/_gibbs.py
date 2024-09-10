@@ -1,6 +1,7 @@
 from cuqi.distribution import JointDistribution
 from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples
+from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
@@ -151,17 +152,49 @@ class HybridGibbs:
             sampler.validate_target()
 
     def sample(self, Ns) -> 'HybridGibbs':
-        """ Sample from the joint distribution using Gibbs sampling """
+        """ Sample from the joint distribution using Gibbs sampling
+
+        Parameters
+        ----------
+        Ns : int
+            The number of samples to draw.
+
+        """
+
         for _ in tqdm(range(Ns)):
+
             self.step()
+
             self._store_samples()
 
-    def warmup(self, Nb) -> 'HybridGibbs':
-        """ Warmup (tune) the Gibbs sampler """
+        return self
+
+    def warmup(self, Nb, tune_freq=0.1) -> 'HybridGibbs':
+        """ Warmup (tune) the samplers in the Gibbs sampling scheme
+
+        Parameters
+        ----------
+        Nb : int
+            The number of samples to draw during warmup.
+
+        tune_freq : float, optional
+            Frequency of tuning the samplers. Tuning is performed every tune_freq*Nb steps.
+
+        """
+
+        tune_interval = max(int(tune_freq * Nb), 1)
+
         for idx in tqdm(range(Nb)):
+
             self.step()
-            self.tune(idx)
+
+            # Tune the sampler at tuning intervals (matching behavior of Sampler class)
+            if (idx + 1) % tune_interval == 0:
+                self.tune(tune_interval, idx // tune_interval) 
+                
             self._store_samples()
+
+        return self
 
     def get_samples(self) -> Dict[str, Samples]:
         samples_object = {}
@@ -182,38 +215,65 @@ class HybridGibbs:
             # Get sampler
             sampler = self.samplers[par_name]
 
-            # Set initial parameters using current point and scale (subset of state)
-            # This does not store the full state from e.g. NUTS sampler
-            # But works on samplers like MH, PCN, ULA, MALA, LinearRTO, UGLA, CWMH
-            # that only use initial_point and initial_scale
-            sampler.initial_point = self.current_samples[par_name]
-            if hasattr(sampler, 'initial_scale'): sampler.initial_scale = sampler.scale
+            # Instead of simply changing the target of the sampler, we reinitialize it.
+            # This is to ensure that all internal variables are set to match the new target.
+            # To return the sampler to the old state and history, we first extract the state and history
+            # before reinitializing the sampler and then set the state and history back to the sampler
+
+            # Extract state and history from sampler
+            if isinstance(sampler, NUTS): # Special case for NUTS as it is not playing nice with get_state and get_history
+                sampler.initial_point = sampler.current_point
+            else:
+                sampler_state = sampler.get_state()
+                sampler_history = sampler.get_history()
 
             # Reinitialize sampler
-            # This makes the sampler lose all of its state.
-            # This is only OK because we set the initial values above from the previous state
             sampler.reinitialize()
+
+            # Set state and history back to sampler
+            if not isinstance(sampler, NUTS): # Again, special case for NUTS.
+                sampler.set_state(sampler_state)
+                sampler.set_history(sampler_history)
 
             # Run pre_warmup and pre_sample methods for sampler
             # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
             self._pre_warmup_and_pre_sample_sampler(sampler)
 
-            # Take MCMC steps
+            # Allow for multiple sampling steps in each Gibbs step
             for _ in range(self.num_sampling_steps[par_name]):
-                sampler.step()
+                # Sampling step
+                acc = sampler.step()
+
+                # Store acceptance rate in sampler (matching behavior of Sampler class Sample method)
+                sampler._acc.append(acc)
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
-            self.current_samples[par_name] = sampler.current_point.reshape(-1)
+            if isinstance(sampler.current_point, np.ndarray):
+                self.current_samples[par_name] = sampler.current_point.reshape(-1)
+            else:
+                self.current_samples[par_name] = sampler.current_point
 
-    def tune(self, idx):
-        """ Tune each of the samplers """
+    def tune(self, skip_len, update_count):
+        """ Run a single tuning step on each of the samplers in the Gibbs sampling scheme
+
+        Parameters
+        ----------
+        skip_len : int
+            Defines the number of steps in between tuning (i.e. the tuning interval).
+
+        update_count : int
+            The number of times tuning has been performed. Can be used for internal bookkeeping.
+
+        """
         for par_name in self.par_names:
-            self.samplers[par_name].tune(skip_len=1, update_count=idx)
+            self.samplers[par_name].tune(skip_len=skip_len, update_count=update_count)
 
     # ------------ Private methods ------------
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():
+            if isinstance(sampler, NUTS):
+                print(f'Warning: NUTS sampler is not fully stateful in HybridGibbs. Sampler will be reinitialized in each Gibbs step.')
             sampler.initialize()
 
     def _initialize_num_sampling_steps(self):
