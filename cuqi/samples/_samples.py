@@ -431,7 +431,7 @@ class Samples(object):
         return lines
     
     def hist_chain(self,variable_indices,*args,**kwargs):
-        """ Plots histogram of all samples of a single variable (MCMC chain). """
+        """ Plots samples histogram of variables with indices specified in variable_indices. """
 
         self._raise_error_if_not_vec(self.hist_chain.__name__)
 
