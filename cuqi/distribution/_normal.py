@@ -12,13 +12,6 @@ class Normal(Distribution):
     mean: mean of distribution
     std: standard deviation
     
-    Methods
-    -----------
-    sample: generate one or more random samples
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    cdf: evaluate cumulative probability function
-    
     Example
     -----------
     .. code-block:: python
