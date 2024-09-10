@@ -565,7 +565,7 @@ class Samples(object):
 
 
     def diagnostics(self):
-        """ Conducts diagnostics on the chain. """
+        """ Conducts diagnostics on the chain (Geweke test). """
         # Geweke test
         Geweke(self.samples.T)
 
