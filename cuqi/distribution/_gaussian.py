@@ -730,18 +730,6 @@ class JointGaussianSqrtPrec(Distribution):
     ------------
     means: List of means for each Gaussian distribution.
     sqrtprecs: List of sqrt precision matricies for each Gaussian distribution.
-
-    Attributes
-    ------------
-    sqrtprec: Returns the sqrt precision matrix of the joined gaussian in stacked form.
-    sqrtprecTimesMean: Returns the sqrt precision matrix times the mean of the distribution.
-    
-    Methods
-    -----------
-    sample: generate one or more random samples (NotImplemented)
-    pdf: evaluate probability density function (NotImplemented)
-    logpdf: evaluate log probability density function (NotImplemented)
-    cdf: evaluate cumulative probability function (NotImplemented)
     """    
     def __init__(self,means=None,sqrtprecs=None,is_symmetric=True,**kwargs):
 
@@ -783,6 +771,7 @@ class JointGaussianSqrtPrec(Distribution):
 
     @property
     def sqrtprec(self):
+        """ Returns the sqrt precision matrix of the joined gaussian in stacked form. """
         if spa.issparse(self._sqrtprecs[0]):
             return spa.vstack((self._sqrtprecs))
         else:
@@ -790,6 +779,7 @@ class JointGaussianSqrtPrec(Distribution):
 
     @property
     def sqrtprecTimesMean(self):
+        """ Returns the sqrt precision matrix times the mean of the distribution."""
         result = []
         for i in range(len(self._means)):
             result.append((self._sqrtprecs[i]@self._means[i]).flatten())
