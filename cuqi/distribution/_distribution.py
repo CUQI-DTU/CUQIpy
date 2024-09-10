@@ -208,6 +208,7 @@ class Distribution(Density, ABC):
             "enable_FD().")
 
     def sample(self,N=1,*args,**kwargs):
+        """ Sample from the distribution. """
 
         if self.is_cond:
             raise ValueError(f"Cannot sample from conditional distribution. Missing conditioning variables: {self.get_conditioning_variables()}")
@@ -232,6 +233,7 @@ class Distribution(Density, ABC):
         pass
 
     def pdf(self,x):
+        """ Evaluate the log probability density function of the distribution. """
         return np.exp(self.logpdf(x))
 
     def _condition(self, *args, **kwargs):
