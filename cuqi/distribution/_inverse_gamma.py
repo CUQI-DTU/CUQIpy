@@ -12,7 +12,7 @@ class InverseGamma(Distribution):
 
         f(x) = (x-\\beta)^{(-\\alpha-1)} * \exp(-\\gamma/(x-\\beta)) / (\\gamma^{(-\\alpha)}*\Gamma(\\alpha))
 
-    where shape :math:`\\alpha`, location :math:`\\beta` and scale :math:`\\gamma` are the shape, location and scale of x_i, respectively. And Gamma is the Gamma function.
+    where shape :math:`\\alpha`, location :math:`\\beta` and scale :math:`\\gamma` are the shape, location and scale of x_i, respectively. And :math:`\Gamma` is the Gamma function.
 
     Parameters
     ------------
