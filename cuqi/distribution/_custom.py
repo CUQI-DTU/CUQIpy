@@ -12,12 +12,6 @@ class UserDefinedDistribution(Distribution):
     gradient_func: Function evaluating the gradient of the logpdf. Callable.
     sample_func: Function drawing samples from distribution. Callable.
     
-    Methods
-    -----------
-    sample: generate one or more random samples
-    logpdf: evaluate log probability density function
-    gradient: evaluate gradient of logpdf
-    
     Example
     -----------
     .. code-block:: python
