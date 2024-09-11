@@ -19,6 +19,9 @@ Some useful auxiliary helper modules:
    - :doc:`cuqi.samples <_autosummary/cuqi.samples>` contains tools for storing and manipulating MCMC samples.
    - :doc:`cuqi.solver <_autosummary/cuqi.solver>` contains tools point estimation of posteriors.
 
+Experimental modules:
+   - :doc:`cuqi.experimental <_autosummary/cuqi.experimental>` contains experimental modules that are not yet stable.
+
 Full API overview
    A complete auto generated overview of the API can be found below (or by navigating using the sidebar).
 

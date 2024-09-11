@@ -7,14 +7,17 @@ from cuqi.utilities import force_ndarray
 class ModifiedHalfNormal(Distribution):
     """
     Represents a modified half-normal (MHN) distribution, a three-parameter family of distributions generalizing the Gamma distribution.
-    The distribution is continuous with pdf 
-    f(x; alpha, beta, gamma) propto x^(alpha-1) * exp(-beta * x^2 + gamma * x)
+    The distribution is continuous with pdf
+
+    .. math::
+    
+        f(x; \\alpha, \\beta, \\gamma) \propto x^{(\\alpha-1)} * \exp(-\\beta * x^2 + \\gamma * x)
 
     The MHN generalizes the half-normal distribution, because
-    f(x; 1, beta, 0) propto exp(-beta * x^2)
+    :math:`f(x; 1, \\beta, 0) \propto \exp(-\\beta * x^2)`
 
     The MHN generalizes the gamma distribution because
-    f(x; alpha, 0, -gamma) propto x^(alpha-1) * exp(- gamma * x)
+    :math:`f(x; \\alpha, 0, -\\gamma) \propto x^{(\\alpha-1)} * \exp(- \\gamma * x)`
 
     Reference:
     [1] Sun, et al. "The Modified-Half-Normal distribution: Properties and an efficient sampling scheme." Communications in Statistics-Theory and Methods
@@ -22,13 +25,13 @@ class ModifiedHalfNormal(Distribution):
     Parameters
     ----------
     alpha : float
-        The polynomial exponent parameter of the MHN distribution. Must be positive.
+        The polynomial exponent parameter :math:`\\alpha` of the MHN distribution. Must be positive.
 
     beta : float
-        The quadratic exponential parameter of the MHN distribution. Must be positive.
+        The quadratic exponential parameter :math:`\\beta` of the MHN distribution. Must be positive.
 
     gamma : float
-        The linear exponential parameter of the MHN distribution.
+        The linear exponential parameter :math:`\\gamma` of the MHN distribution.
 
     """
     def __init__(self, alpha=None, beta=None, gamma=None, is_symmetric=False, **kwargs):
