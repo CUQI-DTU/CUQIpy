@@ -881,3 +881,23 @@ class Samples(object):
                "Geometry:\n {}\n\n".format(self.geometry) + \
                "Shape:\n {}\n\n".format(self.shape) + \
                "Samples:\n {}\n\n".format(self.samples)
+
+class JointSamples(dict):
+    """ An object used to store samples from joint distributions. 
+
+    This object is a simple overload of the dictionary class to allow easy access to certain methods 
+    of Samples objects without having to iterate over each key in the dictionary. 
+    
+    """
+
+    def burnthin(self, Nb, Nt=1):
+        """ Remove burn-in and thin samples for all samples in the dictionary. Returns a copy of the samples stored in the dictionary. """
+        return JointSamples({key: samples.burnthin(Nb, Nt) for key, samples in self.items()})
+
+    def __repr__(self) -> str: 
+        return "CUQIpy JointSamples Dict:\n" + \
+               "-------------------------\n\n" + \
+               "Keys:\n {}\n\n".format(list(self.keys())) + \
+               "Ns (number of samples):\n {}\n\n".format({key: samples.Ns for key, samples in self.items()}) + \
+               "Geometry:\n {}\n\n".format({key: samples.geometry for key, samples in self.items()}) + \
+               "Shape:\n {}\n\n".format({key: samples.shape for key, samples in self.items()})

@@ -1,6 +1,6 @@
 from cuqi.distribution import JointDistribution
 from cuqi.experimental.mcmc import Sampler
-from cuqi.samples import Samples
+from cuqi.samples import Samples, JointSamples
 from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
@@ -197,7 +197,7 @@ class HybridGibbs:
         return self
 
     def get_samples(self) -> Dict[str, Samples]:
-        samples_object = {}
+        samples_object = JointSamples()
         for par_name in self.par_names:
             samples_array = np.array(self.samples[par_name]).T
             samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)

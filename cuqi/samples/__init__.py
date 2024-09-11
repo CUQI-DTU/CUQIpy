@@ -1,1 +1,1 @@
-from ._samples import Samples
+from ._samples import Samples, JointSamples
