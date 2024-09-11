@@ -39,7 +39,7 @@ Main changes for users
       # Sample from the target distribution
       sampler.warmup(Nb=100)  # Explicit warmup (tuning) of sampler
       sampler.sample(Ns=100)  # Actual sampling
-      samples = sampler.get_samples()
+      samples = sampler.get_samples().burnthin(100) # Getting samples and removing burn-in
 
 2. Sampling API for BayesianProblem
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +95,7 @@ Main changes for users
 
       sampler.warmup(50)
       sampler.sample(200)
-      samples = sampler.get_samples()
+      samples = sampler.get_samples().burnthin(50)
 
       samples["x"].plot_ci(exact=info.exactSolution)
 """
