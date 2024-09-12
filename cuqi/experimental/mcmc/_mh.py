@@ -57,7 +57,9 @@ class MH(ProposalBasedSampler):
         # accept/reject
         u_theta = np.log(np.random.rand())
         acc = 0
-        if (u_theta <= alpha):
+        if (u_theta <= alpha) and \
+           (not np.isnan(target_eval_star)) and \
+           (not np.isinf(target_eval_star)):
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             acc = 1
