@@ -257,7 +257,7 @@ class NUTS(Sampler):
             # Metropolis step
             alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
             if (s_prime == 1) and \
-                (np.random.rand() <= alpha2)
+                (np.random.rand() <= alpha2) and \
                 (not np.isnan(logd_prime)) and \
                 (not np.isinf(logd_prime)):
                 self.current_point = point_prime
