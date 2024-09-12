@@ -20,10 +20,12 @@ Main changes for users
       # Set up sampler
       sampler = MH(target)
 
-      # Sample from the target distribution
-      samples = sampler.sample(Ns=100, Nb=100)
+      # Sample from the target distribution (Alternatively calling sample_adapt to tune the sampler)
+      samples = sampler.sample(Ns=100, Nb=100) # Burn-in (Nb) removed by default
 
-   This has now changed to:
+   This has now changed to to a more object-oriented API which provides more flexibility and control over the sampling process.
+
+   For example one can now more explicitly control when the sampler is tuned (warmup) and when it is sampling with fixed parameters.
 
    .. code-block:: python
 
@@ -39,7 +41,9 @@ Main changes for users
       # Sample from the target distribution
       sampler.warmup(Nb=100)  # Explicit warmup (tuning) of sampler
       sampler.sample(Ns=100)  # Actual sampling
-      samples = sampler.get_samples().burnthin(100) # Getting samples and removing burn-in
+      samples = sampler.get_samples().burnthin(Nb=100) # Getting samples and removing burn-in from warmup
+
+   Importantly, the removing burn-in from e.g. warmup is now a separate step that is done after the sampling process is complete.
 
 2. Sampling API for BayesianProblem
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -49,6 +53,8 @@ Main changes for users
    There is now a flag `experimental` that can be set to `True` to use the new MCMC samplers.
    
    By default, the flag is set to `False` and the old samplers are used.
+
+   For this more high-level interface, burn-in is automatically removed from the samples as was the case before.
 
 
 3. More options for Gibbs sampling
@@ -95,7 +101,7 @@ Main changes for users
 
       sampler.warmup(50)
       sampler.sample(200)
-      samples = sampler.get_samples().burnthin(50)
+      samples = sampler.get_samples().burnthin(Nb=50)
 
       samples["x"].plot_ci(exact=info.exactSolution)
 """
