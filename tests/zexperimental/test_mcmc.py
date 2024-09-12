@@ -916,6 +916,8 @@ sampler_instances_for_bounded_distribution = [
         initial_point=np.array([0.1])), \
     cuqi.experimental.mcmc.MH(target=cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
         initial_point=np.array([0.1,0.1]), scale=0.1),
+    cuqi.experimental.mcmc.CWMH(target=cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
+        initial_point=np.array([0.1,0.1]), scale=0.1),
     cuqi.experimental.mcmc.ULA(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
         initial_point=np.array([0.1,0.1]), scale=0.1),
     cuqi.experimental.mcmc.MALA(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
