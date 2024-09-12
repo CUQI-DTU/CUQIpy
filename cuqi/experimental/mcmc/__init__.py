@@ -40,10 +40,10 @@ Main changes for users
 
       # Sample from the target distribution
       sampler.warmup(Nb=100)  # Explicit warmup (tuning) of sampler
-      sampler.sample(Ns=100)  # Actual sampling
+      sampler.sample(Ns=100)  # Sampling with fixed parameters
       samples = sampler.get_samples().burnthin(Nb=100) # Getting samples and removing burn-in from warmup
 
-   Importantly, the removing burn-in from e.g. warmup is now a separate step that is done after the sampling process is complete.
+   Importantly, the removal of burn-in from e.g. warmup is now a separate step that is done after the sampling process is complete.
 
 2. Sampling API for BayesianProblem
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
