@@ -102,10 +102,14 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
         scalar
             1 (accepted)
         """
-        self.current_point = x_star
-        self.current_target_logd = target_eval_star
-        self.current_target_grad = target_grad_star
-        acc = 1
+        acc = 0
+        if (not np.isnan(target_eval_star)) and \
+           (not np.isinf(target_eval_star)):
+            self.current_point = x_star
+            self.current_target_logd = target_eval_star
+            self.current_target_grad = target_grad_star
+            acc = 1
+            
         return acc
 
     def step(self):
