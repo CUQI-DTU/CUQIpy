@@ -158,7 +158,9 @@ class CWMH(ProposalBasedSampler):
 
             # accept/reject
             u_theta = np.log(np.random.rand())
-            if (u_theta <= alpha): # accept
+            if (u_theta <= alpha) and \
+               (not np.isnan(target_eval_star)) and \
+               (not np.isinf(target_eval_star)):
                 x_t[j] = x_all_components[j]
                 target_eval_t = target_eval_star
                 acc[j] = 1
