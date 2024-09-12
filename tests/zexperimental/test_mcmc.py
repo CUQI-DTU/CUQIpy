@@ -903,7 +903,8 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
         # In case sampler has accepted samples, the state should have been updated
         else:
             assert sampler_states[key] != new_state, f"Sampler {key} state was erroneously not updated in Gibbs scheme, even when new samples were accepted. State: \n {new_state}"
-            
+
+# bounded distribution (scalar and vector) for testing invalid samples
 sampler_instances_for_bounded_distribution = [
     cuqi.experimental.mcmc.MH(target=cuqi.distribution.Beta(0.5, 0.5), \
         initial_point=np.array([0.1]), scale=0.1),
@@ -912,6 +913,14 @@ sampler_instances_for_bounded_distribution = [
     cuqi.experimental.mcmc.MALA(cuqi.distribution.Beta(0.5, 0.5), \
         initial_point=np.array([0.1]), scale=0.1),
     cuqi.experimental.mcmc.NUTS(cuqi.distribution.Beta(0.5, 0.5), \
+        initial_point=np.array([0.1])), \
+    cuqi.experimental.mcmc.MH(target=cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
+        initial_point=np.array([0.1]), scale=0.1),
+    cuqi.experimental.mcmc.ULA(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
+        initial_point=np.array([0.1]), scale=0.1),
+    cuqi.experimental.mcmc.MALA(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
+        initial_point=np.array([0.1]), scale=0.1),
+    cuqi.experimental.mcmc.NUTS(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
         initial_point=np.array([0.1]))
 ]
 
