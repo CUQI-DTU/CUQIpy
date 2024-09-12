@@ -7,7 +7,7 @@ Main changes for users
 1. Sampling API
    ^^^^^^^^^^^^
 
-   Previously one would call the `.sample` or `sample_adapt` methods of a sampler instance to sample from a target distribution and store the samples as the output as follows:
+   Previously one would call the `.sample` or `sample_adapt` methods of a sampler instance at :py:mod:`cuqi.sampler` to sample from a target distribution and store the samples as the output as follows:
 
    .. code-block:: python
 
@@ -48,7 +48,7 @@ Main changes for users
 2. Sampling API for BayesianProblem
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   Bayesian problem continues to have the same API for `sample_posterior` and the `UQ` method.
+   :py:class:`cuqi.problem.BayesianProblem` continues to have the same API for `sample_posterior` and the `UQ` method.
 
    There is now a flag `experimental` that can be set to `True` to use the new MCMC samplers.
    
@@ -60,9 +60,9 @@ Main changes for users
 3. More options for Gibbs sampling
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   There are now more options for Gibbs sampling. Previously it was only possible to sample with Gibbs for samplers `LinearRTO`, `RegularizedLinearRTO`, `Conjugate`, and `ConjugateApprox`.
+   There are now more options for Gibbs sampling. Previously it was only possible to sample with Gibbs for samplers  :py:class:`cuqi.sampler.LinearRTO`, :py:class:`cuqi.sampler.RegularizedLinearRTO`, :py:class:`cuqi.sampler.Conjugate`, and :py:class:`cuqi.sampler.ConjugateApprox`.
 
-   Now, it is possible to define a Gibbs sampling scheme using any sampler from the `cuqi.experimental.mcmc` module.
+   Now, it is possible to define a Gibbs sampling scheme using any sampler from the :py:mod:`cuqi.experimental.mcmc` module.
 
    **Example using a NUTS-within-Gibbs scheme for a 1D deconvolution problem:**
 

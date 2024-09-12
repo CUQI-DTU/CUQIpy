@@ -883,7 +883,7 @@ class Samples(object):
                "Samples:\n {}\n\n".format(self.samples)
 
 class JointSamples(dict):
-    """ An object used to store samples from joint distributions. 
+    """ An object used to store samples from :class:`cuqi.distribution.JointDistribution`. 
 
     This object is a simple overload of the dictionary class to allow easy access to certain methods 
     of Samples objects without having to iterate over each key in the dictionary. 
