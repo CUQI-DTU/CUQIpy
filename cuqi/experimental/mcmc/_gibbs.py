@@ -66,7 +66,7 @@ class HybridGibbs:
         import numpy as np
 
         # Model and data
-        A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D(phantom='square').get_components()
+        A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D(phantom='sinc').get_components()
         n = A.domain_dim
 
         # Define distributions
@@ -90,7 +90,11 @@ class HybridGibbs:
         sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
 
         # Run sampler
-        samples = sampler.sample(Ns=1000, Nb=200)
+        sampler.warmup(200)
+        sampler.sample(1000)
+
+        # Get samples removing burn-in
+        samples = sampler.get_samples().burnthin(200)
 
         # Plot results
         samples['x'].plot_ci(exact=probinfo.exactSolution)
