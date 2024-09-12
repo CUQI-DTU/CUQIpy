@@ -915,13 +915,13 @@ sampler_instances_for_bounded_distribution = [
     cuqi.experimental.mcmc.NUTS(cuqi.distribution.Beta(0.5, 0.5), \
         initial_point=np.array([0.1])), \
     cuqi.experimental.mcmc.MH(target=cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
-        initial_point=np.array([0.1]), scale=0.1),
+        initial_point=np.array([0.1,0.1]), scale=0.1),
     cuqi.experimental.mcmc.ULA(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
-        initial_point=np.array([0.1]), scale=0.1),
+        initial_point=np.array([0.1,0.1]), scale=0.1),
     cuqi.experimental.mcmc.MALA(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
-        initial_point=np.array([0.1]), scale=0.1),
+        initial_point=np.array([0.1,0.1]), scale=0.1),
     cuqi.experimental.mcmc.NUTS(cuqi.distribution.Beta(np.array([0.5,0.5]), np.array([0.5,0.5])), \
-        initial_point=np.array([0.1]))
+        initial_point=np.array([0.1,0.1]))
 ]
 
 @pytest.mark.parametrize("sampler", sampler_instances_for_bounded_distribution)
