@@ -161,7 +161,7 @@ class HybridGibbs:
 
         """
 
-        for _ in tqdm(range(Ns)):
+        for _ in tqdm(range(Ns), "Sample: "):
 
             self.step()
 
@@ -184,7 +184,7 @@ class HybridGibbs:
 
         tune_interval = max(int(tune_freq * Nb), 1)
 
-        for idx in tqdm(range(Nb)):
+        for idx in tqdm(range(Nb), "Warmup: "):
 
             self.step()
 
