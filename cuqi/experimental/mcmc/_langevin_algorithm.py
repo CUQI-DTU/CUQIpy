@@ -213,9 +213,7 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
         log_u = np.log(np.random.rand())
         if (log_u <= log_alpha) and \
            (not np.isnan(target_eval_star)) and \
-           (not np.isinf(target_eval_star)) and \
-           (not np.isnan(target_grad_star)) and \
-           (not np.isinf(target_grad_star)):
+           (not np.isinf(target_eval_star)) and:
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             self.current_target_grad = target_grad_star
