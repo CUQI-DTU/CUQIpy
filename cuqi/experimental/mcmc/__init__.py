@@ -20,8 +20,8 @@ Main changes for users
       # Set up sampler
       sampler = MH(target)
 
-      # Sample from the target distribution (Alternatively calling sample_adapt to tune the sampler)
-      samples = sampler.sample(Ns=100, Nb=100) # Burn-in (Nb) removed by default
+      # Sample from the target distribution (Alternatively calling sample with explicit scale parameter set in sampler)
+      samples = sampler.sample_adapt(Ns=100, Nb=100) # Burn-in (Nb) removed by default
 
    This has now changed to to a more object-oriented API which provides more flexibility and control over the sampling process.
 
