@@ -220,7 +220,7 @@ class Sampler(ABC):
         if hasattr(self, "_pre_sample"): self._pre_sample()
 
         # Draw samples
-        for _ in tqdm( range(Ns) ):
+        for _ in tqdm( range(Ns), "Sample: "):
             
             # Perform one step of the sampler
             acc = self.step()
@@ -260,7 +260,7 @@ class Sampler(ABC):
         if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
-        for idx in tqdm(range(Nb)):
+        for idx in tqdm(range(Nb), "Warmup: "):
 
             # Perform one step of the sampler
             acc = self.step()
