@@ -903,4 +903,59 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
         # In case sampler has accepted samples, the state should have been updated
         else:
             assert sampler_states[key] != new_state, f"Sampler {key} state was erroneously not updated in Gibbs scheme, even when new samples were accepted. State: \n {new_state}"
-            
+
+sampler_instances_for_bounded_distribution = [
+    cuqi.experimental.mcmc.MH(
+        target=cuqi.distribution.Beta(0.5, 0.5),
+        initial_point=np.array([0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.ULA(
+        cuqi.distribution.Beta(0.5, 0.5),
+        initial_point=np.array([0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.MALA(
+        cuqi.distribution.Beta(0.5, 0.5),
+        initial_point=np.array([0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.NUTS(
+        cuqi.distribution.Beta(0.5, 0.5), initial_point=np.array([0.1])
+    ),
+    cuqi.experimental.mcmc.MH(
+        target=cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.CWMH(
+        target=cuqi.distribution.Beta(
+            np.array([0.5, 0.5]), np.array([0.5, 0.5])
+        ),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.ULA(
+        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.MALA(
+        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.NUTS(
+        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+    ),
+]
+
+@pytest.mark.parametrize("sampler", sampler_instances_for_bounded_distribution)
+def test_if_invalid_sample_accepted(sampler: cuqi.experimental.mcmc.Sampler):
+    sampler.sample(50)
+    samples = sampler.get_samples().samples
+    tol = 1e-8
+    assert (
+        samples.min() > 0.0 - tol and samples.max() < 1.0 + tol
+    ), f"Invalid samples accepted for sampler {sampler.__class__.__name__}."

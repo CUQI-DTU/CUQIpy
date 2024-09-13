@@ -102,10 +102,14 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
         scalar
             1 (accepted)
         """
-        self.current_point = x_star
-        self.current_target_logd = target_eval_star
-        self.current_target_grad = target_grad_star
-        acc = 1
+        acc = 0
+        if (not np.isnan(target_eval_star)) and \
+           (not np.isinf(target_eval_star)):
+            self.current_point = x_star
+            self.current_target_logd = target_eval_star
+            self.current_target_grad = target_grad_star
+            acc = 1
+            
         return acc
 
     def step(self):
@@ -211,7 +215,9 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
         # accept/reject with Metropolis
         acc = 0
         log_u = np.log(np.random.rand())
-        if (log_u <= log_alpha) and (np.isnan(target_eval_star) == False):
+        if (log_u <= log_alpha) and \
+           (not np.isnan(target_eval_star)) and \
+           (not np.isinf(target_eval_star)):
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             self.current_target_grad = target_grad_star
