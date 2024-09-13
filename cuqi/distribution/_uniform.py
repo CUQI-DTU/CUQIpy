@@ -46,7 +46,8 @@ class Uniform(Distribution):
         Computes the gradient of logpdf at the given values of x.
         """
         # x accepts scalar, list, tuple, or ndarray
-        return np.zeros_like(x)
+        tol = -1e16
+        return tol*np.ones_like(x)
 
     def _sample(self,N=1, rng=None):
 
