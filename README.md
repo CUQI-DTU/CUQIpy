@@ -25,7 +25,7 @@ CUQIpy is part of the [CUQI project](https://www.compute.dtu.dk/english/cuqi) su
 
 - **CUQI book:** [CUQI book website](https://cuqi-dtu.github.io/CUQI-Book/)
 
-- **User showcases:** [Showcase repo](https://github.com/CUQI-DTU/CUQIpy-User-Showcase/)
+- **User showcases:** [Showcase repository](https://github.com/CUQI-DTU/CUQIpy-User-Showcase/)
 
 ## 🚀 Quickstart
 Install CUQIpy using pip:
