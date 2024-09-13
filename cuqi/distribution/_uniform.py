@@ -21,6 +21,9 @@ class Uniform(Distribution):
         self.high = high      
 
     def logpdf(self, x):
+        """
+        Evaluate the logarithm of the PDF at the given values of x.
+        """
         # First check whether x is outside bounds.
         # It is outside if any coordinate is outside the interval.
         if np.any(x < self.low) or np.any(x > self.high):
@@ -37,6 +40,13 @@ class Uniform(Distribution):
                 v = diff
             return_val = np.log(1.0/v)
         return return_val
+
+    def gradient(self, x):
+        """
+        Computes the gradient of logpdf at the given values of x.
+        """
+        # x accepts scalar, list, tuple, or ndarray
+        return np.zeros_like(x)
 
     def _sample(self,N=1, rng=None):
 
