@@ -45,9 +45,10 @@ class Uniform(Distribution):
         """
         Computes the gradient of logpdf at the given values of x.
         """
-        # x accepts scalar, list, tuple, or ndarray
-        tol = -1e16
-        return tol*np.ones_like(x)
+        if np.any(x < self.low) or np.any(x > self.high):
+            return np.NaN*np.ones_like(x)
+        else:
+            return np.zeros_like(x)
 
     def _sample(self,N=1, rng=None):
 
