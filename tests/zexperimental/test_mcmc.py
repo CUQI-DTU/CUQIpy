@@ -348,7 +348,8 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.UGLA(create_lmrf_prior_target(dim=16)),
     cuqi.experimental.mcmc.Direct(cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.Conjugate(create_conjugate_target("Gaussian-Gamma")),
-    cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma"))
+    cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma")),
+    cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
