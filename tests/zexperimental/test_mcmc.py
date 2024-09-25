@@ -360,7 +360,6 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.PCN,
     cuqi.experimental.mcmc.CWMH,
     cuqi.experimental.mcmc.RegularizedLinearRTO, # Due to the _choose_stepsize method
-    cuqi.experimental.mcmc.NUTS,
     cuqi.experimental.mcmc.HybridGibbs
 ]
 
