@@ -98,7 +98,7 @@ class NUTS(Sampler):
                                                     'epsilon_list',
                                                     'epsilon_bar_list'})
 
-    def __init__(self, target=None, initial_point=None, max_depth=15,
+    def __init__(self, target=None, initial_point=None, max_depth=None,
                  step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
@@ -158,6 +158,8 @@ class NUTS(Sampler):
 
     @max_depth.setter
     def max_depth(self, value):
+        if value is None:
+            value = 15 # default value
         if not isinstance(value, int):
             raise TypeError('max_depth must be an integer.')
         if value < 0:
