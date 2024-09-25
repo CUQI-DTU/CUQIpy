@@ -89,7 +89,10 @@ class NUTS(Sampler):
 
     _STATE_KEYS = Sampler._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
                                                 '_H_bar', '_mu',
-                                                '_alpha', '_n_alpha'})
+                                                '_alpha', '_n_alpha',
+                                                'current_target_logd',
+                                                'current_target_grad',
+                                                'max_depth'})
 
     _HISTORY_KEYS = Sampler._HISTORY_KEYS.union({'num_tree_node_list',
                                                     'epsilon_list',
@@ -309,12 +312,12 @@ class NUTS(Sampler):
         #    self._epsilon
         #  Parameters that does not change during the run
         #    self._mu
-
+        self._ensure_initialized()
         if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
             self._epsilon_bar = 1
 
     def _pre_sample(self):
-
+        self._ensure_initialized()
         if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
             self._epsilon_bar = self._epsilon
             
