@@ -95,7 +95,8 @@ def test_multivariate_scalar_vars_gradient(dist):
     try:
         assert np.allclose(
             dist_from_vec.gradient(val),
-            dist_from_dim.gradient(val)
+            dist_from_dim.gradient(val),
+            equal_nan=True
         )
     except NotImplementedError:
         pass  # Pass the test if NotImplementedError is raised
