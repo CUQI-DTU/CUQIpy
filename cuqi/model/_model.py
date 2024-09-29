@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import List, Union
 import numpy as np
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
@@ -7,11 +6,9 @@ from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D, _get_identity_geometries
-from cuqi.utilities import infer_len
-import numbers
 import cuqi
 import matplotlib.pyplot as plt
-from copy import copy, deepcopy
+from copy import copy
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -504,9 +501,9 @@ class AffineModel(Model):
             matrix = linear_operator
             linear_operator = lambda x: matrix@x
             linear_operator_adjoint = lambda y: matrix.T@y
-            if range_geometry is None:
+            if range_geometry is None and hasattr(matrix, 'shape'):
                 range_geometry = _DefaultGeometry1D(grid=matrix.shape[0])
-            if domain_geometry is None:
+            if domain_geometry is None and hasattr(matrix, 'shape'):
                 domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])
         else:
             matrix = None

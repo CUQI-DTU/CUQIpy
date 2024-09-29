@@ -82,7 +82,7 @@ class LinearRTO(Sampler):
     
     @property
     def data(self):
-        return self.target.data - self.target.model._shift # Include shift from AffineModel here, self.data is never used?
+        return self.target.data - self.target.model._shift # Include shift from AffineModel here
     
     def _precompute(self):
         L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
@@ -91,7 +91,7 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = self.prior.dim
-        self.b_tild = np.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu]) # shift in data here, since self.data is not used
+        self.b_tild = np.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu]) # With shift from AffineModel
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
         if all(notcallability):
