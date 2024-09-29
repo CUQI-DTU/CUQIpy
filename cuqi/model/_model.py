@@ -503,9 +503,6 @@ class AffineModel(Model):
 
     def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
 
-        #Store shift as private attribute
-        self._shift = shift
-
         if not callable(linear_operator):
             forward_func = lambda x: self._matrix@x + self._shift
             forward_func_noshift = lambda x: self._matrix@x
@@ -533,6 +530,9 @@ class AffineModel(Model):
 
         #Store matrix privately
         self._matrix = matrix
+
+        #Store shift as private attribute
+        self._shift = shift
 
         #Store linear operator privately
         self._linear_operator = linear_operator
