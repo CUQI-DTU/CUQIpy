@@ -1,7 +1,7 @@
+# %%
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-sys.path.append("..") 
 
 from cuqi.model import AffineModel, LinearModel
 from cuqi.experimental.mcmc import MH, LinearRTO
@@ -86,7 +86,7 @@ y = Gaussian(Aaffine(x), sqrtcov=y_std, geometry = range_geometry)
 posterior = JointDistribution(x, y)(y=y_obs)
 
 print(posterior.likelihood.model.forward(np.array([1,1])))
-print(posterior.likelihood.model._forward_no_shift(np.array([1,1])))
+print(posterior.likelihood.model._forward_func_no_shift(np.array([1,1])))
 
 # Sample posterior with MH
 np.random.seed(1000000)

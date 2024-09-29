@@ -100,7 +100,7 @@ class LinearRTO(Sampler):
             # in this case, model is a function doing forward and backward operations
             def M(x, flag):
                 if flag == 1:
-                    out1 = [L @ likelihood.model._forward_no_shift(x) for (L, likelihood) in zip(L1, self.likelihoods)] # Use forward function which excludes shift
+                    out1 = [L @ likelihood.model._forward_func_no_shift(x) for (L, likelihood) in zip(L1, self.likelihoods)] # Use forward function which excludes shift
                     out2 = L2 @ x
                     out  = np.hstack(out1 + [out2])
                 elif flag == 2:
@@ -109,7 +109,7 @@ class LinearRTO(Sampler):
                     out1 = np.zeros(self.n)
                     for likelihood in self.likelihoods:
                         idx_end += len(likelihood.data)
-                        out1 += likelihood.model._adjoint_no_shift(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end]) # Use adjoint function which excludes shift
+                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
                         idx_start = idx_end
                     out2 = L2.T @ x[idx_end:]
                     out  = out1 + out2                
