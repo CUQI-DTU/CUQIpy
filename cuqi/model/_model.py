@@ -512,6 +512,9 @@ class AffineModel(Model):
         if not callable(linear_operator):
             raise TypeError("Linear operator must be defined as a matrix or a callable function of some kind")
 
+        if not callable(linear_operator_adjoint):
+            raise TypeError("Linear operator adjoint must be defined as a callable function of some kind")
+
         # Initialize Model class
         super().__init__(linear_operator, range_geometry, domain_geometry)
 
