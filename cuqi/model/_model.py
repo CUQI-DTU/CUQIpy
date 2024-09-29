@@ -475,7 +475,7 @@ class Model(object):
 
 
 class AffineModel(Model):
-    """ Model representing an affine operator, i.e. a linear operator with a fixed shift.
+    """ Model representing an affine operator, i.e. a linear operator with a fixed shift. For more details on linear operators, see :class:`~cuqi.model.LinearModel`.
 
     Parameters
     ----------
@@ -495,84 +495,82 @@ class AffineModel(Model):
     domain_geometry : cuqi.geometry.Geometry
         The geometry representing the domain.
 
-    Methods
-    -----------
-    :meth:`get_matrix` returns an ndarray with the matrix representing the forward operator.
-
     """
 
     def __init__(self, linear_operator, shift, linear_operator_adjoint=None, range_geometry=None, domain_geometry=None):
 
-        if not callable(linear_operator):
-            forward_func = lambda x: self._matrix@x + self._shift
-            forward_func_noshift = lambda x: self._matrix@x
-            adjoint_func_noshift = lambda y: self._matrix.T@y
+        # If input represents a matrix, extract needed properties from it
+        if hasattr(linear_operator, '__matmul__') and hasattr(linear_operator, 'T'):
             matrix = linear_operator
-        else:
-            forward_func = lambda *args, **kwargs: self._2par(linear_operator(*args, **kwargs), self.range_geometry) + self._shift
-            forward_func_noshift = linear_operator
-            adjoint_func_noshift = linear_operator_adjoint
-            matrix = None
-
-        #Check if input is callable
-        if not callable(forward_func_noshift):
-            raise TypeError("Linear operator must be defined as a matrix or a callable function of some kind")
-
-        # Use matrix to derive range_geometry and domain_geometry
-        if matrix is not None:
+            linear_operator = lambda x: matrix@x
+            linear_operator_adjoint = lambda y: matrix.T@y
             if range_geometry is None:
                 range_geometry = _DefaultGeometry1D(grid=matrix.shape[0])
             if domain_geometry is None:
-                domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])  
+                domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])
+        else:
+            matrix = None
 
-        #Initialize Model class
-        super().__init__(forward_func, range_geometry, domain_geometry)
+        # Check if input is callable
+        if not callable(linear_operator):
+            raise TypeError("Linear operator must be defined as a matrix or a callable function of some kind")
 
-        #Store matrix privately
+        # Initialize Model class
+        super().__init__(linear_operator, range_geometry, domain_geometry)
+
+        # Store matrix privately
         self._matrix = matrix
 
-        #Store shift as private attribute
+        # Store shift as private attribute
         self._shift = shift
 
-        #Store linear operator privately
+        # Store linear operator privately
         self._linear_operator = linear_operator
 
-        #Define gradient
-        self._gradient_func = lambda direction, wrt: adjoint_func_noshift(direction)
+        # Store adjoint function
+        self._linear_operator_adjoint = linear_operator_adjoint
 
-        #Add adjoint without shift
-        self._adjoint_func_noshift = adjoint_func_noshift
+        # Define gradient
+        self._gradient_func = lambda direction, wrt: linear_operator_adjoint(direction)
 
-        #Add forward without shift
-        self._forward_func_noshift = forward_func_noshift 
+        # Update forward function to include shift (overwriting the one from Model class)
+        self._forward_func = lambda *args, **kwargs: linear_operator(*args, **kwargs) + shift
 
-        # Use arguments from user's callable linear operator
-        if callable(linear_operator):
-            self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
+        # Use arguments from user's callable linear operator (overwriting those found by Model class)
+        self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
+
+    def adjoint(self, y, is_par=True):
+        """ Adjoint of the model.
+        
+        Adjoint converts the input to function values (if needed) using the range geometry of the model.
+        Adjoint converts the output function values to parameters using the range geometry of the model.
+
+        Parameters
+        ----------
+        y : ndarray or cuqi.array.CUQIarray
+            The adjoint model input.
+
+        Returns
+        -------
+        ndarray or cuqi.array.CUQIarray
+            The adjoint model output. Always returned as parameters.
+        """
+        return self._apply_func(self._linear_operator_adjoint, # Adjoint of x -> Ax+b is A^T y
+                                self.domain_geometry,
+                                self.range_geometry,
+                                y, is_par)
     
     def update_shift(self, value):
+        """ Update the shift of the affine model. Updates both the shift value and the underlying forward function. """
         self._shift = value
+        self._forward_func = lambda *args, **kwargs: self._linear_operator(*args, **kwargs) + value
 
-        # update forward function with new shift
-        if not callable(self._linear_operator):
-            forward_func = lambda x: self._matrix@x + self._shift
-        else:
-            forward_func = lambda *args, **kwargs: self._2par(self._linear_operator(*args, **kwargs), self.range_geometry) + self._shift
-        self._forward_func = forward_func
-
-    def _forward_no_shift(self, x, is_par=True):
+    def _forward_func_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
-        return self._apply_func(self._forward_func_noshift,
+        return self._apply_func(self._linear_operator,
                 self.range_geometry,
                 self.domain_geometry,
                 x, is_par)
-    
-    def _adjoint_no_shift(self, y, is_par=True):
-        """ Helper function for computing the adjoint operator without the shift. """
-        return self._apply_func(self._adjoint_func_noshift,
-                        self.domain_geometry,
-                        self.range_geometry,
-                        y, is_par)
 
     def get_matrix(self):
         """ Returns the matrix representation of the linear operator. """
@@ -596,20 +594,6 @@ class AffineModel(Model):
 
             return self._matrix   
 
-    # Related to model algebra
-    # def __add__(self, shift) -> Union[Model, LinearModel]:
-    #     """ Creates an AffineModel with a fixed shift added, i.e. model_shifted(x) = model(x) + shift. """
-    #     if isinstance(shift, numbers.Number) and shift == 0:
-    #         return copy(self)
-    #     if not isinstance(shift, numbers.Number) and infer_len(shift) != self.range_dim:
-    #         raise ValueError("Shift dimension does not match model range dimension.")
-    #     if isinstance(shift, Model):
-    #         return SumOfModels(self, shift)
-    #     if isinstance(shift, SumOfModels):
-    #         return SumOfModels(self, *shift._models)
-    #     new_model = copy(self)
-    #     new_model._shift = self._shift + shift
-    #     return new_model
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -675,45 +659,11 @@ class LinearModel(AffineModel):
     Note that you would need to specify the range and domain geometries in this
     case as they cannot be inferred from the forward and adjoint functions.
     """
-    # Linear forward model with forward and adjoint (transpose).
     
-    def __init__(self,forward,adjoint=None,range_geometry=None,domain_geometry=None):
+    def __init__(self, forward, adjoint=None, range_geometry=None, domain_geometry=None):
 
         #Initialize as AffineModel with shift=0
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
-
-        if not callable(forward):
-            adjoint_func = lambda y: self._matrix.T@y
-        else:
-            adjoint_func = adjoint
-
-        #Check if input is callable
-        if not callable(adjoint_func):
-            raise TypeError("Adjoint of linear operator must be defined as a callable function of some kind")
-        
-        #Add adjoint
-        self._adjoint_func = adjoint_func
-
-    def adjoint(self, y, is_par=True):
-        """ Adjoint of the model.
-        
-        Adjoint converts the input to function values (if needed) using the range geometry of the model.
-        Adjoint converts the output function values to parameters using the range geometry of the model.
-
-        Parameters
-        ----------
-        y : ndarray or cuqi.array.CUQIarray
-            The adjoint model input.
-
-        Returns
-        -------
-        ndarray or cuqi.array.CUQIarray
-            The adjoint model output. Always returned as parameters.
-        """
-        return self._apply_func(self._adjoint_func,
-                                self.domain_geometry,
-                                self.range_geometry,
-                                y, is_par)
 
     def __matmul__(self, x):
         return self.forward(x)
@@ -721,7 +671,7 @@ class LinearModel(AffineModel):
     @property
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
-        transpose = LinearModel(self.adjoint,self.forward,self.domain_geometry,self.range_geometry)
+        transpose = LinearModel(self.adjoint, self.forward, self.domain_geometry, self.range_geometry)
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
