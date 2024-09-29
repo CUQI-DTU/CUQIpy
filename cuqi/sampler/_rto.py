@@ -151,7 +151,7 @@ class LinearRTO(Sampler):
     
     @property
     def data(self):
-        return self.target.data - self.target.model._shift # Include shift from AffineModel here, self.data never used
+        return self.target.data - self.target.model._shift # Include shift from AffineModel here
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
