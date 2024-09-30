@@ -88,8 +88,7 @@ class NUTS(Sampler):
     """
 
     _STATE_KEYS = Sampler._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
-                                                '_H_bar', '_mu',
-                                                '_alpha', '_n_alpha',
+                                                '_H_bar',
                                                 'current_target_logd',
                                                 'current_target_grad',
                                                 'max_depth'})
@@ -107,30 +106,23 @@ class NUTS(Sampler):
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
 
-        # Initialize epsilon and epsilon_bar
-        # epsilon is the step size used in the current iteration
-        # after warm up and one sampling step, epsilon is updated
-        # to epsilon_bar for the remaining sampling steps.
-        self._epsilon = None
-        self._epsilon_bar = None
-        self._H_bar = None
-
-        # Extra parameters for tuning
-        self._n_alpha = None
-        self._alpha = None
-
 
     def _initialize(self):
 
         # Arrays to store acceptance rate
         self._acc = [None] # Overwrites acc from Sampler. TODO. Check if this is necessary
 
-        self._alpha = 0 # check if meaningful value
-        self._n_alpha = 0 # check if meaningful value
+        self._current_alpha_ratio = np.nan # Current alpha ratio is set to some
+                                           # value (other than np.nan) before 
+                                           # being used
 
         self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
 
-        # parameters dual averaging
+        # Parameters dual averaging
+        # Initialize epsilon and epsilon_bar
+        # epsilon is the step size used in the current iteration
+        # after warm up and one sampling step, epsilon is updated
+        # to epsilon_bar for the remaining sampling steps.
         if self.step_size is None:
             self._epsilon = self._FindGoodEpsilon()
         else:
@@ -278,8 +270,7 @@ class NUTS(Sampler):
             s = s_prime *\
                 int((dpoints @ r_minus.T) >= 0) * int((dpoints @ r_plus.T) >= 0)
             j += 1
-            self._alpha = alpha
-            self._n_alpha = n_alpha
+            self._current_alpha_ratio = alpha/n_alpha
 
         # update run diagnostic attributes
         self._update_run_diagnostic_attributes(
@@ -298,7 +289,7 @@ class NUTS(Sampler):
 
         eta1 = 1/(k + t_0)
         self._H_bar = (1-eta1)*self._H_bar +\
-            eta1*(self.opt_acc_rate - (self._alpha/self._n_alpha))
+            eta1*(self.opt_acc_rate - (self._current_alpha_ratio))
         self._epsilon = np.exp(self._mu - (np.sqrt(k)/gamma)*self._H_bar)
         eta = k**(-kappa)
         self._epsilon_bar =\
