@@ -231,9 +231,7 @@ class Sampler(ABC):
             self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            # workaround for None values in acc of NUTS
-            acc_filtered = list(filter(lambda x: x is not None, self._acc))
-            pbar.set_postfix_str(f"acc rate: {np.mean(acc_filtered):.2%}")
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc):.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -281,9 +279,7 @@ class Sampler(ABC):
             self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            # workaround for None values in acc of NUTS
-            acc_filtered = list(filter(lambda x: x is not None, self._acc))
-            pbar.set_postfix_str(f"acc rate: {np.mean(acc_filtered):.2%}")
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc):.2%}")
 
             # Call callback function if specified
             self._call_callback(self.current_point, len(self._samples)-1)
