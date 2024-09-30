@@ -614,7 +614,7 @@ class BayesianProblem(object):
 
             scale = 0.02
 
-            sampler = cuqi.experimental.mcmc.pCN(self.posterior, scale, callback=callback)
+            sampler = cuqi.experimental.mcmc.PCN(self.posterior, scale, callback=callback)
 
             ti = time.time()
 
