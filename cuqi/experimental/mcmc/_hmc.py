@@ -233,6 +233,7 @@ class NUTS(Sampler):
         r_minus, r_plus = np.copy(r_k), np.copy(r_k)
 
         # run NUTS
+        acc = 0
         while (s == 1) and (j <= self.max_depth):
             # sample a direction
             v = int(2*(np.random.rand() < 0.5)-1)
@@ -260,9 +261,8 @@ class NUTS(Sampler):
                 self.current_point = point_prime
                 self.current_target_logd = logd_prime
                 self.current_target_grad = np.copy(grad_prime)
-                acc = 1
-            else:
-                acc = 0
+                acc = acc or 1
+
 
             # update number of particles, tree level, and stopping criterion
             n += n_prime
