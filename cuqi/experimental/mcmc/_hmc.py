@@ -119,9 +119,6 @@ class NUTS(Sampler):
 
     def _initialize(self):
 
-        # Arrays to store acceptance rate
-        self._acc = [None] # Overwrites acc from Sampler. TODO. Check if this is necessary
-
         self._alpha = 0 # check if meaningful value
         self._n_alpha = 0 # check if meaningful value
 
@@ -263,9 +260,9 @@ class NUTS(Sampler):
                 self.current_point = point_prime
                 self.current_target_logd = logd_prime
                 self.current_target_grad = np.copy(grad_prime)
-                self._acc.append(1)
+                acc = 1
             else:
-                self._acc.append(0)
+                acc = 0
 
             # update number of particles, tree level, and stopping criterion
             n += n_prime
@@ -283,6 +280,8 @@ class NUTS(Sampler):
         self._epsilon = self._epsilon_bar 
         if np.isnan(self.current_target_logd):
             raise NameError('NaN potential func')
+
+        return acc
 
     def tune(self, skip_len, update_count):
         """ adapt epsilon during burn-in using dual averaging"""
