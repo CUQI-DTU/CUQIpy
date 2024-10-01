@@ -199,7 +199,7 @@ class NUTS(Sampler):
         self._reset_run_diagnostic_attributes()
 
     def step(self):
-        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
+        if isinstance(self._epsilon_bar, str) and self._epsilon_bar == "unset":
             self._epsilon_bar = self._epsilon
 
         # Convert current_point, logd, and grad to numpy arrays
@@ -284,7 +284,7 @@ class NUTS(Sampler):
 
     def tune(self, skip_len, update_count):
         """ adapt epsilon during burn-in using dual averaging"""
-        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
+        if isinstance(self._epsilon_bar, str) and self._epsilon_bar == "unset":
             self._epsilon_bar = 1
 
         k = update_count+1
