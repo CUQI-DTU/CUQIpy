@@ -199,6 +199,9 @@ class NUTS(Sampler):
         self._reset_run_diagnostic_attributes()
 
     def step(self):
+        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
+            self._epsilon_bar = self._epsilon
+
         # Convert current_point, logd, and grad to numpy arrays
         # if they are CUQIarray objects
         if isinstance(self.current_point, CUQIarray):
@@ -281,6 +284,9 @@ class NUTS(Sampler):
 
     def tune(self, skip_len, update_count):
         """ adapt epsilon during burn-in using dual averaging"""
+        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
+            self._epsilon_bar = 1
+
         k = update_count+1
 
         # Fixed parameters that do not change during the run
@@ -293,26 +299,6 @@ class NUTS(Sampler):
         eta = k**(-kappa)
         self._epsilon_bar =\
             np.exp(eta*np.log(self._epsilon) +(1-eta)*np.log(self._epsilon_bar))
-
-    def _pre_warmup(self):
-
-        # Set up tuning parameters (only first time tuning is called)
-        # Note:
-        #  Parameters changes during the tune run
-        #    self._epsilon_bar
-        #    self._H_bar
-        #    self._epsilon
-        #  Parameters that does not change during the run
-        #    self._mu
-        self._ensure_initialized()
-        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
-            self._epsilon_bar = 1
-
-    def _pre_sample(self):
-        self._ensure_initialized()
-        if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
-            self._epsilon_bar = self._epsilon
-            
 
     #=========================================================================
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient

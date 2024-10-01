@@ -216,9 +216,6 @@ class Sampler(ABC):
         if batch_size > 0:
             batch_handler = _BatchHandler(batch_size, sample_path)
 
-        # Any code that needs to be run before sampling
-        if hasattr(self, "_pre_sample"): self._pre_sample()
-
         # Draw samples
         pbar = tqdm(range(Ns), "Sample: ")
         for idx in pbar:
@@ -259,9 +256,6 @@ class Sampler(ABC):
         self._ensure_initialized()
 
         tune_interval = max(int(tune_freq * Nb), 1)
-
-        # Any code that needs to be run before warmup
-        if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
         pbar = tqdm(range(Nb), "Warmup: ")
