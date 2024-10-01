@@ -1,7 +1,6 @@
 from cuqi.distribution import JointDistribution
 from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples, JointSamples
-from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
@@ -35,12 +34,6 @@ class HybridGibbs:
     sampler converge to the joint distribution. See e.g.
     Gelman et al. "Bayesian Data Analysis" (2014), Third Edition
     for more details.
-
-    In each Gibbs step, the corresponding sampler has the initial_point 
-    and initial_scale (if applicable) set to the value of the previous step
-    and the sampler is reinitialized. This means that the sampling is not 
-    fully stateful at this point. This means samplers like NUTS will lose
-    their internal state between Gibbs steps.
 
     Parameters
     ----------
@@ -138,12 +131,6 @@ class HybridGibbs:
         # Initialize the samplers
         self._initialize_samplers() 
 
-        # Run over pre-sample methods for samplers that have it
-        # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
-        # This is not ideal and should be fixed in the future
-        for sampler in self.samplers.values():
-            self._pre_warmup_and_pre_sample_sampler(sampler)
-
         # Validate all targets for samplers.
         self.validate_targets()
 
@@ -225,23 +212,15 @@ class HybridGibbs:
             # before reinitializing the sampler and then set the state and history back to the sampler
 
             # Extract state and history from sampler
-            if isinstance(sampler, NUTS): # Special case for NUTS as it is not playing nice with get_state and get_history
-                sampler.initial_point = sampler.current_point
-            else:
-                sampler_state = sampler.get_state()
-                sampler_history = sampler.get_history()
+            sampler_state = sampler.get_state()
+            sampler_history = sampler.get_history()
 
             # Reinitialize sampler
             sampler.reinitialize()
 
             # Set state and history back to sampler
-            if not isinstance(sampler, NUTS): # Again, special case for NUTS.
-                sampler.set_state(sampler_state)
-                sampler.set_history(sampler_history)
-
-            # Run pre_warmup and pre_sample methods for sampler
-            # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
-            self._pre_warmup_and_pre_sample_sampler(sampler)
+            sampler.set_state(sampler_state)
+            sampler.set_history(sampler_history)
 
             # Allow for multiple sampling steps in each Gibbs step
             for _ in range(self.num_sampling_steps[par_name]):
@@ -276,8 +255,6 @@ class HybridGibbs:
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():
-            if isinstance(sampler, NUTS):
-                print(f'Warning: NUTS sampler is not fully stateful in HybridGibbs. Sampler will be reinitialized in each Gibbs step.')
             sampler.initialize()
 
     def _initialize_num_sampling_steps(self):
@@ -289,11 +266,6 @@ class HybridGibbs:
         for par_name in self.par_names:
             if par_name not in self.num_sampling_steps:
                 self.num_sampling_steps[par_name] = 1
-
-
-    def _pre_warmup_and_pre_sample_sampler(self, sampler):
-        if hasattr(sampler, '_pre_warmup'): sampler._pre_warmup()
-        if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
 
     def _set_targets(self):
         """ Set targets for all samplers using the current samples """
