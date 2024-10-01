@@ -348,7 +348,8 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.UGLA(create_lmrf_prior_target(dim=16)),
     cuqi.experimental.mcmc.Direct(cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.Conjugate(create_conjugate_target("Gaussian-Gamma")),
-    cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma"))
+    cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma")),
+    cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
@@ -359,7 +360,6 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.PCN,
     cuqi.experimental.mcmc.CWMH,
     cuqi.experimental.mcmc.RegularizedLinearRTO, # Due to the _choose_stepsize method
-    cuqi.experimental.mcmc.NUTS,
     cuqi.experimental.mcmc.HybridGibbs
 ]
 
@@ -431,6 +431,7 @@ state_history_targets = [
     cuqi.experimental.mcmc.LinearRTO(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
     cuqi.experimental.mcmc.RegularizedLinearRTO(create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLA(create_lmrf_prior_target(dim=32)),
+    cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
 
 
@@ -477,6 +478,7 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.Sampler):
 state_exception_keys = {
     cuqi.experimental.mcmc.ULA: 'scale',
     cuqi.experimental.mcmc.MALA: 'scale',
+    cuqi.experimental.mcmc.NUTS: 'max_depth'
 }
 
 @pytest.mark.parametrize("sampler", state_history_targets)
@@ -593,7 +595,8 @@ def compare_attributes(attr1, attr2, key=''):
             for k in attr1.keys():
                 compare_attributes(attr1[k], attr2[k], f"{key}['{k}']")
         elif isinstance(attr1, Number):
-            assert np.allclose(attr1, attr2), f"Number: Attribute '{key}' differs after initialization"
+            assert (np.isnan(attr1) and np.isnan(attr2)) \
+                or np.allclose(attr1, attr2), f"Number: Attribute '{key}' differs after initialization"
         elif isinstance(attr1, str):
             assert attr1 == attr2, f"String: Attribute '{key}' differs after initialization"
         else:

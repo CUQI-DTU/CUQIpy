@@ -88,14 +88,16 @@ class NUTS(Sampler):
     """
 
     _STATE_KEYS = Sampler._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
-                                                '_H_bar', '_mu',
-                                                '_alpha', '_n_alpha'})
+                                                '_H_bar',
+                                                'current_target_logd',
+                                                'current_target_grad',
+                                                'max_depth'})
 
     _HISTORY_KEYS = Sampler._HISTORY_KEYS.union({'num_tree_node_list',
                                                     'epsilon_list',
                                                     'epsilon_bar_list'})
 
-    def __init__(self, target=None, initial_point=None, max_depth=15,
+    def __init__(self, target=None, initial_point=None, max_depth=None,
                  step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
@@ -104,27 +106,20 @@ class NUTS(Sampler):
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
 
+
+    def _initialize(self):
+
+        self._current_alpha_ratio = np.nan # Current alpha ratio will be set to some
+                                           # value (other than np.nan) before 
+                                           # being used
+
+        self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
+
+        # Parameters dual averaging
         # Initialize epsilon and epsilon_bar
         # epsilon is the step size used in the current iteration
         # after warm up and one sampling step, epsilon is updated
         # to epsilon_bar for the remaining sampling steps.
-        self._epsilon = None
-        self._epsilon_bar = None
-        self._H_bar = None
-
-        # Extra parameters for tuning
-        self._n_alpha = None
-        self._alpha = None
-
-
-    def _initialize(self):
-
-        self._alpha = 0 # check if meaningful value
-        self._n_alpha = 0 # check if meaningful value
-
-        self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
-
-        # parameters dual averaging
         if self.step_size is None:
             self._epsilon = self._FindGoodEpsilon()
         else:
@@ -152,6 +147,8 @@ class NUTS(Sampler):
 
     @max_depth.setter
     def max_depth(self, value):
+        if value is None:
+            value = 15 # default value
         if not isinstance(value, int):
             raise TypeError('max_depth must be an integer.')
         if value < 0:
@@ -270,8 +267,7 @@ class NUTS(Sampler):
             s = s_prime *\
                 int((dpoints @ r_minus.T) >= 0) * int((dpoints @ r_plus.T) >= 0)
             j += 1
-            self._alpha = alpha
-            self._n_alpha = n_alpha
+            self._current_alpha_ratio = alpha/n_alpha
 
         # update run diagnostic attributes
         self._update_run_diagnostic_attributes(
@@ -292,7 +288,7 @@ class NUTS(Sampler):
 
         eta1 = 1/(k + t_0)
         self._H_bar = (1-eta1)*self._H_bar +\
-            eta1*(self.opt_acc_rate - (self._alpha/self._n_alpha))
+            eta1*(self.opt_acc_rate - (self._current_alpha_ratio))
         self._epsilon = np.exp(self._mu - (np.sqrt(k)/gamma)*self._H_bar)
         eta = k**(-kappa)
         self._epsilon_bar =\
@@ -308,12 +304,12 @@ class NUTS(Sampler):
         #    self._epsilon
         #  Parameters that does not change during the run
         #    self._mu
-
+        self._ensure_initialized()
         if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
             self._epsilon_bar = 1
 
     def _pre_sample(self):
-
+        self._ensure_initialized()
         if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
             self._epsilon_bar = self._epsilon
             
