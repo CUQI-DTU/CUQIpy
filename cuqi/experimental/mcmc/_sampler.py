@@ -221,7 +221,7 @@ class Sampler(ABC):
 
         # Draw samples
         pbar = tqdm(range(Ns), "Sample: ")
-        for _ in pbar:
+        for idx in pbar:
             
             # Perform one step of the sampler
             acc = self.step()
@@ -231,7 +231,7 @@ class Sampler(ABC):
             self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc):.2%}")
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -279,7 +279,7 @@ class Sampler(ABC):
             self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc):.2%}")
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
             self._call_callback(self.current_point, len(self._samples)-1)
