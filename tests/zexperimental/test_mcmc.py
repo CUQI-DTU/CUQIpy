@@ -793,8 +793,14 @@ def test_find_valid_samplers_implicit_prior():
     assert(len(set(valid_samplers)) == 0)
 
 # ============ Testing of HybridGibbs ============
-
-def test_HybridGibbs_initial_point_setting():
+@pytest.mark.parametrize(
+    "x_sampler",
+    [
+        cuqi.experimental.mcmc.MALA(initial_point=0.5 * np.ones(10), scale=1e-1),
+        cuqi.experimental.mcmc.NUTS(initial_point=0.5 * np.ones(10), max_depth=4),
+    ],
+)
+def test_HybridGibbs_initial_point_setting(x_sampler):
     """ Test that the HybridGibbs sampler adheres to the initial point set by sampling strategy. """
 
     # Forward model
@@ -816,7 +822,7 @@ def test_HybridGibbs_initial_point_setting():
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
         "s" : cuqi.experimental.mcmc.MH(),
-        "x" : cuqi.experimental.mcmc.MALA(initial_point=0.5*np.ones(10))
+        "x" : x_sampler
     }
 
     # Hybrid Gibbs sampler
@@ -827,7 +833,15 @@ def test_HybridGibbs_initial_point_setting():
     assert sampler.current_samples["s"] == 1 # Default initial point of MH is 1.
     assert np.allclose(sampler.current_samples["x"], 0.5*np.ones(10))
 
-def test_HybridGibbs_stores_acc_rate():
+
+@pytest.mark.parametrize(
+    "x_sampler",
+    [
+        cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1),
+        cuqi.experimental.mcmc.NUTS(initial_point=0, max_depth=4),
+    ],
+)
+def test_HybridGibbs_stores_acc_rate(x_sampler):
     """ Test that the HybridGibbs sampler stores the acceptance rate of the samplers correctly. Also ensures that history is maintained during warmup and sampling. """
 
     # Number of warmup and sampling steps
@@ -846,7 +860,7 @@ def test_HybridGibbs_stores_acc_rate():
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
         "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
-        "x" : cuqi.experimental.mcmc.MALA(initial_point=0)
+        "x" : x_sampler
     }
 
     # Hybrid Gibbs sampler
@@ -860,7 +874,15 @@ def test_HybridGibbs_stores_acc_rate():
     assert len(sampler.samplers["s"].get_history()["history"]["_acc"]) == Nb + Ns + 1
     assert len(sampler.samplers["x"].get_history()["history"]["_acc"]) == Nb + Ns + 1
 
-def test_HybridGibbs_updates_state_only_after_accepting_sample():
+
+@pytest.mark.parametrize(
+    "x_sampler",
+    [
+        cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1),
+        cuqi.experimental.mcmc.NUTS(initial_point=0, max_depth=4),
+    ],
+)
+def test_HybridGibbs_updates_state_only_after_accepting_sample(x_sampler):
     """ Test that the HybridGibbs sampler updates the state only after accepting a sample. """
 
     # Number of warmup and sampling steps
@@ -879,7 +901,7 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
     sampling_strategy = {
         "d" : cuqi.experimental.mcmc.MH(initial_point=3),
         "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
-        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1) # Relatively high scale may lead to no accepted samples
+        "x" : x_sampler
     }
 
     # Hybrid Gibbs sampler
