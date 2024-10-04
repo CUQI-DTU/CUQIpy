@@ -962,3 +962,32 @@ def test_if_invalid_sample_accepted(sampler: cuqi.experimental.mcmc.Sampler):
     assert (
         samples.min() > 0.0 - tol and samples.max() < 1.0 + tol
     ), f"Invalid samples accepted for sampler {sampler.__class__.__name__}."
+
+
+# Test NUTS acceptance rate
+@pytest.mark.parametrize(
+    "sampler",
+    [
+        cuqi.experimental.mcmc.NUTS(cuqi.distribution.Gaussian(0, 1)),
+        cuqi.experimental.mcmc.NUTS(cuqi.distribution.DistributionGallery('donut'))
+    ],
+)
+def test_nuts_acceptance_rate(sampler: cuqi.experimental.mcmc.Sampler):
+    """ Test that the NUTS sampler correctly updates the acceptance rate. """
+    # Fix random seed for reproducibility, but the test should be robust to seed
+    np.random.seed(0)
+
+    # Sample:
+    sampler.warmup(100).sample(100)
+
+    # Compute number of times samples were updated:
+    samples = sampler.get_samples().samples
+    counter = 0
+    for i in range(1, samples.shape[1]):
+        if np.any(samples[:, i] != samples[:, i - 1]):
+            counter += 1
+
+    # Compute the number of accepted samples according to the sampler
+    acc_rate_sum = sum(sampler._acc[2:])
+
+    assert np.isclose(counter, acc_rate_sum), "NUTS sampler does not update acceptance rate correctly: "+str(counter)+" != "+str(acc_rate_sum)

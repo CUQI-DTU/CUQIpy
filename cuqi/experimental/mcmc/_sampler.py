@@ -220,7 +220,8 @@ class Sampler(ABC):
         if hasattr(self, "_pre_sample"): self._pre_sample()
 
         # Draw samples
-        for _ in tqdm( range(Ns), "Sample: "):
+        pbar = tqdm(range(Ns), "Sample: ")
+        for idx in pbar:
             
             # Perform one step of the sampler
             acc = self.step()
@@ -228,6 +229,9 @@ class Sampler(ABC):
             # Store samples
             self._acc.append(acc)
             self._samples.append(self.current_point)
+
+            # display acc rate at progress bar
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -260,7 +264,8 @@ class Sampler(ABC):
         if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
-        for idx in tqdm(range(Nb), "Warmup: "):
+        pbar = tqdm(range(Nb), "Warmup: ")
+        for idx in pbar:
 
             # Perform one step of the sampler
             acc = self.step()
@@ -272,6 +277,9 @@ class Sampler(ABC):
             # Store samples
             self._acc.append(acc)
             self._samples.append(self.current_point)
+
+            # display acc rate at progress bar
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
             self._call_callback(self.current_point, len(self._samples)-1)
