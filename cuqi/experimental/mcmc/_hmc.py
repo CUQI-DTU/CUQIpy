@@ -258,7 +258,7 @@ class NUTS(Sampler):
                 self.current_point = point_prime
                 self.current_target_logd = logd_prime
                 self.current_target_grad = np.copy(grad_prime)
-                acc = acc or 1
+                acc = 1
 
 
             # update number of particles, tree level, and stopping criterion
