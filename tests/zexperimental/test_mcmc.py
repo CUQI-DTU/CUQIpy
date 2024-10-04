@@ -96,7 +96,8 @@ def assert_true_if_warmup_is_equivalent(
 
 targets = [
     cuqi.testproblem.Deconvolution1D(dim=2).posterior,
-    cuqi.testproblem.Deconvolution1D(dim=128).posterior
+    cuqi.testproblem.Deconvolution1D(dim=128).posterior,
+    cuqi.testproblem.Deconvolution1D(dim=128, phantom='sinc', noise_std=0.001).posterior,
 ]
 """ List of targets to test against. """
 
@@ -252,7 +253,6 @@ def create_lmrf_prior_target(dim=16):
     return cuqi.distribution.JointDistribution(x, y)(y=y_data)
 
 
-
 @pytest.mark.parametrize("target_dim", [16, 128])
 def test_UGLA_regression_sample(target_dim):
     """Test the UGLA sampler regression."""
@@ -324,7 +324,7 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
                                         Ns=Ns,
                                         Nb=Nb,
                                         strategy="NUTS")
-    
+
 def create_conjugate_target(type:str):
     if type.lower() == 'gaussian-gamma':
         y = cuqi.distribution.Gaussian(0, lambda s: 1/s, name='y')
@@ -351,7 +351,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma")),
     cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
-    
+
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
 skip_checkpoint = [
     cuqi.experimental.mcmc.Sampler,
@@ -1013,3 +1013,21 @@ def test_nuts_acceptance_rate(sampler: cuqi.experimental.mcmc.Sampler):
     acc_rate_sum = sum(sampler._acc[2:])
 
     assert np.isclose(counter, acc_rate_sum), "NUTS sampler does not update acceptance rate correctly: "+str(counter)+" != "+str(acc_rate_sum)
+
+# Additional test for NUTS
+def test_NUTS_samples_are_correct():
+    """This is an additional regression test for NUTS. It checks that the
+    samples are correct, meaning that they give the expected sample norm."""
+
+    # Get posterior
+    testproblem_obj = cuqi.testproblem.Deconvolution1D(
+        dim=128, phantom='sinc', noise_std=0.001)
+    posterior = testproblem_obj.posterior
+
+    # NUTS
+    np.random.seed(0)
+    NUTS_sampler = cuqi.experimental.mcmc.NUTS(posterior, max_depth=10)
+    NUTS_sampler.warmup(10).sample(10)
+    assert np.isclose(
+        np.linalg.norm(NUTS_sampler.get_samples().samples), 22.3797, rtol=1e-3
+    ), "NUTS samples are incorrect."
