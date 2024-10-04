@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.set\_state
+=================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApprox.set_state

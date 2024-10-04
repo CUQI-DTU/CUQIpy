@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.enable\_FD
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Lognormal.enable_FD

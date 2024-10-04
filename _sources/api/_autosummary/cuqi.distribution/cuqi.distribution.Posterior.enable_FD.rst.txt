@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.enable\_FD
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.enable_FD

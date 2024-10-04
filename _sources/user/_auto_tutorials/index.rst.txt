@@ -1,0 +1,212 @@
+:orphan:
+
+Tutorials
+==========
+
+Below is a gallery of tutorials to get you started.
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this tutorial, we will learn about the basic concepts of CUQIpy.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_1-Basics_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_1-Basics.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">CUQIpy Basics</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial will cover the basic concepts of deterministic models in CUQIpy.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_2-Models_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_2-Models.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Deterministic models</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial will cover the basic concepts of distributions. In particular how to construct a distributions in various forms.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_3-Distributions_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_3-Distributions.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Distributions</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial will cover the basic concepts of samplers in CUQIpy.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_4-Samplers_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_4-Samplers.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Samplers</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial will cover the basic concepts of how to analyze and visualize samples in CUQIpy.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_5-Samples_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_5-Samples.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Samples (Analysis and Visualization)</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This tutorial shows how to use CUQIpy to perform Gibbs sampling.     Gibbs sampling is a Markov chain Monte Carlo (MCMC) method for     sampling a joint probability distribution.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_Gibbs_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_Gibbs.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Gibbs sampling</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This tutorial shows how to use the Joint Distribution class.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_JointDistribution_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_JointDistribution.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Joint Distribution tutorial</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="    This tutorial walks through the process of solving a simple 1D      deconvolution problem in a Bayesian setting. It also shows how     to define such a convolution model in CUQIpy.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_UQ_in_Deconvolution1D_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_UQ_in_Deconvolution1D.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Uncertainty Quantification in one-dimensional deconvolution</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this demo, we illustrate the utility of an introduced representation of variables in CUQIpy (besides the already introduced parameter and function value representation). This representation, is a vector representation of the function values. The function values generally can be an n-dimensional array or any other type of object. When needed and when possible, this introduced representation is used to represent the function values as a vector (1D array). In particular, it is used to represent the function values of samples in a vector format. This is useful for computing statistics on the function values of samples. ">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_fun_vec_representation_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_fun_vec_representation.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Support vector representation of function values in CUQIpy geometries and samples</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="In this example we build a PDE-based Bayesian inverse problem where the Bayesian model has multiple likelihood functions (two different likelihood functions in this case, but it can be readily extended to more functions) for the same  Bayesian parameter theta, which represents the conductivity parameters in a 1D Poisson problem. Each likelihood is associated with a different model set up. The models we use here are obtained from the test problem  cuqi.testproblem.Poisson1D. See the class cuqi.testproblem.Poisson1D documentation for more details about the forward model.">
+
+.. only:: html
+
+  .. image:: /user/_auto_tutorials/images/thumb/sphx_glr_multiple_likelihoods_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_user__auto_tutorials_multiple_likelihoods.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Setting a Bayesian model with multiple likelihoods</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /user/_auto_tutorials/1-Basics
+   /user/_auto_tutorials/2-Models
+   /user/_auto_tutorials/3-Distributions
+   /user/_auto_tutorials/4-Samplers
+   /user/_auto_tutorials/5-Samples
+   /user/_auto_tutorials/Gibbs
+   /user/_auto_tutorials/JointDistribution
+   /user/_auto_tutorials/UQ_in_Deconvolution1D
+   /user/_auto_tutorials/fun_vec_representation
+   /user/_auto_tutorials/multiple_likelihoods
+
+
+
+.. only:: html
+
+ .. rst-class:: sphx-glr-signature
+
+    `Gallery generated by Sphinx-Gallery <https://sphinx-gallery.github.io>`_

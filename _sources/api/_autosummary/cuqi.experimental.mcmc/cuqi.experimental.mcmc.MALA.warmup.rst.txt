@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.warmup
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.warmup

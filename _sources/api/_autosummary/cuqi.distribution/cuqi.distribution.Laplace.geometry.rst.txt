@@ -1,0 +1,6 @@
+cuqi.distribution.Laplace.geometry
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Laplace.geometry

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Conjugate.\_\_init\_\_
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Conjugate.__init__

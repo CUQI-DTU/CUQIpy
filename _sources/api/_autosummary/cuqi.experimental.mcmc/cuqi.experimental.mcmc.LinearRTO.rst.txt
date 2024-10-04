@@ -1,0 +1,51 @@
+LinearRTO
+=========
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: LinearRTO
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearRTO.__init__
+      ~LinearRTO.get_history
+      ~LinearRTO.get_samples
+      ~LinearRTO.get_state
+      ~LinearRTO.initialize
+      ~LinearRTO.load_checkpoint
+      ~LinearRTO.reinitialize
+      ~LinearRTO.sample
+      ~LinearRTO.save_checkpoint
+      ~LinearRTO.set_history
+      ~LinearRTO.set_state
+      ~LinearRTO.step
+      ~LinearRTO.tune
+      ~LinearRTO.validate_target
+      ~LinearRTO.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearRTO.data
+      ~LinearRTO.dim
+      ~LinearRTO.geometry
+      ~LinearRTO.likelihood
+      ~LinearRTO.likelihoods
+      ~LinearRTO.model
+      ~LinearRTO.prior
+      ~LinearRTO.target
+   
+   

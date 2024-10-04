@@ -1,0 +1,42 @@
+LinearRTO
+=========
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: LinearRTO
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearRTO.__init__
+      ~LinearRTO.sample
+      ~LinearRTO.sample_adapt
+      ~LinearRTO.step
+      ~LinearRTO.step_tune
+      ~LinearRTO.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearRTO.data
+      ~LinearRTO.dim
+      ~LinearRTO.geometry
+      ~LinearRTO.likelihood
+      ~LinearRTO.likelihoods
+      ~LinearRTO.model
+      ~LinearRTO.prior
+      ~LinearRTO.target
+   
+   

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.opt\_acc\_rate
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: NUTS.opt_acc_rate

@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.step\_tune
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.step_tune

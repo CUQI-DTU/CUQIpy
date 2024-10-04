@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.swapaxes
+=============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.swapaxes

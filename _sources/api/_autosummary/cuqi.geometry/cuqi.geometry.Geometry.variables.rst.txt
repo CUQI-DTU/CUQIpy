@@ -1,0 +1,6 @@
+cuqi.geometry.Geometry.variables
+================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Geometry.variables

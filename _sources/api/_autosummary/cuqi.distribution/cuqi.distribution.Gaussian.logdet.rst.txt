@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.logdet
+=================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.logdet

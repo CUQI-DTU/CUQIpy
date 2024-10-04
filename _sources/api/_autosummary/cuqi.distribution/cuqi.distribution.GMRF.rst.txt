@@ -1,0 +1,50 @@
+GMRF
+====
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: GMRF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~GMRF.__init__
+      ~GMRF.disable_FD
+      ~GMRF.enable_FD
+      ~GMRF.get_conditioning_variables
+      ~GMRF.get_mutable_variables
+      ~GMRF.get_parameter_names
+      ~GMRF.gradient
+      ~GMRF.logd
+      ~GMRF.logpdf
+      ~GMRF.pdf
+      ~GMRF.sample
+      ~GMRF.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~GMRF.FD_enabled
+      ~GMRF.FD_epsilon
+      ~GMRF.dim
+      ~GMRF.geometry
+      ~GMRF.is_cond
+      ~GMRF.mean
+      ~GMRF.name
+      ~GMRF.prec
+      ~GMRF.sqrtprec
+      ~GMRF.sqrtprecTimesMean
+   
+   

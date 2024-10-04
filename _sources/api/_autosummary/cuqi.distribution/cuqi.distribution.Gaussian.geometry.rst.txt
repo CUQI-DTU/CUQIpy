@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.geometry
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.geometry

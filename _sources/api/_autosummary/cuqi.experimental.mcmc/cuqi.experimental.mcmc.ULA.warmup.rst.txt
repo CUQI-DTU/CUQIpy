@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.warmup
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.warmup

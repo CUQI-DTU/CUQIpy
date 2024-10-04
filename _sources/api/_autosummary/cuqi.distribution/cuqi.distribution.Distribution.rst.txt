@@ -1,0 +1,46 @@
+Distribution
+============
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Distribution
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Distribution.__init__
+      ~Distribution.disable_FD
+      ~Distribution.enable_FD
+      ~Distribution.get_conditioning_variables
+      ~Distribution.get_mutable_variables
+      ~Distribution.get_parameter_names
+      ~Distribution.gradient
+      ~Distribution.logd
+      ~Distribution.logpdf
+      ~Distribution.pdf
+      ~Distribution.sample
+      ~Distribution.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Distribution.FD_enabled
+      ~Distribution.FD_epsilon
+      ~Distribution.dim
+      ~Distribution.geometry
+      ~Distribution.is_cond
+      ~Distribution.name
+   
+   
