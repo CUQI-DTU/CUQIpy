@@ -16,7 +16,7 @@ class TruncatedNormal(Distribution):
     a: lower bound of the distribution
     b: upper bound of the distribution
     """
-    def __init__(self, mean=None, std=None, a=-1, b=1, is_symmetric=False, **kwargs):
+    def __init__(self, mean=None, std=None, a=-np.Inf, b=np.Inf, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
