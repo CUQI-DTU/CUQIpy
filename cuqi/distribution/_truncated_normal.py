@@ -16,7 +16,7 @@ class TruncatedNormal(Distribution):
     a: lower bound of the distribution
     b: upper bound of the distribution
     """
-    def __init__(self, mean=None, std=None, a=None, b=None, is_symmetric=False, **kwargs):
+    def __init__(self, mean=None, std=None, a=-1, b=1, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
@@ -42,4 +42,7 @@ class TruncatedNormal(Distribution):
             return -(x-self.mean)/(self.std**2)
 
     def _sample(self,N=1, rng=None):
-        pass
+        """
+        Generates random samples from the distribution.
+        """
+        raise NotImplementedError(f"sample is not implemented for {self.__class__.__name__}.")
