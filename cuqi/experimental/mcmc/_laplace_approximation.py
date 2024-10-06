@@ -121,7 +121,7 @@ class UGLA(Sampler):
         # Update Laplace approximation
         self._L2 = self.Lk_fun(self.current_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
+        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
     
         # Sample from approximate posterior
         e = np.random.randn(len(self._b_tild))
