@@ -498,6 +498,8 @@ class AffineModel(Model):
 
         # If input represents a matrix, extract needed properties from it
         if hasattr(linear_operator, '__matmul__') and hasattr(linear_operator, 'T'):
+            if linear_operator_adjoint is not None:
+                raise ValueError("Adjoint of linear operator should not be provided when linear operator is a matrix. If you want to provide an adjoint, use a callable function for the linear operator.")
             matrix = linear_operator
             linear_operator = lambda x: matrix@x
             linear_operator_adjoint = lambda y: matrix.T@y
