@@ -510,10 +510,9 @@ class AffineModel(Model):
         else:
             matrix = None
 
-        # Check if input is callable
+        # Ensure that the operators are a callable functions (either provided or created from matrix)
         if not callable(linear_operator):
             raise TypeError("Linear operator must be defined as a matrix or a callable function of some kind")
-
         if linear_operator_adjoint is not None and not callable(linear_operator_adjoint):
             raise TypeError("Linear operator adjoint must be defined as a callable function of some kind")
 
