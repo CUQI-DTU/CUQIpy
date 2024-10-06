@@ -500,13 +500,23 @@ class AffineModel(Model):
         if hasattr(linear_operator, '__matmul__') and hasattr(linear_operator, 'T'):
             if linear_operator_adjoint is not None:
                 raise ValueError("Adjoint of linear operator should not be provided when linear operator is a matrix. If you want to provide an adjoint, use a callable function for the linear operator.")
+            
             matrix = linear_operator
+
             linear_operator = lambda x: matrix@x
             linear_operator_adjoint = lambda y: matrix.T@y
-            if range_geometry is None and hasattr(matrix, 'shape'):
-                range_geometry = _DefaultGeometry1D(grid=matrix.shape[0])
-            if domain_geometry is None and hasattr(matrix, 'shape'):
-                domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])
+
+            if range_geometry is None:
+                if hasattr(matrix, 'shape'):
+                    range_geometry = _DefaultGeometry1D(grid=matrix.shape[0])
+                elif isinstance(matrix, LinearModel):
+                    range_geometry = matrix.range_geometry
+
+            if domain_geometry is None:
+                if hasattr(matrix, 'shape'):
+                    domain_geometry = _DefaultGeometry1D(grid=matrix.shape[1])
+                elif isinstance(matrix, LinearModel):
+                    domain_geometry = matrix.domain_geometry
         else:
             matrix = None
 
