@@ -558,28 +558,6 @@ class AffineModel(Model):
                 self.domain_geometry,
                 x, is_par)
 
-    def get_matrix(self):
-        """ Returns the matrix representation of the linear operator. """
-
-        if self._matrix is not None: #Matrix exists so return it
-            return self._matrix
-        else:
-            #TODO: Can we compute this faster while still in sparse format?
-            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.domain_dim)
-            
-            # Stacks sparse matrices on csc matrix
-            for i in range(self.domain_dim):
-                e[i] = 1
-                col_vec = self.forward(e)
-                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
-                e[i] = 0
-
-            #Store matrix for future use
-            self._matrix = mat
-
-            return self._matrix   
-
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -676,6 +654,30 @@ class LinearModel(AffineModel):
 
     def __matmul__(self, x):
         return self.forward(x)
+        
+    def get_matrix(self):
+        """
+        Returns an ndarray with the matrix representing the forward operator.
+        """
+
+        if self._matrix is not None: #Matrix exists so return it
+            return self._matrix
+        else:
+            #TODO: Can we compute this faster while still in sparse format?
+            mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
+            e = np.zeros(self.domain_dim)
+            
+            # Stacks sparse matrices on csc matrix
+            for i in range(self.domain_dim):
+                e[i] = 1
+                col_vec = self.forward(e)
+                mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
+                e[i] = 0
+
+            #Store matrix for future use
+            self._matrix = mat
+
+            return self._matrix   
 
     @property
     def T(self):
