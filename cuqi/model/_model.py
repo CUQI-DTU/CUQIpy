@@ -540,29 +540,6 @@ class AffineModel(Model):
         # Use arguments from user's callable linear operator (overwriting those found by Model class)
         self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
 
-    def adjoint(self, y, is_par=True):
-        """ Adjoint of the model.
-        
-        Adjoint converts the input to function values (if needed) using the range geometry of the model.
-        Adjoint converts the output function values to parameters using the range geometry of the model.
-
-        Parameters
-        ----------
-        y : ndarray or cuqi.array.CUQIarray
-            The adjoint model input.
-
-        Returns
-        -------
-        ndarray or cuqi.array.CUQIarray
-            The adjoint model output. Always returned as parameters.
-        """
-        if self._linear_operator_adjoint is None:
-            raise ValueError("No adjoint operator was provided for this model.")
-        return self._apply_func(self._linear_operator_adjoint, # Adjoint of x -> Ax+b is A^T y
-                                self.domain_geometry,
-                                self.range_geometry,
-                                y, is_par)
-    
     @property
     def shift(self):
         """ The shift of the affine model. """
@@ -673,6 +650,29 @@ class LinearModel(AffineModel):
 
         #Initialize as AffineModel with shift=0
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
+
+    def adjoint(self, y, is_par=True):
+        """ Adjoint of the model.
+        
+        Adjoint converts the input to function values (if needed) using the range geometry of the model.
+        Adjoint converts the output function values to parameters using the range geometry of the model.
+
+        Parameters
+        ----------
+        y : ndarray or cuqi.array.CUQIarray
+            The adjoint model input.
+
+        Returns
+        -------
+        ndarray or cuqi.array.CUQIarray
+            The adjoint model output. Always returned as parameters.
+        """
+        if self._linear_operator_adjoint is None:
+            raise ValueError("No adjoint operator was provided for this model.")
+        return self._apply_func(self._linear_operator_adjoint, # Adjoint of x -> Ax+b is A^T y
+                                self.domain_geometry,
+                                self.range_geometry,
+                                y, is_par)
 
     def __matmul__(self, x):
         return self.forward(x)
