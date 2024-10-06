@@ -477,7 +477,7 @@ class AffineModel(Model):
     Parameters
     ----------
 
-    linear_operator : 2d ndarray or callable function.
+    linear_operator : 2d ndarray, callable function or cuqi.model.LinearModel
         The linear operator. If ndarray is given, the operator is assumed to be a matrix.
 
     shift : scalar or array_like
