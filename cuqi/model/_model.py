@@ -472,7 +472,7 @@ class Model(object):
 
 
 class AffineModel(Model):
-    """ Model representing an affine operator, i.e. a linear operator with a fixed shift. For more details on linear operators, see :class:`~cuqi.model.LinearModel`.
+    """ Model class representing an affine model, i.e. a linear operator with a fixed shift. For linear models, represented by a linear operator only, see :class:`~cuqi.model.LinearModel`.
 
     Parameters
     ----------
