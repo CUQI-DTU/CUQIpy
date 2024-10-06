@@ -79,11 +79,7 @@ class LinearRTO(Sampler):
             return [self.target.model]
         elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior):
             return self.target.models    
-    
-    @property
-    def data(self):
-        return self.target.data - self.target.model._shift # Include shift from AffineModel here
-    
+
     def _precompute(self):
         L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
         L2 = self.prior.sqrtprec

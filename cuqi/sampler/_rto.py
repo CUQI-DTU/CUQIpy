@@ -95,7 +95,7 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = len(self.x0)
-        self.b_tild = np.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu]) # shift in data here, since self.data is not used
+        self.b_tild = np.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu])
 
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
@@ -148,10 +148,6 @@ class LinearRTO(Sampler):
             return [self.target.model]
         elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior):
             return self.target.models    
-    
-    @property
-    def data(self):
-        return self.target.data - self.target.model._shift # Include shift from AffineModel here
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        

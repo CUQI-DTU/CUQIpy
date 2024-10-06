@@ -74,7 +74,7 @@ class UGLA(Sampler):
         return self.target.model     
     
     @property
-    def data(self):
+    def _data(self):
         return self.target.data - self.target.model._shift
 
     def _precompute(self):
@@ -89,7 +89,7 @@ class UGLA(Sampler):
             return W.sqrt() @ D
         self.Lk_fun = Lk_fun
 
-        self._m = len(self.data)
+        self._m = len(self._data)
         self._L1 = self.likelihood.distribution.sqrtprec
 
         # If prior location is scalar, repeat it to match dimensions
@@ -101,7 +101,7 @@ class UGLA(Sampler):
         # Initial Laplace approx
         self._L2 = Lk_fun(self.initial_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
+        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
         # Least squares form
         def M(x, flag):
