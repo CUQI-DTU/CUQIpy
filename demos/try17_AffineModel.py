@@ -104,7 +104,7 @@ print("mean: {}".format(meanAffine))
 print("cov: {}".format(varAffine))
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5,4))
-ax.plot(t, Aaffine(samplesAffine_burnin).mean(), linestyle = '--', label = "Affine model")
+ax.plot(t, Aaffine(samplesAffine_burnin).mean(), linestyle = '--', label = "Mean-predicted data")
 ax.plot(t, y_obs, 'o', label="Noisy data")
 ax.set_xlabel('t')
 ax.set_ylabel('y')

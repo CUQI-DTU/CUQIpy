@@ -136,7 +136,7 @@ class LinearRTO(Sampler):
         # Check Linear model and Gaussian likelihood(s)
         if isinstance(self.target, cuqi.distribution.Posterior):
             if not isinstance(self.model, cuqi.model.AffineModel):
-                raise TypeError("Model needs to be affine")
+                raise TypeError("Model needs to be linear or more generally affine")
 
             if not hasattr(self.likelihood.distribution, "sqrtprec"):
                 raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")
@@ -144,7 +144,7 @@ class LinearRTO(Sampler):
         elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior): # Elif used for further alternatives, e.g., stacked posterior
             for likelihood in self.likelihoods:
                 if not isinstance(likelihood.model, cuqi.model.AffineModel):
-                    raise TypeError("Model needs to be affine")
+                    raise TypeError("Model needs to be linear or more generally affine")
 
                 if not hasattr(likelihood.distribution, "sqrtprec"):
                     raise TypeError("Distribution in Likelihood must contain a sqrtprec attribute")

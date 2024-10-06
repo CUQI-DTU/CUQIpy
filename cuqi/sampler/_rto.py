@@ -11,7 +11,7 @@ class LinearRTO(Sampler):
     """
     Linear RTO (Randomize-Then-Optimize) sampler.
 
-    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is affine.
+    Samples posterior related to the inverse problem with Gaussian likelihood and prior, and where the forward model is linear or more generally affine.
 
     Parameters
     ------------

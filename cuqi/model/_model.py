@@ -484,7 +484,7 @@ class AffineModel(Model):
         The shift to be added to the forward operator.
 
     linear_operator_adjoint : callable function, optional
-        The adjoint of the linear operator. Used for computing gradients.
+        The adjoint of the linear operator. Also used for computing gradients.
 
     range_geometry : cuqi.geometry.Geometry
         The geometry representing the range.
