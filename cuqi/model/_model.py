@@ -563,7 +563,13 @@ class AffineModel(Model):
                                 self.range_geometry,
                                 y, is_par)
     
-    def update_shift(self, value):
+    @property
+    def shift(self):
+        """ The shift of the affine model. """
+        return self._shift
+
+    @shift.setter
+    def shift(self, value):
         """ Update the shift of the affine model. Updates both the shift value and the underlying forward function. """
         self._shift = value
         self._forward_func = lambda *args, **kwargs: self._linear_operator(*args, **kwargs) + value

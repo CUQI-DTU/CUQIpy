@@ -503,14 +503,14 @@ def test_AffineModel_update_shift():
     assert np.all(model(x) == np.array([2,3]))
 
     # check model output with updated shift
-    model.update_shift(new_shift)
+    model.shift = new_shift
     assert np.all(model(x) == np.array([3,0]))
 
     # check model output of copied model
     assert np.all(model_copy(x) == np.array([2,3]))
 
     # check model output of copied model with updated shift
-    model_copy.update_shift(new_shift)
+    model_copy.shift = new_shift
     assert np.all(model_copy(x) == np.array([3,0]))
 
 
