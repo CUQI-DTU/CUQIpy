@@ -4,7 +4,7 @@ from cuqi.distribution import Distribution
 
 class TruncatedNormal(Distribution):
     """
-    Truncated Normal probability distribution. Generates instance of cuqi.distribution.TruncatedNormal.
+    Truncated Normal probability distribution. Generates instance of cuqi.distribution.TruncatedNormal. It allows the user to specify upper and lower bounds on random variables represented by a Normal distribution. This distribution is suitable for a small dimension setup (e.g. `dim`=3 or 4). Using TruncatedNormal Distribution with a larger dimension can lead to a high rejection rate when used within MCMC samplers.
     
     The variables of this distribution are iid.
 
