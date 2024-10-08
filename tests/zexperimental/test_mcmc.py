@@ -907,7 +907,6 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
         else:
             assert sampler_states[key] != new_state, f"Sampler {key} state was erroneously not updated in Gibbs scheme, even when new samples were accepted. State: \n {new_state}"
 
-@pytest.fixture
 def HybridGibbs_target_1():
     """ Create a target for the HybridGibbs sampler. """
     # Forward problem
@@ -923,10 +922,10 @@ def HybridGibbs_target_1():
     # Posterior
     target = cuqi.distribution.JointDistribution(y, x, s)(y=y_data)
 
-    yield target
+    return target
 
 
-def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(HybridGibbs_target_1, copy_reference):
+def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
     """ Test that using NUTS sampler within HybridGibbs sampler works as
     expected."""
     #TODO: This test might break in the future if the NUTS within HybridGibbs
@@ -934,6 +933,8 @@ def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(HybridGibbs_target
 
     Nb=10
     Ns=10
+
+    target = HybridGibbs_target_1()
 
     sampling_strategy = {
         "x" : cuqi.experimental.mcmc.NUTS(max_depth=7),
@@ -947,7 +948,7 @@ def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(HybridGibbs_target
     }
 
     sampler = cuqi.experimental.mcmc.HybridGibbs(
-        HybridGibbs_target_1, sampling_strategy, num_sampling_steps)
+        target, sampling_strategy, num_sampling_steps)
     
     np.random.seed(0)
     sampler.warmup(Nb)
