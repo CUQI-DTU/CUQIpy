@@ -331,11 +331,6 @@ class MYULANew(ULANew):
                                        " is not implemented yet."))
 
     def _eval_target_grad(self, x):
-        if isinstance(self.target.prior, cuqi.implicitprior.RestorationPrior) \
-        and not np.isclose(self.smoothing_strength, self.target.prior.restoration_strength):
-            raise ValueError(f"smoothing_strength of the {self.__class__.__name__}"
-                            +"must be equal to restoration_strength of the prior " 
-                            + f"{self.target.prior.__class__.__name__}.")
         return self._smoothed_target.gradient(x)
 
 class PnPULANew(MYULANew):
