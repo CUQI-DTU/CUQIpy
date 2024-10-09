@@ -121,9 +121,12 @@ class MoreauYoshidaPrior(Distribution):
     Remark (Proximal operators are denoisers):
         We consider the denoising inverse problem x = u + n, with
         n \sim \mathcal{N}(0, smoothing_strength I).
+        A mapping solving a denoising inverse problem is called denoiser. It takes
+        the noisy observation x as an input and returns a less noisy version of x
+        which is an estimate of u.
         We assume a prior density \pi(u) \propto exp(- g(u)).
         Then the MAP estimate is given by 
-            x_MAP = \argmin_z 0.5 \| x - z \|_2^2/smoothing_strength + g(z) = prox_g^smoothing_strength(x) ()
+            x_MAP = \argmin_z 0.5 \| x - z \|_2^2/smoothing_strength + g(z) = prox_g^smoothing_strength(x)
         Then proximal operators are denoisers. 
     
     Remark (Denoisers are not necessarily proximal operators): Data-driven
