@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.special import erf
 from cuqi.distribution import Distribution
+from cuqi.distribution import Normal
 
 class TruncatedNormal(Distribution):
     """
@@ -30,20 +31,23 @@ class TruncatedNormal(Distribution):
         self.low = low
         self.high = high
 
+        # Init underlying normal distribution
+        self._normal = Normal(self.mean, self.std)
+
     def logpdf(self, x):
         # the unnormalized logpdf
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
             return -np.Inf
         else:
-             return np.sum(-np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2)
+             return self._normal.logpdf(x)
 
     def gradient(self, x):
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
             return np.NaN*np.ones_like(x)
         else:
-            return -(x-self.mean)/(self.std**2)
+            return self._normal.gradient(x)
 
     def _sample(self,N=1, rng=None):
         """

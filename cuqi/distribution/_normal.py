@@ -36,6 +36,9 @@ class Normal(Distribution):
     def cdf(self, x):
         return np.prod(0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2)))))
 
+    def gradient(self, x):
+        return -(x-self.mean)/(self.std**2)
+
     def _sample(self,N=1, rng=None):
 
         """
