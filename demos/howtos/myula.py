@@ -126,20 +126,23 @@ likelihood=y(y=y_obs)
 # However to apply MYULA, we only require access to
 # :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`.
 # :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`
-# is a denoising operator, which takes a signal as input and returns a less noisy
-# signal. In CUQIPy, we talk about restoration operators. It is an operator at the
-# core of a specific type of priors called RestorationPrior. We cannot sample from
-# these priors but they allow us to define other types of priors.
+# is a denoising operator (also called denoiser), which takes a signal as input
+# and returns a less noisy
+# signal. In CUQIPy, we talk about restoration operators (also called restorators).
+# Denoisers are an example of restorators.
+# Restorators are at the
+# core of a specific type of priors called RestorationPrior. We cannot sample
+# from these priors but they allow us to define other types of priors.
 
 #%%
 # RestorationPrior definition
 # ---------------------------
-# A restoration operator is associated with a parameter called
+# A restorator, is associated with a parameter called
 # :math:`\texttt{restoration_strength}`. This parameter indicates how strong is
-# the restoration. For example, when this restoration is a denoiser, an operator
+# the restoration. For example, when this restorator is a denoiser, an operator
 # taking an signal as input and returning a less noisy signal, :math:`\texttt{restoration_strength}`
 # can correspond to the  denoising level.
-# In the following, we consider the denoising restoration operator
+# In the following, we consider the denoiser
 # :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{restoration_strength}}`.
 # We use the implementation provided by Scikit-Image. But we can use any solver
 # to compute this quantity.
@@ -167,8 +170,8 @@ restorator = RestorationPrior(
     restorator_kwargs=restorator_kwargs,
     geometry=likelihood.model.domain_geometry
 )
-#%% Illustration of the effect of the denoising restoration operator.
-# We first apply the restorate method of our restorator to :math:`\mathbf{y}_{obs}`.
+#%% Illustration of the effect of the denoiser.
+# We first apply the restorate method of our denoiser to :math:`\mathbf{y}_{obs}`.
 # This operator should restore :math:`\mathbf{y}_{obs}` and generate a signal close
 # to :math:`\mathbf{A}\mathbf{x}`.
 res = restorator.restore(y_obs, restoration_strength)
