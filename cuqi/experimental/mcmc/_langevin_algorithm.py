@@ -249,7 +249,7 @@ class MALANew(ULANew): # Refactor to Proposal-based sampler?
         mu = theta_k + ((self.scale)/2)*g_logpi_k
         misfit = theta_star - mu
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
-        
+
 
 class MYULANew(ULANew):
     """Moreau-Yoshida Unadjusted Langevin algorithm (MYUULA) (Durmus et al., 2018)
@@ -297,7 +297,7 @@ class MYULANew(ULANew):
     def __init__(self, target=None, scale=1.0, smoothing_strength=0.1, **kwargs):
         self.smoothing_strength = smoothing_strength
         super().__init__(target=target, scale=scale, **kwargs)
-    
+
     @SamplerNew.target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
@@ -315,7 +315,7 @@ class MYULANew(ULANew):
 
             # Validate the target
             self.validate_target()
-            
+
     def validate_target(self):
         # Call ULANew target validation
         super().validate_target()
@@ -324,10 +324,11 @@ class MYULANew(ULANew):
         if isinstance(self.target.prior, MoreauYoshidaPrior):
             raise ValueError(("The prior is already smoothed, apply"
                               " ULA when using a MoreauYoshidaPrior."))
-        if not isinstance(self.target.prior, RestorationPrior):
-            raise NotImplementedError(("Using MYULA with other than"
-                                       " RestorationPrior prior"
-                                       " is not implemented yet."))
+        if not hasattr(self.target.prior, "restore"):
+            raise NotImplementedError(
+                ("Using MYULA with a prior that does not have a restore method"
+                " is not supported.")
+            )
 
     def _eval_target_grad(self, x):
         return self._smoothed_target.gradient(x)
