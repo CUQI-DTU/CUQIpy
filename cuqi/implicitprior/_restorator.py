@@ -138,8 +138,6 @@ class MoreauYoshidaPrior(Distribution):
         
     smoothing_strength : float
         Smoothing strength of the Moreau-Yoshida envelope of the prior potential.
-        smoothing_strength needs to be equal to restoration_strength of the prior
-        ResotrationPrior.
     """
 
     def __init__(self, prior:RestorationPrior, smoothing_strength=0.1, 
