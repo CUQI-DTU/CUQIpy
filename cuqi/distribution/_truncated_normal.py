@@ -32,8 +32,13 @@ class TruncatedNormal(Distribution):
     -----------
     .. code-block:: python
 
-        #Generate Normal with mean 0, standard deviation 1 and bounds [-1,1]
-        p = cuqi.distribution.TruncatedNormal(mean=0, std=1, low=-1, high=1)
+        #Generate Normal with mean 0, standard deviation 1 and bounds [-2,2]
+        p = cuqi.distribution.TruncatedNormal(mean=0, std=1, low=-2, high=2)
+        sampler = cuqi.experimental.mcmc.MALA(p, scale=0.1)
+        sampler.sample(10000)
+        samples = sampler.get_samples()
+        plt.figure()
+        samples.plot_trace()
     """
     def __init__(self, mean=None, std=None, low=-np.Inf, high=np.Inf, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
