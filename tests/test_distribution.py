@@ -87,6 +87,14 @@ def test_Normal_sample_regression(mean,var,expected):
     target = np.array(expected).T
     assert np.allclose( samples.samples, target)
 
+@pytest.mark.parametrize("mean,std,points,expected",[
+                            (0,1,[-1,0,1],[1,0,-1]),
+   (np.array([0,0]),np.array([1,1]),[[-1,0],[0,0],[0,-1]], [[1,0],[0,0],[0,1]])])
+def test_Normal_gradient(mean,std,points,expected):
+    p = cuqi.distribution.Normal(mean,std)
+    for point, grad in zip(points, expected):
+        assert np.allclose(p.gradient(point), grad)
+
 def test_Gaussian_mean():
     mean = np.array([0, 0])
     std = np.array([1, 1])
