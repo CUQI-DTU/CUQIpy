@@ -18,11 +18,7 @@ class RestorationPrior(Distribution):
     restorator : callable f(x, restoration_strength)
         Function f that accepts input x to be restored and returns the
         restored version of x and information about the restoration operation.
-        
-    restorator_strength : float
-        Strength of the restoration operation. In the case where the restorator is
-        a denoiser, this parameter might correspond to the noise level.
-        
+            
     restorator_kwargs : dictionary
         Dictionary containing information about the restorator.
     
@@ -31,22 +27,30 @@ class RestorationPrior(Distribution):
         the function potential. This function is a mapping from the image domain
         to the real set. 
     """
-
-    def __init__(self, restorator, restoration_strength=None, restorator_kwargs
+    def __init__(self, restorator, restorator_kwargs
                 =None, potential=None, **kwargs):
         if restorator_kwargs is None:
             restorator_kwargs = {}
         self.restorator = restorator 
         self.restorator_kwargs = restorator_kwargs
-        self.restoration_strength = restoration_strength
         self.potential = potential
         super().__init__(**kwargs)
 
-    def restorate(self, x):
-        """This function allows us to denoise the input x and returns the
-        denoised version of x.
+    def restore(self, x, restoration_strength):
+        """This function allows us to restore the input x and returns the
+        restored version of x.
+        
+        Parameters
+        ---------- 
+        x : ndarray
+            parameter we want to restore.
+        
+        restoration_strength: positive float
+            Strength of the restoration operation. In the case where the
+            restorator is a denoiser, this parameter might correspond to the
+            noise level.
         """
-        solution, info = self.restorator(x, restoration_strength=self.restoration_strength,
+        solution, info = self.restorator(x, restoration_strength=restoration_strength,
                                          **self.restorator_kwargs)
         self.info = info
         return solution
@@ -168,11 +172,6 @@ class MoreauYoshidaPrior(Distribution):
 
     @smoothing_strength.setter
     def smoothing_strength(self, value):
-        if self.prior.restoration_strength is not None and not \
-            np.isclose(value, self.prior.restoration_strength):
-            raise ValueError(f"smoothing_strength of the {self.__class__.__name__}"
-                             +"must be equal to restoration_strength of the" 
-                             + f"{self.prior.__class__.__name__}.")
         self._smoothing_strength = value
         
     @property
@@ -187,7 +186,7 @@ class MoreauYoshidaPrior(Distribution):
     def gradient(self, x):
         """This is the gradient of the regularizer ie gradient of the negative
         logpdf of the implicit prior."""
-        return -(x - self.prior.restorate(x))/self.smoothing_strength
+        return -(x - self.prior.restore(x, self.smoothing_strength))/self.smoothing_strength
         
     def logpdf(self, x):
         """The logpdf function. It returns nan because we don't know the 
@@ -195,8 +194,8 @@ class MoreauYoshidaPrior(Distribution):
         if self.prior.potential == None:
             return np.nan
         else:
-            return -(self.prior.potential(self.prior.restorate(x))*self.smoothing_strength +
-                     0.5*((x-self.prior.restorate(x))**2).sum())
+            return -(self.prior.potential(self.prior.restore(x, self.smoothing_strength))*self.smoothing_strength +
+                     0.5*((x-self.prior.restore(x, self.smoothing_strength))**2).sum())
     
     def _sample(self, N, rng=None):
         raise NotImplementedError("The sample method is not implemented for the"
