@@ -89,8 +89,8 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 #
 # where :math:`\texttt{smoothing_strength}` corresponds to the smoothing strength of :math:`g`.
 #
-# To illustrate MYULA, we will consider :math:`g(x) = \texttt{strength_reg} \  TV(x) = \texttt{strength_reg} \|\nabla x \|_{2, 1}`,
-# where :math:`\texttt{strength_reg}` is the regularization parameter which
+# To illustrate MYULA, we will consider :math:`g(x) = \texttt{regularization_strength} \  TV(x) = \texttt{regularization_strength} \|\nabla x \|_{2, 1}`,
+# where :math:`\texttt{regularization_strength}` is the regularization parameter which
 # controls the regularization strength induced by TV.
 
 # %%
@@ -100,7 +100,7 @@ A, y_obs, info=cuqi.testproblem.Deconvolution1D().get_components()
 #
 # .. math::
 #    \begin{align*}
-#    \mathbf{x} &\sim \exp (- \texttt{strength_reg} \|\nabla x \|_{2,1})\\
+#    \mathbf{x} &\sim \exp (- \texttt{regularization_strength} \|\nabla x \|_{2,1})\\
 #    \mathbf{y}_{obs} &\sim \mathcal{N}(\mathbf{A}\mathbf{x}, \texttt{sigma2}\,\mathbf{I}) \ ,
 #    \end{align*}
 #
@@ -124,8 +124,8 @@ likelihood=y(y=y_obs)
 # Evaluating this surrogate prior is doable but too intensive from
 # a computational point of view as it requires to solve an optimization problem.
 # However to apply MYULA, we only require access to
-# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`.
-# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{smoothing_strength}}`
+# :math:`\operatorname{prox}_{\texttt{regularization_strength}\ TV}^{\texttt{smoothing_strength}}`.
+# :math:`\operatorname{prox}_{\texttt{regularization_strength}\ TV}^{\texttt{smoothing_strength}}`
 # is a denoising operator (also called denoiser), which takes a signal as input
 # and returns a less noisy
 # signal. In CUQIPy, we talk about restoration operators (also called restorators).
@@ -143,26 +143,26 @@ likelihood=y(y=y_obs)
 # taking an signal as input and returning a less noisy signal, :math:`\texttt{restoration_strength}`
 # can correspond to the  denoising level.
 # In the following, we consider the denoiser
-# :math:`\operatorname{prox}_{\texttt{strength_reg}\ TV}^{\texttt{restoration_strength}}`.
+# :math:`\operatorname{prox}_{\texttt{regularization_strength}\ TV}^{\texttt{restoration_strength}}`.
 # We use the implementation provided by Scikit-Image. But we can use any solver
 # to compute this quantity.
 # We emphasize that we have for any :math:`g`
 #
 # .. math::
-#       \operatorname{prox}_{\texttt{strength_reg}\  g}^{\texttt{smoothing_strength}} = \operatorname{prox}_{g}^{\texttt{weight}} ,
+#       \operatorname{prox}_{\texttt{regularization_strength}\  g}^{\texttt{smoothing_strength}} = \operatorname{prox}_{g}^{\texttt{weight}} ,
 #
-# with :math:`\texttt{weight} = \texttt{strength_reg} \times  \texttt{smoothing_strength}`.
-strength_reg = 10
+# with :math:`\texttt{weight} = \texttt{regularization_strength} \times  \texttt{smoothing_strength}`.
+regularization_strength = 10
 restoration_strength = 0.5*sigma2
 from skimage.restoration import denoise_tv_chambolle
-def prox_g(x, strength_reg=None, restoration_strength=None):
-    weight = strength_reg*restoration_strength
+def prox_g(x, regularization_strength=None, restoration_strength=None):
+    weight = regularization_strength*restoration_strength
     return denoise_tv_chambolle(x, weight=weight, max_num_iter=100), None
 # %%
 # We save all the important variables into the variable
 # :math:`\texttt{restorator_kwargs}`.
 restorator_kwargs = {}
-restorator_kwargs["strength_reg"] = strength_reg
+restorator_kwargs["regularization_strength"] = regularization_strength
 # %%
 # Now we can define our RestorationPrior.
 restorator = RestorationPrior(
