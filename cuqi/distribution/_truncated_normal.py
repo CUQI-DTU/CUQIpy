@@ -56,7 +56,7 @@ class TruncatedNormal(Distribution):
         else:
             return self._normal.gradient(x)
 
-    def _sample(self,N=1, rng=None):
+    def _sample(self, N=1, rng=None):
         """
         Generates random samples from the distribution.
         """
