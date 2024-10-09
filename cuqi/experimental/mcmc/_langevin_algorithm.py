@@ -282,8 +282,7 @@ class MYULANew(ULANew):
         target density, logd).
         
     smoothing_strength : float
-        This parameter controls the smoothing strength of MYULA. smoothing_strength
-        must be equal to restoration_strength of the RestorationPrior.
+        This parameter controls the smoothing strength of MYULA.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -365,8 +364,7 @@ class PnPULANew(MYULANew):
         is recommended but not guaranteed to be the optimal choice).
         
     smoothing_strength : float
-        This parameter controls the smoothing strength of PnP-ULA. smoothing_strength
-        must be equal to restoration_strength of the RestoratioPrior.
+        This parameter controls the smoothing strength of PnP-ULA.
 
 
     callback : callable, *Optional*
