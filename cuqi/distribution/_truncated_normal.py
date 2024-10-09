@@ -15,9 +15,9 @@ class TruncatedNormal(Distribution):
         mean of distribution
     std : float or array_like of floats
         standard deviation
-    a : float or array_like of floats
+    low : float or array_like of floats
         lower bound of the distribution
-    b : float or array_like of floats
+    high : float or array_like of floats
         upper bound of the distribution
     """
     def __init__(self, mean=None, std=None, low=-np.Inf, high=np.Inf, is_symmetric=False, **kwargs):
