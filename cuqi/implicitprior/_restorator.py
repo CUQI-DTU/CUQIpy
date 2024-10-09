@@ -10,8 +10,8 @@ class RestorationPrior(Distribution):
     priors, see 
         -Laumont et al. https://arxiv.org/abs/2103.04715
         -Hu et al. https://openreview.net/pdf?id=x7d1qXEn1e
-    We cannot sample from this distribution, neither compute its logpdf. It allows
-    us to apply algorithms such as MYULA and PnPULA.
+    We cannot sample from this distribution, neither compute its logpdf except in
+    some cases. It allows us to apply algorithms such as MYULA and PnPULA.
     
     Parameters
     ---------- 
@@ -22,10 +22,12 @@ class RestorationPrior(Distribution):
     restorator_kwargs : dictionary
         Dictionary containing information about the restorator.
     
-    potential : callable function
-        In the case, where the restoration operator is the proximal operator of
-        the function potential. This function is a mapping from the image domain
-        to the real set. 
+    potential : callable function, optional
+        The potential corresponds to the negative logpdf when it is accessible.
+        This function is a mapping from the parameter domain to the real set. 
+        It can be provided if the user knows how to relate it to the restorator.
+        Ex: restorator is the proximal operator of the total variation (TV), then
+        potential is the TV function. 
     """
     def __init__(self, restorator, restorator_kwargs
                 =None, potential=None, **kwargs):
