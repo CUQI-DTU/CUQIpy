@@ -369,12 +369,12 @@ def test_myula():
     assert samples_myula.Ns == 10
     assert np.allclose(samples_myula.samples, samples_ula.samples)
 
-def test_myula_object_creation_fails_with_classical_target():
-    """ Test that MYULA object creation fails with classical target (prior is a
-    distribution and not a restoration prior)."""
+def test_myula_object_creation_fails_with_target_without_restore_method():
+    """ Test that MYULA object creation fails with target that does not
+    implement restore method"""
     posterior = cuqi.testproblem.Deconvolution1D(dim=128).posterior
     with pytest.raises(NotImplementedError,
-                       match="Using MYULA with other than RestorationPrior"):
+                       match="Using MYULA with a prior that does not have"):
         cuqi.experimental.mcmc.MYULANew(posterior)
 
 def test_myula_object_creation_fails_with_smoothed_target():
