@@ -11,32 +11,36 @@ class TruncatedNormal(Distribution):
     
     Parameters
     ------------
-    mean: mean of distribution
-    std: standard deviation
-    a: lower bound of the distribution
-    b: upper bound of the distribution
+    mean : float or array_like of floats
+        mean of distribution
+    std : float or array_like of floats
+        standard deviation
+    a : float or array_like of floats
+        lower bound of the distribution
+    b : float or array_like of floats
+        upper bound of the distribution
     """
-    def __init__(self, mean=None, std=None, a=-np.Inf, b=np.Inf, is_symmetric=False, **kwargs):
+    def __init__(self, mean=None, std=None, low=-np.Inf, high=np.Inf, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
         # Init specific to this distribution
         self.mean = mean
         self.std = std
-        self.a = a
-        self.b = b
+        self.low = low
+        self.high = high
 
     def logpdf(self, x):
         # the unnormalized logpdf
         # check if x falls in the range between np.array a and b
-        if np.any(x < self.a) or np.any(x > self.b):
+        if np.any(x < self.low) or np.any(x > self.high):
             return -np.Inf
         else:
              return np.sum(-np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2)
 
     def gradient(self, x):
         # check if x falls in the range between np.array a and b
-        if np.any(x < self.a) or np.any(x > self.b):
+        if np.any(x < self.low) or np.any(x > self.high):
             return np.NaN*np.ones_like(x)
         else:
             return -(x-self.mean)/(self.std**2)
