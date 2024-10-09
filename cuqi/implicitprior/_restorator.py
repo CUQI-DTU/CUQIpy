@@ -129,7 +129,7 @@ class MoreauYoshidaPrior(Distribution):
     Parameters
     ---------- 
     prior : RestorationPrior
-        Prior of the Restoration Prior type. In order to stay within the MYULA
+        Prior of the RestorationPrior type. In order to stay within the MYULA
         framework the restorator of RestorationPrior must be a proximal operator.
         
     smoothing_strength : float
@@ -154,10 +154,10 @@ class MoreauYoshidaPrior(Distribution):
         super().__init__(**kwargs)
 
     @property
-    def geoemtry(self):
+    def geometry(self):
         return self.prior.geometry
 
-    @geoemtry.setter
+    @geometry.setter
     def geometry(self, value):
         self.prior.geometry = value
 

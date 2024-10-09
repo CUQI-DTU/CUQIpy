@@ -270,7 +270,7 @@ class MYULANew(ULANew):
     ----------
 
     target : `cuqi.distribution.Distribution`
-        The target distribution to sample from. The target distribution result from
+        The target distribution to sample from. The target distribution results from
         a differentiable likelihood and prior of type RestorationPrior.
     
     initial_point : ndarray
@@ -283,7 +283,7 @@ class MYULANew(ULANew):
         
     smoothing_strength : float
         This parameter controls the smoothing strength of MYULA. smoothing_strength
-        must be equal to restoration_strength of the RestoratioPrior.
+        must be equal to restoration_strength of the RestorationPrior.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
