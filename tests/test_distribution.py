@@ -16,16 +16,17 @@ def test_Normal_pdf_mean():
     pX = cuqi.distribution.Normal(0.1,1)
     assert pX.pdf(0.1) == approx(1.0/np.sqrt(2.0*np.pi))
 
-@pytest.mark.parametrize("mean,std,low,high,points",[(np.array([0.0]), 
-                                               np.array([1.0]),
-                                               np.array([-1.0]),
-                                               np.array([1.0]),
-                                               [-1.5, 0.0, 1.5]),
+@pytest.mark.parametrize("mean,std,low,high,points",[(0.0, 
+                                               1.0,
+                                               -1.0,
+                                               1.0,
+                                               [-1.5, -0.5, 0.5, 1.5]),
                                               (np.array([0.0, 0.0]), 
                                                np.array([1.0, 1.0]),
                                                np.array([-1.0, -1.0]),
                                                np.array([1.0, 1.0]),
-                                               [np.array([0.0, 0.0]),
+                                               [np.array([-0.5, 0.0]),
+                                                np.array([0.5, 0.0]),
                                                 np.array([-2.0, 0.0]),
                                                 np.array([2.0, 0.0])]
                                                )])
@@ -38,16 +39,17 @@ def test_TruncatedNormal_logpdf(mean,std,low,high,points):
         else:
             assert np.isinf(x_trun.logpdf(point))
 
-@pytest.mark.parametrize("mean,std,low,high,points",[(np.array([0.0]), 
-                                               np.array([1.0]),
-                                               np.array([-1.0]),
-                                               np.array([1.0]),
-                                               [-1.5, 0.0, 1.5]),
+@pytest.mark.parametrize("mean,std,low,high,points",[(0.0, 
+                                               1.0,
+                                               -1.0,
+                                               1.0,
+                                               [-1.5, -0.5, 0.5, 1.5]),
                                               (np.array([0.0, 0.0]), 
                                                np.array([1.0, 1.0]),
                                                np.array([-1.0, -1.0]),
                                                np.array([1.0, 1.0]),
-                                               [np.array([0.0, 0.0]),
+                                               [np.array([-0.5, 0.0]),
+                                                np.array([0.5, 0.0]),
                                                 np.array([-2.0, 0.0]),
                                                 np.array([2.0, 0.0])]
                                                )])
