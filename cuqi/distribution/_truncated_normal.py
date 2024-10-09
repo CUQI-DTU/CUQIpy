@@ -27,6 +27,13 @@ class TruncatedNormal(Distribution):
         lower bound of the distribution
     high : float or array_like of floats
         upper bound of the distribution
+    
+    Example
+    -----------
+    .. code-block:: python
+
+        #Generate Normal with mean 0, standard deviation 1 and bounds [-1,1]
+        p = cuqi.distribution.TruncatedNormal(mean=0, std=1, low=-1, high=1)
     """
     def __init__(self, mean=None, std=None, low=-np.Inf, high=np.Inf, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
