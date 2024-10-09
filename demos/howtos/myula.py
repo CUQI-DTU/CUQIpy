@@ -164,7 +164,6 @@ restorator_kwargs["strength_reg"] = strength_reg
 # Now we can define our RestorationPrior.
 restorator = RestorationPrior(
     prox_g,
-    restoration_strength=restoration_strength,
     restorator_kwargs=restorator_kwargs,
     geometry=likelihood.model.domain_geometry
 )
@@ -172,7 +171,7 @@ restorator = RestorationPrior(
 # We first apply the restorate method of our restorator to :math:`\mathbf{y}_{obs}`.
 # This operator should restore :math:`\mathbf{y}_{obs}` and generate a signal close
 # to :math:`\mathbf{A}\mathbf{x}`.
-res = restorator.restorate(y_obs)
+res = restorator.restore(y_obs, restoration_strength)
 #%%
 # In this cell, we show the effect of the restorator both from a visual
 # and quantitative point of view. We use the relative error and the mean-squared
