@@ -72,4 +72,15 @@ class TruncatedNormal(Distribution):
         """
         Generates random samples from the distribution.
         """
-        raise NotImplementedError(f"sample is not implemented for {self.__class__.__name__}.")
+        max_iter = 1e9 # maximum number of trials to avoid infinite loop
+        samples = []
+        for i in range(int(max_iter)):
+            if len(samples) == N:
+                break
+            sample = self._normal.sample()
+            if np.all(sample >= self.low) and np.all(sample <= self.high):
+                samples.append(sample)
+        # raise a error if the number of iterations exceeds max_iter
+        if i == max_iter-1:
+            raise RuntimeError("Failed to generate {} samples within {} iterations".format(N, max_iter))
+        return np.array(samples).T.reshape(-1,N)
