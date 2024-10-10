@@ -78,6 +78,7 @@ class TruncatedNormal(Distribution):
         """
         Generates random samples from the distribution.
         """
+        # FIXME: this implementation does not honor the rng
         max_iter = 1e9 # maximum number of trials to avoid infinite loop
         samples = []
         for i in range(int(max_iter)):

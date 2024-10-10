@@ -22,7 +22,7 @@ skip_logd = [
 skip_sample = [
     cuqi.distribution.Gamma, # Missing force_ndarray
     cuqi.distribution.Lognormal,
-    cuqi.distribution.TruncatedNormal, # Seems no easy way to carry rng
+    cuqi.distribution.TruncatedNormal, # FIXME Missing rng
 ]
 skip_gradient = [
     cuqi.distribution.Gamma, # Missing force_ndarray
