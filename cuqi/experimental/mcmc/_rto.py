@@ -105,7 +105,7 @@ class LinearRTO(Sampler):
                     out1 = np.zeros(self.n)
                     for likelihood in self.likelihoods:
                         idx_end += len(likelihood.data)
-                        out1 += likelihood.model.adjoint(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
+                        out1 += likelihood.model._adjoint_func_no_shift(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
                         idx_start = idx_end
                     out2 = L2.T @ x[idx_end:]
                     out  = out1 + out2                

@@ -568,6 +568,12 @@ class AffineModel(Model):
                 self.domain_geometry,
                 x, is_par)
 
+    def _adjoint_func_no_shift(self, y, is_par=True):
+        """ Helper function for computing the adjoint operator without the shift. """
+        return self._apply_func(self._linear_operator_adjoint,
+                self.domain_geometry,
+                self.range_geometry,
+                y, is_par)
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -657,7 +663,7 @@ class LinearModel(AffineModel):
         """
         if self._linear_operator_adjoint is None:
             raise ValueError("No adjoint operator was provided for this model.")
-        return self._apply_func(self._linear_operator_adjoint, # Adjoint of x -> Ax+b is A^T y
+        return self._apply_func(self._linear_operator_adjoint,
                                 self.domain_geometry,
                                 self.range_geometry,
                                 y, is_par)

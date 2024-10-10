@@ -151,7 +151,7 @@ class UGLA(Sampler):
                 out  = np.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
-                out1 = self._model.adjoint(self._L1.T@x[:idx])
+                out1 = self._model._adjoint_func_no_shift(self._L1.T@x[:idx])
                 out2 = np.sqrt(1/self.target.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out 

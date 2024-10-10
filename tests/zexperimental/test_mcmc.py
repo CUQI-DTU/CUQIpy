@@ -991,3 +991,119 @@ def test_nuts_acceptance_rate(sampler: cuqi.experimental.mcmc.Sampler):
     acc_rate_sum = sum(sampler._acc[2:])
 
     assert np.isclose(counter, acc_rate_sum), "NUTS sampler does not update acceptance rate correctly: "+str(counter)+" != "+str(acc_rate_sum)
+    
+# ============ Testing of AffineModel with RTO-type samplers ============
+
+def test_LinearRTO_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
+    """ Test that LinearRTO with AffineModel is equivalent to LinearRTO with LinearModel and shifted data. """
+
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Shift
+    shift = np.random.rand(A.domain_dim)
+
+    # Define Bayesian Problem
+    x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs-shift)
+
+    # Set up LinearRTO with both models
+    sampler_linear = cuqi.experimental.mcmc.LinearRTO(posterior)
+
+    # Sample with fixes seed
+    np.random.seed(0)
+    samples_linear = sampler_linear.warmup(2).sample(10).get_samples()
+
+    # Define AffineModel
+    affine_model = cuqi.model.AffineModel(A, shift)
+
+    # Set up LinearRTO with AffineModel
+    y = cuqi.distribution.Gaussian(affine_model, 0.01**2)
+    posterior_affine = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up LinearRTO with AffineModel
+    sampler_affine = cuqi.experimental.mcmc.LinearRTO(posterior_affine)
+
+    # Sample with fixes seed
+    np.random.seed(0)
+    samples_affine = sampler_affine.warmup(2).sample(10).get_samples()
+
+    # Check that the samples are the same
+    assert np.allclose(samples_linear.samples, samples_affine.samples)
+
+def test_RegularizedLinearRTO_with_AffineModel_is_equivalent_to_RegularizedLinearModel_and_shifted_data():
+    """ Test that RegularizedLinearRTO with AffineModel is equivalent to RegularizedLinearRTO with RegularizedLinearModel and shifted data. """
+
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Shift
+    shift = np.random.rand(A.domain_dim)
+
+    # Define Bayesian Problem
+    x = cuqi.implicitprior.NonnegativeGMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs-shift)
+
+    # Set up LinearRTO with both models
+    sampler_linear = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior)
+
+    # Sample with fixes seed
+    np.random.seed(0)
+    samples_linear = sampler_linear.warmup(2).sample(10).get_samples()
+
+    # Define AffineModel
+    affine_model = cuqi.model.AffineModel(A, shift)
+
+    # Set up LinearRTO with AffineModel
+    y = cuqi.distribution.Gaussian(affine_model, 0.01**2)
+    posterior_affine = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up LinearRTO with AffineModel
+    sampler_affine = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior_affine)
+
+    # Sample with fixes seed
+    np.random.seed(0)
+    samples_affine = sampler_affine.warmup(2).sample(10).get_samples()
+
+    # Check that the samples are the same
+    assert np.allclose(samples_linear.samples, samples_affine.samples)
+
+def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
+    """ Test that UGLA with AffineModel is equivalent to LinearModel and shifted data. """
+    
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Shift
+    shift = np.random.rand(A.domain_dim)
+
+    # Define Bayesian Problem
+    x = cuqi.distribution.LMRF(np.zeros(A.domain_dim), 0.01)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs-shift)
+
+    # Set up LinearRTO with both models
+    sampler_linear = cuqi.experimental.mcmc.UGLA(posterior)
+
+    # Sample with fixes seed
+    np.random.seed(0)
+    samples_linear = sampler_linear.warmup(2).sample(10).get_samples()
+
+    # Define AffineModel
+    affine_model = cuqi.model.AffineModel(A, shift)
+
+    # Set up LinearRTO with AffineModel
+    y = cuqi.distribution.Gaussian(affine_model, 0.01**2)
+    posterior_affine = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up LinearRTO with AffineModel
+    sampler_affine = cuqi.experimental.mcmc.UGLA(posterior_affine)
+
+    # Sample with fixes seed
+    np.random.seed(0)
+    samples_affine = sampler_affine.warmup(2).sample(10).get_samples()
+
+    # Check that the samples are the same
+    assert np.allclose(samples_linear.samples, samples_affine.samples)
