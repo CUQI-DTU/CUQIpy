@@ -136,13 +136,7 @@ class HybridGibbs:
         self._set_targets()
 
         # Initialize the samplers
-        self._initialize_samplers() 
-
-        # Run over pre-sample methods for samplers that have it
-        # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
-        # This is not ideal and should be fixed in the future
-        for sampler in self.samplers.values():
-            self._pre_warmup_and_pre_sample_sampler(sampler)
+        self._initialize_samplers()
 
         # Validate all targets for samplers.
         self.validate_targets()
@@ -239,10 +233,6 @@ class HybridGibbs:
                 sampler.set_state(sampler_state)
                 sampler.set_history(sampler_history)
 
-            # Run pre_warmup and pre_sample methods for sampler
-            # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
-            self._pre_warmup_and_pre_sample_sampler(sampler)
-
             # Allow for multiple sampling steps in each Gibbs step
             for _ in range(self.num_sampling_steps[par_name]):
                 # Sampling step
@@ -290,10 +280,6 @@ class HybridGibbs:
             if par_name not in self.num_sampling_steps:
                 self.num_sampling_steps[par_name] = 1
 
-
-    def _pre_warmup_and_pre_sample_sampler(self, sampler):
-        if hasattr(sampler, '_pre_warmup'): sampler._pre_warmup()
-        if hasattr(sampler, '_pre_sample'): sampler._pre_sample()
 
     def _set_targets(self):
         """ Set targets for all samplers using the current samples """

@@ -907,6 +907,66 @@ def test_HybridGibbs_updates_state_only_after_accepting_sample():
         else:
             assert sampler_states[key] != new_state, f"Sampler {key} state was erroneously not updated in Gibbs scheme, even when new samples were accepted. State: \n {new_state}"
 
+def HybridGibbs_target_1():
+    """ Create a target for the HybridGibbs sampler. """
+    # Forward problem
+    np.random.seed(0)
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(
+        dim=128, phantom='sinc', noise_std=0.001).get_components()
+    
+    # Bayesian Inverse Problem
+    s = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 50)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+    
+    # Posterior
+    target = cuqi.distribution.JointDistribution(y, x, s)(y=y_data)
+
+    return target
+
+
+def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
+    """ Test that using NUTS sampler within HybridGibbs sampler works as
+    expected."""
+    #TODO: This test might break in the future if the NUTS within HybridGibbs
+    # is changed to be fully stateful.
+
+    Nb=10
+    Ns=10
+
+    target = HybridGibbs_target_1()
+
+    sampling_strategy = {
+        "x" : cuqi.experimental.mcmc.NUTS(max_depth=7),
+        "s" : cuqi.experimental.mcmc.Conjugate()
+    }
+
+    # Here we do 1 internal steps with NUTS for each Gibbs step
+    num_sampling_steps = {
+        "x" : 1,
+        "s" : 1
+    }
+
+    sampler = cuqi.experimental.mcmc.HybridGibbs(
+        target, sampling_strategy, num_sampling_steps)
+    
+    np.random.seed(0)
+    sampler.warmup(Nb)
+    sampler.sample(Ns)
+    samples = sampler.get_samples()
+
+    # Read samples from reference
+    file = copy_reference("data/s_x_NUTS_within_HybridGibbs.npz")
+    reference = np.load(file)
+    reference_s = reference["s"]
+    reference_x = reference["x"]
+
+    # Compare samples
+    assert np.allclose(samples["s"].samples, reference_s, rtol=1e-3)
+    assert np.allclose(samples["x"].samples, reference_x, rtol=1e-3)
+
+
+# ============ Test for sampling with bounded distributions ============
 sampler_instances_for_bounded_distribution = [
     cuqi.experimental.mcmc.MH(
         target=cuqi.distribution.Beta(0.5, 0.5),
