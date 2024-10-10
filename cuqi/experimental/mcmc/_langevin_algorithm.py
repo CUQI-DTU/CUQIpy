@@ -112,13 +112,10 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
             1 (accepted)
         """
 
-        acc = 0
-        if (not np.isnan(target_eval_star)) and \
-           (not np.isinf(target_eval_star)):
-            self.current_point = x_star
-            self.current_target_grad = target_grad_star
-            acc = 1
-            
+        self.current_point = x_star
+        self.current_target_grad = target_grad_star
+        acc = 1
+
         return acc
 
     def step(self):
@@ -201,7 +198,7 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
     # TODO: update demo once sampler merged
     """
 
-    _STATE_KEYS = ULANew._STATE_KEYS.union({'current_target_logd'})
+    _STATE_KEYS = ULA._STATE_KEYS.union({'current_target_logd'})
 
     def _initialize(self):
         super()._initialize()
@@ -258,7 +255,7 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
         return -0.5*((1/(self.scale))*(misfit.T @ misfit))
 
 
-class MYULANew(ULANew):
+class MYULA(ULA):
     """Moreau-Yoshida Unadjusted Langevin algorithm (MYUULA) (Durmus et al., 2018)
 
     Samples a smoothed target distribution given its smoothed logpdf gradient.
@@ -305,7 +302,7 @@ class MYULANew(ULANew):
         self.smoothing_strength = smoothing_strength
         super().__init__(target=target, scale=scale, **kwargs)
 
-    @SamplerNew.target.setter
+    @Sampler.target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
         self._target = value
@@ -324,7 +321,7 @@ class MYULANew(ULANew):
             self.validate_target()
 
     def validate_target(self):
-        # Call ULANew target validation
+        # Call ULA target validation
         super().validate_target()
 
         # Additional validation for MYULA target
@@ -340,7 +337,7 @@ class MYULANew(ULANew):
     def _eval_target_grad(self, x):
         return self._smoothed_target.gradient(x)
 
-class PnPULANew(MYULANew):
+class PnPULA(MYULA):
     """Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)
     (Laumont et al., 2022)
 

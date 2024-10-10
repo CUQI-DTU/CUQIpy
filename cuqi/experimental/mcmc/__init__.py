@@ -109,7 +109,7 @@ Main changes for users
 
 
 from ._sampler import Sampler, ProposalBasedSampler
-from ._langevin_algorithm import ULA, MALA, MYULANew, PnPULANew
+from ._langevin_algorithm import ULA, MALA, MYULA, PnPULA
 from ._mh import MH
 from ._pcn import PCN
 from ._rto import LinearRTO, RegularizedLinearRTO
