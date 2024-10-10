@@ -54,6 +54,9 @@ class TruncatedNormal(Distribution):
         self._normal = Normal(self.mean, self.std)
 
     def logpdf(self, x):
+        """
+        Computes the unnormalized logpdf at the given values of x.
+        """
         # the unnormalized logpdf
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
@@ -62,6 +65,9 @@ class TruncatedNormal(Distribution):
              return self._normal.logpdf(x)
 
     def gradient(self, x):
+        """
+        Computes the gradient of the unnormalized logpdf at the given values of x.
+        """
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
             return np.NaN*np.ones_like(x)
