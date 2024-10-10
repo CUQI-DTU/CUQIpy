@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.special import erf
+from cuqi.geometry import _get_identity_geometries
 from cuqi.distribution import Distribution
 
 class Normal(Distribution):
@@ -36,8 +36,13 @@ class Normal(Distribution):
     def cdf(self, x):
         return np.prod(0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2)))))
 
-    def gradient(self, x):
-        return -(x-self.mean)/(self.std**2)
+    def _gradient(self, val, *args, **kwargs):
+        if not type(self.geometry) in _get_identity_geometries():
+            raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
+        if not callable(self.mean):
+            return -(val-self.mean)/(self.std**2)
+        else:
+            raise NotImplementedError("Gradient not implemented for distribution {} with location {}".format(self,self.mean))
 
     def _sample(self,N=1, rng=None):
 
