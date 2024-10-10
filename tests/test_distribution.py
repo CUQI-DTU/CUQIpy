@@ -56,7 +56,7 @@ def test_TruncatedNormal_logpdf(mean,std,low,high,points):
         if np.all(point >= low) and np.all(point <= high):
             assert x_trun.logpdf(point) == approx(x.logpdf(point))
         else:
-            assert np.isinf(x_trun.logpdf(point))
+            assert np.isneginf(x_trun.logpdf(point))
 
 @pytest.mark.parametrize("mean,std,low,high,points",[(0.0, 
                                                1.0,
