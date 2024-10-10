@@ -358,10 +358,10 @@ def test_myula():
     np.random.seed(0)
     posterior_smoothed = create_myula_smoothed_target(dim=128)
     np.random.seed(0)
-    myula = cuqi.experimental.mcmc.MYULANew(posterior, smoothing_strength=0.1)
+    myula = cuqi.experimental.mcmc.MYULA(posterior, smoothing_strength=0.1)
     myula.sample(10)
     np.random.seed(0)
-    ula = cuqi.experimental.mcmc.ULANew(posterior_smoothed)
+    ula = cuqi.experimental.mcmc.ULA(posterior_smoothed)
     ula.sample(10)
     samples_myula = myula.get_samples()
     samples_ula = ula.get_samples()
@@ -375,13 +375,13 @@ def test_myula_object_creation_fails_with_target_without_restore_method():
     posterior = cuqi.testproblem.Deconvolution1D(dim=128).posterior
     with pytest.raises(NotImplementedError,
                        match="Using MYULA with a prior that does not have"):
-        cuqi.experimental.mcmc.MYULANew(posterior)
+        cuqi.experimental.mcmc.MYULA(posterior)
 
 def test_myula_object_creation_fails_with_smoothed_target():
     """ Test that MYULA object creation fails with smoothed target."""
     with pytest.raises(ValueError,
                        match="The prior is already smoothed, apply ULA"):
-        cuqi.experimental.mcmc.MYULANew(
+        cuqi.experimental.mcmc.MYULA(
             create_myula_smoothed_target(dim=128))
 
 # ============= Conjugate ==============
@@ -422,8 +422,8 @@ skip_checkpoint = [
     cuqi.experimental.mcmc.CWMH,
     cuqi.experimental.mcmc.RegularizedLinearRTO, # Due to the _choose_stepsize method
     cuqi.experimental.mcmc.HybridGibbs,
-    cuqi.experimental.mcmc.MYULANew,
-    cuqi.experimental.mcmc.PnPULANew
+    cuqi.experimental.mcmc.MYULA,
+    cuqi.experimental.mcmc.PnPULA
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -495,14 +495,25 @@ state_history_targets = [
     cuqi.experimental.mcmc.RegularizedLinearRTO(create_regularized_target(dim=16)),
     cuqi.experimental.mcmc.UGLA(create_lmrf_prior_target(dim=32)),
     cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4),
-    cuqi.experimental.mcmc.MYULANew(create_myula_target(dim=128)),
-    cuqi.experimental.mcmc.PnPULANew(create_myula_target(dim=128))
+    cuqi.experimental.mcmc.MYULA(create_myula_target(dim=128)),
+    cuqi.experimental.mcmc.PnPULA(create_myula_target(dim=128))
 ]
 
+# List of all classes subclassing samplers.
+all_subclassing_sampler_classes= [
+    cls
+    for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
+    if cls not in [cuqi.experimental.mcmc.Sampler,
+                   cuqi.experimental.mcmc.ProposalBasedSampler,
+                   cuqi.experimental.mcmc.HybridGibbs,
+                   cuqi.experimental.mcmc.Conjugate,
+                   cuqi.experimental.mcmc.ConjugateApprox,
+                   cuqi.experimental.mcmc.Direct]
+]
 # Make sure that all samplers are tested for state history
 @pytest.mark.parametrize("sampler_class", all_subclassing_sampler_classes)
 def test_sampler_is_tested_for_state_history(
-    sampler_class: cuqi.experimental.mcmc.SamplerNew):
+    sampler_class: cuqi.experimental.mcmc.Sampler):
 
     # Find sampler instance that matches the sampler class
     sampler_instance = next(
@@ -558,8 +569,8 @@ state_exception_keys = {
     cuqi.experimental.mcmc.ULA: 'scale',
     cuqi.experimental.mcmc.MALA: 'scale',
     cuqi.experimental.mcmc.NUTS: 'max_depth',
-    cuqi.experimental.mcmc.MYULANew: ['scale'],
-    cuqi.experimental.mcmc.PnPULANew: ['scale']
+    cuqi.experimental.mcmc.MYULA: ['scale'],
+    cuqi.experimental.mcmc.PnPULA: ['scale']
 }
 
 @pytest.mark.parametrize("sampler", state_history_targets)
@@ -628,8 +639,8 @@ initialize_testing_sampler_instances = [
     cuqi.experimental.mcmc.Direct(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
     cuqi.experimental.mcmc.Conjugate(target=create_conjugate_target("Gaussian-Gamma")),
     cuqi.experimental.mcmc.ConjugateApprox(target=create_conjugate_target("LMRF-Gamma")),
-    cuqi.experimental.mcmc.MYULANew(target=create_myula_target(dim=16)),
-    cuqi.experimental.mcmc.PnPULANew(target=create_myula_target(dim=16))
+    cuqi.experimental.mcmc.MYULA(target=create_myula_target(dim=16)),
+    cuqi.experimental.mcmc.PnPULA(target=create_myula_target(dim=16))
 ]
 
 
@@ -996,11 +1007,6 @@ sampler_instances_for_bounded_distribution = [
         initial_point=np.array([0.1]),
         scale=0.1,
     ),
-    cuqi.experimental.mcmc.ULA(
-        cuqi.distribution.Beta(0.5, 0.5),
-        initial_point=np.array([0.1]),
-        scale=0.1,
-    ),
     cuqi.experimental.mcmc.MALA(
         cuqi.distribution.Beta(0.5, 0.5),
         initial_point=np.array([0.1]),
@@ -1018,11 +1024,6 @@ sampler_instances_for_bounded_distribution = [
         target=cuqi.distribution.Beta(
             np.array([0.5, 0.5]), np.array([0.5, 0.5])
         ),
-        initial_point=np.array([0.1, 0.1]),
-        scale=0.1,
-    ),
-    cuqi.experimental.mcmc.ULA(
-        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
         initial_point=np.array([0.1, 0.1]),
         scale=0.1,
     ),
