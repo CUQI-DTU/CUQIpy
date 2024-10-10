@@ -123,3 +123,8 @@ plt.legend()
 
 cs = samplesAffine_burnin.plot_pair(marginals=True)
 plt.suptitle("Posterior samples using Affine model")
+
+# %%
+# Compare the results from the two models
+# They should provide exactly the same results as the seed is the same
+assert np.allclose(samplesLinear.samples, samplesAffine.samples)
