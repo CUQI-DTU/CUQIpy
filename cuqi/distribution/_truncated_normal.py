@@ -47,7 +47,7 @@ class TruncatedNormal(Distribution):
         self.high = high
 
         # Init underlying normal distribution
-        self._normal = Normal(self.mean, self.std)
+        self._normal = Normal(self.mean, self.std, is_symmetric=is_symmetric, **kwargs)
 
     def logpdf(self, x):
         """
@@ -80,7 +80,7 @@ class TruncatedNormal(Distribution):
         for i in range(int(max_iter)):
             if len(samples) == N:
                 break
-            sample = self._normal.sample()
+            sample = self._normal.sample(1,rng)
             if np.all(sample >= self.low) and np.all(sample <= self.high):
                 samples.append(sample)
         # raise a error if the number of iterations exceeds max_iter
