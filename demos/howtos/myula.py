@@ -12,7 +12,7 @@ data to obtain the posterior distribution as shown in the examples below.
 import cuqi
 import numpy as np
 from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
-from cuqi.experimental.mcmc import ULANew, MYULANew
+from cuqi.experimental.mcmc import ULA, MYULA
 from cuqi.distribution import Posterior
 import matplotlib.pyplot as plt
 
@@ -236,7 +236,7 @@ np.random.seed(0)
 # ULA sampler
 # -------------
 # Definition of the ULA sampler which aims at sampling from the smoothed posterior.
-ula_sampler=ULANew(target=smoothed_posterior, scale=scale)
+ula_sampler=ULA(target=smoothed_posterior, scale=scale)
 # %%
 # Sampling with ULA from the smoothed target posterior.
 ula_sampler.sample(Ns=Ns)
@@ -272,7 +272,7 @@ posterior=Posterior(likelihood, restorator)
 # Definition of the MYULA sampler
 # -------------------------------
 # Again, we must have :math:`\texttt{smoothing_strength}=\texttt{restoration_strength}`.
-myula_sampler=MYULANew(target=posterior, scale=scale, smoothing_strength=restoration_strength)
+myula_sampler=MYULA(target=posterior, scale=scale, smoothing_strength=restoration_strength)
 #%%
 # We then sample using the MYULA sampler. It targets the same smoothed distribution
 # as the ULA sampler applied with the smoothed posterior distribution.
