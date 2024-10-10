@@ -74,8 +74,8 @@ class UGLA(Sampler):
         return self.target.model     
     
     @property
-    def data(self):
-        return self.target.data
+    def _data(self):
+        return self.target.data - self.target.model._shift
 
     def _precompute(self):
 
@@ -89,7 +89,7 @@ class UGLA(Sampler):
             return W.sqrt() @ D
         self.Lk_fun = Lk_fun
 
-        self._m = len(self.data)
+        self._m = len(self._data)
         self._L1 = self.likelihood.distribution.sqrtprec
 
         # If prior location is scalar, repeat it to match dimensions
@@ -101,17 +101,17 @@ class UGLA(Sampler):
         # Initial Laplace approx
         self._L2 = Lk_fun(self.initial_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
+        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
         
         # Least squares form
         def M(x, flag):
             if flag == 1:
-                out1 = self._L1 @ self.model.forward(x)
+                out1 = self._L1 @ self.model._forward_func_no_shift(x) # Use forward function which excludes shift
                 out2 = np.sqrt(1/self.prior.scale)*(self._L2 @ x)
                 out  = np.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
-                out1 = self.model.adjoint(self._L1.T@x[:idx])
+                out1 = self.model._adjoint_func_no_shift(self._L1.T@x[:idx])
                 out2 = np.sqrt(1/self.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out
@@ -121,7 +121,7 @@ class UGLA(Sampler):
         # Update Laplace approximation
         self._L2 = self.Lk_fun(self.current_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self.data, self._L2mu]) 
+        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
     
         # Sample from approximate posterior
         e = np.random.randn(len(self._b_tild))
@@ -139,9 +139,9 @@ class UGLA(Sampler):
         if not isinstance(self.target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")       
 
-        # Check Linear model
-        if not isinstance(self.likelihood.model, cuqi.model.LinearModel):
-            raise TypeError("Model needs to be linear")
+        # Check Affine model
+        if not isinstance(self.likelihood.model, cuqi.model.AffineModel):
+            raise TypeError("Model needs to be affine or linear")
 
         # Check Gaussian likelihood
         if not hasattr(self.likelihood.distribution, "sqrtprec"):
