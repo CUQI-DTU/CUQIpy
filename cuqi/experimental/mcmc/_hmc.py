@@ -3,7 +3,6 @@ import numpy as np
 from cuqi.experimental.mcmc import Sampler
 from cuqi.array import CUQIarray
 from numbers import Number
-from copy import deepcopy
 
 class NUTS(Sampler):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
@@ -216,9 +215,9 @@ class NUTS(Sampler):
         self._num_tree_node = 0
 
         # copy current point, logd, and grad in local variables
-        point_k = deepcopy(self.current_point) # initial position (parameters)
+        point_k = self.current_point # initial position (parameters)
         logd_k = self.current_target_logd
-        grad_k = deepcopy(self.current_target_grad) # initial gradient
+        grad_k = self.current_target_grad # initial gradient
         
         # compute r_k and Hamiltonian
         r_k = self._Kfun(1, 'sample') # resample momentum vector
@@ -229,9 +228,9 @@ class NUTS(Sampler):
 
         # initialization
         j, s, n = 0, 1, 1
-        point_minus, point_plus = deepcopy(point_k), deepcopy(point_k)
-        grad_minus, grad_plus = deepcopy(grad_k), deepcopy(grad_k)
-        r_minus, r_plus = deepcopy(r_k), deepcopy(r_k)
+        point_minus, point_plus = point_k.copy(), point_k.copy()
+        grad_minus, grad_plus = grad_k.copy(), grad_k.copy()
+        r_minus, r_plus = r_k.copy(), r_k.copy()
 
         # run NUTS
         acc = 0
@@ -259,9 +258,14 @@ class NUTS(Sampler):
                 (np.random.rand() <= alpha2) and \
                 (not np.isnan(logd_prime)) and \
                 (not np.isinf(logd_prime)):
-                self.current_point = point_prime
-                self.current_target_logd = logd_prime
-                self.current_target_grad = deepcopy(grad_prime)
+                self.current_point = point_prime.copy()
+                # copy if array, else assign if scalar
+                self.current_target_logd = (
+                        logd_prime.copy()
+                        if isinstance(logd_prime, np.ndarray)
+                        else logd_prime
+                    )
+                self.current_target_grad = grad_prime.copy()
                 acc = 1
 
 
@@ -410,9 +414,14 @@ class NUTS(Sampler):
                 # Metropolis step
                 alpha2 = n_2prime / max(1, (n_prime + n_2prime))
                 if (np.random.rand() <= alpha2):
-                    point_prime = deepcopy(point_2prime)
-                    logd_prime = deepcopy(logd_2prime)
-                    grad_prime = deepcopy(grad_2prime)
+                    point_prime = point_2prime.copy()
+                    # copy if array, else assign if scalar
+                    logd_prime = (
+                        logd_2prime.copy()
+                        if isinstance(logd_2prime, np.ndarray)
+                        else logd_2prime
+                    )
+                    grad_prime = grad_2prime.copy()
 
                 # update number of particles and stopping criterion
                 alpha_prime += alpha_2prime
