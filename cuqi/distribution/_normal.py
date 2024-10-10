@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import erf
 from cuqi.geometry import _get_identity_geometries
 from cuqi.distribution import Distribution
 
@@ -43,6 +44,7 @@ class Normal(Distribution):
             return -(val-self.mean)/(self.std**2)
         else:
             raise NotImplementedError("Gradient not implemented for distribution {} with location {}".format(self,self.mean))
+
 
     def _sample(self,N=1, rng=None):
 
