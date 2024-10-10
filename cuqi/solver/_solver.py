@@ -174,9 +174,12 @@ class LS(object):
     """Wrapper for :meth:`scipy.optimize.least_squares`.
 
     Solve nonlinear least-squares problems with bounds:
+
+    .. math::
     
-    minimize F(x) = 0.5 * sum(rho(f_i(x)**2), i = 0, ..., m-1)
-    subject to lb <= x <= ub
+        \min F(x) = 0.5 * \sum(\\rho(f_i(x)^2), i = 0, ..., m-1)
+
+    subject to :math:`lb <= x <= ub`.
     
     Parameters
     ----------

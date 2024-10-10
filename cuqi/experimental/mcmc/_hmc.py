@@ -1,10 +1,10 @@
 import numpy as np
 import numpy as np
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 from cuqi.array import CUQIarray
 from numbers import Number
 
-class NUTSNew(SamplerNew):
+class NUTS(Sampler):
     """No-U-Turn Sampler (Hoffman and Gelman, 2014).
 
     Samples a distribution given its logpdf and gradient using a Hamiltonian
@@ -58,7 +58,7 @@ class NUTSNew(SamplerNew):
         target = tp.posterior
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.NUTSNew(target)
+        sampler = cuqi.experimental.mcmc.NUTS(target)
 
         # Sample
         sampler.warmup(5000)
@@ -87,15 +87,17 @@ class NUTSNew(SamplerNew):
 
     """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
-                                                '_H_bar', '_mu',
-                                                '_alpha', '_n_alpha'})
+    _STATE_KEYS = Sampler._STATE_KEYS.union({'_epsilon', '_epsilon_bar',
+                                                '_H_bar',
+                                                'current_target_logd',
+                                                'current_target_grad',
+                                                'max_depth'})
 
-    _HISTORY_KEYS = SamplerNew._HISTORY_KEYS.union({'num_tree_node_list',
+    _HISTORY_KEYS = Sampler._HISTORY_KEYS.union({'num_tree_node_list',
                                                     'epsilon_list',
                                                     'epsilon_bar_list'})
 
-    def __init__(self, target=None, initial_point=None, max_depth=15,
+    def __init__(self, target=None, initial_point=None, max_depth=None,
                  step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
@@ -104,30 +106,20 @@ class NUTSNew(SamplerNew):
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
 
+
+    def _initialize(self):
+
+        self._current_alpha_ratio = np.nan # Current alpha ratio will be set to some
+                                           # value (other than np.nan) before 
+                                           # being used
+
+        self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
+
+        # Parameters dual averaging
         # Initialize epsilon and epsilon_bar
         # epsilon is the step size used in the current iteration
         # after warm up and one sampling step, epsilon is updated
         # to epsilon_bar for the remaining sampling steps.
-        self._epsilon = None
-        self._epsilon_bar = None
-        self._H_bar = None
-
-        # Extra parameters for tuning
-        self._n_alpha = None
-        self._alpha = None
-
-
-    def _initialize(self):
-
-        # Arrays to store acceptance rate
-        self._acc = [None] # Overwrites acc from SamplerNew. TODO. Check if this is necessary
-
-        self._alpha = 0 # check if meaningful value
-        self._n_alpha = 0 # check if meaningful value
-
-        self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
-
-        # parameters dual averaging
         if self.step_size is None:
             self._epsilon = self._FindGoodEpsilon()
         else:
@@ -155,6 +147,8 @@ class NUTSNew(SamplerNew):
 
     @max_depth.setter
     def max_depth(self, value):
+        if value is None:
+            value = 15 # default value
         if not isinstance(value, int):
             raise TypeError('max_depth must be an integer.')
         if value < 0:
@@ -188,7 +182,7 @@ class NUTSNew(SamplerNew):
         self._opt_acc_rate = value
 
     #=========================================================================
-    #================== Implement methods required by SamplerNew =============
+    #================== Implement methods required by Sampler =============
     #=========================================================================
     def validate_target(self):
         # Check if the target has logd and gradient methods
@@ -236,6 +230,7 @@ class NUTSNew(SamplerNew):
         r_minus, r_plus = np.copy(r_k), np.copy(r_k)
 
         # run NUTS
+        acc = 0
         while (s == 1) and (j <= self.max_depth):
             # sample a direction
             v = int(2*(np.random.rand() < 0.5)-1)
@@ -256,13 +251,15 @@ class NUTSNew(SamplerNew):
 
             # Metropolis step
             alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
-            if (s_prime == 1) and (np.random.rand() <= alpha2):
+            if (s_prime == 1) and \
+                (np.random.rand() <= alpha2) and \
+                (not np.isnan(logd_prime)) and \
+                (not np.isinf(logd_prime)):
                 self.current_point = point_prime
                 self.current_target_logd = logd_prime
                 self.current_target_grad = np.copy(grad_prime)
-                self._acc.append(1)
-            else:
-                self._acc.append(0)
+                acc = 1
+
 
             # update number of particles, tree level, and stopping criterion
             n += n_prime
@@ -270,8 +267,7 @@ class NUTSNew(SamplerNew):
             s = s_prime *\
                 int((dpoints @ r_minus.T) >= 0) * int((dpoints @ r_plus.T) >= 0)
             j += 1
-            self._alpha = alpha
-            self._n_alpha = n_alpha
+            self._current_alpha_ratio = alpha/n_alpha
 
         # update run diagnostic attributes
         self._update_run_diagnostic_attributes(
@@ -280,6 +276,8 @@ class NUTSNew(SamplerNew):
         self._epsilon = self._epsilon_bar 
         if np.isnan(self.current_target_logd):
             raise NameError('NaN potential func')
+
+        return acc
 
     def tune(self, skip_len, update_count):
         """ adapt epsilon during burn-in using dual averaging"""
@@ -290,7 +288,7 @@ class NUTSNew(SamplerNew):
 
         eta1 = 1/(k + t_0)
         self._H_bar = (1-eta1)*self._H_bar +\
-            eta1*(self.opt_acc_rate - (self._alpha/self._n_alpha))
+            eta1*(self.opt_acc_rate - (self._current_alpha_ratio))
         self._epsilon = np.exp(self._mu - (np.sqrt(k)/gamma)*self._H_bar)
         eta = k**(-kappa)
         self._epsilon_bar =\
@@ -306,12 +304,12 @@ class NUTSNew(SamplerNew):
         #    self._epsilon
         #  Parameters that does not change during the run
         #    self._mu
-
+        self._ensure_initialized()
         if self._epsilon_bar == "unset": # Initial value of epsilon_bar for tuning
             self._epsilon_bar = 1
 
     def _pre_sample(self):
-
+        self._ensure_initialized()
         if self._epsilon_bar == "unset": # Initial value of epsilon_bar for sampling
             self._epsilon_bar = self._epsilon
             

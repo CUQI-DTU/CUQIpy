@@ -1,9 +1,9 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import ProposalBasedSamplerNew
+from cuqi.experimental.mcmc import ProposalBasedSampler
 
 
-class MHNew(ProposalBasedSamplerNew):
+class MH(ProposalBasedSampler):
     """ Metropolis-Hastings (MH) sampler.
 
     Parameters
@@ -18,11 +18,11 @@ class MHNew(ProposalBasedSamplerNew):
         Scaling parameter for the proposal distribution.
 
     kwargs : dict
-        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSamplerNew`.
+        Additional keyword arguments to be passed to the base class :class:`ProposalBasedSampler`.
 
     """
 
-    _STATE_KEYS = ProposalBasedSamplerNew._STATE_KEYS.union({'scale', '_scale_temp'})
+    _STATE_KEYS = ProposalBasedSampler._STATE_KEYS.union({'scale', '_scale_temp'})
 
     def __init__(self, target=None, proposal=None, scale=1, **kwargs):
         super().__init__(target, proposal=proposal, scale=scale, **kwargs)
@@ -33,7 +33,7 @@ class MHNew(ProposalBasedSamplerNew):
 
     def validate_target(self):
         # Fail only when there is no log density, which is currently assumed to be the case in case NaN is returned.
-        if np.isnan(self.target.logd(self._default_initial_point)):
+        if np.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
             raise ValueError("Target does not have valid logd")
 
     def validate_proposal(self):
@@ -57,7 +57,9 @@ class MHNew(ProposalBasedSamplerNew):
         # accept/reject
         u_theta = np.log(np.random.rand())
         acc = 0
-        if (u_theta <= alpha):
+        if (u_theta <= alpha) and \
+           (not np.isnan(target_eval_star)) and \
+           (not np.isinf(target_eval_star)):
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             acc = 1

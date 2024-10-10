@@ -7,13 +7,13 @@ import cuqi
 from cuqi.samples import Samples
 
 try:
-    from progressbar import progressbar
+    from tqdm import tqdm
 except ImportError:
-    def progressbar(iterable, **kwargs):
-        warnings.warn("Module mcmc: Progressbar not found. Install progressbar2 to get sampling progress.")
+    def tqdm(iterable, **kwargs):
+        warnings.warn("Module mcmc: tqdm not found. Install tqdm to get sampling progress.")
         return iterable
 
-class SamplerNew(ABC):
+class Sampler(ABC):
     """ Abstract base class for all samplers.
     
     Provides a common interface for all samplers. The interface includes methods for sampling, warmup and getting the samples in an object oriented way.
@@ -80,7 +80,7 @@ class SamplerNew(ABC):
         
         # Default values
         if self.initial_point is None:
-            self.initial_point = self._default_initial_point
+            self.initial_point = self._get_default_initial_point(self.dim)
 
         # State variables
         self.current_point = self.initial_point
@@ -194,7 +194,7 @@ class SamplerNew(ABC):
 
         self.set_state(state)
 
-    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'SamplerNew':
+    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'Sampler':
         """ Sample Ns samples from the target density.
 
         Parameters
@@ -220,7 +220,8 @@ class SamplerNew(ABC):
         if hasattr(self, "_pre_sample"): self._pre_sample()
 
         # Draw samples
-        for _ in progressbar( range(Ns) ):
+        pbar = tqdm(range(Ns), "Sample: ")
+        for idx in pbar:
             
             # Perform one step of the sampler
             acc = self.step()
@@ -228,6 +229,9 @@ class SamplerNew(ABC):
             # Store samples
             self._acc.append(acc)
             self._samples.append(self.current_point)
+
+            # display acc rate at progress bar
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -239,7 +243,7 @@ class SamplerNew(ABC):
         return self
     
 
-    def warmup(self, Nb, tune_freq=0.1) -> 'SamplerNew':
+    def warmup(self, Nb, tune_freq=0.1) -> 'Sampler':
         """ Warmup the sampler by drawing Nb samples.
 
         Parameters
@@ -260,7 +264,8 @@ class SamplerNew(ABC):
         if hasattr(self, "_pre_warmup"): self._pre_warmup()
 
         # Draw warmup samples with tuning
-        for idx in progressbar(range(Nb)):
+        pbar = tqdm(range(Nb), "Warmup: ")
+        for idx in pbar:
 
             # Perform one step of the sampler
             acc = self.step()
@@ -272,6 +277,9 @@ class SamplerNew(ABC):
             # Store samples
             self._acc.append(acc)
             self._samples.append(self.current_point)
+
+            # display acc rate at progress bar
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
             self._call_callback(self.current_point, len(self._samples)-1)
@@ -386,10 +394,9 @@ class SamplerNew(ABC):
         if not self._is_initialized:
             self.initialize()
             
-    @property
-    def _default_initial_point(self):
+    def _get_default_initial_point(self, dim):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
-        return np.ones(self.dim)
+        return np.ones(dim)
     
     def __repr__(self):
         """ Return a string representation of the sampler. """
@@ -407,10 +414,10 @@ class SamplerNew(ABC):
             msg += f"\t {key}: {value} \n"
         return msg
 
-class ProposalBasedSamplerNew(SamplerNew, ABC):
+class ProposalBasedSampler(Sampler, ABC):
     """ Abstract base class for samplers that use a proposal distribution. """
 
-    _STATE_KEYS = SamplerNew._STATE_KEYS.union({'current_target_logd', 'scale'})
+    _STATE_KEYS = Sampler._STATE_KEYS.union({'current_target_logd', 'scale'})
 
     def __init__(self, target=None, proposal=None, scale=1, **kwargs):
         """ Initializer for abstract base class for samplers that use a proposal distribution.
@@ -419,7 +426,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
 
         Initialization of the sampler should be done in the _initialize method.
 
-        See :class:`SamplerNew` for additional details.
+        See :class:`Sampler` for additional details.
 
         Parameters
         ----------
@@ -433,7 +440,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
             The scale parameter for the proposal distribution.
 
         **kwargs : dict
-            Additional keyword arguments passed to the :class:`SamplerNew` initializer.
+            Additional keyword arguments passed to the :class:`Sampler` initializer.
 
         """
 
@@ -452,7 +459,7 @@ class ProposalBasedSamplerNew(SamplerNew, ABC):
         
         # Default values
         if self.initial_point is None:
-            self.initial_point = self._default_initial_point
+            self.initial_point = self._get_default_initial_point(self.dim)
 
         if self.proposal is None:
             self.proposal = self._default_proposal

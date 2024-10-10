@@ -36,24 +36,6 @@ class Samples(object):
     geometry : cuqi.geometry.Geometry, default None
         Contains the geometry related of the samples
 
-    Attributes
-    ----------
-    shape : tuple
-        Returns the shape of samples.
-
-    Ns : int
-        Returns the number of samples
-
-    Methods
-    ----------
-    :meth:`plot`: Plots one or more samples.
-    :meth:`plot_ci`: Plots a credibility interval for the samples.
-    :meth:`plot_mean`: Plots the mean of the samples.
-    :meth:`plot_std`: Plots the std of the samples.
-    :meth:`plot_chain`: Plots all samples of one or more variables (MCMC chain).
-    :meth:`hist_chain`: Plots histogram of all samples of a single variable (MCMC chain).
-    :meth:`burnthin`: Removes burn-in and thins samples.
-    :meth:`diagnostics`: Conducts diagnostics on the chain.
     """
     def __init__(self, samples, geometry=None, is_par=True, is_vec=True):
         self.geometry = geometry
@@ -83,6 +65,7 @@ class Samples(object):
 
     @property
     def shape(self):
+        """Returns the shape of samples."""
         return self.samples.shape
 
     @property
@@ -408,6 +391,7 @@ class Samples(object):
         return ax
 
     def plot(self,sample_indices=None,*args,**kwargs):
+        """ Plots one or more samples. """
         Ns = self.Ns
         Np = 5 # Number of samples to plot if Ns > 5
 
@@ -447,6 +431,7 @@ class Samples(object):
         return lines
     
     def hist_chain(self,variable_indices,*args,**kwargs):
+        """ Plots samples histogram of variables with indices specified in variable_indices. """
 
         self._raise_error_if_not_vec(self.hist_chain.__name__)
 
@@ -580,6 +565,7 @@ class Samples(object):
 
 
     def diagnostics(self):
+        """ Conducts diagnostics on the chain (Geweke test). """
         # Geweke test
         Geweke(self.samples.T)
 
@@ -873,3 +859,31 @@ class Samples(object):
         ax =  arviz.plot_violin(datadict, **kwargs)
 
         return ax
+
+    def __repr__(self) -> str: 
+        return "CUQIpy Samples:\n" + \
+               "---------------\n\n" + \
+               "Ns (number of samples):\n {}\n\n".format(self.Ns) + \
+               "Geometry:\n {}\n\n".format(self.geometry) + \
+               "Shape:\n {}\n\n".format(self.shape) + \
+               "Samples:\n {}\n\n".format(self.samples)
+
+class JointSamples(dict):
+    """ An object used to store samples from :class:`cuqi.distribution.JointDistribution`. 
+
+    This object is a simple overload of the dictionary class to allow easy access to certain methods 
+    of Samples objects without having to iterate over each key in the dictionary. 
+    
+    """
+
+    def burnthin(self, Nb, Nt=1):
+        """ Remove burn-in and thin samples for all samples in the dictionary. Returns a copy of the samples stored in the dictionary. """
+        return JointSamples({key: samples.burnthin(Nb, Nt) for key, samples in self.items()})
+
+    def __repr__(self) -> str: 
+        return "CUQIpy JointSamples Dict:\n" + \
+               "-------------------------\n\n" + \
+               "Keys:\n {}\n\n".format(list(self.keys())) + \
+               "Ns (number of samples):\n {}\n\n".format({key: samples.Ns for key, samples in self.items()}) + \
+               "Geometry:\n {}\n\n".format({key: samples.geometry for key, samples in self.items()}) + \
+               "Shape:\n {}\n\n".format({key: samples.shape for key, samples in self.items()})

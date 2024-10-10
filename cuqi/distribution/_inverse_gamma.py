@@ -8,9 +8,11 @@ class InverseGamma(Distribution):
     """
     Multivariate inverse gamma distribution of independent random variables x_i. Each is distributed according to the PDF function
 
-    f(x) = (x-location)^(-shape-1) * exp(-scale/(x-location)) / (scale^(-shape)*Gamma(shape))
+    .. math::
 
-    where shape, location and scale are the shape, location and scale of x_i, respectively. And Gamma is the Gamma function.
+        f(x) = (x-\\beta)^{(-\\alpha-1)} * \exp(-\\gamma/(x-\\beta)) / (\\gamma^{(-\\alpha)}*\Gamma(\\alpha))
+
+    where shape :math:`\\alpha`, location :math:`\\beta` and scale :math:`\\gamma` are the shape, location and scale of x_i, respectively. And :math:`\Gamma` is the Gamma function.
 
     Parameters
     ------------
@@ -23,14 +25,6 @@ class InverseGamma(Distribution):
     scale: float or array_like
         The scale of the inverse gamma distribution (non-negative)
 
-    
-    Methods
-    -----------
-    sample: generate one or more random samples
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    cdf: evaluate cumulative probability function
-    
     Example
     -------
     .. code-block:: python

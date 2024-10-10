@@ -2,9 +2,9 @@ import scipy as sp
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 
-class UGLANew(SamplerNew):
+class UGLA(Sampler):
     """ Unadjusted (Gaussian) Laplace Approximation sampler
     
     Samples an approximate posterior where the prior is approximated
@@ -151,7 +151,6 @@ class UGLANew(SamplerNew):
         if not isinstance(self.prior, cuqi.distribution.LMRF):
             raise ValueError('Unadjusted Gaussian Laplace approximation (UGLA) requires LMRF prior')
         
-    @property
-    def _default_initial_point(self):
+    def _get_default_initial_point(self, dim):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
-        return np.zeros(self.dim)
+        return np.zeros(dim)
