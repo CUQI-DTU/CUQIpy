@@ -28,6 +28,73 @@ def test_Normal_sample_regression(mean,var,expected):
     target = np.array(expected).T
     assert np.allclose( samples.samples, target)
 
+@pytest.mark.parametrize("mean,std,points,expected",[
+                            (0,1,[-1,0,1],[1,0,-1]),
+   (np.array([0,0]),np.array([1,1]),[[-1,0],[0,0],[0,-1]], [[1,0],[0,0],[0,1]])])
+def test_Normal_gradient(mean,std,points,expected):
+    p = cuqi.distribution.Normal(mean,std)
+    for point, grad in zip(points, expected):
+        assert np.allclose(p.gradient(point), grad)
+
+@pytest.mark.parametrize("mean,std,low,high,points",[(0.0, 
+                                               1.0,
+                                               -1.0,
+                                               1.0,
+                                               [-1.5, -0.5, 0.5, 1.5]),
+                                              (np.array([0.0, 0.0]), 
+                                               np.array([1.0, 1.0]),
+                                               np.array([-1.0, -1.0]),
+                                               np.array([1.0, 1.0]),
+                                               [np.array([-0.5, 0.0]),
+                                                np.array([0.5, 0.0]),
+                                                np.array([-2.0, 0.0]),
+                                                np.array([2.0, 0.0])])])
+def test_TruncatedNormal_logpdf(mean,std,low,high,points):
+    x_trun = cuqi.distribution.TruncatedNormal(mean,std,low=low,high=high)
+    x = cuqi.distribution.Normal(mean,std)
+    for point in points:
+        if np.all(point >= low) and np.all(point <= high):
+            assert x_trun.logpdf(point) == approx(x.logpdf(point))
+        else:
+            assert np.isneginf(x_trun.logpdf(point))
+
+@pytest.mark.parametrize("mean,std,low,high,points",[(0.0, 
+                                               1.0,
+                                               -1.0,
+                                               1.0,
+                                               [-1.5, -0.5, 0.5, 1.5]),
+                                              (np.array([0.0, 0.0]), 
+                                               np.array([1.0, 1.0]),
+                                               np.array([-1.0, -1.0]),
+                                               np.array([1.0, 1.0]),
+                                               [np.array([-0.5, 0.0]),
+                                                np.array([0.5, 0.0]),
+                                                np.array([-2.0, 0.0]),
+                                                np.array([2.0, 0.0])])])
+def test_TruncatedNormal_gradient(mean,std,low,high,points):
+    x_trun = cuqi.distribution.TruncatedNormal(mean,std,low=low,high=high)
+    x = cuqi.distribution.Normal(mean,std)
+    for point in points:
+        if np.all(point >= low) and np.all(point <= high):
+            assert np.all(x_trun.gradient(point) == approx(x.gradient(point)))
+        else:
+            assert np.all(np.isnan(x_trun.gradient(point)))
+
+@pytest.mark.parametrize("mean,std,low,high",[(0.0, 
+                                               1.0,
+                                               -1.0,
+                                               1.0),
+                                              (np.array([0.0, 0.0]), 
+                                               np.array([1.0, 1.0]),
+                                               np.array([-1.0, -1.0]),
+                                               np.array([1.0, 1.0]))])
+def test_TruncatedNormal_sampling(mean,std,low,high):
+    x = cuqi.distribution.TruncatedNormal(mean,std,low=low,high=high)
+    samples = x.sample(10000).samples
+    for i in range(samples.shape[1]):
+        sample = samples[:,i]
+        assert np.all(sample >= low) and np.all(sample <= high)
+
 def test_Gaussian_mean():
     mean = np.array([0, 0])
     std = np.array([1, 1])
