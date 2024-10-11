@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCN.geometry
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: PCN.geometry

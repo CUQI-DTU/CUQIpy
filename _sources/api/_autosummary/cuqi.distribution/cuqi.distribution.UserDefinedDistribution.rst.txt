@@ -1,0 +1,46 @@
+UserDefinedDistribution
+=======================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: UserDefinedDistribution
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UserDefinedDistribution.__init__
+      ~UserDefinedDistribution.disable_FD
+      ~UserDefinedDistribution.enable_FD
+      ~UserDefinedDistribution.get_conditioning_variables
+      ~UserDefinedDistribution.get_mutable_variables
+      ~UserDefinedDistribution.get_parameter_names
+      ~UserDefinedDistribution.gradient
+      ~UserDefinedDistribution.logd
+      ~UserDefinedDistribution.logpdf
+      ~UserDefinedDistribution.pdf
+      ~UserDefinedDistribution.sample
+      ~UserDefinedDistribution.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UserDefinedDistribution.FD_enabled
+      ~UserDefinedDistribution.FD_epsilon
+      ~UserDefinedDistribution.dim
+      ~UserDefinedDistribution.geometry
+      ~UserDefinedDistribution.is_cond
+      ~UserDefinedDistribution.name
+   
+   

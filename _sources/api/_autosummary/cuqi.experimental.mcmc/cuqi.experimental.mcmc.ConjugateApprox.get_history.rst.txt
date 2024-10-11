@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.get\_history
+===================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApprox.get_history

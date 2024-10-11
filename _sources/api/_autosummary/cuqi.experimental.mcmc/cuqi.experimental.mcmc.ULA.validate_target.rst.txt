@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.validate\_target
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.validate_target

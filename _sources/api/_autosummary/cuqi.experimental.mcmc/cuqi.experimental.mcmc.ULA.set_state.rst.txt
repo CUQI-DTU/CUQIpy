@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.set\_state
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.set_state

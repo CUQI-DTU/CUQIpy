@@ -1,0 +1,6 @@
+cuqi.solver.L\_BFGS\_B.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: L_BFGS_B.__init__

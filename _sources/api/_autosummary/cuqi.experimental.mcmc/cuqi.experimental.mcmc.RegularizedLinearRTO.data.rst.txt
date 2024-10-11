@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTO.data
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: RegularizedLinearRTO.data

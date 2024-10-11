@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSampler.proposal
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ProposalBasedSampler.proposal
