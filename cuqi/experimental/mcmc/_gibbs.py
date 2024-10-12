@@ -221,6 +221,8 @@ class HybridGibbs:
             # Extract state and history from sampler
             if isinstance(sampler, NUTS): # Special case for NUTS as it is not playing nice with get_state and get_history
                 sampler.initial_point = sampler.current_point
+                max_depth = sampler.max_depth
+                enable_FD = sampler._enable_FD
             else:
                 sampler_state = sampler.get_state()
                 sampler_history = sampler.get_history()
@@ -229,7 +231,10 @@ class HybridGibbs:
             sampler.reinitialize()
 
             # Set state and history back to sampler
-            if not isinstance(sampler, NUTS): # Again, special case for NUTS.
+            if isinstance(sampler, NUTS): # Again, special case for NUTS.
+                sampler._enable_FD = enable_FD
+                sampler.max_depth = max_depth
+            else:
                 sampler.set_state(sampler_state)
                 sampler.set_history(sampler_history)
 
