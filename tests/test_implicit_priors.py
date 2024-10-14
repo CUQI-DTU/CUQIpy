@@ -28,7 +28,43 @@ def test_RegularizedGaussian_guarding_statements():
 
     with pytest.raises(ValueError, match="Projector should take 1 argument"):
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, projector=lambda s,z: s)
+        
+def test_creating_restorator():
+    """ Test creating the object from restorator class."""
 
+    def func(x, restoration_strength=0.1):
+        return x, True
+    restorator = cuqi.implicitprior.RestorationPrior(func)
+    assert np.allclose(restorator.restore(np.ones(4), 0.1), np.ones(4))
+    assert restorator.info == True
+
+
+def test_creating_restorator_with_potential():
+    """ Test creating the object from restorator class with a potential."""
+
+    def func(x, restoration_strength=1):
+        return x/(1+restoration_strength), True
+    def potential(x):
+        return (x**2).sum()/2
+    restorator = cuqi.implicitprior.RestorationPrior(restorator=func, potential=potential)
+    assert np.allclose(restorator.restore(np.ones(1), restoration_strength=1), np.ones(1)/(1+1))
+    assert restorator.info == True
+    assert restorator.logpdf(np.ones(4)) == -2
+    
+
+def test_creating_moreau_yoshida_prior_gradient():
+    """ Test creating MoreauYoshidaPrior."""
+
+    def func(x, restoration_strength=1):
+        return x/(1+restoration_strength), True
+    def potential(x):
+        return (x**2).sum()/2
+    restorator = cuqi.implicitprior.RestorationPrior(func,
+                                                    potential=potential)
+    myprior = cuqi.implicitprior.MoreauYoshidaPrior(restorator, smoothing_strength=0.1)
+    assert np.allclose(myprior.gradient(np.ones(1)), -np.ones(1)/(1+myprior.smoothing_strength))
+    assert myprior.logpdf(np.ones(1)) == -0.5*myprior.smoothing_strength/(1+myprior.smoothing_strength)
+            
 def test_ConstrainedGaussian_alias():
     """ Test that the implicit constrained Gaussian is a correct allias for an implicit regularized Gaussian """
 
