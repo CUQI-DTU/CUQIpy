@@ -72,6 +72,24 @@ class TruncatedNormal(Distribution):
         if hasattr(self, '_normal'):
             self._normal.std = self._std
 
+    @property
+    def low(self):
+        """ Lower bound of the distribution """
+        return self._low
+
+    @low.setter
+    def low(self, value):
+        self._low = force_ndarray(value, flatten=True)
+
+    @property
+    def high(self):
+        """ Higher bound of the distribution """
+        return self._high
+
+    @high.setter
+    def high(self, value):
+        self._high = force_ndarray(value, flatten=True)
+
     def logpdf(self, x):
         """
         Computes the unnormalized logpdf at the given values of x.
