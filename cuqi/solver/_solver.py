@@ -644,6 +644,7 @@ class FISTA(object):
             x_new = self.proximal(x_old-stepsize*grad, stepsize)
                         
             if LA.norm(x_new-x_old) <= self.abstol or (k >= self.maxit):
+                # print("Stoped at iteration ", k)
                 return x_new, k
             
             if self.adaptive:

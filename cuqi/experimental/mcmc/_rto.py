@@ -227,6 +227,7 @@ class RegularizedLinearRTO(LinearRTO):
                 raise ValueError("Stepsize choice not supported")
         else:
             _stepsize = self.stepsize
+        print("Stepsize: ", _stepsize)
         return _stepsize
 
     @property
@@ -235,7 +236,11 @@ class RegularizedLinearRTO(LinearRTO):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = FISTA(self.M, y, self.current_point, self.proximal,
+
+        ws_sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)   
+        x0, _ = ws_sim.solve()
+
+        sim = FISTA(self.M, y, x0, self.proximal,
                     maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
         self.current_point, _ = sim.solve()
         acc = 1
