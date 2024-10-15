@@ -58,7 +58,8 @@ class TruncatedNormal(Distribution):
     @mean.setter
     def mean(self, value):
         self._mean = force_ndarray(value, flatten=True)
-        self._normal.mean = self._mean
+        if hasattr(self, '_normal'):
+            self._normal.mean = self._mean
 
     @property
     def std(self):
@@ -68,7 +69,8 @@ class TruncatedNormal(Distribution):
     @std.setter
     def std(self, value):
         self._std = force_ndarray(value, flatten=True)
-        self._normal.std = self._std
+        if hasattr(self, '_normal'):
+            self._normal.std = self._std
 
     def logpdf(self, x):
         """
