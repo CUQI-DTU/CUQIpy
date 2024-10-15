@@ -43,7 +43,7 @@ class Normal(Distribution):
         """ Std of the distribution """
         return self._std
 
-    @mean.setter
+    @std.setter
     def std(self, value):
         self._std = force_ndarray(value, flatten=True)
 

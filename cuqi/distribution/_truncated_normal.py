@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.special import erf
+from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
 from cuqi.distribution import Normal
 
@@ -48,6 +49,26 @@ class TruncatedNormal(Distribution):
 
         # Init underlying normal distribution
         self._normal = Normal(self.mean, self.std, is_symmetric=is_symmetric, **kwargs)
+
+    @property
+    def mean(self):
+        """ Mean of the distribution """
+        return self._mean
+
+    @mean.setter
+    def mean(self, value):
+        self._mean = force_ndarray(value, flatten=True)
+        self._normal.mean = self._mean
+
+    @property
+    def std(self):
+        """ Std of the distribution """
+        return self._std
+
+    @std.setter
+    def std(self, value):
+        self._std = force_ndarray(value, flatten=True)
+        self._normal.std = self._std
 
     def logpdf(self, x):
         """
