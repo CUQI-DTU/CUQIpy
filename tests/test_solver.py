@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import CGLS, LM, FISTA, ProximalL1
+from cuqi.solver import CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
 from scipy.optimize import lsq_linear
 
 
@@ -54,8 +54,27 @@ def test_FISTA():
     
     stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
     x0 = np.zeros(n)
-    sol, _ = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True).solve()
+    sol, _ = FISTA(A, b, ProximalL1, x0, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True).solve()
 
     ref_sol = np.array([-1.83273787e-03, -1.72094582e-13,  0.0, -3.35835639e-01, -1.27795593e-01])
+    # Compare
+    assert np.allclose(sol, ref_sol, atol=1e-4)
+
+def test_ADMM():
+    # Parameters
+    rng = np.random.default_rng(seed = 42)
+    m, n = 10, 5
+    A = rng.standard_normal((m, n))
+    b = rng.standard_normal(m)
+    
+    k = 4
+    L = rng.standard_normal((k, n))
+
+    stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
+    x0 = np.zeros(n)
+    sol, _ = ADMM(A, b, [(ProximalL1, np.eye(n)), (lambda z, _ : ProjectNonnegative(z), L)],
+                   x0, 10, maxit = 100, adaptive = True).solve()
+
+    ref_sol = np.array([-3.99513417e-03, -1.32339656e-01, -4.52822633e-02, -7.44973888e-02, -3.35005208e-11])
     # Compare
     assert np.allclose(sol, ref_sol, atol=1e-4)
