@@ -230,6 +230,9 @@ class RegularizedLinearRTO(LinearRTO):
     adaptive : boolean
         Whether to use an adaptive version of the inner solver.
 
+    warmstart_CGLS : boolean
+        Whether to use CGLS to compute the unregularized sample and use this as the warm-start for the solver instead of using the previous sample.
+
     callback : callable, *Optional*
         If set this function will be called after every sample.
         The signature of the callback function is `callback(sample, sample_index)`,

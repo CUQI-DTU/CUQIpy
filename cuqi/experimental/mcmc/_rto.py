@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS, FISTA, ADMM
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -175,11 +175,17 @@ class RegularizedLinearRTO(LinearRTO):
         If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
         If stepsize is a float, then this stepsize is used.
 
+    tradeoff : float
+        Trade-off parameter used by the inner ADMM solver.
+
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
     
     adaptive : bool
         If True, FISTA is used as inner solver, otherwise ISTA is used. *Optional*.
+        
+    warmstart_CGLS : boolean
+        Whether to use CGLS to compute the unregularized sample and use this as the warm-start for the solver instead of using the previous sample.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -188,19 +194,22 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", tradeoff = 10, abstol=1e-10, adaptive=True, warmstart_CGLS = False, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
+        self.rho = tradeoff
         self.abstol = abstol   
         self.adaptive = adaptive
         self.maxit = maxit
+        self.warmstart_CGLS = warmstart_CGLS
 
     def _initialize(self):
         super()._initialize()
-        self._stepsize = self._choose_stepsize()
+        if callable(self.proximal):
+            self._stepsize = self._choose_stepsize()
 
     @property
     def proximal(self):
@@ -210,8 +219,12 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
+        
+        # FIXME: Temporarily disable safety check for implementation ADMM
+        """
         if not callable(self.proximal):
             raise TypeError("Proximal needs to be callable")
+        """
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -235,8 +248,20 @@ class RegularizedLinearRTO(LinearRTO):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = FISTA(self.M, y, self.proximal, self.current_point,
-                    maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+
+        if self.warmstart_CGLS:
+            ws_sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol, self.shift)            
+            x0, _ = ws_sim.solve()
+        else:
+            x0 = self.current_point
+
+        
+        if callable(self.proximal):
+            sim = FISTA(self.M, y, self.proximal, self.current_point,
+                        maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)     
+        else:
+            sim = ADMM(self.M, y, self.proximal, x0, self.rho, maxit = self.maxit, adaptive = self.adaptive)
+
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
