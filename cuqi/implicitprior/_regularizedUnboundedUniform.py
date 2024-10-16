@@ -50,11 +50,13 @@ class RegularizedUnboundedUniform(RegularizedGaussian):
                         Regularization parameter, i.e., strength*||x||_1 , defaults to one
 
         """
-        def __init__(self, geometry, proximal = None, projector = None, constraint = None, regularization = None, **kwargs):
+        def __init__(self, geometry, proximal = None, projector = None, constraint = None, regularization = None, force_list = False, **kwargs):
                 
                 args = {"lower_bound" : kwargs.pop("lower_bound", None),
                         "upper_bound" : kwargs.pop("upper_bound", None),
                         "strength" : kwargs.pop("strength", None)}
+        
+                self._force_list = force_list
 
                 # Underlying explicit Gaussian
                 # This line throws a warning due trying to applying get_sqrtprec_from_sqrtprec to an all zero matrix  

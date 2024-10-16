@@ -39,7 +39,7 @@ def test_ConstrainedGaussian_alias():
     x = cuqi.implicitprior.ConstrainedGaussian(np.zeros(5), 1, constraint="nonnegativity")
 
     assert isinstance(x, cuqi.implicitprior.RegularizedGaussian)
-    assert x.preset == "nonnegativity"
+    assert x.preset is not None and x.preset["constraint"] == "nonnegativity" and x.preset["regularization"] is None
 
 def test_NonnegativeGaussian_alias():
     """ Test that the implicit nonnegative Gaussian is a correct allias for an implicit regularized Gaussian """
@@ -47,7 +47,7 @@ def test_NonnegativeGaussian_alias():
     x = cuqi.implicitprior.NonnegativeGaussian(np.zeros(5), 1)
 
     assert isinstance(x, cuqi.implicitprior.RegularizedGaussian)
-    assert x.preset == "nonnegativity"
+    assert x.preset is not None and x.preset["constraint"] == "nonnegativity" and x.preset["regularization"] is None
 
 def test_ConstrainedGMRF_alias():
     """ Test that the implicit constrained GMRF is a correct allias for an implicit regularized GMRF """
@@ -55,7 +55,7 @@ def test_ConstrainedGMRF_alias():
     x = cuqi.implicitprior.ConstrainedGMRF(np.zeros(5), 1, constraint="nonnegativity")
 
     assert isinstance(x, cuqi.implicitprior.RegularizedGMRF)
-    assert x.preset == "nonnegativity"
+    assert x.preset is not None and x.preset["constraint"] == "nonnegativity" and x.preset["regularization"] is None
 
 def test_NonnegativeGMRF_alias():
     """ Test that the implicit nonnegative GMRF is a correct allias for an implicit regularized GMRF """
@@ -63,7 +63,7 @@ def test_NonnegativeGMRF_alias():
     x = cuqi.implicitprior.NonnegativeGMRF(np.zeros(5), 1)
 
     assert isinstance(x, cuqi.implicitprior.RegularizedGMRF)
-    assert x.preset == "nonnegativity"
+    assert x.preset is not None and x.preset["constraint"] == "nonnegativity" and x.preset["regularization"] is None
 
 def test_RegularizedUnboundedUniform_is_RegularizedGaussian():
     """ Test that the implicit regularized unbounded uniform create a Regularized Gaussian with zero sqrtprec """
