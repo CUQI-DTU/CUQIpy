@@ -267,8 +267,8 @@ class RegularizedLinearRTO(LinearRTO):
         samples[:, 0] = self.x0
         for s in range(Ns-1):
             y = self.b_tild + np.random.randn(len(self.b_tild))
-            sim = FISTA(self.M, y, samples[:, s], self.proximal,
-                        maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+            sim = FISTA(self.M, y, self.proximal,
+                        samples[:, s], maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
             samples[:, s+1], _ = sim.solve()
             
             self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
