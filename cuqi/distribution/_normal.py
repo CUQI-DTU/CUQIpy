@@ -1,4 +1,5 @@
 import numpy as np
+import numbers
 from scipy.special import erf
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
@@ -61,9 +62,14 @@ class Normal(Distribution):
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
         if not callable(self.mean):
             return -(val-self.mean)/(self.std**2)
+        elif hasattr(self.mean, "gradient"): # for likelihood
+            model = self.mean
+            dev = val - model.forward(*args, **kwargs)
+            if isinstance(dev, numbers.Number):
+                dev = np.array([dev])
+            return model.gradient(1.0/(np.array(self.std)) @ dev, *args, **kwargs)
         else:
             raise NotImplementedError("Gradient not implemented for distribution {} with location {}".format(self,self.mean))
-
 
     def _sample(self,N=1, rng=None):
 
