@@ -142,7 +142,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
 
-        if self.target.likelihood.distribution.preset not in ["nonnegativity"]:
+        if self.target.likelihood.distribution.preset is not None and self.target.likelihood.distribution.preset["constraint"] not in ["nonnegativity"]:
             raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
         key, value = _get_conjugate_parameter(self.target)
