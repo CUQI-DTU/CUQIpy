@@ -310,3 +310,86 @@ def test_MultipleLikelihoodPosterior_should_raise_if_names_do_not_match():
     with pytest.raises(ValueError, match=r"the same parameter name"):
         cuqi.distribution.MultipleLikelihoodPosterior(y.to_likelihood(1), x, z)
 
+@pytest.mark.parametrize("joint, variables", [
+    (
+        cuqi.distribution.JointDistribution(
+            cuqi.distribution.Normal(0, 1, name="x"),
+            cuqi.distribution.Normal(0, 1, name="y")
+        ),
+        {
+            "x": 0,
+            "y": 0
+        }
+    ),
+    (
+        cuqi.distribution.JointDistribution(
+            cuqi.distribution.Uniform(0, 10, name="d"),
+            cuqi.distribution.Uniform(0, 5, name="s"),
+            cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+            cuqi.distribution.Gaussian(
+                mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
+                cov=lambda s: s,
+                name="y"
+            )
+        ),
+        {
+            "d": 5,
+            "s": 2,
+            "x": np.zeros(8),
+            "y": cuqi.testproblem.Deconvolution1D(dim=8).data
+        }
+    ),
+    (
+        cuqi.distribution.JointDistribution(
+            cuqi.distribution.Uniform(0, 10, name="d"),
+            cuqi.distribution.Uniform(0, 5, name="s"),
+            cuqi.distribution.Gaussian(np.zeros(8), lambda d: d, name="x"),
+            cuqi.distribution.Gaussian(
+                mean=cuqi.testproblem.Deconvolution1D(dim=8).model,
+                cov=lambda s: s,
+                name="y"
+            )
+        ),
+        {
+            "d": 11, # Out of bounds (all should return -Inf)
+            "s": 2,
+            "x": np.zeros(8),
+            "y": cuqi.testproblem.Deconvolution1D(dim=8).data
+        }
+    )
+    ]
+)
+def test_logd_consistency_when_conditioning(joint, variables):
+    """ Test consistency of logd value when conditioning the joint distribution.
+     
+    This ensures we always return the correct value for logd even when reducing to single density.
+    
+    """
+
+    # True value of logd by fully evaluating the joint distribution
+    true_value = joint.logd(**variables)
+
+    # Loop over all variables and evaluate the logd value
+    # where all previously seen variables are conditioned
+    # and not seen variables are given to logd.
+    cond_vars = {}
+    for key, value in variables.items():
+        # Remaining variables are those that are not used for conditioning
+        remaining_vars = {k: v for k, v in variables.items() if k not in cond_vars}
+        
+        # Condition the joint distribution
+        cond_joint = joint(**cond_vars)
+
+        # Evaluate the logd value of conditioned joint distribution
+        # This may be a single density or a joint distribution since
+        # joint can reduce to single density (such as Posterior)
+        logd_value = cond_joint.logd(**remaining_vars)
+
+        # Potential error message if this assert fails:
+        msg = f"Evaluated: \n {joint} \n with variables {variables}.\nFailed at {key}={value} for \n {cond_joint} \n with variables {remaining_vars}."
+        
+        # Assert the logd value matches
+        assert logd_value == pytest.approx(true_value, rel=1e-6), msg
+
+        # Add current variable to the variables that need to be conditioned
+        cond_vars[key] = value

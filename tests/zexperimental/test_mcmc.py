@@ -6,7 +6,7 @@ from numbers import Number
 
 def assert_true_if_sampling_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
-        sampler_new: cuqi.experimental.mcmc.SamplerNew,
+        sampler_new: cuqi.experimental.mcmc.Sampler,
         Ns=20, atol=1e-1, old_idx=[1, None], new_idx=[0, -1]):
     """ Assert that the samples from the old and new sampler are equivalent.
 
@@ -38,7 +38,7 @@ def assert_true_if_sampling_is_equivalent(
 
 def assert_true_if_warmup_is_equivalent(
         sampler_old: cuqi.sampler.Sampler,
-        sampler_new: cuqi.experimental.mcmc.SamplerNew,
+        sampler_new: cuqi.experimental.mcmc.Sampler,
         Ns=20, Nb=20,
         strategy="MH_like", old_idx=[1, None], new_idx=[0, None]):
     """ Assert that the samples from the old and new sampler are equivalent.
@@ -106,14 +106,14 @@ targets = [
 def test_MH_regression_sample(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.MHNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MH(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MH_regression_warmup(target: cuqi.density.Density):
     """Test the MH sampler regression."""
     sampler_old = cuqi.sampler.MH(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.MHNew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MH(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ PCN ============
@@ -122,14 +122,14 @@ def test_MH_regression_warmup(target: cuqi.density.Density):
 def test_pCN_regression_sample(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=0.001)
-    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=0.001)
+    sampler_new = cuqi.experimental.mcmc.PCN(target, scale=0.001)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_pCN_regression_warmup(target: cuqi.density.Density):
     """Test the pCN sampler regression."""
     sampler_old = cuqi.sampler.pCN(target, scale=0.001)
-    sampler_new = cuqi.experimental.mcmc.PCNNew(target, scale=0.001)
+    sampler_new = cuqi.experimental.mcmc.PCN(target, scale=0.001)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ ULA ============
@@ -138,14 +138,14 @@ def test_pCN_regression_warmup(target: cuqi.density.Density):
 def test_ULA_regression_sample(target: cuqi.density.Density):
     """Test the ULA sampler regression."""
     sampler_old = cuqi.sampler.ULA(target, scale=0.1)
-    sampler_new = cuqi.experimental.mcmc.ULANew(target, scale=0.1)
+    sampler_new = cuqi.experimental.mcmc.ULA(target, scale=0.1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_ULA_regression_warmup(target: cuqi.density.Density):
     """Test the ULA sampler regression."""
     sampler_old = cuqi.sampler.ULA(target, scale=0.001)
-    sampler_new = cuqi.experimental.mcmc.ULANew(target, scale=0.001)
+    sampler_new = cuqi.experimental.mcmc.ULA(target, scale=0.001)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ MALA ============
@@ -154,14 +154,14 @@ def test_ULA_regression_warmup(target: cuqi.density.Density):
 def test_MALA_regression_sample(target: cuqi.density.Density):
     """Test the MALA sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MALA(target, scale=1)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", targets)
 def test_MALA_regression_warmup(target: cuqi.density.Density):
     """Test the MALA sampler regression."""
     sampler_old = cuqi.sampler.MALA(target, scale=1)
-    sampler_new = cuqi.experimental.mcmc.MALANew(target, scale=1)
+    sampler_new = cuqi.experimental.mcmc.MALA(target, scale=1)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ LinearRTO ============
@@ -189,14 +189,14 @@ LinearRTO_targets = targets + [
 def test_LinearRTO_regression_sample(target: cuqi.density.Density):
     """Test the LinearRTO sampler regression."""
     sampler_old = cuqi.sampler.LinearRTO(target)
-    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTO(target)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", LinearRTO_targets)
 def test_LinearRTO_regression_warmup(target: cuqi.density.Density):
     """Test the LinearRTO sampler regression."""
     sampler_old = cuqi.sampler.LinearRTO(target)
-    sampler_new = cuqi.experimental.mcmc.LinearRTONew(target)
+    sampler_new = cuqi.experimental.mcmc.LinearRTO(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============ RegularizedLinearRTO ============
@@ -233,7 +233,7 @@ regularized_targets = [
 def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
-    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTO(target, stepsize=1e-3)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", regularized_targets)
@@ -241,7 +241,7 @@ def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
 
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
-    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTONew(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTO(target, stepsize=1e-3)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 def create_lmrf_prior_target(dim=16):
@@ -258,7 +258,7 @@ def test_UGLA_regression_sample(target_dim):
     """Test the UGLA sampler regression."""
     target = create_lmrf_prior_target(dim=target_dim)
     sampler_old = cuqi.sampler.UGLA(target)
-    sampler_new = cuqi.experimental.mcmc.UGLANew(target)
+    sampler_new = cuqi.experimental.mcmc.UGLA(target)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target_dim", [16, 128])
@@ -266,7 +266,7 @@ def test_UGLA_regression_warmup(target_dim):
     """Test the UGLA sampler regression."""
     target = create_lmrf_prior_target(dim=target_dim)
     sampler_old = cuqi.sampler.UGLA(target)
-    sampler_new = cuqi.experimental.mcmc.UGLANew(target)
+    sampler_new = cuqi.experimental.mcmc.UGLA(target)
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 # ============== CWMH ============
@@ -275,7 +275,7 @@ def test_UGLA_regression_warmup(target_dim):
 def test_CWMH_regression_sample(target: cuqi.density.Density):
     """Test the CWMH sampler regression."""
     sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
-    sampler_new = cuqi.experimental.mcmc.CWMHNew(target,
+    sampler_new = cuqi.experimental.mcmc.CWMH(target,
                                                  scale=np.ones(target.dim))
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new,
                                           Ns=10,
@@ -286,7 +286,7 @@ def test_CWMH_regression_sample(target: cuqi.density.Density):
 def test_CWMH_regression_warmup(target: cuqi.density.Density):
     """Test the CWMH sampler regression."""
     sampler_old = cuqi.sampler.CWMH(target, scale=np.ones(target.dim))
-    sampler_new = cuqi.experimental.mcmc.CWMHNew(target,
+    sampler_new = cuqi.experimental.mcmc.CWMH(target,
                                                  scale=np.ones(target.dim))
     Ns = 100 if target.dim < 50 else 20
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new,
@@ -300,7 +300,7 @@ def test_CWMH_regression_warmup(target: cuqi.density.Density):
 def test_NUTS_regression_sample(target: cuqi.density.Density):
     """Test the HMC (NUTS) sampler regression."""
     sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=0.001)
-    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, step_size=0.001)
+    sampler_new = cuqi.experimental.mcmc.NUTS(target, step_size=0.001)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
 
 @pytest.mark.parametrize("target", targets)
@@ -308,7 +308,7 @@ def test_NUTS_regression_sample_tune_first_step_only(
     target: cuqi.density.Density):
     """Test the HMC (NUTS) sampler regression."""
     sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=False)
-    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, step_size=None)
+    sampler_new = cuqi.experimental.mcmc.NUTS(target, step_size=None)
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new, Ns=20)
 
 @pytest.mark.parametrize("target", targets)
@@ -316,7 +316,7 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
     """Test the HMC (NUTS) sampler regression (with warmup)."""
     sampler_old = cuqi.sampler.NUTS(target, adapt_step_size=True)
     sampler_old._return_burnin = True
-    sampler_new = cuqi.experimental.mcmc.NUTSNew(target, step_size=None)
+    sampler_new = cuqi.experimental.mcmc.NUTS(target, step_size=None)
     Ns = 20
     Nb = 20
     assert_true_if_warmup_is_equivalent(sampler_old,
@@ -342,25 +342,25 @@ def create_conjugate_target(type:str):
 
 # List of all samplers from cuqi.experimental.mcmc that should be tested for checkpointing + their parameters
 checkpoint_targets = [
-    cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
-    cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
-    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D().posterior),
-    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=16)),
-    cuqi.experimental.mcmc.DirectNew(cuqi.distribution.Gaussian(np.zeros(10), 1)),
-    cuqi.experimental.mcmc.ConjugateNew(create_conjugate_target("Gaussian-Gamma")),
-    cuqi.experimental.mcmc.ConjugateApproxNew(create_conjugate_target("LMRF-Gamma"))
+    cuqi.experimental.mcmc.ULA(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
+    cuqi.experimental.mcmc.MALA(cuqi.testproblem.Deconvolution1D().posterior, scale=0.0001),
+    cuqi.experimental.mcmc.LinearRTO(cuqi.testproblem.Deconvolution1D().posterior),
+    cuqi.experimental.mcmc.UGLA(create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.Direct(cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.Conjugate(create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma")),
+    cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
     
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
 skip_checkpoint = [
-    cuqi.experimental.mcmc.SamplerNew,
-    cuqi.experimental.mcmc.ProposalBasedSamplerNew,
-    cuqi.experimental.mcmc.MHNew,
-    cuqi.experimental.mcmc.PCNNew,
-    cuqi.experimental.mcmc.CWMHNew,
-    cuqi.experimental.mcmc.RegularizedLinearRTONew, # Due to the _choose_stepsize method
-    cuqi.experimental.mcmc.NUTSNew,
-    cuqi.experimental.mcmc.HybridGibbsNew
+    cuqi.experimental.mcmc.Sampler,
+    cuqi.experimental.mcmc.ProposalBasedSampler,
+    cuqi.experimental.mcmc.MH,
+    cuqi.experimental.mcmc.PCN,
+    cuqi.experimental.mcmc.CWMH,
+    cuqi.experimental.mcmc.RegularizedLinearRTO, # Due to the _choose_stepsize method
+    cuqi.experimental.mcmc.HybridGibbs
 ]
 
 def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
@@ -387,7 +387,7 @@ def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
 
 
 @pytest.mark.parametrize("sampler", checkpoint_targets)
-def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
+def test_checkpointing(sampler: cuqi.experimental.mcmc.Sampler):
     """ Check that the checkpointing functionality works. Tested with save_checkpoint(filename) and load_checkpoint(filename).
     This also implicitly tests the get_state(), set_state(), get_history(), and set_history() as well as the reset() methods.
     
@@ -423,19 +423,20 @@ def test_checkpointing(sampler: cuqi.experimental.mcmc.SamplerNew):
 
 
 state_history_targets = [
-    cuqi.experimental.mcmc.MHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
-    cuqi.experimental.mcmc.PCNNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
-    cuqi.experimental.mcmc.CWMHNew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
-    cuqi.experimental.mcmc.ULANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
-    cuqi.experimental.mcmc.MALANew(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
-    cuqi.experimental.mcmc.LinearRTONew(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.RegularizedLinearRTONew(create_regularized_target(dim=16)),
-    cuqi.experimental.mcmc.UGLANew(create_lmrf_prior_target(dim=32)),
+    cuqi.experimental.mcmc.MH(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
+    cuqi.experimental.mcmc.PCN(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
+    cuqi.experimental.mcmc.CWMH(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.001),
+    cuqi.experimental.mcmc.ULA(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
+    cuqi.experimental.mcmc.MALA(cuqi.testproblem.Deconvolution1D(dim=10).posterior, scale=0.0001),
+    cuqi.experimental.mcmc.LinearRTO(cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.RegularizedLinearRTO(create_regularized_target(dim=16)),
+    cuqi.experimental.mcmc.UGLA(create_lmrf_prior_target(dim=32)),
+    cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
 
 
 @pytest.mark.parametrize("sampler", state_history_targets)
-def test_state_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
+def test_state_keys(sampler: cuqi.experimental.mcmc.Sampler):
     """Test that the state keys match the expected keys defined in _STATE_KEYS."""
 
     # Run sampler to initialize state variables
@@ -454,7 +455,7 @@ def test_state_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
     assert actual_keys == expected_keys, f"State keys mismatch. Expected: {expected_keys}, Actual: {actual_keys}"
 
 @pytest.mark.parametrize("sampler", state_history_targets)
-def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
+def test_history_keys(sampler: cuqi.experimental.mcmc.Sampler):
     """Test that the history keys match the expected keys defined in _HISTORY_KEYS."""
 
     # Run sampler to initialize history variables
@@ -475,12 +476,13 @@ def test_history_keys(sampler: cuqi.experimental.mcmc.SamplerNew):
 # Dictionary to store keys that are not expected to be updated after warmup.
 # Likely due to not implemented feature in the sampler.
 state_exception_keys = {
-    cuqi.experimental.mcmc.ULANew: 'scale',
-    cuqi.experimental.mcmc.MALANew: 'scale',
+    cuqi.experimental.mcmc.ULA: 'scale',
+    cuqi.experimental.mcmc.MALA: 'scale',
+    cuqi.experimental.mcmc.NUTS: 'max_depth'
 }
 
 @pytest.mark.parametrize("sampler", state_history_targets)
-def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcmc.SamplerNew):
+def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcmc.Sampler):
     """ Test that the state is fully updated after a warmup step.
     
     This also checks that the samplers use (or at least update) all the keys defined in _STATE_KEYS.
@@ -528,23 +530,23 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.experimental.mcm
 initialize_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
-    if cls not in [cuqi.experimental.mcmc.SamplerNew, cuqi.experimental.mcmc.ProposalBasedSamplerNew, cuqi.experimental.mcmc.HybridGibbsNew]
+    if cls not in [cuqi.experimental.mcmc.Sampler, cuqi.experimental.mcmc.ProposalBasedSampler, cuqi.experimental.mcmc.HybridGibbs]
 ]
 
 # Instances of samplers that should be tested for target=None initialization consistency
 initialize_testing_sampler_instances = [
-    cuqi.experimental.mcmc.MHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.PCNNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.CWMHNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.ULANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.MALANew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.NUTSNew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.LinearRTONew(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
-    cuqi.experimental.mcmc.RegularizedLinearRTONew(target=create_regularized_target(dim=16)),
-    cuqi.experimental.mcmc.UGLANew(target=create_lmrf_prior_target(dim=16)),
-    cuqi.experimental.mcmc.DirectNew(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
-    cuqi.experimental.mcmc.ConjugateNew(target=create_conjugate_target("Gaussian-Gamma")),
-    cuqi.experimental.mcmc.ConjugateApproxNew(target=create_conjugate_target("LMRF-Gamma"))
+    cuqi.experimental.mcmc.MH(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.PCN(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.CWMH(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.ULA(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.MALA(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.NUTS(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.LinearRTO(target=cuqi.testproblem.Deconvolution1D(dim=10).posterior),
+    cuqi.experimental.mcmc.RegularizedLinearRTO(target=create_regularized_target(dim=16)),
+    cuqi.experimental.mcmc.UGLA(target=create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.Direct(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.Conjugate(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApprox(target=create_conjugate_target("LMRF-Gamma"))
 ]
 
 
@@ -555,7 +557,7 @@ def test_target_None_init_in_samplers(sampler_class):
     assert sampler.target is None, f"Sampler {sampler_class} failed to initialize with target=None"
 
 @pytest.mark.parametrize("sampler_class", initialize_testing_sampler_classes)
-def test_sampler_initialization_consistency(sampler_class: cuqi.experimental.mcmc.SamplerNew):
+def test_sampler_initialization_consistency(sampler_class: cuqi.experimental.mcmc.Sampler):
     """ Test that all samplers initialized with target=None and target set later is equivalent to initializing with target right away. """
 
     # Find sampler instance that matches the sampler class
@@ -593,7 +595,8 @@ def compare_attributes(attr1, attr2, key=''):
             for k in attr1.keys():
                 compare_attributes(attr1[k], attr2[k], f"{key}['{k}']")
         elif isinstance(attr1, Number):
-            assert np.allclose(attr1, attr2), f"Number: Attribute '{key}' differs after initialization"
+            assert (np.isnan(attr1) and np.isnan(attr2)) \
+                or np.allclose(attr1, attr2), f"Number: Attribute '{key}' differs after initialization"
         elif isinstance(attr1, str):
             assert attr1 == attr2, f"String: Attribute '{key}' differs after initialization"
         else:
@@ -631,7 +634,7 @@ def test_sampler_reinitialization_restores_to_initial_configuration(sampler_clas
 
 def test_conjugate_invalid_target_type():
     """ Test that the Conjugate sampler requires a target of type Posterior. """
-    sampler = cuqi.experimental.mcmc.ConjugateNew()
+    sampler = cuqi.experimental.mcmc.Conjugate()
     invalid_target = cuqi.distribution.Gaussian(0, 1) # Not a Posterior
     with pytest.raises(TypeError, match="Conjugate sampler requires a target of type Posterior"):
         sampler.target = invalid_target
@@ -643,7 +646,7 @@ def test_conjugate_invalid_pair():
     posterior = cuqi.distribution.Posterior(likelihood, prior)
 
     with pytest.raises(ValueError, match="Conjugacy is not defined for likelihood"):
-        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+        cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def test_conjugate_wrong_name_for_conjugate_parameter():
     """ Test that useful error message is raised when name of conjugate parameter is wrong. """
@@ -652,7 +655,7 @@ def test_conjugate_wrong_name_for_conjugate_parameter():
     posterior.likelihood.distribution.cov = lambda d: 1/d
 
     with pytest.raises(ValueError, match="Unable to find conjugate parameter"):
-        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+        cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def test_conjugate_wrong_var_for_conjugate_parameter():
     """ Test that useful error message is raised when conjugate parameter is defined on wrong mutable variable. """
@@ -661,7 +664,7 @@ def test_conjugate_wrong_var_for_conjugate_parameter():
     posterior =  cuqi.distribution.Posterior(y.to_likelihood([0]), s)
 
     with pytest.raises(ValueError, match="Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision"):
-        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+        cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def test_conjugate_wrong_equation_for_conjugate_parameter():
     """ Test that useful error message is raised when equation for conjugate parameter is not supported. """
@@ -670,7 +673,7 @@ def test_conjugate_wrong_equation_for_conjugate_parameter():
     posterior.likelihood.distribution.cov = lambda s: s
 
     with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"):
-        cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+        cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_func):
     """ Create a target with invalid conjugate parameter equations. """
@@ -727,22 +730,22 @@ def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target
     
     with pytest.raises(ValueError, match=expected_error):
         if target_type == "lmrf-gamma":
-            cuqi.experimental.mcmc.ConjugateApproxNew(target=posterior)
+            cuqi.experimental.mcmc.ConjugateApprox(target=posterior)
         else:
-            cuqi.experimental.mcmc.ConjugateNew(target=posterior)
+            cuqi.experimental.mcmc.Conjugate(target=posterior)
 def test_find_valid_samplers_linearGaussianGaussian():
     target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
     
-    assert(set(valid_samplers) == set(['CWMHNew', 'LinearRTONew', 'MALANew', 'MHNew', 'NUTSNew', 'PCNNew', 'ULANew']))
+    assert(set(valid_samplers) == set(['CWMH', 'LinearRTO', 'MALA', 'MH', 'NUTS', 'PCN', 'ULA']))
 
 def test_find_valid_samplers_nonlinearGaussianGaussian():
     posterior = cuqi.testproblem.Poisson1D(dim=2).posterior
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(posterior)
 
-    print(set(valid_samplers) == set(['CWMHNew', 'MHNew', 'PCNNew']))
+    print(set(valid_samplers) == set(['CWMH', 'MH', 'PCN']))
 
 def test_find_valid_samplers_conjugate_valid():
     """ Test that conjugate sampler is valid for Gaussian-Gamma conjugate pair when parameter is defined as the precision."""
@@ -752,7 +755,7 @@ def test_find_valid_samplers_conjugate_valid():
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['CWMHNew', 'ConjugateNew', 'MHNew']))
+    assert(set(valid_samplers) == set(['CWMH', 'Conjugate', 'MH']))
 
 def test_find_valid_samplers_conjugate_invalid():
     """ Test that conjugate sampler is invalid for Gaussian-Gamma conjugate pair when parameter is defined as the covariance."""
@@ -762,14 +765,14 @@ def test_find_valid_samplers_conjugate_invalid():
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['CWMHNew', 'MHNew']))
+    assert(set(valid_samplers) == set(['CWMH', 'MH']))
 
 def test_find_valid_samplers_direct():
     target = cuqi.distribution.Gamma(1,1)
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['CWMHNew', 'DirectNew', 'MHNew']))
+    assert(set(valid_samplers) == set(['CWMH', 'Direct', 'MH']))
 
 def test_find_valid_samplers_implicit_posterior():
     A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
@@ -780,7 +783,7 @@ def test_find_valid_samplers_implicit_posterior():
 
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
-    assert(set(valid_samplers) == set(['RegularizedLinearRTONew']))
+    assert(set(valid_samplers) == set(['RegularizedLinearRTO']))
 
 def test_find_valid_samplers_implicit_prior():
     target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
@@ -788,3 +791,263 @@ def test_find_valid_samplers_implicit_prior():
     valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
 
     assert(len(set(valid_samplers)) == 0)
+
+# ============ Testing of HybridGibbs ============
+
+def test_HybridGibbs_initial_point_setting():
+    """ Test that the HybridGibbs sampler adheres to the initial point set by sampling strategy. """
+
+    # Forward model
+    A, y_data, _ = cuqi.testproblem.Deconvolution1D(dim=10).get_components()
+
+    # Bayesian Problem
+    d = cuqi.distribution.Uniform(0, 100)
+    s = cuqi.distribution.Uniform(0, 100)
+    x = cuqi.distribution.Gaussian(0, lambda d: 1/d, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+
+    # Joint distribution
+    joint = cuqi.distribution.JointDistribution(x, y, d, s)
+
+    # Posterior
+    posterior = joint(y=y_data)
+
+    # Sampling strategy
+    sampling_strategy = {
+        "d" : cuqi.experimental.mcmc.MH(initial_point=3),
+        "s" : cuqi.experimental.mcmc.MH(),
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0.5*np.ones(10))
+    }
+
+    # Hybrid Gibbs sampler
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy=sampling_strategy)
+
+    # Test that the initial point is set correctly in Gibbs
+    assert sampler.current_samples["d"] == 3
+    assert sampler.current_samples["s"] == 1 # Default initial point of MH is 1.
+    assert np.allclose(sampler.current_samples["x"], 0.5*np.ones(10))
+
+def test_HybridGibbs_stores_acc_rate():
+    """ Test that the HybridGibbs sampler stores the acceptance rate of the samplers correctly. Also ensures that history is maintained during warmup and sampling. """
+
+    # Number of warmup and sampling steps
+    Ns = 25
+    Nb = 25
+    
+    # Bayesian Problem
+    s = cuqi.distribution.Gaussian(1, 1)
+    d = cuqi.distribution.Uniform(1, 100)
+    x = cuqi.distribution.Gaussian(lambda s: s, lambda d: 1/d, geometry=1)
+
+    # Joint distribution
+    joint = cuqi.distribution.JointDistribution(x, d, s)
+
+    # Sampling strategy
+    sampling_strategy = {
+        "d" : cuqi.experimental.mcmc.MH(initial_point=3),
+        "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0)
+    }
+
+    # Hybrid Gibbs sampler
+    sampler = cuqi.experimental.mcmc.HybridGibbs(joint, sampling_strategy=sampling_strategy)
+
+    # Run the sampler for a few steps
+    sampler.warmup(Nb).sample(Ns)
+
+    # Check that the samplers have acc rate correctly updated and maintained
+    assert len(sampler.samplers["d"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+    assert len(sampler.samplers["s"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+    assert len(sampler.samplers["x"].get_history()["history"]["_acc"]) == Nb + Ns + 1
+
+def test_HybridGibbs_updates_state_only_after_accepting_sample():
+    """ Test that the HybridGibbs sampler updates the state only after accepting a sample. """
+
+    # Number of warmup and sampling steps
+    Ns = 25
+    Nb = 25
+    
+    # Bayesian Problem
+    s = cuqi.distribution.Gaussian(1, 1)
+    d = cuqi.distribution.Uniform(1, 100)
+    x = cuqi.distribution.Gaussian(lambda s: s, lambda d: 1/d, geometry=1)
+
+    # Joint distribution
+    joint = cuqi.distribution.JointDistribution(x, d, s)
+
+    # Sampling strategy
+    sampling_strategy = {
+        "d" : cuqi.experimental.mcmc.MH(initial_point=3),
+        "s" : cuqi.experimental.mcmc.PCN(initial_point=3),
+        "x" : cuqi.experimental.mcmc.MALA(initial_point=0, scale=1e-1) # Relatively high scale may lead to no accepted samples
+    }
+
+    # Hybrid Gibbs sampler
+    sampler = cuqi.experimental.mcmc.HybridGibbs(joint, sampling_strategy=sampling_strategy)
+
+    # Run the sampler for a few steps
+    sampler.warmup(Nb).sample(Ns)
+
+    # Store states of samplers
+    sampler_states = {key: sampler.samplers[key].get_state() for key in sampler.samplers.keys()}
+
+    # Run warmup and sampling again
+    sampler.warmup(Nb).sample(Ns)
+
+    # Verify that the state is only updated if a sample is accepted.
+    for key in sampler.samplers.keys():
+
+        # Get new state for specific sampler
+        new_state = sampler.samplers[key].get_state()
+
+        # In case sampler has no accepted samples, the state should not have been updated
+        if (np.sum(sampler.samplers[key].get_history()["history"]["_acc"][Ns+Nb+1:]) == 0):
+            assert sampler_states[key] == new_state, f"Sampler {key} state was erroneously updated in Gibbs scheme, but no accepted samples. State: \n {new_state}"
+        # In case sampler has accepted samples, the state should have been updated
+        else:
+            assert sampler_states[key] != new_state, f"Sampler {key} state was erroneously not updated in Gibbs scheme, even when new samples were accepted. State: \n {new_state}"
+
+def HybridGibbs_target_1():
+    """ Create a target for the HybridGibbs sampler. """
+    # Forward problem
+    np.random.seed(0)
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(
+        dim=128, phantom='sinc', noise_std=0.001).get_components()
+    
+    # Bayesian Inverse Problem
+    s = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 50)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+    
+    # Posterior
+    target = cuqi.distribution.JointDistribution(y, x, s)(y=y_data)
+
+    return target
+
+
+def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
+    """ Test that using NUTS sampler within HybridGibbs sampler works as
+    expected."""
+    #TODO: This test might break in the future if the NUTS within HybridGibbs
+    # is changed to be fully stateful.
+
+    Nb=10
+    Ns=10
+
+    target = HybridGibbs_target_1()
+
+    sampling_strategy = {
+        "x" : cuqi.experimental.mcmc.NUTS(max_depth=7),
+        "s" : cuqi.experimental.mcmc.Conjugate()
+    }
+
+    # Here we do 1 internal steps with NUTS for each Gibbs step
+    num_sampling_steps = {
+        "x" : 1,
+        "s" : 1
+    }
+
+    sampler = cuqi.experimental.mcmc.HybridGibbs(
+        target, sampling_strategy, num_sampling_steps)
+    
+    np.random.seed(0)
+    sampler.warmup(Nb)
+    sampler.sample(Ns)
+    samples = sampler.get_samples()
+
+    # Read samples from reference
+    file = copy_reference("data/s_x_NUTS_within_HybridGibbs.npz")
+    reference = np.load(file)
+    reference_s = reference["s"]
+    reference_x = reference["x"]
+
+    # Compare samples
+    assert np.allclose(samples["s"].samples, reference_s, rtol=1e-3)
+    assert np.allclose(samples["x"].samples, reference_x, rtol=1e-3)
+
+
+# ============ Test for sampling with bounded distributions ============
+sampler_instances_for_bounded_distribution = [
+    cuqi.experimental.mcmc.MH(
+        target=cuqi.distribution.Beta(0.5, 0.5),
+        initial_point=np.array([0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.ULA(
+        cuqi.distribution.Beta(0.5, 0.5),
+        initial_point=np.array([0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.MALA(
+        cuqi.distribution.Beta(0.5, 0.5),
+        initial_point=np.array([0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.NUTS(
+        cuqi.distribution.Beta(0.5, 0.5), initial_point=np.array([0.1])
+    ),
+    cuqi.experimental.mcmc.MH(
+        target=cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.CWMH(
+        target=cuqi.distribution.Beta(
+            np.array([0.5, 0.5]), np.array([0.5, 0.5])
+        ),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.ULA(
+        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.MALA(
+        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+        scale=0.1,
+    ),
+    cuqi.experimental.mcmc.NUTS(
+        cuqi.distribution.Beta(np.array([0.5, 0.5]), np.array([0.5, 0.5])),
+        initial_point=np.array([0.1, 0.1]),
+    ),
+]
+
+@pytest.mark.parametrize("sampler", sampler_instances_for_bounded_distribution)
+def test_if_invalid_sample_accepted(sampler: cuqi.experimental.mcmc.Sampler):
+    sampler.sample(50)
+    samples = sampler.get_samples().samples
+    tol = 1e-8
+    assert (
+        samples.min() > 0.0 - tol and samples.max() < 1.0 + tol
+    ), f"Invalid samples accepted for sampler {sampler.__class__.__name__}."
+
+
+# Test NUTS acceptance rate
+@pytest.mark.parametrize(
+    "sampler",
+    [
+        cuqi.experimental.mcmc.NUTS(cuqi.distribution.Gaussian(0, 1)),
+        cuqi.experimental.mcmc.NUTS(cuqi.distribution.DistributionGallery('donut'))
+    ],
+)
+def test_nuts_acceptance_rate(sampler: cuqi.experimental.mcmc.Sampler):
+    """ Test that the NUTS sampler correctly updates the acceptance rate. """
+    # Fix random seed for reproducibility, but the test should be robust to seed
+    np.random.seed(0)
+
+    # Sample:
+    sampler.warmup(100).sample(100)
+
+    # Compute number of times samples were updated:
+    samples = sampler.get_samples().samples
+    counter = 0
+    for i in range(1, samples.shape[1]):
+        if np.any(samples[:, i] != samples[:, i - 1]):
+            counter += 1
+
+    # Compute the number of accepted samples according to the sampler
+    acc_rate_sum = sum(sampler._acc[2:])
+
+    assert np.isclose(counter, acc_rate_sum), "NUTS sampler does not update acceptance rate correctly: "+str(counter)+" != "+str(acc_rate_sum)

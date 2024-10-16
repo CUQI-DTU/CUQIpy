@@ -7,4 +7,3 @@ sphinx-panels
 sphinx-copybutton
 sphinx-gallery
 versioneer==0.26
-progressbar2 # For experimental mcmc module

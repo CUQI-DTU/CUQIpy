@@ -4,10 +4,10 @@ from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS, FISTA
-from cuqi.experimental.mcmc import SamplerNew
+from cuqi.experimental.mcmc import Sampler
 
 
-class LinearRTONew(SamplerNew):
+class LinearRTO(Sampler):
     """
     Linear RTO (Randomize-Then-Optimize) sampler.
 
@@ -150,12 +150,11 @@ class LinearRTONew(SamplerNew):
         if not hasattr(self.prior, "sqrtprecTimesMean"):
             raise TypeError("Prior must contain a sqrtprecTimesMean attribute")
     
-    @property
-    def _default_initial_point(self):
+    def _get_default_initial_point(self, dim):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
-        return np.zeros(self.dim)
+        return np.zeros(dim)
 
-class RegularizedLinearRTONew(LinearRTONew):
+class RegularizedLinearRTO(LinearRTO):
     """
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 

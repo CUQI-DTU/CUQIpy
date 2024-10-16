@@ -1,6 +1,6 @@
 # %%
 from cuqi.distribution import DistributionGallery
-from cuqi.experimental.mcmc import MHNew
+from cuqi.experimental.mcmc import MH
 # %%
 # The samplers in the MCMC module are an re-implementation of this sampler module in a more object oriented way.
 # The sampling results are tested against the samplers in the sampler module in test_mcmc.py.
@@ -19,7 +19,7 @@ target = DistributionGallery("BivariateGaussian")
 
 # %%
 # Initialize sampler (including optional sampler parameters)
-sampler = MHNew(target, scale=0.1)
+sampler = MH(target, scale=0.1)
 
 # %%
 # Warmup sampler. This tunes the internal parameters (scale here) using the `.tune` at internals defined by optional tune_freq parameter
@@ -91,7 +91,7 @@ sampler.set_state(state)
 sampler.save_checkpoint('demo36_sampler_checkpoint.pickle')
 
 # Then using a new sampler can load checkpoint
-sampler2 = MHNew(target)
+sampler2 = MH(target)
 sampler2.load_checkpoint('demo36_sampler_checkpoint.pickle')
 
 print(sampler.scale) # Should be the same
