@@ -101,7 +101,7 @@ class TruncatedNormal(Distribution):
         else:
              return self._normal.logpdf(x)
 
-    def gradient(self, x):
+    def _gradient(self, x, *args, **kwargs):
         """
         Computes the gradient of the unnormalized logpdf at the given values of x.
         """
