@@ -109,7 +109,7 @@ class TruncatedNormal(Distribution):
         if np.any(x < self.low) or np.any(x > self.high):
             return np.NaN*np.ones_like(x)
         else:
-            return self._normal.gradient(x)
+            return self._normal.gradient(x, *args, **kwargs)
 
     def _sample(self, N=1, rng=None):
         """
