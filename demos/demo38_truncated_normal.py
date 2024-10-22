@@ -1,4 +1,4 @@
-# %% Initialize and import CUQI
+# %% Initialize and import CUQIpy
 import sys
 sys.path.append("..") 
 import numpy as np
@@ -6,9 +6,9 @@ import cuqi
 from cuqi.utilities import plot_2D_density
 import matplotlib.pyplot as plt
 
-# %%
-# This snippet demonstrates the use of bounded priors.
-# Here we use MALA and the truncated normal distribution.
+# %% Demo 1
+# This demo shows the use of gradient-based MCMC methods in drawing samples 
+# from a truncated normal distribution. Here we use MALA.
 p = cuqi.distribution.TruncatedNormal(
     mean=np.array([0, 0]),
     std=np.array([1, 1]),
@@ -17,15 +17,21 @@ p = cuqi.distribution.TruncatedNormal(
 
 plt.figure()
 plot_2D_density(p, -5, 5, -5, 5)
+plt.title("Exact PDF")
 
 sampler = cuqi.experimental.mcmc.MALA(p, scale=0.1, initial_point= np.array([1,-1]))
 sampler.sample(10000)
 samples = sampler.get_samples()
+
 plt.figure()
-samples.plot_trace()
-# %%
-# This snippet demonstrates the use of bounded priors in solving the simplest
-# BIP. Here again we use MALA and the truncated normal prior.
+samples.plot_pair()
+plt.xlim(-5, 5)
+plt.ylim(-5, 5)
+plt.gca().set_aspect('equal')
+plt.title("Samples")
+# %% Demo 2
+# This demo shows the use of truncted normal as prior in solving the simplest
+# BIP. Here again we use MALA.
 np.random.seed(0)
 # the forward model
 A_matrix = np.array([[1.0, 1.0]])
@@ -48,6 +54,7 @@ print(b_obs)
 joint = cuqi.distribution.JointDistribution(x, b)
 post = joint(b=b_obs)
 
+# MALA sampler
 sampler = cuqi.experimental.mcmc.MALA(post, initial_point=np.array([2.5, -2.5]), scale=0.03)
 
 sampler.warmup(1000)
@@ -59,7 +66,7 @@ samples.plot_trace()
 # the posterior PDF
 plt.figure()
 plot_2D_density(post, 1, 5, -3, 1)
-plt.title("Exact Posterior")
+plt.title("Exact Posterior PDF")
 
 # samples
 plt.figure()
@@ -67,4 +74,4 @@ samples.plot_pair()
 plt.xlim(1, 5)
 plt.ylim(-3, 1)
 plt.gca().set_aspect('equal')
-plt.title("Posterior Samples")
+plt.title("Samples")
