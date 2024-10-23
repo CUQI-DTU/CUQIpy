@@ -714,7 +714,12 @@ class ADMM(object):
 
         # Iterating
         for i in range(self.maxit):
-            # Preprocessing
+            """ Preprocessing
+            Every iteration of ADMM requires solving a linear least squares system of the form
+                minimize 1/(rho) \|Ax-b\|_2^2 + sum_{i=1}^{p} \|penalty[1]x - (y - u)\|_2^2
+            To solve this, all linear least squares terms are combined into a single big term
+            with matrix big_matrix and data big_vector
+            """
             if callable(self.A):
                 def big_matrix(x, flag):
                     if flag == 1:
@@ -758,6 +763,7 @@ class ADMM(object):
                 res_dual += LA.norm(penalty[1].T@(y_new[j] - self.y_cur[j]))**2
             res_dual *= self.rho*self.rho
 
+            # Adaptive approach based on [1], Subsection 3.4.1
             if self.adaptive:
                 if res_dual > 1e2*res_primal:
                     self.rho *= 0.5 # More regularization
