@@ -235,8 +235,8 @@ class RegularizedLinearRTO(LinearRTO):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = FISTA(self.M, y, self.current_point, self.proximal,
-                    maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+        sim = FISTA(self.M, y, self.proximal,
+                    self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
