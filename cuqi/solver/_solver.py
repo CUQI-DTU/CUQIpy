@@ -688,7 +688,7 @@ class ADMM(object):
 
     """  
 
-    def __init__(self, A, b, penalties, x0, tradeoff, maxit = 100, inner_max_it = 10, adaptive = True):
+    def __init__(self, A, b, penalties, x0, tradeoff = 10, maxit = 100, inner_max_it = 10, adaptive = True):
 
         self.A = A
         self.b = b
