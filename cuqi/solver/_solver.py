@@ -656,7 +656,7 @@ class ADMM(object):
     Minimize ||Ax-b||^2 + sum_i f_i(L_i x).
 
     Reference:
-    Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
+    [1] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
 
     
     Parameters
@@ -667,7 +667,7 @@ class ADMM(object):
     x0 : ndarray. Initial guess.
     tradeoff : Trade-off between linear least squares and regularization term in the solver iterates.
     maxit : The maximum number of iterations.
-    adapative : Whether to adaptively update the tradeoff parameter each iteration.
+    adapative : Whether to adaptively update the tradeoff parameter each iteration. Based on [1], Subsection 3.4.1
     
     Example
     -----------
@@ -688,7 +688,7 @@ class ADMM(object):
 
     """  
 
-    def __init__(self, A, b, penalties, x0, tradeoff, maxit = 100, adaptive = True):
+    def __init__(self, A, b, penalties, x0, tradeoff, maxit = 100, inner_max_it = 10, adaptive = True):
 
         self.A = A
         self.b = b
@@ -701,6 +701,7 @@ class ADMM(object):
         
         self.rho = tradeoff
         self.maxit = maxit
+        self.inner_max_it = inner_max_it
         self.adaptive = adaptive
 
         self.penalties = penalties
@@ -737,7 +738,7 @@ class ADMM(object):
             # Main update (Least Squares)
             big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
 
-            solver = CGLS(big_matrix, big_vector, self.x_cur, 10)
+            solver = CGLS(big_matrix, big_vector, self.x_cur, self.inner_max_it)
             x_new, _ = solver.solve()
         
             # Regularization update
@@ -755,7 +756,7 @@ class ADMM(object):
             res_dual = 0.0
             for j, penalty in enumerate(self.penalties):
                 res_dual += LA.norm(penalty[1].T@(y_new[j] - self.y_cur[j]))**2
-            #res_dual *= self.rho*self.rho
+            res_dual *= self.rho*self.rho
 
             if self.adaptive:
                 if res_dual > 1e2*res_primal:
