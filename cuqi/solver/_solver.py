@@ -707,6 +707,7 @@ class ADMM(object):
         self.penalties = penalties
        
         self.p = len(self.penalties)
+        self._big_matrix = None
 
     def solve(self):
         y_new = self.p*[0]
@@ -714,35 +715,9 @@ class ADMM(object):
 
         # Iterating
         for i in range(self.maxit):
-            """ Preprocessing
-            Every iteration of ADMM requires solving a linear least squares system of the form
-                minimize 1/(rho) \|Ax-b\|_2^2 + sum_{i=1}^{p} \|penalty[1]x - (y - u)\|_2^2
-            To solve this, all linear least squares terms are combined into a single big term
-            with matrix big_matrix and data big_vector
-            """
-            if callable(self.A):
-                def big_matrix(x, flag):
-                    if flag == 1:
-                        out1 = np.sqrt(1/self.rho)*self.A(x, 1)
-                        out2 = [penalty[1]@x for penalty in self.penalties]
-                        out  = np.hstack([out1] + out2)
-                    elif flag == 2:
-                        idx_start = len(x)
-                        idx_end = len(x)
-                        out1 = np.zeros(self.n)
-                        for _, t in reversed(self.penalties):
-                            idx_start -= t.shape[0]
-                            out1 += t.T@x[idx_start:idx_end]
-                            idx_end = idx_start
-                        out2 = np.sqrt(1/self.rho)*self.A(x[:idx_end], 2)
-                        out  = out1 + out2     
-                    return out
-            else:
-                big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalties])
+            big_matrix, big_vector = self._iteration_pre_processing()
 
             # Main update (Least Squares)
-            big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
-
             solver = CGLS(big_matrix, big_vector, self.x_cur, self.inner_max_it)
             x_new, _ = solver.solve()
         
@@ -761,7 +736,6 @@ class ADMM(object):
             res_dual = 0.0
             for j, penalty in enumerate(self.penalties):
                 res_dual += LA.norm(penalty[1].T@(y_new[j] - self.y_cur[j]))**2
-            res_dual *= self.rho*self.rho
 
             # Adaptive approach based on [1], Subsection 3.4.1
             if self.adaptive:
@@ -774,6 +748,49 @@ class ADMM(object):
             
         return self.x_cur, i
     
+    def _iteration_pre_processing(self):
+            """ Preprocessing
+            Every iteration of ADMM requires solving a linear least squares system of the form
+                minimize 1/(rho) \|Ax-b\|_2^2 + sum_{i=1}^{p} \|penalty[1]x - (y - u)\|_2^2
+            To solve this, all linear least squares terms are combined into a single big term
+            with matrix big_matrix and data big_vector.
+
+            The matrix only needs to be updated when rho changes, i.e., when the adaptive option is used.
+            The data vector needs to be updated every iteration.
+            """
+
+            big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
+
+            # Check whether matrix needs to be updated
+            if self._big_matrix is not None and not self.adaptive:
+                return self._big_matrix, big_vector
+
+            # Update big_matrix
+            if callable(self.A):
+                def matrix_eval(x, flag):
+                    if flag == 1:
+                        out1 = np.sqrt(1/self.rho)*self.A(x, 1)
+                        out2 = [penalty[1]@x for penalty in self.penalties]
+                        out  = np.hstack([out1] + out2)
+                    elif flag == 2:
+                        idx_start = len(x)
+                        idx_end = len(x)
+                        out1 = np.zeros(self.n)
+                        for _, t in reversed(self.penalties):
+                            idx_start -= t.shape[0]
+                            out1 += t.T@x[idx_start:idx_end]
+                            idx_end = idx_start
+                        out2 = np.sqrt(1/self.rho)*self.A(x[:idx_end], 2)
+                        out  = out1 + out2     
+                    return out
+                self._big_matrix = matrix_eval
+            else:
+                self._big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalties])
+
+            return self._big_matrix, big_vector
+
+
+
 
 def ProjectNonnegative(x):
     """(Euclidean) projection onto the nonnegative orthant.
