@@ -48,7 +48,7 @@ class TruncatedNormal(Distribution):
         self.high = high
 
         # Init underlying normal distribution
-        self._normal = Normal(self.mean, self.std, is_symmetric=is_symmetric, **kwargs)
+        self._normal = Normal(self.mean, self.std, is_symmetric=True, **kwargs)
 
     @property
     def mean(self):
