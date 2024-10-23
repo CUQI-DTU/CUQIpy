@@ -673,7 +673,7 @@ class ADMM(object):
     -----------
     .. code-block:: python
     
-        from cuqi.solver import ADMM,  ProximalL1, ProjectNonnegative
+        from cuqi.solver import ADMM, ProximalL1, ProjectNonnegative
         import scipy as sp
         import numpy as np
 
@@ -804,7 +804,7 @@ def ProjectHalfspace(x, a, b):
     b : array_like.
     """  
 
-    ax_b = np.inner(a,x)-b
+    ax_b = np.inner(a,x) - b
     if ax_b <= 0:
         return x
     else:
