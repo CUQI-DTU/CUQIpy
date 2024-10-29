@@ -29,6 +29,7 @@ plt.xlim(-5, 5)
 plt.ylim(-5, 5)
 plt.gca().set_aspect('equal')
 plt.title("Samples")
+
 # %% Demo 2
 # This demo shows the use of truncted normal as prior in solving the simplest
 # BIP. Here again we use MALA.
