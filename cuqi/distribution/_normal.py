@@ -65,8 +65,7 @@ class Normal(Distribution):
         elif hasattr(self.mean, "gradient"): # for likelihood
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
-            if isinstance(dev, numbers.Number):
-                dev = np.array([dev])
+            print(dev)
             return model.gradient(1.0/(np.array(self.std)) @ dev, *args, **kwargs)
         else:
             raise NotImplementedError("Gradient not implemented for distribution {} with location {}".format(self,self.mean))
