@@ -1,5 +1,7 @@
 from cuqi.array import CUQIarray
+import cuqi.config
 from cuqi.density import Density
+import cuqi
 import numpy as np
 import inspect
 from numbers import Number
@@ -219,19 +221,61 @@ def approx_gradient(func, x, epsilon= 0.000001):
 
     # Initialize variables
     FD_gradient = x*0.0
-    eps_vec = x*0.0
     func_x = func(x)
 
     # Compute the gradient using forward differences component by component
     x_len = infer_len(x)
-    for i in range(x_len):
-        eps_vec[i] = epsilon
-        x_plus_eps = x + eps_vec
-        FD_gradient[i] = (func(x_plus_eps) - func_x)/epsilon
-        eps_vec[i] = 0.0
-        
+
+    if cuqi.config.USE_MULTIPROCESSING:
+        from multiprocess.pool import Pool
+
+
+        #print("Name", __name__)
+        if __name__ == 'cuqi.utilities._utilities':
+            #print("Using multiprocess thread for gradient computation")
+            # devide indeces into cuqi.config.NUM_PROCESSORS parts
+            ideces_list = np.array_split(range(x_len), cuqi.config.NUM_PROCESSORS) 
+            with Pool(cuqi.config.NUM_PROCESSORS) as pool:
+                FD_gradient = pool.map(_grad_sub_i, [(func, x, func_x, ideces_list[i], epsilon) for i in range(cuqi.config.NUM_PROCESSORS)])
+            pool.join()
+            # concatenate the results
+            FD_gradient = np.concatenate(FD_gradient)
+
+
+    else:
+        for i in range(x_len):
+            FD_gradient[i] = _grad_i((func, x, func_x, i, epsilon))
+    if isinstance(FD_gradient, list):
+        return np.array(FD_gradient)
     return FD_gradient
 
+def _grad_i(args):
+    func = args[0]
+    x = args[1]
+    func_x = args[2]
+    i = args[3]
+    epsilon = args[4]
+    x2 = x.copy()
+    x2[i] += epsilon
+
+    grad_i = ( func(x2)-func_x )/epsilon
+
+    if isinstance(grad_i, np.ndarray):
+        return grad_i[0]
+    return grad_i
+
+def _grad_sub_i(args):
+    func = args[0]
+    x = args[1]
+    func_x = args[2]
+    ideces = args[3]
+    epsilon = args[4]
+    FD_gradient = x*0.0
+    for i in ideces:
+        x2 = x.copy()
+        x2[i] += epsilon
+        FD_gradient[i] = ( func(x2)-func_x )/epsilon
+    return FD_gradient[ideces]
 
 # Function for plotting 1D density functions
 def plot_1D_density(density:Density,
