@@ -225,7 +225,11 @@ class HybridGibbs:
                 max_depth = sampler.max_depth
                 enable_FD = sampler._enable_FD
                 num_tree_node_list = sampler.num_tree_node_list
-                step_size = sampler._epsilon
+                step_size = (
+                    sampler._epsilon[0]
+                    if isinstance(sampler._epsilon, (list, np.ndarray))
+                    else sampler._epsilon
+                )
                 epsilon_list = sampler.epsilon_list
                 # If the parent method in the calling stack is sample, use step_size from the sampler
                 if 'sample' in [frame.function for frame in inspect.stack()]:
