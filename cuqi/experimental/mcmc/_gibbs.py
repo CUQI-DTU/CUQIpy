@@ -5,6 +5,7 @@ from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
+import inspect
 
 try:
     from tqdm import tqdm
@@ -224,6 +225,11 @@ class HybridGibbs:
                 max_depth = sampler.max_depth
                 enable_FD = sampler._enable_FD
                 num_tree_node_list = sampler.num_tree_node_list
+                step_size = sampler._epsilon
+                epsilon_list = sampler.epsilon_list
+                # If the parent method in the calling stack is sample, use step_size from the sampler
+                if 'sample' in [frame.function for frame in inspect.stack()]:
+                    sampler._step_size = step_size
             else:
                 sampler_state = sampler.get_state()
                 sampler_history = sampler.get_history()
@@ -236,6 +242,7 @@ class HybridGibbs:
                 sampler._enable_FD = enable_FD
                 sampler.max_depth = max_depth
                 sampler.num_tree_node_list = num_tree_node_list
+                sampler.epsilon_list = epsilon_list
             else:
                 sampler.set_state(sampler_state)
                 sampler.set_history(sampler_history)
