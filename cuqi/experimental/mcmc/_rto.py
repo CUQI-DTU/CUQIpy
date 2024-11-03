@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS, FISTA, ScipyMinimize
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -188,7 +188,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, scipy_flag=False, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -197,6 +197,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.abstol = abstol   
         self.adaptive = adaptive
         self.maxit = maxit
+        self.scipy_flag = scipy_flag
 
     def _initialize(self):
         super()._initialize()
@@ -239,8 +240,16 @@ class RegularizedLinearRTO(LinearRTO):
         ws_sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
         x0, _ = ws_sim.solve()
 
-        sim = FISTA(self.M, y, x0, self.proximal,
-                    maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
-        self.current_point, _ = sim.solve()
+        if not (self.scipy_flag):
+            sim = FISTA(self.M, y, x0, self.proximal,
+                        maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+            self.current_point, _ = sim.solve()
+        else:
+            # print("Using ScipyMinimize")
+            # define bounds to be used with scipy.
+            bounds = [(0, None)]*self.n
+            sim = ScipyMinimize(self.M, y, x0, bounds)
+            self.current_point = sim.solve()
+    
         acc = 1
         return acc

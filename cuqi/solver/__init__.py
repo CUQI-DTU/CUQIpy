@@ -7,6 +7,7 @@ from ._solver import (
     LM,
     PDHG,
     FISTA,
+    ScipyMinimize,
     ProjectNonnegative,
     ProjectBox,
     ProximalL1
