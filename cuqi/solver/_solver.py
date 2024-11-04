@@ -699,7 +699,7 @@ class ADMM(object):
         self.x_cur = x0
 
         dual_len = [penalty[1].shape[0] for penalty in penalties]
-        self.y_cur = [np.zeros(l) for l in dual_len]
+        self.z_cur = [np.zeros(l) for l in dual_len]
         self.u_cur = [np.zeros(l) for l in dual_len]
         self.n = penalties[0][1].shape[1]
         
@@ -715,7 +715,10 @@ class ADMM(object):
         self._big_vector = None
 
     def solve(self):
-        y_new = self.p*[0]
+        """
+        Solves the regularized linear least squares problem using ADMM in scaled form. Based on [1], Subsection 3.1.1
+        """
+        z_new = self.p*[0]
         u_new = self.p*[0]
 
         # Iterating
@@ -728,19 +731,19 @@ class ADMM(object):
         
             # Regularization update
             for j, penalty in enumerate(self.penalties):
-                y_new[j] = penalty[0](penalty[1]@x_new + self.u_cur[j], 1.0/self.rho)
+                z_new[j] = penalty[0](penalty[1]@x_new + self.u_cur[j], 1.0/self.rho)
                 
             res_primal = 0.0
             # Dual update
             for j, penalty in enumerate(self.penalties):
-                r_partial = penalty[1]@x_new - y_new[j]
+                r_partial = penalty[1]@x_new - z_new[j]
                 res_primal += LA.norm(r_partial)**2
 
                 u_new[j] = self.u_cur[j] + r_partial
             
             res_dual = 0.0
             for j, penalty in enumerate(self.penalties):
-                res_dual += LA.norm(penalty[1].T@(y_new[j] - self.y_cur[j]))**2
+                res_dual += LA.norm(penalty[1].T@(z_new[j] - self.z_cur[j]))**2
 
             # Adaptive approach based on [1], Subsection 3.4.1
             if self.adaptive:
@@ -749,7 +752,7 @@ class ADMM(object):
                 elif res_primal > 1e2*res_dual:
                     self.rho *= 2.0 # More data fidelity
 
-            self.x_cur, self.y_cur, self.u_cur = x_new, y_new.copy(), u_new
+            self.x_cur, self.z_cur, self.u_cur = x_new, z_new.copy(), u_new
             
         return self.x_cur, i
     
@@ -764,7 +767,7 @@ class ADMM(object):
             The data vector needs to be updated every iteration.
             """
 
-            self._big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
+            self._big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.z_cur[i] - self.u_cur[i] for i in range(self.p)])
 
             # Check whether matrix needs to be updated
             if self._big_matrix is not None and not self.adaptive:
