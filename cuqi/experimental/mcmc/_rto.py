@@ -188,7 +188,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, scipy_flag=False, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, scipy_flag=False, bounds=None, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -198,6 +198,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.adaptive = adaptive
         self.maxit = maxit
         self.scipy_flag = scipy_flag
+        self.bounds = bounds
 
     def _initialize(self):
         super()._initialize()
@@ -245,10 +246,7 @@ class RegularizedLinearRTO(LinearRTO):
                         maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
             self.current_point, _ = sim.solve()
         else:
-            # print("Using ScipyMinimize")
-            # define bounds to be used with scipy.
-            bounds = [(0, None)]*self.n
-            sim = ScipyMinimize(self.M, y, x0, bounds)
+            sim = ScipyMinimize(self.M, y, x0, self.bounds)
             self.current_point = sim.solve()
     
         acc = 1
