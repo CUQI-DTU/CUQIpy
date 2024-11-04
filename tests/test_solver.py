@@ -105,5 +105,3 @@ def test_ADMM_function_form():
     ref_sol = np.array([-3.99513417e-03, -1.32339656e-01, -4.52822633e-02, -7.44973888e-02, -3.35005208e-11])
     # Compare
     assert np.allclose(sol, ref_sol, atol=1e-4)
-
-test_ADMM_function_form()
