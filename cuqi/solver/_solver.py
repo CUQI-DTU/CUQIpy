@@ -708,6 +708,7 @@ class ADMM(object):
        
         self.p = len(self.penalties)
         self._big_matrix = None
+        self._big_vector = None
 
     def solve(self):
         y_new = self.p*[0]
@@ -715,10 +716,10 @@ class ADMM(object):
 
         # Iterating
         for i in range(self.maxit):
-            big_matrix, big_vector = self._iteration_pre_processing()
+            self._iteration_pre_processing()
 
             # Main update (Least Squares)
-            solver = CGLS(big_matrix, big_vector, self.x_cur, self.inner_max_it)
+            solver = CGLS(self._big_matrix, self._big_vector, self.x_cur, self.inner_max_it)
             x_new, _ = solver.solve()
         
             # Regularization update
@@ -759,11 +760,11 @@ class ADMM(object):
             The data vector needs to be updated every iteration.
             """
 
-            big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
+            self._big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.y_cur[i] - self.u_cur[i] for i in range(self.p)])
 
             # Check whether matrix needs to be updated
             if self._big_matrix is not None and not self.adaptive:
-                return self._big_matrix, big_vector
+                return
 
             # Update big_matrix
             if callable(self.A):
@@ -786,8 +787,6 @@ class ADMM(object):
                 self._big_matrix = matrix_eval
             else:
                 self._big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalties])
-
-            return self._big_matrix, big_vector
 
 
 
