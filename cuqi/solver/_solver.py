@@ -661,11 +661,15 @@ class ADMM(object):
     
     Parameters
     ----------
-    A : ndarray or callable f(x,*args).
+    A : ndarray or callable
+        Represents a matrix or a function that performs matrix-vector multiplications. 
+        When A is a callable, it accepts arguments (x, flag) where:
+        - flag=1 indicates multiplication of A with vector x, that is A @ x.
+        - flag=2 indicates multiplication of the transpose of A with vector x, that is  A.T @ x.
     b : ndarray.
     penalties : List of tuples (callable proximal operator of f_i, linear operator L_i).
     x0 : ndarray. Initial guess.
-    tradeoff : Trade-off between linear least squares and regularization term in the solver iterates.
+    tradeoff : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as "rho" in [1].
     maxit : The maximum number of iterations.
     adapative : Whether to adaptively update the tradeoff parameter each iteration. Based on [1], Subsection 3.4.1
     
