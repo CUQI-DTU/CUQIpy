@@ -309,16 +309,20 @@ class MYULA(ULA):
 
         if self._target is not None:
             # Create a smoothed target
-            copied_value = deepcopy(value)
-            if isinstance(copied_value.prior, RestorationPrior):
-                copied_value.prior = MoreauYoshidaPrior(
-                    copied_value.prior,
-                    self.smoothing_strength,
-                    geometry=copied_value.prior.geometry)
-            self._smoothed_target = copied_value
+            self._smoothed_target = self._create_smoothed_target(value)
 
             # Validate the target
             self.validate_target()
+
+    def _create_smoothed_target(self, value):
+        """ Create a smoothed target using a Moreau-Yoshida envelope. """
+        copied_value = deepcopy(value)
+        if isinstance(copied_value.prior, RestorationPrior):
+            copied_value.prior = MoreauYoshidaPrior(
+                copied_value.prior,
+                self.smoothing_strength,
+                geometry=copied_value.prior.geometry)
+        return copied_value
 
     def validate_target(self):
         # Call ULA target validation
