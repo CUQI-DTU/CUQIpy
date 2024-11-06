@@ -1,4 +1,3 @@
-#%%
 from abc import ABC, abstractmethod
 from cuqi.distribution import Distribution
 import numpy as np
@@ -60,7 +59,7 @@ class RestorationPrior(Distribution):
     def logpdf(self, x):
         """The logpdf function. It returns nan because we don't know the 
         logpdf of the implicit prior."""
-        if self.potential == None:
+        if self.potential is None:
             return np.nan
         else:
             return -self.potential(x)
@@ -83,7 +82,8 @@ class RestorationPrior(Distribution):
         # Currently conditioning variables are not supported for user-defined
         # distributions.
         return []
-############################################################################################   
+
+
 class MoreauYoshidaPrior(Distribution):
     """    
     This class defines (implicit) smoothed priors for which we can apply 
