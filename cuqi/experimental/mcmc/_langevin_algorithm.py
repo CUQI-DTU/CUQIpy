@@ -320,8 +320,7 @@ class MYULA(ULA):
         if isinstance(copied_value.prior, RestorationPrior):
             copied_value.prior = MoreauYoshidaPrior(
                 copied_value.prior,
-                self.smoothing_strength,
-                geometry=copied_value.prior.geometry)
+                self.smoothing_strength)
         return copied_value
 
     def validate_target(self):
