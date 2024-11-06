@@ -20,6 +20,9 @@ class RestorationPrior(Distribution):
             
     restorator_kwargs : dictionary
         Dictionary containing information about the restorator.
+        It contains keyword argument parameters that will be passed to the
+        restorator f. An example could be algorithm parameters such as the number
+        of iterations or the stopping criteria eg. 
     
     potential : callable function, optional
         The potential corresponds to the negative logpdf when it is accessible.
