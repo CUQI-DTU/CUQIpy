@@ -153,13 +153,17 @@ class MoreauYoshidaPrior(Distribution):
 
         # if kwargs does not contain the geometry,
         # we set it to the geometry of the prior, if it exists
-        if "geometry" not in kwargs:
-            try:
-                kwargs["geometry"] = self.prior.geometry
-            except:
-                pass
+        if "geometry" in kwargs:
+            raise ValueError(
+                "The geometry parameter is not supported for the"
+                + "MoreauYoshidaPrior class. The geometry is"
+                + "automatically set to the geometry of the prior.")
+        try:
+            geometry = prior.geometry
+        except:
+            geometry = None
 
-        super().__init__(**kwargs)
+        super().__init__(geometry=geometry, **kwargs)
 
     @property
     def geometry(self):
