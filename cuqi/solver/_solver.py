@@ -668,11 +668,11 @@ class ADMM(object):
         - flag=1 indicates multiplication of A with vector x, that is A @ x.
         - flag=2 indicates multiplication of the transpose of A with vector x, that is  A.T @ x.
     b : ndarray.
-    penalties : List of tuples (callable proximal operator of f_i, linear operator L_i).
+    penalty_terms : List of tuples (callable proximal operator of f_i, linear operator L_i).
     x0 : ndarray. Initial guess.
-    tradeoff : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as "rho" in [1].
+    penalty_parameter : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as "rho" in [1].
     maxit : The maximum number of iterations.
-    adapative : Whether to adaptively update the tradeoff parameter each iteration. Based on [1], Subsection 3.4.1
+    adaptive : Whether to adaptively update the tradeoff parameter each iteration such that the primal and dual residual norms are of the same order of magnitude. Based on [1], Subsection 3.4.1
     
     Example
     -----------
@@ -694,25 +694,25 @@ class ADMM(object):
 
     """  
 
-    def __init__(self, A, b, penalties, x0, tradeoff = 10, maxit = 100, inner_max_it = 10, adaptive = True):
+    def __init__(self, A, b, penalty_terms, x0, penalty_parameter = 10, maxit = 100, inner_max_it = 10, adaptive = True):
 
         self.A = A
         self.b = b
         self.x_cur = x0
 
-        dual_len = [penalty[1].shape[0] for penalty in penalties]
+        dual_len = [penalty[1].shape[0] for penalty in penalty_terms]
         self.z_cur = [np.zeros(l) for l in dual_len]
         self.u_cur = [np.zeros(l) for l in dual_len]
-        self.n = penalties[0][1].shape[1]
+        self.n = penalty_terms[0][1].shape[1]
         
-        self.rho = tradeoff
+        self.rho = penalty_parameter
         self.maxit = maxit
         self.inner_max_it = inner_max_it
         self.adaptive = adaptive
 
-        self.penalties = penalties
+        self.penalty_terms = penalty_terms
        
-        self.p = len(self.penalties)
+        self.p = len(self.penalty_terms)
         self._big_matrix = None
         self._big_vector = None
 
@@ -732,19 +732,19 @@ class ADMM(object):
             x_new, _ = solver.solve()
         
             # Regularization update
-            for j, penalty in enumerate(self.penalties):
+            for j, penalty in enumerate(self.penalty_terms):
                 z_new[j] = penalty[0](penalty[1]@x_new + self.u_cur[j], 1.0/self.rho)
                 
             res_primal = 0.0
             # Dual update
-            for j, penalty in enumerate(self.penalties):
+            for j, penalty in enumerate(self.penalty_terms):
                 r_partial = penalty[1]@x_new - z_new[j]
                 res_primal += LA.norm(r_partial)**2
 
                 u_new[j] = self.u_cur[j] + r_partial
             
             res_dual = 0.0
-            for j, penalty in enumerate(self.penalties):
+            for j, penalty in enumerate(self.penalty_terms):
                 res_dual += LA.norm(penalty[1].T@(z_new[j] - self.z_cur[j]))**2
 
             # Adaptive approach based on [1], Subsection 3.4.1
