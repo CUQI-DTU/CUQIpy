@@ -653,7 +653,8 @@ class FISTA(object):
 
 class ADMM(object):
     """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
-    Minimize ||Ax-b||^2 + sum_i f_i(L_i x).
+    Minimize ||Ax-b||^2 + sum_i f_i(L_i x),
+    where the sum ranges from 1 to an arbitrary n.
 
     Reference:
     [1] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
@@ -678,16 +679,17 @@ class ADMM(object):
     .. code-block:: python
     
         from cuqi.solver import ADMM, ProximalL1, ProjectNonnegative
-        import scipy as sp
         import numpy as np
 
         rng = np.random.default_rng()
 
-        m, n = 10, 5
+        m, n, k = 10, 5, 4
         A = rng.standard_normal((m, n))
         b = rng.standard_normal(m)
+        L = rng.standard_normal((k, n))
+
         x0 = np.zeros(n)
-        admm = ADMM(A, b, x0, penalties = [(ProximalL1, np.eye(n)), (lambda z, _ : ProjectNonnegative(z))], tradeoff = 10)
+        admm = ADMM(A, b, x0, penalties = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), np.eye(n))], tradeoff = 10)
         sol, _ = admm.solve()
 
     """  
