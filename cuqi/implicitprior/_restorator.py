@@ -71,7 +71,6 @@ class RestorationPrior(Distribution):
         raise NotImplementedError("The sample method is not implemented for the"
                                   + "RestorationPrior class.")
 
-    #TODO this method copied from userdefinedistribution
     @property
     def _mutable_vars(self):
         """ Returns the mutable variables of the distribution. """
@@ -79,7 +78,6 @@ class RestorationPrior(Distribution):
         # distributions.
         return []
 
-    #TODO this method copied from userdefinedistribution
     def get_conditioning_variables(self):
         """ Returns the conditioning variables of the distribution. """
         # Currently conditioning variables are not supported for user-defined
@@ -207,7 +205,6 @@ class MoreauYoshidaPrior(Distribution):
         raise NotImplementedError("The sample method is not implemented for the"
                                   + f"{self.__class__.__name__} class.")
 
-    #TODO this method copied from userdefinedistribution
     @property
     def _mutable_vars(self):
         """ Returns the mutable variables of the distribution. """
@@ -215,7 +212,6 @@ class MoreauYoshidaPrior(Distribution):
         # distributions.
         return []
 
-    #TODO this method copied from userdefinedistribution
     def get_conditioning_variables(self):
         """ Returns the conditioning variables of the distribution. """
         # Currently conditioning variables are not supported for user-defined
