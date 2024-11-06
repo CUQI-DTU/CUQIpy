@@ -70,7 +70,6 @@ def test_ADMM_matrix_form():
     k = 4
     L = rng.standard_normal((k, n))
 
-    stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
     x0 = np.zeros(n)
     sol, _ = ADMM(A, b, [(ProximalL1, np.eye(n)), (lambda z, _ : ProjectNonnegative(z), L)],
                    x0, 10, maxit = 100, adaptive = True).solve()
@@ -96,7 +95,6 @@ def test_ADMM_function_form():
     k = 4
     L = rng.standard_normal((k, n))
 
-    stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
     x0 = np.zeros(n)
     sol, _ = ADMM(A_fun, b, [(ProximalL1, np.eye(n)), (lambda z, _ : ProjectNonnegative(z), L)],
                    x0, 10, maxit = 100, adaptive = True).solve()
