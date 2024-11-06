@@ -668,11 +668,12 @@ class ADMM(object):
         - flag=1 indicates multiplication of A with vector x, that is A @ x.
         - flag=2 indicates multiplication of the transpose of A with vector x, that is  A.T @ x.
     b : ndarray.
-    penalty_terms : List of tuples (callable proximal operator of f_i, linear operator L_i).
+    penalty_terms : List of tuples (callable proximal operator of f_i, linear operator L_i)
+        Each callable proximal operator f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
     x0 : ndarray. Initial guess.
     penalty_parameter : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as "rho" in [1].
     maxit : The maximum number of iterations.
-    adaptive : Whether to adaptively update the tradeoff parameter each iteration such that the primal and dual residual norms are of the same order of magnitude. Based on [1], Subsection 3.4.1
+    adaptive : Whether to adaptively update the penalty_parameter each iteration such that the primal and dual residual norms are of the same order of magnitude. Based on [1], Subsection 3.4.1
     
     Example
     -----------
@@ -780,13 +781,13 @@ class ADMM(object):
                 def matrix_eval(x, flag):
                     if flag == 1:
                         out1 = np.sqrt(1/self.rho)*self.A(x, 1)
-                        out2 = [penalty[1]@x for penalty in self.penalties]
+                        out2 = [penalty[1]@x for penalty in self.penalty_terms]
                         out  = np.hstack([out1] + out2)
                     elif flag == 2:
                         idx_start = len(x)
                         idx_end = len(x)
                         out1 = np.zeros(self.n)
-                        for _, t in reversed(self.penalties):
+                        for _, t in reversed(self.penalty_terms):
                             idx_start -= t.shape[0]
                             out1 += t.T@x[idx_start:idx_end]
                             idx_end = idx_start
