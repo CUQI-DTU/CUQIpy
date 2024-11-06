@@ -690,7 +690,7 @@ class ADMM(object):
         L = rng.standard_normal((k, n))
 
         x0 = np.zeros(n)
-        admm = ADMM(A, b, x0, penalties = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), np.eye(n))], tradeoff = 10)
+        admm = ADMM(A, b, x0, penalty_terms = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), np.eye(n))], tradeoff = 10)
         sol, _ = admm.solve()
 
     """  
@@ -796,7 +796,7 @@ class ADMM(object):
                     return out
                 self._big_matrix = matrix_eval
             else:
-                self._big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalties])
+                self._big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalty_terms])
 
 
 
