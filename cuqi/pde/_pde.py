@@ -204,11 +204,13 @@ class TimeDependentLinearPDE(LinearPDE):
     See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
     """
 
-    def __init__(self, PDE_form, time_steps, time_obs='final', method='forward_euler', **kwargs):
+    def __init__(self, PDE_form, time_steps, time_obs='final',
+                 method='forward_euler', data_grad=False, **kwargs):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
         self.method = method
+        self.data_grad = data_grad
 
         # Set time_obs
         if time_obs is None:
@@ -293,7 +295,13 @@ class TimeDependentLinearPDE(LinearPDE):
             solution_obs = scipy.interpolate.RectBivariateSpline(
                 self.grid_sol, self.time_steps, solution)(self.grid_obs,
                                                           self._time_obs)
-
+            self._solution_obs = solution_obs.copy()
+            if self.data_grad:
+                solution_obs_temp = np.zeros((len(self.grid_obs)-1, len(self._time_obs)))
+                for i in range(solution_obs_temp.shape[0]):
+                    solution_obs_temp[i, :] = ((solution_obs[i, :] - solution_obs[i+1, :])/
+                                               (self.grid_obs[i] - self.grid_obs[i+1]))
+                solution_obs = solution_obs_temp
         # Apply observation map
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs)
