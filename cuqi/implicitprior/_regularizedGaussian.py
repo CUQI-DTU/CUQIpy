@@ -1,6 +1,8 @@
 from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
+from cuqi.geometry import Continuous1D, Continuous2D, Image2D
+from cuqi.operator import FirstOrderFiniteDifference
 
 import numpy as np
 
@@ -89,10 +91,11 @@ class RegularizedGaussian(Distribution):
             raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
 
         if proximal is not None:
-            if not callable(proximal):
-                raise ValueError("Proximal needs to be callable.")
-            if len(get_non_default_args(proximal)) != 2:
-                raise ValueError("Proximal should take 2 arguments.")
+            if callable(proximal):
+                if len(get_non_default_args(proximal)) != 2:
+                    raise ValueError("Proximal should take 2 arguments.")
+            else:
+                pass # TODO: Add error checking for list of regularizations
             
         if projector is not None:
             if not callable(projector):
@@ -113,14 +116,49 @@ class RegularizedGaussian(Distribution):
         elif (isinstance(constraint, str) and constraint.lower() == "box"):
             lower = optional_regularization_parameters["lower_bound"]
             upper = optional_regularization_parameters["upper_bound"]
-            self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
+            self._proximal = lambda z, _: ProjectBox(z, lower, upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
             strength = optional_regularization_parameters["strength"]
             self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
             self._preset = "l1"
+        elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
+            strength = optional_regularization_parameters["strength"]
+            if isinstance(self.geometry, (Continuous1D)):
+                self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='zero')
+            elif isinstance(self.geometry, (Continuous2D, Image2D)):
+                self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='zero')
+            else:
+                raise ValueError("Geometry not supported for total variation")
+            
+            self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            self._regularization_oper = self._transformation
+
+            self._proximal = [(self._regularization_prox, self._regularization_oper)]
+            self._preset = "tv"
         else:
             raise ValueError("Regularization not supported")
+
+    
+    @property
+    def transformation(self):
+        return self._transformation
+    
+    @property
+    def strength(self):
+        return self._strength
+        
+    @strength.setter
+    def strength(self, value):
+        if self._preset not in self.regularization_options():
+            raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
+
+        self._strength = value
+        if self._preset == "TV":
+            self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            self._proximal = [(self._regularization_prox, self._regularization_oper)]
+        elif self._preset == "l1":
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
 
     # This is a getter only attribute for the underlying Gaussian
     # It also ensures that the name of the underlying Gaussian
@@ -154,7 +192,7 @@ class RegularizedGaussian(Distribution):
 
     @staticmethod
     def regularization_options():
-        return ["l1"]
+        return ["l1", "tv"]
 
 
     # --- Defer behavior of the underlying Gaussian --- #
