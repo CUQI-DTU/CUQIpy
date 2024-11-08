@@ -63,6 +63,7 @@ class RegularizedGMRF(RegularizedGaussian):
             
             # Underlying explicit GMRF
             self._gaussian = GMRF(mean, prec, bc_type=bc_type, order=order, **kwargs)
+            kwargs.pop("geometry", None)
             
             # Init from abstract distribution class
             super(Distribution, self).__init__(**kwargs)

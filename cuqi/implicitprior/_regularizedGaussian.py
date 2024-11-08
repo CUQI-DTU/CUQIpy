@@ -82,6 +82,7 @@ class RegularizedGaussian(Distribution):
         
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
+        kwargs.pop("geometry", None)
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
@@ -165,7 +166,7 @@ class RegularizedGaussian(Distribution):
             raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
 
         self._strength = value
-        if self._preset == "TV":
+        if self._preset == "tv":
             self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
             self._proximal = [(self._regularization_prox, self._regularization_oper)]
         elif self._preset == "l1":
@@ -255,16 +256,18 @@ class RegularizedGaussian(Distribution):
     def sqrtcov(self, value):
         self.gaussian.sqrtcov = value     
     
-    def get_conditioning_variables(self):
-        return self.gaussian.get_conditioning_variables()
-    
     def get_mutable_variables(self):
-        return self.gaussian.get_mutable_variables()
+        add = []
+        if self.preset in self.regularization_options():
+            add = ["strength"]
+        return self.gaussian.get_mutable_variables() + add
     
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
-
+        if self.preset in self.regularization_options():
+            return super()._condition(*args, **kwargs)
+        
         # Handle positional arguments (similar code as in Distribution._condition)
         cond_vars = self.get_conditioning_variables()
         kwargs = self._parse_args_add_to_kwargs(cond_vars, *args, **kwargs)
