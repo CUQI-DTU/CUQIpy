@@ -59,10 +59,10 @@ class RegularizedGaussian(Distribution):
                 Upper bound of box, defaults to one
 
     regularization : string or None
-        Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
-        For "l1", the following additional parameters can be passed:
+        Preset regularization. Can be set to "l1" or 'tv'. Required for use in Gibbs in future update.
+        For "l1" or "tv", the following additional parameters can be passed:
             strength : scalar
-                Regularization parameter, i.e., strength*||x||_1 , defaults to one
+                Regularization parameter, i.e., strength*||Lx||_1, defaults to one
 
     """
         
@@ -95,7 +95,11 @@ class RegularizedGaussian(Distribution):
                 if len(get_non_default_args(proximal)) != 2:
                     raise ValueError("Proximal should take 2 arguments.")
             else:
-                pass # TODO: Add error checking for list of regularizations
+                for (prox, op) in proximal:
+                    if len(get_non_default_args(proximal)) != 2:
+                        raise ValueError("Proximal should take 2 arguments.")
+                    if op.shape[1] != self.geometry.par_dim:
+                        raise ValueError("Incorrect shape of linear operator.")
             
         if projector is not None:
             if not callable(projector):
