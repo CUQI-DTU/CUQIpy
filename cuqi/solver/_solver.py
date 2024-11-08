@@ -654,7 +654,7 @@ class FISTA(object):
 class ADMM(object):
     """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
     Minimize ||Ax-b||^2 + sum_i f_i(L_i x),
-    where the sum ranges from 1 to an arbitrary n.
+    where the sum ranges from 1 to an arbitrary n. See definition of the parameter `penalty_terms` below for more details about f_i and L_i
 
     Reference:
     [1] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
