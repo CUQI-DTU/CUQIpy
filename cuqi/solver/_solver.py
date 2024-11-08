@@ -584,8 +584,8 @@ class FISTA(object):
     ----------
     A : ndarray or callable f(x,*args).
     b : ndarray.
-    x0 : ndarray. Initial guess.
     proximal : callable f(x, gamma) for proximal mapping.
+    x0 : ndarray. Initial guess.
     maxit : The maximum number of iterations.
     stepsize : The stepsize of the gradient step.
     abstol : The numerical tolerance for convergence checks.
@@ -606,11 +606,11 @@ class FISTA(object):
         b = rng.standard_normal(m)
         stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
         x0 = np.zeros(n)
-        fista = FISTA(A, b, x0, proximal = ProximalL1, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
+        fista = FISTA(A, b, proximal = ProximalL1, x0, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
         sol, _ = fista.solve()
 
     """  
-    def __init__(self, A, b, x0, proximal, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
+    def __init__(self, A, b, proximal, x0, maxit=100, stepsize=1e0, abstol=1e-14, adaptive = True):
         
         self.A = A
         self.b = b
@@ -650,8 +650,157 @@ class FISTA(object):
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
             x = x_new.copy()
+
+class ADMM(object):
+    """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
+    Minimize ||Ax-b||^2 + sum_i f_i(L_i x),
+    where the sum ranges from 1 to an arbitrary n. See definition of the parameter `penalty_terms` below for more details about f_i and L_i
+
+    Reference:
+    [1] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
+
     
+    Parameters
+    ----------
+    A : ndarray or callable
+        Represents a matrix or a function that performs matrix-vector multiplications. 
+        When A is a callable, it accepts arguments (x, flag) where:
+        - flag=1 indicates multiplication of A with vector x, that is A @ x.
+        - flag=2 indicates multiplication of the transpose of A with vector x, that is  A.T @ x.
+    b : ndarray.
+    penalty_terms : List of tuples (callable proximal operator of f_i, linear operator L_i)
+        Each callable proximal operator f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
+    x0 : ndarray. Initial guess.
+    penalty_parameter : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as "rho" in [1].
+    maxit : The maximum number of iterations.
+    adaptive : Whether to adaptively update the penalty_parameter each iteration such that the primal and dual residual norms are of the same order of magnitude. Based on [1], Subsection 3.4.1
     
+    Example
+    -----------
+    .. code-block:: python
+    
+        from cuqi.solver import ADMM, ProximalL1, ProjectNonnegative
+        import numpy as np
+
+        rng = np.random.default_rng()
+
+        m, n, k = 10, 5, 4
+        A = rng.standard_normal((m, n))
+        b = rng.standard_normal(m)
+        L = rng.standard_normal((k, n))
+
+        x0 = np.zeros(n)
+        admm = ADMM(A, b, x0, penalty_terms = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), np.eye(n))], tradeoff = 10)
+        sol, _ = admm.solve()
+
+    """  
+
+    def __init__(self, A, b, penalty_terms, x0, penalty_parameter = 10, maxit = 100, inner_max_it = 10, adaptive = True):
+
+        self.A = A
+        self.b = b
+        self.x_cur = x0
+
+        dual_len = [penalty[1].shape[0] for penalty in penalty_terms]
+        self.z_cur = [np.zeros(l) for l in dual_len]
+        self.u_cur = [np.zeros(l) for l in dual_len]
+        self.n = penalty_terms[0][1].shape[1]
+        
+        self.rho = penalty_parameter
+        self.maxit = maxit
+        self.inner_max_it = inner_max_it
+        self.adaptive = adaptive
+
+        self.penalty_terms = penalty_terms
+       
+        self.p = len(self.penalty_terms)
+        self._big_matrix = None
+        self._big_vector = None
+
+    def solve(self):
+        """
+        Solves the regularized linear least squares problem using ADMM in scaled form. Based on [1], Subsection 3.1.1
+        """
+        z_new = self.p*[0]
+        u_new = self.p*[0]
+
+        # Iterating
+        for i in range(self.maxit):
+            self._iteration_pre_processing()
+
+            # Main update (Least Squares)
+            solver = CGLS(self._big_matrix, self._big_vector, self.x_cur, self.inner_max_it)
+            x_new, _ = solver.solve()
+        
+            # Regularization update
+            for j, penalty in enumerate(self.penalty_terms):
+                z_new[j] = penalty[0](penalty[1]@x_new + self.u_cur[j], 1.0/self.rho)
+                
+            res_primal = 0.0
+            # Dual update
+            for j, penalty in enumerate(self.penalty_terms):
+                r_partial = penalty[1]@x_new - z_new[j]
+                res_primal += LA.norm(r_partial)**2
+
+                u_new[j] = self.u_cur[j] + r_partial
+            
+            res_dual = 0.0
+            for j, penalty in enumerate(self.penalty_terms):
+                res_dual += LA.norm(penalty[1].T@(z_new[j] - self.z_cur[j]))**2
+
+            # Adaptive approach based on [1], Subsection 3.4.1
+            if self.adaptive:
+                if res_dual > 1e2*res_primal:
+                    self.rho *= 0.5 # More regularization
+                elif res_primal > 1e2*res_dual:
+                    self.rho *= 2.0 # More data fidelity
+
+            self.x_cur, self.z_cur, self.u_cur = x_new, z_new.copy(), u_new
+            
+        return self.x_cur, i
+    
+    def _iteration_pre_processing(self):
+            """ Preprocessing
+            Every iteration of ADMM requires solving a linear least squares system of the form
+                minimize 1/(rho) \|Ax-b\|_2^2 + sum_{i=1}^{p} \|penalty[1]x - (y - u)\|_2^2
+            To solve this, all linear least squares terms are combined into a single big term
+            with matrix big_matrix and data big_vector.
+
+            The matrix only needs to be updated when rho changes, i.e., when the adaptive option is used.
+            The data vector needs to be updated every iteration.
+            """
+
+            self._big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.z_cur[i] - self.u_cur[i] for i in range(self.p)])
+
+            # Check whether matrix needs to be updated
+            if self._big_matrix is not None and not self.adaptive:
+                return
+
+            # Update big_matrix
+            if callable(self.A):
+                def matrix_eval(x, flag):
+                    if flag == 1:
+                        out1 = np.sqrt(1/self.rho)*self.A(x, 1)
+                        out2 = [penalty[1]@x for penalty in self.penalty_terms]
+                        out  = np.hstack([out1] + out2)
+                    elif flag == 2:
+                        idx_start = len(x)
+                        idx_end = len(x)
+                        out1 = np.zeros(self.n)
+                        for _, t in reversed(self.penalty_terms):
+                            idx_start -= t.shape[0]
+                            out1 += t.T@x[idx_start:idx_end]
+                            idx_end = idx_start
+                        out2 = np.sqrt(1/self.rho)*self.A(x[:idx_end], 2)
+                        out  = out1 + out2     
+                    return out
+                self._big_matrix = matrix_eval
+            else:
+                self._big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalty_terms])
+
+
+
+
 def ProjectNonnegative(x):
     """(Euclidean) projection onto the nonnegative orthant.
     
@@ -677,6 +826,22 @@ def ProjectBox(x, lower = None, upper = None):
         upper = np.ones_like(x)
     
     return np.minimum(np.maximum(x, lower), upper)
+
+def ProjectHalfspace(x, a, b):
+    """(Euclidean) projection onto the halfspace defined {z|<a,z> <= b}.
+    
+    Parameters
+    ----------
+    x : array_like.
+    a : array_like.
+    b : array_like.
+    """  
+
+    ax_b = np.inner(a,x) - b
+    if ax_b <= 0:
+        return x
+    else:
+        return x - (ax_b/np.inner(a,a))*a
 
 def ProximalL1(x, gamma):
     """(Euclidean) proximal operator of the \|x\|_1 norm.
