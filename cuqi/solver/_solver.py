@@ -669,7 +669,7 @@ class ADMM(object):
         - flag=2 indicates multiplication of the transpose of A with vector x, that is  A.T @ x.
     b : ndarray.
     penalty_terms : List of tuples (callable proximal operator of f_i, linear operator L_i)
-        Each callable proximal operator f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
+        Each callable proximal operator of f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
     x0 : ndarray. Initial guess.
     penalty_parameter : Trade-off between linear least squares and regularization term in the solver iterates. Denoted as "rho" in [1].
     maxit : The maximum number of iterations.
