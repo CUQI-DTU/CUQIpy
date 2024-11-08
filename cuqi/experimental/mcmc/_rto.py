@@ -204,7 +204,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.abstol = abstol   
         self.adaptive = adaptive
         self.maxit = maxit
-        self.max_inner_it=inner_max_it
+        self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
 
     def _initialize(self):
@@ -220,8 +220,8 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        if not callable(self.proximal):
-            raise TypeError("Proximal needs to be callable")
+        if not callable(self.proximal) and not isinstance(self.proximal, list):
+            raise TypeError("Proximal needs to be callable or a list")
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):

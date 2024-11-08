@@ -130,11 +130,11 @@ class RegularizedGaussian(Distribution):
             self._proximal = lambda z, _: ProjectBox(z, lower, upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
-            strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
+            self._strength = optional_regularization_parameters["strength"]
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
-            strength = optional_regularization_parameters["strength"]
+            self._strength = optional_regularization_parameters["strength"]
             if isinstance(self.geometry, (Continuous1D)):
                 self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='zero')
             elif isinstance(self.geometry, (Continuous2D, Image2D)):
