@@ -41,10 +41,15 @@ class RegularizedGaussian(Distribution):
     sqrtprec
         See :class:`~cuqi.distribution.Gaussian` for details.
 
-    proximal : callable f(x, scale) or None
-        Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
-        min_z 0.5||x-z||_2^2+scale*g(x).
-
+    proximal : callable f(x, scale), list of tuples (callable proximal operator of f_i, linear operator L_i) or None
+        If callable:
+            Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
+            min_z 0.5||x-z||_2^2+scale*g(x).
+        If list of tuples (callable proximal operator of f_i, linear operator L_i):
+            Each callable proximal operator of f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
+            The corresponding regularization takes the form
+                sum_i f_i(L_i x),
+            where the sum ranges from 1 to an arbitrary n.
 
     projector : callable f(x) or None
         Euclidean projection onto the constraint C, that is, a solver for the optimization problem
@@ -94,12 +99,14 @@ class RegularizedGaussian(Distribution):
             if callable(proximal):
                 if len(get_non_default_args(proximal)) != 2:
                     raise ValueError("Proximal should take 2 arguments.")
-            else:
+            if isinstance(proximal, list):
                 for (prox, op) in proximal:
-                    if len(get_non_default_args(proximal)) != 2:
+                    if len(get_non_default_args(prox)) != 2:
                         raise ValueError("Proximal should take 2 arguments.")
                     if op.shape[1] != self.geometry.par_dim:
                         raise ValueError("Incorrect shape of linear operator.")
+            else:
+                raise ValueError("Proximal needs to be callable or a list. See documentation.")
             
         if projector is not None:
             if not callable(projector):

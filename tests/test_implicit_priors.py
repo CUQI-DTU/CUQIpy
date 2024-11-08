@@ -16,7 +16,7 @@ def test_RegularizedGaussian_guarding_statements():
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, proximal=lambda s,z: s, constraint="nonnegativity")
 
     # Proximal
-    with pytest.raises(ValueError, match="Proximal needs to be callable"):
+    with pytest.raises(ValueError, match="Proximal needs to be callable or a list. See documentation."):
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, proximal=1)
 
     with pytest.raises(ValueError, match="Proximal should take 2 arguments"):
