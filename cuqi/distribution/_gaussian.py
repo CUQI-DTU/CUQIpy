@@ -784,3 +784,13 @@ class JointGaussianSqrtPrec(Distribution):
         for i in range(len(self._means)):
             result.append((self._sqrtprecs[i]@self._means[i]).flatten())
         return np.hstack(result)
+
+class ReparameterizedGaussian(Gaussian):
+    def __init__(self, mean=None, cov=None, **kwargs):
+        super().__init__(mean=mean, cov=cov, **kwargs)
+    def logpdf(self, x):
+        sigma = np.exp(x)
+        return super().logpdf(sigma) + np.sum(x)
+    def gradient(self, x):
+        sigma = np.exp(x)
+        return super().gradient(sigma) * sigma + 1.0
