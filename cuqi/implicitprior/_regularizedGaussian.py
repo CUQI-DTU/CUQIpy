@@ -137,9 +137,9 @@ class RegularizedGaussian(Distribution):
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
             self._strength = optional_regularization_parameters["strength"]
             if isinstance(self.geometry, (Continuous1D)):
-                self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='zero')
-            elif isinstance(self.geometry, (Continuous2D, Image2D)):
-                self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='zero')
+                self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='neumann')
+            elif isinstance(self.geometry, Continuous2D) or (isinstance(self.geometry, Image2D) and self.geometry.visual_only == False):
+                self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
             else:
                 raise ValueError("Geometry not supported for total variation")
             
@@ -257,10 +257,10 @@ class RegularizedGaussian(Distribution):
         self.gaussian.sqrtcov = value     
     
     def get_mutable_variables(self):
-        add = []
+        mutable_vars = self.gaussian.get_mutable_variables().copy()
         if self.preset in self.regularization_options():
-            add = ["strength"]
-        return self.gaussian.get_mutable_variables() + add
+            mutable_vars += ["strength"]
+        return mutable_vars
     
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.

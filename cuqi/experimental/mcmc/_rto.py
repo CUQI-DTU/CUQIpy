@@ -159,6 +159,10 @@ class RegularizedLinearRTO(LinearRTO):
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
+    The sampler works by repeatedly solving regularized linear least squares problems.
+    The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.
+    See :class:`~cuqi.implicitprior.RegularizedGaussian` for details.
+    Currently we use FISTA or ADMM.
 
     Parameters
     ------------
@@ -206,10 +210,11 @@ class RegularizedLinearRTO(LinearRTO):
         self.maxit = maxit
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
+        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _initialize(self):
         super()._initialize()
-        if callable(self.proximal):
+        if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
     @property
@@ -221,7 +226,7 @@ class RegularizedLinearRTO(LinearRTO):
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
         if not callable(self.proximal) and not isinstance(self.proximal, list):
-            raise TypeError("Proximal needs to be callable or a list")
+            raise TypeError("Proximal in the regularized Gaussian prior needs to be callable or a list")
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -246,12 +251,14 @@ class RegularizedLinearRTO(LinearRTO):
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
 
-        if callable(self.proximal):
+        if self._inner_solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
                         self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
-        else:
+        elif self._inner_solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)  
+        else:
+            raise ValueError("Choice of solver not supported.")
 
         self.current_point, _ = sim.solve()
         acc = 1
