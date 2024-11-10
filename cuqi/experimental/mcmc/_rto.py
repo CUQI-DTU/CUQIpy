@@ -217,6 +217,10 @@ class RegularizedLinearRTO(LinearRTO):
         if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
+    @property
+    def target(self):
+        return self.target
+    
     @target.setter
     def target(self, value):
         self.target = value
