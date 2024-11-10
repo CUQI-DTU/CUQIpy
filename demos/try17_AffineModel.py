@@ -12,6 +12,10 @@ from cuqi.array import CUQIarray
 # %% Test problem
 ### y = Ax + b
 ### Infer x, given the model A and b, and noisy observations of y
+### There are two ways to solve this problem: 
+### 1) either you use the linear model only y=Ax realizing that you can subtract the bias from the data or
+### 2) define an affine model and let CUQIpy handle it.
+### This script demonstrates that both methods provide the same results.
 
 # Dimensions
 n = 2
