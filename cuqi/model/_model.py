@@ -526,6 +526,11 @@ class AffineModel(Model):
         if linear_operator_adjoint is not None and not callable(linear_operator_adjoint):
             raise TypeError("Linear operator adjoint must be defined as a callable function of some kind")
 
+        # Check size of shift and match against range_geometry
+        if not np.isscalar(shift):
+            if len(shift) != range_geometry.par_dim:
+                raise ValueError("The shift should have the same dimension as the range geometry.")
+
         # Initialize Model class
         super().__init__(linear_operator, range_geometry, domain_geometry)
 
