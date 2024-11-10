@@ -474,6 +474,14 @@ class Model(object):
 class AffineModel(Model):
     """ Model class representing an affine model, i.e. a linear operator with a fixed shift. For linear models, represented by a linear operator only, see :class:`~cuqi.model.LinearModel`.
 
+    The affine model is defined as:
+
+    .. math::
+
+        x \\mapsto Ax + shift
+
+    where :math:`A` is the linear operator and :math:`shift` is the shift.
+
     Parameters
     ----------
 
