@@ -217,6 +217,11 @@ class RegularizedLinearRTO(LinearRTO):
         if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
+    @target.setter
+    def target(self, value):
+        self.target = value
+        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
+
     @property
     def proximal(self):
         return self.target.prior.proximal
