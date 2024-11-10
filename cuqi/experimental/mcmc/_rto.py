@@ -210,21 +210,11 @@ class RegularizedLinearRTO(LinearRTO):
         self.maxit = maxit
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
-        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _initialize(self):
         super()._initialize()
         if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
-
-    @property
-    def target(self):
-        return self.target
-    
-    @target.setter
-    def target(self, value):
-        self.target = value
-        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     @property
     def proximal(self):
@@ -236,6 +226,7 @@ class RegularizedLinearRTO(LinearRTO):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
         if not callable(self.proximal) and not isinstance(self.proximal, list):
             raise TypeError("Proximal in the regularized Gaussian prior needs to be callable or a list")
+        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
