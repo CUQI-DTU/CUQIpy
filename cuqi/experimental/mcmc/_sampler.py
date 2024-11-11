@@ -396,16 +396,19 @@ class Sampler(ABC):
         """ Return a string representation of the sampler. """
         if self.target is None:
             return f"Sampler: {self.__class__.__name__} \n Target: None"
-        self._ensure_initialized()
-        state = self.get_state()
-        msg = f" Sampler: \n\t {self.__class__.__name__} \n Target: \n \t {self.target} \n Current state: \n"
-        # Sort keys alphabetically
-        keys = sorted(state['state'].keys())
-        # Put _ in the end
-        keys = [key for key in keys if key[0] != '_'] + [key for key in keys if key[0] == '_']
-        for key in keys:
-            value = state['state'][key]
-            msg += f"\t {key}: {value} \n"
+        else:
+            msg = f"Sampler: {self.__class__.__name__} \n Target: \n \t {self.target} "
+            
+        if self._is_initialized:
+            state = self.get_state()
+            msg += f"\n Current state: \n"
+            # Sort keys alphabetically
+            keys = sorted(state['state'].keys())
+            # Put _ in the end
+            keys = [key for key in keys if key[0] != '_'] + [key for key in keys if key[0] == '_']
+            for key in keys:
+                value = state['state'][key]
+                msg += f"\t {key}: {value} \n"
         return msg
 
 class ProposalBasedSampler(Sampler, ABC):
