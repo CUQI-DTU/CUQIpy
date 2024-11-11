@@ -318,7 +318,7 @@ class MYULA(ULA):
         """ Create a smoothed target using a Moreau-Yoshida envelope. """
         copied_value = deepcopy(value)
         if isinstance(copied_value.prior, RestorationPrior):
-            name = copied_value.prior.name
+            name = value.prior.name
             copied_value.prior = MoreauYoshidaPrior(
                 copied_value.prior,
                 self.smoothing_strength,
