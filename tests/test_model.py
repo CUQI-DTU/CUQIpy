@@ -5,6 +5,7 @@ import scipy as sp
 import cuqi
 import pytest
 from scipy import optimize
+from copy import copy
 
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
@@ -470,4 +471,46 @@ def test_model_allows_jacobian_or_gradient():
     dir = np.random.randn(1)
 
     assert np.allclose(model_grad.gradient(dir, wrt), model_jac.gradient(dir, wrt))
+
+# Parametrize over models
+@pytest.mark.parametrize("model", [cuqi.testproblem.Deconvolution1D().model,
+                                   cuqi.testproblem.Heat1D().model])
+def test_AffineModel_Correct_result(model):
+    """ Test creating a shifted linear model from a linear model """
+
+    # Random vectors
+    x = np.random.randn(model.domain_dim)
+    b = np.random.randn(model.range_dim)
+
+    A_affine = cuqi.model.AffineModel(model, b, range_geometry = model.range_geometry, domain_geometry = model.domain_geometry)
+
+    # Dimension check
+    assert A_affine.range_dim == model.range_dim
+
+    # Check that the shifted linear model is correct
+    assert np.allclose(A_affine(x), model(x) + b)
+
+def test_AffineModel_update_shift():
+
+    A = np.eye(2)
+    b = np.array([1, 2])
+    x = np.array([1, 1])
+    new_shift = np.array([2,-1])
+    model = cuqi.model.AffineModel(A, b)
+    model_copy = copy(model)
+
+    # check model output
+    assert np.all(model(x) == np.array([2,3]))
+
+    # check model output with updated shift
+    model.shift = new_shift
+    assert np.all(model(x) == np.array([3,0]))
+
+    # check model output of copied model
+    assert np.all(model_copy(x) == np.array([2,3]))
+
+    # check model output of copied model with updated shift
+    model_copy.shift = new_shift
+    assert np.all(model_copy(x) == np.array([3,0]))
+
 
