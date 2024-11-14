@@ -1,6 +1,6 @@
 """
 The use of Image2D
-=====================================================
+==================
 
 This script demonstrates the use of :class:`~cuqi.distribution.Image2D`. Depending on how the input variable is used in the forward model, the geometry of it can be set to be visual only or not by setting the `visual_only` attribute. Generally, if your forward operator expects a vector input, set `visual_only` to `True`. If it expects an image input, set `visual_only` to `False`, which is the default.
 """
@@ -17,8 +17,8 @@ dim_x, dim_y = 2, 4
 
 # %%
 # Example with `visual_only=False`
-# The underlying structure of a CUQI array or sample will be reshaped to the shape of the specified geometry, i.e., (dim_x, dim_y), before being passed to the model.
-# Here we intend to define a forward operator that downsamples the input image by a factor of 2. It's easier to define the forward operator in terms of an image, so we set `visual_only` to `False`.
+# With `visual_only=False`, the underlying structure of a CUQI array or sample will be reshaped to the shape of the specified geometry, i.e., an image of size (dim_x, dim_y), before being passed to the model.
+# Here we intend to define a forward operator that downsamples the input image by a factor of 2. It's easier to define such a forward operator in terms of an image, so we set `visual_only` to `False`.
 domain_geom_a = cuqi.geometry.Image2D((dim_x, dim_y), visual_only=False)
 range_geom = cuqi.geometry.Image2D((dim_x // 2, dim_y // 2))
 
