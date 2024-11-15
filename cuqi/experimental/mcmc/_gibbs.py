@@ -5,6 +5,7 @@ from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
+import inspect
 
 try:
     from tqdm import tqdm
@@ -103,7 +104,7 @@ class HybridGibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None, callback=None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -119,6 +120,8 @@ class HybridGibbs:
 
         # Initialize sampler (after target is set)
         self._initialize()
+
+        self.callback = callback
 
     def _initialize(self):
         """ Initialize sampler """
@@ -158,10 +161,11 @@ class HybridGibbs:
             The number of samples to draw.
 
         """
-
-        for _ in tqdm(range(Ns), "Sample: "):
+        self._Ns = Ns
+        for idx in tqdm(range(Ns), "Sample: "):
 
             self.step()
+            self.callback(self, idx)
 
             self._store_samples()
 
@@ -221,6 +225,18 @@ class HybridGibbs:
             # Extract state and history from sampler
             if isinstance(sampler, NUTS): # Special case for NUTS as it is not playing nice with get_state and get_history
                 sampler.initial_point = sampler.current_point
+                max_depth = sampler.max_depth
+                enable_FD = sampler._enable_FD
+                num_tree_node_list = sampler.num_tree_node_list
+                # if  step_size is not set, use the last epsilon value from the epsilon_list
+                # to set it.
+                if not isinstance(sampler._step_size, (int, float)):
+                    step_size = sampler.epsilon_list[-1] if len(sampler.epsilon_list) > 0 else sampler._epsilon
+                    # If the parent method in the calling stack is sample, use step_size from the sampler
+                    if 'sample' in [frame.function for frame in inspect.stack()]:
+                        sampler._step_size = step_size
+                epsilon_list = sampler.epsilon_list
+
             else:
                 sampler_state = sampler.get_state()
                 sampler_history = sampler.get_history()
@@ -229,7 +245,12 @@ class HybridGibbs:
             sampler.reinitialize()
 
             # Set state and history back to sampler
-            if not isinstance(sampler, NUTS): # Again, special case for NUTS.
+            if isinstance(sampler, NUTS): # Again, special case for NUTS.
+                sampler._enable_FD = enable_FD
+                sampler.max_depth = max_depth
+                sampler.num_tree_node_list = num_tree_node_list
+                sampler.epsilon_list = epsilon_list
+            else:
                 sampler.set_state(sampler_state)
                 sampler.set_history(sampler_history)
 
