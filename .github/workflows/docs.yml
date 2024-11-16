@@ -23,13 +23,13 @@ jobs:
         run: |
           sphinx-build docs ./public
 
-    # If PR-based build. Upload artifact of the documentation for download and review
-    - name: Upload artifact
-      if: ${{ github.event_name == 'pull_request' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: docs_build
-        path: ./_build/html
+      # If PR-based build. Upload artifact of the documentation for download and review
+      - name: Upload artifact
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs_build
+          path: ./_build/html
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
