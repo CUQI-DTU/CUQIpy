@@ -330,12 +330,15 @@ def create_myula_target(dim=16):
     """Create a target for MYULA."""
     def func(x, restoration_strength=1):
         return x, True
-    likelihood = cuqi.testproblem.Deconvolution1D(
+    y = cuqi.testproblem.Deconvolution1D(
         dim=dim).posterior.likelihood 
-    restoration_prior = cuqi.implicitprior.RestorationPrior(
-        func, geometry=likelihood.model.domain_geometry)
+    x = cuqi.implicitprior.RestorationPrior(
+        func, geometry=y.model.domain_geometry)
+    # access name property to ensure RestorationPrior
+    # name is set 
+    x.name
     posterior = cuqi.distribution.Posterior(
-        likelihood, restoration_prior)
+        y, x)
     return posterior
 
 def create_myula_smoothed_target(dim=16):
@@ -368,6 +371,10 @@ def test_myula():
     assert samples_ula.Ns == 10
     assert samples_myula.Ns == 10
     assert np.allclose(samples_myula.samples, samples_ula.samples)
+    # Assert the name of the MoreauYoshidaPrior created by MYULA is
+    # the same name as the corresponding RestorationPrior (both are named x)
+    assert myula._smoothed_target.prior.name == 'x'
+    assert myula.target.prior.name == 'x'
 
 def test_myula_object_creation_fails_with_target_without_restore_method():
     """ Test that MYULA object creation fails with target that does not
