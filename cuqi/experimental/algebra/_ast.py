@@ -51,6 +51,11 @@ class Node(ABC):
         """Evaluate node at a given parameter value. This will traverse the tree and evaluate it given the recorded operations."""
         pass
 
+    @abstractmethod
+    def __repr__(self):
+        """String representation of the node. Used for printing the AST."""
+        pass
+
     def __add__(self, other):
         return AddNode(self, convert_to_node(other))
 
@@ -110,10 +115,6 @@ class UnaryNode(Node, ABC):
     def __init__(self, child: Node):
         self.child = child
 
-    @abstractmethod
-    def __repr__(self):
-        pass
-
 
 class BinaryNode(Node, ABC):
     """Base class for all binary nodes in the abstract syntax tree.
@@ -130,7 +131,11 @@ class BinaryNode(Node, ABC):
 
     """
 
-    op_symbol = None
+    @property
+    @abstractmethod
+    def op_symbol(self):
+        """Symbol used to represent the operation in the __repr__ method."""
+        pass
 
     def __init__(self, left: Node, right: Node):
         self.left = left
@@ -207,7 +212,9 @@ class ValueNode(Node):
 class AddNode(BinaryNode):
     """Node that represents the addition operation."""
 
-    op_symbol = "+"
+    @property
+    def op_symbol(self):
+        return "+"
 
     def __call__(self, **kwargs):
         return self.left(**kwargs) + self.right(**kwargs)
@@ -216,7 +223,9 @@ class AddNode(BinaryNode):
 class SubtractNode(BinaryNode):
     """Node that represents the subtraction operation."""
 
-    op_symbol = "-"
+    @property
+    def op_symbol(self):
+        return "-"
 
     def __call__(self, **kwargs):
         return self.left(**kwargs) - self.right(**kwargs)
@@ -225,7 +234,9 @@ class SubtractNode(BinaryNode):
 class MultiplyNode(BinaryNodeWithParenthesis):
     """Node that represents the multiplication operation."""
 
-    op_symbol = "*"
+    @property
+    def op_symbol(self):
+        return "*"
 
     def __call__(self, **kwargs):
         return self.left(**kwargs) * self.right(**kwargs)
@@ -234,7 +245,9 @@ class MultiplyNode(BinaryNodeWithParenthesis):
 class DivideNode(BinaryNodeWithParenthesis):
     """Node that represents the division operation."""
 
-    op_symbol = "/"
+    @property
+    def op_symbol(self):
+        return "/"
 
     def __call__(self, **kwargs):
         return self.left(**kwargs) / self.right(**kwargs)
@@ -243,7 +256,9 @@ class DivideNode(BinaryNodeWithParenthesis):
 class PowerNode(BinaryNodeWithParenthesis):
     """Node that represents the power operation."""
 
-    op_symbol = "^"
+    @property
+    def op_symbol(self):
+        return "^"
 
     def __call__(self, **kwargs):
         return self.left(**kwargs) ** self.right(**kwargs)
@@ -288,7 +303,9 @@ class AbsNode(UnaryNode):
 class MatMulNode(BinaryNodeWithParenthesis):
     """Node that represents the matrix multiplication operation."""
 
-    op_symbol = "@"
+    @property
+    def op_symbol(self):
+        return "@"
 
     def __call__(self, **kwargs):
         return self.left(**kwargs) @ self.right(**kwargs)
