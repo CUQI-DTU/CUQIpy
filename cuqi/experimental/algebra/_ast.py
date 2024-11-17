@@ -273,6 +273,10 @@ class GetItemNode(BinaryNode):
     def __repr__(self):
         left = f"({self.left})" if isinstance(self.left, BinaryNode) else str(self.left)
         return f"{left}[{self.right}]"
+    
+    @property
+    def op_symbol(self):
+        pass
 
 
 class NegateNode(UnaryNode):
