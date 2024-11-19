@@ -16,10 +16,13 @@ import matplotlib.pyplot as plt
 dim_x, dim_y = 2, 4
 
 # %%
-# Example with `visual_only=False`
-# With `visual_only=False`, the underlying structure of a CUQI array or sample will be reshaped to the shape of the specified geometry, i.e., an image of size (dim_x, dim_y), before being passed to the model.
-# Here we intend to define a forward operator that downsamples the input image by a factor of 2. It's easier to define such a forward operator in terms of an image, so we set `visual_only` to `False`.
-domain_geom_a = cuqi.geometry.Image2D((dim_x, dim_y), visual_only=False)
+# Example illustrating the default behavior: `visual_only=False`
+# With `visual_only=False`, the underlying structure of a CUQI array or sample will be reshaped to the
+# shape of the specified geometry, i.e., an image of size (dim_x, dim_y), before being passed to the model.
+# Here we intend to define a forward operator that downsamples the input image by a factor of 2. It's easier
+# to define such a forward operator in terms of an image. We do not need to explicitly set `visual_only` to 
+#`False` because it is the default behavior.
+domain_geom_a = cuqi.geometry.Image2D((dim_x, dim_y))
 range_geom = cuqi.geometry.Image2D((dim_x // 2, dim_y // 2))
 
 def forward_func_a(image):
