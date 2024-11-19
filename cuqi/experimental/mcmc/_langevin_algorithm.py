@@ -3,7 +3,7 @@ import cuqi
 from cuqi.experimental.mcmc import Sampler
 from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
 from cuqi.array import CUQIarray
-from copy import deepcopy
+from copy import copy
 
 class ULA(Sampler): # Refactor to Proposal-based sampler?
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
@@ -316,11 +316,14 @@ class MYULA(ULA):
 
     def _create_smoothed_target(self, value):
         """ Create a smoothed target using a Moreau-Yoshida envelope. """
-        copied_value = deepcopy(value)
+        copied_value = copy(value)
         if isinstance(copied_value.prior, RestorationPrior):
+            # Acceess the prior name
+            name = value.prior.name
             copied_value.prior = MoreauYoshidaPrior(
                 copied_value.prior,
-                self.smoothing_strength)
+                self.smoothing_strength,
+                name=name)
         return copied_value
 
     def validate_target(self):
