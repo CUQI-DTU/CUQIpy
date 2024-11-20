@@ -522,6 +522,9 @@ class Image2D(Geometry):
     Plotting is handled via matplotlib.pyplot.imshow.
     Colormap is defaulted to grayscale.
 
+    A How-To guide on the use of Image2D as the domain/range geometry of a CUQI 
+    :class:`Model` is available `here <https://cuqi-dtu.github.io/CUQIpy/user/_auto_howtos/myula.html>`_.
+
     Parameters
     -----------
     im_shape : tuple
