@@ -161,7 +161,6 @@ class RegularizedLinearRTO(LinearRTO):
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
     The sampler works by repeatedly solving regularized linear least squares problems for perturbed data.
     The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.
-    See :class:`~cuqi.implicitprior.RegularizedGaussian` for details.
     Currently we use the following solvers:
     FISTA: [1] Beck, Amir, and Marc Teboulle. "A fast iterative shrinkage-thresholding algorithm for linear inverse problems." SIAM journal on imaging sciences 2.1 (2009): 183-202.
     ADMM: [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
@@ -187,7 +186,7 @@ class RegularizedLinearRTO(LinearRTO):
 
     penalty_parameter : int
         Penalty parameter of the inner ADMM solver. *Optional*.
-        See [2]
+        See [2] or `cuqi.solver.ADMM`
 
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
@@ -227,8 +226,6 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        if not callable(self.proximal) and not isinstance(self.proximal, list):
-            raise TypeError("Proximal in the regularized Gaussian prior needs to be callable or a list")
         self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
