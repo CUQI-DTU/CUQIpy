@@ -100,7 +100,7 @@ class RegularizedGaussian(Distribution):
             if callable(proximal):
                 if len(get_non_default_args(proximal)) != 2:
                     raise ValueError("Proximal should take 2 arguments.")
-            if isinstance(proximal, list):
+            elif isinstance(proximal, list):
                 for (prox, op) in proximal:
                     if len(get_non_default_args(prox)) != 2:
                         raise ValueError("Proximal should take 2 arguments.")
@@ -136,9 +136,7 @@ class RegularizedGaussian(Distribution):
             self._preset = "l1"
         elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
             self._strength = optional_regularization_parameters["strength"]
-            if isinstance(self.geometry, (Continuous1D)):
-                self._transformation = FirstOrderFiniteDifference(self.geometry.par_dim, bc_type='neumann')
-            elif isinstance(self.geometry, Continuous2D) or (isinstance(self.geometry, Image2D) and self.geometry.visual_only == False):
+            if isinstance(self.geometry, (Continuous1D, Continuous2D, Image2D)):
                 self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
             else:
                 raise ValueError("Geometry not supported for total variation")

@@ -162,7 +162,10 @@ class RegularizedLinearRTO(LinearRTO):
     The sampler works by repeatedly solving regularized linear least squares problems.
     The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.
     See :class:`~cuqi.implicitprior.RegularizedGaussian` for details.
-    Currently we use FISTA or ADMM.
+    Currently we use the following solvers:
+    FISTA: [1] Beck, Amir, and Marc Teboulle. "A fast iterative shrinkage-thresholding algorithm for linear inverse problems." SIAM journal on imaging sciences 2.1 (2009): 183-202.
+    ADMM: [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
+
 
     Parameters
     ------------
@@ -176,7 +179,7 @@ class RegularizedLinearRTO(LinearRTO):
         Maximum number of iterations of the inner FISTA/ADMM solver. *Optional*.
 
     inner_max_it : int
-        Maximum number of iterations of the inner ADMM solver. *Optional*.
+        Maximum number of iterations of the CGLS solver used within the ADMM solver. *Optional*.
         
     stepsize : string or float
         If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
@@ -184,7 +187,7 @@ class RegularizedLinearRTO(LinearRTO):
 
     penalty_parameter : int
         Penalty parameter of the inner ADMM solver. *Optional*.
-        See `cuqi.solver.ADMM`
+        See [2]
 
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
