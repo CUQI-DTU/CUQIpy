@@ -163,8 +163,9 @@ class RegularizedLinearRTO(LinearRTO):
     The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.
     Currently we use the following solvers:
     FISTA: [1] Beck, Amir, and Marc Teboulle. "A fast iterative shrinkage-thresholding algorithm for linear inverse problems." SIAM journal on imaging sciences 2.1 (2009): 183-202.
-    ADMM: [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
-
+           Used when prior.proximal is callable.
+    ADMM:  [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
+           Used when prior.proximal is a list of penalty terms.
 
     Parameters
     ------------
