@@ -96,19 +96,6 @@ class RegularizedGaussian(Distribution):
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
             raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
 
-        if proximal is not None:
-            if callable(proximal):
-                if len(get_non_default_args(proximal)) != 2:
-                    raise ValueError("Proximal should take 2 arguments.")
-            elif isinstance(proximal, list):
-                for (prox, op) in proximal:
-                    if len(get_non_default_args(prox)) != 2:
-                        raise ValueError("Proximal should take 2 arguments.")
-                    if op.shape[1] != self.geometry.par_dim:
-                        raise ValueError("Incorrect shape of linear operator in proximal list.")
-            else:
-                raise ValueError("Proximal needs to be callable or a list. See documentation.")
-            
         if projector is not None:
             if not callable(projector):
                 raise ValueError("Projector needs to be callable.")
@@ -119,7 +106,8 @@ class RegularizedGaussian(Distribution):
         self._preset = None
         
         if proximal is not None:
-            self._proximal = proximal
+            # No need to generate the proximal and associated information
+            self.proximal = proximal
         elif projector is not None:
             self._proximal = lambda z, gamma: projector(z)
         elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
@@ -183,6 +171,25 @@ class RegularizedGaussian(Distribution):
     def proximal(self):
         return self._proximal
     
+    @proximal.setter
+    def proximal(self, value):
+        if callable(value):
+            if len(get_non_default_args(value)) != 2:
+                raise ValueError("Proximal should take 2 arguments.")
+        elif isinstance(value, list):
+            for (prox, op) in value:
+                if len(get_non_default_args(prox)) != 2:
+                    raise ValueError("Proximal should take 2 arguments.")
+                if op.shape[1] != self.geometry.par_dim:
+                    raise ValueError("Incorrect shape of linear operator in proximal list.")
+        else:
+            raise ValueError("Proximal needs to be callable or a list. See documentation.")
+        
+        self._proximal = value
+
+        # For all the presets, self._proximal is set directly, 
+        self._preset = None
+            
     @property
     def preset(self):
         return self._preset
@@ -325,7 +332,7 @@ class ConstrainedGaussian(RegularizedGaussian):
         min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None
-        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
+        Preset constraints that generate the corresponding proximal parameter. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
         For "box", the following additional parameters can be passed:
             lower_bound : array_like or None
                 Lower bound of box, defaults to zero
