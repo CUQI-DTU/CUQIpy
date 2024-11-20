@@ -2,7 +2,7 @@
 The use of Image2D
 ==================
 
-This script demonstrates the use of :class:`~cuqi.geometry.Image2D` for domain and range geometries in CUQIpy forward models. The settings of this geometry, in particular the so-called 'visual_only' flag, depend on how the forward model input is operated on in the forward model. `visual_only` flag tells the geometry to interpret the variable as a 2D image only when visualizing the variable but keep it as a vector when being operated on in the forward model. Generally, if the forward operator expects an image input, set `visual_only` to `False`, which is the default in CUQIpy. Otherwise, if it expects a vector input, set `visual_only` to `True` in the domain geometry. In the same way, the range geometry `visual_only` setting should be consistent with your forward operator output.
+This script demonstrates the use of :class:`~cuqi.geometry.Image2D` for domain and range geometries in CUQIpy forward models. The settings of this geometry, in particular the so-called `visual_only` flag, depend on how the forward model input is operated on in the forward model. `visual_only` flag tells the geometry to interpret the variable as a 2D image only when visualizing the variable but keep it as a vector when being operated on in the forward model. Generally, if the forward operator expects an image input, set `visual_only` to `False`, which is the default in CUQIpy. Otherwise, if it expects a vector input, set `visual_only` to `True` in the domain geometry. In the same way, the range geometry `visual_only` setting should be consistent with your forward operator output.
 """
 
 # %%
