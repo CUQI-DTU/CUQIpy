@@ -105,7 +105,7 @@ class RegularizedGaussian(Distribution):
                     if len(get_non_default_args(prox)) != 2:
                         raise ValueError("Proximal should take 2 arguments.")
                     if op.shape[1] != self.geometry.par_dim:
-                        raise ValueError("Incorrect shape of linear operator.")
+                        raise ValueError("Incorrect shape of linear operator in proximal list.")
             else:
                 raise ValueError("Proximal needs to be callable or a list. See documentation.")
             

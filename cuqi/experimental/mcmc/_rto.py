@@ -159,7 +159,7 @@ class RegularizedLinearRTO(LinearRTO):
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
-    The sampler works by repeatedly solving regularized linear least squares problems.
+    The sampler works by repeatedly solving regularized linear least squares problems for perturbed data.
     The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.
     See :class:`~cuqi.implicitprior.RegularizedGaussian` for details.
     Currently we use the following solvers:
