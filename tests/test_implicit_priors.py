@@ -16,7 +16,7 @@ def test_RegularizedGaussian_guarding_statements():
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, proximal=lambda s,z: s, constraint="nonnegativity")
 
     # Proximal
-    with pytest.raises(ValueError, match="Proximal needs to be callable"):
+    with pytest.raises(ValueError, match="Proximal needs to be callable or a list. See documentation."):
         cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1, proximal=1)
 
     with pytest.raises(ValueError, match="Proximal should take 2 arguments"):
@@ -104,3 +104,37 @@ def test_RegularizedUnboundedUniform_is_RegularizedGaussian():
     x = cuqi.implicitprior.RegularizedUnboundedUniform(cuqi.geometry.Continuous1D(5), regularization="l1", strength = 5.0)
     
     assert np.allclose(x.gaussian.sqrtprec, 0.0)
+
+def test_RegularizedGaussian_conditioning_constrained():
+    """ Test that conditioning the implicit regularized Gaussian works as expected """
+    
+    x  = cuqi.implicitprior.RegularizedGMRF(lambda a:a*np.ones(2**2),
+                     prec = lambda b:5*b,
+                     constraint = "nonnegativity",
+                     geometry = cuqi.geometry.Image2D((2,2)))
+    
+    assert x.get_mutable_variables() == ['mean', 'prec']
+    assert x.get_conditioning_variables() == ['a', 'b']
+
+    x = x(a=1, b=2)
+
+    assert np.allclose(x.mean, [1, 1, 1, 1])
+    assert np.allclose(x.prec, 10)
+
+def test_RegularizedGaussian_conditioning_strength():
+    """ Test that conditioning the implicit regularized Gaussian works as expected """
+    
+    x  = cuqi.implicitprior.RegularizedGMRF(lambda a:a*np.ones(2**2),
+                     prec = lambda b:5*b,
+                     regularization = "tv",
+                     strength = lambda c:c*2,
+                     geometry = cuqi.geometry.Image2D((2,2)))
+    
+    assert x.get_mutable_variables() == ['mean', 'prec', 'strength']
+    assert x.get_conditioning_variables() == ['a', 'b', 'c']
+
+    x = x(a=1, b=2, c=3)
+
+    assert np.allclose(x.mean, [1, 1, 1, 1])
+    assert np.allclose(x.prec, 10)
+    assert np.allclose(x.strength, 6)

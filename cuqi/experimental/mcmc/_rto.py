@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA
+from cuqi.solver import CGLS, FISTA, ADMM
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -161,6 +161,13 @@ class RegularizedLinearRTO(LinearRTO):
     Regularized Linear RTO (Randomize-Then-Optimize) sampler.
 
     Samples posterior related to the inverse problem with Gaussian likelihood and implicit Gaussian prior, and where the forward model is Linear.
+    The sampler works by repeatedly solving regularized linear least squares problems for perturbed data.
+    The solver for these optimization problems is chosen based on how the regularized is provided in the implicit Gaussian prior.
+    Currently we use the following solvers:
+    FISTA: [1] Beck, Amir, and Marc Teboulle. "A fast iterative shrinkage-thresholding algorithm for linear inverse problems." SIAM journal on imaging sciences 2.1 (2009): 183-202.
+           Used when prior.proximal is callable.
+    ADMM:  [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
+           Used when prior.proximal is a list of penalty terms.
 
     Parameters
     ------------
@@ -171,11 +178,18 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the inner FISTA solver. *Optional*.
+        Maximum number of iterations of the inner FISTA/ADMM solver. *Optional*.
+
+    inner_max_it : int
+        Maximum number of iterations of the CGLS solver used within the ADMM solver. *Optional*.
         
     stepsize : string or float
         If stepsize is a string and equals either "automatic", then the stepsize is automatically estimated based on the spectral norm.
         If stepsize is a float, then this stepsize is used.
+
+    penalty_parameter : int
+        Penalty parameter of the inner ADMM solver. *Optional*.
+        See [2] or `cuqi.solver.ADMM`
 
     abstol : float
         Absolute tolerance of the inner FISTA solver. *Optional*.
@@ -190,7 +204,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, stepsize="automatic", abstol=1e-10, adaptive=True, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -199,10 +213,13 @@ class RegularizedLinearRTO(LinearRTO):
         self.abstol = abstol   
         self.adaptive = adaptive
         self.maxit = maxit
+        self.inner_max_it = inner_max_it
+        self.penalty_parameter = penalty_parameter
 
     def _initialize(self):
         super()._initialize()
-        self._stepsize = self._choose_stepsize()
+        if self._inner_solver == "FISTA":
+            self._stepsize = self._choose_stepsize()
 
     @property
     def proximal(self):
@@ -212,8 +229,7 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        if not callable(self.proximal):
-            raise TypeError("Proximal needs to be callable")
+        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -237,8 +253,16 @@ class RegularizedLinearRTO(LinearRTO):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = FISTA(self.M, y, self.proximal,
-                    self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+
+        if self._inner_solver == "FISTA":
+            sim = FISTA(self.M, y, self.proximal,
+                        self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+        elif self._inner_solver == "ADMM":
+            sim = ADMM(self.M, y, self.proximal,
+                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)  
+        else:
+            raise ValueError("Choice of solver not supported.")
+
         self.current_point, _ = sim.solve()
         acc = 1
         return acc

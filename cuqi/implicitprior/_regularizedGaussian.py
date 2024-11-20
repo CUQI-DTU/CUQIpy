@@ -1,6 +1,8 @@
 from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
+from cuqi.geometry import Continuous1D, Continuous2D, Image2D
+from cuqi.operator import FirstOrderFiniteDifference
 
 import numpy as np
 
@@ -39,17 +41,22 @@ class RegularizedGaussian(Distribution):
     sqrtprec
         See :class:`~cuqi.distribution.Gaussian` for details.
 
-    proximal : callable f(x, scale) or None
-        Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
-        min_z 0.5||x-z||_2^2+scale*g(x).
-
+    proximal : callable f(x, scale), list of tuples (callable proximal operator of f_i, linear operator L_i) or None
+        If callable:
+            Euclidean proximal operator f of the regularization function g, that is, a solver for the optimization problem
+            min_z 0.5||x-z||_2^2+scale*g(x).
+        If list of tuples (callable proximal operator of f_i, linear operator L_i):
+            Each callable proximal operator of f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
+            The corresponding regularization takes the form
+                sum_i f_i(L_i x),
+            where the sum ranges from 1 to an arbitrary n.
 
     projector : callable f(x) or None
         Euclidean projection onto the constraint C, that is, a solver for the optimization problem
         min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None
-        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
+        Preset constraints that generate the corresponding proximal parameter. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
         For "box", the following additional parameters can be passed:
             lower_bound : array_like or None
                 Lower bound of box, defaults to zero
@@ -57,10 +64,10 @@ class RegularizedGaussian(Distribution):
                 Upper bound of box, defaults to one
 
     regularization : string or None
-        Preset regularization. Can be set to "l1". Required for use in Gibbs in future update.
-        For "l1", the following additional parameters can be passed:
+        Preset regularization that generate the corresponding proximal parameter. Can be set to "l1" or 'tv'. Required for use in Gibbs in future update.
+        For "l1" or "tv", the following additional parameters can be passed:
             strength : scalar
-                Regularization parameter, i.e., strength*||x||_1 , defaults to one
+                Regularization parameter, i.e., strength*||Lx||_1, defaults to one
 
     """
         
@@ -75,6 +82,7 @@ class RegularizedGaussian(Distribution):
         
         # We init the underlying Gaussian first for geometry and dimensionality handling
         self._gaussian = Gaussian(mean=mean, cov=cov, prec=prec, sqrtcov=sqrtcov, sqrtprec=sqrtprec, **kwargs)
+        kwargs.pop("geometry", None)
 
         # Init from abstract distribution class
         super().__init__(**kwargs)
@@ -88,12 +96,6 @@ class RegularizedGaussian(Distribution):
         if (proximal is not None) + (projector is not None) + (constraint is not None) + (regularization is not None) != 1:
             raise ValueError("Precisely one of proximal, projector, constraint or regularization needs to be provided.")
 
-        if proximal is not None:
-            if not callable(proximal):
-                raise ValueError("Proximal needs to be callable.")
-            if len(get_non_default_args(proximal)) != 2:
-                raise ValueError("Proximal should take 2 arguments.")
-            
         if projector is not None:
             if not callable(projector):
                 raise ValueError("Projector needs to be callable.")
@@ -104,7 +106,8 @@ class RegularizedGaussian(Distribution):
         self._preset = None
         
         if proximal is not None:
-            self._proximal = proximal
+            # No need to generate the proximal and associated information
+            self.proximal = proximal
         elif projector is not None:
             self._proximal = lambda z, gamma: projector(z)
         elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
@@ -113,14 +116,47 @@ class RegularizedGaussian(Distribution):
         elif (isinstance(constraint, str) and constraint.lower() == "box"):
             lower = optional_regularization_parameters["lower_bound"]
             upper = optional_regularization_parameters["upper_bound"]
-            self._proximal = lambda z, gamma: ProjectBox(z, lower, upper)
+            self._proximal = lambda z, _: ProjectBox(z, lower, upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
-            strength = optional_regularization_parameters["strength"]
-            self._proximal = lambda z, gamma: ProximalL1(z, gamma*strength)
+            self._strength = optional_regularization_parameters["strength"]
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
             self._preset = "l1"
+        elif (isinstance(regularization, str) and regularization.lower() in ["tv"]):
+            self._strength = optional_regularization_parameters["strength"]
+            if isinstance(self.geometry, (Continuous1D, Continuous2D, Image2D)):
+                self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
+            else:
+                raise ValueError("Geometry not supported for total variation")
+            
+            self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            self._regularization_oper = self._transformation
+
+            self._proximal = [(self._regularization_prox, self._regularization_oper)]
+            self._preset = "tv"
         else:
             raise ValueError("Regularization not supported")
+
+    
+    @property
+    def transformation(self):
+        return self._transformation
+    
+    @property
+    def strength(self):
+        return self._strength
+        
+    @strength.setter
+    def strength(self, value):
+        if self._preset not in self.regularization_options():
+            raise TypeError("Strength is only used when the regularization is set to l1 or TV.")
+
+        self._strength = value
+        if self._preset == "tv":
+            self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
+            self._proximal = [(self._regularization_prox, self._regularization_oper)]
+        elif self._preset == "l1":
+            self._proximal = lambda z, gamma: ProximalL1(z, gamma*self._strength)
 
     # This is a getter only attribute for the underlying Gaussian
     # It also ensures that the name of the underlying Gaussian
@@ -135,6 +171,25 @@ class RegularizedGaussian(Distribution):
     def proximal(self):
         return self._proximal
     
+    @proximal.setter
+    def proximal(self, value):
+        if callable(value):
+            if len(get_non_default_args(value)) != 2:
+                raise ValueError("Proximal should take 2 arguments.")
+        elif isinstance(value, list):
+            for (prox, op) in value:
+                if len(get_non_default_args(prox)) != 2:
+                    raise ValueError("Proximal should take 2 arguments.")
+                if op.shape[1] != self.geometry.par_dim:
+                    raise ValueError("Incorrect shape of linear operator in proximal list.")
+        else:
+            raise ValueError("Proximal needs to be callable or a list. See documentation.")
+        
+        self._proximal = value
+
+        # For all the presets, self._proximal is set directly, 
+        self._preset = None
+            
     @property
     def preset(self):
         return self._preset
@@ -154,7 +209,7 @@ class RegularizedGaussian(Distribution):
 
     @staticmethod
     def regularization_options():
-        return ["l1"]
+        return ["l1", "tv"]
 
 
     # --- Defer behavior of the underlying Gaussian --- #
@@ -206,16 +261,18 @@ class RegularizedGaussian(Distribution):
     def sqrtcov(self, value):
         self.gaussian.sqrtcov = value     
     
-    def get_conditioning_variables(self):
-        return self.gaussian.get_conditioning_variables()
-    
     def get_mutable_variables(self):
-        return self.gaussian.get_mutable_variables()
+        mutable_vars = self.gaussian.get_mutable_variables().copy()
+        if self.preset in self.regularization_options():
+            mutable_vars += ["strength"]
+        return mutable_vars
     
     # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
     # which means we convert Distribution to Likelihood or EvaluatedDensity.
     def _condition(self, *args, **kwargs):
-
+        if self.preset in self.regularization_options():
+            return super()._condition(*args, **kwargs)
+        
         # Handle positional arguments (similar code as in Distribution._condition)
         cond_vars = self.get_conditioning_variables()
         kwargs = self._parse_args_add_to_kwargs(cond_vars, *args, **kwargs)
@@ -275,7 +332,7 @@ class ConstrainedGaussian(RegularizedGaussian):
         min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None
-        Preset constraints. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
+        Preset constraints that generate the corresponding proximal parameter. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
         For "box", the following additional parameters can be passed:
             lower_bound : array_like or None
                 Lower bound of box, defaults to zero
