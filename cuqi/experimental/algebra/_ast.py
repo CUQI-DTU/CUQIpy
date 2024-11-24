@@ -155,6 +155,16 @@ class BinaryNodeWithParenthesis(BinaryNode, ABC):
         )
         return f"{left} {self.op_symbol} {right}"
 
+class BinaryNodeWithParenthesisNoSpace(BinaryNode, ABC):
+    """Base class for all binary nodes in the abstract syntax tree that should be printed with parenthesis but no space."""
+
+    def __repr__(self):
+        left = f"({self.left})" if isinstance(self.left, BinaryNode) else str(self.left)
+        right = (
+            f"({self.right})" if isinstance(self.right, BinaryNode) else str(self.right)
+        )
+        return f"{left}{self.op_symbol}{right}"
+
 
 # ====== Specific implementations of the "leaf" nodes ======
 
@@ -253,7 +263,7 @@ class DivideNode(BinaryNodeWithParenthesis):
         return self.left(**kwargs) / self.right(**kwargs)
 
 
-class PowerNode(BinaryNodeWithParenthesis):
+class PowerNode(BinaryNodeWithParenthesisNoSpace):
     """Node that represents the power operation."""
 
     @property
