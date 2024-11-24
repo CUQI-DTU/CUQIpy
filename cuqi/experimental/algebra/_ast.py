@@ -48,7 +48,7 @@ class Node(ABC):
 
     @abstractmethod
     def __call__(self, **kwargs):
-        """Evaluate node at a given parameter value. This will traverse the tree and evaluate it given the recorded operations."""
+        """Evaluate node at a given parameter value. This will traverse the sub-tree originated at this node and evaluate it given the recorded operations."""
         pass
 
     @abstractmethod
