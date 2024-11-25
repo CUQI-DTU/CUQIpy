@@ -16,7 +16,8 @@ class RestorationPrior(Distribution):
     ---------- 
     restorator : callable f(x, restoration_strength)
         Function f that accepts input x to be restored and returns the
-        restored version of x and information about the restoration operation.
+        restored version of x or a two-element tuple of the restored version of
+         x and extra information about the restoration operation.
             
     restorator_kwargs : dictionary
         Dictionary containing information about the restorator.
@@ -54,9 +55,14 @@ class RestorationPrior(Distribution):
             restorator is a denoiser, this parameter might correspond to the
             noise level.
         """
-        solution, info = self.restorator(x, restoration_strength=restoration_strength,
+        restorator_return = self.restorator(x,restoration_strength=restoration_strength,
                                          **self.restorator_kwargs)
-        self.info = info
+
+        if type(restorator_return) == tuple:
+            solution, self.info = restorator_return
+        else:
+            solution = restorator_return
+
         return solution
     
     def logpdf(self, x):
