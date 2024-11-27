@@ -43,10 +43,9 @@ class RestorationPrior(Distribution):
         super().__init__(**kwargs)
 
     def restore(self, x, restoration_strength):
-        """This function allows us to restore the input x and returns a two-element
-        tuple of the restored version of x and some extra information about the
-        restoration operation. The second element can be of any type, including
-        `None` in case there is no particular information.
+        """This function allows us to restore the input x with the user-supplied
+        restorator. Extra information about the restoration operation is stored
+        in the self.info attribute.
         
         Parameters
         ---------- 
@@ -58,7 +57,7 @@ class RestorationPrior(Distribution):
             restorator is a denoiser, this parameter might correspond to the
             noise level.
         """
-        restorator_return = self.restorator(x,restoration_strength=restoration_strength,
+        restorator_return = self.restorator(x, restoration_strength=restoration_strength,
                                          **self.restorator_kwargs)
 
         if type(restorator_return) == tuple and len(restorator_return) == 2:
