@@ -61,7 +61,7 @@ class RestorationPrior(Distribution):
         restorator_return = self.restorator(x,restoration_strength=restoration_strength,
                                          **self.restorator_kwargs)
 
-        if type(restorator_return) == tuple:
+        if type(restorator_return) == tuple and len(restorator_return) == 2:
             solution, self.info = restorator_return
         else:
             raise ValueError("Wrong return type from the restorator. "+ 
