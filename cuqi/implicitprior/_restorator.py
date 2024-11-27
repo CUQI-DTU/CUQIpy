@@ -64,12 +64,11 @@ class RestorationPrior(Distribution):
         if type(restorator_return) == tuple:
             solution, self.info = restorator_return
         else:
-            raise ValueError("The restorator should return a two-element tuple" 
-                             + "with the restored parameter as the first element"
-                             + "and additional information about the restoration"
-                             + "as the second element. As to the second element,"
-                             + "it can be of any type, including `None` in case" 
-                             + "there is no information.")
+            raise ValueError("Wrong return type from the restorator. "+ 
+                             "Please ensure that the restorator returns a two-element tuple with the "+
+                             "restored solution as the first element and additional information about the "+
+                             "restoration as the second element. As to the second element, it can be of any type, "+
+                             "including `None` in case there is no particular information.")
 
         return solution
     
