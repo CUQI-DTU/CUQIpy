@@ -210,7 +210,6 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
 
         # Create Gamma distribution and sample
-        print(m, fx)
         dist = Gamma(shape=m/2 + alpha, rate=fx + beta)
 
         return dist.sample()
@@ -219,11 +218,39 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
     """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair."""
 
     def validate_target(self):
+        # TODO: Check conjugacy parameters here
         return
 
     def sample(self):
-        print("SAMPLE _RegularizedGaussianModifiedHalfNormalPair")
-        return
+        # Extract prior variables
+        alpha = self.target.prior.alpha
+        beta = self.target.prior.beta
+        gamma = self.target.prior.gamma
+
+        # Compute likelihood variables
+        x = self.target.likelihood.data
+        mu = self.target.likelihood.distribution.mean
+        L = self.target.likelihood.distribution(np.array([1])).sqrtprec
+
+        if self.target.likelihood.distribution.preset == "l1":
+            m = count_nonzero(x)
+        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, Continuous1D):
+            m = count_constant_components_1D(x)
+        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            m = count_constant_components_2D(self.target.likelihood.distribution.geometry.par2fun(x))
+
+        reg_op = self.target.likelihood.distribution._regularization_oper
+        reg_strength = self.target.likelihood.distribution(np.array([1])).strength
+        fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
+
+        # Compute parameters of conjugate distribution
+        conj_alpha = m/2 + alpha
+        conj_beta = 0.5* np.linalg.norm(L @ (mu - x))**2 + beta
+        conj_gamma = -fx + gamma
+
+        # Create conjugate distribution and sample
+        dist = ModifiedHalfNormal(conj_alpha, conj_beta, conj_gamma)
+        return dist.sample()
     
 
 def _get_conjugate_parameter(target):
