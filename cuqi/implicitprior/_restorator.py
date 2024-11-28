@@ -45,7 +45,7 @@ class RestorationPrior(Distribution):
     def restore(self, x, restoration_strength):
         """This function allows us to restore the input x with the user-supplied
         restorator. Extra information about the restoration operation is stored
-        in the self.info attribute.
+        in the `RestorationPrior` info attribute.
         
         Parameters
         ---------- 
