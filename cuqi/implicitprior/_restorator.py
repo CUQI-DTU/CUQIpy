@@ -63,10 +63,10 @@ class RestorationPrior(Distribution):
         if type(restorator_return) == tuple and len(restorator_return) == 2:
             solution, self.info = restorator_return
         else:
-            raise ValueError("Wrong return type from the restorator. "+ 
-                             "Please ensure that the restorator returns a two-element tuple with the "+
+            raise ValueError("Unsupported return type from the user-supplied restorator function. "+ 
+                             "Please ensure that the restorator function returns a two-element tuple with the "+
                              "restored solution as the first element and additional information about the "+
-                             "restoration as the second element. As to the second element, it can be of any type, "+
+                             "restoration as the second element. The second element can be of any type, "+
                              "including `None` in case there is no particular information.")
 
         return solution
