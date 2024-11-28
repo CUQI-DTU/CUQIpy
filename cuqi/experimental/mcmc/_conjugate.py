@@ -2,9 +2,10 @@ import numpy as np
 from abc import ABC, abstractmethod
 import math
 from cuqi.experimental.mcmc import Sampler
-from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
-from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
-from cuqi.utilities import get_non_default_args
+from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ModifiedHalfNormal
+from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUnboundedUniform
+from cuqi.utilities import get_non_default_args, count_nonzero, count_constant_components_1D, count_constant_components_2D
+from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 class Conjugate(Sampler):
     """ Conjugate sampler
@@ -63,8 +64,13 @@ class Conjugate(Sampler):
         self._ensure_target_is_posterior()
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)) and isinstance(self.target.prior, Gamma):
             self._conjugatepair = _GaussianGammaPair(self.target)
+        elif isinstance(self.target.likelihood.distribution, RegularizedUnboundedUniform) and isinstance(self.target.prior, Gamma):
+            # Check RegularizedUnboundedUniform before RegularizedGaussian and RegularizedGMRF due to the first inheriting from the second.
+            self._conjugatepair = _RegularizedUnboundedUniformGammaPair(self.target)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(self.target.prior, Gamma):
             self._conjugatepair = _RegularizedGaussianGammaPair(self.target)
+        elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and isinstance(self.target.prior, ModifiedHalfNormal):
+            self._conjugatepair = _RegularizedGaussianModifiedHalfNormalPair(self.target)
         else:
             raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
 
@@ -168,6 +174,57 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         dist = Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
 
         return dist.sample()
+    
+    
+class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
+    """Implementation for the RegularizedUnboundedUniform-ModifiedHalfNormal conjugate pair."""
+
+    def validate_target(self):
+        # Do we want to check the likelihood and prior again, as it is already checked in Conjugate
+
+        if self.target.prior.dim != 1:
+            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+        
+        if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
+            raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+
+        # TODO: Check conjugacy parameters here
+        return
+
+    def sample(self):
+        # Extract prior variables
+        alpha = self.target.prior.shape
+        beta = self.target.prior.rate
+
+        # Compute likelihood quantities
+        x = self.target.likelihood.data
+        if self.target.likelihood.distribution.preset == "l1":
+            m = count_nonzero(x)
+        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, Continuous1D):
+            m = count_constant_components_1D(x)
+        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            m = count_constant_components_2D(self.target.likelihood.distribution.geometry.par2fun(x))
+
+        reg_op = self.target.likelihood.distribution._regularization_oper
+        reg_strength = self.target.likelihood.distribution(np.array([1])).strength
+        fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
+
+        # Create Gamma distribution and sample
+        print(m, fx)
+        dist = Gamma(shape=m/2 + alpha, rate=fx + beta)
+
+        return dist.sample()
+    
+class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
+    """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair."""
+
+    def validate_target(self):
+        return
+
+    def sample(self):
+        print("SAMPLE _RegularizedGaussianModifiedHalfNormalPair")
+        return
+    
 
 def _get_conjugate_parameter(target):
     """Extract the conjugate parameter name (e.g. d), and returns the mutable variable that is defined by the conjugate parameter, e.g. cov and its value e.g. lambda d:1/d"""
