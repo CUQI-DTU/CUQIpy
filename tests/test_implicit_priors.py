@@ -44,25 +44,25 @@ def test_handling_invalid_restorator():
     def func_1(x, restoration_strength=0.1):
         return
     restore_prior_1 = cuqi.implicitprior.RestorationPrior(func_1)
-    with pytest.raises(ValueError, match=r"Wrong return type .*"):
+    with pytest.raises(ValueError, match=r"Unsupported return type .*"):
         restore_prior_1.restore(np.ones(4), 0.1)
     # Invalid return type 2: one parameter
     def func_2(x, restoration_strength=0.1):
         return x
     restore_prior_2 = cuqi.implicitprior.RestorationPrior(func_2)
-    with pytest.raises(ValueError, match=r"Wrong return type .*"):
+    with pytest.raises(ValueError, match=r"Unsupported return type .*"):
         restore_prior_2.restore(np.ones(4), 0.1)
     # Invalid return type 3: tuple with 3 elements
     def func_3(x, restoration_strength=0.1):
         return x, None, False
     restore_prior_3 = cuqi.implicitprior.RestorationPrior(func_3)
-    with pytest.raises(ValueError, match=r"Wrong return type .*"):
+    with pytest.raises(ValueError, match=r"Unsupported return type .*"):
         restore_prior_3.restore(np.ones(4), 0.1)
     # Invalid return type 4: list with 2 elements
     def func_4(x, restoration_strength=0.1):
         return [x, None]
     restore_prior_4 = cuqi.implicitprior.RestorationPrior(func_4)
-    with pytest.raises(ValueError, match=r"Wrong return type .*"):
+    with pytest.raises(ValueError, match=r"Unsupported return type .*"):
         restore_prior_4.restore(np.ones(4), 0.1)
 
 def test_creating_restorator_with_potential():
