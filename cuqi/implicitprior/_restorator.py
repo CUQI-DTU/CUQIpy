@@ -15,8 +15,10 @@ class RestorationPrior(Distribution):
     Parameters
     ---------- 
     restorator : callable f(x, restoration_strength)
-        Function f that accepts input x to be restored and returns the
-        restored version of x and information about the restoration operation.
+        Function f that accepts input x to be restored and returns a two-element 
+        tuple of the restored version of x and extra information about the 
+        restoration operation. The second element can be of any type, including
+        `None` in case there is no information.
             
     restorator_kwargs : dictionary
         Dictionary containing information about the restorator.
@@ -41,8 +43,9 @@ class RestorationPrior(Distribution):
         super().__init__(**kwargs)
 
     def restore(self, x, restoration_strength):
-        """This function allows us to restore the input x and returns the
-        restored version of x.
+        """This function allows us to restore the input x with the user-supplied
+        restorator. Extra information about the restoration operation is stored
+        in the `RestorationPrior` info attribute.
         
         Parameters
         ---------- 
@@ -54,9 +57,18 @@ class RestorationPrior(Distribution):
             restorator is a denoiser, this parameter might correspond to the
             noise level.
         """
-        solution, info = self.restorator(x, restoration_strength=restoration_strength,
+        restorator_return = self.restorator(x, restoration_strength=restoration_strength,
                                          **self.restorator_kwargs)
-        self.info = info
+
+        if type(restorator_return) == tuple and len(restorator_return) == 2:
+            solution, self.info = restorator_return
+        else:
+            raise ValueError("Unsupported return type from the user-supplied restorator function. "+ 
+                             "Please ensure that the restorator function returns a two-element tuple with the "+
+                             "restored solution as the first element and additional information about the "+
+                             "restoration as the second element. The second element can be of any type, "+
+                             "including `None` in case there is no particular information.")
+
         return solution
     
     def logpdf(self, x):
