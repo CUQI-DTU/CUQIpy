@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.reinitialize
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.reinitialize

@@ -1,0 +1,37 @@
+Sampler
+=======
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: Sampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Sampler.__init__
+      ~Sampler.sample
+      ~Sampler.sample_adapt
+      ~Sampler.step
+      ~Sampler.step_tune
+      ~Sampler.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Sampler.dim
+      ~Sampler.geometry
+      ~Sampler.target
+   
+   

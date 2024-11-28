@@ -1,0 +1,23 @@
+VariableNode
+============
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. autoclass:: VariableNode
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~VariableNode.__init__
+   
+   
+
+   
+   
+   

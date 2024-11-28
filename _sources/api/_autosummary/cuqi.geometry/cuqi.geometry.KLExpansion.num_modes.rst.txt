@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.num\_modes
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.num_modes

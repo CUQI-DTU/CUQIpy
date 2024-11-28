@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion.funvec\_shape
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: KLExpansion.funvec_shape

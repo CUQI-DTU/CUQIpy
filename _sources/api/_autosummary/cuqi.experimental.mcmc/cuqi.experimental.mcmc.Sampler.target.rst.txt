@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Sampler.target
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: Sampler.target

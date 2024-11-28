@@ -1,0 +1,40 @@
+pCN
+===
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: pCN
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~pCN.__init__
+      ~pCN.sample
+      ~pCN.sample_adapt
+      ~pCN.single_update
+      ~pCN.step
+      ~pCN.step_tune
+      ~pCN.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~pCN.dim
+      ~pCN.geometry
+      ~pCN.likelihood
+      ~pCN.prior
+      ~pCN.target
+   
+   

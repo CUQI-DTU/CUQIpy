@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.warmup
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApprox.warmup

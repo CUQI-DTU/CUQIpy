@@ -1,0 +1,42 @@
+testproblem
+===========
+
+Module path: cuqi.testproblem
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.testproblem
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.testproblem
+    :nosignatures:
+    :recursive:
+
+   
+      Abel1D
+      Deconvolution1D
+      Deconvolution2D
+      Heat1D
+      Poisson1D
+      WangCubic
+   
+   
+
+   
+   
+   
+
+
+

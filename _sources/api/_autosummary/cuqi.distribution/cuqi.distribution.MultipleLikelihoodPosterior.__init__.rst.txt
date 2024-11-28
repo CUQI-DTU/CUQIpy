@@ -1,0 +1,6 @@
+cuqi.distribution.MultipleLikelihoodPosterior.\_\_init\_\_
+==========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: MultipleLikelihoodPosterior.__init__

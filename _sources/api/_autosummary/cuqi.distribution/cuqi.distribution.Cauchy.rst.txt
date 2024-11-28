@@ -1,0 +1,49 @@
+Cauchy
+======
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Cauchy
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Cauchy.__init__
+      ~Cauchy.cdf
+      ~Cauchy.disable_FD
+      ~Cauchy.enable_FD
+      ~Cauchy.get_conditioning_variables
+      ~Cauchy.get_mutable_variables
+      ~Cauchy.get_parameter_names
+      ~Cauchy.gradient
+      ~Cauchy.logd
+      ~Cauchy.logpdf
+      ~Cauchy.pdf
+      ~Cauchy.sample
+      ~Cauchy.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Cauchy.FD_enabled
+      ~Cauchy.FD_epsilon
+      ~Cauchy.dim
+      ~Cauchy.geometry
+      ~Cauchy.is_cond
+      ~Cauchy.location
+      ~Cauchy.name
+      ~Cauchy.scale
+   
+   

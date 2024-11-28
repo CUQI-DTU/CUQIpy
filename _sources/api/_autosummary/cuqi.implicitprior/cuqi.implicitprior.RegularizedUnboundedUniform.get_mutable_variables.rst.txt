@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.get\_mutable\_variables
+======================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedUnboundedUniform.get_mutable_variables

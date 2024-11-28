@@ -1,0 +1,6 @@
+cuqi.solver.maximize.solve
+==========================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: maximize.solve

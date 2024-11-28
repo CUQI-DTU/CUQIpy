@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.set\_state
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.set_state

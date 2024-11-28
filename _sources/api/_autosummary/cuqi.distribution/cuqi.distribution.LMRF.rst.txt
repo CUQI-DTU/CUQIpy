@@ -1,0 +1,47 @@
+LMRF
+====
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: LMRF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LMRF.__init__
+      ~LMRF.disable_FD
+      ~LMRF.enable_FD
+      ~LMRF.get_conditioning_variables
+      ~LMRF.get_mutable_variables
+      ~LMRF.get_parameter_names
+      ~LMRF.gradient
+      ~LMRF.logd
+      ~LMRF.logpdf
+      ~LMRF.pdf
+      ~LMRF.sample
+      ~LMRF.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LMRF.FD_enabled
+      ~LMRF.FD_epsilon
+      ~LMRF.dim
+      ~LMRF.geometry
+      ~LMRF.is_cond
+      ~LMRF.location
+      ~LMRF.name
+   
+   

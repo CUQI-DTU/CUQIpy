@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.models
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: LinearRTO.models

@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.ptp
+========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.ptp

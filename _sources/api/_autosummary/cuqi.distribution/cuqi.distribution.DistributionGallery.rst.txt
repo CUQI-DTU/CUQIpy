@@ -1,0 +1,46 @@
+DistributionGallery
+===================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: DistributionGallery
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~DistributionGallery.__init__
+      ~DistributionGallery.disable_FD
+      ~DistributionGallery.enable_FD
+      ~DistributionGallery.get_conditioning_variables
+      ~DistributionGallery.get_mutable_variables
+      ~DistributionGallery.get_parameter_names
+      ~DistributionGallery.gradient
+      ~DistributionGallery.logd
+      ~DistributionGallery.logpdf
+      ~DistributionGallery.pdf
+      ~DistributionGallery.sample
+      ~DistributionGallery.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~DistributionGallery.FD_enabled
+      ~DistributionGallery.FD_epsilon
+      ~DistributionGallery.dim
+      ~DistributionGallery.geometry
+      ~DistributionGallery.is_cond
+      ~DistributionGallery.name
+   
+   

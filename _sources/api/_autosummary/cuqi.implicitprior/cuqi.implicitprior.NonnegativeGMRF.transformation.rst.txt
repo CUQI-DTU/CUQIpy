@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.transformation
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.transformation

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.reinitialize
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.reinitialize

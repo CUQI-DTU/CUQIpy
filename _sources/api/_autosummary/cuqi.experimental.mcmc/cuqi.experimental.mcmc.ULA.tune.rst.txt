@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.tune
+===============================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.tune
