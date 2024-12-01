@@ -653,6 +653,15 @@ class FISTA(object):
             x = x_new.copy()
 
 class ScipyMinimize(object):
+    """
+    This class is a wrapper for scipy.optimize.minimize, and it allows to solve 
+    a least squares problem of the form:
+
+    Minimize ||Ax-b||^2 + f(x)
+
+    subject to constraints and bounds.
+    
+    """
     def __init__(self, A, b, x0, bounds=None):
         self.A = A
         self.b = b
@@ -663,11 +672,6 @@ class ScipyMinimize(object):
     def _explicitA(self):
         return not callable(self.A)
     
-    # def fun(self, x):
-    #     return 0.5 * LA.norm(self.A @ x - self.b)**2
-    # def grad(self, x):
-    #     return self.A.T @ (self.A @ x - self.b)
-            
     def fun(self, x):
         if self._explicitA:
             return 0.5 * LA.norm(self.A @ x - self.b)**2
