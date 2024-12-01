@@ -83,6 +83,9 @@ class NUTS(Sampler):
         self.max_depth = max_depth
         self.adapt_step_size = adapt_step_size
         self.opt_acc_rate = opt_acc_rate
+        # if this flag is True, the samples and the burn-in will be returned
+        # otherwise, the burn-in will be truncated
+        self._return_burnin = False
 
         # NUTS run diagnostic
         # number of tree nodes created each NUTS iteration
@@ -226,9 +229,10 @@ class NUTS(Sampler):
             if np.isnan(joint_eval[k]):
                 raise NameError('NaN potential func')
             
-        # apply burn-in 
-        theta = theta[:, Nb:]
-        joint_eval = joint_eval[Nb:]
+        # apply burn-in
+        if not self._return_burnin: 
+            theta = theta[:, Nb:]
+            joint_eval = joint_eval[Nb:]
         return theta, joint_eval, step_sizes
 
     #=========================================================================

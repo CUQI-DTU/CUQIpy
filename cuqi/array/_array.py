@@ -15,19 +15,7 @@ class CUQIarray(np.ndarray):
         Boolean flag whether input_array is to be interpreted as parameter (True) or function values (False).
 
     geometry : cuqi.geometry.Geometry, default None
-        Contains the geometry related of the data
-
-    Attributes
-    ----------
-    funvals : CUQIarray
-        Returns itself as function values.
-
-    parameters : CUQIarray
-        Returns itself as parameters.
-
-    Methods
-    ----------
-    :meth:`plot`: Plots the data as function or parameters.
+        Contains the geometry related of the data.
     """
 
     def __repr__(self) -> str: 
@@ -62,6 +50,7 @@ class CUQIarray(np.ndarray):
 
     @property
     def funvals(self):
+        """ Returns itself as function values. """
         if self.is_par is True:
             vals = self.geometry.par2fun(self)
         else:
@@ -82,6 +71,7 @@ class CUQIarray(np.ndarray):
 
     @property
     def parameters(self):
+        """ Returns itself as parameters. """
         if self.is_par is False:
             if self.dtype == np.dtype('O'):
                 # If the current state if the CUQIarray is function values, and
@@ -109,6 +99,7 @@ class CUQIarray(np.ndarray):
                 f"Cannot convert {self.__class__.__name__} to numpy array")
 
     def plot(self, plot_par=False, **kwargs):
+        """ Plot the data as function or parameters. """
         if plot_par:
             kwargs["is_par"]=True
             return self.geometry.plot(self.parameters, plot_par=plot_par, **kwargs)

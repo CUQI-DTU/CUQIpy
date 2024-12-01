@@ -28,37 +28,6 @@ class Distribution(Density, ABC):
     is_symmetric : bool, default None
         Indicator if distribution is symmetric.
 
-    Attributes
-    ----------
-    dim : int or None
-        Dimension of distribution.
-
-    name : str or None
-        Name of distribution.
-    
-    geometry : Geometry or None
-        Geometry of distribution.
-
-    is_cond : bool
-        Indicator if distribution is conditional.
-
-    Methods
-    -------
-    pdf():
-        Evaluate the probability density function.
-
-    logpdf():
-        Evaluate the log probability density function.
-
-    sample():
-        Generate one or more random samples.
-
-    get_conditioning_variables():
-        Return the conditioning variables of distribution.
-
-    get_mutable_variables():
-        Return the mutable variables (attributes and properties) of distribution.
-
     Notes
     -----
     A distribution can be conditional if one or more mutable variables are unspecified.
@@ -239,6 +208,7 @@ class Distribution(Density, ABC):
             "enable_FD().")
 
     def sample(self,N=1,*args,**kwargs):
+        """ Sample from the distribution. """
 
         if self.is_cond:
             raise ValueError(f"Cannot sample from conditional distribution. Missing conditioning variables: {self.get_conditioning_variables()}")
@@ -263,6 +233,7 @@ class Distribution(Density, ABC):
         pass
 
     def pdf(self,x):
+        """ Evaluate the log probability density function of the distribution. """
         return np.exp(self.logpdf(x))
 
     def _condition(self, *args, **kwargs):

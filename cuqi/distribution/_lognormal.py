@@ -16,13 +16,6 @@ class Lognormal(Distribution):
     cov: np.ndarray
         Covariance matrix of the normal distribution used to define the lognormal distribution 
     
-    Methods
-    -----------
-    sample: generate one or more random samples
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    cdf: evaluate cumulative probability function
-    
     Example
     -------
     .. code-block:: python

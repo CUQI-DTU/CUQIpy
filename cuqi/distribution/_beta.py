@@ -9,23 +9,19 @@ class Beta(Distribution):
     """
     Multivariate beta distribution of independent random variables x_i. Each is distributed according to the PDF function
 
-    f(x) = x^(alpha-1) * (1-x)^(beta-1) * Gamma(alpha+beta) / (Gamma(alpha)*Gamma(beta))
+    .. math::
 
-    where Gamma is the Gamma function.
+        f(x) = x^{(\\alpha-1)}(1-x)^{(\\beta-1)}\Gamma(\\alpha+\\beta) / (\Gamma(\\alpha)\Gamma(\\beta))
+
+    where :math:`\Gamma` is the Gamma function.
 
     Parameters
     ------------
     alpha: float or array_like
+           The shape parameter :math:`\\alpha` of the beta distribution.
 
     beta: float or array_like
-
-    Methods
-    -----------
-    sample: generate one or more random samples
-    pdf: evaluate probability density function
-    logpdf: evaluate log probability density function
-    cdf: evaluate cumulative probability function
-    gradient: evaluate the gradient of the logpdf
+          The shape parameter :math:`\\beta` of the beta distribution.
     
     Example
     -------

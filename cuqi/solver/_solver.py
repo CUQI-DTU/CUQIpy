@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from numpy import linalg as LA
 from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt
@@ -174,9 +175,12 @@ class LS(object):
     """Wrapper for :meth:`scipy.optimize.least_squares`.
 
     Solve nonlinear least-squares problems with bounds:
+
+    .. math::
     
-    minimize F(x) = 0.5 * sum(rho(f_i(x)**2), i = 0, ..., m-1)
-    subject to lb <= x <= ub
+        \min F(x) = 0.5 * \sum(\\rho(f_i(x)^2), i = 0, ..., m-1)
+
+    subject to :math:`lb <= x <= ub`.
     
     Parameters
     ----------
@@ -647,7 +651,41 @@ class FISTA(object):
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
             x = x_new.copy()
+
+class ScipyMinimize(object):
+    """
+    This class is a wrapper for scipy.optimize.minimize, and it allows to solve 
+    a least squares problem of the form:
+
+    Minimize ||Ax-b||^2 + f(x)
+
+    subject to constraints and bounds.
     
+    """
+    def __init__(self, A, b, x0, bounds=None):
+        self.A = A
+        self.b = b
+        self.x0 = x0
+        self.bounds = bounds
+
+    @property
+    def _explicitA(self):
+        return not callable(self.A)
+    
+    def fun(self, x):
+        if self._explicitA:
+            return 0.5 * LA.norm(self.A @ x - self.b)**2
+        else:
+            return 0.5 * LA.norm(self.A(x, 1) - self.b)**2
+
+    def grad(self, x):
+        if self._explicitA:
+            return self.A.T @ (self.A @ x - self.b)
+        else:
+            return self.A(self.A(x, 1) - self.b, 2)
+    
+    def solve(self):
+        return opt.minimize(self.fun, self.x0, jac=self.grad, bounds=self.bounds).x
     
 def ProjectNonnegative(x):
     """(Euclidean) projection onto the nonnegative orthant.
