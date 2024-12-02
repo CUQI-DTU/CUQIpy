@@ -38,9 +38,9 @@ class ModifiedHalfNormal(Distribution):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs) 
 
-        self._alpha = alpha
-        self._beta = beta
-        self._gamma = gamma
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
 
     @property
     def alpha(self):
@@ -180,7 +180,7 @@ class ModifiedHalfNormal(Distribution):
 
     def _sample(self, N, rng=None):
         if hasattr(self.alpha, '__getitem__'):
-            return np.array([self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(N)])
+            return np.array([[self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(len(self.alpha))] for _ in range(N)])
         else:
             return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for i in range(N)])
 
