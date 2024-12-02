@@ -1260,38 +1260,50 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     assert np.allclose(samples_linear.samples, samples_affine.samples)
 
 def Conjugate_GaussianGammaPair():
+    """ Unit test whether Conjugacy Pair (Gaussian, Gamma) constructs the right distribution """
     x = cuqi.distribution.Gamma(1.0, 2.0)
     y = cuqi.distribution.Gaussian(np.array([1.0, 1.0]), prec = lambda x : x)
     joint = cuqi.distributionJointDistribution(x, y)(y = np.array([2, 1]))
     sampler = cuqi.experimental.mcmc.Conjugate(joint)
     conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
     assert conj.shape == 2.0
     assert conj.scale == 0.4
 
 def Conjugate_RegularizedGaussianGammaPair():
+    """ Unit test whether Conjugacy Pair (RegularizedGaussian, Gamma) constructs the right distribution """
     x = cuqi.distribution.Gamma(1.0, 2.0)
     y = cuqi.implicitprior.RegularizedGaussian(np.array([1.0, 1.0]), prec = lambda x : x, constraint="nonnegativity")
     joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([1, 0]))
     sampler = cuqi.experimental.mcmc.Conjugate(joint)
     conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
     assert conj.shape == 1.5
     assert conj.scale == 0.4
 
 def Conjugate_RegularizedUnboundedUniformGammaPair():
+    """ Unit test whether Conjugacy Pair (RegularizedUnboundedUniform, Gamma) constructs the right distribution """
     x = cuqi.distribution.Gamma(1.0, 2.0)
     y = cuqi.implicitprior.RegularizedUnboundedUniform(regularization='tv', strength = lambda x : x, geometry = cuqi.geometry.Continuous1D(2))
     joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([2, 0]))
     sampler = cuqi.experimental.mcmc.Conjugate(joint)
     conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
     assert conj.shape == 2.0
     assert conj.scale == 0.25
 
 def Conjugate_RegularizedGaussianModifiedHalfNormalPair():
+    """ Unit test whether Conjugacy Pair (RegularizedGaussian, ModifiedHalfNormal) constructs the right distribution """
     x = cuqi.distribution.ModifiedHalfNormal(1.0, 3.0, -3.0)
     y = cuqi.implicitprior.RegularizedGaussian(np.array([1.0, 1.0]), prec = lambda x : x**2, regularization='tv', strength = lambda x : x, geometry = cuqi.geometry.Continuous1D(2))
     joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([2, 0]))
     sampler = cuqi.experimental.mcmc.Conjugate(joint)
     conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
     assert conj.alpha == 3.0
     assert conj.beta == 4.0
     assert conj.gamma == -5.0
