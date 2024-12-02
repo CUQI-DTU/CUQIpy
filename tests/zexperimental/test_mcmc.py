@@ -1263,8 +1263,16 @@ def Conjugate_GaussianGammaPair():
     x = cuqi.distribution.Gamma(1.0, 2.0)
     y = cuqi.distribution.Gaussian(np.array([1.0, 1.0]), prec = lambda x : x)
     joint = cuqi.distributionJointDistribution(x, y)(y = np.array([2, 1]))
-    sampler = cuqi.experimental.Conjugate(joint)
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
     conj = sampler.conjugate_distribution()
     assert conj.shape == 2.0
     assert conj.scale == 0.4
-    
+
+def Conjugate_RegularizedGaussianGammaPair():
+    x = cuqi.distribution.Gamma(1.0, 2.0)
+    y = cuqi.distribution.RegularizedGaussian(np.array([1.0, 1.0]), prec = lambda x : x, constraint="nonnegativity")
+    joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([1, 0]))
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+    assert conj.shape == 1.5
+    assert conj.scale == 0.4
