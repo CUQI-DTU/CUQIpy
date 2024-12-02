@@ -1258,3 +1258,13 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
 
     # Check that the samples are the same
     assert np.allclose(samples_linear.samples, samples_affine.samples)
+
+def Conjugate_GaussianGammaPair():
+    x = cuqi.distribution.Gamma(1.0, 2.0)
+    y = cuqi.distribution.Gaussian(np.array([1.0, 1.0]), prec = lambda x : x)
+    joint = cuqi.distributionJointDistribution(x, y)(y = np.array([2, 1]))
+    sampler = cuqi.experimental.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+    assert conj.shape == 2.0
+    assert conj.scale == 0.4
+    

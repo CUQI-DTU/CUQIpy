@@ -74,6 +74,9 @@ class Conjugate(Sampler):
         else:
             raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
 
+    def conjugate_distribution(self):
+        return self._conjugatepair.conjugate_distribution()
+
     def __repr__(self):
         msg = super().__repr__()
         if hasattr(self, "_conjugatepair"):
