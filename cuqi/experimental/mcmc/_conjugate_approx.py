@@ -52,7 +52,7 @@ class _LMRFGammaPair(_ConjugatePair):
         else:
             raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
         
-    def sample(self):
+    def conjugate_distribution(self):
         # Extract variables
         # Here we approximate the LMRF with a Gaussian
 
@@ -76,6 +76,4 @@ class _LMRFGammaPair(_ConjugatePair):
         beta = self.target.prior.rate                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
-
-        return dist.sample()
+        return Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
