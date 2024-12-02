@@ -180,7 +180,7 @@ class ModifiedHalfNormal(Distribution):
 
     def _sample(self, N, rng=None):
         if hasattr(self.alpha, '__getitem__'):
-            return np.array([[self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(len(self.alpha))] for _ in range(N)]).T
+            return np.array([[self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(len(self.alpha))] for _ in range(N)])
         else:
             return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for i in range(N)])
 
