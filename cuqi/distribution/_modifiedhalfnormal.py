@@ -48,13 +48,13 @@ class ModifiedHalfNormal(Distribution):
         return self._alpha
     
     @alpha.setter
-    def shape(self, value):
-        self._shape = force_ndarray(value, flatten=True)
+    def alpha(self, value):
+        self._alpha = force_ndarray(value, flatten=True)
 
     @property
     def beta(self):
         """ The quadratic exponential parameter of the MHN distribution. Must be positive. """
-        return self._alpha
+        return self._beta
     
     @beta.setter
     def beta(self, value):
@@ -63,7 +63,7 @@ class ModifiedHalfNormal(Distribution):
     @property
     def gamma(self):
         """ The linear exponential parameter of the MHN distribution. """
-        return self._alpha
+        return self._gamma
     
     @gamma.setter
     def gamma(self, value):
