@@ -92,9 +92,13 @@ class _ConjugatePair(ABC):
         pass
 
     @abstractmethod
+    def conjugate_distribution(self):
+        """ Returns the posterior distribution in the form of a CUQI distribution """
+        pass
+
     def sample(self):
         """ Sample from the conjugate distribution. """
-        pass
+        return self.conjugate_distribution().sample()
 
 
 class _GaussianGammaPair(_ConjugatePair):
@@ -120,7 +124,7 @@ class _GaussianGammaPair(_ConjugatePair):
         else:
             raise ValueError("Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
 
-    def sample(self):
+    def conjugate_distribution(self):
         # Extract variables
         b = self.target.likelihood.data                                 # mu
         m = len(b)                                                      # n
@@ -130,9 +134,7 @@ class _GaussianGammaPair(_ConjugatePair):
         beta = self.target.prior.rate                                   # beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
-
-        return dist.sample()
+        return Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
 
 
 class _RegularizedGaussianGammaPair(_ConjugatePair):
@@ -161,7 +163,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         else:
             raise ValueError("Conjugate sampler for a Regularized Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
 
-    def sample(self):
+    def conjugate_distribution(self):
         # Extract variables
         b = self.target.likelihood.data                                 # mu
         m = np.count_nonzero(b)                                         # n
@@ -171,9 +173,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         beta = self.target.prior.rate                                   # beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
-
-        return dist.sample()
+        return Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
     
     
 class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
@@ -195,7 +195,7 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         else:
             raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
 
-    def sample(self):
+    def conjugate_distribution(self):
         # Extract prior variables
         alpha = self.target.prior.shape
         beta = self.target.prior.rate
@@ -214,9 +214,7 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2 + alpha, rate=fx + beta)
-
-        return dist.sample()
+        return Gamma(shape=m/2 + alpha, rate=fx + beta)
     
 class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
     """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair."""
@@ -240,7 +238,7 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
             raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
 
 
-    def sample(self):
+    def conjugate_distribution(self):
         # Extract prior variables
         alpha = self.target.prior.alpha
         beta = self.target.prior.beta
@@ -268,8 +266,7 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         conj_gamma = -fx + gamma
 
         # Create conjugate distribution and sample
-        dist = ModifiedHalfNormal(conj_alpha, conj_beta, conj_gamma)
-        return dist.sample()
+        return ModifiedHalfNormal(conj_alpha, conj_beta, conj_gamma)
     
 
 def _get_conjugate_parameter(target):
