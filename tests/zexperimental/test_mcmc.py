@@ -1285,3 +1285,13 @@ def Conjugate_RegularizedUnboundedUniformGammaPair():
     conj = sampler.conjugate_distribution()
     assert conj.shape == 2.0
     assert conj.scale == 0.25
+
+def Conjugate_RegularizedGaussianModifiedHalfNormalPair():
+    x = cuqi.distribution.ModifiedHalfNormal(1.0, 3.0, -3.0)
+    y = cuqi.implicitprior.RegularizedGaussian(np.array([1.0, 1.0]), prec = lambda x : x**2, regularization='tv', strength = lambda x : x, geometry = cuqi.geometry.Continuous1D(2))
+    joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([2, 0]))
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+    assert conj.alpha == 3.0
+    assert conj.beta == 4.0
+    assert conj.gamma == -5.0
