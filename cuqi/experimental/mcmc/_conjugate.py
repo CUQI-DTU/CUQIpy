@@ -188,8 +188,12 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
             raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
-        # TODO: Check conjugacy parameters here
-        return
+        key, value = _get_conjugate_parameter(self.target)
+        if key == "strength":
+            if not _check_conjugate_parameter_is_scalar_linear(value):
+                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+        else:
+            raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
 
     def sample(self):
         # Extract prior variables
@@ -218,8 +222,23 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
     """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair."""
 
     def validate_target(self):
-        # TODO: Check conjugacy parameters here
+        # Do we want to check the likelihood and prior again, as it is already checked in Conjugate
+
+        if self.target.prior.dim != 1:
+            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+        
+        if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
+            raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+
+        # TODO: Add quadratic check for covariance
         return
+        key, value = _get_conjugate_parameter(self.target)
+        if key == "strength":
+            if not _check_conjugate_parameter_is_scalar_linear(value):
+                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+        else:
+            raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
+
 
     def sample(self):
         # Extract prior variables
@@ -244,8 +263,8 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
 
         # Compute parameters of conjugate distribution
-        conj_alpha = m/2 + alpha
-        conj_beta = 0.5* np.linalg.norm(L @ (mu - x))**2 + beta
+        conj_alpha = m + alpha
+        conj_beta = 0.5*np.linalg.norm(L @ (mu - x))**2 + beta
         conj_gamma = -fx + gamma
 
         # Create conjugate distribution and sample
@@ -266,8 +285,8 @@ def _get_conjugate_parameter(target):
             found_parameter_pairs.append((var_key, attr))
     if len(found_parameter_pairs) == 1:
         return found_parameter_pairs[0]
-    elif len(found_parameter_pairs) > 1:
-        raise ValueError(f"Multiple references of parameter {par_name} found in likelihood function for conjugate sampler with target {target}. This is not supported.")
+    # elif len(found_parameter_pairs) > 1:
+    #     raise ValueError(f"Multiple references of parameter {par_name} found in likelihood function for conjugate sampler with target {target}. This is not supported.")
     else:
         raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
 
@@ -279,3 +298,10 @@ def _check_conjugate_parameter_is_scalar_identity(f):
 def _check_conjugate_parameter_is_scalar_reciprocal(f):
     """Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x)."""
     return all(math.isclose(f(x), 1.0 / x) for x in [1.0, 10.0, 100.0])
+
+def _check_conjugate_parameter_is_scalar_linear(f):
+    """Tests whether a function (scalar to scalar) is linear (lambda x: s*x for some s)."""
+    test_values = [1.0, 10.0, 100.0]
+    h = 1e-2
+    finite_diffs = [(f(x + h*x)-f(x))/(h*x) for x in test_values]
+    return np.isclose(f(0.0), 0.0) and all(np.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
