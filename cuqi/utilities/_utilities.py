@@ -422,16 +422,16 @@ def count_constant_components_2D(x, threshold = 1e-6, lower = -np.inf, upper = n
             while len(queue) != 0:
                 (icur, jcur) = queue.pop(0)
                 
-                if icur > 0 and filled[icur - 1, jcur] == 0 and abs(x[icur, jcur] - x[icur - 1, jcur]) >= threshold:
+                if icur > 0 and filled[icur - 1, jcur] == 0 and abs(x[icur, jcur] - x[icur - 1, jcur]) <= threshold:
                     filled[icur - 1, jcur] = 1
                     queue.append((icur-1, jcur))
-                if jcur > 0 and filled[icur, jcur-1] == 0 and abs(x[icur, jcur] - x[icur, jcur - 1]) >= threshold:
+                if jcur > 0 and filled[icur, jcur-1] == 0 and abs(x[icur, jcur] - x[icur, jcur - 1]) <= threshold:
                     filled[icur, jcur-1] = 1
                     queue.append((icur, jcur-1))
-                if icur < x.shape[0]-1 and filled[icur + 1, jcur] == 0 and abs(x[icur, jcur] - x[icur + 1, jcur]) >= threshold:
+                if icur < x.shape[0]-1 and filled[icur + 1, jcur] == 0 and abs(x[icur, jcur] - x[icur + 1, jcur]) <= threshold:
                     filled[icur + 1, jcur] = 1
                     queue.append((icur+1, jcur))
-                if jcur < x.shape[1]-1 and filled[icur, jcur + 1] == 0 and abs(x[icur, jcur] - x[icur, jcur + 1]) >= threshold:
+                if jcur < x.shape[1]-1 and filled[icur, jcur + 1] == 0 and abs(x[icur, jcur] - x[icur, jcur + 1]) <= threshold:
                     filled[icur, jcur + 1] = 1
                     queue.append((icur, jcur+1))
         
