@@ -1303,3 +1303,45 @@ def Conjugate_RegularizedGaussianModifiedHalfNormalPair():
     assert conj.alpha == 3.0
     assert conj.beta == 4.0
     assert conj.gamma == -5.0
+
+
+def test_RegularizedGaussianHierchical_sample_regression():
+    np.random.seed(24601)
+    n = 2
+
+    A_mat = np.array([[1,2],[3,4]])
+    y_data = np.array([1,2])
+
+    A = cuqi.model.LinearModel(A_mat, domain_geometry=cuqi.geometry.Continuous1D(2), range_geometry=cuqi.geometry.Continuous1D(2))
+
+    l = cuqi.distribution.Gamma(1, 1e-4)
+    d = cuqi.distribution.ModifiedHalfNormal(1, 1e-4, -1e-4)
+    x = cuqi.implicitprior.RegularizedGMRF(mean = np.zeros(n), prec = lambda d : 0.1*d**2, regularization = "TV", strength = lambda d : 50*d, geometry = A.domain_geometry)
+    y =cuqi.distribution. Gaussian(A@x, prec = lambda l : l)
+
+    joint = cuqi.distribution.JointDistribution(x, y, d, l)
+    posterior = joint(y=y_data)
+
+    sampling_strategy = {
+                'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=10, adaptive = False),
+                'd': cuqi.experimental.mcmc.Conjugate(),
+                'l': cuqi.experimental.mcmc.Conjugate(),
+                }
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+
+    sampler.warmup(10)
+    sampler.sample(10)
+
+    samples = sampler.get_samples().burnthin(10)
+
+    assert np.allclose(samples['x'].samples, np.array([[0.28756349, 0.31439745, 0.29883006, 0.29241259, 0.31362638,
+        0.2840598 , 0.27873812, 0.32337319, 0.24161113, 0.30129078],
+       [0.28756344, 0.31439745, 0.29883006, 0.29409678, 0.31362638,
+        0.2840598 , 0.27873812, 0.3233841 , 0.24161756, 0.30129078]]))
+
+    assert np.allclose(samples['l'].samples, np.array([[ 43.51127838, 109.27874562, 117.4417884 ,  93.02865819,
+          2.16903222,  23.74940072,  60.53490553,  67.56867514,
+         21.43328426,  74.3358506 ]]))
+    
+    assert np.allclose(samples['d'].samples, np.array([[ 9.25399145,  5.04438332, 26.84002742, 10.31799914,  8.49474865,
+         5.1342477 , 16.45679054, 15.91100601,  6.41987015,  5.70990866]]))
