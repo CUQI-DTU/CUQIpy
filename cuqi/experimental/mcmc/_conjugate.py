@@ -109,7 +109,7 @@ class _GaussianGammaPair(_ConjugatePair):
 
     def validate_target(self):
         if self.target.prior.dim != 1:
-            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+            raise ValueError("Gaussian-Gamma conjugacy only works with univariate Gamma prior")
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
@@ -117,12 +117,12 @@ class _GaussianGammaPair(_ConjugatePair):
         for key, value in key_value_pairs:
             if key == "cov":
                 if not _check_conjugate_parameter_is_scalar_linear_reciprocal(value):
-                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : s/x for the conjugate parameter")
             elif key == "prec":
                 if not _check_conjugate_parameter_is_scalar_linear(value):
-                    raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter")
+                    raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : s*x for the conjugate parameter")
             else:
-                raise ValueError("Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
+                raise ValueError(f"RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter {self.target.prior.name} in the {key} attribute. Only cov and prec")
 
     def conjugate_distribution(self):
         # Extract variables
@@ -142,10 +142,10 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
 
     def validate_target(self):
         if self.target.prior.dim != 1:
-            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+            raise ValueError("RegularizedGaussian-Gamma conjugacy only works with univariate ModifiedHalfNormal prior")
 
         if self.target.likelihood.distribution.preset not in ["nonnegativity"]:
-            raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+            raise ValueError("RegularizedGaussian-Gamma conjugacy only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
@@ -153,12 +153,12 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         for key, value in key_value_pairs:
             if key == "cov":
                 if not _check_conjugate_parameter_is_scalar_linear_reciprocal(value):
-                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
+                    raise ValueError("Regularized Gaussian-Gamma conjugacy defined via covariance requires cov: lambda x : s/x for the conjugate parameter")
             elif key == "prec":
                 if not _check_conjugate_parameter_is_scalar_linear(value):
-                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+                    raise ValueError("Regularized Gaussian-Gamma conjugacy defined via precision requires prec: lambda x : s*x for the conjugate parameter")
             else:
-                raise ValueError("Conjugate sampler for a Regularized Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
+                raise ValueError(f"RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter {self.target.prior.name} in the {key} attribute. Only cov and prec")
 
     def conjugate_distribution(self):
         # Extract variables
@@ -178,10 +178,10 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
 
     def validate_target(self):
         if self.target.prior.dim != 1:
-            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+            raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with univariate Gamma prior")
         
         if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
-            raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+            raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
         
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
@@ -189,9 +189,9 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         for key, value in key_value_pairs:
             if key == "strength":
                 if not _check_conjugate_parameter_is_scalar_linear(value):
-                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+                    raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy defined via strength requires strength: lambda x : s*x for the conjugate parameter")
             else:
-                raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
+                raise ValueError(f"RegularizedUnboundedUniform-Gamma conjugacy does not support the conjugate parameter {self.target.prior.name} in the {key} attribute. Only strength is supported")
 
     def conjugate_distribution(self):
         # Extract prior variables
@@ -219,26 +219,26 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
 
     def validate_target(self):
         if self.target.prior.dim != 1:
-            raise ValueError("Conjugate sampler only works with univariate Gamma prior")
+            raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with univariate ModifiedHalfNormal prior")
         
         if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
-            raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+            raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 2:
-            raise ValueError(f"Incorrect number of references to conjugate parameter {self.target.prior.name} found in likelihood. Found {len(key_value_pairs)} times, but needs to occur in prec or cov, and in strength.")
+            raise ValueError(f"Incorrect number of references to conjugate parameter {self.target.prior.name} found in likelihood. Found {len(key_value_pairs)} times, but needs to occur in prec or cov, and in strength")
         for key, value in key_value_pairs:
             if key == "strength":
                 if not _check_conjugate_parameter_is_scalar_linear(value):
-                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+                    raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy defined via strength requires strength: lambda x : s*x for the conjugate parameter")
             elif key == "prec":
                 if not _check_conjugate_parameter_is_scalar_quadratic(value):
-                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+                    raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy defined via precision requires prec: lambda x : s*x for the conjugate parameter")
             elif key == "cov":
                 if not _check_conjugate_parameter_is_scalar_quadratic_reciprocal(value):
-                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+                    raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy  defined via covariance requires cov: lambda x : s/x for the conjugate parameter")
             else:
-                raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
+                raise ValueError(f"RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter {self.target.prior.name} in the {key} attribute. Only cov, prec and strength are supported")
 
 
     def conjugate_distribution(self):
