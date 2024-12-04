@@ -117,15 +117,18 @@ class _GaussianGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
 
-        key, value = _get_conjugate_parameter(self.target)
-        if key == "cov":
-            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
-                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
-        elif key == "prec":
-            if not _check_conjugate_parameter_is_scalar_identity(value):
-                raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter")
-        else:
-            raise ValueError("Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 1:
+            raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
+        for key, value in key_value_pairs:
+            if key == "cov":
+                if not _check_conjugate_parameter_is_scalar_linear_reciprocal(value):
+                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+            elif key == "prec":
+                if not _check_conjugate_parameter_is_scalar_linear(value):
+                    raise ValueError("Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter")
+            else:
+                raise ValueError("Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
 
     def conjugate_distribution(self):
         # Extract variables
@@ -156,15 +159,18 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         if self.target.likelihood.distribution.preset not in ["nonnegativity"]:
             raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
-        key, value = _get_conjugate_parameter(self.target)
-        if key == "cov":
-            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
-                raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
-        elif key == "prec":
-            if not _check_conjugate_parameter_is_scalar_identity(value):
-                raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
-        else:
-            raise ValueError("Conjugate sampler for a Regularized Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 1:
+            raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
+        for key, value in key_value_pairs:
+            if key == "cov":
+                if not _check_conjugate_parameter_is_scalar_linear_reciprocal(value):
+                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x for the conjugate parameter")
+            elif key == "prec":
+                if not _check_conjugate_parameter_is_scalar_linear(value):
+                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+            else:
+                raise ValueError("Conjugate sampler for a Regularized Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision")
 
     def conjugate_distribution(self):
         # Extract variables
@@ -191,12 +197,16 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
             raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
-        key, value = _get_conjugate_parameter(self.target)
-        if key == "strength":
-            if not _check_conjugate_parameter_is_scalar_linear(value):
-                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
-        else:
-            raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
+        
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 1:
+            raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
+        for key, value in key_value_pairs:
+            if key == "strength":
+                if not _check_conjugate_parameter_is_scalar_linear(value):
+                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+            else:
+                raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
 
     def conjugate_distribution(self):
         # Extract prior variables
@@ -231,14 +241,21 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
             raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
-        # TODO: Add quadratic check for covariance
-        return
-        key, value = _get_conjugate_parameter(self.target)
-        if key == "strength":
-            if not _check_conjugate_parameter_is_scalar_linear(value):
-                raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
-        else:
-            raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 2:
+            raise ValueError(f"Incorrect number of references to conjugate parameter {self.target.prior.name} found in likelihood. Found {len(key_value_pairs)} times, but needs to occur in prec or cov, and in strength.")
+        for key, value in key_value_pairs:
+            if key == "strength":
+                if not _check_conjugate_parameter_is_scalar_linear(value):
+                    raise ValueError("Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter")
+            elif key == "prec":
+                if not _check_conjugate_parameter_is_scalar_quadratic(value):
+                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+            elif key == "cov":
+                if not _check_conjugate_parameter_is_scalar_quadratic_reciprocal(value):
+                    raise ValueError("Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x for the conjugate parameter")
+            else:
+                raise ValueError("Conjugate sampler for RegularizedUnboundedUniform likelihood functions only works when conjugate parameter is defined via strength")
 
 
     def conjugate_distribution(self):
@@ -283,12 +300,9 @@ def _get_conjugate_parameter(target):
         attr = getattr(target.likelihood.distribution, var_key)
         if callable(attr) and par_name in get_non_default_args(attr):
             found_parameter_pairs.append((var_key, attr))
-    if len(found_parameter_pairs) == 1:
-        return found_parameter_pairs[0]
-    # elif len(found_parameter_pairs) > 1:
-    #     raise ValueError(f"Multiple references of parameter {par_name} found in likelihood function for conjugate sampler with target {target}. This is not supported.")
-    else:
+    if len(found_parameter_pairs) == 0:
         raise ValueError(f"Unable to find conjugate parameter {par_name} in likelihood function for conjugate sampler with target {target}")
+    return found_parameter_pairs
 
 def _check_conjugate_parameter_is_scalar_identity(f):
     """Tests whether a function (scalar to scalar) is the identity (lambda x: x)."""
@@ -300,8 +314,36 @@ def _check_conjugate_parameter_is_scalar_reciprocal(f):
     return all(math.isclose(f(x), 1.0 / x) for x in [1.0, 10.0, 100.0])
 
 def _check_conjugate_parameter_is_scalar_linear(f):
-    """Tests whether a function (scalar to scalar) is linear (lambda x: s*x for some s)."""
+    """
+        Tests whether a function (scalar to scalar) is linear (lambda x: s*x for some s).
+        The tests checks whether the function is zero and some finite differences are constant.
+    """
     test_values = [1.0, 10.0, 100.0]
     h = 1e-2
     finite_diffs = [(f(x + h*x)-f(x))/(h*x) for x in test_values]
     return np.isclose(f(0.0), 0.0) and all(np.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
+
+def _check_conjugate_parameter_is_scalar_linear_reciprocal(f):
+    """
+        Tests whether a function (scalar to scalar) is a constant times the inverse of the input (lambda x: s/x for some s).
+        The tests checks whether the the reciprocal of the function has constant finite differences.
+    """
+    g = lambda x : 1.0/f(x)
+    test_values = [1.0, 10.0, 100.0]
+    h = 1e-2
+    finite_diffs = [(g(x + h*x)-g(x))/(h*x) for x in test_values]
+    return all(np.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
+
+def _check_conjugate_parameter_is_scalar_quadratic(f):
+    """
+        Tests whether a function (scalar to scalar) is linear (lambda x: s*x**2 for some s).
+        The tests checks whether the function divided by the parameter is linear
+    """
+    return _check_conjugate_parameter_is_scalar_linear(lambda x: f(x)/x if x != 0.0 else f(0.0))
+
+def _check_conjugate_parameter_is_scalar_quadratic_reciprocal(f):
+    """
+        Tests whether a function (scalar to scalar) is linear (lambda x: s*x**-2 for some s).
+        The tests checks whether the function divided by the parameter is the reciprical of a linear function.
+    """
+    return _check_conjugate_parameter_is_scalar_linear_reciprocal(lambda x: f(x)/x)

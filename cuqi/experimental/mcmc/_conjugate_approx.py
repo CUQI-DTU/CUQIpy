@@ -45,12 +45,15 @@ class _LMRFGammaPair(_ConjugatePair):
         if np.sum(self.target.likelihood.distribution.location) != 0:
             raise ValueError("Approximate conjugate sampler only works with zero mean LMRF likelihood")
         
-        key, value = _get_conjugate_parameter(self.target)
-        if key == "scale":
-            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
-                raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
-        else:
-            raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 1:
+            raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
+        for key, value in key_value_pairs:
+            if key == "scale":
+                if not _check_conjugate_parameter_is_scalar_reciprocal(value):
+                    raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
+            else:
+                raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
         
     def conjugate_distribution(self):
         # Extract variables
