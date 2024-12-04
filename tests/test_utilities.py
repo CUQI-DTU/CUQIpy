@@ -1,7 +1,7 @@
 import pytest
 from scipy.linalg import cholesky
 from scipy.sparse import diags
-from cuqi.utilities import sparse_cholesky, plot_1D_density, plot_2D_density
+from cuqi.utilities import sparse_cholesky, plot_1D_density, plot_2D_density, count_nonzero, count_constant_components_1D, count_constant_components_2D
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Uniform, JointDistribution
 import numpy as np
@@ -66,3 +66,35 @@ def test_plot_density(density, log_scale):
             density, -3, 3, -3, 3, 60, 60, cmap='gray', log_scale=log_scale)
     else:
         raise ValueError("Density must be 1D or 2D.")
+    
+def count_nonzero_threshold():
+    threshold = 1e-8
+    eps_min = 1e-1
+    eps_plus = 1e1
+    test_array = np.array([0, -eps_min*threshold, -threshold, -eps_plus*threshold, eps_min*threshold, threshold, eps_plus*threshold])
+    print(test_array)
+
+    nonzeros = count_nonzero(test_array, threshold)
+    assert(nonzeros == 4)
+
+def count_constant_components_1d_threshold():
+    threshold = 1e-4
+    test_array = np.array([0, 0, 1.0 - 0.5*threshold, 1.0, 1.0+0.5*threshold, 1.5, 2, 2+0.5*threshold, 2+threshold, 0, 0])
+
+    components = count_constant_components_1D(test_array, threshold)
+    assert(components == 5)
+
+    components = count_constant_components_1D(test_array, threshold, lower = 0, upper = 2)
+    assert(components == 2)
+
+def count_constant_components_2d_threshold():
+    threshold = 1e-4
+    test_array = np.array([[0, 0                , 1 - 0.25*threshold],
+                           [0, 1                , 1 + 0.25*threshold],
+                           [2, 2 - 0.5*threshold, 2]])
+
+    components = count_constant_components_2D(test_array, threshold)
+    assert(components == 3)
+
+    components = count_constant_components_2D(test_array, threshold, lower = 0, upper = 2)
+    assert(components == 1)

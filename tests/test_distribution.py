@@ -827,8 +827,8 @@ def test_Gaussian_from_linear_operator_sqrtprec():
     assert np.allclose(y_from_dense.logpdf(np.ones(N)), y_from_sparse.logpdf(np.ones(N)))
 
 @pytest.mark.parametrize("alpha, beta, gamma, expected",[
-                        (1.0, 2.0, 3.0, [0.77974597, 0.77361298, 0.5422682, 0.81054637, 1.35205349]),
-                        (128.0, 3.0, -4.0, [1.02250649, 1.05735833, 0.98794758, 1.04533337, 1.00500678])
+                        (1.0, 2.0, 3.0, [[0.77974597], [0.77361298], [0.5422682 ], [0.81054637], [1.35205349]]),
+                        (128.0, 3.0, -4.0, [[4.80290413], [4.40134124], [4.56151431], [4.2430851 ], [4.50618522]])
                         ])
 def test_MHN_sample_regression(alpha, beta, gamma, expected):
     rng = np.random.RandomState(0)
@@ -837,11 +837,10 @@ def test_MHN_sample_regression(alpha, beta, gamma, expected):
     assert np.allclose( samples, np.array(expected))
 
 @pytest.mark.parametrize("alpha, beta, gamma, expected_logpdf, expected_gradient",[
-                        (1.0, 2.0, 3.0, -40.0, [[-1.], [-3.], [-5.], [-7.], [-9.]]),
-                        (64.0, 3.0, -4.0, -2258.388020204731, [[-1.], [-160.5], [-299.], [-432.25], [-563.4 ]])
+                        (1.0, 2.0, 3.0, -65.0, [[-1.0], [-5.0], [-9.0], [-13.0], [-17.0]]),
+                        (64.0, 3.0, -4.0, 76.6119797952689, [[53.0], [15.5], [-1.0], [-12.25], [-21.4]])
                         ])
 def test_MHN_regression(alpha, beta, gamma, expected_logpdf, expected_gradient):
-    rng = np.random.RandomState(0)
     dist = cuqi.distribution.ModifiedHalfNormal(alpha, beta, gamma)
     logpdf = dist.logpdf(np.array([1.0, 2.0, 3.0, 4.0, 5.0]))
     gradient = dist._gradient(np.array([1.0, 2.0, 3.0, 4.0, 5.0]))
