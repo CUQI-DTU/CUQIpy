@@ -108,12 +108,6 @@ class _GaussianGammaPair(_ConjugatePair):
     """ Implementation for the Gaussian-Gamma conjugate pair."""
 
     def validate_target(self):
-        if not isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
-            raise ValueError("Conjugate sampler only works with a Gaussian likelihood function")
-
-        if not isinstance(self.target.prior, Gamma):
-            raise ValueError("Conjugate sampler only works with Gamma prior")
-
         if self.target.prior.dim != 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
 
@@ -147,12 +141,6 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
     """Implementation for the Regularized Gaussian-Gamma conjugate pair."""
 
     def validate_target(self):
-        if not isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            raise ValueError("Conjugate sampler only works with a Regularized Gaussian likelihood function")
-
-        if not isinstance(self.target.prior, Gamma):
-            raise ValueError("Conjugate sampler only works with Gamma prior")
-
         if self.target.prior.dim != 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
 
@@ -189,14 +177,11 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
     """Implementation for the RegularizedUnboundedUniform-ModifiedHalfNormal conjugate pair."""
 
     def validate_target(self):
-        # Do we want to check the likelihood and prior again, as it is already checked in Conjugate
-
         if self.target.prior.dim != 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
         
         if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
             raise ValueError("Conjugate sampler only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
-
         
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
@@ -233,8 +218,6 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
     """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair."""
 
     def validate_target(self):
-        # Do we want to check the likelihood and prior again, as it is already checked in Conjugate
-
         if self.target.prior.dim != 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
         

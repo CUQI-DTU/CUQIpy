@@ -33,12 +33,6 @@ class _LMRFGammaPair(_ConjugatePair):
     """ Implementation of the conjugate pair (LMRF, Gamma) """
 
     def validate_target(self):
-        if not isinstance(self.target.likelihood.distribution, LMRF):
-            raise ValueError("Approximate conjugate sampler only works with LMRF likelihood function")
-        
-        if not isinstance(self.target.prior, Gamma):
-            raise ValueError("Approximate conjugate sampler with LMRF likelihood only works with Gamma prior")
-        
         if not self.target.prior.dim == 1:
             raise ValueError("Approximate conjugate sampler only works with univariate Gamma prior")
         
