@@ -5,6 +5,7 @@ from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 
 import numpy as np
+from copy import copy
 
 
 class RegularizedGaussian(Distribution):
@@ -267,29 +268,12 @@ class RegularizedGaussian(Distribution):
             mutable_vars += ["strength"]
         return mutable_vars
     
-    # Overwrite the condition method such that the underlying Gaussian is conditioned in general, except when conditioning on self.name
-    # which means we convert Distribution to Likelihood or EvaluatedDensity.
-    def _condition(self, *args, **kwargs):
-        if self.preset in self.regularization_options():
-            return super()._condition(*args, **kwargs)
-        
-        # Handle positional arguments (similar code as in Distribution._condition)
-        cond_vars = self.get_conditioning_variables()
-        kwargs = self._parse_args_add_to_kwargs(cond_vars, *args, **kwargs)
-
-        # When conditioning, we always do it on a copy to avoid unintentional side effects
-        new_density = self._make_copy()
-
-        # Check if self.name is in the provided keyword arguments.
-        # If so, pop it and store its value.
-        value = kwargs.pop(self.name, None)
-
-        new_density._gaussian = self.gaussian._condition(**kwargs)
-
-        # If self.name was provided, we convert to a likelihood or evaluated density
-        if value is not None:
-            new_density = new_density.to_likelihood(value)
-
+    def _make_copy(self):
+        """ Returns a shallow copy of the density keeping a pointer to the original. """
+        # Using deepcopy would also copy the underlying geometry, which causes a crash because geometries won't match anymore.
+        new_density = copy(self)
+        new_density._gaussian = copy(new_density._gaussian)
+        new_density._original_density = self
         return new_density
 
 
