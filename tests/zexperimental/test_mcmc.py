@@ -764,7 +764,7 @@ def test_conjugate_wrong_var_for_conjugate_parameter():
     s = cuqi.distribution.Gamma(1, 1e-4, name='s')
     posterior =  cuqi.distribution.Posterior(y.to_likelihood([0]), s)
 
-    with pytest.raises(ValueError, match="Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision"):
+    with pytest.raises(ValueError, match="RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter s in the sqrtprec attribute. Only cov and prec"):
         cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def test_conjugate_wrong_equation_for_conjugate_parameter():
@@ -773,7 +773,7 @@ def test_conjugate_wrong_equation_for_conjugate_parameter():
     # Modify likelihood to not invert parameter in covariance
     posterior.likelihood.distribution.cov = lambda s: s
 
-    with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"):
+    with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : s/x for the conjugate parameter"):
         cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_func):
@@ -817,8 +817,8 @@ def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_f
         raise ValueError(f"Conjugate target type {target_type} not recognized.")
 
 @pytest.mark.parametrize("target_type, param_name, invalid_func, expected_error", [
-    ("gaussian-gamma", "cov", lambda s: s, "Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"),
-    ("regularizedgaussian-gamma", "cov", lambda s: s, "Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x"),
+    ("gaussian-gamma", "cov", lambda s: s, "Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : s/x for the conjugate parameter"),
+    ("regularizedgaussian-gamma", "cov", lambda s: s, "Regularized Gaussian-Gamma conjugacy defined via covariance requires cov: lambda x : s/x for the conjugate parameter"),
     ("lmrf-gamma", "scale", lambda s: s, "Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood"),
 ])
 def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target_type, param_name, invalid_func, expected_error):
