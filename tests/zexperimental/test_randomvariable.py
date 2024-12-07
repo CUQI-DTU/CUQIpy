@@ -100,10 +100,10 @@ def test_randomvariable_works_with_distribution_conditioning(operations):
 
     # Check basic classes are correct
     assert isinstance(y, RandomVariable)
-    assert isinstance(y.dist.cov, RandomVariable)
+    assert isinstance(y.distribution.cov, RandomVariable)
 
     # Check conditioning works and provides the expected result
-    assert np.allclose(y_cond_x.dist.cov, operations(val))
+    assert np.allclose(y_cond_x.distribution.cov, operations(val))
 
 @pytest.mark.parametrize("operations", [
     lambda x, y, z: x + y - z,
@@ -218,7 +218,7 @@ def test_rv_attributes():
     assert x.name == "x"
     assert isinstance(x.tree, VariableNode)
     assert x.tree.name == "x"
-    assert isinstance(x.dist, cuqi.distribution.Gaussian)
+    assert isinstance(x.distribution, cuqi.distribution.Gaussian)
 
 def test_rv_variable_name_detection():
     """Test that the rv name is detected correctly at different levels of the python stack. """
@@ -313,6 +313,6 @@ def test_RV_sets_name_of_internal_conditional_density_if_par_name_not_set_and_do
     z = RandomVariable(Z)
 
     assert z.name == 'z'
-    assert z.dist.par_name == "z"
+    assert z.distribution.par_name == "z"
     assert Z_s.par_name is None # Should not be set for the original density.
     assert Z.par_name is None # Should not be set for the conditioned density.
