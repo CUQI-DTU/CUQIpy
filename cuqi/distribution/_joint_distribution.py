@@ -71,7 +71,7 @@ class JointDistribution:
                 raise ValueError("All RandomVariables must be simple (not-transformed).")
 
         # Convert potential random variables to their underlying distribution
-        densities = [density.dist if isinstance(density, cuqi.experimental.algebra.RandomVariable) else density for density in densities]
+        densities = [density.distribution if isinstance(density, cuqi.experimental.algebra.RandomVariable) else density for density in densities]
 
         # Ensure all densities have unique names
         names = [density.name for density in densities]

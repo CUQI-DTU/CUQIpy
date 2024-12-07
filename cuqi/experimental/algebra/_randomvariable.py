@@ -166,7 +166,7 @@ class RandomVariable:
         self._name = name
         
     @property
-    def dist(self) -> cuqi.distribution.Distribution:
+    def distribution(self) -> cuqi.distribution.Distribution:
         """ Distribution from which the random variable originates. """
         if len(self._distributions) > 1:
             raise ValueError("Cannot get distribution from random variable defined by multiple distributions")
