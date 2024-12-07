@@ -189,19 +189,19 @@ class RandomVariable:
     def dim(self):
         if self.is_transformed:
             raise NotImplementedError("Dimension not implemented for transformed random variables")
-        return self.dist.dim
+        return self.distribution.dim
 
     @property
     def geometry(self):
         if self.is_transformed:
             raise NotImplementedError("Geometry not implemented for transformed random variables")
-        return self.dist.geometry
+        return self.distribution.geometry
 
     @geometry.setter
     def geometry(self, geometry):
         if self.is_transformed:
             raise NotImplementedError("Geometry not implemented for transformed random variables")
-        self.dist.geometry = geometry
+        self.distribution.geometry = geometry
 
     @property
     def expression(self):
