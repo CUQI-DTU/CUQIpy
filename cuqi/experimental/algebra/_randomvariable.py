@@ -204,9 +204,9 @@ class RandomVariable:
         self.dist.geometry = geometry
 
     @property
-    def formula(self):
-        """ Formula of the random variable. """
-        return self.tree
+    def expression(self):
+        """ Expression (formula) of the random variable. """
+        return str(self.tree)
 
     @property
     def is_transformed(self):
@@ -254,7 +254,7 @@ class RandomVariable:
         if self.is_transformed:
             body = (
                 f"\n"
-                f"Formula: {self.tree}\n"
+                f"Expression: {self.tree}\n"
                 f"Components: \n{parameter_strings}"
                 )
         else:
