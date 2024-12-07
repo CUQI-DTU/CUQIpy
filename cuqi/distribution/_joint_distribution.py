@@ -14,10 +14,11 @@ class JointDistribution:
 
     Parameters
     ----------
-    components : RandomVariable or Density
-        The components to include in the joint distribution.
-        Each component is passed as comma-separated arguments,
-        and can be either a :class:`RandomVariable` or a :class:`Density`.
+    densities : RandomVariable or Density
+        The densities to include in the joint distribution.
+        Each density is passed as comma-separated arguments,
+        and can be either a :class:'Density' such as :class:'Distribution'
+        or :class:`RandomVariable`.
 
     Notes
     -----
@@ -61,16 +62,16 @@ class JointDistribution:
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, *components: [Density, cuqi.experimental.algebra.RandomVariable]):
+    def __init__(self, *densities: [Density, cuqi.experimental.algebra.RandomVariable]):
         """ Create a joint distribution from the given densities. """
 
         # Check if all RandomVariables are simple (not-transformed)
-        for component in components:
-            if isinstance(component, cuqi.experimental.algebra.RandomVariable) and component.is_transformed:
+        for density in densities:
+            if isinstance(density, cuqi.experimental.algebra.RandomVariable) and density.is_transformed:
                 raise ValueError("All RandomVariables must be simple (not-transformed).")
 
-        # Convert potential random variables to their underlying dist
-        densities = [component.dist if isinstance(component, cuqi.experimental.algebra.RandomVariable) else component for component in components]
+        # Convert potential random variables to their underlying distribution
+        densities = [density.dist if isinstance(density, cuqi.experimental.algebra.RandomVariable) else density for density in densities]
 
         # Ensure all densities have unique names
         names = [density.name for density in densities]
