@@ -26,7 +26,8 @@ class RandomVariable:
         The tree, represented by the syntax tree nodes, that contain the algebraic operations applied to the random variable.
 
     name : str, optional
-        Name of the random variable. If not provided, the name is extracted from the variable name in the code.
+        Name of the random variable. If not provided, the name is extracted from either the distribution provided
+        or from the variable name in the code. The name provided must match the parameter name of the distribution.
 
     Example
     -------
