@@ -481,7 +481,7 @@ class Model(object):
             return NotImplemented        
         
         # In leaf-type node case we simply change the parameter name of model to match the random variable name
-        dist = x.dist
+        dist = x.distribution
         if dist.dim != self.domain_dim:
             raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
         
