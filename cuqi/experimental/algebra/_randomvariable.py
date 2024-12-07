@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List, Any
-from ._ast import VariableNode
+from ._ast import VariableNode, Node
 from ._orderedset import _OrderedSet
 import operator
 import cuqi
@@ -22,8 +22,9 @@ class RandomVariable:
         provided, the random variable is defined by the passed abstract syntax `tree` representing the
         algebraic operations applied to one or more random variables.
 
-    tree : VariableNode, optional
+    tree : Node, optional
         The tree, represented by the syntax tree nodes, that contain the algebraic operations applied to the random variable.
+        Specifically, the root of the tree should be provided.
 
     name : str, optional
         Name of the random variable. If not provided, the name is extracted from either the distribution provided
@@ -64,7 +65,7 @@ class RandomVariable:
 
     """
 
-    def __init__(self, distributions: set, tree: VariableNode = None, name: str = None):
+    def __init__(self, distributions: set, tree: Node = None, name: str = None):
         """ Create random variable from distribution """
 
         # Convert single distribution to OrderedSet.
