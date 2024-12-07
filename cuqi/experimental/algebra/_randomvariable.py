@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import List, Any
+from typing import List, Any, Union
 from ._ast import VariableNode, Node
 from ._orderedset import _OrderedSet
 import operator
 import cuqi
+from cuqi.distribution import Distribution
 from copy import copy
 
 
@@ -17,7 +18,7 @@ class RandomVariable:
 
     Parameters
     ----------
-    distributions : Distribution or set of Distribution
+    distributions : Distribution or list of Distributions
         The distribution from which the random variable originates. If multiple distributions are
         provided, the random variable is defined by the passed abstract syntax `tree` representing the
         algebraic operations applied to one or more random variables.
@@ -63,16 +64,44 @@ class RandomVariable:
         BP.set_data(y=y_obs)
         BP.UQ()
 
+    Defining random variable from multiple distributions:
+
+    .. code-block:: python
+
+        from cuqi.distribution import Gaussian, Gamma
+        from cuqi.experimental.algebra import RandomVariable, VariableNode
+
+        # Define the variables
+        x = VariableNode('x')
+        y = VariableNode('y')
+
+        # Define the distributions (names must match variables)
+        dist_x = Gaussian(0, 1, name='x')
+        dist_y = Gamma(1, 1e-4, name='y')
+
+        # Define the tree (this is the algebra that defines the random variable along with the distributions)
+        tree = x + y
+
+        # Define random variable from 2 distributions with relation x+y
+        rv = RandomVariable([dist_x, dist_y], tree)
+
     """
 
-    def __init__(self, distributions: set, tree: Node = None, name: str = None):
+
+    def __init__(self, distributions: Union['Distribution', List['Distribution']], tree: 'Node' = None, name: str = None):
         """ Create random variable from distribution """
 
-        # Convert single distribution to OrderedSet.
+        if isinstance(distributions, Distribution):
+            distributions = [distributions]
+        
+        if not  isinstance(distributions, list) and not isinstance(distributions, _OrderedSet):
+            raise ValueError("Expected a distribution or a list of distributions")
+
+        # Convert single distribution(s) to internal datastructure _OrderedSet.
         # We use ordered set to ensure that the order of the distributions is preserved.
         # which in turn ensures that the parameter names are always in the same order.
         if not isinstance(distributions, _OrderedSet):
-            distributions = _OrderedSet([distributions])
+            distributions = _OrderedSet(distributions)
 
         # Match random variable name with distribution parameter name (for single distribution)
         if len(distributions) == 1 and tree is None:
