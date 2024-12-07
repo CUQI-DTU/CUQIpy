@@ -356,6 +356,9 @@ class Model(object):
             return self._handle_random_variable(x)
         
         # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
+        # We use NotImplemented to indicate that the operation is not supported from the Model class
+        # in case of operations such as "@" that can be interpreted as both __matmul__ and __rmatmul__
+        # the operation may be delegated to the Node class.
         if isinstance(x, cuqi.experimental.algebra.Node):
             return NotImplemented
 
