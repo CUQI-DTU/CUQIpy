@@ -5,6 +5,7 @@ from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
 from cuqi.geometry import Geometry, _DefaultGeometry1D
+import cuqi
 import numpy as np # for splitting array. Can avoid.
 
 class JointDistribution:
@@ -13,9 +14,11 @@ class JointDistribution:
 
     Parameters
     ----------
-    densities : Density
+    densities : RandomVariable or Density
         The densities to include in the joint distribution.
-        Each density is passed as comma-separated arguments.
+        Each density is passed as comma-separated arguments,
+        and can be either a :class:'Density' such as :class:'Distribution'
+        or :class:`RandomVariable`.
 
     Notes
     -----
@@ -59,7 +62,16 @@ class JointDistribution:
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, *densities: Density):
+    def __init__(self, *densities: [Density, cuqi.experimental.algebra.RandomVariable]):
+        """ Create a joint distribution from the given densities. """
+
+        # Check if all RandomVariables are simple (not-transformed)
+        for density in densities:
+            if isinstance(density, cuqi.experimental.algebra.RandomVariable) and density.is_transformed:
+                raise ValueError(f"To be used in {self.__class__.__name__}, all RandomVariables must be untransformed.")
+
+        # Convert potential random variables to their underlying distribution
+        densities = [density.distribution if isinstance(density, cuqi.experimental.algebra.RandomVariable) else density for density in densities]
 
         # Ensure all densities have unique names
         names = [density.name for density in densities]

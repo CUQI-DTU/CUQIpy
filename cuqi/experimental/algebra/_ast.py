@@ -56,6 +56,20 @@ class Node(ABC):
         """String representation of the node. Used for printing the AST."""
         pass
 
+    def get_variables(self, variables=None):
+        """Returns a set with the names of all variables in the sub-tree originated at this node."""
+        if variables is None:
+            variables = set()
+        if isinstance(self, VariableNode):
+            variables.add(self.name)
+        if hasattr(self, "child"):
+            self.child.get_variables(variables)
+        if hasattr(self, "left"):
+            self.left.get_variables(variables)
+        if hasattr(self, "right"):
+            self.right.get_variables(variables)
+        return variables
+
     def __add__(self, other):
         return AddNode(self, convert_to_node(other))
 

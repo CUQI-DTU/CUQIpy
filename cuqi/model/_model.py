@@ -351,6 +351,17 @@ class Model(object):
             new_model._non_default_args = [x.name] # Defaults to x if distribution had no name
             return new_model
 
+        # If input is a random variable, we handle it separately
+        if isinstance(x, cuqi.experimental.algebra.RandomVariable):
+            return self._handle_random_variable(x)
+        
+        # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
+        # We use NotImplemented to indicate that the operation is not supported from the Model class
+        # in case of operations such as "@" that can be interpreted as both __matmul__ and __rmatmul__
+        # the operation may be delegated to the Node class.
+        if isinstance(x, cuqi.experimental.algebra.Node):
+            return NotImplemented
+
         # Else we apply the forward operator
         return self._apply_func(self._forward_func,
                                 self.range_geometry,
@@ -463,6 +474,20 @@ class Model(object):
             not type(self.domain_geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for model {} with domain geometry {}".format(self,self.domain_geometry))
 
+    def _handle_random_variable(self, x):
+        """ Private function that handles the case of the input being a random variable. """
+        # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
+        if not isinstance(x.tree, cuqi.experimental.algebra.VariableNode):
+            return NotImplemented        
+        
+        # In leaf-type node case we simply change the parameter name of model to match the random variable name
+        dist = x.distribution
+        if dist.dim != self.domain_dim:
+            raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
+        
+        new_model = copy(self)
+        new_model._non_default_args = [dist.name]
+        return new_model
 
     def __len__(self):
         return self.range_dim
