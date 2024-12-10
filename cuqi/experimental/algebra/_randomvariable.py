@@ -112,10 +112,17 @@ class RandomVariable:
         if not isinstance(distributions, _OrderedSet):
             distributions = _OrderedSet(distributions)
 
-        # Check if the variable names in the tree match the parameter names in the distributions
+        # If tree is provided, check it is consistent with the given distributions
         if tree:
             tree_var_names = tree.get_variables()
             dist_par_names = {dist._name for dist in distributions}
+
+            if len(tree_var_names) != len(distributions):
+                raise ValueError(
+                    f"There are {len(tree_var_names)} variables in the tree, but {len(distributions)} distributions are provided. "
+                    "This may be due to passing multiple distributions with the same parameter name. "
+                    f"The tree variables are {tree_var_names} and the distribution parameter names are {dist_par_names}."
+                )
             
             if not all(var_name in dist_par_names for var_name in tree_var_names):
                 raise ValueError(
