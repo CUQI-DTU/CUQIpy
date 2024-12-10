@@ -55,7 +55,7 @@ print(f"x[0] + y[1] yields:\n{x[0] + y[1]}\n")
 z = (x + y)**2
 
 # Evaluate the expression (using the __call__ method)
-print(f"z={z.formula} evaluated at x=1, y=2 yields: {z(x=1, y=2)}")
+print(f"z={z.expression} evaluated at x=1, y=2 yields: {z(x=1, y=2)}")
 # %%
 # Building Bayesian Problems
 # --------------------------
