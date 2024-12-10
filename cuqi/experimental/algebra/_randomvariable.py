@@ -16,6 +16,15 @@ class RandomVariable:
     operations applied to it and acts as a function that, when called, evaluates the operations
     and returns the result.
 
+    In CUQIpy, random variables can be in two forms: (1) a 'primal' random variable that is directly
+    defined by a distribution, e.g. x ~ N(0, 1), or (2) a 'transformed' random variable that is defined by
+    applying algebraic operations on one or more random variables, e.g. y = x + 1.
+
+    This distinction is purely for the purpose of the implementation in CUQIpy, as mathematically both
+    x ~ N(0, 1) and y = x + 1 ~ N(1, 1) are random variables. The distinction is useful for the
+    code implementation. In the future some operations like the above may allow primal random variables
+    that are transformed if the distribution can be analytically described.
+
     Parameters
     ----------
     distributions : Distribution or list of Distributions
@@ -210,7 +219,7 @@ class RandomVariable:
 
     @property
     def is_transformed(self):
-        #return len(self.distributions) > 1 or not self._tree is None
+        """ Returns True if the random variable is transformed. """
         return not isinstance(self.tree, VariableNode)
     
     @property
