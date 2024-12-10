@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.\_\_init\_\_
+===================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGaussian.__init__

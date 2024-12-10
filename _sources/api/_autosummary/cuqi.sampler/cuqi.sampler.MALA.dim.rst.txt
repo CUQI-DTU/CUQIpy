@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.dim
+=====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MALA.dim

@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.gradient
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.gradient

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.sample
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.sample

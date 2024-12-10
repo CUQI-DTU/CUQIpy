@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.validate\_target
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTS.validate_target

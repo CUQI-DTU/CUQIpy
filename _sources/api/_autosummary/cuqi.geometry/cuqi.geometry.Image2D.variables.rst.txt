@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.variables
+===============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Image2D.variables

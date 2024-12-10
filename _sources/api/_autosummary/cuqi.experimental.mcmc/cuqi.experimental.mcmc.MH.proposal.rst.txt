@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MH.proposal
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MH.proposal

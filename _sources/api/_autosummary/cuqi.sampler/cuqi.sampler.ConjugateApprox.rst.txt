@@ -1,0 +1,24 @@
+ConjugateApprox
+===============
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: ConjugateApprox
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConjugateApprox.__init__
+      ~ConjugateApprox.step
+   
+   
+
+   
+   
+   

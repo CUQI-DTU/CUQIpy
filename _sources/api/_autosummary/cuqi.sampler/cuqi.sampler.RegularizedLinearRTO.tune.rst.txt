@@ -1,0 +1,6 @@
+cuqi.sampler.RegularizedLinearRTO.tune
+======================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: RegularizedLinearRTO.tune

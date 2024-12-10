@@ -1,0 +1,6 @@
+cuqi.sampler.LinearRTO.target
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: LinearRTO.target

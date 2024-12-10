@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSampler.get\_state
+======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ProposalBasedSampler.get_state

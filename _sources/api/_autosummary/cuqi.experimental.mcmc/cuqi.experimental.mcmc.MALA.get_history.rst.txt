@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.get\_history
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.get_history

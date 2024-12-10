@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.load\_checkpoint
+=======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApprox.load_checkpoint

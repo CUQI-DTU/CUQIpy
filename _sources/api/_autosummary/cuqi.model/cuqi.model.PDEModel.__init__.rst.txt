@@ -1,0 +1,6 @@
+cuqi.model.PDEModel.\_\_init\_\_
+================================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: PDEModel.__init__

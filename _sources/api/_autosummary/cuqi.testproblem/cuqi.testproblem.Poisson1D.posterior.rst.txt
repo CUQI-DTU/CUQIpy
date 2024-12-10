@@ -1,0 +1,6 @@
+cuqi.testproblem.Poisson1D.posterior
+====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Poisson1D.posterior

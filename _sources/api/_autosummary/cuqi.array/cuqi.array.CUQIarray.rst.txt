@@ -1,0 +1,104 @@
+CUQIarray
+=========
+
+.. currentmodule:: cuqi.array
+
+.. autoclass:: CUQIarray
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CUQIarray.__init__
+      ~CUQIarray.all
+      ~CUQIarray.any
+      ~CUQIarray.argmax
+      ~CUQIarray.argmin
+      ~CUQIarray.argpartition
+      ~CUQIarray.argsort
+      ~CUQIarray.astype
+      ~CUQIarray.byteswap
+      ~CUQIarray.choose
+      ~CUQIarray.clip
+      ~CUQIarray.compress
+      ~CUQIarray.conj
+      ~CUQIarray.conjugate
+      ~CUQIarray.copy
+      ~CUQIarray.cumprod
+      ~CUQIarray.cumsum
+      ~CUQIarray.diagonal
+      ~CUQIarray.dot
+      ~CUQIarray.dump
+      ~CUQIarray.dumps
+      ~CUQIarray.fill
+      ~CUQIarray.flatten
+      ~CUQIarray.getfield
+      ~CUQIarray.item
+      ~CUQIarray.itemset
+      ~CUQIarray.max
+      ~CUQIarray.mean
+      ~CUQIarray.min
+      ~CUQIarray.newbyteorder
+      ~CUQIarray.nonzero
+      ~CUQIarray.partition
+      ~CUQIarray.plot
+      ~CUQIarray.prod
+      ~CUQIarray.ptp
+      ~CUQIarray.put
+      ~CUQIarray.ravel
+      ~CUQIarray.repeat
+      ~CUQIarray.reshape
+      ~CUQIarray.resize
+      ~CUQIarray.round
+      ~CUQIarray.searchsorted
+      ~CUQIarray.setfield
+      ~CUQIarray.setflags
+      ~CUQIarray.sort
+      ~CUQIarray.squeeze
+      ~CUQIarray.std
+      ~CUQIarray.sum
+      ~CUQIarray.swapaxes
+      ~CUQIarray.take
+      ~CUQIarray.to_numpy
+      ~CUQIarray.tobytes
+      ~CUQIarray.tofile
+      ~CUQIarray.tolist
+      ~CUQIarray.tostring
+      ~CUQIarray.trace
+      ~CUQIarray.transpose
+      ~CUQIarray.var
+      ~CUQIarray.view
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CUQIarray.T
+      ~CUQIarray.base
+      ~CUQIarray.ctypes
+      ~CUQIarray.data
+      ~CUQIarray.dtype
+      ~CUQIarray.flags
+      ~CUQIarray.flat
+      ~CUQIarray.funvals
+      ~CUQIarray.imag
+      ~CUQIarray.itemsize
+      ~CUQIarray.nbytes
+      ~CUQIarray.ndim
+      ~CUQIarray.parameters
+      ~CUQIarray.real
+      ~CUQIarray.shape
+      ~CUQIarray.size
+      ~CUQIarray.strides
+   
+   

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.target
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MYULA.target

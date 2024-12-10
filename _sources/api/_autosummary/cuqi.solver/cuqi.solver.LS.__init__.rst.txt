@@ -1,0 +1,6 @@
+cuqi.solver.LS.\_\_init\_\_
+===========================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: LS.__init__

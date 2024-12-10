@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.dim
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.dim

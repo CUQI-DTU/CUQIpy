@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.geometry
+==========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: MALA.geometry

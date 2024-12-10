@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.disable\_FD
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.disable_FD

@@ -1,0 +1,88 @@
+
+:orphan:
+
+.. _sphx_glr_sg_execution_times:
+
+
+Computation times
+=================
+**02:03.501** total execution time for 18 files **from all galleries**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_user__auto_howtos_Deconvolution2D.py` (``../demos/howtos/Deconvolution2D.py``)
+     - 00:32.701
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_Gibbs.py` (``../demos/tutorials/Gibbs.py``)
+     - 00:29.605
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_howtos_myula.py` (``../demos/howtos/myula.py``)
+     - 00:20.032
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_multiple_likelihoods.py` (``../demos/tutorials/multiple_likelihoods.py``)
+     - 00:18.006
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_UQ_in_Deconvolution1D.py` (``../demos/tutorials/UQ_in_Deconvolution1D.py``)
+     - 00:13.056
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_howtos_algebra.py` (``../demos/howtos/algebra.py``)
+     - 00:06.212
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_fun_vec_representation.py` (``../demos/tutorials/fun_vec_representation.py``)
+     - 00:01.613
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_howtos_TimeDependentLinearPDE.py` (``../demos/howtos/TimeDependentLinearPDE.py``)
+     - 00:01.266
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_1-Basics.py` (``../demos/tutorials/1-Basics.py``)
+     - 00:00.741
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_howtos_Image2D.py` (``../demos/howtos/Image2D.py``)
+     - 00:00.217
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_howtos_Defining_Posterior.py` (``../demos/howtos/Defining_Posterior.py``)
+     - 00:00.030
+     - 0.0
+   * - :ref:`sphx_glr_dev__auto_dev_JointDistribution.py` (``../demos/dev/JointDistribution.py``)
+     - 00:00.012
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_JointDistribution.py` (``../demos/tutorials/JointDistribution.py``)
+     - 00:00.010
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_howtos_custom_model.py` (``../demos/howtos/custom_model.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_3-Distributions.py` (``../demos/tutorials/3-Distributions.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_5-Samples.py` (``../demos/tutorials/5-Samples.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_4-Samplers.py` (``../demos/tutorials/4-Samplers.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_2-Models.py` (``../demos/tutorials/2-Models.py``)
+     - 00:00.000
+     - 0.0

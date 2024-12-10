@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMH.get\_samples
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMH.get_samples

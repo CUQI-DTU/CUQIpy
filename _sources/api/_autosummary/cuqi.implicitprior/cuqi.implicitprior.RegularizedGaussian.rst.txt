@@ -1,0 +1,58 @@
+RegularizedGaussian
+===================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: RegularizedGaussian
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedGaussian.__init__
+      ~RegularizedGaussian.constraint_options
+      ~RegularizedGaussian.disable_FD
+      ~RegularizedGaussian.enable_FD
+      ~RegularizedGaussian.get_conditioning_variables
+      ~RegularizedGaussian.get_mutable_variables
+      ~RegularizedGaussian.get_parameter_names
+      ~RegularizedGaussian.gradient
+      ~RegularizedGaussian.logd
+      ~RegularizedGaussian.logpdf
+      ~RegularizedGaussian.pdf
+      ~RegularizedGaussian.regularization_options
+      ~RegularizedGaussian.sample
+      ~RegularizedGaussian.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedGaussian.FD_enabled
+      ~RegularizedGaussian.FD_epsilon
+      ~RegularizedGaussian.cov
+      ~RegularizedGaussian.dim
+      ~RegularizedGaussian.gaussian
+      ~RegularizedGaussian.geometry
+      ~RegularizedGaussian.is_cond
+      ~RegularizedGaussian.mean
+      ~RegularizedGaussian.name
+      ~RegularizedGaussian.prec
+      ~RegularizedGaussian.preset
+      ~RegularizedGaussian.proximal
+      ~RegularizedGaussian.sqrtcov
+      ~RegularizedGaussian.sqrtprec
+      ~RegularizedGaussian.strength
+      ~RegularizedGaussian.transformation
+   
+   

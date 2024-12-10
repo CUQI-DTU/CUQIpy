@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.plot\_envelope
+==========================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: StepExpansion.plot_envelope

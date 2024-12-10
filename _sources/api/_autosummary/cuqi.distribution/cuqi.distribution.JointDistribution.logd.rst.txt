@@ -1,0 +1,6 @@
+cuqi.distribution.JointDistribution.logd
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointDistribution.logd

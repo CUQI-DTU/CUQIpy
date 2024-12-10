@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Conjugate.geometry
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: Conjugate.geometry

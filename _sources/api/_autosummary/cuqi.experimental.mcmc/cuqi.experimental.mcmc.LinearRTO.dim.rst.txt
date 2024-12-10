@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.dim
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: LinearRTO.dim

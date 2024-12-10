@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.geometry
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Posterior.geometry

@@ -1,0 +1,58 @@
+ConstrainedGaussian
+===================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: ConstrainedGaussian
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConstrainedGaussian.__init__
+      ~ConstrainedGaussian.constraint_options
+      ~ConstrainedGaussian.disable_FD
+      ~ConstrainedGaussian.enable_FD
+      ~ConstrainedGaussian.get_conditioning_variables
+      ~ConstrainedGaussian.get_mutable_variables
+      ~ConstrainedGaussian.get_parameter_names
+      ~ConstrainedGaussian.gradient
+      ~ConstrainedGaussian.logd
+      ~ConstrainedGaussian.logpdf
+      ~ConstrainedGaussian.pdf
+      ~ConstrainedGaussian.regularization_options
+      ~ConstrainedGaussian.sample
+      ~ConstrainedGaussian.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConstrainedGaussian.FD_enabled
+      ~ConstrainedGaussian.FD_epsilon
+      ~ConstrainedGaussian.cov
+      ~ConstrainedGaussian.dim
+      ~ConstrainedGaussian.gaussian
+      ~ConstrainedGaussian.geometry
+      ~ConstrainedGaussian.is_cond
+      ~ConstrainedGaussian.mean
+      ~ConstrainedGaussian.name
+      ~ConstrainedGaussian.prec
+      ~ConstrainedGaussian.preset
+      ~ConstrainedGaussian.proximal
+      ~ConstrainedGaussian.sqrtcov
+      ~ConstrainedGaussian.sqrtprec
+      ~ConstrainedGaussian.strength
+      ~ConstrainedGaussian.transformation
+   
+   

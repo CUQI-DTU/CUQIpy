@@ -1,0 +1,24 @@
+Conjugate
+=========
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: Conjugate
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Conjugate.__init__
+      ~Conjugate.step
+   
+   
+
+   
+   
+   

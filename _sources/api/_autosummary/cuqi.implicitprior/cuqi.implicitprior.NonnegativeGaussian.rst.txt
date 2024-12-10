@@ -1,0 +1,58 @@
+NonnegativeGaussian
+===================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: NonnegativeGaussian
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NonnegativeGaussian.__init__
+      ~NonnegativeGaussian.constraint_options
+      ~NonnegativeGaussian.disable_FD
+      ~NonnegativeGaussian.enable_FD
+      ~NonnegativeGaussian.get_conditioning_variables
+      ~NonnegativeGaussian.get_mutable_variables
+      ~NonnegativeGaussian.get_parameter_names
+      ~NonnegativeGaussian.gradient
+      ~NonnegativeGaussian.logd
+      ~NonnegativeGaussian.logpdf
+      ~NonnegativeGaussian.pdf
+      ~NonnegativeGaussian.regularization_options
+      ~NonnegativeGaussian.sample
+      ~NonnegativeGaussian.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NonnegativeGaussian.FD_enabled
+      ~NonnegativeGaussian.FD_epsilon
+      ~NonnegativeGaussian.cov
+      ~NonnegativeGaussian.dim
+      ~NonnegativeGaussian.gaussian
+      ~NonnegativeGaussian.geometry
+      ~NonnegativeGaussian.is_cond
+      ~NonnegativeGaussian.mean
+      ~NonnegativeGaussian.name
+      ~NonnegativeGaussian.prec
+      ~NonnegativeGaussian.preset
+      ~NonnegativeGaussian.proximal
+      ~NonnegativeGaussian.sqrtcov
+      ~NonnegativeGaussian.sqrtprec
+      ~NonnegativeGaussian.strength
+      ~NonnegativeGaussian.transformation
+   
+   

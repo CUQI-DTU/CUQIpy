@@ -1,0 +1,1357 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Random Variables and Algebra in CUQIpy &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/algebra';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Custom models" href="custom_model.html" />
+    <link rel="prev" title="Time Dependent Linear PDE" href="TimeDependentLinearPDE.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/1-Basics.html">CUQIpy Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/2-Models.html">Deterministic models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/3-Distributions.html">Distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/4-Samplers.html">Samplers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/5-Samples.html">Samples (Analysis and Visualization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/Gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/JointDistribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/UQ_in_Deconvolution1D.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Deconvolution2D.html">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Defining_Posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Image2D.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TimeDependentLinearPDE.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_model.html">Custom models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Random Variables and Algebra in CUQIpy</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-algebra-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="random-variables-and-algebra-in-cuqipy">
+<span id="sphx-glr-user-auto-howtos-algebra-py"></span><h1>Random Variables and Algebra in CUQIpy<a class="headerlink" href="#random-variables-and-algebra-in-cuqipy" title="Link to this heading">#</a></h1>
+<p>CUQIpy provides a simple algebraic framework for defining and manipulating
+random variables.</p>
+<p>In this example, we demonstrate how to define random variables, apply algebraic
+operations on them, and finally use them in Bayesian Problems.</p>
+<section id="defining-random-variables">
+<h2>Defining Random Variables<a class="headerlink" href="#defining-random-variables" title="Link to this heading">#</a></h2>
+<p>Random variables can be defined using the RandomVariable class. The RandomVariable
+class requires a distribution object to be passed as an argument. The distribution
+object can be any distribution object from the <cite>cuqi.distribution</cite> module.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Normal</span>
+<span class="kn">from</span> <span class="nn">cuqi.experimental.algebra</span> <span class="kn">import</span> <span class="n">RandomVariable</span>
+
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="recording-algebraic-operations">
+<h2>Recording Algebraic Operations<a class="headerlink" href="#recording-algebraic-operations" title="Link to this heading">#</a></h2>
+<p>We can now perform some algebraic operations on the random variables. The
+operations are recorded in a computational graph, which can be evaluated
+later.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Basic operations: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x + y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x - y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x * y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x / y yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">y</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Basic operations:
+
+x + y yields:
+Transformed Random Variable
+Expression: x + y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+x - y yields:
+Transformed Random Variable
+Expression: x - y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+x * y yields:
+Transformed Random Variable
+Expression: x * y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+x / y yields:
+Transformed Random Variable
+Expression: x / y
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Complex operations: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x**2 + 2*x*y + y**2 yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="n">x</span><span class="o">*</span><span class="n">y</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(x + y)**2 yields</span><span class="se">\n</span><span class="si">{</span><span class="p">(</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Complex operations:
+
+x**2 + 2*x*y + y**2 yields:
+Transformed Random Variable
+Expression: x^2 + (x * 2) * y + y^2
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+
+(x + y)**2 yields
+Transformed Random Variable
+Expression: (x + y)^2
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+</pre></div>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Array operations: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;x[0] + y[1] yields:</span><span class="se">\n</span><span class="si">{</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Array operations:
+
+x[0] + y[1] yields:
+Transformed Random Variable
+Expression: x[0] + y[1]
+Components:
+        x ~ CUQI Normal.
+        y ~ CUQI Normal.
+</pre></div>
+</div>
+</section>
+<section id="utilizing-the-recorded-operations">
+<h2>Utilizing the recorded operations<a class="headerlink" href="#utilizing-the-recorded-operations" title="Link to this heading">#</a></h2>
+<p>We can evaluate the recorded operations by calling the random variable object
+with the desired values for the random variables.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define a new random variable &#39;z&#39;</span>
+<span class="n">z</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span>
+
+<span class="c1"># Evaluate the expression (using the __call__ method)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;z=</span><span class="si">{</span><span class="n">z</span><span class="o">.</span><span class="n">expression</span><span class="si">}</span><span class="s2"> evaluated at x=1, y=2 yields: </span><span class="si">{</span><span class="n">z</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>z=(x + y)^2 evaluated at x=1, y=2 yields: 9
+</pre></div>
+</div>
+</section>
+<section id="building-bayesian-problems">
+<h2>Building Bayesian Problems<a class="headerlink" href="#building-bayesian-problems" title="Link to this heading">#</a></h2>
+<p>Random variables can be used to define Bayesian problems. In this example we build
+an example Bayesian problem using the Deconvolution1D test problem.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution1D</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">GMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.experimental.algebra</span> <span class="kn">import</span> <span class="n">RandomVariable</span>
+<span class="kn">from</span> <span class="nn">cuqi.problem</span> <span class="kn">import</span> <span class="n">BayesianProblem</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Forward model</span>
+<span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">Deconvolution1D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+
+<span class="c1"># Bayesian Problem (defined using Random Variables)</span>
+<span class="n">d</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">))</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Gamma</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">))</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">GMRF</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">domain_dim</span><span class="p">),</span> <span class="n">d</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">RandomVariable</span><span class="p">(</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="n">s</span><span class="p">))</span>
+
+<span class="c1"># Combine into a Bayesian Problem and perform UQ</span>
+<span class="n">BP</span> <span class="o">=</span> <span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span>
+<span class="n">BP</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+<span class="n">BP</span><span class="o">.</span><span class="n">UQ</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">})</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_algebra_001.png" srcset="../../_images/sphx_glr_algebra_001.png" alt="algebra" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_algebra_002.png" srcset="../../_images/sphx_glr_algebra_002.png" alt="s, s" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_algebra_003.png" srcset="../../_images/sphx_glr_algebra_003.png" alt="d, d" class = "sphx-glr-multi-img"/></li>
+</ul>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Computing 1000 samples
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using Gibbs sampler
+burn-in: 20%
+
+Automatically determined sampling strategy:
+        x: LinearRTO
+        s: Conjugate
+        d: Conjugate
+
+
+Warmup 2 / 200
+Warmup 4 / 200
+Warmup 6 / 200
+Warmup 8 / 200
+Warmup 10 / 200
+Warmup 12 / 200
+Warmup 14 / 200
+Warmup 16 / 200
+Warmup 18 / 200
+Warmup 20 / 200
+Warmup 22 / 200
+Warmup 24 / 200
+Warmup 26 / 200
+Warmup 28 / 200
+Warmup 30 / 200
+Warmup 32 / 200
+Warmup 34 / 200
+Warmup 36 / 200
+Warmup 38 / 200
+Warmup 40 / 200
+Warmup 42 / 200
+Warmup 44 / 200
+Warmup 46 / 200
+Warmup 48 / 200
+Warmup 50 / 200
+Warmup 52 / 200
+Warmup 54 / 200
+Warmup 56 / 200
+Warmup 58 / 200
+Warmup 60 / 200
+Warmup 62 / 200
+Warmup 64 / 200
+Warmup 66 / 200
+Warmup 68 / 200
+Warmup 70 / 200
+Warmup 72 / 200
+Warmup 74 / 200
+Warmup 76 / 200
+Warmup 78 / 200
+Warmup 80 / 200
+Warmup 82 / 200
+Warmup 84 / 200
+Warmup 86 / 200
+Warmup 88 / 200
+Warmup 90 / 200
+Warmup 92 / 200
+Warmup 94 / 200
+Warmup 96 / 200
+Warmup 98 / 200
+Warmup 100 / 200
+Warmup 102 / 200
+Warmup 104 / 200
+Warmup 106 / 200
+Warmup 108 / 200
+Warmup 110 / 200
+Warmup 112 / 200
+Warmup 114 / 200
+Warmup 116 / 200
+Warmup 118 / 200
+Warmup 120 / 200
+Warmup 122 / 200
+Warmup 124 / 200
+Warmup 126 / 200
+Warmup 128 / 200
+Warmup 130 / 200
+Warmup 132 / 200
+Warmup 134 / 200
+Warmup 136 / 200
+Warmup 138 / 200
+Warmup 140 / 200
+Warmup 142 / 200
+Warmup 144 / 200
+Warmup 146 / 200
+Warmup 148 / 200
+Warmup 150 / 200
+Warmup 152 / 200
+Warmup 154 / 200
+Warmup 156 / 200
+Warmup 158 / 200
+Warmup 160 / 200
+Warmup 162 / 200
+Warmup 164 / 200
+Warmup 166 / 200
+Warmup 168 / 200
+Warmup 170 / 200
+Warmup 172 / 200
+Warmup 174 / 200
+Warmup 176 / 200
+Warmup 178 / 200
+Warmup 180 / 200
+Warmup 182 / 200
+Warmup 184 / 200
+Warmup 186 / 200
+Warmup 188 / 200
+Warmup 190 / 200
+Warmup 192 / 200
+Warmup 194 / 200
+Warmup 196 / 200
+Warmup 198 / 200
+Warmup 200 / 200
+Warmup 200 / 200
+
+Sample 10 / 1000
+Sample 20 / 1000
+Sample 30 / 1000
+Sample 40 / 1000
+Sample 50 / 1000
+Sample 60 / 1000
+Sample 70 / 1000
+Sample 80 / 1000
+Sample 90 / 1000
+Sample 100 / 1000
+Sample 110 / 1000
+Sample 120 / 1000
+Sample 130 / 1000
+Sample 140 / 1000
+Sample 150 / 1000
+Sample 160 / 1000
+Sample 170 / 1000
+Sample 180 / 1000
+Sample 190 / 1000
+Sample 200 / 1000
+Sample 210 / 1000
+Sample 220 / 1000
+Sample 230 / 1000
+Sample 240 / 1000
+Sample 250 / 1000
+Sample 260 / 1000
+Sample 270 / 1000
+Sample 280 / 1000
+Sample 290 / 1000
+Sample 300 / 1000
+Sample 310 / 1000
+Sample 320 / 1000
+Sample 330 / 1000
+Sample 340 / 1000
+Sample 350 / 1000
+Sample 360 / 1000
+Sample 370 / 1000
+Sample 380 / 1000
+Sample 390 / 1000
+Sample 400 / 1000
+Sample 410 / 1000
+Sample 420 / 1000
+Sample 430 / 1000
+Sample 440 / 1000
+Sample 450 / 1000
+Sample 460 / 1000
+Sample 470 / 1000
+Sample 480 / 1000
+Sample 490 / 1000
+Sample 500 / 1000
+Sample 510 / 1000
+Sample 520 / 1000
+Sample 530 / 1000
+Sample 540 / 1000
+Sample 550 / 1000
+Sample 560 / 1000
+Sample 570 / 1000
+Sample 580 / 1000
+Sample 590 / 1000
+Sample 600 / 1000
+Sample 610 / 1000
+Sample 620 / 1000
+Sample 630 / 1000
+Sample 640 / 1000
+Sample 650 / 1000
+Sample 660 / 1000
+Sample 670 / 1000
+Sample 680 / 1000
+Sample 690 / 1000
+Sample 700 / 1000
+Sample 710 / 1000
+Sample 720 / 1000
+Sample 730 / 1000
+Sample 740 / 1000
+Sample 750 / 1000
+Sample 760 / 1000
+Sample 770 / 1000
+Sample 780 / 1000
+Sample 790 / 1000
+Sample 800 / 1000
+Sample 810 / 1000
+Sample 820 / 1000
+Sample 830 / 1000
+Sample 840 / 1000
+Sample 850 / 1000
+Sample 860 / 1000
+Sample 870 / 1000
+Sample 880 / 1000
+Sample 890 / 1000
+Sample 900 / 1000
+Sample 910 / 1000
+Sample 920 / 1000
+Sample 930 / 1000
+Sample 940 / 1000
+Sample 950 / 1000
+Sample 960 / 1000
+Sample 970 / 1000
+Sample 980 / 1000
+Sample 990 / 1000
+Sample 1000 / 1000
+Sample 1000 / 1000
+Elapsed time: 5.873412609100342
+Plotting results
+
+{&#39;x&#39;: CUQIpy Samples:
+---------------
+
+Ns (number of samples):
+ 1000
+
+Geometry:
+ _DefaultGeometry1D(128,)
+
+Shape:
+ (128, 1000)
+
+Samples:
+ [[ 0.12435321  0.11544142 -0.00299341 ... -0.07670758 -0.01275835
+  -0.10724538]
+ [ 0.02623648  0.08687928  0.09551238 ... -0.08515489 -0.10964984
+  -0.06251431]
+ [-0.10812618  0.04546969 -0.11650376 ... -0.01978185  0.0134882
+   0.03415782]
+ ...
+ [ 0.08111848  0.09974117  0.12987884 ...  0.23847484  0.11622347
+   0.06831782]
+ [-0.00909885  0.10932397  0.3941468  ... -0.01938695 -0.05888486
+   0.12332678]
+ [ 0.02216999  0.09227984  0.17095275 ... -0.12527137 -0.02071968
+   0.09434679]]
+
+, &#39;s&#39;: CUQIpy Samples:
+---------------
+
+Ns (number of samples):
+ 1000
+
+Geometry:
+ _DefaultGeometry1D(1,)
+
+Shape:
+ (1, 1000)
+
+Samples:
+ [[ 8108.07343815  8528.17831324  8407.25846776  8306.2497881
+   7944.68921423  6181.46724039  8119.9837121   9440.23502941
+   9234.07545908  8852.78519471  9284.65032635  9831.52171628
+   8741.39875354  8214.06411143 10131.34816659  7430.83843959
+   7547.14762476  9906.37666839  8203.89165783  8373.16370733
+   6723.29181733  8670.2384614   8530.51559858  9426.72341644
+   7503.45714764  9243.99753198 10107.24802431  8310.16513075
+   8374.30166354  9244.56772677  8951.04897913  8198.02962267
+   8605.46653527 10657.25149139  6467.51204477  6880.72091329
+   8739.21275761  9064.74970821  7233.55087269  8906.90987668
+   7705.59988637  8397.35551073  9253.45790983  9917.81695661
+   8781.03506996  7615.34206906  7614.10808834  9003.29845923
+   7273.03847902  8732.77322383  8653.56511772  6989.2092701
+   7880.44059552  7832.17228248  8324.62702483  8660.06609474
+   9360.99504444  7821.4867933   9149.53978422  6612.90847586
+   7446.08193185  7826.36201038  9452.84078983 10386.75827379
+   7524.76196975  8500.46358806  9142.61353494  7948.66417547
+   9653.29192767 10238.83500753  8318.17135383  9950.24047753
+   8715.8612825  10131.02643159  8140.85762944  7804.60035781
+   7709.25264521  7948.69639154  8709.48582423  7936.23309553
+   7048.12537749  8326.00393803  9007.46697731  9202.34327505
+   7668.16896286  8245.99114151  9168.51357235  8238.89528341
+   8342.92460743  7571.69656468  9005.90253581  8576.9965486
+   9406.80582455  8242.00278088  9758.60303443  7848.72263593
+   6737.85364111  8808.15760265  7406.75950515  7803.22025051
+   8981.59082181  8216.48409286  7549.98537473  9427.78731737
+   9071.86781567 10032.04628469  8313.9675937   8294.25088006
+   8472.23103711  8538.6335155   9448.31566622  7342.91926031
+   8754.65565119  7836.17390469  7270.76971075  7290.18777407
+   8271.63043461  9227.94676956 10041.41097872  7807.15427809
+   7030.05554575  6369.73438522  7366.90868639 10476.12803336
+  12097.20439468  9224.0211872   7737.81939     7259.57315568
+  10184.04426906  9977.2926764   7086.55281567  8150.97721955
+   9699.49767813  7403.37632215  9487.03791962  9236.39067711
+   9426.59507884  8973.8175259   7692.20729019  8916.40940446
+   8120.36602171  7445.17488995  8592.44375576  8014.10588134
+   8759.52281977  6889.6112372   7554.13517171  6262.25038546
+   8919.21597831  7924.32916054  8854.4377737  10649.81977635
+   9412.62943707  6746.59755951  7995.29871408  9097.57023868
+  10613.28040179  7777.06950643  6945.01840499  6495.12473978
+   6979.10746841  9233.59717754  8690.13228901 10358.08021989
+   7679.74300149  9018.21017922  8886.72059846  8504.86918608
+   7303.90552427  7484.12132681 10003.51511228  7809.68336768
+   9292.30939751  7559.57701198  7283.09963904  8833.34242397
+   9699.04640934  8413.34459839  8066.51620559  9538.3129834
+   9238.74895821  9435.30819771  8937.66337669  6863.66838884
+   9796.65621705  8438.52499404  8348.65327306  9587.54942356
+   9568.26582249  7630.4859581   8410.71637139  6925.74432638
+   6954.67415269  6864.19205603  9237.53629812  8647.04956431
+   7674.69075307  8408.62873528  9303.2986709   7598.97646754
+   7979.46656247  7314.61935396  7871.90340314  7744.58968237
+   8675.52568641  8180.32558914  6692.12499922  7991.37995364
+   9648.23380045  8066.61099846  6598.42696076  8123.91306488
+   6788.90125588  9450.53191992  8436.60689507  9081.52491811
+   9206.91205564  7647.04155484  7381.04109846  7399.19274991
+   8124.61897442  8529.68034423  8084.88414502  6667.28727419
+  10099.58894799  8035.9753748   8050.51563882  8202.10037229
+   7540.94591685  7977.89495773  6795.170364    7717.95188233
+   8959.41502374  6793.93617155  8724.98116695  7521.93091471
+  10180.02058404  9854.70507259  8199.81500885  7938.97972702
+   9394.63716359  8092.17590862  7960.78444965  8864.74543709
+   9147.12358276 10399.73044969  9675.00182104  5938.20834689
+   8043.5137724   8057.29866659  7633.79868454  8289.05493917
+   7498.63922411  8634.42238853  9097.45554648  8597.58686574
+  10425.22151689  8973.94754616  9157.44889475  9030.75915568
+   8800.41126077  8529.16406952  9690.27481075  8022.50435514
+   8139.88700049  8394.61402594  9232.27368413 12001.05503948
+   9186.85344714  8724.07775082  9578.71327873  7413.40675927
+   8821.5337999   8761.07960269  7972.41557352  8764.91631279
+   9001.33786416  9531.22598097  8677.04023697  7933.05159306
+   8132.76051646  8030.50672642  7869.31896057  9171.71692654
+   8755.69792626  9485.67712764  7484.87086518  6627.07942955
+   9401.81890074  9968.55840266  9471.93610601  8257.08133451
+   7891.3410458  10066.08827935  9658.0992422   9102.80299578
+   7687.32949053  9576.86628002  8981.95361721 10944.38486576
+   8108.17237631  9743.04669557  8630.22584148  6961.90161007
+   8485.54763702  7000.1165132  10363.98859964 10325.52328219
+   9268.43105496  7772.56114511  7357.74694695  8824.36215461
+   7686.74129547  6285.63806169  8557.23924113  7757.32964915
+   7393.08346615  9413.74054419  9026.64500627  7789.63746346
+   7635.34763325  6320.57774152  9679.76916768  8686.38952492
+   7763.60298893  7843.55823536  8984.42396565 10299.95916331
+   9848.12303626 10151.19200702  7943.56353959  8376.16268622
+   7803.63619805  7659.69616986  8222.25081733  8385.25730212
+   8495.98217858  9773.14401947  8400.48801222  7506.95594917
+   9602.78197467  8409.31214348  8429.22623062 11093.16859906
+   9153.31266592  8858.12913531  8305.3860613   8896.60922269
+   6433.0369594   7346.99434994  7811.40637304  8513.17411937
+   8272.69560404  8211.76978725  7610.98223546  8879.59812038
+   8361.60442949  7997.51191432  7832.57932137 10253.65420627
+   6633.39009525  9655.75095287  9691.86734203  8004.17537842
+  10699.09742747  9130.9728695   7321.07417654  9145.10593283
+   8438.29398691  9608.07044655 10038.33574     9459.90625465
+   7771.57041248  8818.91970475 10533.99549566  8334.92286331
+   8628.05599188  7555.49610187  7441.68471575  8605.59416779
+   8845.91775685  7483.18936408  8284.23187859  8121.47947587
+   9922.88820907 10661.42997865  7792.32802833  9057.0351156
+   8420.7886967   8515.23891607  8312.24306769  7972.34033987
+   7732.28528764  7868.70910467  9147.18774513  8484.29415598
+   7735.03019937  6564.28997576  8391.28019989 10469.88622405
+   8364.805413    8022.91924908  7479.27002721  7590.92537619
+   7116.43627324 10289.36604244  7807.25980676 11256.33481256
+   8914.62781441  7502.07448097  8038.89384515  7344.1809536
+   8048.1317074   8683.09218798  9018.99456863  8897.49402166
+   7311.16160785  9849.83242044  8899.90530485  9208.64527095
+   9258.51668306  8899.97968663  7707.23346556  7029.25229143
+   8125.87425383  7942.05026606  6906.8079745   8431.42327399
+   9775.1875995   7813.8373871   8952.48229025  8541.70221357
+   9388.80818838  9359.39032071  8862.15107461  8438.53496185
+   6597.98891875  9834.86962887  9910.4471422   9074.85799987
+   8952.24769253  8008.25512963  7669.11492784  8761.04200654
+   7446.6821037   6914.60913907  9207.54158467  9004.11637366
+   7925.42460654  8252.90966224 11404.34056986 10636.6442893
+  10144.09147811  8897.35884057  9318.52851824  8910.21190556
+   8639.56860747 10288.64682311  8347.58516779  8152.70195461
+   7927.95231232  8086.09935996  8177.26248032  9165.44684563
+   8996.44089793  7683.75231024  8161.97539043  9099.6360481
+   7859.12549385  9728.28098921  9785.19344415  8494.23123054
+   8245.57054705  8486.44120441  8609.38569201 10697.33779598
+   7355.31194267  7256.44313495  7616.40496949  9446.71982939
+   7769.9974173   7207.42105495  7248.01719635  8225.00607783
+   7856.77803326  9101.21661408  7128.52226675  7925.58048166
+   8054.06279273  7743.54936301  8776.49168805 10015.47392373
+   7316.97067162  7006.34780763  7623.98135595  9194.62151842
+   8723.68008874 10923.17888903  8388.9958964   6734.32574066
+   8231.41388505  9238.23204126  8454.3189857   8456.45704351
+  10426.17072915  7739.15119863  8609.59669671  7915.02649249
+  11647.47277019 11209.50564411 11889.68575814  7331.44096205
+   8201.86825722  8097.36480926  9430.78732887  6925.57002849
+   8955.87786498  8098.2717897  10309.00711888  8418.81449077
+   9388.14820825  8276.92775433  9984.32041894  8669.82270386
+   8132.95169532  8833.27168392  7098.79393847  5817.66984636
+   8155.0438212   8259.27363709  7142.19881053  9260.53359085
+   7761.11295652  8054.16949729  8708.37384682  7950.59967687
+  10006.08142381  9686.01470694  8437.59482741  8699.076135
+   8500.41150879  8657.67047253  9956.89908503  7926.4773014
+  11126.08463311  6756.54337294  7719.41518591 11113.45835223
+   9305.46954099  9273.34905392  7784.72995555  6755.47114208
+   8788.11206539  7258.68288958  7508.70360662  7632.95842787
+   7423.1387167   7719.45469902  7968.97473496 10855.91791164
+   9109.13762589  7449.41541026  7301.71697002  9236.95439546
+   7829.53361097  8990.62262145  8151.62753866  8191.81092388
+   6250.18098348  7196.84707144  7935.53956462  9108.33951445
+   6625.92365877  8733.48838714  8669.21356741  8010.27955371
+   9227.55661427  9347.7183224   7367.38401026  8141.78775666
+   7835.71349569  7164.23765002 11553.73098231 10224.63249189
+   8423.1344193   6918.06271072  8743.11710683  8827.91666423
+   8834.7754702   9065.49268293  9903.94735508  7962.41457815
+   8723.3393336   8448.12384752  9123.67927621  7507.31583386
+   9407.07089872  9911.70213244  7844.47743865  8162.94996297
+   8775.08976672  8376.6734468   8879.23254174  7631.54303414
+   9122.53687023  7487.68502343  7190.60828431 10004.58595972
+   9365.46854793  7223.88653332 10216.4035833   8361.05656721
+   7518.12519216  9118.80248659  8179.55551881  9995.04760594
+   8411.47771383  8445.36419739  6657.73969513  5820.34561827
+   7232.88790278  8342.53558347  7450.40448732  6116.77428306
+   7704.74795361  8722.56787507  9953.41177363 10833.82253188
+   8171.45092915  9148.35516209  8068.08796854  8091.23025534
+   4454.17395548  6740.87395869  7848.97307364  8523.80961055
+   7447.35062581  8615.30499619  8370.84631663  8213.65102568
+   7643.17173437 10288.10317782  8159.40504588  9303.55009905
+   8481.99938036  6774.85615175 10080.44791927  8275.70160386
+  11051.7390014   8533.30934626 10659.80392264  8765.26655754
+   8594.99638612  9278.58890006  7212.54219195  6919.94719494
+   8163.79671273  8400.30624227  8920.95883251  7785.99595096
+   8567.90226621  8376.46271833  9706.61597521  8361.08823721
+   8626.88513485  8578.50835273  7182.58572698  7261.81147629
+   8721.08507455  9991.67431385  9635.33112055  9309.52741882
+   8458.95573841  8003.52354533  8960.75737134  9214.88564271
+   7843.1555965   9552.00829545  9402.33592161  8383.87755903
+   9313.53551148  8276.89598069  7956.31079443  9216.70749674
+   8447.29901788 10466.44969204  6994.21267679  8087.82663976
+   7226.77350705  9434.17987821  8518.60411674  8415.03078029
+   8286.13659687  8742.97767461  7911.62083339  8414.52265099
+   6899.44280574  8910.04512449  8269.03220902  9543.50893524
+   8051.71939892  7809.40177184  7446.56440819  8197.41704954
+   8286.01939636  8835.5730595   9111.18419445  8111.50554106
+  10251.65186059  9894.29181924 10135.66382279  7901.42932479
+   9281.15038898 10887.61081916  8691.7310461   7923.27843636
+   8357.3351677   8290.3577164   6823.12534865  7263.94201625
+   8699.56346175  6169.75048217  7582.76593572  6645.94876185
+   9512.67835999  7981.04301016  7070.39319967  9888.27688393
+   7342.40787029  7559.0441087   9923.69893276  8320.0781385
+  11000.93152313  8737.06456921  8954.63087601  7343.67536898
+   8311.93251273  9505.97218797  7735.63927101  9267.17578641
+   9311.95683213 10174.24428201  8434.50623025  8720.20731641
+   8709.18815671  7919.49892578 10338.64307324  9650.23220427
+  10027.93434962  8862.64399601  9355.39990097  6959.9885354
+   7419.41935842  7420.78026584  8213.57994244  8659.75174018
+   8686.89186919  9626.38216352  9751.06318856  9404.31423939
+   9140.80286782 10289.57610826  9773.56129686  8907.26100673
+   7772.56578089  9572.68147683  6367.59941162  8305.97130841
+   7889.36769198  8102.50909651  8545.38971384  8968.30977163
+   6846.43982487  8328.60590788  7090.15723834  8298.94962118
+   7952.13880168  9957.02922868  7782.34515985  7443.14577995
+   8949.49338068  8956.42049792  6546.35873261  7261.88223424
+   7790.87060083  7364.52089112  7448.69770351  7171.61543168
+   8229.75845749  7419.97893989  8536.0594121   7022.55624754
+   9247.54742982  7276.15703558  8939.42677691  7641.22728187
+   9525.19556728  8827.90080351  7928.64421498  8570.7619696
+   9466.18523432 12113.72658906  5888.02719152  6275.55093238
+   7298.04780245  7571.02375325 10646.36238003  8208.48540079
+  10053.63482172  6489.3500791  10040.8564168   7537.62800801
+   7965.83226066 10666.51570375 10465.91942654  7585.70056342
+   9765.41925761  6322.63330966 11429.52208696  9067.57551798
+   8858.22646294  7981.9104115   8265.92257165  9619.97334184
+   6760.10971017  8858.42276025  6452.88233152  9380.52164944
+   9438.76588029  7829.66426691  7190.60152847  7302.62745545
+   8063.66986153  8247.86816828 10033.91579647  8912.90088596
+   7359.49778763  7900.9486101   9254.05662284  9354.77323612
+   8595.47144794  9381.04125051  8358.39191612 10160.01331074
+  11446.62489074  9442.6133494   8582.31496615  6774.04822663
+   6568.39799866  8296.75876471  7935.51044902  8496.27056749
+   9686.64738979  9586.61411834  7157.25495458  8003.68078305
+   9506.33361468  9115.43206524  7275.65291812  6976.60449895
+   8293.7178336   7716.89918209  7533.453363    8598.05368155
+   8281.76849806  8960.81584894  9641.82242583  7782.61415729
+   8038.27440645  8207.13133736  8579.3315185   9408.5295909
+   9384.82894316  8548.80658225  6852.21555587  7024.71309551
+   8434.05118067 12086.99337999  7571.04675605  9261.38827023
+   9004.89227564  7055.35189385  9479.6445298   7587.52454478
+   8394.0877398   6799.25991503  8160.86739029  7215.05639558
+   9246.38127011 10045.27333107  9505.32514901 10078.40592825
+   7095.12407908 10117.00680977 10056.08332956  8349.29243639
+  11178.23987738  7741.24057017  8570.35938388  8490.69769111
+   8253.10029643  9754.24749206  8885.5752869  10864.25845734
+   8985.33819192  8742.77437621  8385.85781238  7949.64051829
+   8136.02800896  7175.52826652  9087.74703711  9182.91996922
+   9393.68705784  8543.13630435 10248.70161596 10288.83244479
+   8531.30015401  7339.19081261  9464.70551958  9100.02039582
+   6248.25245961  9716.43131505  9878.83765145  8777.39514337
+   8167.39492181  7861.98341036 10289.37382783  6606.70074823
+   7708.63745494  9570.2245431   7725.06740349  9793.06011702
+   8278.48106679  9826.08134147  8760.04747471  7498.64312614
+   8259.26133537  8051.63439568  8121.29697122  6749.95712634
+   9077.56881273  7886.84149189  9394.01429239  9790.76078633
+  10009.87192673 10061.52366666  8129.78676236  9493.12661825
+   7860.41657673  8559.63834456  8714.38111266  8121.02625559
+   9707.42496846  8186.29638027  7563.61939434  8290.2775783
+   7651.47203992  8984.36536704  7638.84710817  7344.25162833
+   8265.06193095  7775.09685679  8232.19216029 10029.77268674
+   6473.48232224  7947.59736017  7473.23910605  8896.87057064
+   9212.67489859  9101.7223912   8877.90720054  8512.67719024
+   7903.96527856  6688.45323112  8209.34590984  8345.3318175
+   8475.07717595  7464.40753397  7850.19819293  8446.79673221
+   7200.21817115  8466.08287954  9400.71254867  7422.98389711
+   9237.05995078  7943.03655514  7057.31680799  8786.83611203
+   8138.36144786  7734.74089953  7329.16998775  9132.96427184
+   8166.31025539  7664.75147722  6528.43380489  7942.8587504
+   9024.61286874  7242.6292191   9260.76139837  8294.29425283]]
+
+, &#39;d&#39;: CUQIpy Samples:
+---------------
+
+Ns (number of samples):
+ 1000
+
+Geometry:
+ _DefaultGeometry1D(1,)
+
+Shape:
+ (1, 1000)
+
+Samples:
+ [[ 43.67043142  42.75128072  43.86804823  42.4142046   57.70924694
+   67.83066296  75.6097833   57.73165395  70.59135812  54.55442248
+   47.64379562  64.84145831  62.11582038  56.48786401  70.02641298
+   62.59630894  71.11593887  70.07202158  61.5286226   56.18708104
+   83.21886605  78.62949397 101.16126148 101.16587256 119.31149937
+   91.01531492  73.10122294  57.41730471  58.49143772  65.53737571
+   62.64948298  73.54844834  84.20857132  93.67795886  72.59977509
+   54.21752373  61.33341296  59.03877953  64.82122165  60.61151984
+   54.56361315  49.0247538   57.02492732  53.82941808  61.82078488
+   58.97076484  62.99524704  70.96888684  62.55836903  45.77542801
+   52.14273811  82.38041374  82.93803513  95.49723473 111.52894586
+   83.65661084  70.04061526  82.73362392  64.08029076  71.85442883
+   92.55604107 108.39866572  96.46574425 104.26818028  66.34801859
+   42.63265901  43.92288786  44.84149173  88.94754065  83.46863486
+   87.48848888  83.0643562   82.23112608  70.64700943  65.15244268
+   52.84469436  48.09626508  44.10668894  47.3454715   50.23813088
+   40.13212221  61.26778009  57.21061897  51.74598588  55.64067149
+   64.16828659  55.86225965  51.89081553  46.64597006  52.4011379
+   71.25968362  71.91839385  63.76107003  67.88323196  56.77289597
+   44.09366637  49.05456628  34.92498974  44.58583299  53.30957754
+   41.03642643  43.38191096  49.37309532  43.54427399  62.55061298
+   66.55904548  59.61245648  56.13722683  51.94346485  47.01676107
+   64.08119798  67.42671831  62.63864176  69.44157931  75.53012118
+   84.57392979  90.44551272  81.33597135  90.44602745  96.02182509
+   53.63760299  41.68176976  30.46479115  32.97408817  32.32188745
+   40.20556736  32.93321841  31.724107    28.58276135  32.04101727
+   34.60563482  41.4689813   41.91277665  45.03589667  62.45348099
+   67.12656208  86.84782142  87.57907     84.58476811  77.66334087
+   79.88540474  79.90070686 106.4703471   92.39697664 108.82830025
+  111.65242545 129.31661475 100.81537744 118.32915705 134.49574324
+  127.35847241 118.34677348  96.66320356  87.06379684  79.49301805
+   94.71948899  90.76714605  93.71091479  86.33923386  84.59981996
+   94.52105057 103.66507458  80.64877521 102.1464777   93.63434825
+   80.8612275   88.85697175 101.99565241 102.46156652 111.76488587
+  110.20946066  88.89716519  84.15100905  54.91664044  68.27945101
+   67.18751392  69.86383395  87.34462348  98.21839038 108.05836207
+  121.52545879 123.36387578  90.1339375   84.17462827  87.46226882
+   79.97246933  85.56874316 114.03141937 141.36949825 134.57790763
+  137.86209376 148.9241457  122.53918894 144.27617404 129.41511657
+  134.28495148 120.3659044  110.87559253  99.28526773 124.71789656
+   77.35397678  72.89511639  96.48024485  93.32464424  73.01538717
+   71.50813401  71.44979884  63.79927917 107.13478066  98.25776486
+   90.92424298  78.96888992  53.32364322  53.34241661  51.36327914
+   44.62625322  39.84088055  39.57066191  44.40611796  56.73940061
+   61.64875838  68.11564034  72.88229949  60.05979493  72.52493001
+   75.21945226  69.32730478  51.8299961   44.28808934  30.62647257
+   43.87804094  51.95248372  62.02992287  74.44202293  73.43462997
+   93.28865739 115.45631584 105.51855035  90.76275672 113.75111241
+   90.68730019 105.04024565 110.82384691 129.26432134 138.80805554
+   92.88004661 106.84768392 102.8422475   75.98389281  78.87686706
+   66.7022399   62.24830511  55.14888563  47.91273845  64.38093785
+   50.60442653  56.81294442  65.02624856  69.30589762  69.16418389
+   65.04121489  84.59931804  82.08458032  87.57305194  85.76078452
+   68.15576798  90.08884787  76.2247686   84.26921698  71.09543156
+   84.10551426  80.5905794   78.70922124  90.55911888 105.72996115
+  101.60069034  82.25738612  74.21181466  55.8373578   61.88053478
+   86.58394109  70.19225776  48.30689018  37.06940129  38.06012063
+   40.31764604  38.48287078  36.42664228  43.26381969  68.20072409
+   63.18640867  54.36417064  44.51852213  35.99627067  32.24393031
+   35.23155362  36.18468678  37.73365995  34.64108641  27.13310187
+   33.3868001   36.64273233  61.30438547  53.26357098  70.30864055
+   78.9799828   79.71812051  96.98360599  63.00653256  73.68364752
+   56.09209985  55.98275734  70.41154371  44.62425201  57.29275998
+   78.65095593  83.63870008  87.3088299   81.55210344  75.75550791
+   81.30030986  72.90596995  51.33569295  73.06390625  69.30857309
+   55.19999551  57.71985616  61.42318303  65.8286041   51.21700481
+   55.98606746  68.81382659  69.17105311  92.34692673  83.69415218
+   83.1112756   58.55597837  51.2063069   48.21476599  50.52368678
+   55.01250751  70.55327441  67.35031573  92.66184036  97.05384587
+   81.3280973   73.49990269  82.02465414  85.22243364  84.12937094
+   76.44126406  91.67420831  83.33175059  74.30293071  64.20599557
+   67.28504315  52.552334    57.34996054  67.89438893  63.47912292
+   49.64580695  48.92527537  60.9957461   61.33422382  57.95924599
+   64.52208304  73.03475824  70.10148468  86.04436852  62.90374197
+   69.79404935  79.08747514  70.91682701  69.3953573   60.84261913
+   50.60509502  52.43369163  58.79453287  60.54951793  52.57104995
+   63.85580315  59.10383477  70.75819661  72.68029337  92.57382534
+  113.69523134 123.2867465  103.97695321 120.426441    84.33778186
+   82.26703114  87.64418951  85.72611834  99.46075157  88.31529958
+  120.18649954 112.98333079  82.23852548 100.07357805  93.34323751
+  104.60635578  96.73021706 101.84463295  82.62352406  72.45706165
+   76.70652478  63.16150328  65.90297911  86.26088101  75.37068334
+   66.52540022  75.87668929  60.18690334  62.69537187  59.51130295
+   57.92304699  75.2878385   67.38158883  55.83076473  84.11940497
+   95.1980228   94.45332817  85.73455718  77.56467389  79.13007382
+   70.65328632  53.5732689   58.70183308  52.68669468  64.39075263
+   75.505728    68.19575082  52.54246063  65.76691092  59.75360506
+   94.20770623 123.69200493 129.37614205 147.08768851 102.27690591
+   66.49804465  49.34198603  57.03636495  54.9158271   70.52393573
+   65.04286756  69.50844563  77.8474942   78.35183062  70.56543924
+   99.86973226 128.59204246 106.91421338  82.71281988  69.00176559
+   68.93579127  75.72935761  77.98189091  79.3304794   83.21041851
+   87.7267855   69.43762389  77.45983018  82.70367567  63.36299533
+   78.18699032  84.10188055  67.78363112  56.51733661  50.67584493
+   58.53731476  77.09491777  62.65263987  75.86169827  87.52711686
+   83.00361744  65.38496571  70.47114454  63.63875864  64.61336905
+   65.32260247  64.99324647  63.07118839  78.21397743  97.05785652
+  121.829125    87.58629512  75.60565105  69.9879593   70.33523209
+   77.29832352  63.5688028   60.97916002  44.07119329  45.88899431
+   65.04372322  78.81078956  62.14141075  93.37872707 101.16317965
+   81.689161    96.73633038  78.64426062  71.55434011  51.05394662
+   43.12860328  42.2835901   34.27635568  45.84847091  40.73755612
+   47.10946739  58.27648263  53.32870634  66.74860779  79.86002536
+   83.5060823   76.57196915  58.37260433  96.04221186 100.71649547
+   93.65969592  75.75887547  75.56148841  83.44197306  66.23490006
+   75.4846245   73.87489727  61.9058306   41.44508779  44.55618239
+   58.05795765  49.53452339  35.88097891  50.69495565  47.22855282
+   56.49862493  56.17122595  54.28741734  60.89274565  59.52958994
+   55.2487602   49.19774191  58.41322673  76.58493199  88.38243903
+   70.16835072  81.92770713  83.94803011  74.15860965  69.18144738
+   70.60055594  84.17897057  85.75008099  71.80374157  78.11499274
+   93.68498073  89.75357497  60.73393721  59.95756978  74.19840314
+   81.68314436  74.89415046  74.9455618   68.31677781  58.57815857
+   59.58774048  81.99568394  67.28999598  67.02780845  68.38321248
+   82.33544059 100.58915243  82.47856091  93.60442684  79.2731567
+   81.893609    80.22086103 113.72920148 101.64436247 108.09716067
+  103.04696759 129.46352982 128.17159055 132.5345783  108.51827361
+   96.48630819  73.404632    72.26325935  80.55856567  65.45233929
+   85.08819477 114.14470857 105.80175371 119.90401534  76.02499254
+   67.3810415   71.08522861  75.48231221  66.57551202  56.60952527
+   40.32064236  47.95595751  55.17186253  65.34426144  83.08321385
+   68.65228604  43.47956091  47.8665218   45.43498867  59.90701175
+   58.43282318  44.3718462   43.70349265  53.49826675  62.48237494
+   70.37581188  59.28892595  43.38158737  33.76614665  29.05201386
+   34.08328138  38.47554246  44.42951545  43.53986628  44.84804862
+   42.5615049   40.75507314  43.59931426  48.99919763  44.91924361
+   54.34483691  68.21784066  67.42070595  76.01303902  65.90808969
+   74.76144975  70.88185744  71.8975123  104.71060583  83.83025557
+  103.18034821  91.43184362  85.6202559   86.01449516  84.06110356
+   94.3262455   94.2264115   58.50945749  41.81089441  54.026594
+   60.56633479  46.09768219  52.00735432  78.29418377  77.22232394
+   64.16944693  63.07005706  49.49412119  53.54435239  75.2910986
+   75.03780275  92.95209242  98.11086196 107.69730491  76.9179965
+   91.41483165  80.7900451   84.67932325  66.4798883   52.6429458
+   42.84885504  50.98529131  47.83575866  28.19734416  31.33148783
+   40.38424467  59.19385968  51.17392674  65.92855823  72.01883337
+   79.71609721  80.55367725  85.40855848  74.75902096 105.21181587
+  106.33266844 117.16781228 105.26625796  92.10976794 117.57364532
+   88.73844764  99.53958099  93.86204936  73.3317982   84.37310394
+   93.56685843 104.23342539  95.54008478  96.64492515 104.61025009
+   96.46856843  96.50442504  86.08255967 128.41005266 129.4055278
+   99.82365503  75.74743945  65.09129976  68.43085489  60.35097698
+   52.8599681   69.29686128  79.58071949  63.49839355  71.00550589
+   73.64962483  73.79701164  68.86694733  56.86386369  50.8559708
+   67.07252481  71.77484322  74.19656754  91.63668908  98.61806192
+  112.97119446 150.18347909 108.83417559 105.23587779 113.47793198
+  113.81003299 103.05071874  88.68197473  77.89720536  66.63289492
+   56.34188065  71.26041234  45.21728504  33.6113638   34.34338611
+   32.77957851  37.20045606  53.3571119   49.56010468  37.51298406
+   36.82931223  33.85180402  42.27096342  37.74642224  38.14824932
+   33.62773126  47.41979722  54.1360883   60.81524724  52.60175182
+   50.023915    48.53036214  45.54921181  41.08414407  49.72708405
+   58.70772956  67.42389165  51.16257615  59.58703085  99.08427801
+  134.7990564  134.29388529 138.99814497 144.57857853 129.22892418
+  118.15701506  89.41905699  87.58387397  83.00588771  79.03648945
+   93.49551487 109.06544097 117.65246019  95.51865689 106.23876554
+   87.69270475  74.52728451  78.67469826  64.33482691  49.00568764
+   35.0813698   39.28579505  46.70139557  42.98836998  37.18286719
+   30.80147917  29.26646519  35.66346201  46.30456669  48.847459
+   44.20325503  48.60581235  62.1360004   55.15960392  51.99693552
+   57.49096352  60.33857065  56.41548093  45.00469254  40.43031257
+   44.96537863  45.75468995  59.54866242  57.90690081  71.75251485
+   77.51132336  90.95053376  87.86386406  86.53485601  70.08496122
+   54.64455817  48.73251509  47.02074826  42.50807056  55.26806737
+   62.83108009  46.11517203  39.75889017  51.22650439  57.50174482
+   54.47855992  56.45464372  50.35160351  55.63441667  34.07248253
+   37.67767671  33.56881503  33.86667966  29.48462086  37.82218447
+   51.81955234  35.16193377  37.28063262  43.4553996   44.18830528
+   49.68670744  46.60529213  36.60028784  38.76361597  36.76404698
+   38.20985603  29.40015618  37.22630629  40.9771072   36.56883227
+   37.2127465   46.96463762  44.41985719  48.91165511  52.90889866
+   73.40073272  57.05855733  61.8347069   59.50701406  56.0740936
+   52.69069609  51.9264746   56.31744558  74.00171861  80.01330167
+  104.10849181  80.47704845  91.53372263  93.98826642  77.15490188
+   70.25276552  62.58906857  49.0234525   45.82149548  47.66497649
+   49.35038326  56.8095704   62.58472653  56.33965151  73.16813347
+   77.79013753  68.55072512  88.75375328  78.73539275  68.42046815
+   79.19806416  66.11059406  68.63877784  67.03789562  58.25343113
+   68.95419396  61.47052401  52.9958287   67.13749198  62.23788978
+   67.14002305  69.35885627  64.23759906  52.25464348  67.64920406
+   57.70067225  71.01538602  75.07345357  84.58630535  91.88612427
+   99.67933197  98.26533476 118.31367128 103.14892721 106.5680514
+  107.84195767 101.77722404  70.60877169  66.25487157  57.57740865
+   61.51157682  68.08975244  88.3167256  109.23266981 118.69745467
+   98.20288936  85.53324388  91.88480607  84.99733366  94.7721402
+   59.72119394  60.85246762  51.58080246  56.02880951  61.64612802
+   60.76101663  60.27410223  52.48567147  58.1688755   60.16264516
+   61.03669415  68.50420168  53.47701894  40.29811224  44.17184949
+   42.79297605  46.81152594  52.0365453   45.60391242  42.68784547
+   49.89955702  55.32109702  39.63388579  39.91738836  68.04857856
+   70.84742458  72.47897901 100.47093682  83.15820671  85.1351348
+   86.09240374  87.53942776  82.67505358  73.19442621  71.72110637
+   75.78933793  71.53516004  80.08992988  89.73725833  97.3187135
+   90.50379908  88.18883507  81.72036323  75.10825129  83.65623674
+  108.92745882 102.6412145   88.96170723  83.36801115  87.65909868
+   55.09115434  52.25243922  67.3420264   61.85102389  84.16877803
+   75.44822552  69.17513741  59.69424611  68.03529966  74.86608612
+   98.22266061 110.14263593 122.4739867  131.20125884 115.05958084
+  114.14610123 106.4570967   94.72844809 100.27092267  93.12553963
+   95.81340497  87.65363123  80.7485187   97.89690854  69.54553207]]
+
+}
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.212 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-algebra-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d36472475716e193475f4fb2baeee952/algebra.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">algebra.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/4da107ccd10da17bcd4eec8b9292e432/algebra.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">algebra.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/054f1aea9a1b5d1fce441d95bceae11a/algebra.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">algebra.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-random-variables">Defining Random Variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recording-algebraic-operations">Recording Algebraic Operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#utilizing-the-recorded-operations">Utilizing the recorded operations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-bayesian-problems">Building Bayesian Problems</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/user/_auto_howtos/algebra.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
