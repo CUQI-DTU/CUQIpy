@@ -96,7 +96,7 @@ class _ConjugatePair(ABC):
 
     @abstractmethod
     def conjugate_distribution(self):
-        """ Returns the posterior distribution in the form of a CUQI distribution """
+        """ Returns the posterior distribution in the form of a CUQIpy distribution """
         pass
 
     def sample(self):

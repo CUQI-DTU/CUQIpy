@@ -361,7 +361,7 @@ def count_nonzero(x, threshold = 1e-6):
         """
         return np.sum([np.abs(v) >= threshold for v in x])
     
-def count_constant_components_1D(x, threshold = 1e-6, lower = -np.inf, upper = np.inf):
+def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
         """ Returns the number of piecewise constant components in a one-dimensional array
 
         Parameters
@@ -395,7 +395,7 @@ def count_constant_components_1D(x, threshold = 1e-6, lower = -np.inf, upper = n
     
         return counter
         
-def count_constant_components_2D(x, threshold = 1e-6, lower = -np.inf, upper = np.inf):
+def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
         """ Returns the number of piecewise constant components in a two-dimensional array
 
         Parameters
