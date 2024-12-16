@@ -33,26 +33,23 @@ class _LMRFGammaPair(_ConjugatePair):
     """ Implementation of the conjugate pair (LMRF, Gamma) """
 
     def validate_target(self):
-        if not isinstance(self.target.likelihood.distribution, LMRF):
-            raise ValueError("Approximate conjugate sampler only works with LMRF likelihood function")
-        
-        if not isinstance(self.target.prior, Gamma):
-            raise ValueError("Approximate conjugate sampler with LMRF likelihood only works with Gamma prior")
-        
         if not self.target.prior.dim == 1:
             raise ValueError("Approximate conjugate sampler only works with univariate Gamma prior")
         
         if np.sum(self.target.likelihood.distribution.location) != 0:
             raise ValueError("Approximate conjugate sampler only works with zero mean LMRF likelihood")
         
-        key, value = _get_conjugate_parameter(self.target)
-        if key == "scale":
-            if not _check_conjugate_parameter_is_scalar_reciprocal(value):
-                raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
-        else:
-            raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 1:
+            raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
+        for key, value in key_value_pairs:
+            if key == "scale":
+                if not _check_conjugate_parameter_is_scalar_reciprocal(value):
+                    raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
+            else:
+                raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
         
-    def sample(self):
+    def conjugate_distribution(self):
         # Extract variables
         # Here we approximate the LMRF with a Gaussian
 
@@ -76,6 +73,4 @@ class _LMRFGammaPair(_ConjugatePair):
         beta = self.target.prior.rate                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
-
-        return dist.sample()
+        return Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
