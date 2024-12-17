@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import ScipyLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
+from cuqi.solver import ScipyMinimizer, ScipyLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
 from scipy.optimize import lsq_linear
 
 
@@ -19,6 +19,25 @@ def test_CGLS():
 
     # Compare
     assert np.allclose(sol, ref_sol, rtol=1e-3)
+
+def test_ScipyMinimizer_without_gradient():
+    solver = ScipyMinimizer(sp.optimize.rosen,
+                            np.array([1.3, 0.7, 0.8, 1.9, 1.2]),
+                            method='Nelder-Mead',
+                            tol=1e-6)
+    sol, _ = solver.solve()
+    sol_ref = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
+    assert np.allclose(sol, sol_ref)
+
+def test_ScipyMinimizer_with_gradient():
+    solver = ScipyMinimizer(sp.optimize.rosen,
+                            np.array([1.3, 0.7, 0.8, 1.9, 1.2]),
+                            gradfunc=sp.optimize.rosen_der,
+                            method='BFGS',
+                            tol=1e-6)
+    sol, _ = solver.solve()
+    sol_ref = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
+    assert np.allclose(sol, sol_ref)
 
 def test_ScipyLeastSquares_without_Jac():
     def fun_rosenbrock(x):
