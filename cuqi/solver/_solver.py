@@ -32,10 +32,6 @@ class ScipyLBFGSB(object):
         The gradient of func. 
         If None, the solver approximates the gradient with a finite difference scheme.
     kwargs : keyword arguments passed to scipy's L-BFGS-B algorithm. See documentation for scipy.optimize.minimize
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
     def __init__(self, func, x0, gradfunc = None, **kwargs):
         self.func= func
@@ -115,10 +111,6 @@ class ScipyMinimizer(object):
         ‘trust-krylov’ 
         If not given, chosen to be one of BFGS, L-BFGS-B, SLSQP, depending if the problem has constraints or bounds.
     kwargs : keyword arguments passed to scipy's minimizer. See documentation for scipy.optimize.minimize
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
     def __init__(self, func, x0, gradfunc = '2-point', method = None, **kwargs):
         self.func= func
