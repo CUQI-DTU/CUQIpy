@@ -2,7 +2,7 @@ from ._solver import (
     L_BFGS_B,
     ScipyMinimizer,
     ScipyMaximizer,
-    LS,
+    ScipyLeastSquares,
     CGLS,
     LM,
     PDHG,
