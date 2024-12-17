@@ -775,7 +775,7 @@ class BayesianProblem(object):
         else:
             if disp: print(f"Using scipy.optimize.minimize on negative log of {density.__class__.__name__}")
             if disp: print("x0: ones vector")
-            solver = cuqi.solver.minimize(func, x0, gradfunc=gradfunc)
+            solver = cuqi.solver.ScipyMinimizer(func, x0, gradfunc=gradfunc)
 
         x_MAP, solver_info = solver.solve()
 
