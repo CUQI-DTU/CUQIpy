@@ -37,7 +37,7 @@ class L_BFGS_B(object):
     ----------
     :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None, **kwargs):
+    def __init__(self, func, x0, gradfunc = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.gradfunc = gradfunc
@@ -120,7 +120,7 @@ class ScipyMinimizer(object):
     ----------
     :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
+    def __init__(self, func, x0, gradfunc = None, method = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.method = method
@@ -158,7 +158,7 @@ class ScipyMinimizer(object):
 
 class ScipyMaximizer(ScipyMinimizer):
     """Simply calls ::class:: cuqi.solver.ScipyMinimizer with -func."""
-    def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
+    def __init__(self, func, x0, gradfunc = None, method = None, **kwargs):
         def nfunc(*args,**kwargs):
             return -func(*args,**kwargs)
         if gradfunc is not None:
@@ -189,7 +189,7 @@ class ScipyLeastSquares(object):
         Initial guess.
     Jac : callable f(x,*args), optional
         The Jacobian of func. 
-        If None, then the solver approximates the Jacobian.
+        If not specified, the solver approximates the Jacobian with a finite difference scheme.
     loss: callable rho(x,*args)
         Determines the loss function
         'linear' : rho(z) = z. Gives a standard least-squares problem.
@@ -203,7 +203,7 @@ class ScipyLeastSquares(object):
         'dogbox', dogleg algorithm with rectangular trust regions, for small problems with bounds.
         'lm', Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn't handle bounds and sparse Jacobians.
     """
-    def __init__(self, func, x0, jacfun=None, method='trf', loss='linear', tol=1e-6, maxit=1e4):
+    def __init__(self, func, x0, jacfun='2-point', method='trf', loss='linear', tol=1e-6, maxit=1e4):
         self.func = func
         self.x0 = x0
         self.jacfun = jacfun
