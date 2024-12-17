@@ -48,28 +48,28 @@ x_MAP_exact = TP.MAP()
 print('relative error exact MAP:', np.linalg.norm(x_MAP_exact-x_true)/np.linalg.norm(x_true))
 
 #%% L_BFGS_B MAP
-solver = cuqi.solver.L_BFGS_B(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad)
+solver = cuqi.solver.ScipyLBFGSB(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad)
 x_MAP_LBFGS, info_MAP_LBFGS = solver.solve()
 print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
-#%% L_BFGS_B MAP using minimize
-solver = cuqi.solver.minimize(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad, method = "L-BFGS-B")
+#%% L_BFGS_B MAP using ScipyMinimizer
+solver = cuqi.solver.ScipyMinimizer(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad, method = "L-BFGS-B")
 x_MAP_LBFGS2, info_MAP_LBFGS2 = solver.solve()
 print('relative error L-BFGS MAP:', np.linalg.norm(x_MAP_LBFGS2-x_true)/np.linalg.norm(x_true))
 
 #%% BFGS MAP without gradient input
-solver = cuqi.solver.minimize(posterior_logpdf, x0)
+solver = cuqi.solver.ScipyMinimizer(posterior_logpdf, x0)
 x_MAP_BFGS, info_MAP_BFGS = solver.solve()
 print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
 
 #%% BFGS MAP with gradient input
-solver = cuqi.solver.minimize(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad)
+solver = cuqi.solver.ScipyMinimizer(posterior_logpdf, x0, gradfunc = posterior_logpdf_grad)
 x_MAP_BFGSgrad, info_MAP_BFGSgrad = solver.solve()
 print('relative error BFGS MAP:', np.linalg.norm(x_MAP_BFGSgrad-x_true)/np.linalg.norm(x_true))
 
 
 #%% SLSQP MAP
-solver = cuqi.solver.minimize(posterior_logpdf, x0, method = 'SLSQP')
+solver = cuqi.solver.ScipyMinimizer(posterior_logpdf, x0, method = 'SLSQP')
 x_MAP_SLSQP, info_MAP_SLSQP = solver.solve()
 print('relative error SLSQP MAP:', np.linalg.norm(x_MAP_SLSQP-x_true)/np.linalg.norm(x_true))
 
@@ -95,12 +95,12 @@ def likelihood_logpdf_grad(x):
     return grad
 
 # L_BFGS_B MAP
-solver = cuqi.solver.L_BFGS_B(likelihood_logpdf, x0, gradfunc = likelihood_logpdf_grad)
+solver = cuqi.solver.ScipyLBFGSB(likelihood_logpdf, x0, gradfunc = likelihood_logpdf_grad)
 x_ML_LBFGS, info_ML_LBFGS = solver.solve()
 print('relative error L-BFGS ML:', np.linalg.norm(x_MAP_LBFGS-x_true)/np.linalg.norm(x_true))
 
 # BFGS MAP
-solver = cuqi.solver.minimize(likelihood_logpdf, x0)
+solver = cuqi.solver.ScipyMinimizer(likelihood_logpdf, x0)
 x_ML_BFGS, info_ML_BFGS = solver.solve()
 print('relative error BFGS ML:', np.linalg.norm(x_MAP_BFGS-x_true)/np.linalg.norm(x_true))
 
