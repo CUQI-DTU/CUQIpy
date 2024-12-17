@@ -1,5 +1,5 @@
 from ._solver import (
-    L_BFGS_B,
+    ScipyLBFGSB,
     ScipyMinimizer,
     ScipyMaximizer,
     ScipyLeastSquares,

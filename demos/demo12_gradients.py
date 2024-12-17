@@ -33,7 +33,7 @@ else:
     # Solve posterior problem using BFGS
     def f(x): return -TP.posterior.logd(x)
     def gradf(x): return -TP.posterior.gradient(x)
-    solver = cuqi.solver.L_BFGS_B(f, x0, gradf)
+    solver = cuqi.solver.ScipyLBFGSB(f, x0, gradf)
     x_MAP, solution_info = solver.solve()
 print('relative error MAP:', np.linalg.norm(x_MAP-x_true)/np.linalg.norm(x_true))
 

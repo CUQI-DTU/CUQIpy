@@ -15,7 +15,7 @@ except ImportError:
     has_cholmod = False
 
 
-class L_BFGS_B(object):
+class ScipyLBFGSB(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
 
     Minimize a function func using the L-BFGS-B algorithm.
@@ -30,7 +30,7 @@ class L_BFGS_B(object):
         Initial guess.
     gradfunc : callable f(x,*args), optional
         The gradient of func. 
-        If None, then the solver approximates the gradient.
+        If None, the solver approximates the gradient with a finite difference scheme.
     kwargs : keyword arguments passed to scipy's L-BFGS-B algorithm. See documentation for scipy.optimize.minimize
 
     Methods
@@ -147,10 +147,9 @@ class ScipyMinimizer(object):
         info = {"success": solution['success'],
                 "message": solution['message'],
                 "func": solution['fun'],
-                # "grad": solution['jac'],
                 "nit": solution['nit'], 
                 "nfev": solution['nfev']}
-        # if gradfunc is callable, then record the gradient in the info dictionary
+        # if gradfunc is callable, record the gradient in the info dict
         if callable(self.gradfunc):
             info['grad'] = solution
         if isinstance(self.x0,CUQIarray):
