@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
+from cuqi.solver import ScipyLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
 from scipy.optimize import lsq_linear
 
 
@@ -20,6 +20,27 @@ def test_CGLS():
     # Compare
     assert np.allclose(sol, ref_sol, rtol=1e-3)
 
+def test_ScipyLeastSquares_without_Jac():
+    def fun_rosenbrock(x):
+        return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
+    x0 = np.array([2, 2])
+    solver = ScipyLeastSquares(fun_rosenbrock, x0)
+    sol, _ = solver.solve()
+    sol_ref = np.array([1, 1])
+    assert np.allclose(sol, sol_ref)
+
+def test_ScipyLeastSquares_with_Jac():
+    def fun_rosenbrock(x):
+        return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
+    def jac_rosenbrock(x):
+        return np.array([
+            [-20 * x[0], 10],
+            [-1, 0]])
+    x0 = np.array([2, 2])
+    solver = ScipyLeastSquares(fun_rosenbrock, x0, jacfun=jac_rosenbrock)
+    sol, _ = solver.solve()
+    sol_ref = np.array([1, 1])
+    assert np.allclose(sol, sol_ref)
 
 def test_LM():
     # compare to MATLAB's original code solution
