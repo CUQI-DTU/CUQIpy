@@ -120,7 +120,7 @@ class ScipyMinimizer(object):
     ----------
     :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self, func, x0, gradfunc = None, method = None, **kwargs):
+    def __init__(self, func, x0, gradfunc = '2-point', method = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.method = method
@@ -147,9 +147,12 @@ class ScipyMinimizer(object):
         info = {"success": solution['success'],
                 "message": solution['message'],
                 "func": solution['fun'],
-                "grad": solution['jac'],
+                # "grad": solution['jac'],
                 "nit": solution['nit'], 
                 "nfev": solution['nfev']}
+        # if gradfunc is callable, then record the gradient in the info dictionary
+        if callable(self.gradfunc):
+            info['grad'] = solution
         if isinstance(self.x0,CUQIarray):
             sol = CUQIarray(solution['x'],geometry=self.x0.geometry)
         else:
