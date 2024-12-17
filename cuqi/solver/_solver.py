@@ -83,7 +83,7 @@ class L_BFGS_B(object):
                 "nfev": solution[2]['funcalls']}
         return solution[0], info
 
-class minimize(object):
+class ScipyMinimizer(object):
     """Wrapper for :meth:`scipy.optimize.minimize`.
 
     Minimize a function func using scipy's optimize.minimize module.
@@ -156,8 +156,8 @@ class minimize(object):
             sol = solution['x']
         return sol, info
 
-class maximize(minimize):
-    """Simply calls ::class:: cuqi.solver.minimize with -func."""
+class ScipyMaximizer(ScipyMinimizer):
+    """Simply calls ::class:: cuqi.solver.ScipyMinimizer with -func."""
     def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
         def nfunc(*args,**kwargs):
             return -func(*args,**kwargs)

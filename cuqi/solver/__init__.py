@@ -1,7 +1,7 @@
 from ._solver import (
     L_BFGS_B,
-    minimize,
-    maximize,
+    ScipyMinimizer,
+    ScipyMaximizer,
     LS,
     CGLS,
     LM,
