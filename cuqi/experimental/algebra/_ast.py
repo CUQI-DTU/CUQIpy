@@ -52,6 +52,11 @@ class Node(ABC):
         pass
 
     @abstractmethod
+    def condition(self, **kwargs):
+        """ Conditions the tree by replacing any VariableNode with a ValueNode if the variable is in the kwargs dictionary. """
+        pass
+
+    @abstractmethod
     def __repr__(self):
         """String representation of the node. Used for printing the AST."""
         pass
@@ -129,6 +134,9 @@ class UnaryNode(Node, ABC):
     def __init__(self, child: Node):
         self.child = child
 
+    def condition(self, **kwargs):
+        return self.__class__(self.child.condition(**kwargs))
+
 
 class BinaryNode(Node, ABC):
     """Base class for all binary nodes in the abstract syntax tree.
@@ -154,6 +162,9 @@ class BinaryNode(Node, ABC):
     def __init__(self, left: Node, right: Node):
         self.left = left
         self.right = right
+
+    def condition(self, **kwargs):
+        return self.__class__(self.left.condition(**kwargs), self.right.condition(**kwargs))
 
     def __repr__(self):
         return f"{self.left} {self.op_symbol} {self.right}"
@@ -205,6 +216,11 @@ class VariableNode(Node):
             )
         return kwargs[self.name]
 
+    def condition(self, **kwargs):
+        if self.name in kwargs:
+            return ValueNode(kwargs[self.name])
+        return self
+
     def __repr__(self):
         return self.name
 
@@ -225,6 +241,9 @@ class ValueNode(Node):
     def __call__(self, **kwargs):
         """Returns the value of the node."""
         return self.value
+
+    def condition(self, **kwargs):
+        return self
 
     def __repr__(self):
         return str(self.value)

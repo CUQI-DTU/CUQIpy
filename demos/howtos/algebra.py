@@ -83,3 +83,37 @@ BP.set_data(y=y_obs)
 BP.UQ(exact={"x": info.exactSolution})
 
 # %%
+# Conditioning on random variables (example 1)
+from cuqi.distribution import Gaussian
+from cuqi.experimental.algebra import RandomVariable
+
+x = RandomVariable(Gaussian(0, lambda s: s))
+y = RandomVariable(Gaussian(0, lambda d: d))
+
+z = x+y
+
+z.condition(x=1)
+
+# %%
+# Conditioning on random variables (example 2)
+from cuqi.testproblem import Deconvolution1D
+from cuqi.distribution import Gaussian, Gamma, GMRF
+from cuqi.experimental.algebra import RandomVariable
+from cuqi.problem import BayesianProblem
+import numpy as np
+
+# Forward model
+A, y_obs, info = Deconvolution1D(dim=4).get_components()
+
+# Bayesian Problem (defined using Random Variables)
+d = RandomVariable(Gamma(1, 1e-4))
+s = RandomVariable(Gamma(1, 1e-4))
+x = RandomVariable(GMRF(np.zeros(A.domain_dim), d))
+y = RandomVariable(Gaussian(A @ x, 1/s))
+
+
+z = x+y
+
+z.condition(x=np.zeros(A.domain_dim))
+
+# %%
