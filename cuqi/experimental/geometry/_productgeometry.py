@@ -1,4 +1,5 @@
 from cuqi.geometry import Geometry
+import numpy as np
 
 class ConcatenatedGeometries(Geometry):
     """A class that represents a concatenation of geometries.
