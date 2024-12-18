@@ -5,8 +5,7 @@ from ._orderedset import _OrderedSet
 import operator
 import cuqi
 from cuqi.distribution import Distribution
-from copy import copy
-
+from copy import copy, deepcopy
 
 class RandomVariable:
     """ Random variable defined by a distribution with the option to apply algebraic operations on it.
@@ -239,13 +238,55 @@ class RandomVariable:
     def is_transformed(self):
         """ Returns True if the random variable is transformed. """
         return not isinstance(self.tree, VariableNode)
-    
+
+    @property
+    def is_cond(self):
+        """ Returns True if the random variable is a conditional random variable. """
+        return any(dist.is_cond for dist in self.distributions)
+
+    def condition(self, *args, **kwargs):
+        """Condition the random variable on a given value."""
+        if args and kwargs:
+            raise ValueError("Cannot pass both positional and keyword arguments to RandomVariable")
+        
+        if args:
+            kwargs = self._parse_args_add_to_kwargs(args, kwargs)
+
+        # Create a deep copy of the random variable to ensure the original tree is not modified
+        new_variable = deepcopy(self)
+
+        for kwargs_name in list(kwargs.keys()):
+            value = kwargs.pop(kwargs_name)
+
+            # Condition the tree turning the variable into a constant
+            if kwargs_name in self.parameter_names:
+                new_variable._tree = new_variable.tree.condition(**{kwargs_name: value})
+            
+            # Condition the distributions on both parameter name and conditioning variables
+            for dist in self.distributions:
+                if kwargs_name == dist.name or kwargs_name in dist.get_conditioning_variables():
+                    new_variable._remove_distribution(dist.name)
+                    new_variable._distributions.add(dist(**{kwargs_name: value}))
+
+        # Check if any kwargs are left unprocessed
+        if kwargs:
+            raise ValueError(f"Conditioning variables {list(kwargs.keys())} not found in the random variable {self}")
+
+        return new_variable
+
     @property
     def _non_default_args(self) -> List[str]:
         """List of non-default arguments to distribution. This is used to return the correct
         arguments when evaluating the random variable.
         """
         return self.parameter_names
+
+    def _remove_distribution(self, name):
+        """ Remove distribution with a given name from the set of distributions. """
+        for dist in self.distributions:
+            if dist._name == name:
+                self._distributions.remove(dist)
+                break
 
     def _inject_name_into_distribution(self, name=None):
         if len(self._distributions) == 1:

@@ -19,6 +19,13 @@ class _OrderedSet:
         """
         self.dict[item] = None
 
+    def remove(self, item):
+        """Remove an item from the set. 
+
+        If the item is not in the set, it raises a KeyError.
+        """
+        del self.dict[item]
+
     def __contains__(self, item):
         """Check if an item is in the set. 
 
