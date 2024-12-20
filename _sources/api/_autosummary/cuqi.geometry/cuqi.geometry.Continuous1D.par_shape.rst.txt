@@ -1,0 +1,6 @@
+cuqi.geometry.Continuous1D.par\_shape
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Continuous1D.par_shape

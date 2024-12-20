@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.single\_update
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.single_update

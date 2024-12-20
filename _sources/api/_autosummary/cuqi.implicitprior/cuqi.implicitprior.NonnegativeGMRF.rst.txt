@@ -1,0 +1,58 @@
+NonnegativeGMRF
+===============
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: NonnegativeGMRF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NonnegativeGMRF.__init__
+      ~NonnegativeGMRF.constraint_options
+      ~NonnegativeGMRF.disable_FD
+      ~NonnegativeGMRF.enable_FD
+      ~NonnegativeGMRF.get_conditioning_variables
+      ~NonnegativeGMRF.get_mutable_variables
+      ~NonnegativeGMRF.get_parameter_names
+      ~NonnegativeGMRF.gradient
+      ~NonnegativeGMRF.logd
+      ~NonnegativeGMRF.logpdf
+      ~NonnegativeGMRF.pdf
+      ~NonnegativeGMRF.regularization_options
+      ~NonnegativeGMRF.sample
+      ~NonnegativeGMRF.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~NonnegativeGMRF.FD_enabled
+      ~NonnegativeGMRF.FD_epsilon
+      ~NonnegativeGMRF.cov
+      ~NonnegativeGMRF.dim
+      ~NonnegativeGMRF.gaussian
+      ~NonnegativeGMRF.geometry
+      ~NonnegativeGMRF.is_cond
+      ~NonnegativeGMRF.mean
+      ~NonnegativeGMRF.name
+      ~NonnegativeGMRF.prec
+      ~NonnegativeGMRF.preset
+      ~NonnegativeGMRF.proximal
+      ~NonnegativeGMRF.sqrtcov
+      ~NonnegativeGMRF.sqrtprec
+      ~NonnegativeGMRF.strength
+      ~NonnegativeGMRF.transformation
+   
+   

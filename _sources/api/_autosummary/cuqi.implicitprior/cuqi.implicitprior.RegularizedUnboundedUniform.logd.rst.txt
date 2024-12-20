@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.logd
+===================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedUnboundedUniform.logd

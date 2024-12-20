@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.__init__

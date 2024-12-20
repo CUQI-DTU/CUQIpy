@@ -1,0 +1,46 @@
+Lognormal
+=========
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Lognormal
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Lognormal.__init__
+      ~Lognormal.disable_FD
+      ~Lognormal.enable_FD
+      ~Lognormal.get_conditioning_variables
+      ~Lognormal.get_mutable_variables
+      ~Lognormal.get_parameter_names
+      ~Lognormal.gradient
+      ~Lognormal.logd
+      ~Lognormal.logpdf
+      ~Lognormal.pdf
+      ~Lognormal.sample
+      ~Lognormal.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Lognormal.FD_enabled
+      ~Lognormal.FD_epsilon
+      ~Lognormal.dim
+      ~Lognormal.geometry
+      ~Lognormal.is_cond
+      ~Lognormal.name
+   
+   

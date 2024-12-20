@@ -1,0 +1,60 @@
+Samples
+=======
+
+.. currentmodule:: cuqi.samples
+
+.. autoclass:: Samples
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Samples.__init__
+      ~Samples.burnthin
+      ~Samples.ci_width
+      ~Samples.compute_ci
+      ~Samples.compute_ess
+      ~Samples.compute_rhat
+      ~Samples.diagnostics
+      ~Samples.hist_chain
+      ~Samples.mean
+      ~Samples.median
+      ~Samples.plot
+      ~Samples.plot_autocorrelation
+      ~Samples.plot_chain
+      ~Samples.plot_ci
+      ~Samples.plot_ci_width
+      ~Samples.plot_mean
+      ~Samples.plot_median
+      ~Samples.plot_pair
+      ~Samples.plot_std
+      ~Samples.plot_trace
+      ~Samples.plot_variance
+      ~Samples.plot_violin
+      ~Samples.std
+      ~Samples.to_arviz_inferencedata
+      ~Samples.variance
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Samples.Ns
+      ~Samples.funvals
+      ~Samples.geometry
+      ~Samples.is_vec
+      ~Samples.parameters
+      ~Samples.shape
+      ~Samples.vector
+   
+   

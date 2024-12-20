@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.shape
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.shape

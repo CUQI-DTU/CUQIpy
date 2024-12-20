@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.fun\_dim
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Image2D.fun_dim

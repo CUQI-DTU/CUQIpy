@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.get\_samples
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.get_samples

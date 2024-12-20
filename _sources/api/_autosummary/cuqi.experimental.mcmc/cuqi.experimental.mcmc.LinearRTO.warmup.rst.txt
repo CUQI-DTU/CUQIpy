@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.warmup
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTO.warmup

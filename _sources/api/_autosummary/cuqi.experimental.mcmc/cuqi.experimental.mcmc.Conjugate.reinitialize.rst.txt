@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Conjugate.reinitialize
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Conjugate.reinitialize

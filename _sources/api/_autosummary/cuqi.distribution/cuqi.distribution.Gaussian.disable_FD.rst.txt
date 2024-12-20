@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.disable\_FD
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.disable_FD

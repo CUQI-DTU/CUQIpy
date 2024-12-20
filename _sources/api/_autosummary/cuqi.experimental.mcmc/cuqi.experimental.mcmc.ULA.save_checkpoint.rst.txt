@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.save\_checkpoint
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.save_checkpoint

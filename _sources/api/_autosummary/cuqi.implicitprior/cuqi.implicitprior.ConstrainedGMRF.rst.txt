@@ -1,0 +1,58 @@
+ConstrainedGMRF
+===============
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoclass:: ConstrainedGMRF
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConstrainedGMRF.__init__
+      ~ConstrainedGMRF.constraint_options
+      ~ConstrainedGMRF.disable_FD
+      ~ConstrainedGMRF.enable_FD
+      ~ConstrainedGMRF.get_conditioning_variables
+      ~ConstrainedGMRF.get_mutable_variables
+      ~ConstrainedGMRF.get_parameter_names
+      ~ConstrainedGMRF.gradient
+      ~ConstrainedGMRF.logd
+      ~ConstrainedGMRF.logpdf
+      ~ConstrainedGMRF.pdf
+      ~ConstrainedGMRF.regularization_options
+      ~ConstrainedGMRF.sample
+      ~ConstrainedGMRF.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ConstrainedGMRF.FD_enabled
+      ~ConstrainedGMRF.FD_epsilon
+      ~ConstrainedGMRF.cov
+      ~ConstrainedGMRF.dim
+      ~ConstrainedGMRF.gaussian
+      ~ConstrainedGMRF.geometry
+      ~ConstrainedGMRF.is_cond
+      ~ConstrainedGMRF.mean
+      ~ConstrainedGMRF.name
+      ~ConstrainedGMRF.prec
+      ~ConstrainedGMRF.preset
+      ~ConstrainedGMRF.proximal
+      ~ConstrainedGMRF.sqrtcov
+      ~ConstrainedGMRF.sqrtprec
+      ~ConstrainedGMRF.strength
+      ~ConstrainedGMRF.transformation
+   
+   

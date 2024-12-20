@@ -1,0 +1,6 @@
+cuqi.solver.ScipyLeastSquares.\_\_init\_\_
+==========================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: ScipyLeastSquares.__init__

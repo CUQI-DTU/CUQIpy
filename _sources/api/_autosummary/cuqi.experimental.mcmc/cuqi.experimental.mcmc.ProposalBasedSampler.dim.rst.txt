@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSampler.dim
+===============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ProposalBasedSampler.dim

@@ -1,0 +1,6 @@
+cuqi.geometry.Image2D.par\_dim
+==============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Image2D.par_dim

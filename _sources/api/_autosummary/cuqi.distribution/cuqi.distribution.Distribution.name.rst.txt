@@ -1,0 +1,6 @@
+cuqi.distribution.Distribution.name
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Distribution.name

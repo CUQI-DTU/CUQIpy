@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.name
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: DistributionGallery.name
