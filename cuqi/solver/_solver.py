@@ -142,7 +142,7 @@ class ScipyMinimizer(object):
                 "nit": solution['nit'], 
                 "nfev": solution['nfev']}
         # if gradfunc is callable, record the gradient in the info dict
-        if callable(self.gradfunc):
+        if 'jac' in solution.keys():
             info['grad'] = solution['jac']
         if isinstance(self.x0,CUQIarray):
             sol = CUQIarray(solution['x'],geometry=self.x0.geometry)
