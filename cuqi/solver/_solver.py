@@ -15,7 +15,7 @@ except ImportError:
     has_cholmod = False
 
 
-class L_BFGS_B(object):
+class ScipyLBFGSB(object):
     """Wrapper for :meth:`scipy.optimize.fmin_l_bfgs_b`.
 
     Minimize a function func using the L-BFGS-B algorithm.
@@ -30,14 +30,10 @@ class L_BFGS_B(object):
         Initial guess.
     gradfunc : callable f(x,*args), optional
         The gradient of func. 
-        If None, then the solver approximates the gradient.
+        If None, the solver approximates the gradient with a finite difference scheme.
     kwargs : keyword arguments passed to scipy's L-BFGS-B algorithm. See documentation for scipy.optimize.minimize
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None, **kwargs):
+    def __init__(self, func, x0, gradfunc = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.gradfunc = gradfunc
@@ -83,7 +79,7 @@ class L_BFGS_B(object):
                 "nfev": solution[2]['funcalls']}
         return solution[0], info
 
-class minimize(object):
+class ScipyMinimizer(object):
     """Wrapper for :meth:`scipy.optimize.minimize`.
 
     Minimize a function func using scipy's optimize.minimize module.
@@ -115,12 +111,8 @@ class minimize(object):
         ‘trust-krylov’ 
         If not given, chosen to be one of BFGS, L-BFGS-B, SLSQP, depending if the problem has constraints or bounds.
     kwargs : keyword arguments passed to scipy's minimizer. See documentation for scipy.optimize.minimize
-
-    Methods
-    ----------
-    :meth:`solve`: Runs the solver and returns the solution and info about the optimization.
     """
-    def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
+    def __init__(self, func, x0, gradfunc = '2-point', method = None, **kwargs):
         self.func= func
         self.x0 = x0
         self.method = method
@@ -147,18 +139,20 @@ class minimize(object):
         info = {"success": solution['success'],
                 "message": solution['message'],
                 "func": solution['fun'],
-                "grad": solution['jac'],
                 "nit": solution['nit'], 
                 "nfev": solution['nfev']}
+        # if gradfunc is callable, record the gradient in the info dict
+        if 'jac' in solution.keys():
+            info['grad'] = solution['jac']
         if isinstance(self.x0,CUQIarray):
             sol = CUQIarray(solution['x'],geometry=self.x0.geometry)
         else:
             sol = solution['x']
         return sol, info
 
-class maximize(minimize):
-    """Simply calls ::class:: cuqi.solver.minimize with -func."""
-    def __init__(self,func,x0, gradfunc = None, method = None, **kwargs):
+class ScipyMaximizer(ScipyMinimizer):
+    """Simply calls ::class:: cuqi.solver.ScipyMinimizer with -func."""
+    def __init__(self, func, x0, gradfunc = None, method = None, **kwargs):
         def nfunc(*args,**kwargs):
             return -func(*args,**kwargs)
         if gradfunc is not None:
@@ -170,7 +164,7 @@ class maximize(minimize):
 
 
 
-class LS(object):
+class ScipyLeastSquares(object):
     """Wrapper for :meth:`scipy.optimize.least_squares`.
 
     Solve nonlinear least-squares problems with bounds:
@@ -189,7 +183,7 @@ class LS(object):
         Initial guess.
     Jac : callable f(x,*args), optional
         The Jacobian of func. 
-        If None, then the solver approximates the Jacobian.
+        If not specified, the solver approximates the Jacobian with a finite difference scheme.
     loss: callable rho(x,*args)
         Determines the loss function
         'linear' : rho(z) = z. Gives a standard least-squares problem.
@@ -203,7 +197,7 @@ class LS(object):
         'dogbox', dogleg algorithm with rectangular trust regions, for small problems with bounds.
         'lm', Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn't handle bounds and sparse Jacobians.
     """
-    def __init__(self, func, x0, jacfun=None, method='trf', loss='linear', tol=1e-6, maxit=1e4):
+    def __init__(self, func, x0, jacfun='2-point', method='trf', loss='linear', tol=1e-6, maxit=1e4):
         self.func = func
         self.x0 = x0
         self.jacfun = jacfun

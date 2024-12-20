@@ -771,11 +771,11 @@ class BayesianProblem(object):
         if self._check_posterior(self, CMRF, must_have_gradient=True): # Use L-BFGS-B for CMRF prior as it has better performance for this multi-modal posterior
             if disp: print(f"Using scipy.optimize.L_BFGS_B on negative log of {density.__class__.__name__}")
             if disp: print("x0: ones vector")
-            solver = cuqi.solver.L_BFGS_B(func, x0, gradfunc=gradfunc)
+            solver = cuqi.solver.ScipyLBFGSB(func, x0, gradfunc=gradfunc)
         else:
             if disp: print(f"Using scipy.optimize.minimize on negative log of {density.__class__.__name__}")
             if disp: print("x0: ones vector")
-            solver = cuqi.solver.minimize(func, x0, gradfunc=gradfunc)
+            solver = cuqi.solver.ScipyMinimizer(func, x0, gradfunc=gradfunc)
 
         x_MAP, solver_info = solver.solve()
 

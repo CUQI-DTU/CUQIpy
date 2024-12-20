@@ -1,8 +1,8 @@
 from ._solver import (
-    L_BFGS_B,
-    minimize,
-    maximize,
-    LS,
+    ScipyLBFGSB,
+    ScipyMinimizer,
+    ScipyMaximizer,
+    ScipyLeastSquares,
     CGLS,
     LM,
     PDHG,
