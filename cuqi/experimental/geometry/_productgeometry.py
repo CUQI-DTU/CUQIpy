@@ -84,7 +84,7 @@ class _ProductGeometry(Geometry):
     def _split_par(self, par):
         """Splits a stacked parameter vector into parameter vectors for each
         geometry."""
-        return tuple(np.split(par, self.stacked_par_indices))
+        return tuple(np.split(par, self.stacked_par_split_indices))
     
     def _plot(self, values, **kwargs):
         """Plotting function for the product geometry."""
@@ -121,8 +121,20 @@ class _ProductGeometry(Geometry):
         for i, g in enumerate(self.geometries):
             par_i = g.fun2par(funvals[i])
             par_vec.append(par_i)
-        
-        return np.hstack(par_vec) if stacked else tuple(par_vec)
+
+        # stack parameters:
+        if stacked:
+            # if single sample
+            if len(par_vec[0].shape) == 1:
+                stacked_val = np.hstack(par_vec)
+            elif len(par_vec[0].shape) == 2:
+                stacked_val = np.vstack(par_vec)
+            else:
+                raise ValueError(
+                    "Cannot stack parameter vectors with more than 2 dimensions."
+                    )
+
+        return  stacked_val if stacked else tuple(par_vec)
 
     def vec2fun(self, *funvec):
         """Maps function vector representation, if available, to function 
