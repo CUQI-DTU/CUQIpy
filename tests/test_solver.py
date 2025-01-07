@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import ScipyLBFGSB, ScipyMinimizer, ScipyLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
+from cuqi.solver import ScipyLBFGSB, ScipyMinimizer, ScipyLeastSquares, ScipyLinearLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
 from scipy.optimize import lsq_linear
 
 
@@ -75,6 +75,16 @@ def test_ScipyLeastSquares_with_Jac():
     sol, _ = solver.solve()
     sol_ref = np.array([1, 1])
     assert np.allclose(sol, sol_ref)
+
+def test_ScipyLinearLeastSquares():
+    rng = np.random.default_rng(seed = 42)
+    m, n = 10, 5
+    A = rng.standard_normal((m, n))
+    b = rng.standard_normal(m)
+    res = lsq_linear(A, b, tol=1e-8)
+    ref_sol = res.x
+    sol, _ = ScipyLinearLeastSquares(A, b).solve()
+    assert np.allclose(sol, ref_sol, rtol=1e-3)
 
 def test_LM():
     # compare to MATLAB's original code solution
