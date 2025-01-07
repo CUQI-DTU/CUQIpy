@@ -209,7 +209,7 @@ class RandomVariable:
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
         self._inject_name_into_distribution()
-        return [distribution.name for distribution in self.distributions] # Consider renaming .name to .par_name for distributions
+        return [distribution._name for distribution in self.distributions] # Consider renaming .name to .par_name for distributions
 
     @property
     def dim(self):
@@ -246,6 +246,10 @@ class RandomVariable:
 
     def condition(self, *args, **kwargs):
         """Condition the random variable on a given value."""
+
+        # Before conditioning, capture repr to ensure all variable names are injected
+        self.__repr__()
+
         if args and kwargs:
             raise ValueError("Cannot pass both positional and keyword arguments to RandomVariable")
         
@@ -253,7 +257,7 @@ class RandomVariable:
             kwargs = self._parse_args_add_to_kwargs(args, kwargs)
 
         # Create a deep copy of the random variable to ensure the original tree is not modified
-        new_variable = deepcopy(self)
+        new_variable = self._make_copy(deep=True)
 
         for kwargs_name in list(kwargs.keys()):
             value = kwargs.pop(kwargs_name)
@@ -267,6 +271,7 @@ class RandomVariable:
                 if kwargs_name == dist.name:
                     new_variable._remove_distribution(dist.name)
                 elif kwargs_name in dist.get_conditioning_variables():
+                    new_variable._remove_distribution(dist.name)
                     new_variable._distributions.add(dist(**{kwargs_name: value}))
 
         # Check if any kwargs are left unprocessed
@@ -292,10 +297,14 @@ class RandomVariable:
     def _inject_name_into_distribution(self, name=None):
         if len(self._distributions) == 1:
             dist = next(iter(self._distributions))
+
+            if dist._is_copy:
+                dist = dist._original_density
+
             if dist._name is None:
                 if name is None:
                     name = self.name
-                dist._name = name
+                dist.name = name # Inject using setter
     
     def _parse_args_add_to_kwargs(self, args, kwargs) -> dict:
         """ Parse args and add to kwargs if any. Arguments follow self.parameter_names order. """
@@ -335,8 +344,12 @@ class RandomVariable:
         """ Returns True if this is a copy of another random variable, e.g. by conditioning. """
         return hasattr(self, '_original_variable') and self._original_variable is not None
 
-    def _make_copy(self):
-        """ Returns a shallow copy of the density keeping a pointer to the original. """
+    def _make_copy(self, deep=False) -> 'RandomVariable':
+        """ Returns a copy of the density keeping a pointer to the original. """
+        if deep:
+            new_variable = deepcopy(self)
+            new_variable._original_variable = self
+            return new_variable
         new_variable = copy(self)
         new_variable._distributions = copy(self.distributions)
         new_variable._tree = copy(self._tree)

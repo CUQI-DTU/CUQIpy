@@ -72,7 +72,6 @@ def test_randomvariable_returns_correct_parameter_name():
     z = RandomVariable(cuqi.distribution.Gaussian(0, 1))
     assert cuqi.utilities.get_non_default_args(z) == ["z"]
 
-@pytest.mark.xfail(reason="Conditional random variables are not yet implemented")
 @pytest.mark.parametrize("operations", [
     lambda x: x+1,
     lambda x: x**2,
@@ -258,7 +257,6 @@ def test_variable_name_accross_frames():
     
     recursive_return_rv(h, 10)
 
-@pytest.mark.xfail(reason="Conditional random variables are not yet implemented")
 def test_rv_name_consistency():
 
     x = RandomVariable(cuqi.distribution.Gaussian(geometry=1))
@@ -306,13 +304,15 @@ def test_ensure_that_RV_evaluation_requires_all_parameters():
     with pytest.raises(ValueError, match=r"Expected arguments \['x', 'y'\], got arguments \{'x': 1\}"):
         z(x=1)
 
-@pytest.mark.xfail(reason="Conditional random variables are not yet implemented")
 def test_RV_sets_name_of_internal_conditional_density_if_par_name_not_set_and_does_not_set_original_density():
-    Z_s = cuqi.distribution.Gaussian(0, lambda s: s)
-    Z = Z_s(s=3)
-    z = RandomVariable(Z)
+    # Case 1
+    z = RandomVariable(cuqi.distribution.Gaussian(0, lambda s: s))
 
     assert z.name == 'z'
-    assert z.distribution.par_name == "z"
-    assert Z_s.par_name is None # Should not be set for the original density.
-    assert Z.par_name is None # Should not be set for the conditioned density.
+    assert z.distribution.name == "z"
+
+    # Case 2 (conditioned density. Should not be able to set name here)
+    z = RandomVariable(cuqi.distribution.Gaussian(0, lambda s: s)(s=3))
+
+    assert z.name == 'z'
+    assert z.distribution.name == "z"
