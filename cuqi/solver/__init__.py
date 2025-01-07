@@ -3,6 +3,7 @@ from ._solver import (
     ScipyMinimizer,
     ScipyMaximizer,
     ScipyLeastSquares,
+    ScipyLinearLeastSquares,
     CGLS,
     LM,
     PDHG,

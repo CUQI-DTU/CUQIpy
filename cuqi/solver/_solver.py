@@ -227,6 +227,44 @@ class ScipyLeastSquares(object):
             sol = solution['x']
         return sol, info
 
+class ScipyLinearLeastSquares(object):
+    """Wrapper for :meth:`scipy.optimize.lsq_linear`.
+
+    Solve linear least-squares problems with bounds:
+
+    .. math::
+    
+        \min \|A x - b\|_2^2
+
+    subject to :math:`lb <= x <= ub`.
+    
+    Parameters
+    ----------
+    A : ndarray, LinearOperator
+        Design matrix.
+    b : ndarray
+        The right-hand side of the linear system.
+    bounds : tuple, optional
+        Bounds for variables. 
+        Each element of the tuple must be either a scalar or a sequence of two elements.
+        If a scalar, the bound is taken as is. If a pair of elements, the first element is the lower bound and the second element is the upper bound.
+    """
+    def __init__(self, A, b, bounds=(-np.inf, np.inf), **kwargs):
+        self.A = A
+        self.b = b
+        self.bounds = bounds
+        self.kwargs = kwargs
+    
+    def solve(self):
+        """Runs optimization algorithm and returns solution and info.
+
+        Returns
+        ----------
+        solution : Tuple
+            Solution found (array_like) and optimization result (OptimizeResult).
+        """
+        res = opt.lsq_linear(self.A, self.b, bounds=self.bounds, **self.kwargs)
+        return res.x, res
 
 
 class CGLS(object):
