@@ -244,10 +244,9 @@ class ScipyLinearLeastSquares(object):
         Design matrix.
     b : ndarray
         The right-hand side of the linear system.
-    bounds : tuple, optional
+    bounds : 2-tuple of array_like or Bounds
         Bounds for variables. 
-        Each element of the tuple must be either a scalar or a sequence of two elements.
-        If a scalar, the bound is taken as is. If a pair of elements, the first element is the lower bound and the second element is the upper bound.
+        See :meth:`scipy.optimize.lsq_linear` for details.
     """
     def __init__(self, A, b, bounds=(-np.inf, np.inf), **kwargs):
         self.A = A
@@ -256,7 +255,7 @@ class ScipyLinearLeastSquares(object):
         self.kwargs = kwargs
     
     def solve(self):
-        """Runs optimization algorithm and returns solution and info.
+        """Runs optimization algorithm and returns solution and optimization result.
 
         Returns
         ----------
