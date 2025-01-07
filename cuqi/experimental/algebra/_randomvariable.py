@@ -6,6 +6,8 @@ import operator
 import cuqi
 from cuqi.distribution import Distribution
 from copy import copy, deepcopy
+import numpy as np
+
 
 class RandomVariable:
     """ Random variable defined by a distribution with the option to apply algebraic operations on it.
@@ -165,6 +167,24 @@ class RandomVariable:
             raise ValueError(f"Expected arguments {self.parameter_names}, got arguments {kwargs}")
 
         return self.tree(**kwargs)
+
+    def sample(self, Ns=1):
+        """ Sample from the random variable. 
+
+        Parameters
+        ----------
+        Ns : int, optional
+            Number of samples to draw. Default is 1.
+        """
+
+        if Ns == 1: return self(**{dist.name: dist.sample() for dist in self.distributions})
+            
+        samples = np.array([
+            self(**{dist.name: dist.sample() for dist in self.distributions})
+            for _ in range(Ns)
+        ]).reshape(-1, Ns)  # Ensure correct shape (dim, Ns)
+
+        return cuqi.samples.Samples(samples)
     
     @property
     def tree(self):

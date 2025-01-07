@@ -148,7 +148,6 @@ def test_randomvariable_algebra_works_on_joint_space(operations):
     val_z = abs(np.random.randn(z.dim))+1
     assert np.allclose(rv(x=val_x, y=val_y, z=val_z), operations(val_x, val_y, val_z))
 
-@pytest.mark.xfail(reason="sampling method for random variables is not yet implemented")
 @pytest.mark.parametrize("operations", [
     lambda x, y, z: x + y,
     lambda x, y, z: x * y,
