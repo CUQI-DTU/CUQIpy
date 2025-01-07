@@ -262,7 +262,7 @@ class RegularizedLinearRTO(LinearRTO):
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self._inner_solver == "LSQ":
-                A_op = sp.sparse.linalg.LinearOperator((self.likelihood.dim+self.prior.dim, self.prior.dim),
+                A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.prior.dim, self.prior.dim),
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
                                         )
