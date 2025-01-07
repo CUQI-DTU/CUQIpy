@@ -264,8 +264,9 @@ class RandomVariable:
             
             # Condition the distributions on both parameter name and conditioning variables
             for dist in self.distributions:
-                if kwargs_name == dist.name or kwargs_name in dist.get_conditioning_variables():
+                if kwargs_name == dist.name:
                     new_variable._remove_distribution(dist.name)
+                elif kwargs_name in dist.get_conditioning_variables():
                     new_variable._distributions.add(dist(**{kwargs_name: value}))
 
         # Check if any kwargs are left unprocessed
