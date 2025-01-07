@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA, ADMM
+from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLeastSquares
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -230,6 +230,7 @@ class RegularizedLinearRTO(LinearRTO):
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
         self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
+        self._inner_solver = "LSQ" if self.target.prior._preset == "nonnegativity" else self._inner_solver
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -259,7 +260,15 @@ class RegularizedLinearRTO(LinearRTO):
                         self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
         elif self._inner_solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
-                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)  
+                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
+        elif self._inner_solver == "LSQ":
+                A_op = sp.sparse.linalg.LinearOperator((self.likelihood.dim+self.prior.dim, self.prior.dim),
+                                        matvec=lambda x: self.M(x, 1),
+                                        rmatvec=lambda x: self.M(x, 2)
+                                        )
+                bounds = (np.ones(self.prior.dim)*0, np.ones(self.prior.dim)*np.inf) # this bounds is already set somewhere?
+                print("Using ScipyLinearLeastSquares")
+                sim = ScipyLinearLeastSquares(A_op, y, bounds)
         else:
             raise ValueError("Choice of solver not supported.")
 
