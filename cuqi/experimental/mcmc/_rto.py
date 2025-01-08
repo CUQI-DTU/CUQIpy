@@ -204,7 +204,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, inner_solver=None, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -215,9 +215,12 @@ class RegularizedLinearRTO(LinearRTO):
         self.maxit = maxit
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
+        self.inner_solver = inner_solver
 
     def _initialize(self):
         super()._initialize()
+        if self.inner_solver is not None:
+            self._inner_solver = self.inner_solver
         if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
@@ -229,8 +232,16 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
-        self._inner_solver = "LSQ" if self.target.prior._preset == "nonnegativity" else self._inner_solver
+        if self.target.prior._preset == "nonnegativity":
+            self._inner_solver = "LSQ"
+            self._box_bounds = (np.ones(self.prior.dim)*0, np.ones(self.prior.dim)*np.inf)
+        elif self.target.prior._preset == "box":
+            self._inner_solver = "LSQ"
+            self._box_bounds = (np.ones(self.prior.dim)*self.prior._box_lower, np.ones(self.prior.dim)*self.prior._box_upper)
+        elif callable(self.proximal):
+            self._inner_solver = "FISTA"
+        else:
+            self._inner_solver = "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -266,9 +277,8 @@ class RegularizedLinearRTO(LinearRTO):
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
                                         )
-                bounds = (np.ones(self.prior.dim)*0, np.ones(self.prior.dim)*np.inf) # this bounds is already set somewhere?
                 print("Using ScipyLinearLeastSquares")
-                sim = ScipyLinearLeastSquares(A_op, y, bounds)
+                sim = ScipyLinearLeastSquares(A_op, y, self._box_bounds)
         else:
             raise ValueError("Choice of solver not supported.")
 

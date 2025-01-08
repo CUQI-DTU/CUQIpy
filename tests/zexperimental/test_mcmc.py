@@ -233,7 +233,7 @@ regularized_targets = [
 def test_RegularizedLinearRTO_regression_sample(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
-    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTO(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTO(target, stepsize=1e-3, inner_solver="FISTA")
     assert_true_if_sampling_is_equivalent(sampler_old, sampler_new)
 
 @pytest.mark.parametrize("target", regularized_targets)
@@ -241,7 +241,7 @@ def test_RegularizedLinearRTO_regression_warmup(target: cuqi.density.Density):
     """Test the RegularizedLinearRTO sampler regression."""
 
     sampler_old = cuqi.sampler.RegularizedLinearRTO(target, stepsize=1e-3)
-    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTO(target, stepsize=1e-3)
+    sampler_new = cuqi.experimental.mcmc.RegularizedLinearRTO(target, stepsize=1e-3, inner_solver="FISTA")
     assert_true_if_warmup_is_equivalent(sampler_old, sampler_new)
 
 def create_lmrf_prior_target(dim=16):
