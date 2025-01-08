@@ -110,7 +110,7 @@ def test_ScipyLinearLeastSquares_against_FISTA():
     # solve with FISTA
     rng = np.random.default_rng(seed = 1219)
     x0 = rng.standard_normal(3)
-    sol_fista, _ = FISTA(A, b, lambda x, _: ProjectNonnegative(x), x0, stepsize = 1e-7, maxit = 100000, abstol=1e-16, adaptive = True).solve()
+    sol_fista, _ = FISTA(A, b, lambda x, _: ProjectNonnegative(x), x0, stepsize=1e-7, maxit=100000, abstol=1e-16, adaptive=True).solve()
 
     assert np.allclose(sol_lsq, sol_fista, rtol=1e-3)
 
