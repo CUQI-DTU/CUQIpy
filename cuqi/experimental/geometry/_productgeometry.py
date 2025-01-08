@@ -156,7 +156,7 @@ class _ProductGeometry(Geometry):
     
     def __repr__(self) -> str:
         """Representation of the product geometry."""
-        string = "{}(".format(self.__class__.__name__) + "of the following geometries:\n"
+        string = "{}(".format(self.__class__.__name__) + "\n"
         for g in self.geometries:
             string += "\t{}\n".format(g.__repr__())
         string += ")"
