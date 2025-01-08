@@ -219,8 +219,14 @@ class RegularizedLinearRTO(LinearRTO):
 
     def _initialize(self):
         super()._initialize()
-        if self.inner_solver is not None:
+        if self.inner_solver == "LSQ":
             self._inner_solver = self.inner_solver
+            if self.target.prior._preset == "nonnegativity":
+                self._box_bounds = (np.ones(self.prior.dim)*0, np.ones(self.prior.dim)*np.inf)
+            elif self.target.prior._preset == "box":
+                self._box_bounds = (np.ones(self.prior.dim)*self.prior._box_lower, np.ones(self.prior.dim)*self.prior._box_upper)
+            else:
+                raise ValueError(f"In-compatible prior preset: {self.target.prior._preset}")
         if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
@@ -232,16 +238,7 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        if self.target.prior._preset == "nonnegativity":
-            self._inner_solver = "LSQ"
-            self._box_bounds = (np.ones(self.prior.dim)*0, np.ones(self.prior.dim)*np.inf)
-        elif self.target.prior._preset == "box":
-            self._inner_solver = "LSQ"
-            self._box_bounds = (np.ones(self.prior.dim)*self.prior._box_lower, np.ones(self.prior.dim)*self.prior._box_upper)
-        elif callable(self.proximal):
-            self._inner_solver = "FISTA"
-        else:
-            self._inner_solver = "ADMM"
+        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
