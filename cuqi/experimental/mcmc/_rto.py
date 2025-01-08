@@ -196,6 +196,9 @@ class RegularizedLinearRTO(LinearRTO):
     
     adaptive : bool
         If True, FISTA is used as inner solver, otherwise ISTA is used. *Optional*.
+    
+    inner_solver : string
+        If set to "LSQ", the inner solver is set to cuqi.solver.ScipyLinearLeastSquares. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
