@@ -115,11 +115,11 @@ class _ProductGeometry(Geometry):
             args = self._split_par(args[0])
 
         # Convert parameter vectors to function values for each geometry.
-        fun_list = []
+        funvals = []
         for i, g in enumerate(self.geometries):
-            fun_i = g.par2fun(args[i])
-            fun_list.append(fun_i)
-        return tuple(fun_list)
+            funval_i = g.par2fun(args[i])
+            funvals.append(funval_i)
+        return tuple(funvals)
 
     def fun2par(self, *funvals, stacked=False):
         """Converts (multiple) function values into the corresponding
