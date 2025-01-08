@@ -130,46 +130,46 @@ class _ProductGeometry(Geometry):
         i.e., the first function value corresponds to the first geometry
         and so on."""
 
-        par_vec = []
+        pars = []
         for i, g in enumerate(self.geometries):
             par_i = g.fun2par(funvals[i])
-            par_vec.append(par_i)
+            pars.append(par_i)
 
         # stack parameters:
         if stacked:
             # if single sample
-            if len(par_vec[0].shape) == 1:
-                stacked_val = np.hstack(par_vec)
-            elif len(par_vec[0].shape) == 2:
-                stacked_val = np.vstack(par_vec)
+            if len(pars[0].shape) == 1:
+                stacked_val = np.hstack(pars)
+            elif len(pars[0].shape) == 2:
+                stacked_val = np.vstack(pars)
             else:
                 raise ValueError(
                     "Cannot stack parameter vectors with more than 2 dimensions."
                     )
 
-        return  stacked_val if stacked else tuple(par_vec)
+        return  stacked_val if stacked else tuple(pars)
 
-    def vec2fun(self, *funvec):
+    def vec2fun(self, *funvecs):
         """Maps function vector representation, if available, to function 
         values. The order of the function vectors should follow the order of
         the geometries in the product, i.e., the first function vector
         corresponds to the first geometry and so on."""
-        fun_values = []  
+        funvals = []  
         for i, g in enumerate(self.geometries):
-            fun_values.append(g.vec2fun(funvec[i]))
+            funvals.append(g.vec2fun(funvecs[i]))
 
-        return tuple(fun_values)
+        return tuple(funvals)
     
-    def fun2vec(self, fun):
+    def fun2vec(self, *funvals):
         """Maps function values to a vector representation of the function
         values, if available. The order of the function values should follow
         the order of the geometries in the product, i.e., the first function
         value corresponds to the first geometry and so on."""
-        vec_values = []
+        funvecs = []
         for i, g in enumerate(self.geometries):
-            vec_values.append(g.fun2vec(fun[i]))
+            funvecs.append(g.fun2vec(funvals[i]))
         
-        return tuple(vec_values)
+        return tuple(funvecs)
         
     
     def __repr__(self) -> str:
