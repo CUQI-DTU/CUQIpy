@@ -8,8 +8,9 @@ class _ProductGeometry(Geometry):
 
     Parameters
     ----------
-    geometries : list of cuqi.geometry.Geometry
-        List of geometries to be combined into a product geometry.
+    \*geometries : cuqi.geometry.Geometry
+        The geometries to be combined into a product geometry. Each geometry
+        is passed as a comma-separated argument.
 
     Example
     -------
