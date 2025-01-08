@@ -3,7 +3,7 @@ import numpy as np
 
 class _ProductGeometry(Geometry):
     """ A class for representing a product geometry. A product geometry
-    represents the product space of multiple geometries of type Geometry.
+    represents the product space of multiple geometries of type :class:`Geometry`.
     See the example below for a product geometry of two geometries.
 
     Parameters
