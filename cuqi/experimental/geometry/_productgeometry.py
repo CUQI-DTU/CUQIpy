@@ -36,7 +36,7 @@ class _ProductGeometry(Geometry):
         # Check if all geometries are of type Geometry.
         for g in geometries:
             if not isinstance(g, Geometry):
-                raise ValueError(
+                raise TypeError(
                     "All geometries must be of type Geometry. "
                     "Received: {}".format(type(g))
                 )

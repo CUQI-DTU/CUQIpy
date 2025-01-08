@@ -157,3 +157,9 @@ def test_number_of_geometries(product_geometry):
 def test_stacked_par_split_indices(product_geometry):
     """Test stacked_par_split_indices are correct"""
     assert np.allclose(product_geometry.stacked_par_split_indices, [100, 101])
+
+def test_input_not_geometry_fails():
+    """Test that passing input other than Geometry fails"""
+    with pytest.raises(TypeError,
+                       match="All geometries must be of type Geometry"):
+        _ProductGeometry(1, 2, 3)
