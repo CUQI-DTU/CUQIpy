@@ -99,7 +99,7 @@ class _ProductGeometry(Geometry):
         raise NotImplementedError(
             f"Plotting not implemented for {self.__class__.__name__}.")
 
-    def par2fun(self, *args):
+    def par2fun(self, *pars):
         """Converts parameter vector(s) into function values for each 
         geometry. The parameter vector can be stacked (all parameters are
         in one vector) or unstacked (one parameter vector corresponds to
@@ -111,13 +111,13 @@ class _ProductGeometry(Geometry):
         # vector is stacked and split it.
         # No effect if the parameter vector is already split and corresponds
         # to one geometry.
-        if len(args) == 1:
-            args = self._split_par(args[0])
+        if len(pars) == 1:
+            pars = self._split_par(pars[0])
 
         # Convert parameter vectors to function values for each geometry.
         funvals = []
         for i, g in enumerate(self.geometries):
-            funval_i = g.par2fun(args[i])
+            funval_i = g.par2fun(pars[i])
             funvals.append(funval_i)
         return tuple(funvals)
 
