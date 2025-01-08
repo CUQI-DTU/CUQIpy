@@ -103,7 +103,9 @@ class _ProductGeometry(Geometry):
         """Converts parameter vector(s) into function values for each 
         geometry. The parameter vector can be stacked (all parameters are
         in one vector) or unstacked (one parameter vector corresponds to
-        each geometry)."""
+        each geometry). In all cases, the order of the parameter vectors
+        should follow the order of the geometries in the product, i.e., the
+        first parameter vector corresponds to the first geometry and so on."""
 
         # If one argument is passed, then it is assumed that the parameter
         # vector is stacked and split it.
@@ -123,7 +125,10 @@ class _ProductGeometry(Geometry):
         """Converts (multiple) function values into the corresponding
         parameter vectors. If the flag stacked is set to True, then the
         parameter vectors are stacked into one vector. Otherwise, the
-        parameter vectors are returned as a tuple."""
+        parameter vectors are returned as a tuple. The order of function
+        values should follow the order of the geometries in the product,
+        i.e., the first function value corresponds to the first geometry
+        and so on."""
 
         par_vec = []
         for i, g in enumerate(self.geometries):
@@ -146,7 +151,9 @@ class _ProductGeometry(Geometry):
 
     def vec2fun(self, *funvec):
         """Maps function vector representation, if available, to function 
-        values."""
+        values. The order of the function vectors should follow the order of
+        the geometries in the product, i.e., the first function vector
+        corresponds to the first geometry and so on."""
         fun_values = []  
         for i, g in enumerate(self.geometries):
             fun_values.append(g.vec2fun(funvec[i]))
@@ -154,7 +161,10 @@ class _ProductGeometry(Geometry):
         return tuple(fun_values)
     
     def fun2vec(self, fun):
-        """Maps function values to a vector representation of the function values, if available."""
+        """Maps function values to a vector representation of the function
+        values, if available. The order of the function values should follow
+        the order of the geometries in the product, i.e., the first function
+        value corresponds to the first geometry and so on."""
         vec_values = []
         for i, g in enumerate(self.geometries):
             vec_values.append(g.fun2vec(fun[i]))
