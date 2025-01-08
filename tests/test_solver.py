@@ -91,7 +91,6 @@ def test_ScipyLinearLeastSquares_with_LinearOperator():
     m, n = 10, 5
     A = rng.standard_normal((m, n))
     b = rng.standard_normal(m)
-    # define LinearOperator that wraps A
     A_op = sp.sparse.linalg.LinearOperator((m, n),
                                            matvec=lambda x: A @ x,
                                            rmatvec=lambda x: A.T @ x
