@@ -33,6 +33,13 @@ class _ProductGeometry(Geometry):
     
     @geometries.setter
     def geometries(self, geometries):
+        # Check if all geometries are of type Geometry.
+        for g in geometries:
+            if not isinstance(g, Geometry):
+                raise ValueError(
+                    "All geometries must be of type Geometry. "
+                    "Received: {}".format(type(g))
+                )
         self._geometries = geometries
 
     @property
