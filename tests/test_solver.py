@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import ScipyLBFGSB, ScipyMinimizer, ScipyLeastSquares, ScipyLinearLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
+from cuqi.solver import ScipyLBFGSB, ScipyMinimizer, ScipyLeastSquares, ScipyLinearLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative, ProjectBox
 from scipy.optimize import lsq_linear
 
 
@@ -99,6 +99,20 @@ def test_ScipyLinearLeastSquares_with_LinearOperator():
     ref_sol = res.x
     sol, _ = ScipyLinearLeastSquares(A_op, b).solve()
     assert np.allclose(sol, ref_sol, rtol=1e-3)
+
+def test_ScipyLinearLeastSquares_against_FISTA():
+    A = np.array([[73,71,52],[87,74,46],[72,2,7],[80,89,71]])
+    b = np.array([49,67,68,20])
+    # solve with ScipyLinearLeastSquares
+    lb = np.zeros(3)
+    ub = lb + np.inf
+    sol_lsq, _ = ScipyLinearLeastSquares(A, b, (lb,ub)).solve()
+    # solve with FISTA
+    rng = np.random.default_rng(seed = 1219)
+    x0 = rng.standard_normal(3)
+    sol_fista, _ = FISTA(A, b, lambda x, _: ProjectNonnegative(x), x0, stepsize = 1e-7, maxit = 100000, abstol=1e-16, adaptive = True).solve()
+
+    assert np.allclose(sol_lsq, sol_fista, rtol=1e-3)
 
 def test_LM():
     # compare to MATLAB's original code solution
