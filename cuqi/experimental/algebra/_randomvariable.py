@@ -266,7 +266,7 @@ class RandomVariable:
             if kwargs_name in self.parameter_names:
                 new_variable._tree = new_variable.tree.condition(**{kwargs_name: value})
             
-            # Condition the distributions on both parameter name and conditioning variables
+            # Condition the random variable on both the distribution parameter name and distribution conditioning variables
             for dist in self.distributions:
                 if kwargs_name == dist.name:
                     new_variable._remove_distribution(dist.name)
