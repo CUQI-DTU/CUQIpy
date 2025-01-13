@@ -241,7 +241,7 @@ class ScipyLinearLSQ(object):
     Parameters
     ----------
     A : ndarray, LinearOperator
-        Design matrix.
+        Design matrix (system matrix).
     b : ndarray
         The right-hand side of the linear system.
     bounds : 2-tuple of array_like or Bounds
