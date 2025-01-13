@@ -244,7 +244,7 @@ class ScipyLinearLSQ(object):
         Design matrix (system matrix).
     b : ndarray
         The right-hand side of the linear system.
-    bounds : 2-tuple of array_like or Bounds
+    bounds : 2-tuple of array_like or scipy.optimize Bounds
         Bounds for variables. 
         See :meth:`scipy.optimize.lsq_linear` for details.
     """
