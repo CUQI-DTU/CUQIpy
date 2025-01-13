@@ -201,7 +201,7 @@ class RegularizedLinearRTO(LinearRTO):
     adaptive : bool
         If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
     
-    solver : string
+    inner_solver : string
         If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
     callback : callable, *Optional*
