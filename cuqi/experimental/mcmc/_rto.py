@@ -168,6 +168,8 @@ class RegularizedLinearRTO(LinearRTO):
            Used when prior.proximal is callable.
     ADMM:  [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
            Used when prior.proximal is a list of penalty terms.
+    TRF:   [3] M. A. Branch, T. F. Coleman, and Y. Li, “A Subspace, Interior, and Conjugate Gradient Method for Large-Scale Bound-Constrained Minimization Problems,” SIAM Journal on Scientific Computing, Vol. 21, Number 1, pp 1-23, 1999.
+           Trust Region Reflective algorithm through scipy.optimize.lsq_linear. Optionally used when the constraint is either "nonnegativity" or "box".
 
     Parameters
     ------------
