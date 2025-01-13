@@ -84,7 +84,7 @@ def test_ScipyLinearLSQ_with_matrix():
     res = lsq_linear(A, b, tol=1e-8)
     ref_sol = res.x
     sol, _ = ScipyLinearLSQ(A, b).solve()
-    assert np.allclose(sol, ref_sol, rtol=1e-8)
+    assert np.allclose(sol, ref_sol, rtol=1e-10)
 
 def test_ScipyLinearLSQ_with_LinearOperator():
     rng = np.random.default_rng(seed = 1219)
@@ -98,7 +98,7 @@ def test_ScipyLinearLSQ_with_LinearOperator():
     res = lsq_linear(A, b, tol=1e-8)
     ref_sol = res.x
     sol, _ = ScipyLinearLSQ(A_op, b).solve()
-    assert np.allclose(sol, ref_sol, rtol=1e-8)
+    assert np.allclose(sol, ref_sol, rtol=1e-10)
 
 def test_ScipyLinearLSQ_against_FISTA():
     A = np.array([[73,71,52],[87,74,46],[72,2,7],[80,89,71]])
