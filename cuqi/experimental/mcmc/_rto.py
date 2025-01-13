@@ -231,7 +231,7 @@ class RegularizedLinearRTO(LinearRTO):
             if (self.target.prior._preset == "nonnegativity" or self.target.prior._preset == "box"):
                 self._solver = self.solver
             else:
-                raise ValueError("ScipyLinearLSQ can only be used with RegularizedGaussian of box or nonnegativity constraint.")
+                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")
         if self._solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
