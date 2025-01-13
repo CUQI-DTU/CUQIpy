@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLeastSquares
+from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -196,13 +196,13 @@ class RegularizedLinearRTO(LinearRTO):
         Absolute tolerance of the FISTA/ScipyLinearLSQ solver. *Optional*.
     
     inner_abstol : float
-        Tolerance parameter for solving the unbounded least-squares problems with `scipy.sparse.linalg.lsmr`. *Optional*.
+        Tolerance parameter for ScipyLinearLSQ's inner solve of the unbounded least-squares problem. *Optional*.
     
     adaptive : bool
         If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
     
     solver : string
-        If set to "ScipyLinearLSQ", the solver is set to cuqi.solver.ScipyLinearLeastSquares, otherwise FISTA/ISTA is used. *Optional*.
+        If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -276,11 +276,11 @@ class RegularizedLinearRTO(LinearRTO):
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
                                         )
-                sim = ScipyLinearLeastSquares(A_op, y, self.target.prior._box_bounds, 
-                                              max_iter = self.maxit,
-                                              lsmr_maxiter = self.inner_max_it, 
-                                              tol = self.abstol,
-                                              lsmr_tol = self.inner_abstol)
+                sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
+                                     max_iter = self.maxit,
+                                     lsmr_maxiter = self.inner_max_it, 
+                                     tol = self.abstol,
+                                     lsmr_tol = self.inner_abstol)
         else:
             raise ValueError("Choice of solver not supported.")
 

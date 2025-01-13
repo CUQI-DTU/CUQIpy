@@ -164,7 +164,7 @@ class ScipyMaximizer(ScipyMinimizer):
 
 
 
-class ScipyLeastSquares(object):
+class ScipyLSQ(object):
     """Wrapper for :meth:`scipy.optimize.least_squares`.
 
     Solve nonlinear least-squares problems with bounds:
@@ -227,7 +227,7 @@ class ScipyLeastSquares(object):
             sol = solution['x']
         return sol, info
 
-class ScipyLinearLeastSquares(object):
+class ScipyLinearLSQ(object):
     """Wrapper for :meth:`scipy.optimize.lsq_linear`.
 
     Solve linear least-squares problems with bounds:
