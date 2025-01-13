@@ -246,7 +246,7 @@ class ScipyLinearLSQ(object):
         The right-hand side of the linear system.
     bounds : 2-tuple of array_like or scipy.optimize Bounds
         Bounds for variables. 
-        See :meth:`scipy.optimize.lsq_linear` for details.
+    kwargs : Other keyword arguments passed to Scipy's `lsq_linear`. See documentation of `scipy.optimize.lsq_linear` for details.
     """
     def __init__(self, A, b, bounds=(-np.inf, np.inf), **kwargs):
         self.A = A
@@ -255,15 +255,16 @@ class ScipyLinearLSQ(object):
         self.kwargs = kwargs
     
     def solve(self):
-        """Runs optimization algorithm and returns solution and optimization result.
+        """Runs optimization algorithm and returns solution and optimization information.
 
         Returns
         ----------
         solution : Tuple
-            Solution found (array_like) and optimization result (OptimizeResult).
+            Solution found (array_like) and optimization information (dictionary).
         """
         res = opt.lsq_linear(self.A, self.b, bounds=self.bounds, **self.kwargs)
-        return res.x, res
+        x = res.pop('x')
+        return x, res
 
 
 class CGLS(object):

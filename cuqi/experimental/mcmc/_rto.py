@@ -201,7 +201,7 @@ class RegularizedLinearRTO(LinearRTO):
     adaptive : bool
         If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
     
-    inner_solver : string
+    solver : string
         If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
     callback : callable, *Optional*
@@ -211,7 +211,7 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, inner_solver=None, inner_abstol=None, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -223,13 +223,16 @@ class RegularizedLinearRTO(LinearRTO):
         self.maxit = maxit
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
-        self.inner_solver = inner_solver
+        self.solver = solver
 
     def _initialize(self):
         super()._initialize()
-        if self.inner_solver == "ScipyLinearLSQ":
-            self._inner_solver = self.inner_solver
-        if self._inner_solver == "FISTA":
+        if self.solver == "ScipyLinearLSQ":
+            if (self.target.prior._preset == "nonnegativity" or self.target.prior._preset == "box"):
+                self._solver = self.solver
+            else:
+                raise ValueError("ScipyLinearLSQ can only be used with RegularizedGaussian of box or nonnegativity constraint.")
+        if self._solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
     @property
@@ -240,7 +243,7 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
+        self._solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -265,13 +268,13 @@ class RegularizedLinearRTO(LinearRTO):
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
 
-        if self._inner_solver == "FISTA":
+        if self._solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
                         self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
-        elif self._inner_solver == "ADMM":
+        elif self._solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
-        elif self._inner_solver == "ScipyLinearLSQ":
+        elif self._solver == "ScipyLinearLSQ":
                 A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
