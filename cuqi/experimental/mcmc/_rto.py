@@ -227,14 +227,8 @@ class RegularizedLinearRTO(LinearRTO):
 
     def _initialize(self):
         super()._initialize()
-        if self.solver == "ScipyLinearLSQ":
-            self._inner_solver = self.solver
-            if self.target.prior._preset == "nonnegativity":
-                self._box_bounds = (np.ones(self.prior.dim)*0, np.ones(self.prior.dim)*np.inf)
-            elif self.target.prior._preset == "box":
-                self._box_bounds = (np.ones(self.prior.dim)*self.prior._box_lower, np.ones(self.prior.dim)*self.prior._box_upper)
-            else:
-                raise ValueError(f"In-compatible prior preset: {self.target.prior._preset}")
+        if self.inner_solver == "ScipyLinearLSQ":
+            self._inner_solver = self.inner_solver
         if self._inner_solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
@@ -277,12 +271,12 @@ class RegularizedLinearRTO(LinearRTO):
         elif self._inner_solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
-        elif self._inner_solver == "LSQ":
-                A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.prior.dim, self.prior.dim),
+        elif self._inner_solver == "ScipyLinearLSQ":
+                A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
                                         )
-                sim = ScipyLinearLeastSquares(A_op, y, self._box_bounds, 
+                sim = ScipyLinearLeastSquares(A_op, y, self.target.prior._box_bounds, 
                                               max_iter = self.maxit,
                                               lsmr_maxiter = self.inner_max_it, 
                                               tol = self.abstol,
