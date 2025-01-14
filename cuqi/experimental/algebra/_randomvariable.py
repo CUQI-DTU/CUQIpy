@@ -245,7 +245,17 @@ class RandomVariable:
         return any(dist.is_cond for dist in self.distributions)
 
     def condition(self, *args, **kwargs):
-        """Condition the random variable on a given value."""
+        """Condition the random variable on a given value. Only one of either positional or keyword arguments can be passed.
+        
+        Parameters
+        ----------
+        *args : Any
+            Positional arguments to condition the random variable on. The order of the arguments must match the order of the parameter names.
+
+        **kwargs : Any
+            Keyword arguments to condition the random variable on. The keys must match the parameter names.
+        
+        """
 
         # Before conditioning, capture repr to ensure all variable names are injected
         self.__repr__()
