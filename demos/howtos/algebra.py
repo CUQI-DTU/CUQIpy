@@ -95,6 +95,10 @@ z = x+y
 z.condition(x=1)
 
 # %%
+# Or conditioning on the variables s, or d
+z.condition(s=1)
+
+# %%
 # Conditioning on random variables (example 2)
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, GMRF
