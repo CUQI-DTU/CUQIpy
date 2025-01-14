@@ -327,3 +327,21 @@ def test_RV_condition_maintains_parameter_name_order():
     assert z.condition(s=1).parameter_names == ['x', 'y']
     assert z.condition(d=1).parameter_names == ['x', 'y']
     assert z.condition(d=1, s=1).parameter_names == ['x', 'y']
+
+def test_RV_sampling_unable_if_conditioning_variables_1():
+    x = RandomVariable(cuqi.distribution.Gaussian(0, lambda s: s))
+
+    with pytest.raises(NotImplementedError, match=r"Unable to directly sample from a random variable that has distributions with conditioning variables"):
+        x.sample()
+
+    x.condition(s=1).sample() # This should work
+
+def test_RV_sampling_unable_if_conditioning_variables_2():
+
+    x = RandomVariable(cuqi.distribution.Gaussian(0, 1))
+    y = RandomVariable(cuqi.distribution.Gaussian(x, 1))
+
+    with pytest.raises(NotImplementedError, match=r"Unable to directly sample from a random variable that has distributions with conditioning variables"):
+        y.sample() # One might expect this to work, but no. Use BayesianProblem instead.
+
+    

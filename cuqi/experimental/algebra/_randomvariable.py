@@ -177,6 +177,12 @@ class RandomVariable:
             Number of samples to draw. Default is 1.
         """
 
+        if self.is_cond:
+            raise NotImplementedError(
+                "Unable to directly sample from a random variable that has distributions with "
+                "conditioning variables. This is not implemented."
+            )
+
         if Ns == 1: return self(**{dist.name: dist.sample() for dist in self.distributions})
             
         samples = np.array([
