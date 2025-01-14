@@ -64,3 +64,7 @@ class _OrderedSet:
         new_set = _OrderedSet(self.dict.keys())
         new_set.extend(other)
         return new_set
+
+    def __repr__(self):
+        """Return a string representation of the set."""
+        return "_OrderedSet({})".format(list(self.dict.keys()))
