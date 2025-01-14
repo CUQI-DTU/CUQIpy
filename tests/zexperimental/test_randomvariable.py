@@ -342,6 +342,6 @@ def test_RV_sampling_unable_if_conditioning_variables_2():
     y = RandomVariable(cuqi.distribution.Gaussian(x, 1))
 
     with pytest.raises(NotImplementedError, match=r"Unable to directly sample from a random variable that has distributions with conditioning variables"):
-        y.sample() # One might expect this to work, but no. Use BayesianProblem instead.
+        y.sample() # One might expect this to work, but it is not implemented at this time.
 
     
