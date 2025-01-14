@@ -19,6 +19,13 @@ class _OrderedSet:
         """
         self.dict[item] = None
 
+    def remove(self, item):
+        """Remove an item from the set. 
+
+        If the item is not in the set, it raises a KeyError.
+        """
+        del self.dict[item]
+
     def __contains__(self, item):
         """Check if an item is in the set. 
 
@@ -47,6 +54,18 @@ class _OrderedSet:
         for item in other:
             self.add(item)
 
+    def replace(self, old_item, new_item):
+        """Replace old_item with new_item at the same position, preserving order."""
+        if old_item not in self.dict:
+            raise KeyError(f"{old_item} not in set")
+        
+        items = list(self.dict.keys())  # Preserve order
+        index = items.index(old_item)  # Find position
+        items[index] = new_item  # Replace at the same position
+
+        # Reconstruct the ordered set with the new item in place
+        self.dict = dict.fromkeys(items)
+
     def __or__(self, other):
         """Return a new set that is the union of this set and another set.
 
@@ -57,3 +76,7 @@ class _OrderedSet:
         new_set = _OrderedSet(self.dict.keys())
         new_set.extend(other)
         return new_set
+
+    def __repr__(self):
+        """Return a string representation of the set."""
+        return "_OrderedSet({})".format(list(self.dict.keys()))

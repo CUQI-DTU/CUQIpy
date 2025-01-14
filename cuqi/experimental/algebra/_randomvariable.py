@@ -5,8 +5,7 @@ from ._orderedset import _OrderedSet
 import operator
 import cuqi
 from cuqi.distribution import Distribution
-from copy import copy
-
+from copy import copy, deepcopy
 
 class RandomVariable:
     """ Random variable defined by a distribution with the option to apply algebraic operations on it.
@@ -210,7 +209,7 @@ class RandomVariable:
     def parameter_names(self) -> str:
         """ Name of the parameter that the random variable can be evaluated at. """
         self._inject_name_into_distribution()
-        return [distribution.name for distribution in self.distributions] # Consider renaming .name to .par_name for distributions
+        return [distribution._name for distribution in self.distributions] # Consider renaming .name to .par_name for distributions
 
     @property
     def dim(self):
@@ -239,7 +238,57 @@ class RandomVariable:
     def is_transformed(self):
         """ Returns True if the random variable is transformed. """
         return not isinstance(self.tree, VariableNode)
-    
+
+    @property
+    def is_cond(self):
+        """ Returns True if the random variable is a conditional random variable. """
+        return any(dist.is_cond for dist in self.distributions)
+
+    def condition(self, *args, **kwargs):
+        """Condition the random variable on a given value. Only one of either positional or keyword arguments can be passed.
+        
+        Parameters
+        ----------
+        *args : Any
+            Positional arguments to condition the random variable on. The order of the arguments must match the order of the parameter names.
+
+        **kwargs : Any
+            Keyword arguments to condition the random variable on. The keys must match the parameter names.
+        
+        """
+
+        # Before conditioning, capture repr to ensure all variable names are injected
+        self.__repr__()
+
+        if args and kwargs:
+            raise ValueError("Cannot pass both positional and keyword arguments to RandomVariable")
+        
+        if args:
+            kwargs = self._parse_args_add_to_kwargs(args, kwargs)
+
+        # Create a deep copy of the random variable to ensure the original tree is not modified
+        new_variable = self._make_copy(deep=True)
+
+        for kwargs_name in list(kwargs.keys()):
+            value = kwargs.pop(kwargs_name)
+
+            # Condition the tree turning the variable into a constant
+            if kwargs_name in self.parameter_names:
+                new_variable._tree = new_variable.tree.condition(**{kwargs_name: value})
+            
+            # Condition the random variable on both the distribution parameter name and distribution conditioning variables
+            for dist in self.distributions:
+                if kwargs_name == dist.name:
+                    new_variable._remove_distribution(dist.name)
+                elif kwargs_name in dist.get_conditioning_variables():
+                    new_variable._replace_distribution(dist.name, dist(**{kwargs_name: value}))
+
+        # Check if any kwargs are left unprocessed
+        if kwargs:
+            raise ValueError(f"Conditioning variables {list(kwargs.keys())} not found in the random variable {self}")
+
+        return new_variable
+
     @property
     def _non_default_args(self) -> List[str]:
         """List of non-default arguments to distribution. This is used to return the correct
@@ -247,13 +296,31 @@ class RandomVariable:
         """
         return self.parameter_names
 
+    def _replace_distribution(self, name, new_distribution):
+        """ Replace distribution with a given name with a new distribution in the same position of the ordered set. """
+        for dist in self.distributions:
+            if dist._name == name:
+                self._distributions.replace(dist, new_distribution)
+                break
+
+    def _remove_distribution(self, name):
+        """ Remove distribution with a given name from the set of distributions. """
+        for dist in self.distributions:
+            if dist._name == name:
+                self._distributions.remove(dist)
+                break
+
     def _inject_name_into_distribution(self, name=None):
         if len(self._distributions) == 1:
             dist = next(iter(self._distributions))
+
+            if dist._is_copy:
+                dist = dist._original_density
+
             if dist._name is None:
                 if name is None:
                     name = self.name
-                dist._name = name
+                dist.name = name # Inject using setter
     
     def _parse_args_add_to_kwargs(self, args, kwargs) -> dict:
         """ Parse args and add to kwargs if any. Arguments follow self.parameter_names order. """
@@ -293,8 +360,12 @@ class RandomVariable:
         """ Returns True if this is a copy of another random variable, e.g. by conditioning. """
         return hasattr(self, '_original_variable') and self._original_variable is not None
 
-    def _make_copy(self):
-        """ Returns a shallow copy of the density keeping a pointer to the original. """
+    def _make_copy(self, deep=False) -> 'RandomVariable':
+        """ Returns a copy of the density keeping a pointer to the original. """
+        if deep:
+            new_variable = deepcopy(self)
+            new_variable._original_variable = self
+            return new_variable
         new_variable = copy(self)
         new_variable._distributions = copy(self.distributions)
         new_variable._tree = copy(self._tree)
