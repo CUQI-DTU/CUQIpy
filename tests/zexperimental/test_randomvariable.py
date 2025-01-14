@@ -316,3 +316,15 @@ def test_RV_sets_name_of_internal_conditional_density_if_par_name_not_set_and_do
 
     assert z.name == 'z'
     assert z.distribution.name == "z"
+
+def test_RV_condition_maintains_parameter_name_order():
+
+    x = RandomVariable(cuqi.distribution.Gaussian(0, lambda s: s))
+    y = RandomVariable(cuqi.distribution.Gaussian(0, lambda d: d))
+
+    z = x+y
+
+    assert z.parameter_names == ['x', 'y']
+    assert z.condition(s=1).parameter_names == ['x', 'y']
+    assert z.condition(d=1).parameter_names == ['x', 'y']
+    assert z.condition(d=1, s=1).parameter_names == ['x', 'y']

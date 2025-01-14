@@ -54,6 +54,18 @@ class _OrderedSet:
         for item in other:
             self.add(item)
 
+    def replace(self, old_item, new_item):
+        """Replace old_item with new_item at the same position, preserving order."""
+        if old_item not in self.dict:
+            raise KeyError(f"{old_item} not in set")
+        
+        items = list(self.dict.keys())  # Preserve order
+        index = items.index(old_item)  # Find position
+        items[index] = new_item  # Replace at the same position
+
+        # Reconstruct the ordered set with the new item in place
+        self.dict = dict.fromkeys(items)
+
     def __or__(self, other):
         """Return a new set that is the union of this set and another set.
 

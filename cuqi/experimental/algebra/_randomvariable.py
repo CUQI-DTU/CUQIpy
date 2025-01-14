@@ -281,8 +281,7 @@ class RandomVariable:
                 if kwargs_name == dist.name:
                     new_variable._remove_distribution(dist.name)
                 elif kwargs_name in dist.get_conditioning_variables():
-                    new_variable._remove_distribution(dist.name)
-                    new_variable._distributions.add(dist(**{kwargs_name: value}))
+                    new_variable._replace_distribution(dist.name, dist(**{kwargs_name: value}))
 
         # Check if any kwargs are left unprocessed
         if kwargs:
@@ -296,6 +295,13 @@ class RandomVariable:
         arguments when evaluating the random variable.
         """
         return self.parameter_names
+
+    def _replace_distribution(self, name, new_distribution):
+        """ Replace distribution with a given name with a new distribution in the same position of the ordered set. """
+        for dist in self.distributions:
+            if dist._name == name:
+                self._distributions.replace(dist, new_distribution)
+                break
 
     def _remove_distribution(self, name):
         """ Remove distribution with a given name from the set of distributions. """
