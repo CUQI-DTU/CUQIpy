@@ -5,7 +5,7 @@ from typing import Tuple
 
 import cuqi
 from cuqi import config
-from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, CMRF
+from cuqi.distribution import Distribution, Gaussian, InverseGamma, LMRF, GMRF, Lognormal, Posterior, Beta, JointDistribution, Gamma, ModifiedHalfNormal, CMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
 from cuqi.density import Density
 from cuqi.model import LinearModel, Model
@@ -923,8 +923,8 @@ class BayesianProblem(object):
             if not isinstance(cond_target, Posterior):
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
 
-            # Gamma prior, Gaussian likelihood -> Conjugate
-            if self._check_posterior(cond_target, Gamma, (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)):
+            # Gamma or ModifiedHalfNormal prior, Gaussian or RegularizedGaussian likelihood -> Conjugate
+            if self._check_posterior(cond_target, (Gamma, ModifiedHalfNormal), (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)):
                 if experimental:
                     sampling_strategy[par_name] = cuqi.experimental.mcmc.Conjugate()
                 else:
