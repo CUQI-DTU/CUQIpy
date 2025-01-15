@@ -15,10 +15,12 @@ class Conjugate(Sampler):
     Currently supported conjugate pairs are:
     - (Gaussian, Gamma) where Gamma is defined on the precision parameter of the Gaussian
     - (GMRF, Gamma) where Gamma is defined on the precision parameter of the GMRF
-    - (RegularizedGaussian, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
-    - (RegularizedGMRF, Gamma) with nonnegativity constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
+    - (RegularizedGaussian, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
+    - (RegularizedGMRF, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
+    - (RegularizedGaussian, ModifiedHalfNormal) with preset constraints and regularization only
+    - (RegularizedGMRF, ModifiedHalfNormal) with preset constraints and regularization only
 
-    Currently the Gamma distribution must be univariate.
+    Currently the Gamma and ModifiedHalfNormal distribution must be univariate.
 
     A conjugate pair defines implicitly a so-called conjugate distribution which can be sampled from directly.
 
