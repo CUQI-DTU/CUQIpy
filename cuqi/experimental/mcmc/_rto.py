@@ -227,12 +227,23 @@ class RegularizedLinearRTO(LinearRTO):
 
     def _initialize(self):
         super()._initialize()
-        if self.solver == "ScipyLinearLSQ":
+
+    @property
+    def solver(self):
+        return self._solver
+    @solver.setter
+    def solver(self, value):
+        if value == "ScipyLinearLSQ":
             if (self.target.prior._preset == "nonnegativity" or self.target.prior._preset == "box"):
-                self._solver = self.solver
+                self._solver = value
             else:
-                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")
-        if self._solver == "FISTA":
+                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.") 
+        else:
+            self._solver = "FISTA" if callable(self.proximal) else "ADMM"
+
+    def _precompute(self):
+        super()._precompute()
+        if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
 
     @property
@@ -243,7 +254,6 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        self._solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -268,13 +278,13 @@ class RegularizedLinearRTO(LinearRTO):
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
 
-        if self._solver == "FISTA":
+        if self.solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
                         self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
-        elif self._solver == "ADMM":
+        elif self.solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
-        elif self._solver == "ScipyLinearLSQ":
+        elif self.solver == "ScipyLinearLSQ":
                 A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
