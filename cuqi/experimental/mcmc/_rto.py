@@ -227,24 +227,24 @@ class RegularizedLinearRTO(LinearRTO):
 
     def _initialize(self):
         super()._initialize()
+        if self.solver is None:
+            self.solver = "FISTA" if callable(self.proximal) else "ADMM"
+        if self.solver == "FISTA":
+            self._stepsize = self._choose_stepsize()
 
     @property
     def solver(self):
         return self._solver
+
     @solver.setter
     def solver(self, value):
         if value == "ScipyLinearLSQ":
             if (self.target.prior._preset == "nonnegativity" or self.target.prior._preset == "box"):
                 self._solver = value
             else:
-                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.") 
+                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")
         else:
-            self._solver = "FISTA" if callable(self.proximal) else "ADMM"
-
-    def _precompute(self):
-        super()._precompute()
-        if self.solver == "FISTA":
-            self._stepsize = self._choose_stepsize()
+            self._solver = value
 
     @property
     def proximal(self):
