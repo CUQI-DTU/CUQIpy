@@ -270,7 +270,7 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         conj_beta = 0.5*np.linalg.norm(L @ (mu - x))**2 + beta
         conj_gamma = -fx + gamma
 
-        # Create conjugate distribution and sample
+        # Create conjugate distribution
         return ModifiedHalfNormal(conj_alpha, conj_beta, conj_gamma)
     
 
