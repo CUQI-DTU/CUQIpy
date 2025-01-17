@@ -214,7 +214,7 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         reg_strength = self.target.likelihood.distribution(np.array([1])).strength
         fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
 
-        # Create Gamma distribution and sample
+        # Create Gamma distribution
         return Gamma(shape=m/2 + alpha, rate=fx + beta)
     
 class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
@@ -271,7 +271,7 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         conj_beta = 0.5*np.linalg.norm(L @ (mu - x))**2 + beta
         conj_gamma = -fx + gamma
 
-        # Create conjugate distribution and sample
+        # Create conjugate distribution
         return ModifiedHalfNormal(conj_alpha, conj_beta, conj_gamma)
     
 
