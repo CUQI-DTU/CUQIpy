@@ -28,10 +28,10 @@ class Conjugate(Sampler):
 
     For more information on conjugacy and conjugate distributions see https://en.wikipedia.org/wiki/Conjugate_prior.
 
-    For implicit regularized Gaussians see:
+    For implicit regularized Gaussians and the corresponding conjugacy relations, see:
     
-    [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
-    [2] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
+    Section 3.3 from [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
+    Section 4 from [2] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
 
     """
 
