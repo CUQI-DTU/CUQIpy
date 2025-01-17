@@ -31,6 +31,7 @@ class Conjugate(Sampler):
     For implicit regularized Gaussians see:
     
     [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Bayesian inference with projected densities." SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.
+    [2] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. "Sparse Bayesian inference with regularized Gaussian distributions." Inverse Problems 39.11 (2023): 115004.
 
     """
 
@@ -140,7 +141,7 @@ class _GaussianGammaPair(_ConjugatePair):
 
 
 class _RegularizedGaussianGammaPair(_ConjugatePair):
-    """Implementation for the Regularized Gaussian-Gamma conjugate pair."""
+    """Implementation for the Regularized Gaussian-Gamma conjugate pair using the conjugacy rules from [1], Section 3.3."""
 
     def validate_target(self):
         if self.target.prior.dim != 1:
@@ -176,7 +177,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
     
     
 class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
-    """Implementation for the RegularizedUnboundedUniform-ModifiedHalfNormal conjugate pair."""
+    """Implementation for the RegularizedUnboundedUniform-ModifiedHalfNormal conjugate pair using the conjugacy rules from [2], Section 4."""
 
     def validate_target(self):
         if self.target.prior.dim != 1:
@@ -217,7 +218,7 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         return Gamma(shape=m/2 + alpha, rate=fx + beta)
     
 class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
-    """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair."""
+    """Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair using the conjugacy rules from [2], Section 4."""
 
     def validate_target(self):
         if self.target.prior.dim != 1:
