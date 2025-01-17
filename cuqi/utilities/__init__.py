@@ -12,7 +12,10 @@ from ._utilities import (
     approx_derivative,
     check_if_conditional_from_attr,
     plot_1D_density,
-    plot_2D_density
+    plot_2D_density,
+    count_nonzero,
+    count_constant_components_1D,
+    count_constant_components_2D
 )
 
 from ._get_python_variable_name import _get_python_variable_name
