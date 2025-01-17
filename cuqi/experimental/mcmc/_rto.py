@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA, ADMM
+from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -168,6 +168,7 @@ class RegularizedLinearRTO(LinearRTO):
            Used when prior.proximal is callable.
     ADMM:  [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
            Used when prior.proximal is a list of penalty terms.
+    ScipyLinearLSQ: Wrapper for Scipy's lsq_linear for the Trust Region Reflective algorithm. Optionally used when the constraint is either "nonnegativity" or "box".
 
     Parameters
     ------------
@@ -178,7 +179,7 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the inner FISTA/ADMM solver. *Optional*.
+        Maximum number of iterations of the FISTA/ADMM/ScipyLinearLSQ solver. *Optional*.
 
     inner_max_it : int
         Maximum number of iterations of the CGLS solver used within the ADMM solver. *Optional*.
@@ -188,14 +189,20 @@ class RegularizedLinearRTO(LinearRTO):
         If stepsize is a float, then this stepsize is used.
 
     penalty_parameter : int
-        Penalty parameter of the inner ADMM solver. *Optional*.
+        Penalty parameter of the ADMM solver. *Optional*.
         See [2] or `cuqi.solver.ADMM`
 
     abstol : float
-        Absolute tolerance of the inner FISTA solver. *Optional*.
+        Absolute tolerance of the FISTA/ScipyLinearLSQ solver. *Optional*.
+    
+    inner_abstol : float
+        Tolerance parameter for ScipyLinearLSQ's inner solve of the unbounded least-squares problem. *Optional*.
     
     adaptive : bool
-        If True, FISTA is used as inner solver, otherwise ISTA is used. *Optional*.
+        If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
+    
+    solver : string
+        If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA or ADMM is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
     callback : callable, *Optional*
         If set this function will be called after every sample.
@@ -204,22 +211,40 @@ class RegularizedLinearRTO(LinearRTO):
         An example is shown in demos/demo31_callback.py.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         # Other parameters
         self.stepsize = stepsize
-        self.abstol = abstol   
+        self.abstol = abstol
+        self.inner_abstol = inner_abstol
         self.adaptive = adaptive
         self.maxit = maxit
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
+        self.solver = solver
 
     def _initialize(self):
         super()._initialize()
-        if self._inner_solver == "FISTA":
+        if self.solver is None:
+            self.solver = "FISTA" if callable(self.proximal) else "ADMM"
+        if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
+
+    @property
+    def solver(self):
+        return self._solver
+
+    @solver.setter
+    def solver(self, value):
+        if value == "ScipyLinearLSQ":
+            if (self.target.prior._preset == "nonnegativity" or self.target.prior._preset == "box"):
+                self._solver = value
+            else:
+                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")
+        else:
+            self._solver = value
 
     @property
     def proximal(self):
@@ -229,7 +254,6 @@ class RegularizedLinearRTO(LinearRTO):
         super().validate_target()
         if not isinstance(self.target.prior, (cuqi.implicitprior.RegularizedGaussian, cuqi.implicitprior.RegularizedGMRF)):
             raise TypeError("Prior needs to be RegularizedGaussian or RegularizedGMRF")
-        self._inner_solver = "FISTA" if callable(self.proximal) else "ADMM"
 
     def _choose_stepsize(self):
         if isinstance(self.stepsize, str):
@@ -254,12 +278,22 @@ class RegularizedLinearRTO(LinearRTO):
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
 
-        if self._inner_solver == "FISTA":
+        if self.solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
                         self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
-        elif self._inner_solver == "ADMM":
+        elif self.solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
-                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)  
+                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
+        elif self.solver == "ScipyLinearLSQ":
+                A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
+                                        matvec=lambda x: self.M(x, 1),
+                                        rmatvec=lambda x: self.M(x, 2)
+                                        )
+                sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
+                                     max_iter = self.maxit,
+                                     lsmr_maxiter = self.inner_max_it, 
+                                     tol = self.abstol,
+                                     lsmr_tol = self.inner_abstol)
         else:
             raise ValueError("Choice of solver not supported.")
 

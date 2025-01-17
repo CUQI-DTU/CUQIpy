@@ -164,7 +164,7 @@ class ScipyMaximizer(ScipyMinimizer):
 
 
 
-class ScipyLeastSquares(object):
+class ScipyLSQ(object):
     """Wrapper for :meth:`scipy.optimize.least_squares`.
 
     Solve nonlinear least-squares problems with bounds:
@@ -227,6 +227,44 @@ class ScipyLeastSquares(object):
             sol = solution['x']
         return sol, info
 
+class ScipyLinearLSQ(object):
+    """Wrapper for :meth:`scipy.optimize.lsq_linear`.
+
+    Solve linear least-squares problems with bounds:
+
+    .. math::
+    
+        \min \|A x - b\|_2^2
+
+    subject to :math:`lb <= x <= ub`.
+    
+    Parameters
+    ----------
+    A : ndarray, LinearOperator
+        Design matrix (system matrix).
+    b : ndarray
+        The right-hand side of the linear system.
+    bounds : 2-tuple of array_like or scipy.optimize Bounds
+        Bounds for variables. 
+    kwargs : Other keyword arguments passed to Scipy's `lsq_linear`. See documentation of `scipy.optimize.lsq_linear` for details.
+    """
+    def __init__(self, A, b, bounds=(-np.inf, np.inf), **kwargs):
+        self.A = A
+        self.b = b
+        self.bounds = bounds
+        self.kwargs = kwargs
+    
+    def solve(self):
+        """Runs optimization algorithm and returns solution and optimization information.
+
+        Returns
+        ----------
+        solution : Tuple
+            Solution found (array_like) and optimization information (dictionary).
+        """
+        res = opt.lsq_linear(self.A, self.b, bounds=self.bounds, **self.kwargs)
+        x = res.pop('x')
+        return x, res
 
 
 class CGLS(object):

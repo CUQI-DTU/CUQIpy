@@ -113,10 +113,12 @@ class RegularizedGaussian(Distribution):
         elif (isinstance(constraint, str) and constraint.lower() == "nonnegativity"):
             self._proximal = lambda z, gamma: ProjectNonnegative(z)
             self._preset = "nonnegativity"
+            self._box_bounds = (np.ones(self.dim)*0, np.ones(self.dim)*np.inf)
         elif (isinstance(constraint, str) and constraint.lower() == "box"):
-            lower = optional_regularization_parameters["lower_bound"]
-            upper = optional_regularization_parameters["upper_bound"]
-            self._proximal = lambda z, _: ProjectBox(z, lower, upper)
+            self._box_lower = optional_regularization_parameters["lower_bound"]
+            self._box_upper = optional_regularization_parameters["upper_bound"]
+            self._box_bounds = (np.ones(self.dim)*self._box_lower, np.ones(self.dim)*self._box_upper)
+            self._proximal = lambda z, _: ProjectBox(z, self._box_lower, self._box_upper)
             self._preset = "box" # Not supported in Gibbs
         elif (isinstance(regularization, str) and regularization.lower() in ["l1"]):
             self._strength = optional_regularization_parameters["strength"]

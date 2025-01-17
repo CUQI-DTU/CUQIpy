@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 
-from cuqi.solver import ScipyLBFGSB, ScipyMinimizer, ScipyLeastSquares, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative
+from cuqi.solver import ScipyLBFGSB, ScipyMinimizer, ScipyLSQ, ScipyLinearLSQ, CGLS, LM, FISTA, ADMM, ProximalL1, ProjectNonnegative, ProjectBox
 from scipy.optimize import lsq_linear
 
 
@@ -54,16 +54,16 @@ def test_ScipyLBFGSB_with_gradient():
     sol_ref = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
     assert np.allclose(sol, sol_ref)
 
-def test_ScipyLeastSquares_without_Jac():
+def test_ScipyLSQ_without_Jac():
     def fun_rosenbrock(x):
         return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
     x0 = np.array([2, 2])
-    solver = ScipyLeastSquares(fun_rosenbrock, x0)
+    solver = ScipyLSQ(fun_rosenbrock, x0)
     sol, _ = solver.solve()
     sol_ref = np.array([1, 1])
     assert np.allclose(sol, sol_ref)
 
-def test_ScipyLeastSquares_with_Jac():
+def test_ScipyLSQ_with_Jac():
     def fun_rosenbrock(x):
         return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
     def jac_rosenbrock(x):
@@ -71,10 +71,48 @@ def test_ScipyLeastSquares_with_Jac():
             [-20 * x[0], 10],
             [-1, 0]])
     x0 = np.array([2, 2])
-    solver = ScipyLeastSquares(fun_rosenbrock, x0, jacfun=jac_rosenbrock)
+    solver = ScipyLSQ(fun_rosenbrock, x0, jacfun=jac_rosenbrock)
     sol, _ = solver.solve()
     sol_ref = np.array([1, 1])
     assert np.allclose(sol, sol_ref)
+
+def test_ScipyLinearLSQ_with_matrix():
+    rng = np.random.default_rng(seed = 1219)
+    m, n = 10, 5
+    A = rng.standard_normal((m, n))
+    b = rng.standard_normal(m)
+    res = lsq_linear(A, b, tol=1e-8)
+    ref_sol = res.x
+    sol, _ = ScipyLinearLSQ(A, b).solve()
+    assert np.allclose(sol, ref_sol, rtol=1e-10)
+
+def test_ScipyLinearLSQ_with_LinearOperator():
+    rng = np.random.default_rng(seed = 1219)
+    m, n = 10, 5
+    A = rng.standard_normal((m, n))
+    b = rng.standard_normal(m)
+    A_op = sp.sparse.linalg.LinearOperator((m, n),
+                                           matvec=lambda x: A @ x,
+                                           rmatvec=lambda x: A.T @ x
+                                           )
+    res = lsq_linear(A, b, tol=1e-8)
+    ref_sol = res.x
+    sol, _ = ScipyLinearLSQ(A_op, b).solve()
+    assert np.allclose(sol, ref_sol, rtol=1e-10)
+
+def test_ScipyLinearLSQ_against_FISTA():
+    A = np.array([[73,71,52],[87,74,46],[72,2,7],[80,89,71]])
+    b = np.array([49,67,68,20])
+    # solve with ScipyLinearLSQ
+    lb = np.zeros(3)
+    ub = lb + np.inf
+    sol_lsq, _ = ScipyLinearLSQ(A, b, (lb,ub)).solve()
+    # solve with FISTA
+    rng = np.random.default_rng(seed = 1219)
+    x0 = rng.standard_normal(3)
+    sol_fista, _ = FISTA(A, b, lambda x, _: ProjectNonnegative(x), x0, stepsize=1e-7, maxit=100000, abstol=1e-16, adaptive=True).solve()
+
+    assert np.allclose(sol_lsq, sol_fista, rtol=1e-8)
 
 def test_LM():
     # compare to MATLAB's original code solution
