@@ -212,7 +212,7 @@ class Model(object):
         raise ValueError(
             "The input is specified by more than one argument. This is only "
             +"supported for domain geometry of type "
-            +f"{_ProductGeometry.__name__}.")
+            +f"{cuqi.experimental.geometry._ProductGeometry.__name__}.")
 
     def _2par(self, geometry=None, to_CUQIarray=False, is_par=False, **kwargs):    
         """ Converts val, normally output of :class:~`cuqi.model.Model` 
