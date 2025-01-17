@@ -24,13 +24,13 @@ class ModifiedHalfNormal(Distribution):
     
     Parameters
     ----------
-    alpha : float
+    alpha : float or array_like
         The polynomial exponent parameter :math:`\\alpha` of the MHN distribution. Must be positive.
 
-    beta : float
+    beta : float or array_like
         The quadratic exponential parameter :math:`\\beta` of the MHN distribution. Must be positive.
 
-    gamma : float
+    gamma : float or array_like
         The linear exponential parameter :math:`\\gamma` of the MHN distribution.
 
     """
