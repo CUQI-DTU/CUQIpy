@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.\_\_init\_\_
+====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel1D.__init__

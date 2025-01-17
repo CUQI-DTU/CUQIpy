@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.posterior
+=================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Abel1D.posterior

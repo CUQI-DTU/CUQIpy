@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.load\_checkpoint
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.load_checkpoint

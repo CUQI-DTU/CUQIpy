@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCN.initialize
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCN.initialize

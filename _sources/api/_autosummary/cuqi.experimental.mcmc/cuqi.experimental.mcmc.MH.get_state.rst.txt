@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MH.get\_state
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MH.get_state

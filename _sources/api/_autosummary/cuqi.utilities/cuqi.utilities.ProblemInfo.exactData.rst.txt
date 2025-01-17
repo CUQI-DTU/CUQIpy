@@ -1,0 +1,6 @@
+cuqi.utilities.ProblemInfo.exactData
+====================================
+
+.. currentmodule:: cuqi.utilities
+
+.. autoattribute:: ProblemInfo.exactData

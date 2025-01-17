@@ -1,0 +1,47 @@
+InverseGamma
+============
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: InverseGamma
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~InverseGamma.__init__
+      ~InverseGamma.cdf
+      ~InverseGamma.disable_FD
+      ~InverseGamma.enable_FD
+      ~InverseGamma.get_conditioning_variables
+      ~InverseGamma.get_mutable_variables
+      ~InverseGamma.get_parameter_names
+      ~InverseGamma.gradient
+      ~InverseGamma.logd
+      ~InverseGamma.logpdf
+      ~InverseGamma.pdf
+      ~InverseGamma.sample
+      ~InverseGamma.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~InverseGamma.FD_enabled
+      ~InverseGamma.FD_epsilon
+      ~InverseGamma.dim
+      ~InverseGamma.geometry
+      ~InverseGamma.is_cond
+      ~InverseGamma.name
+   
+   

@@ -1,0 +1,47 @@
+Beta
+====
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: Beta
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Beta.__init__
+      ~Beta.cdf
+      ~Beta.disable_FD
+      ~Beta.enable_FD
+      ~Beta.get_conditioning_variables
+      ~Beta.get_mutable_variables
+      ~Beta.get_parameter_names
+      ~Beta.gradient
+      ~Beta.logd
+      ~Beta.logpdf
+      ~Beta.pdf
+      ~Beta.sample
+      ~Beta.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Beta.FD_enabled
+      ~Beta.FD_epsilon
+      ~Beta.dim
+      ~Beta.geometry
+      ~Beta.is_cond
+      ~Beta.name
+   
+   

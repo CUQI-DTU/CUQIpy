@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTO.step
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: RegularizedLinearRTO.step

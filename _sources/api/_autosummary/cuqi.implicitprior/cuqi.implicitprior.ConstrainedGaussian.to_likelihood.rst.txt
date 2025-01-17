@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.to\_likelihood
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGaussian.to_likelihood

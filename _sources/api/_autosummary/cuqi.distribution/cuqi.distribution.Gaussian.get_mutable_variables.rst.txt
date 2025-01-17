@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.get\_mutable\_variables
+==================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.get_mutable_variables

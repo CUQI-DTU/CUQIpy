@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.get\_state
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTS.get_state

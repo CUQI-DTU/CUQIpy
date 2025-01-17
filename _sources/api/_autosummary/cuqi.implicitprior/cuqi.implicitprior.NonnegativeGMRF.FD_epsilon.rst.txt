@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.FD\_epsilon
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.FD_epsilon

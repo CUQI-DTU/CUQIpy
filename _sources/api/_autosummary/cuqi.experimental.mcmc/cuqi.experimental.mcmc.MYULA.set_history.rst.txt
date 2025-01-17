@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.set\_history
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.set_history

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.warmup
+===================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.warmup

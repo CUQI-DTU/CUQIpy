@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Direct.load\_checkpoint
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Direct.load_checkpoint

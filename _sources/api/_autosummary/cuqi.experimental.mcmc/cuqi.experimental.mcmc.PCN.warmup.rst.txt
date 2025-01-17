@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCN.warmup
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCN.warmup

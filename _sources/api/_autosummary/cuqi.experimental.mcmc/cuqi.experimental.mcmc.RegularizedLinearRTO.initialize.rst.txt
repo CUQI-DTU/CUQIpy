@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTO.initialize
+======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: RegularizedLinearRTO.initialize

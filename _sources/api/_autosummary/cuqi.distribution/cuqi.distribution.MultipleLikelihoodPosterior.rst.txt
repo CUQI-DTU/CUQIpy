@@ -1,0 +1,50 @@
+MultipleLikelihoodPosterior
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoclass:: MultipleLikelihoodPosterior
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MultipleLikelihoodPosterior.__init__
+      ~MultipleLikelihoodPosterior.disable_FD
+      ~MultipleLikelihoodPosterior.enable_FD
+      ~MultipleLikelihoodPosterior.get_conditioning_variables
+      ~MultipleLikelihoodPosterior.get_density
+      ~MultipleLikelihoodPosterior.get_mutable_variables
+      ~MultipleLikelihoodPosterior.get_parameter_names
+      ~MultipleLikelihoodPosterior.gradient
+      ~MultipleLikelihoodPosterior.logd
+      ~MultipleLikelihoodPosterior.logpdf
+      ~MultipleLikelihoodPosterior.pdf
+      ~MultipleLikelihoodPosterior.sample
+      ~MultipleLikelihoodPosterior.to_likelihood
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MultipleLikelihoodPosterior.FD_enabled
+      ~MultipleLikelihoodPosterior.FD_epsilon
+      ~MultipleLikelihoodPosterior.dim
+      ~MultipleLikelihoodPosterior.geometry
+      ~MultipleLikelihoodPosterior.is_cond
+      ~MultipleLikelihoodPosterior.likelihoods
+      ~MultipleLikelihoodPosterior.models
+      ~MultipleLikelihoodPosterior.name
+      ~MultipleLikelihoodPosterior.prior
+   
+   

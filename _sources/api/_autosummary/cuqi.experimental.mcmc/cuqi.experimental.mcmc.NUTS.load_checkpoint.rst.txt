@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.load\_checkpoint
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTS.load_checkpoint

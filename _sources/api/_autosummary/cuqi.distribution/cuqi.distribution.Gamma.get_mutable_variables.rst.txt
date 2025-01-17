@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.get\_mutable\_variables
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.get_mutable_variables

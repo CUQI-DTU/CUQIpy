@@ -1,0 +1,6 @@
+cuqi.density.Density.name
+=========================
+
+.. currentmodule:: cuqi.density
+
+.. autoproperty:: Density.name

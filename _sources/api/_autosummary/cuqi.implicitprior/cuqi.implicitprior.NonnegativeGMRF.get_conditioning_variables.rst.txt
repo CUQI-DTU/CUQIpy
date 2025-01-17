@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.get\_conditioning\_variables
+===============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.get_conditioning_variables

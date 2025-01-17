@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Direct.step
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Direct.step

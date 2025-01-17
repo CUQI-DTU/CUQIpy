@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSampler.tune
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ProposalBasedSampler.tune

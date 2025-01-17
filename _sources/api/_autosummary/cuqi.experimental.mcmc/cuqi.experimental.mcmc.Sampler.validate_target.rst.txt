@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Sampler.validate\_target
+===============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Sampler.validate_target

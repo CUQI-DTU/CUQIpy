@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.FD\_epsilon
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.FD_epsilon

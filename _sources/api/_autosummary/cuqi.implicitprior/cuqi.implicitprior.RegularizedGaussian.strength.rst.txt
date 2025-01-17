@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.strength
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedGaussian.strength
