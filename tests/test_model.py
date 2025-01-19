@@ -78,6 +78,27 @@ def test_forward(x, expected_type):
     fwd = model.forward(x)
     assert(isinstance(fwd, expected_type))
 
+@pytest.mark.parametrize("x, y, z, expected_type",
+                         [(np.array([1, 3, 4]),
+                            np.array([1, 3]),
+                            np.array([1, 3, 4]),
+                           np.ndarray)])
+def test_forward_with_multiple_inputs(x, y, z, expected_type):
+    """For different types of input to the model forward method, assert we are obtaining the correct output type"""
+
+    def forward(x, y, z):
+        return x*y[0] + z*y[1]
+    model = cuqi.model.Model(forward=forward,
+                            domain_geometry=
+                            cuqi.experimental.geometry._ProductGeometry(
+                            cuqi.geometry.Continuous1D(3),
+                            cuqi.geometry.Continuous1D(2),
+                            cuqi.geometry.Continuous1D(3)),
+                            range_geometry=cuqi.geometry.Continuous1D(3))
+
+    fwd = model.forward(x, y, z)
+    assert(isinstance(fwd, expected_type))
+
 @pytest.mark.parametrize("x, expected_type",
                          [(np.array([1, 3]),
                            np.ndarray),
