@@ -313,7 +313,9 @@ class Model(object):
 
         kwargs = self._2fun(
             geometry=func_domain_geometry, is_par=is_par, **kwargs)
-        out = func(**kwargs)
+        # turn kwargs into a list of arguments
+        args = [v for k, v in kwargs.items()]
+        out = func(*args)
 
         # Return output as parameters
         # (and wrapped in CUQIarray if input was CUQIarray)
@@ -333,11 +335,11 @@ class Model(object):
             raise ValueError(
                 "All input arguments should be Samples of the same length.")
 
-        out = np.zeros((func_range_geometry.par_dim, kwargs.values()[0].Ns))
+        out = np.zeros((func_range_geometry.par_dim, list(kwargs.values())[0].Ns))
 
         # Recursively apply func to each sample
-        for i in range(kwargs.values()[0].Ns):
-            kwargs_i = {k: v[i] for k, v in kwargs.items()}
+        for i in range(list(kwargs.values())[0].Ns):
+            kwargs_i = {k: v.samples[...,i] for k, v in kwargs.items()}
             out[:,i] = self._apply_func(func=func,
                                         fwd=fwd,
                                         is_par=is_par,
@@ -518,7 +520,7 @@ class Model(object):
             f"{self.domain_geometry} " +\
             "should have an implementation of the method fun2par"
         try:
-            wrt_par = self._2par(wrt, 
+            wrt_par = self._2par(wrt=wrt,
                                  geometry=self.domain_geometry,
                                  is_par=is_wrt_par,
                                  to_CUQIarray=False,
@@ -536,32 +538,32 @@ class Model(object):
         # Check for other errors that may prevent computing the gradient
         self._check_gradient_can_be_computed(direction, wrt)
 
-        wrt = self._2fun(wrt, self.domain_geometry, is_par=is_wrt_par)
+        wrt = self._2fun(wrt=wrt, geometry=self.domain_geometry, is_par=is_wrt_par)
 
         # Store if the input direction is CUQIarray
         is_direction_CUQIarray = type(direction) is CUQIarray
 
-        direction = self._2fun(direction,
-                               self.range_geometry,
+        direction = self._2fun(direction=direction,
+                               geometry=self.range_geometry,
                                is_par=is_direction_par)
 
-        grad = self._gradient_func(direction, wrt)
+        grad = self._gradient_func(direction['direction'], wrt['wrt'])
         grad_is_par = False # Assume gradient is function values
 
         # If domain_geometry has gradient attribute, we apply it to the gradient
         # The gradient returned by the domain_geometry.gradient is assumed to be
         # parameters
         if hasattr(self.domain_geometry, 'gradient'):
-            grad = self.domain_geometry.gradient(grad, wrt_par)
+            grad = self.domain_geometry.gradient(grad, wrt_par['wrt'])
             grad_is_par = True # Gradient is parameters
 
         # we convert the computed gradient to parameters
-        grad = self._2par(grad,
-                          self.domain_geometry,
+        grad = self._2par(grad=grad,
+                          geometry=self.domain_geometry,
                           to_CUQIarray=is_direction_CUQIarray,
                           is_par=grad_is_par)
 
-        return grad
+        return grad['grad']
 
     def _check_gradient_can_be_computed(self, direction, wrt):
         """ Private function that checks if the gradient can be computed. By
@@ -717,16 +719,12 @@ class AffineModel(Model):
     def _forward_func_no_shift(self, x, is_par=True):
         """ Helper function for computing the forward operator without the shift. """
         return self._apply_func(self._linear_operator,
-                self.range_geometry,
-                self.domain_geometry,
-                x, is_par)
+                x=x, is_par=is_par)
 
     def _adjoint_func_no_shift(self, y, is_par=True):
         """ Helper function for computing the adjoint operator without the shift. """
         return self._apply_func(self._linear_operator_adjoint,
-                self.domain_geometry,
-                self.range_geometry,
-                y, is_par)
+                y=y, is_par=is_par, fwd=False)
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -817,9 +815,7 @@ class LinearModel(AffineModel):
         if self._linear_operator_adjoint is None:
             raise ValueError("No adjoint operator was provided for this model.")
         return self._apply_func(self._linear_operator_adjoint,
-                                self.domain_geometry,
-                                self.range_geometry,
-                                y, is_par)
+                                y=y, is_par=is_par, fwd=False)
 
     def __matmul__(self, x):
         return self.forward(x)
