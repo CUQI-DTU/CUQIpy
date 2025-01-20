@@ -406,3 +406,9 @@ class Distribution(Density, ABC):
             return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
+
+    @property
+    def rv(self):
+        """ Return a random variable object representing the distribution. """
+        from cuqi.experimental.algebra import RandomVariable
+        return RandomVariable(self)

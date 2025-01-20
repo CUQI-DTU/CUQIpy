@@ -328,3 +328,18 @@ def test_RV_condition_maintains_parameter_name_order():
     assert z.condition(s=1).parameter_names == ['x', 'y']
     assert z.condition(d=1).parameter_names == ['x', 'y']
     assert z.condition(d=1, s=1).parameter_names == ['x', 'y']
+
+def test_equivalent_ways_to_create_RV_from_distribution():
+    x = RandomVariable(cuqi.distribution.Gaussian(0, 1))
+    y = cuqi.distribution.Gaussian(0, 1).rv
+
+    assert x.dim == y.dim
+    assert x.distribution.mean == y.distribution.mean
+    assert x.distribution.cov == y.distribution.cov
+
+    x = RandomVariable(cuqi.distribution.Gaussian(0, lambda s: s))
+    y = cuqi.distribution.Gaussian(0, lambda s: s).rv
+
+    assert x.dim == y.dim
+    assert x.distribution.mean == y.distribution.mean
+    assert x.condition(s=1).distribution.cov == y.condition(s=1).distribution.cov
