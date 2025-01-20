@@ -443,6 +443,9 @@ class Model(object):
         # Check kwargs matches non_default_args
         if set(list(kwargs.keys())) != set(self._non_default_args):
             raise ValueError(f"The model input is specified by a keywords arguments {kwargs.keys()} that does not match the non_default_args of the model {self._non_default_args}.")
+        
+        # make sure order of kwargs is the same as non_default_args
+        kwargs = {k: kwargs[k] for k in self._non_default_args}
 
         # For now only support one input or multiple inputs if the
         # domain_geometry is ConcatenatedGeometries
