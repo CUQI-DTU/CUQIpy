@@ -9,6 +9,7 @@ from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import _DefaultGeometry1D, _DefaultGeometry2D, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
+from cuqi.experimental.algebra import RandomVariable
 import numpy as np # To be replaced by cuqi.array_api
 
 # ========== Abstract distribution class ===========
@@ -406,3 +407,7 @@ class Distribution(Density, ABC):
             return "CUQI {}. Conditioning variables {}.".format(self.__class__.__name__,self.get_conditioning_variables())
         else:
             return "CUQI {}.".format(self.__class__.__name__)
+
+    def rv(self) -> RandomVariable:
+        """ Return a random variable object representing the distribution. """
+        return RandomVariable(self)
