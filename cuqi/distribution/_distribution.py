@@ -9,7 +9,6 @@ from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import _DefaultGeometry1D, _DefaultGeometry2D, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
-# import cuqi.experimental.algebra.RandomVariable as RandomVariable 
 import numpy as np # To be replaced by cuqi.array_api
 
 # ========== Abstract distribution class ===========
