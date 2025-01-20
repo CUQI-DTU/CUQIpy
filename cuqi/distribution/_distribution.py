@@ -408,6 +408,7 @@ class Distribution(Density, ABC):
         else:
             return "CUQI {}.".format(self.__class__.__name__)
 
+    @property
     def rv(self):
         """ Return a random variable object representing the distribution. """
         from cuqi.experimental.algebra import RandomVariable
