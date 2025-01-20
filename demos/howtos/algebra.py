@@ -12,16 +12,16 @@ operations on them, and finally use them in Bayesian Problems.
 #%%
 # Defining Random Variables
 # -------------------------
-# Random variables can be defined using the RandomVariable class. The RandomVariable
-# class requires a distribution object to be passed as an argument. The distribution
-# object can be any distribution object from the `cuqi.distribution` module.
+# Random variables can be defined using the RandomVariable class or by retrieving 
+# an attribute of a distribution object. The RandomVariable class requires 
+# a distribution object to be passed as an argument. This distribution object 
+# can be any distribution from the `cuqi.distribution` module.
 
 from cuqi.distribution import Normal
 from cuqi.experimental.algebra import RandomVariable
 
-
 x = RandomVariable(Normal(0, 1))
-y = RandomVariable(Normal(0, 1))
+y = Normal(0, 1).rv
 
 # %%
 # Recording Algebraic Operations
