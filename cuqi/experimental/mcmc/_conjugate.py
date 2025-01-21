@@ -266,6 +266,7 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
     
 
 def _compute_sparsity_level(target):
+    """Computes the sparsity level in accordance with Section 4 from [2],"""
     x = target.likelihood.data
     if target.likelihood.distribution.preset["constraint"] == "nonnegativity":
         if target.likelihood.distribution.preset["regularization"] == "l1":
@@ -274,7 +275,7 @@ def _compute_sparsity_level(target):
             m = count_constant_components_1D(x, lower = 0.0)
         elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
             m = count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
-    else:
+    else: # No constraints, only regularization
         if target.likelihood.distribution.preset["regularization"] == "l1":
             m = count_nonzero(x)
         elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
