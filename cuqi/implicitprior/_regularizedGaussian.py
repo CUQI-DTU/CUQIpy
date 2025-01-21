@@ -117,15 +117,17 @@ class RegularizedGaussian(Distribution):
             if callable(proximal):
                 if len(get_non_default_args(proximal)) != 2:
                     raise ValueError("Proximal should take 2 arguments.")
-            else:
+            elif isinstance(proximal, list):
                 pass # TODO: Add error checking for list of regularizations
+            else:
+                raise ValueError("Proximal needs to be callable or a list. See documentation.")
             
         if projector is not None:
             if callable(projector):
                 if len(get_non_default_args(projector)) != 1:
                     raise ValueError("Projector should take 1 argument.")
             else:
-                pass # TODO: Add error checking for list of regularizations
+                raise ValueError("Projector needs to be callable")
             
         # Set user-defined proximals or projectors
         if proximal is not None:
