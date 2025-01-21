@@ -523,7 +523,7 @@ class Image2D(Geometry):
     Colormap is defaulted to grayscale.
 
     A How-To guide on the use of Image2D as the domain/range geometry of a CUQI 
-    :class:`Model` is available `here <https://cuqi-dtu.github.io/CUQIpy/user/_auto_howtos/myula.html>`_.
+    :class:`Model` is available `here <https://cuqi-dtu.github.io/CUQIpy/user/_auto_howtos/Image2D.html>`_.
 
     Parameters
     -----------
