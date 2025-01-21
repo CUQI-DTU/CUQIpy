@@ -103,7 +103,7 @@ class RegularizedGaussian(Distribution):
             raise ValueError("Only one of proximal or projector can be used.")
 
         if (proximal is not None) + (projector is not None) + max((constraint is not None), (regularization is not None)) > 1:
-            raise ValueError("User-defined proximals an projectors cannot be combined with pre-defined constraints and regularization.")
+            raise ValueError("User-defined proximals and projectors cannot be combined with pre-defined constraints and regularization.")
 
         # Branch between user-defined and preset
         if (proximal is not None) + (projector is not None) >= 1:
