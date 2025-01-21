@@ -175,7 +175,7 @@ def test_RegularizedGaussian_double_preset():
     constraint = "nonnegativity"
     regularization = "tv"
     x = cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1,
-                                                regularization = "tv", strength = 5,
+                                                regularization = regularization, strength = 5,
                                                 constraint = constraint)
 
     # Check that the correct presets are set
