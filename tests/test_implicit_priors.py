@@ -168,3 +168,20 @@ def test_RegularizedGaussian_conditioning_strength():
     assert np.allclose(x.mean, [1, 1, 1, 1])
     assert np.allclose(x.prec, 10)
     assert np.allclose(x.strength, 6)
+
+def test_RegularizedGaussian_double_preset():
+    """ Test that the implicit RegularizedGaussian can handle combined regularization and constraint presets """
+
+    constraint = "nonnegativity"
+    regularization = "tv"
+    x = cuqi.implicitprior.RegularizedGaussian(np.zeros(5), 1,
+                                                regularization = "tv", strength = 5,
+                                                constraint = constraint)
+
+    # Check that the correct presets are set
+    assert x.preset["constraint"] == constraint
+    assert x.preset["regularization"] == regularization
+    # Check whether the constructed proximal list is of correct size
+    assert len(x.proximal) == 2
+    assert len(x.proximal[0]) == 2
+    assert len(x.proximal[1]) == 2
