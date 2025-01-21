@@ -28,7 +28,7 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if not target.prior.dim == 1:
             raise ValueError("Conjugate sampler only works with univariate Gamma prior")
             
-        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and (target.likelihood.distribution.preset["constraints"] not in ["nonnegativity"] or target.likelihood.distribution.preset["regularization"] is not None) :
+        if isinstance(target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)) and (target.likelihood.distribution.preset["constraint"] not in ["nonnegativity"] or target.likelihood.distribution.preset["regularization"] is not None) :
                raise ValueError("Conjugate sampler only works implicit regularized Gaussian likelihood with nonnegativity constraints")
         
         self.target = target
