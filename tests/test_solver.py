@@ -54,28 +54,16 @@ def test_ScipyLBFGSB_with_gradient():
     sol_ref = np.array([1.0, 1.0, 1.0, 1.0, 1.0])
     assert np.allclose(sol, sol_ref)
 
-<<<<<<< HEAD
-def test_ScipyLeastSquares_without_Jac():
-    def fun_rosenbrock(x):
-        return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
-    x0 = np.array([2, 2])
-    solver = ScipyLeastSquares(fun_rosenbrock, x0)
-=======
 def test_ScipyLSQ_without_Jac():
     def fun_rosenbrock(x):
         return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
     x0 = np.array([2, 2])
     solver = ScipyLSQ(fun_rosenbrock, x0)
->>>>>>> main
     sol, _ = solver.solve()
     sol_ref = np.array([1, 1])
     assert np.allclose(sol, sol_ref)
 
-<<<<<<< HEAD
-def test_ScipyLeastSquares_with_Jac():
-=======
 def test_ScipyLSQ_with_Jac():
->>>>>>> main
     def fun_rosenbrock(x):
         return np.array([10 * (x[1] - x[0]**2), (1 - x[0])])
     def jac_rosenbrock(x):
@@ -83,12 +71,6 @@ def test_ScipyLSQ_with_Jac():
             [-20 * x[0], 10],
             [-1, 0]])
     x0 = np.array([2, 2])
-<<<<<<< HEAD
-    solver = ScipyLeastSquares(fun_rosenbrock, x0, jacfun=jac_rosenbrock)
-    sol, _ = solver.solve()
-    sol_ref = np.array([1, 1])
-    assert np.allclose(sol, sol_ref)
-=======
     solver = ScipyLSQ(fun_rosenbrock, x0, jacfun=jac_rosenbrock)
     sol, _ = solver.solve()
     sol_ref = np.array([1, 1])
@@ -131,7 +113,6 @@ def test_ScipyLinearLSQ_against_FISTA():
     sol_fista, _ = FISTA(A, b, lambda x, _: ProjectNonnegative(x), x0, stepsize=1e-7, maxit=100000, abstol=1e-16, adaptive=True).solve()
 
     assert np.allclose(sol_lsq, sol_fista, rtol=1e-8)
->>>>>>> main
 
 def test_LM():
     # compare to MATLAB's original code solution
