@@ -10,6 +10,7 @@ from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D,\
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
+import inspect
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -692,6 +693,25 @@ class AffineModel(Model):
         if linear_operator_adjoint is not None and not callable(linear_operator_adjoint):
             raise TypeError("Linear operator adjoint must be defined as a callable function of some kind")
 
+        # If linear operator is of type Model, it needs to be a LinearModel
+        if isinstance(linear_operator, Model) and not isinstance(linear_operator, LinearModel):
+            raise ValueError("The linear operator should be a LinearModel object, a callable function or a matrix.")
+
+        # If the adjoint operator is of type Model, it needs to be a LinearModel
+        if isinstance(linear_operator_adjoint, Model) and not isinstance(linear_operator_adjoint, LinearModel):
+            raise ValueError("The adjoint linear operator should be a LinearModel object, a callable function or a matrix.")
+
+        # Additional checks if the linear_operator is not a LinearModel:
+        if not isinstance(linear_operator, LinearModel):
+            # Ensure the linear operator have exactly one input argument
+            if len(inspect.signature(linear_operator).parameters) != 1:
+                raise ValueError(
+                    "The linear operator should have exactly one input argument.")
+            # Ensure the adjoint linear operator have exactly one input argument
+            if len(inspect.signature(linear_operator_adjoint).parameters) != 1:
+                raise ValueError(
+                    "The adjoint linear operator should have exactly one input argument.")
+
         # Check size of shift and match against range_geometry
         if not np.isscalar(shift):
             if len(shift) != range_geometry.par_dim:
@@ -863,7 +883,9 @@ class LinearModel(AffineModel):
     @property
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
-        transpose = LinearModel(self.adjoint, self.forward, self.domain_geometry, self.range_geometry)
+        transpose = LinearModel(
+            lambda y: self.adjoint(y),
+            lambda x: self.forward(x), self.domain_geometry, self.range_geometry)
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
