@@ -764,7 +764,7 @@ def test_conjugate_wrong_var_for_conjugate_parameter():
     s = cuqi.distribution.Gamma(1, 1e-4, name='s')
     posterior =  cuqi.distribution.Posterior(y.to_likelihood([0]), s)
 
-    with pytest.raises(ValueError, match="Conjugate sampler for Gaussian likelihood functions only works when conjugate parameter is defined via covariance or precision"):
+    with pytest.raises(ValueError, match="RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter s in the sqrtprec attribute. Only cov and prec"):
         cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def test_conjugate_wrong_equation_for_conjugate_parameter():
@@ -773,7 +773,7 @@ def test_conjugate_wrong_equation_for_conjugate_parameter():
     # Modify likelihood to not invert parameter in covariance
     posterior.likelihood.distribution.cov = lambda s: s
 
-    with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"):
+    with pytest.raises(ValueError, match="Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : s/x for the conjugate parameter"):
         cuqi.experimental.mcmc.Conjugate(target=posterior)
 
 def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_func):
@@ -817,13 +817,9 @@ def create_invalid_conjugate_target(target_type: str, param_name: str, invalid_f
         raise ValueError(f"Conjugate target type {target_type} not recognized.")
 
 @pytest.mark.parametrize("target_type, param_name, invalid_func, expected_error", [
-    ("gaussian-gamma", "cov", lambda s: s, "Gaussian-Gamma conjugate pair defined via covariance requires `cov` for the `Gaussian` to be: lambda x : 1.0/x for the conjugate parameter"),
-    ("gaussian-gamma", "prec", lambda s: 2 * s, "Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter"),
-    ("regularizedgaussian-gamma", "cov", lambda s: s, "Regularized Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : 1.0/x"),
-    ("regularizedgaussian-gamma", "prec", lambda s: 2 * s, "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x"),
+    ("gaussian-gamma", "cov", lambda s: s, "Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : s/x for the conjugate parameter"),
+    ("regularizedgaussian-gamma", "cov", lambda s: s, "Regularized Gaussian-Gamma conjugacy defined via covariance requires cov: lambda x : s/x for the conjugate parameter"),
     ("lmrf-gamma", "scale", lambda s: s, "Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood"),
-    ("gmrf-gamma", "prec", lambda s: 2 * s, "Gaussian-Gamma conjugate pair defined via precision requires `prec` for the `Gaussian` to be: lambda x : x for the conjugate parameter"),
-    ("regularizedgmrf-gamma", "prec", lambda s: 2 * s, "Regularized Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : x")
 ])
 def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target_type, param_name, invalid_func, expected_error):
     """ Test that useful error message is raised when conjugate parameter has the wrong equation. """
@@ -1259,6 +1255,7 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     # Check that the samples are the same
     assert np.allclose(samples_linear.samples, samples_affine.samples)
 
+# ============ Test for sampling with RandomVariable prior against Distribution prior ============
 samplers_for_rv_against_dist = [cuqi.experimental.mcmc.MALA, 
                                 cuqi.experimental.mcmc.ULA,
                                 cuqi.experimental.mcmc.MH,
@@ -1267,7 +1264,6 @@ samplers_for_rv_against_dist = [cuqi.experimental.mcmc.MALA,
                                 cuqi.experimental.mcmc.NUTS,
                                 cuqi.experimental.mcmc.LinearRTO]
 
-# ============ Test for sampling with RandomVariable prior against Distribution prior ============
 @pytest.mark.parametrize("sampler", samplers_for_rv_against_dist)
 def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimental.mcmc.Sampler):
 
@@ -1296,3 +1292,90 @@ def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimen
     samples_dist = sampler_dist.get_samples()
 
     assert np.allclose(samples_rv.samples, samples_dist.samples)
+
+def Conjugate_GaussianGammaPair():
+    """ Unit test whether Conjugacy Pair (Gaussian, Gamma) constructs the right distribution """
+    x = cuqi.distribution.Gamma(1.0, 2.0)
+    y = cuqi.distribution.Gaussian(np.array([1.0, 1.0]), prec = lambda x : x)
+    joint = cuqi.distributionJointDistribution(x, y)(y = np.array([2, 1]))
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
+    assert conj.shape == 2.0
+    assert conj.scale == 0.4
+
+def Conjugate_RegularizedGaussianGammaPair():
+    """ Unit test whether Conjugacy Pair (RegularizedGaussian, Gamma) constructs the right distribution """
+    x = cuqi.distribution.Gamma(1.0, 2.0)
+    y = cuqi.implicitprior.RegularizedGaussian(np.array([1.0, 1.0]), prec = lambda x : x, constraint="nonnegativity")
+    joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([1, 0]))
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
+    assert conj.shape == 1.5
+    assert conj.scale == 0.4
+
+def Conjugate_RegularizedUnboundedUniformGammaPair():
+    """ Unit test whether Conjugacy Pair (RegularizedUnboundedUniform, Gamma) constructs the right distribution """
+    x = cuqi.distribution.Gamma(1.0, 2.0)
+    y = cuqi.implicitprior.RegularizedUnboundedUniform(regularization='tv', strength = lambda x : x, geometry = cuqi.geometry.Continuous1D(2))
+    joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([2, 0]))
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
+    assert conj.shape == 2.0
+    assert conj.scale == 0.25
+
+def Conjugate_RegularizedGaussianModifiedHalfNormalPair():
+    """ Unit test whether Conjugacy Pair (RegularizedGaussian, ModifiedHalfNormal) constructs the right distribution """
+    x = cuqi.distribution.ModifiedHalfNormal(1.0, 3.0, -3.0)
+    y = cuqi.implicitprior.RegularizedGaussian(np.array([1.0, 1.0]), prec = lambda x : x**2, regularization='tv', strength = lambda x : x, geometry = cuqi.geometry.Continuous1D(2))
+    joint = cuqi.distribution.JointDistribution(x, y)(y = np.array([2, 0]))
+    sampler = cuqi.experimental.mcmc.Conjugate(joint)
+    conj = sampler.conjugate_distribution()
+
+    assert isinstance(conj, type(x))
+    assert conj.alpha == 3.0
+    assert conj.beta == 4.0
+    assert conj.gamma == -5.0
+
+
+def test_RegularizedGaussianHierchical_sample_regression():
+    np.random.seed(24601)
+    n = 2
+
+    A_mat = np.array([[1,2],[3,4]])
+    y_data = np.array([1,2])
+
+    A = cuqi.model.LinearModel(A_mat, domain_geometry=cuqi.geometry.Continuous1D(2), range_geometry=cuqi.geometry.Continuous1D(2))
+
+    l = cuqi.distribution.Gamma(1, 1e-4)
+    d = cuqi.distribution.ModifiedHalfNormal(1, 1e-4, -1e-4)
+    x = cuqi.implicitprior.RegularizedGMRF(mean = np.zeros(n), prec = lambda d : 0.1*d**2, regularization = "TV", strength = lambda d : 50*d, geometry = A.domain_geometry)
+    y =cuqi.distribution. Gaussian(A@x, prec = lambda l : l)
+
+    joint = cuqi.distribution.JointDistribution(x, y, d, l)
+    posterior = joint(y=y_data)
+
+    sampling_strategy = {
+                'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=10, adaptive = False),
+                'd': cuqi.experimental.mcmc.Conjugate(),
+                'l': cuqi.experimental.mcmc.Conjugate(),
+                }
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+
+    sampler.warmup(10)
+    sampler.sample(10)
+
+    samples = sampler.get_samples().burnthin(10)
+
+    assert np.allclose(samples['x'].samples, np.array([[0.28756343, 0.31439747, 0.29883007, 0.29241259, 0.3142019, 0.28276159, 0.27819533, 0.32370642, 0.24194951, 0.30077088],
+                                                        [0.28756339, 0.31439747, 0.29883007, 0.29409678, 0.3142019, 0.28276159, 0.27819533, 0.32371729, 0.24194986, 0.30077088]]))
+
+    assert np.allclose(samples['l'].samples, np.array([[43.51120066, 109.27863688, 117.44177758, 93.02865816, 2.09937242,22.28328818, 58.69566463, 66.46108287, 21.68571243, 76.04025099]]))
+    
+    assert np.allclose(samples['d'].samples, np.array([[9.25399315, 5.04438304, 26.84002718, 7.69622219, 8.47935032, 5.15752285, 16.4884862, 13.44909853, 3.34200395, 5.71966806]]))
+
