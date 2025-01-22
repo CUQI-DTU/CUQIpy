@@ -695,11 +695,11 @@ class AffineModel(Model):
 
         # If linear operator is of type Model, it needs to be a LinearModel
         if isinstance(linear_operator, Model) and not isinstance(linear_operator, LinearModel):
-            raise ValueError("The linear operator should be a LinearModel object, a callable function or a matrix.")
+            raise TypeError("The linear operator should be a LinearModel object, a callable function or a matrix.")
 
         # If the adjoint operator is of type Model, it needs to be a LinearModel
         if isinstance(linear_operator_adjoint, Model) and not isinstance(linear_operator_adjoint, LinearModel):
-            raise ValueError("The adjoint linear operator should be a LinearModel object, a callable function or a matrix.")
+            raise TypeError("The adjoint linear operator should be a LinearModel object, a callable function or a matrix.")
 
         # Additional checks if the linear_operator is not a LinearModel:
         if not isinstance(linear_operator, LinearModel):
