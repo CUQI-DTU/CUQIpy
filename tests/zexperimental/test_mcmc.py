@@ -1406,4 +1406,3 @@ def test_RegularizedGaussianHierchical_sample_regression():
     assert np.allclose(samples['l'].samples, np.array([[43.51120066, 109.27863688, 117.44177758, 93.02865816, 2.09937242,22.28328818, 58.69566463, 66.46108287, 21.68571243, 76.04025099]]))
     
     assert np.allclose(samples['d'].samples, np.array([[9.25399315, 5.04438304, 26.84002718, 7.69622219, 8.47935032, 5.15752285, 16.4884862, 13.44909853, 3.34200395, 5.71966806]]))
-
