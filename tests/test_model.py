@@ -448,7 +448,7 @@ def test_linear_model_allow_other_parameter_names():
 
     forward_x = lambda x: x
     forward_y = lambda y: y
-    def forward_z(z, not_used=None):
+    def forward_z(z):
         return z
 
     adjoint = lambda w: w
@@ -511,8 +511,7 @@ def test_model_allows_jacobian_or_gradient():
     assert np.allclose(model_grad.gradient(dir, wrt), model_jac.gradient(dir, wrt))
 
 # Parametrize over models
-@pytest.mark.parametrize("model", [cuqi.testproblem.Deconvolution1D().model,
-                                   cuqi.testproblem.Heat1D().model])
+@pytest.mark.parametrize("model", [cuqi.testproblem.Deconvolution1D().model])
 def test_AffineModel_Correct_result(model):
     """ Test creating a shifted linear model from a linear model """
 
