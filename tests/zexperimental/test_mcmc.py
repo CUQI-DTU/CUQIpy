@@ -1293,6 +1293,34 @@ def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimen
 
     assert np.allclose(samples_rv.samples, samples_dist.samples)
 
+def test_RandomVariable_prior_against_Distribution_prior_regularized_RTO():
+
+    # Set dim
+    dim = 32
+
+    # Extract model and data
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=32, phantom='square').get_components()
+
+    # Set up RandomVariable prior and do posterior sampling
+    np.random.seed(0)
+    x_rv = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint="nonnegativity").rv
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001)
+    joint_rv = cuqi.distribution.JointDistribution(x_rv, y_rv)(y_rv=y_data)
+    sampler_rv = cuqi.experimental.mcmc.RegularizedLinearRTO(joint_rv)
+    sampler_rv.sample(10)
+    samples_rv = sampler_rv.get_samples()
+    
+    # Set up Distribution prior and do posterior sampling
+    np.random.seed(0)
+    x_dist = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint="nonnegativity")
+    y_dist = cuqi.distribution.Gaussian(A@x_dist, 0.001)
+    joint_dist = cuqi.distribution.JointDistribution(x_dist, y_dist)(y_dist=y_data)
+    sampler_dist = cuqi.experimental.mcmc.RegularizedLinearRTO(joint_dist)
+    sampler_dist.sample(10)
+    samples_dist = sampler_dist.get_samples()
+
+    assert np.allclose(samples_rv.samples, samples_dist.samples)
+
 def Conjugate_GaussianGammaPair():
     """ Unit test whether Conjugacy Pair (Gaussian, Gamma) constructs the right distribution """
     x = cuqi.distribution.Gamma(1.0, 2.0)
