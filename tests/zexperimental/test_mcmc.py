@@ -1258,3 +1258,41 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
 
     # Check that the samples are the same
     assert np.allclose(samples_linear.samples, samples_affine.samples)
+
+samplers_for_rv_against_dist = [cuqi.experimental.mcmc.MALA, 
+                                cuqi.experimental.mcmc.ULA,
+                                cuqi.experimental.mcmc.MH,
+                                cuqi.experimental.mcmc.PCN,
+                                cuqi.experimental.mcmc.CWMH,
+                                cuqi.experimental.mcmc.NUTS,
+                                cuqi.experimental.mcmc.LinearRTO]
+
+# ============ Test for sampling with RandomVariable prior against Distribution prior ============
+@pytest.mark.parametrize("sampler", samplers_for_rv_against_dist)
+def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimental.mcmc.Sampler):
+
+    # Set dim
+    dim = 32
+
+    # Extract model and data
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=32, phantom='square').get_components()
+
+    # Set up RandomVariable prior and do posterior sampling
+    np.random.seed(0)
+    x_rv = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1).rv
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001)
+    joint_rv = cuqi.distribution.JointDistribution(x_rv, y_rv)(y_rv=y_data)
+    sampler_rv = sampler(joint_rv)
+    sampler_rv.sample(10)
+    samples_rv = sampler_rv.get_samples()
+    
+    # Set up Distribution prior and do posterior sampling
+    np.random.seed(0)
+    x_dist = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1)
+    y_dist = cuqi.distribution.Gaussian(A@x_dist, 0.001)
+    joint_dist = cuqi.distribution.JointDistribution(x_dist, y_dist)(y_dist=y_data)
+    sampler_dist = sampler(joint_dist)
+    sampler_dist.sample(10)
+    samples_dist = sampler_dist.get_samples()
+
+    assert np.allclose(samples_rv.samples, samples_dist.samples)
