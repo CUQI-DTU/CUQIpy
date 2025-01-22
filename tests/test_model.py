@@ -527,6 +527,35 @@ def test_AffineModel_Correct_result(model):
     # Check that the shifted linear model is correct
     assert np.allclose(A_affine(x), model(x) + b)
 
+@pytest.mark.parametrize("model", [cuqi.testproblem.Heat1D().model])
+def test_AffineModel_does_not_accept_general_model(model):
+    """ Test that AffineModel only accepts LinearModel, besides accepting
+    a matrix or callable"""
+
+    # Random vectors
+    x = np.random.randn(model.domain_dim)
+    b = np.random.randn(model.range_dim)
+    
+    with pytest.raises(TypeError,
+                       match=r"The linear operator should be a LinearModel object, a callable function or a matrix."):
+        A_affine = cuqi.model.AffineModel(model, b, range_geometry = model.range_geometry, domain_geometry = model.domain_geometry)
+
+@pytest.mark.parametrize("fwd_func", [lambda: 1, lambda x, y: x, lambda x, y=1: x])
+def test_AffineModel_raise_error_when_forward_has_too_few_or_too_many_inputs(
+    fwd_func
+):
+    """ Test that AffineModel raises an error when the forward function has too
+    few or too many inputs """
+    adj_func = lambda x: x
+    with pytest.raises(ValueError,
+                       match=r"The linear operator should have exactly one input argument"):
+        A_affine = cuqi.model.AffineModel(fwd_func, 0, adj_func)
+    
+    # reverse passing the forward and adjoint functions
+    with pytest.raises(ValueError,
+                       match=r"The adjoint linear operator should have exactly one input argument"):
+        A_affine = cuqi.model.AffineModel(adj_func, 0, fwd_func)
+
 def test_AffineModel_update_shift():
 
     A = np.eye(2)
