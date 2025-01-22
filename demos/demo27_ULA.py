@@ -20,7 +20,7 @@ likelihood  = test.likelihood
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-prior = cuqi.distribution.CMRF(loc, scale, 'neumann')
+prior = cuqi.distribution.CMRF(loc, scale, 'neumann').rv
 
 # %% Create the posterior and the sampler
 posterior = cuqi.distribution.Posterior(likelihood, prior)

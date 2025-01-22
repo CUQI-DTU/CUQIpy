@@ -20,7 +20,7 @@ likelihood  = test.likelihood
 loc = np.zeros(n)
 delta = 1
 scale = delta*h
-prior = cuqi.distribution.CMRF(loc, scale, 'neumann')
+prior = cuqi.distribution.CMRF(loc, scale, 'neumann').rv
 
 # %%
 x0 = cuqi.distribution.Gaussian(np.zeros(n),1).sample()
