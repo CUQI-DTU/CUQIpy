@@ -1266,6 +1266,9 @@ samplers_for_rv_against_dist = [cuqi.experimental.mcmc.MALA,
 
 @pytest.mark.parametrize("sampler", samplers_for_rv_against_dist)
 def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimental.mcmc.Sampler):
+    """ Test RandomVariable prior is equivalent to Distribution prior for 
+        MALA, ULA, MH, PCN, CWMH, NUTS and LinearRTO. 
+    """
 
     # Set dim
     dim = 32
@@ -1294,6 +1297,9 @@ def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimen
     assert np.allclose(samples_rv.samples, samples_dist.samples)
 
 def test_RandomVariable_prior_against_Distribution_prior_regularized_RTO():
+    """ Test RandomVariable prior is equivalent to Distribution prior for 
+        RegularizedLinearRTO. 
+    """
 
     # Set dim
     dim = 32
@@ -1321,7 +1327,10 @@ def test_RandomVariable_prior_against_Distribution_prior_regularized_RTO():
 
     assert np.allclose(samples_rv.samples, samples_dist.samples)
 
-def test_RandomVariable_prior_against_Distribution_prior_regularized_RTO_HybridGibbs():
+def test_RandomVariable_prior_against_Distribution_prior_UGLA_Conjugate_ConjugateApprox_HybridGibbs():
+    """ Test RandomVariable prior is equivalent to Distribution prior for 
+        UGLA, Conjugate, ConjugateApprox and HybridGibbs samplers.
+    """
 
     # Forward problem
     A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=28, phantom='square', noise_std=0.001).get_components()
