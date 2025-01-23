@@ -80,7 +80,7 @@ def test_forward(x, expected_type):
 
 
 @pytest.mark.parametrize(
-    "x, y, z, forward, domain_geometry, expected_value, expected_type",
+    "x, y, z, forward, domain_geometry, range_geometry, expected_value, expected_type",
     [
         (
             np.array([1, 3, 4]),
@@ -92,28 +92,69 @@ def test_forward(x, expected_type):
                 cuqi.geometry.Continuous1D(2),
                 cuqi.geometry.Continuous1D(3),
             ),
+            cuqi.geometry.Continuous1D(3),
             np.array([10, 12, 13]),
             np.ndarray,
         )
     ],
 )
-def test_forward_with_multiple_inputs(
-    x, y, z, forward, domain_geometry, expected_value, expected_type
-):
-    """Test that the forward method can handle multiple inputs and
-    return the correct output type"""
+class TestForwardWithMultipleInputs:
+    def test_forward_with_multiple_inputs(
+        self,
+        x,
+        y,
+        z,
+        forward,
+        domain_geometry,
+        range_geometry,
+        expected_value,
+        expected_type,
+    ):
+        """Test that the forward method can handle multiple inputs and
+        return the correct output type"""
 
-    model = cuqi.model.Model(
-        forward=forward,
-        domain_geometry=domain_geometry,
-        range_geometry=cuqi.geometry.Continuous1D(3),
-    )
+        model = cuqi.model.Model(
+            forward=forward,
+            domain_geometry=domain_geometry,
+            range_geometry=range_geometry,
+        )
 
-    fwd = model.forward(x, y, z)
-    fwd2 = model(y=y, x=x, z=z)
-    assert isinstance(fwd, expected_type)
-    assert np.allclose(fwd, expected_value)
-    assert np.allclose(fwd, fwd2)
+        fwd = model.forward(x, y, z)
+        fwd2 = model(y=y, x=x, z=z)
+        fwd3 = model.forward(x, y, z, is_par=True)
+        fwd4 = model(z=z, x=x, y=y, is_par=True)
+        assert isinstance(fwd, expected_type)
+        assert np.allclose(fwd, expected_value)
+        assert np.allclose(fwd, fwd2)
+        assert np.allclose(fwd, fwd3)
+        assert np.allclose(fwd, fwd4)
+
+
+    def test_forward_with_multiple_inputs_error_when_mixing_args_and_kwargs(
+        self,
+        x,
+        y,
+        z,
+        forward,
+        domain_geometry,
+        range_geometry,
+        expected_value,
+        expected_type,
+    ):
+        """Test that the forward method raises an error when mixing positional
+        arguments and keyword arguments"""
+
+        model = cuqi.model.Model(
+            forward=forward,
+            domain_geometry=domain_geometry,
+            range_geometry=range_geometry,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=r"The model input is specified both as positional and keyword arguments. This is not supported",
+        ):
+            fwd = model.forward(x, y=y, z=z)
 
 
 @pytest.mark.parametrize("x, expected_type",
