@@ -1,5 +1,5 @@
 from cuqi.array import CUQIarray
-from cuqi.geometry import Continuous1D
+from cuqi.geometry import Continuous1D, Discrete
 import numpy as np
 import scipy as sp
 import cuqi
@@ -619,3 +619,49 @@ def test_AffineModel_update_shift():
     # check model output of copied model with updated shift
     model_copy.shift = new_shift
     assert np.all(model_copy(x) == np.array([3,0]))
+
+# method that builds a multiple input PDE model
+def build_model():
+    # Random vectors
+    # Poisson equation
+    dim = 20 #Number of nodes
+    L = 20 # Length of the domain
+    dx = L/(dim-1) # grid spacing 
+    grid_sol = np.linspace(dx, L, dim-1, endpoint=False)
+    grid_obs = grid_sol[5:]
+    source =  lambda mag: mag*np.sin(grid_sol) #source term
+    kappa = np.ones(dim) #kappa is the diffusivity 
+
+    # Build the solver
+    FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
+    diff_operator = lambda kappa_scale: FOFD_operator.T @ np.diag(kappa_scale*kappa) @ FOFD_operator
+    poisson_form = lambda mag, kappa_scale: (diff_operator(kappa_scale), source(mag))
+    CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
+    pde_model = cuqi.model.PDEModel(CUQI_pde,
+                                    domain_geometry=cuqi.experimental.geometry._ProductGeometry(Discrete(["mag"]), Discrete(['kappa_scale'])), range_geometry=Continuous1D(dim-1))
+    return pde_model
+
+    #mag_exact = 2
+    #kappa_scale_exact = 2
+    #CUQI_pde.assemble(mag_exact, kappa_scale_exact)
+    #sol, info = CUQI_pde.solve()
+    #observed_sol = CUQI_pde.observe(sol)
+
+
+    #expected_observed_sol =  scipy.linalg.solve(diff_operator, source(2))[5:]**2
+
+    #assert(np.all(np.isclose(observed_sol, expected_observed_sol)))
+
+def test_PDE_model_multiple_input():
+    """ Test that the PDE model can handle multiple inputs and return the correct output type"""
+
+    CUQI_pde = build_model()
+
+    # Check that the model has switched its parameter name
+    assert CUQI_pde._non_default_args == ['mag', 'kappa_scale']
+
+    # Check that we can provide parameter names when evaluating the model
+    assert CUQI_pde(mag=2, kappa_scale=2) is not None
+
+    # And check that we can provide positional arguments
+    assert CUQI_pde(2, 2) is not None
