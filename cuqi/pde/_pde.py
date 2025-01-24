@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 import scipy
 from inspect import getsource
+import inspect
 from scipy.interpolate import interp1d
 import numpy as np
+
 
 class PDE(ABC):
     """
@@ -30,7 +32,7 @@ class PDE(ABC):
         self.observation_map = observation_map
 
     @abstractmethod
-    def assemble(self,parameter):
+    def assemble(self, *args, **kwargs):
         pass
 
     @abstractmethod
@@ -155,9 +157,9 @@ class SteadyStateLinearPDE(LinearPDE):
     def __init__(self, PDE_form, **kwargs):
         super().__init__(PDE_form, **kwargs)
 
-    def assemble(self, parameter):
+    def assemble(self, *args, **kwargs):
         """Assembles differential operator and rhs according to PDE_form"""
-        self.diff_op, self.rhs = self.PDE_form(parameter)
+        self.diff_op, self.rhs = self.PDE_form(*args, **kwargs)
 
     def solve(self):
         """Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution."""
@@ -234,13 +236,14 @@ class TimeDependentLinearPDE(LinearPDE):
                 "method can be set to either `forward_euler` or `backward_euler`")
         self._method = value
 
-    def assemble(self, parameter):
+    def assemble(self, *args, **kwargs):
         """Assemble PDE"""
-        self._parameter = parameter
+        self._parameter_kwargs = kwargs
+        self._parameter_args = args
 
     def assemble_step(self, t):
         """Assemble time step at time t"""
-        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t)
+        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(*self._parameter_args, **self._parameter_kwargs, t=t)
 
     def solve(self):
         """Solve PDE by time-stepping"""
