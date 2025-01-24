@@ -315,8 +315,8 @@ class Model(object):
         kwargs = self._2fun(
             geometry=func_domain_geometry, is_par=is_par, **kwargs)
         # turn kwargs into a list of arguments
-        args = [v for k, v in kwargs.items()]
-        out = func(*args)
+        #args = [v for k, v in kwargs.items()]
+        out = func(**kwargs)
 
         # Return output as parameters
         # (and wrapped in CUQIarray if input was CUQIarray)
@@ -348,15 +348,16 @@ class Model(object):
 
         return Samples(out, geometry=func_range_geometry)
 
-    def _parse_args_add_to_kwargs(self, *args, is_par=True, **kwargs):
+    def _parse_args_add_to_kwargs(self, *args, is_par=True, non_default_args=None, **kwargs):
         """ Private function that parses the input arguments of the model and adds them as keyword arguments matching the non default arguments of the forward function. """
-
+        if non_default_args is None:
+            non_default_args = self._non_default_args
         if len(args) > 0:
 
             if len(kwargs) > 0:
                 raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
 
-            if len(args) != len(self._non_default_args):
+            if len(args) != len(non_default_args):
                 # Check if the input is stacked and split it
                 stacked_args_processed, split_args = self.is_stacked_args(*args, is_par=is_par)
                 args = split_args
@@ -369,7 +370,7 @@ class Model(object):
 
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
-                kwargs[self._non_default_args[idx]] = arg
+                kwargs[non_default_args[idx]] = arg
 
         return kwargs
 
@@ -752,15 +753,17 @@ class AffineModel(Model):
         self._shift = value
         self._forward_func = lambda *args, **kwargs: self._linear_operator(*args, **kwargs) + value
 
-    def _forward_func_no_shift(self, x, is_par=True):
+    def _forward_func_no_shift(self, *args, is_par=True, **kwargs):
         """ Helper function for computing the forward operator without the shift. """
-        return self._apply_func(self._linear_operator,
-                x=x, is_par=is_par)
+        # convert args to kwargs
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par)
+        return self._apply_func(self._linear_operator, **kwargs, is_par=is_par)
 
-    def _adjoint_func_no_shift(self, y, is_par=True):
+    def _adjoint_func_no_shift(self, *args, is_par=True, **kwargs):
         """ Helper function for computing the adjoint operator without the shift. """
-        return self._apply_func(self._linear_operator_adjoint,
-                y=y, is_par=is_par, fwd=False)
+        # convert args to kwargs
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par, non_default_args=list(inspect.signature(self._linear_operator_adjoint).parameters.keys()))
+        return self._apply_func(self._linear_operator_adjoint, **kwargs, is_par=is_par, fwd=False)
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -832,7 +835,7 @@ class LinearModel(AffineModel):
         #Initialize as AffineModel with shift=0
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
 
-    def adjoint(self, y, is_par=True):
+    def adjoint(self, *args, is_par=True, **kwargs):
         """ Adjoint of the model.
         
         Adjoint converts the input to function values (if needed) using the range geometry of the model.
@@ -848,13 +851,20 @@ class LinearModel(AffineModel):
         ndarray or cuqi.array.CUQIarray
             The adjoint model output. Always returned as parameters.
         """
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par,
+                                                non_default_args=list(inspect.signature(self._linear_operator_adjoint).parameters.keys()))
+
+        # length of kwargs should be 1
+        if len(kwargs) > 1:
+            raise ValueError(
+                "The adjoint operator input is specified by more than one argument. This is not supported.")
         if self._linear_operator_adjoint is None:
             raise ValueError("No adjoint operator was provided for this model.")
         return self._apply_func(self._linear_operator_adjoint,
-                                y=y, is_par=is_par, fwd=False)
+                                **kwargs, is_par=is_par, fwd=False)
 
-    def __matmul__(self, x):
-        return self.forward(x)
+    def __matmul__(self, *args, **kwargs):
+        return self.forward(*args, **kwargs)
         
     def get_matrix(self):
         """
@@ -884,8 +894,8 @@ class LinearModel(AffineModel):
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
         transpose = LinearModel(
-            lambda y: self.adjoint(y),
-            lambda x: self.forward(x), self.domain_geometry, self.range_geometry)
+            self._linear_operator_adjoint, self._linear_operator,
+            self.domain_geometry, self.range_geometry)
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
@@ -919,10 +929,16 @@ class PDEModel(Model):
         super().__init__(self._forward_func, range_geometry, domain_geometry, gradient=self._gradient_func)
 
         self.pde = PDE
+        # extract the non-default arguments of the PDE
+        self._non_default_args = inspect.signature(PDE.PDE_form).parameters.keys()
+        # remove t from the non-default arguments
+        self._non_default_args = list(self._non_default_args)
+        if 't' in self._non_default_args:
+            self._non_default_args.remove('t')
 
-    def _forward_func(self, x):
+    def _forward_func(self, **kwargs):
         
-        self.pde.assemble(parameter=x)
+        self.pde.assemble(**kwargs)
 
         sol, info = self.pde.solve()
 
