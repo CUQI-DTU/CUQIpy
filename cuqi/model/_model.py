@@ -159,7 +159,11 @@ class Model(object):
     def domain_geometry(self, value):
         """ Update the domain geometry of the model. """
         # Store domain_geometry
-        if isinstance(value, tuple) and len(value) == 2:
+        if isinstance(value, tuple) and\
+            all([isinstance(v, Geometry) for v in value]):
+            self._domain_geometry = cuqi.experimental.geometry._ProductGeometry(
+                *value)
+        elif isinstance(value, tuple) and len(value) == 2:
             self._domain_geometry = _DefaultGeometry2D(value)
         elif isinstance(value, int):
             self._domain_geometry = _DefaultGeometry1D(grid=value)
