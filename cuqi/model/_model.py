@@ -102,23 +102,24 @@ class Model(object):
         if callable(forward) is not True:
             raise TypeError("Forward needs to be callable function.")
 
+        # Store forward func
+        self._forward_func = forward
+        self._stored_non_default_args = None
+
         # Check if only one of gradient and jacobian is given
         if (gradient is not None) and (jacobian is not None):
             raise TypeError("Only one of gradient and jacobian should be specified")
 
-        # Check if input is callable
-        if (gradient is not None) and (callable(gradient) is not True):
-            raise TypeError("Gradient needs to be callable function.")
+        # Check correct gradient form
+        self._check_correct_gradient_form(gradient)
 
-        if (jacobian is not None) and (callable(jacobian) is not True):
-            raise TypeError("Jacobian needs to be callable function.")
+        # Check correct jacobian form
+        self._check_correct_jacobian_form(jacobian)
 
         # Use jacobian function to specify gradient function (vector-Jacobian product)
         if jacobian is not None:
             gradient = lambda direction, wrt: direction@jacobian(wrt)
 
-        # Store forward func
-        self._forward_func = forward
         self._gradient_func = gradient
 
         # Store range_geometry
@@ -126,10 +127,15 @@ class Model(object):
 
         # Store domain_geometry
         self.domain_geometry = domain_geometry
-
-        # Store non_default_args of the forward operator for faster caching when checking for those arguments.
-        self._non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
     
+    @property
+    def _non_default_args(self):
+        if self._stored_non_default_args is None:
+            # Store non_default_args of the forward operator for faster caching when checking for those arguments.
+            self._stored_non_default_args =\
+                cuqi.utilities.get_non_default_args(self._forward_func)
+        return self._stored_non_default_args
+
     @property
     def range_geometry(self):
         """ The geometry representing the range of the model. """
@@ -188,6 +194,71 @@ class Model(object):
         """
         return self.range_geometry.par_dim
 
+    def _check_correct_gradient_form(self, gradient):
+        """ Private function that checks if the gradient parameter is in the
+        correct form. """
+        if gradient is None:
+            return
+        
+        expected_gradient_non_default_args = ['direction'] + self._non_default_args
+
+        # gradient should be callable or a tuple of callables
+        if isinstance(gradient, tuple):
+            # tuple length should be same as the number of inputs
+            if len(gradient) != len(self._non_default_args):
+                raise ValueError(f"The gradient tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}")
+            # tuple items should be callables or None
+            if not all([callable(grad) or grad is None for grad in gradient]):
+                raise TypeError("Gradient tuple should contain callable functions or None.")
+        
+        elif callable(gradient):
+            gradient = (gradient,)
+
+        else:
+            raise TypeError("Gradient needs to be callable function or tuple of callable functions.")
+
+        for grad in gradient:
+            # make sure the signature of the gradient function is correct
+            # that is, the same as the expected_gradient_non_default_args
+            if grad is not None:
+                gradient_non_default_args = cuqi.utilities.get_non_default_args(grad)
+                
+                if set(gradient_non_default_args) != set(expected_gradient_non_default_args):
+                    raise ValueError(f"gradient function signature should be {expected_gradient_non_default_args}")
+
+    def _check_correct_jacobian_form(self, jacobian):
+        """ Private function that checks if the jacobian parameter is in the
+        correct form. """
+        if jacobian is None:
+            return
+
+        expected_jacobian_non_default_args = self._non_default_args
+
+        # jacobian should be callable or a tuple of callables
+        if isinstance(jacobian, tuple):
+            # tuple length should be same as the number of inputs
+            if len(jacobian) != len(self._non_default_args):
+                raise ValueError(f"The jacobian tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}")
+            # tuple items should be callables or None
+            if not all([callable(jac) or jac is None for jac in jacobian]):
+                raise TypeError("Jacobian tuple should contain callable functions or None.")
+            
+        elif callable(jacobian):
+            jacobian = (jacobian,)
+
+        else:
+            raise TypeError("Jacobian needs to be callable function or tuple of callable functions.")
+        
+        for jac in jacobian:
+            # make sure the signature of the jacobian function is correct
+            # that is, the same as the expected_jacobian_non_default_args
+            if jac is not None:
+                jacobian_non_default_args = cuqi.utilities.get_non_default_args(jac)
+                
+                if set(jacobian_non_default_args) != set(expected_jacobian_non_default_args):
+                    raise ValueError(f"jacobian function signature should be {expected_jacobian_non_default_args}")
+
+    
     def _2fun(self, geometry=None, is_par=True, **kwargs):
         """ Converts `x` to function values (if needed) using the appropriate 
         geometry. For example, `x` can be the model input which need to be
@@ -492,7 +563,7 @@ class Model(object):
             new_model = copy(self)
             # Update the non_default_args of the model to match the
             # distribution names. Defaults to x if distribution had no name
-            new_model._non_default_args = [x.name for x in kwargs.values()]
+            new_model._stored_non_default_args = [x.name for x in kwargs.values()]
 
             return new_model
 
@@ -765,8 +836,18 @@ class AffineModel(Model):
         # Update forward function to include shift (overwriting the one from Model class)
         self._forward_func = lambda *args, **kwargs: linear_operator(*args, **kwargs) + shift
 
-        # Use arguments from user's callable linear operator (overwriting those found by Model class)
-        self._non_default_args = cuqi.utilities.get_non_default_args(linear_operator)
+        # Set stored_non_default_args to None
+        self._stored_non_default_args = None
+
+    
+    @property
+    def _non_default_args(self):
+        if self._stored_non_default_args is None:
+            # Use arguments from user's callable linear operator (overwriting those found by Model class)
+            self._stored_non_default_args = cuqi.utilities.get_non_default_args(
+                self._linear_operator)
+        return self._stored_non_default_args
+        
 
     @property
     def shift(self):
@@ -951,16 +1032,24 @@ class PDEModel(Model):
 
         if not isinstance(PDE, cuqi.pde.PDE):
             raise ValueError("PDE needs to be a cuqi PDE.")
-
-        super().__init__(self._forward_func, range_geometry, domain_geometry, gradient=self._gradient_func)
-
+        # PDE needs to be set before calling super().__init__
+        # for the property _non_default_args to work
         self.pde = PDE
-        # extract the non-default arguments of the PDE
-        self._non_default_args = inspect.signature(PDE.PDE_form).parameters.keys()
-        # remove t from the non-default arguments
-        self._non_default_args = list(self._non_default_args)
-        if 't' in self._non_default_args:
-            self._non_default_args.remove('t')
+        self._stored_non_default_args = None
+
+        super().__init__(self._forward_func, range_geometry, domain_geometry)
+
+    @property
+    def _non_default_args(self):
+        if self._stored_non_default_args is None:    
+            # extract the non-default arguments of the PDE
+            self._stored_non_default_args = inspect.signature(self.pde.PDE_form).parameters.keys()
+            # remove t from the non-default arguments
+            self._stored_non_default_args = list(self._non_default_args)
+            if 't' in self._non_default_args:
+                self._stored_non_default_args.remove('t')
+
+        return self._stored_non_default_args
 
     def _forward_func(self, **kwargs):
         
