@@ -11,6 +11,7 @@ import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
 import inspect
+from functools import partial
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -116,9 +117,10 @@ class Model(object):
         # Check correct jacobian form
         self._check_correct_jacobian_form(jacobian)
 
-        # Use jacobian function to specify gradient function (vector-Jacobian product)
+        # If jacobian is provided, use it to specify gradient function 
+        # (vector-Jacobian product)
         if jacobian is not None:
-            gradient = lambda direction, wrt: direction@jacobian(wrt)
+            gradient = self._use_jacobian_to_specify_gradient(jacobian)
 
         self._gradient_func = gradient
 
@@ -258,7 +260,39 @@ class Model(object):
                 if set(jacobian_non_default_args) != set(expected_jacobian_non_default_args):
                     raise ValueError(f"jacobian function signature should be {expected_jacobian_non_default_args}")
 
+    def _use_jacobian_to_specify_gradient(self, jacobian):
+        """ Private function that uses the jacobian function to specify the
+        gradient function. """
+        # if jacobian is a single function
+        if callable(jacobian):
+            gradient = self._create_grad_lambda_function_with_correct_signature(jacobian)
+        # Jacobian is a tuple of jacobian functions
+        else:
+            # Jacobian is a tuple of jacobian functions
+            gradient = []
+            for jac in jacobian:
+                if jac is not None:
+                    gradient.append(self._create_grad_lambda_function_with_correct_signature(jac))
+                else:
+                    gradient.append(None)
+        return tuple(gradient) if isinstance(gradient, list) else gradient
     
+    def _create_grad_lambda_function_with_correct_signature(self, jacobian):
+        """ Private function that creates a lambda function with the correct
+        signature for the gradient function based on the model non_default_args.
+        """
+        # create the string representation of the lambda function
+        grad_fun_str = "lambda direction, " + ", ".join(self._non_default_args) + ", jacobian: direction@jacobian(" + ", ".join(self._non_default_args) + ")"
+        
+        # create the lambda function from the string
+        grad_func = eval(grad_fun_str)
+
+        # create partial function from the lambda function with jacobian as a 
+        # fixed argument
+        grad_func = partial(grad_func, jacobian=jacobian)
+
+        return grad_func
+
     def _2fun(self, geometry=None, is_par=True, **kwargs):
         """ Converts `x` to function values (if needed) using the appropriate 
         geometry. For example, `x` can be the model input which need to be
