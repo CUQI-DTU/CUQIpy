@@ -7,6 +7,212 @@ import pytest
 from scipy import optimize
 from copy import copy
 
+class TestMultipleInputModel:
+    def __init__(self):
+        self.model_class = None
+        self.forward = None
+        self.pde = None
+        self.gradient_form1 = None
+        self.gradient_form2 = None
+        self.gradient_form2_incomplete = None
+        self.jacobian_form1 = None
+        self.jacobian_form2 = None
+        self.jacobian_form2_incomplete = None
+        #self.adjoint = None
+        self.domain_geometry = None
+        self.range_geometry = None
+        self.test_data = []
+        self.model_variations = []
+
+    def populate_model_variations(self):
+        if self.pde is not None:
+            self.populate_pde_model_variations()
+        elif self.forward is not None:
+            self.populate_general_model_variations()
+
+    def populate_general_model_variations(self):
+        # model with forward
+        model = self.model_class(forward=self.forward,
+                                  domain_geometry=self.domain_geometry,
+                                  range_geometry=self.range_geometry)
+
+        # model with gradient from1
+        if self.gradient_form1 is not None:
+            model = self.model_class(forward=self.forward,
+                                      gradient=self.gradient_form1,
+                                      domain_geometry=self.domain_geometry,
+                                      range_geometry=self.range_geometry)
+            self.model_variations.append(model)
+
+        # model with gradient from2
+        if self.gradient_form2 is not None:
+            model = self.model_class(forward=self.forward,
+                                      gradient=self.gradient_form2,
+                                      domain_geometry=self.domain_geometry,
+                                      range_geometry=self.range_geometry)
+            self.model_variations.append(model)
+
+        # model with gradient from2 incomplete
+        if self.gradient_form2_incomplete is not None:
+            model = self.model_class(forward=self.forward,
+                                        gradient=self.gradient_form2_incomplete,
+                                        domain_geometry=self.domain_geometry,
+                                        range_geometry=self.range_geometry)
+            self.model_variations.append(model)
+
+        # model with jacobian from1
+        if self.jacobian_form1 is not None:
+            model = self.model_class(forward=self.forward,
+                                        jacobian=self.jacobian_form1,
+                                        domain_geometry=self.domain_geometry,
+                                        range_geometry=self.range_geometry)
+            self.model_variations.append(model)
+
+        # model with jacobian from2
+        if self.jacobian_form2 is not None:
+            model = self.model_class(forward=self.forward,
+                                        jacobian=self.jacobian_form2,
+                                        domain_geometry=self.domain_geometry,
+                                        range_geometry=self.range_geometry)
+            self.model_variations.append(model)
+
+        # model with jacobian from2 incomplete
+        if self.jacobian_form2_incomplete is not None:
+            model = self.model_class(forward=self.forward,
+                                        jacobian=self.jacobian_form2_incomplete,
+                                        domain_geometry=self.domain_geometry,
+                                        range_geometry=self.range_geometry)
+            self.model_variations.append(model)
+
+    def populate_pde_model_variations(self):
+        # model with PDE
+        model = self.model_class(self.pde,
+                                 domain_geometry=self.domain_geometry,
+                                 range_geometry=self.range_geometry)
+        self.model_variations.append(model)
+
+    @staticmethod
+    def create_test_model_list():
+        test_model_list = []
+
+        # Model 1
+        test_model = TestMultipleInputModel.helper_build_three_input_test_model()
+        test_model.populate_model_variations()
+        test_model_list.append(test_model)
+    
+        # Model 2
+        test_model = TestMultipleInputModel.helper_build_steady_state_PDE_test_model()
+        test_model.populate_model_variations()
+        test_model_list.append(test_model)
+
+        # Model 3
+
+        # Model 4
+
+        return test_model_list
+    
+    @staticmethod
+    def helper_build_three_input_test_model():
+        test_model = TestMultipleInputModel()
+        test_model.forward = lambda x, y, z: x * y[0] + z * y[1]
+
+        def gradient_x(direction, x, y, z):
+            return direction * y[0]
+        
+        def gradient_y(direction, x, y, z):
+            return np.ndarray([direction @ x, direction @ z])
+        
+        def gradient_z(direction, x, y, z):
+            return direction * y[1]
+        
+        def gradient_form1(direction, x, y, z):
+            grad_x = gradient_x(direction, x, y, z)
+            grad_y = gradient_y(direction, x, y, z)
+            grad_z = gradient_z(direction, x, y, z)
+            return np.concatenate([grad_x, grad_y, grad_z])
+        
+        test_model.gradient_form1 = gradient_form1
+        test_model.gradient_form2 = (gradient_x, gradient_y, gradient_z)
+        test_model.gradient_form2_incomplete = (gradient_x, None, gradient_z)
+
+        def jacobian_x(x, y, z):
+            ones = np.ones_like(x)
+            return np.diag(y[0] * ones)
+        
+        def jacobian_y(x, y, z):
+            return np.array([x, z]).T
+        
+        def jacobian_z(x, y, z):
+            ones = np.ones_like(x)
+            return np.diag(y[1] * ones)
+        
+        def jacobian_form1(x, y, z):
+            jac_x = jacobian_x(x, y, z)
+            jac_y = jacobian_y(x, y, z)
+            jac_z = jacobian_z(x, y, z)
+            return np.concatenate([jac_x, jac_y, jac_z])
+
+        test_model.jacobian_form1 = jacobian_form1
+        test_model.jacobian_form2 = (jacobian_x, jacobian_y, jacobian_z)
+        test_model.jacobian_form2_incomplete = (None, jacobian_y, jacobian_z)
+
+        test_model.domain_geometry = (cuqi.geometry.Continuous1D(3),
+                cuqi.geometry.Continuous1D(2),
+                cuqi.geometry.Continuous1D(3))
+        test_model.range_geometry = cuqi.geometry.Continuous1D(3)
+        test_model.model_class = cuqi.model.Model
+        return test_model
+
+    @staticmethod
+    def helper_build_steady_state_PDE_test_model():
+    # method that builds a multiple input PDE model
+
+        # Poisson equation
+        dim = 20 #Number of nodes
+        L = 20 # Length of the domain
+        dx = L/(dim-1) # grid spacing 
+        grid_sol = np.linspace(dx, L, dim-1, endpoint=False)
+        grid_obs = grid_sol[5:]
+        source =  lambda mag: mag*np.sin(grid_sol) #source term
+        kappa = np.ones(dim) #kappa is the diffusivity 
+    
+        # Build the solver
+        FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
+        diff_operator = lambda kappa_scale: FOFD_operator.T @ np.diag(kappa_scale*kappa) @ FOFD_operator
+        poisson_form = lambda mag, kappa_scale: (diff_operator(kappa_scale), source(mag))
+        CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
+
+        test_model = TestMultipleInputModel()
+        test_model.model_class = cuqi.model.PDEModel
+        test_model.pde = CUQI_pde
+        test_model.domain_geometry = (Discrete(["mag"]), Discrete(['kappa_scale']))
+        test_model.range_geometry = Continuous1D(dim-1)
+        return test_model
+
+class TestCase:
+    def __init__(self):
+        self.test_model = None
+        self.forward_input = None
+        self.direction = None
+        self.expected_fwd_output = None
+        self.expected_grad_output = None
+        self.expected_jac_output = None
+        self.expected_adjoint_output = None
+        self.FD_grad_output = None
+        self.FD_jac_output = None
+
+    def create_input(self):
+        # create a kwarg dictionary for the inputs
+        input_dict = {}
+        for i, arg in enumerate(self.test_model._non_default_args):
+            input_dict[arg] = np.random.randn(self.test_model.domain_geometry.geometries[i].par_dim)
+        self.forward_input = input_dict
+    
+    def create_direction(self):
+        self.direction = np.random.randn(self.model.range_geometry.par_dim)
+
+
+multiple_input_test_model_list = TestMultipleInputModel.create_test_model_list()
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
 def test_LinearModel_getMatrix(seed):
@@ -71,7 +277,7 @@ def test_forward(x, expected_type):
 
     model = cuqi.model.Model(forward=lambda x:A@x,
                             gradient=lambda direction,
-                            wrt: A.T@direction,
+                            x: A.T@direction,
                             domain_geometry=cuqi.geometry.Continuous1D(3),
                             range_geometry=cuqi.geometry.Continuous1D(2))
 
@@ -198,7 +404,7 @@ def test_gradient(direction, expected_type):
 
     model = cuqi.model.Model(forward=lambda x:A@x,
                             gradient=lambda direction,
-                            wrt: A.T@direction,
+                            x: A.T@direction,
                             domain_geometry=cuqi.geometry.Continuous1D(3),
                             range_geometry=cuqi.geometry.Continuous1D(2))
 
@@ -248,7 +454,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
 
     model = cuqi.model.Model(forward=lambda x:x@A@x,
                             gradient=lambda direction,
-                            wrt: 2*wrt@A@direction,
+                            x: 2*x@A@direction,
                             domain_geometry=domain_geometry,
                             range_geometry=range_geometry)
 
@@ -279,11 +485,11 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
             grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
 
 
-@pytest.mark.parametrize("forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par",
+@pytest.mark.parametrize("forward, gradient, direction, x, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par",
                          [
                              (
                                  lambda x: np.array([[1, 0, 0], [0, 3, .1]])@x,
-                                 lambda direction, wrt: np.array(
+                                 lambda direction, x: np.array(
                                      [[1, 0, 0], [0, 3, .1]]).T@direction,
                                  np.array([1, 12]),
                                  np.array([1, 12, 8]),
@@ -296,7 +502,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
                              ),
                              (
                                  lambda x: np.array([[1, 2, 8], [1, 3, .1]])@x,
-                                 lambda direction, wrt: np.array(
+                                 lambda direction, x: np.array(
                                      [[1, 2, 8], [1, 3, .1]]).T@direction,
                                  np.array([1, 12]),
                                  np.array([1, 12, 8]),
@@ -390,7 +596,7 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
                              ),
                          ]
                          )
-def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par):
+def test_gradient_computation(forward, gradient, direction, x, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par):
     """Test applying chain rule when computing the gradient"""
     model = cuqi.model.Model(forward=forward,
                              gradient=gradient,
@@ -399,21 +605,21 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
     model.domain_geometry.gradient = domain_gradient
 
     # Set CUQIarray geometries
-    if isinstance(wrt, CUQIarray):
-        wrt.geometry = domain_geometry
+    if isinstance(x, CUQIarray):
+        x.geometry = domain_geometry
     if isinstance(direction, CUQIarray):
         direction.geometry = range_geometry
     # Compute cuqi model gradient 
-    grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+    grad = model.gradient(direction, x, is_wrt_par=is_wrt_par)
 
     # If wrt is function value, convert wrt to parameters to
     # be passed as an input for to cuqi.utilities.approx_derivative
-    if isinstance(wrt, CUQIarray):
-        wrt_ndarray = np.zeros(len(wrt.parameters))
-        wrt_ndarray[:] = wrt.parameters
-        wrt = wrt_ndarray
+    if isinstance(x, CUQIarray):
+        wrt_ndarray = np.zeros(len(x.parameters))
+        wrt_ndarray[:] = x.parameters
+        x = wrt_ndarray
     if not is_wrt_par:
-        wrt = domain_geometry.fun2par(wrt)
+        x = domain_geometry.fun2par(x)
 
     if isinstance(direction, CUQIarray):
         direction_ndarray = np.zeros(len(direction.parameters))
@@ -423,7 +629,7 @@ def test_gradient_computation(forward, gradient, direction, wrt, domain_geometry
         direction = range_geometry.fun2par(direction)
     # Compute a finite difference approximation of cuqi model gradient 
     findiff_grad = cuqi.utilities.approx_derivative(
-        model.forward, wrt, direction)
+        model.forward, x, direction)
 
     # Compare the two gradients
     assert(np.allclose(grad, findiff_grad))
@@ -532,8 +738,8 @@ def test_model_allows_jacobian_or_gradient():
         return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
     def jacobian(x):
         return np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
-    def gradient(dir, wrt):
-        return dir@jacobian(wrt)
+    def gradient(direction, x):
+        return direction@jacobian(x)
     
     # Check not both can be specified
     with pytest.raises(TypeError, match=r"Only one of gradient and jacobian"):
@@ -620,31 +826,11 @@ def test_AffineModel_update_shift():
     model_copy.shift = new_shift
     assert np.all(model_copy(x) == np.array([3,0]))
 
-# method that builds a multiple input PDE model
-def build_model():
-    # Random vectors
-    # Poisson equation
-    dim = 20 #Number of nodes
-    L = 20 # Length of the domain
-    dx = L/(dim-1) # grid spacing 
-    grid_sol = np.linspace(dx, L, dim-1, endpoint=False)
-    grid_obs = grid_sol[5:]
-    source =  lambda mag: mag*np.sin(grid_sol) #source term
-    kappa = np.ones(dim) #kappa is the diffusivity 
-
-    # Build the solver
-    FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
-    diff_operator = lambda kappa_scale: FOFD_operator.T @ np.diag(kappa_scale*kappa) @ FOFD_operator
-    poisson_form = lambda mag, kappa_scale: (diff_operator(kappa_scale), source(mag))
-    CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
-    pde_model = cuqi.model.PDEModel(CUQI_pde,
-                                    domain_geometry=(Discrete(["mag"]), Discrete(['kappa_scale'])), range_geometry=Continuous1D(dim-1))
-    return pde_model
-
 def test_PDE_model_multiple_input():
     """ Test that the PDE model can handle multiple inputs and return the correct output type"""
-
-    CUQI_pde = build_model()
+    pde_test_model = TestMultipleInputModel.helper_build_steady_state_PDE_test_model()
+    pde_test_model.populate_model_variations()
+    CUQI_pde = pde_test_model.model_variations[0] # PDE model with multiple inputs
 
     # Check that the model has switched its parameter name
     assert CUQI_pde._non_default_args == ['mag', 'kappa_scale']
