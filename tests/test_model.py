@@ -992,3 +992,28 @@ def test_PDE_model_multiple_input():
 
     # And check that we can provide positional arguments
     assert CUQI_pde(2, 2) is not None
+
+def test_constructing_gradient_from_jacobian():
+    """ Test that the gradient is correctly constructed from the
+    jacobian when only the jacobian is specified """
+
+    model = cuqi.model.Model(
+        lambda x, y: x * 2 + y,
+        domain_geometry=(Discrete(1), Discrete(1)),
+        range_geometry=1,
+        jacobian=lambda x, y: np.array([[2, 1]]),
+    )
+
+    # Evaluate the gradient which was constructed from the jacobian:
+    grad1 = model._gradient_func(x=1, y=1, direction=np.array([2]))
+
+    # Compute the gradient using the FD approximation:
+
+    # slightly different form of the forward function
+    # that takes a single input (which approx_derivative requires)
+    forward2 = lambda x: x[0] * 2 + x[1]
+    grad2 = cuqi.utilities.approx_derivative(
+        forward2, np.array([1, 1]), np.array([2]), 1e-6
+    )
+
+    assert np.allclose(grad1, grad2)
