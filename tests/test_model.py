@@ -5,7 +5,7 @@ import scipy as sp
 import cuqi
 import pytest
 from scipy import optimize
-from copy import copy
+from copy import copy, deepcopy
 
 class TestMultipleInputModel:
     def __init__(self):
@@ -18,7 +18,6 @@ class TestMultipleInputModel:
         self.jacobian_form1 = None
         self.jacobian_form2 = None
         self.jacobian_form2_incomplete = None
-        #self.adjoint = None
         self.domain_geometry = None
         self.range_geometry = None
         self.test_data = []
@@ -98,16 +97,17 @@ class TestMultipleInputModel:
         # Model 1
         test_model = TestMultipleInputModel.helper_build_three_input_test_model()
         test_model.populate_model_variations()
+        TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
     
         # Model 2
         test_model = TestMultipleInputModel.helper_build_steady_state_PDE_test_model()
         test_model.populate_model_variations()
+        TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
 
         # Model 3
 
-        # Model 4
 
         return test_model_list
     
@@ -120,7 +120,7 @@ class TestMultipleInputModel:
             return direction * y[0]
         
         def gradient_y(direction, x, y, z):
-            return np.ndarray([direction @ x, direction @ z])
+            return np.array([direction @ x, direction @ z])
         
         def gradient_z(direction, x, y, z):
             return direction * y[1]
@@ -190,27 +190,179 @@ class TestMultipleInputModel:
         return test_model
 
 class TestCase:
-    def __init__(self):
-        self.test_model = None
+    def __init__(self, test_model):
+        self._test_model = test_model
+        self._non_default_args = self._test_model.model_variations[0]._non_default_args
         self.forward_input = None
         self.direction = None
         self.expected_fwd_output = None
         self.expected_grad_output = None
-        self.expected_jac_output = None
-        self.expected_adjoint_output = None
+        self.expected_fwd_output_type = None
+        self.expected_grad_output_type = None
         self.FD_grad_output = None
-        self.FD_jac_output = None
 
     def create_input(self):
         # create a kwarg dictionary for the inputs
         input_dict = {}
-        for i, arg in enumerate(self.test_model._non_default_args):
-            input_dict[arg] = np.random.randn(self.test_model.domain_geometry.geometries[i].par_dim)
+        for i, arg in enumerate(self._non_default_args):
+            input_dict[arg] = np.random.randn(self._test_model.domain_geometry[i].par_dim)
         self.forward_input = input_dict
     
     def create_direction(self):
-        self.direction = np.random.randn(self.model.range_geometry.par_dim)
+        self.direction = np.random.randn(self._test_model.range_geometry.par_dim)
 
+    def compute_expected_fwd_output(self):
+        self.expected_fwd_output = self.model_forward(**self.forward_input)
+    
+    @property
+    def model_forward(self):
+        if self._test_model.pde is not None:
+            _forward = self._test_model.model_variations[0].forward
+        else:
+            _forward = self._test_model.forward
+        return _forward
+        
+
+    def compute_expected_grad_output(self):
+        self.expected_grad_output = self._test_model.gradient_form1(self.direction, **self.forward_input)
+    
+    def compute_FD_grad_output(self):
+        FD_grad_list = []
+        for k, v in self.forward_input.items():
+            #forward_input without k, v
+            forward_input = self.forward_input.copy()
+            del forward_input[k]
+            fwd = lambda x: self._test_model.forward(**forward_input, **{k:x})
+            if isinstance(v, cuqi.array.CUQIarray):
+                v = v.to_numpy()
+            direction = self.direction
+            if isinstance(self.direction, cuqi.array.CUQIarray):
+                direction = self.direction.to_numpy()
+            FD_grad = cuqi.utilities.approx_derivative(fwd, v, direction)
+            FD_grad_list.append(FD_grad)
+        self.FD_grad_output = np.concatenate(FD_grad_list)
+
+    @staticmethod
+    def create_test_cases_for_test_model(test_model):
+        # Case 1: all inputs are numpy arrays
+        test_case = TestCase(test_model)
+        test_case.create_input()
+        test_case.compute_expected_fwd_output()
+        test_case.expected_fwd_output_type = np.ndarray
+        
+        if test_model.gradient_form1 is not None:
+            test_case.create_direction()
+            test_case.compute_expected_grad_output()
+            test_case.compute_FD_grad_output()
+            test_case.expected_grad_output_type = np.ndarray
+
+        test_model.test_data.append(test_case)
+
+        # Case 2: all inputs are CUQIarrays
+        test_case = TestCase(test_model)
+        test_case.create_input()
+        for i, (k, v) in enumerate(test_case.forward_input.items()):
+            test_case.forward_input[k] = cuqi.array.CUQIarray(v, geometry=test_model.domain_geometry[i])
+        test_case.compute_expected_fwd_output()
+        test_case.expected_fwd_output = cuqi.array.CUQIarray(test_case.expected_fwd_output, geometry=test_model.range_geometry)
+        test_case.expected_fwd_output_type = cuqi.array.CUQIarray
+
+        if test_model.gradient_form1 is not None:
+            test_case.create_direction()
+            test_case.direction = cuqi.array.CUQIarray(test_case.direction, geometry=test_model.range_geometry)
+            test_case.compute_expected_grad_output()
+            test_case.expected_grad_output = cuqi.array.CUQIarray(test_case.expected_grad_output, geometry=test_model.domain_geometry)
+            test_case.compute_FD_grad_output()
+            test_case.FD_grad_output = cuqi.array.CUQIarray(test_case.FD_grad_output, geometry=test_model.domain_geometry)
+            test_case.expected_grad_output_type = cuqi.array.CUQIarray
+
+        test_model.test_data.append(test_case)
+
+        # Case 3: inputs are mix of CUQIarrays and numpy arrays
+        test_case = TestCase(test_model)
+        test_case.create_input()
+        for i, (k, v) in enumerate(test_case.forward_input.items()):
+            if i == 0:
+                test_case.forward_input[k] = cuqi.array.CUQIarray(v, geometry=test_model.domain_geometry[i])
+        test_case.compute_expected_fwd_output()
+        test_case.expected_fwd_output = cuqi.array.CUQIarray(test_case.expected_fwd_output, geometry=test_model.range_geometry)
+        test_case.expected_fwd_output_type = cuqi.array.CUQIarray
+
+        if test_model.gradient_form1 is not None:
+            test_case.create_direction()
+            test_case.compute_expected_grad_output()
+            test_case.expected_grad_output = cuqi.array.CUQIarray(test_case.expected_grad_output, geometry=test_model.domain_geometry)
+            test_case.compute_FD_grad_output()
+            test_case.FD_grad_output = cuqi.array.CUQIarray(test_case.FD_grad_output, geometry=test_model.domain_geometry)
+            test_case.expected_grad_output_type = cuqi.array.CUQIarray
+
+        test_model.test_data.append(test_case)
+
+        # Case 4: same as previous case but direction is a CUQIarray
+        test_case = deepcopy(test_case)
+        if test_model.gradient_form1 is not None:
+            test_case.direction = cuqi.array.CUQIarray(test_case.direction, geometry=test_model.range_geometry)
+
+        test_model.test_data.append(test_case)
+
+        # Case 5: inputs are mix of CUQIarrays and samples # should raise an error
+        test_case = TestCase(test_model)
+        test_case.create_input()
+        for i, (k, v) in enumerate(test_case.forward_input.items()):
+            if i == 0:
+                v2 = 1.3*v
+                samples = np.hstack([v, v2]).T
+                test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+            else:
+                test_case.forward_input[k] = cuqi.array.CUQIarray(v, geometry=test_model.domain_geometry[i])
+        test_case.expected_fwd_output = TypeError("some msg")
+
+        if test_model.gradient_form1 is not None:
+            test_case.create_direction()
+            test_case.expected_grad_output = TypeError("some other msg")
+
+        test_model.test_data.append(test_case)
+
+        # Case 5: inputs are samples # should work for forward but not for gradient
+        test_case = TestCase(test_model)
+        test_case.create_input()
+        for i, (k, v) in enumerate(test_case.forward_input.items()):
+            v2 = 1.5*v
+            samples = np.vstack([v, v2]).T
+            test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+        expected_fwd_output = []
+        for i in range(2):
+            input_i = {k: v.samples[:,i] for k, v in test_case.forward_input.items()}
+            expected_fwd_output.append(test_case.model_forward(**input_i))
+        expected_fwd_output = np.hstack(expected_fwd_output).T
+        test_case.expected_fwd_output_type = cuqi.samples.Samples(expected_fwd_output, geometry=test_model.range_geometry)
+
+        if test_model.gradient_form1 is not None:
+            test_case.create_direction()
+            test_case.expected_grad_output = NotImplementedError("some third msg")
+
+        test_model.test_data.append(test_case)
+        
+        # Case 6: inputs are samples but of different length # should raise an error
+        test_case = TestCase(test_model)
+        test_case.create_input()
+        for i, (k, v) in enumerate(test_case.forward_input.items()):
+            if i==0:
+                v2 = 1.5*v
+                samples = np.hstack([v, v2]).T
+                test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+            else:
+                v2 = 1.5*v
+                v3 = 2*v
+                samples = np.hstack([v, v2, v3]).T
+                test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+        test_case.expected_fwd_output = ValueError("some fourth msg")
+
+        if test_model.gradient_form1 is not None:
+            test_case.create_direction()
+            test_case.expected_grad_output = NotImplementedError("some fifth msg")
+
+        test_model.test_data.append(test_case)
 
 multiple_input_test_model_list = TestMultipleInputModel.create_test_model_list()
 
