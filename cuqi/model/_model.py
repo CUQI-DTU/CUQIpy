@@ -122,31 +122,53 @@ class Model(object):
         self._gradient_func = gradient
 
         # Store range_geometry
-        if isinstance(range_geometry, tuple) and len(range_geometry) == 2:
-            self.range_geometry = _DefaultGeometry2D(range_geometry)
-        elif isinstance(range_geometry, int):
-            self.range_geometry = _DefaultGeometry1D(grid=range_geometry)
-        elif isinstance(range_geometry, Geometry):
-            self.range_geometry = range_geometry
-        elif range_geometry is None:
-            raise AttributeError("The parameter 'range_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'.")
-        else:
-            raise TypeError("The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
+        self.range_geometry = range_geometry
 
         # Store domain_geometry
-        if isinstance(domain_geometry, tuple) and len(domain_geometry) == 2:
-            self.domain_geometry = _DefaultGeometry2D(domain_geometry)
-        elif isinstance(domain_geometry, int):
-            self.domain_geometry = _DefaultGeometry1D(grid=domain_geometry)
-        elif isinstance(domain_geometry, Geometry):
-            self.domain_geometry = domain_geometry
-        elif domain_geometry is None:
-            raise AttributeError("The parameter 'domain_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
-        else:
-            raise TypeError("The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
+        self.domain_geometry = domain_geometry
 
         # Store non_default_args of the forward operator for faster caching when checking for those arguments.
         self._non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
+    
+    @property
+    def range_geometry(self):
+        """ The geometry representing the range of the model. """
+        return self._range_geometry
+    
+    @range_geometry.setter
+    def range_geometry(self, value):
+        """ Update the range geometry of the model. """
+                # Store range_geometry
+        if isinstance(value, tuple) and len(value) == 2:
+            self._range_geometry = _DefaultGeometry2D(value)
+        elif isinstance(value, int):
+            self._range_geometry = _DefaultGeometry1D(grid=value)
+        elif isinstance(value, Geometry):
+            self._range_geometry = value
+        elif value is None:
+            raise AttributeError("The parameter 'range_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'.")
+        else:
+            raise TypeError("The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
+        
+    @property
+    def domain_geometry(self):
+        """ The geometry representing the domain of the model. """
+        return self._domain_geometry
+    
+    @domain_geometry.setter
+    def domain_geometry(self, value):
+        """ Update the domain geometry of the model. """
+        # Store domain_geometry
+        if isinstance(value, tuple) and len(value) == 2:
+            self._domain_geometry = _DefaultGeometry2D(value)
+        elif isinstance(value, int):
+            self._domain_geometry = _DefaultGeometry1D(grid=value)
+        elif isinstance(value, Geometry):
+            self._domain_geometry = value
+        elif value is None:
+            raise AttributeError("The parameter 'domain_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
+        else:
+            raise TypeError("The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
 
     @property
     def domain_dim(self):
