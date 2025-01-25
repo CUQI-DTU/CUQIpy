@@ -641,17 +641,6 @@ def build_model():
                                     domain_geometry=(Discrete(["mag"]), Discrete(['kappa_scale'])), range_geometry=Continuous1D(dim-1))
     return pde_model
 
-    #mag_exact = 2
-    #kappa_scale_exact = 2
-    #CUQI_pde.assemble(mag_exact, kappa_scale_exact)
-    #sol, info = CUQI_pde.solve()
-    #observed_sol = CUQI_pde.observe(sol)
-
-
-    #expected_observed_sol =  scipy.linalg.solve(diff_operator, source(2))[5:]**2
-
-    #assert(np.all(np.isclose(observed_sol, expected_observed_sol)))
-
 def test_PDE_model_multiple_input():
     """ Test that the PDE model can handle multiple inputs and return the correct output type"""
 
