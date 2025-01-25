@@ -638,7 +638,7 @@ def build_model():
     poisson_form = lambda mag, kappa_scale: (diff_operator(kappa_scale), source(mag))
     CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
     pde_model = cuqi.model.PDEModel(CUQI_pde,
-                                    domain_geometry=cuqi.experimental.geometry._ProductGeometry(Discrete(["mag"]), Discrete(['kappa_scale'])), range_geometry=Continuous1D(dim-1))
+                                    domain_geometry=(Discrete(["mag"]), Discrete(['kappa_scale'])), range_geometry=Continuous1D(dim-1))
     return pde_model
 
     #mag_exact = 2
