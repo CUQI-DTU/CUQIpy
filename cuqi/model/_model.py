@@ -718,7 +718,7 @@ class Model(object):
             raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
         
         new_model = copy(self)
-        new_model._non_default_args = [dist.name]
+        new_model._stored_non_default_args = [dist.name]
         return new_model
 
     def __len__(self):
