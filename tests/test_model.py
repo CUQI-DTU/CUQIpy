@@ -196,7 +196,7 @@ class TestMultipleInputModel:
         test_model.model_class = cuqi.model.PDEModel
         test_model.pde = CUQI_pde
         test_model.domain_geometry = (Discrete(["mag"]), Discrete(['kappa_scale']))
-        test_model.range_geometry = Continuous1D(dim-1)
+        test_model.range_geometry = Continuous1D(len(grid_obs))
         return test_model
 
 class TestCase:
@@ -325,7 +325,8 @@ class TestCase:
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
             else:
                 test_case.forward_input[k] = cuqi.array.CUQIarray(v, geometry=test_model.domain_geometry[i])
-        test_case.expected_fwd_output = TypeError("some msg")
+        test_case.expected_fwd_output = TypeError(
+                "If applying the function to Samples, all inputs should be Samples.")
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
@@ -344,7 +345,7 @@ class TestCase:
         for i in range(2):
             input_i = {k: v.samples[:,i] for k, v in test_case.forward_input.items()}
             expected_fwd_output.append(test_case.model_forward(**input_i))
-        expected_fwd_output = np.hstack(expected_fwd_output).T
+        expected_fwd_output = np.vstack(expected_fwd_output).T
         test_case.expected_fwd_output = cuqi.samples.Samples(expected_fwd_output, geometry=test_model.range_geometry)
         test_case.expected_fwd_output_type = cuqi.samples.Samples
 
@@ -367,7 +368,8 @@ class TestCase:
                 v3 = 2*v
                 samples = np.hstack([v, v2, v3]).T
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
-        test_case.expected_fwd_output = ValueError("some fourth msg")
+        test_case.expected_fwd_output = ValueError(
+                "If applying the function to Samples, all inputs should have the same number of samples.")
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
@@ -376,10 +378,9 @@ class TestCase:
         test_model.test_data.append(test_case)
 
 model_test_case_combinations = TestMultipleInputModel.create_model_test_case_combinations()
-model_test_case_combinations = [] #TODO: remove this line
 
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
-def test_multiple_input_model(test_model, test_data):
+def test_multiple_input_model_forward(test_model, test_data):
     print(test_model, test_data)
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
@@ -387,9 +388,15 @@ def test_multiple_input_model(test_model, test_data):
         (NotImplementedError, TypeError, ValueError)):
         fwd_output = test_model(**test_data.forward_input)
         assert isinstance(fwd_output, test_data.expected_fwd_output_type)
-        assert np.allclose(fwd_output, test_data.expected_fwd_output)
+        if isinstance(fwd_output, np.ndarray):
+            assert np.allclose(fwd_output, test_data.expected_fwd_output)
+        elif isinstance(fwd_output, cuqi.samples.Samples):
+            assert np.allclose(fwd_output.samples, test_data.expected_fwd_output.samples)
+        else:
+            raise NotImplementedError("Checks for other types of outputs not implemented.")
     else:
-        raise NotImplementedError("need to capture cases when computing forward output raises an error")
+        with pytest.raises(type(test_data.expected_fwd_output), match=str(test_data.expected_fwd_output)):
+            fwd_output = test_model(**test_data.forward_input)
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
 def test_LinearModel_getMatrix(seed):
