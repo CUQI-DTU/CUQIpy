@@ -467,15 +467,19 @@ class Model(object):
             self.range_geometry if fwd else self.domain_geometry
 
         # all kwargs should be Samples of the same length
-        if not all(isinstance(x, Samples) for x in kwargs.values()) and\
-            not all(x.Ns == kwargs.values()[0].Ns for x in kwargs.values()):
-            raise ValueError(
-                "All input arguments should be Samples of the same length.")
+        if not all(isinstance(x, Samples) for x in kwargs.values()):
+            raise TypeError(
+                "If applying the function to Samples, all inputs should be Samples.")
 
-        out = np.zeros((func_range_geometry.par_dim, list(kwargs.values())[0].Ns))
+        Ns = list(kwargs.values())[0].Ns        
+        if not all(x.Ns == Ns for x in kwargs.values()):
+            raise ValueError(
+                "If applying the function to Samples, all inputs should have the same number of samples.")
+
+        out = np.zeros((func_range_geometry.par_dim, Ns))
 
         # Recursively apply func to each sample
-        for i in range(list(kwargs.values())[0].Ns):
+        for i in range(Ns):
             kwargs_i = {k: v.samples[...,i] for k, v in kwargs.items()}
             out[:,i] = self._apply_func(func=func,
                                         fwd=fwd,
