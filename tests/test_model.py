@@ -34,6 +34,7 @@ class TestMultipleInputModel:
         model = self.model_class(forward=self.forward,
                                   domain_geometry=self.domain_geometry,
                                   range_geometry=self.range_geometry)
+        self.model_variations.append(model)
 
         # model with gradient from1
         if self.gradient_form1 is not None:
@@ -91,7 +92,8 @@ class TestMultipleInputModel:
         self.model_variations.append(model)
 
     @staticmethod
-    def create_test_model_list():
+    def create_model_test_case_combinations():
+        model_test_case_combinations = []
         test_model_list = []
 
         # Model 1
@@ -109,7 +111,15 @@ class TestMultipleInputModel:
         # Model 3
 
 
-        return test_model_list
+        # append all combinations of test model variations and test cases
+        # to model_test_case_combinations
+        for test_model in test_model_list:
+            for test_model_variation in test_model.model_variations:
+                for test_data_item in test_model.test_data:
+                    model_test_case_combinations.append(
+                        (test_model_variation, test_data_item))
+        
+        return model_test_case_combinations
     
     @staticmethod
     def helper_build_three_input_test_model():
@@ -323,7 +333,7 @@ class TestCase:
 
         test_model.test_data.append(test_case)
 
-        # Case 5: inputs are samples # should work for forward but not for gradient
+        # Case 6: inputs are samples # should work for forward but not for gradient
         test_case = TestCase(test_model)
         test_case.create_input()
         for i, (k, v) in enumerate(test_case.forward_input.items()):
@@ -335,7 +345,8 @@ class TestCase:
             input_i = {k: v.samples[:,i] for k, v in test_case.forward_input.items()}
             expected_fwd_output.append(test_case.model_forward(**input_i))
         expected_fwd_output = np.hstack(expected_fwd_output).T
-        test_case.expected_fwd_output_type = cuqi.samples.Samples(expected_fwd_output, geometry=test_model.range_geometry)
+        test_case.expected_fwd_output = cuqi.samples.Samples(expected_fwd_output, geometry=test_model.range_geometry)
+        test_case.expected_fwd_output_type = cuqi.samples.Samples
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
@@ -343,7 +354,7 @@ class TestCase:
 
         test_model.test_data.append(test_case)
         
-        # Case 6: inputs are samples but of different length # should raise an error
+        # Case 7: inputs are samples but of different length # should raise an error
         test_case = TestCase(test_model)
         test_case.create_input()
         for i, (k, v) in enumerate(test_case.forward_input.items()):
@@ -364,7 +375,21 @@ class TestCase:
 
         test_model.test_data.append(test_case)
 
-multiple_input_test_model_list = TestMultipleInputModel.create_test_model_list()
+model_test_case_combinations = TestMultipleInputModel.create_model_test_case_combinations()
+model_test_case_combinations = [] #TODO: remove this line
+
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
+def test_multiple_input_model(test_model, test_data):
+    print(test_model, test_data)
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+    if not isinstance(test_data.expected_fwd_output,
+        (NotImplementedError, TypeError, ValueError)):
+        fwd_output = test_model(**test_data.forward_input)
+        assert isinstance(fwd_output, test_data.expected_fwd_output_type)
+        assert np.allclose(fwd_output, test_data.expected_fwd_output)
+    else:
+        raise NotImplementedError("need to capture cases when computing forward output raises an error")
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
 def test_LinearModel_getMatrix(seed):
@@ -1005,7 +1030,9 @@ def test_constructing_gradient_from_jacobian():
     )
 
     # Evaluate the gradient which was constructed from the jacobian:
-    grad1 = model._gradient_func(x=1, y=1, direction=np.array([2]))
+    grad1 = model.gradient(x=1, y=1, direction=np.array([2]))
+    # stack grad1
+    grad1 = np.hstack([grad1[k] for k in grad1])
 
     # Compute the gradient using the FD approximation:
 
