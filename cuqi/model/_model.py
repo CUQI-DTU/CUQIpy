@@ -725,8 +725,9 @@ class Model(object):
                                 is_par=is_wrt_par,
                                 **kwargs)
 
-        # Store if the input direction is CUQIarray
-        is_direction_CUQIarray = type(direction) is CUQIarray
+        # Store if any of the inputs is a CUQIarray
+        is_any_input_CUQIarray = isinstance(direction, CUQIarray) or\
+            any(isinstance(x, CUQIarray) for x in kwargs_fun.values())
 
         direction = self._2fun(direction=direction,
                                geometry=self.range_geometry,
@@ -761,7 +762,7 @@ class Model(object):
             # we convert the computed gradient to parameters
             grad = self._2par(grad=grad,
                           geometry=self.domain_geometry,
-                          to_CUQIarray=is_direction_CUQIarray,
+                          to_CUQIarray=is_any_input_CUQIarray,
                           is_par=grad_is_par)
         
         elif isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
@@ -781,7 +782,7 @@ class Model(object):
                     grad_kwargs[k] = grad[i]
                 # we convert the computed gradient to parameters
             grad = self._2par(geometry=self.domain_geometry,
-                              to_CUQIarray=is_direction_CUQIarray,
+                              to_CUQIarray=is_any_input_CUQIarray,
                               is_par=grad_is_par,
                               **grad_kwargs)
         if len(grad) == 1:
