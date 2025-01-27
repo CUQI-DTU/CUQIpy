@@ -253,7 +253,7 @@ class TestCase:
                 direction = self.direction.to_numpy()
             FD_grad = cuqi.utilities.approx_derivative(fwd, v, direction)
             FD_grad_list.append(FD_grad)
-        self.FD_grad_output = np.concatenate(FD_grad_list)
+        self.FD_grad_output = tuple(FD_grad_list)
 
     @staticmethod
     def create_test_cases_for_test_model(test_model):
@@ -427,6 +427,7 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
                 assert v is None
             else:
                 assert np.allclose(v, test_data.expected_grad_output[i])
+                assert np.allclose(v, test_data.FD_grad_output[i])
     else:
         with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
