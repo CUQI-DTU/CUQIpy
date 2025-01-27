@@ -183,12 +183,12 @@ class RandomVariable:
                 "conditioning variables. This is not implemented."
             )
 
-        if Ns == 1: return self(**{dist.name: dist.sample() for dist in self.distributions})
+        if N == 1: return self(**{dist.name: dist.sample() for dist in self.distributions})
             
         samples = np.array([
             self(**{dist.name: dist.sample() for dist in self.distributions})
-            for _ in range(Ns)
-        ]).reshape(-1, Ns)  # Ensure correct shape (dim, Ns)
+            for _ in range(N)
+        ]).reshape(-1, N)  # Ensure correct shape (dim, N)
 
         return cuqi.samples.Samples(samples)
     

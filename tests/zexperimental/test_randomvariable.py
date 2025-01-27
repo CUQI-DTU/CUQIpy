@@ -344,4 +344,13 @@ def test_RV_sampling_unable_if_conditioning_variables_from_RV():
     with pytest.raises(NotImplementedError, match=r"Unable to directly sample from a random variable that has distributions with conditioning variables"):
         y.sample() # One might expect this to work, but it is not implemented at this time.
 
-    
+def test_RV_sample_against_distribution_sample():
+    x = RandomVariable(cuqi.distribution.Gaussian(np.zeros(2), 1))
+
+    np.random.seed(0)
+    rv_samples = x.sample(10)
+
+    np.random.seed(0)
+    dist_samples = x.distribution.sample(10)
+
+    assert np.allclose(rv_samples.samples, dist_samples.samples)
