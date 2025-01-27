@@ -492,7 +492,7 @@ class Model(object):
 
     def _parse_args_add_to_kwargs(self, *args, is_par=True, non_default_args=None, **kwargs):
         """ Private function that parses the input arguments and adds them as keyword
-        arguments matching the non default arguments of the forward function or other
+        arguments matching the (order of) non default arguments of the forward function or other
         specified non_default_args list. """
         if non_default_args is None:
             non_default_args = self._non_default_args
@@ -528,7 +528,7 @@ class Model(object):
     
     def _parse_args_add_to_kwargs_forward(self, *args, is_par=True, **kwargs):
         """ Private function that parses the input arguments of the model and 
-        adds them as keyword arguments matching the non default arguments of 
+        adds them as keyword arguments matching the (order of) non default arguments of
         the forward function. """
         kwargs = self._parse_args_add_to_kwargs(
             *args, is_par=is_par, non_default_args=None, **kwargs)
@@ -546,7 +546,7 @@ class Model(object):
     
     def _parse_args_add_to_kwargs_gradient(self, *args, is_par=True, **kwargs):
         """ Private function that parses the input arguments of the gradient and 
-        adds them as keyword arguments matching the non default arguments of 
+        adds them as keyword arguments matching the (order of) non default arguments of
         the forward function. """
         return self._parse_args_add_to_kwargs_forward(*args, is_par=is_par, **kwargs)
     
@@ -617,6 +617,8 @@ class Model(object):
             The model output. Always returned as parameters.
         """
 
+        # Add args to kwargs and ensure the order of the arguments matches the
+        # non_default_args of the forward function
         kwargs = self._parse_args_add_to_kwargs_forward(*args, **kwargs, is_par=is_par)
 
         # If input is a distribution, we simply change the parameter name of model to match the distribution name
@@ -625,6 +627,9 @@ class Model(object):
             if not self._correct_distribution_dimension(kwargs.values()):
                 raise ValueError("Attempting to match parameter name of Model with given distribution, but distribution dimension does not match model domain dimension.")
             new_model = copy(self)
+            # Store the original non_default_args of the model
+            new_model._original_non_default_args = self._non_default_args
+
             # Update the non_default_args of the model to match the
             # distribution names. Defaults to x if distribution had no name
             new_model._stored_non_default_args = [x.name for x in kwargs.values()]
@@ -633,7 +638,7 @@ class Model(object):
 
         # If input is a random variable, we handle it separately
         # extract args from kwargs
-        args = [v for k, v in kwargs.items()]
+        args = list(kwargs.values())
         if len(args)== 1 and isinstance(args[0], cuqi.experimental.algebra.RandomVariable):
             return self._handle_random_variable(args[0])
 
@@ -645,6 +650,10 @@ class Model(object):
             return NotImplemented
 
         # Else we apply the forward operator
+        # if model have _original_non_default_args, we use it to replace the
+        # kwargs keys
+        if hasattr(self, '_original_non_default_args'):
+            kwargs = {k:v for k,v in zip(self._original_non_default_args, args)}
         return self._apply_func(func=self._forward_func,
                                 fwd=True,
                                 is_par=is_par,
@@ -690,7 +699,8 @@ class Model(object):
             If False, `wrt` is assumed to be function values.
         
         """
-        # Add args to kwargs
+        # Add args to kwargs and ensure the order of the arguments matches the
+        # non_default_args of the forward function
         kwargs = self._parse_args_add_to_kwargs_gradient(*args, **kwargs, is_par=is_wrt_par)
         
         #turn is_wrt_par to a tuple of bools if it is not already
@@ -737,6 +747,11 @@ class Model(object):
                                geometry=self.range_geometry,
                                is_par=is_direction_par)
         
+        # If model have _original_non_default_args, we use it to replace the
+        # kwargs keys
+        if hasattr(self, '_original_non_default_args'):
+            args_fun = list(kwargs_fun.values())
+            kwargs_fun = {k:v for k,v in zip(self._original_non_default_args, args_fun)}
         # Append the direction to the kwargs_fun as first input
         kwargs_grad_fun_input = {**direction, **kwargs_fun}
 
