@@ -1140,6 +1140,14 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
         assert np.allclose(model_grad_v1[i], model_a_b_grad_v2[i])
         assert np.allclose(model_grad_v1[i], model_a_b_grad_v3[i])
 
+    # compare to FD gradient
+    grad_FD = cuqi.utilities.approx_derivative(
+        lambda par: model.forward(par[:2], par[-1]),
+        np.hstack([input1, np.array([input2])]),
+        np.array([direction]))
+    assert np.allclose(model_grad_v1[0], grad_FD[:2])
+    assert np.allclose(model_grad_v1[1], grad_FD[-1])
+
 def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
     """ Test that the linear model changes parameter names if given a distribution as input with new parameter names """
 
