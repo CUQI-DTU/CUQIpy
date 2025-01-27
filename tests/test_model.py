@@ -34,6 +34,7 @@ class TestMultipleInputModel:
         model = self.model_class(forward=self.forward,
                                   domain_geometry=self.domain_geometry,
                                   range_geometry=self.range_geometry)
+        model._test_flag_gradient = False
         self.model_variations.append(model)
 
         # model with gradient from1
@@ -89,6 +90,7 @@ class TestMultipleInputModel:
         model = self.model_class(self.pde,
                                  domain_geometry=self.domain_geometry,
                                  range_geometry=self.range_geometry)
+        model._test_flag_gradient = False
         self.model_variations.append(model)
 
     @staticmethod
@@ -397,6 +399,29 @@ def test_multiple_input_model_forward(test_model, test_data):
     else:
         with pytest.raises(type(test_data.expected_fwd_output), match=str(test_data.expected_fwd_output)):
             fwd_output = test_model(**test_data.forward_input)
+
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
+def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_ from function name
+    """Test that the gradient method can handle multiple inputs and
+    return the correct output type and value"""
+    
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+    if hasattr(test_model,"_test_flag_gradient") and not test_model._test_flag_gradient:
+        with pytest.raises(NotImplementedError, match="Gradient is not implemented for this model."):
+            grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+    #TODO: remove commented lines below
+    elif not isinstance(test_data.expected_grad_output,
+        (NotImplementedError, TypeError, ValueError)):
+        pass
+        #grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+        #assert isinstance(grad_output, test_data.expected_grad_output_type)
+        #for i, (k, v) in enumerate(grad_output.items()):
+        #    assert np.allclose(v, test_data.expected_grad_output[i])
+    else:
+        #with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
+        #    grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+        pass
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
 def test_LinearModel_getMatrix(seed):
