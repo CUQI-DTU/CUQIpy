@@ -142,7 +142,7 @@ class TestMultipleInputModel:
             grad_x = gradient_x(direction, x, y, z)
             grad_y = gradient_y(direction, x, y, z)
             grad_z = gradient_z(direction, x, y, z)
-            return np.concatenate([grad_x, grad_y, grad_z])
+            return (grad_x, grad_y, grad_z)
         
         test_model.gradient_form1 = gradient_form1
         test_model.gradient_form2 = (gradient_x, gradient_y, gradient_z)
@@ -418,11 +418,15 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
 
         # Check type
         for i, (k, v) in enumerate(grad_output.items()):
+            # Verify that the output is of the expected type
             if v is not None:
                 assert isinstance(v, test_data.expected_grad_output_type)
-            #TODO: remove commented lines below
-            #assert np.allclose(v, test_data.expected_grad_output[i]) or \
-            #(v is None and test_data.expected_grad_output[i] is None) 
+
+            # Verify that the output is of the expected value
+            if isinstance(test_model._gradient_func, tuple) and test_model._gradient_func[i] is None:
+                assert v is None
+            else:
+                assert np.allclose(v, test_data.expected_grad_output[i])
     else:
         with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
