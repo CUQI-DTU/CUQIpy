@@ -134,7 +134,7 @@ class RegularizedGaussian(Distribution):
                             raise ValueError("Proximal should take 2 arguments.")
                     else:
                         raise ValueError("Proximal operators need to be callable.")
-                    if not isinstance(val[1], (np.ndarray, sp.sparray, sp.linalg.LinearOperator)):
+                    if not isinstance(val[1], (np.ndarray, sparse.sparray, sparse.linalg.LinearOperator)):
                         raise ValueError("Linear operator not supported.")
 
             else:
