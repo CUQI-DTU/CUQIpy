@@ -10,7 +10,6 @@ from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D,\
 import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
-import inspect
 from functools import partial
 
 class Model(object):
@@ -938,11 +937,11 @@ class AffineModel(Model):
         # Additional checks if the linear_operator is not a LinearModel:
         if not isinstance(linear_operator, LinearModel):
             # Ensure the linear operator have exactly one input argument
-            if len(inspect.signature(linear_operator).parameters) != 1:
+            if len(cuqi.utilities.get_non_default_args(linear_operator)) != 1:
                 raise ValueError(
                     "The linear operator should have exactly one input argument.")
             # Ensure the adjoint linear operator have exactly one input argument
-            if len(inspect.signature(linear_operator_adjoint).parameters) != 1:
+            if len(cuqi.utilities.get_non_default_args(linear_operator_adjoint)) != 1:
                 raise ValueError(
                     "The adjoint linear operator should have exactly one input argument.")
 
@@ -1005,7 +1004,7 @@ class AffineModel(Model):
     def _adjoint_func_no_shift(self, *args, is_par=True, **kwargs):
         """ Helper function for computing the adjoint operator without the shift. """
         # convert args to kwargs
-        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par, non_default_args=list(inspect.signature(self._linear_operator_adjoint).parameters.keys()))
+        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par, non_default_args=cuqi.utilities.get_non_default_args(self._linear_operator_adjoint))
         return self._apply_func(self._linear_operator_adjoint, **kwargs, is_par=is_par, fwd=False)
 
 class LinearModel(AffineModel):
@@ -1095,7 +1094,7 @@ class LinearModel(AffineModel):
             The adjoint model output. Always returned as parameters.
         """
         kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par,
-                                                non_default_args=list(inspect.signature(self._linear_operator_adjoint).parameters.keys()))
+                                                non_default_args=cuqi.utilities.get_non_default_args(self._linear_operator_adjoint))
 
         # length of kwargs should be 1
         if len(kwargs) > 1:
@@ -1179,7 +1178,7 @@ class PDEModel(Model):
     def _non_default_args(self):
         if self._stored_non_default_args is None:    
             # extract the non-default arguments of the PDE
-            self._stored_non_default_args = inspect.signature(self.pde.PDE_form).parameters.keys()
+            self._stored_non_default_args = cuqi.utilities.get_non_default_args(self.pde.PDE_form)
             # remove t from the non-default arguments
             self._stored_non_default_args = list(self._non_default_args)
             if 't' in self._non_default_args:
