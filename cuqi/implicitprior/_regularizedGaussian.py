@@ -2,7 +2,7 @@ from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
-from cuqi.operator import FirstOrderFiniteDifference
+from cuqi.operator import FirstOrderFiniteDifference, Operator
 
 import numpy as np
 import scipy.sparse as sparse
@@ -134,7 +134,7 @@ class RegularizedGaussian(Distribution):
                             raise ValueError("Proximal should take 2 arguments.")
                     else:
                         raise ValueError("Proximal operators need to be callable.")
-                    if not isinstance(val[1], (np.ndarray, sparse.sparray, sparse.linalg.LinearOperator)):
+                    if not isinstance(val[1], (np.ndarray, sparse.sparray, sparse.linalg.LinearOperator, Operator)):
                         raise ValueError("Linear operator not supported.")
 
             else:
