@@ -796,9 +796,9 @@ class Model(object):
         if self._gradient_func is None:
             raise NotImplementedError("Gradient is not implemented for this model.")
 
-        # Raise error if either the direction or wrt are Samples object
+        # Raise error if either the direction or kwargs are Samples objects
         if isinstance(direction, Samples) or any(isinstance(x, Samples) for x in kwargs_dict.values()):
-            raise ValueError("cuqi.samples.Samples input values for arguments `direction` and `wrt` are not supported")
+            raise NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         # Raise an error if range_geometry is not in the list returned by
         # `_get_identity_geometries()`. i.e. The Jacobian of its
