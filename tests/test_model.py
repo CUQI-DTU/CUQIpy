@@ -911,7 +911,7 @@ def test_linear_model_allow_other_parameter_names():
 
     forward_x = lambda x: x
     forward_y = lambda y: y
-    def forward_z(z):
+    def forward_z(z, not_used=None):
         return z
 
     adjoint = lambda w: w
@@ -1003,7 +1003,7 @@ def test_AffineModel_does_not_accept_general_model(model):
                        match=r"The linear operator should be a LinearModel object, a callable function or a matrix."):
         A_affine = cuqi.model.AffineModel(model, b, range_geometry = model.range_geometry, domain_geometry = model.domain_geometry)
 
-@pytest.mark.parametrize("fwd_func", [lambda: 1, lambda x, y: x, lambda x, y=1: x])
+@pytest.mark.parametrize("fwd_func", [lambda: 1, lambda x, y: x])
 def test_AffineModel_raise_error_when_forward_has_too_few_or_too_many_inputs(
     fwd_func
 ):
