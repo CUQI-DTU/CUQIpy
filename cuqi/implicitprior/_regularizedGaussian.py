@@ -162,10 +162,10 @@ class RegularizedGaussian(Distribution):
                 self._box_bounds = (np.ones(self.dim)*0, np.ones(self.dim)*np.inf)
                 self._preset["constraint"] = "nonnegativity"
             elif c_lower == "box":
-                self._box_lower = optional_regularization_parameters["lower_bound"]
-                self._box_upper = optional_regularization_parameters["upper_bound"]
-                self._proximal = lambda z, _: ProjectBox(z, self._box_lower, self._box_upper)
-                self._box_bounds = (np.ones(self.dim)*self._box_lower, np.ones(self.dim)*self._box_upper)
+                _box_lower = optional_regularization_parameters["lower_bound"]
+                _box_upper = optional_regularization_parameters["upper_bound"]
+                self._proximal = lambda z, _: ProjectBox(z, _box_lower, _box_upper)
+                self._box_bounds = (np.ones(self.dim)*_box_lower, np.ones(self.dim)*_box_upper)
                 self._preset["constraint"] = "box"
             else:
                 raise ValueError("Constraint not supported.")
@@ -185,12 +185,10 @@ class RegularizedGaussian(Distribution):
                 self._preset["regularization"] = "l1"
             elif r_lower == "tv":
                 # Store the transformation to reuse when modifying the strength
-                if isinstance(self.geometry, (Continuous1D, Continuous2D, Image2D)):
-                    self._transformation = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
-                else:
+                if not isinstance(self.geometry, (Continuous1D, Continuous2D, Image2D)):
                     raise ValueError("Geometry not supported for total variation")
                 self._regularization_prox = lambda z, gamma: ProximalL1(z, gamma*self._strength)
-                self._regularization_oper = self._transformation
+                self._regularization_oper = FirstOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
                 self._preset["regularization"] = "tv"
             else:
                 raise ValueError("Regularization not supported.")
