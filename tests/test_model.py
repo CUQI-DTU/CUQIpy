@@ -1,3 +1,4 @@
+#%%
 from cuqi.array import CUQIarray
 from cuqi.geometry import Continuous1D, Discrete
 import numpy as np
@@ -162,7 +163,7 @@ class TestMultipleInputModel:
             jac_x = jacobian_x(x, y, z)
             jac_y = jacobian_y(x, y, z)
             jac_z = jacobian_z(x, y, z)
-            return np.concatenate([jac_x, jac_y, jac_z])
+            return np.hstack([jac_x, jac_y, jac_z])
 
         test_model.jacobian_form1 = jacobian_form1
         test_model.jacobian_form2 = (jacobian_x, jacobian_y, jacobian_z)
@@ -410,14 +411,18 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
     if hasattr(test_model,"_test_flag_gradient") and not test_model._test_flag_gradient:
         with pytest.raises(NotImplementedError, match="Gradient is not implemented for this model."):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
-    #TODO: remove commented lines below
+
     elif not isinstance(test_data.expected_grad_output,
         (NotImplementedError, TypeError, ValueError)):
-        pass
-        #grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
-        #assert isinstance(grad_output, test_data.expected_grad_output_type)
-        #for i, (k, v) in enumerate(grad_output.items()):
-        #    assert np.allclose(v, test_data.expected_grad_output[i])
+        grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+
+        # Check type
+        for i, (k, v) in enumerate(grad_output.items()):
+            if v is not None:
+                assert isinstance(v, test_data.expected_grad_output_type)
+            #TODO: remove commented lines below
+            #assert np.allclose(v, test_data.expected_grad_output[i]) or \
+            #(v is None and test_data.expected_grad_output[i] is None) 
     else:
         with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
