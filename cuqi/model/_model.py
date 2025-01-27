@@ -1180,7 +1180,7 @@ class PDEModel(Model):
             # extract the non-default arguments of the PDE
             self._stored_non_default_args = cuqi.utilities.get_non_default_args(self.pde.PDE_form)
             # remove t from the non-default arguments
-            self._stored_non_default_args = list(self._non_default_args)
+            self._stored_non_default_args = self._non_default_args
             if 't' in self._non_default_args:
                 self._stored_non_default_args.remove('t')
 
