@@ -130,7 +130,7 @@ class RegularizedGaussian(Distribution):
                     if len(val) != 2:
                         raise ValueError("Each value in the proximal list needs to consistent of two elements: a proximal operator and a linear operator.")
                     if callable(val[0]):
-                        if len(get_non_default_args(proximal)) != 2:
+                        if len(get_non_default_args(val[0])) != 2:
                             raise ValueError("Proximal should take 2 arguments.")
                     else:
                         raise ValueError("Proximal operators need to be callable.")
