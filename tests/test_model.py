@@ -302,9 +302,7 @@ class TestCase:
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
             test_case.compute_expected_grad_output()
-            test_case.expected_grad_output_value = cuqi.array.CUQIarray(test_case.expected_grad_output_value, geometry=test_model.domain_geometry)
             test_case.compute_FD_grad_output()
-            test_case.FD_grad_output = cuqi.array.CUQIarray(test_case.FD_grad_output, geometry=test_model.domain_geometry)
             test_case.expected_grad_output_type = cuqi.array.CUQIarray
 
         test_model.test_data.append(test_case)
