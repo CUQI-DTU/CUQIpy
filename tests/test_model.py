@@ -209,7 +209,7 @@ class TestCase:
         self.forward_input = None
         self.direction = None
         self.expected_fwd_output = None
-        self.expected_grad_output = None
+        self.expected_grad_output_value = None
         self.expected_fwd_output_type = None
         self.expected_grad_output_type = None
         self.FD_grad_output = None
@@ -237,7 +237,7 @@ class TestCase:
         
 
     def compute_expected_grad_output(self):
-        self.expected_grad_output = self._test_model.gradient_form1(self.direction, **self.forward_input)
+        self.expected_grad_output_value = self._test_model.gradient_form1(self.direction, **self.forward_input)
     
     def compute_FD_grad_output(self):
         FD_grad_list = []
@@ -284,9 +284,7 @@ class TestCase:
             test_case.create_direction()
             test_case.direction = cuqi.array.CUQIarray(test_case.direction, geometry=test_model.range_geometry)
             test_case.compute_expected_grad_output()
-            test_case.expected_grad_output = cuqi.array.CUQIarray(test_case.expected_grad_output, geometry=test_model.domain_geometry)
             test_case.compute_FD_grad_output()
-            test_case.FD_grad_output = cuqi.array.CUQIarray(test_case.FD_grad_output, geometry=test_model.domain_geometry)
             test_case.expected_grad_output_type = cuqi.array.CUQIarray
 
         test_model.test_data.append(test_case)
@@ -304,7 +302,7 @@ class TestCase:
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
             test_case.compute_expected_grad_output()
-            test_case.expected_grad_output = cuqi.array.CUQIarray(test_case.expected_grad_output, geometry=test_model.domain_geometry)
+            test_case.expected_grad_output_value = cuqi.array.CUQIarray(test_case.expected_grad_output_value, geometry=test_model.domain_geometry)
             test_case.compute_FD_grad_output()
             test_case.FD_grad_output = cuqi.array.CUQIarray(test_case.FD_grad_output, geometry=test_model.domain_geometry)
             test_case.expected_grad_output_type = cuqi.array.CUQIarray
@@ -333,7 +331,7 @@ class TestCase:
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
-            test_case.expected_grad_output = NotImplementedError("Gradient is not implemented for input of type Samples.")
+            test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
 
@@ -354,7 +352,7 @@ class TestCase:
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
-            test_case.expected_grad_output = NotImplementedError("Gradient is not implemented for input of type Samples.")
+            test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
         
@@ -376,7 +374,7 @@ class TestCase:
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
-            test_case.expected_grad_output = NotImplementedError("Gradient is not implemented for input of type Samples.")
+            test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
 
@@ -412,7 +410,7 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
         with pytest.raises(NotImplementedError, match="Gradient is not implemented for this model."):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
 
-    elif not isinstance(test_data.expected_grad_output,
+    elif not isinstance(test_data.expected_grad_output_value,
         (NotImplementedError, TypeError, ValueError)):
         grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
 
@@ -426,10 +424,10 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
             if isinstance(test_model._gradient_func, tuple) and test_model._gradient_func[i] is None:
                 assert v is None
             else:
-                assert np.allclose(v, test_data.expected_grad_output[i])
+                assert np.allclose(v, test_data.expected_grad_output_value[i])
                 assert np.allclose(v, test_data.FD_grad_output[i])
     else:
-        with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
+        with pytest.raises(type(test_data.expected_grad_output_value), match=str(test_data.expected_grad_output_value)):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
