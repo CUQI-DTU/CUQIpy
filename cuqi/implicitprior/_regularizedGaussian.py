@@ -126,7 +126,17 @@ class RegularizedGaussian(Distribution):
                 if len(get_non_default_args(proximal)) != 2:
                     raise ValueError("Proximal should take 2 arguments.")
             elif isinstance(proximal, list):
-                pass # TODO: Add error checking for list of regularizations
+                for val in proximal:
+                    if len(val) != 2:
+                        raise ValueError("Each value in the proximal list needs to consistent of two elements: a proximal operator and a linear operator.")
+                    if callable(val[0]):
+                        if len(get_non_default_args(proximal)) != 2:
+                            raise ValueError("Proximal should take 2 arguments.")
+                    else:
+                        raise ValueError("Proximal operators need to be callable.")
+                    if not isinstance(val[1], (np.ndarray, sp.sparray, sp.linalg.LinearOperator)):
+                        raise ValueError("Linear operator not supported.")
+
             else:
                 raise ValueError("Proximal needs to be callable or a list. See documentation.")
             
