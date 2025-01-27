@@ -109,7 +109,15 @@ class RegularizedGaussian(Distribution):
         if (proximal is not None) + (projector is not None) >= 1:
             self._parse_user_specified_input(proximal, projector)
         else:
-            self._parse_preset_input(constraint, regularization, optional_regularization_parameters)
+            # Set constraint and regularization presets for use with Gibbs
+            self._preset = {"constraint": None,
+                            "regularization": None}
+
+            self._parse_preset_constraint_input(constraint, optional_regularization_parameters)
+            self._parse_preset_regularization_input(regularization, optional_regularization_parameters)
+
+            # Merge
+            self._merge_predefined_option()
 
     def _parse_user_specified_input(self, proximal, projector):
         # Guard for checking partial validy of proximals or projectors
@@ -140,11 +148,7 @@ class RegularizedGaussian(Distribution):
             self._proximal = lambda z, gamma: projector(z)
             return
 
-    def _parse_preset_input(self, constraint, regularization, optional_regularization_parameters):
-        # Set constraint and regularization presets for use with Gibbs
-        self._preset = {"constraint": None,
-                        "regularization": None}
-
+    def _parse_preset_constraint_input(self, constraint, optional_regularization_parameters):
         # Create data for constraints
         self._constraint_prox = None
         self._constraint_oper = None
@@ -166,6 +170,7 @@ class RegularizedGaussian(Distribution):
             else:
                 raise ValueError("Constraint not supported.")
 
+    def _parse_preset_regularization_input(self, regularization, optional_regularization_parameters):
         # Create data for regularization
         self._regularization_prox = None
         self._regularization_oper = None
@@ -189,10 +194,6 @@ class RegularizedGaussian(Distribution):
                 self._preset["regularization"] = "tv"
             else:
                 raise ValueError("Regularization not supported.")
-                
-        # Merge
-        self._merge_predefined_option()
-
     
     def _merge_predefined_option(self):
         # Check whether it is a single proximal and hence FISTA could be used in RegularizedLinearRTO 
