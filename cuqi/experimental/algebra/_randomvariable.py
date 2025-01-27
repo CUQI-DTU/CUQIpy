@@ -168,12 +168,12 @@ class RandomVariable:
 
         return self.tree(**kwargs)
 
-    def sample(self, Ns=1):
+    def sample(self, N=1):
         """ Sample from the random variable. 
 
         Parameters
         ----------
-        Ns : int, optional
+        N : int, optional
             Number of samples to draw. Default is 1.
         """
 
