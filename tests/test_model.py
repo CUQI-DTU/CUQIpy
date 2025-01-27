@@ -1084,7 +1084,7 @@ def test_constructing_gradient_from_jacobian():
 
 
 def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
-    """ Test that the model can change its parameter names if given a distribution as input with new parameter names """
+    """ Test that the model changes the parameter names if given a distribution as input with new parameter names """
 
     def forward(x, y):
         return y*x[0] + x[1]
@@ -1137,3 +1137,36 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
         assert np.allclose(model_grad_v1[i], model_a_b_grad_v1[i])
         assert np.allclose(model_grad_v1[i], model_a_b_grad_v2[i])
         assert np.allclose(model_grad_v1[i], model_a_b_grad_v3[i])
+
+def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
+    """ Test that the linear model changes parameter names if given a distribution as input with new parameter names """
+
+    model = cuqi.testproblem.Deconvolution1D().model
+    model_input = np.random.randn(model.domain_dim)
+
+    # assert model parameter names are 'x'
+    assert model._non_default_args == ['x']
+
+    # create a random distribution a
+    a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+
+    model_a = model(a)
+
+    # assert model still has parameter names 'x'
+    assert model._non_default_args == ['x']
+    # assert new model parameter names are 'a'
+    assert model_a._non_default_args == ['a']
+
+    # assert the two models output are equal
+    assert np.allclose(model(x=model_input), model_a(a=model_input))
+
+    # assert the two models gradient are equal
+    direction = np.random.randn(model.range_dim)
+    model_grad = model.gradient(direction, x=model_input)
+    model_a_grad = model_a.gradient(direction, a=model_input)
+    assert np.allclose(model_grad, model_a_grad)
+
+    # assert the two models adjoint are equal
+    model_adjoint = model.adjoint(y=model_input)
+    model_a_adjoint = model_a.adjoint(y=model_input)
+    assert np.allclose(model_adjoint, model_a_adjoint)
