@@ -332,7 +332,7 @@ class TestCase:
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
-            test_case.expected_grad_output = TypeError("some other msg")
+            test_case.expected_grad_output = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
 
@@ -353,7 +353,7 @@ class TestCase:
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
-            test_case.expected_grad_output = NotImplementedError("some third msg")
+            test_case.expected_grad_output = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
         
@@ -375,7 +375,7 @@ class TestCase:
 
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
-            test_case.expected_grad_output = NotImplementedError("some fifth msg")
+            test_case.expected_grad_output = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
 
@@ -419,9 +419,8 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
         #for i, (k, v) in enumerate(grad_output.items()):
         #    assert np.allclose(v, test_data.expected_grad_output[i])
     else:
-        #with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
-        #    grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
-        pass
+        with pytest.raises(type(test_data.expected_grad_output), match=str(test_data.expected_grad_output)):
+            grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
 def test_LinearModel_getMatrix(seed):
@@ -618,7 +617,7 @@ def test_gradient(direction, expected_type):
                             range_geometry=cuqi.geometry.Continuous1D(2))
 
     if isinstance(direction, cuqi.samples.Samples):
-        with pytest.raises(ValueError):
+        with pytest.raises(NotImplementedError, match="Gradient is not implemented for input of type Samples."):
            grad = model.gradient(direction, None)
     else:            
         grad = model.gradient(direction, None)
