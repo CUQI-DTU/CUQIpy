@@ -861,12 +861,11 @@ class Heat1D(BayesianProblem):
         data = y_exact + np.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
-        IC = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-        y = cuqi.distribution.Gaussian(model(IC), sigma2)
-        
-        # Initialize Heat1D as BayesianProblem problem
-        super().__init__(y, IC, y=data)
+        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        y = cuqi.distribution.Gaussian(model(x), sigma2)
 
+        # Initialize Heat1D as BayesianProblem problem
+        super().__init__(y, x, y=data)
         # Store exact values
         self.exactSolution = x_exact
         self.exactData = y_exact
