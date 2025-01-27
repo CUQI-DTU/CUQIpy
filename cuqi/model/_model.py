@@ -385,6 +385,8 @@ class Model(object):
 
         # if is par is bool, make it a tuple of bools
         is_par = (is_par,) * len(kwargs) if isinstance(is_par, bool) else is_par
+        # if to_CUQIarray is bool, make it a tuple of bools
+        to_CUQIarray = (to_CUQIarray,) * len(kwargs) if isinstance(to_CUQIarray, bool) else to_CUQIarray
         for i , (k, v) in enumerate(kwargs.items()):
             # Convert to parameters
             # if val is CUQIarray and geometry are consistent, we obtain parameters
@@ -398,7 +400,7 @@ class Model(object):
                 v = input_geom.fun2par(v)
 
             # Wrap val in CUQIarray if requested
-            if to_CUQIarray:
+            if to_CUQIarray[i]:
                 v = CUQIarray(v, is_par=True, geometry=input_geom)
 
             kwargs[k] = v
@@ -726,8 +728,10 @@ class Model(object):
                                 **kwargs)
 
         # Store if any of the inputs is a CUQIarray
-        is_any_input_CUQIarray = isinstance(direction, CUQIarray) or\
+        to_CUQIarray = isinstance(direction, CUQIarray) or\
             any(isinstance(x, CUQIarray) for x in kwargs_fun.values())
+        # Turn to_CUQIarray to a tuple of bools
+        to_CUQIarray = tuple([to_CUQIarray]*len(kwargs_fun))
 
         direction = self._2fun(direction=direction,
                                geometry=self.range_geometry,
@@ -749,6 +753,9 @@ class Model(object):
                     grad.append(grad_func(**kwargs_grad_fun_input))
                 else:
                     grad.append(None)
+                    # set the ith item of to_CUQIarray tuple to False
+                    to_CUQIarray = to_CUQIarray[:i] + (False,) + to_CUQIarray[i+1:]
+
             grad_is_par = False # Assume gradient is function values
 
         # If domain_geometry is not _ProductGeometry and it has gradient 
@@ -762,7 +769,7 @@ class Model(object):
             # we convert the computed gradient to parameters
             grad = self._2par(grad=grad,
                           geometry=self.domain_geometry,
-                          to_CUQIarray=is_any_input_CUQIarray,
+                          to_CUQIarray=to_CUQIarray,
                           is_par=grad_is_par)
         
         elif isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
@@ -782,7 +789,7 @@ class Model(object):
                     grad_kwargs[k] = grad[i]
                 # we convert the computed gradient to parameters
             grad = self._2par(geometry=self.domain_geometry,
-                              to_CUQIarray=is_any_input_CUQIarray,
+                              to_CUQIarray=to_CUQIarray,
                               is_par=grad_is_par,
                               **grad_kwargs)
         if len(grad) == 1:
