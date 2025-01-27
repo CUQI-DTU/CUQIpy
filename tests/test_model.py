@@ -411,6 +411,8 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
     elif not isinstance(test_data.expected_grad_output_value,
         (NotImplementedError, TypeError, ValueError)):
         grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+        # assert output format is a dictionary with keys x, y, z
+        assert list(grad_output.keys()) == ['x', 'y', 'z']
 
         # Check type
         for i, (k, v) in enumerate(grad_output.items()):
