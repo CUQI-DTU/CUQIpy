@@ -1085,3 +1085,59 @@ def test_constructing_gradient_from_jacobian():
     )
 
     assert np.allclose(grad1, grad2)
+
+
+def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
+    """ Test that the model can change its parameter names if given a distribution as input with new parameter names """
+
+    def forward(x, y):
+        return y*x[0] + x[1]
+
+    def gradient_x(direction, x, y):
+        return direction*np.array([y, 1])
+
+    def gradient_y(direction, x, y):
+        return direction*x[0]
+
+    # forward model inputs
+    input1 = np.array([1, 2])
+    input2 = 1
+    direction = 3
+
+    model = cuqi.model.Model(forward=forward, range_geometry=1, domain_geometry=(Continuous1D(2), Discrete(1)), gradient=(gradient_x, gradient_y))
+
+    # assert model parameter names are 'x' and 'y'
+    assert model._non_default_args == ['x', 'y']
+
+    # create two random distributions a and b
+    a = cuqi.distribution.Gaussian(np.zeros(2), 1)
+    b = cuqi.distribution.Gaussian(np.zeros(1), 1)
+
+    model_a_b = model(a, b)
+
+    # assert model still has parameter names 'x' and 'y'
+    assert model._non_default_args == ['x', 'y']
+
+    # assert new model parameter names are 'a' and 'b'
+    assert model_a_b._non_default_args == ['a', 'b']
+
+    # assert the two models output are equal
+    model_output = model(x=input1, y=input2)
+    model_a_b_output = model_a_b(b=input2, a=input1)
+    assert np.allclose(model_output, model_a_b_output)
+
+    # assert the two models gradient are equal
+    model_grad_v1 = list(model.gradient(direction, x=input1, y=input2).values())
+    model_grad_v2 = list(model.gradient(direction, input1, input2).values())
+    model_grad_v3 = list(model.gradient(direction, y=input2, x=input1).values())
+    model_a_b_grad_v1 = list(model_a_b.gradient(direction, a=input1, b=input2).values())
+    model_a_b_grad_v2 = list(model_a_b.gradient(direction, input1, input2).values())
+    model_a_b_grad_v3 = list(model_a_b.gradient(direction, b=input2, a=input1).values())
+
+    # assert all gradients are equal
+    for i in range(len(model_grad_v1)):
+        assert np.allclose(model_grad_v1[i], model_grad_v2[i])
+        assert np.allclose(model_grad_v1[i], model_grad_v3[i])
+        assert np.allclose(model_grad_v1[i], model_a_b_grad_v1[i])
+        assert np.allclose(model_grad_v1[i], model_a_b_grad_v2[i])
+        assert np.allclose(model_grad_v1[i], model_a_b_grad_v3[i])
