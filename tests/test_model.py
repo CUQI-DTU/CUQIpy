@@ -7,11 +7,12 @@ import cuqi
 import pytest
 from scipy import optimize
 from copy import copy, deepcopy
+from cuqi.geometry import _identity_geometries
 
 class TestMultipleInputModel:
     def __init__(self):
         self.model_class = None
-        self.forward = None
+        self.forward_map = None
         self.pde = None
         self.gradient_form1 = None
         self.gradient_form2 = None
@@ -27,12 +28,12 @@ class TestMultipleInputModel:
     def populate_model_variations(self):
         if self.pde is not None:
             self.populate_pde_model_variations()
-        elif self.forward is not None:
+        elif self.forward_map is not None:
             self.populate_general_model_variations()
 
     def populate_general_model_variations(self):
         # model with forward
-        model = self.model_class(forward=self.forward,
+        model = self.model_class(forward=self.forward_map,
                                   domain_geometry=self.domain_geometry,
                                   range_geometry=self.range_geometry)
         model._test_flag_gradient = False
@@ -40,7 +41,7 @@ class TestMultipleInputModel:
 
         # model with gradient from1
         if self.gradient_form1 is not None:
-            model = self.model_class(forward=self.forward,
+            model = self.model_class(forward=self.forward_map,
                                       gradient=self.gradient_form1,
                                       domain_geometry=self.domain_geometry,
                                       range_geometry=self.range_geometry)
@@ -48,7 +49,7 @@ class TestMultipleInputModel:
 
         # model with gradient from2
         if self.gradient_form2 is not None:
-            model = self.model_class(forward=self.forward,
+            model = self.model_class(forward=self.forward_map,
                                       gradient=self.gradient_form2,
                                       domain_geometry=self.domain_geometry,
                                       range_geometry=self.range_geometry)
@@ -56,7 +57,7 @@ class TestMultipleInputModel:
 
         # model with gradient from2 incomplete
         if self.gradient_form2_incomplete is not None:
-            model = self.model_class(forward=self.forward,
+            model = self.model_class(forward=self.forward_map,
                                         gradient=self.gradient_form2_incomplete,
                                         domain_geometry=self.domain_geometry,
                                         range_geometry=self.range_geometry)
@@ -64,7 +65,7 @@ class TestMultipleInputModel:
 
         # model with jacobian from1
         if self.jacobian_form1 is not None:
-            model = self.model_class(forward=self.forward,
+            model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form1,
                                         domain_geometry=self.domain_geometry,
                                         range_geometry=self.range_geometry)
@@ -72,7 +73,7 @@ class TestMultipleInputModel:
 
         # model with jacobian from2
         if self.jacobian_form2 is not None:
-            model = self.model_class(forward=self.forward,
+            model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form2,
                                         domain_geometry=self.domain_geometry,
                                         range_geometry=self.range_geometry)
@@ -80,7 +81,7 @@ class TestMultipleInputModel:
 
         # model with jacobian from2 incomplete
         if self.jacobian_form2_incomplete is not None:
-            model = self.model_class(forward=self.forward,
+            model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form2_incomplete,
                                         domain_geometry=self.domain_geometry,
                                         range_geometry=self.range_geometry)
@@ -112,7 +113,10 @@ class TestMultipleInputModel:
         test_model_list.append(test_model)
 
         # Model 3
-
+        test_model = TestMultipleInputModel.helper_build_two_input_test_with_mapped_parameter_model()
+        test_model.populate_model_variations()
+        TestCase.create_test_cases_for_test_model(test_model)
+        test_model_list.append(test_model) 
 
         # append all combinations of test model variations and test cases
         # to model_test_case_combinations
@@ -127,7 +131,7 @@ class TestMultipleInputModel:
     @staticmethod
     def helper_build_three_input_test_model():
         test_model = TestMultipleInputModel()
-        test_model.forward = lambda x, y, z: x * y[0] + z * y[1]
+        test_model.forward_map = lambda x, y, z: x * y[0] + z * y[1]
 
         def gradient_x(direction, x, y, z):
             return direction * y[0]
@@ -202,6 +206,47 @@ class TestMultipleInputModel:
         test_model.range_geometry = Continuous1D(len(grid_obs))
         return test_model
 
+    @staticmethod
+    def helper_build_two_input_test_with_mapped_parameter_model():
+        """Build a model with two inputs in which the inputs are mapped
+        via geometry mapping"""
+        test_model = TestMultipleInputModel()
+        test_model.forward_map = lambda a, b: np.array([a[0]**2*b[0]*b[1], b[1]*a[0]*a[1]])
+
+        def gradient_a(direction, a, b):
+            return np.array([2*a[0]*b[0]*b[1]*direction[0] + b[1]*a[1]*direction[1],
+                             b[1]*a[0]*direction[1]])
+
+        def gradient_b(direction, a, b):
+            return np.array([a[0]**2*b[1]*direction[0],
+                             a[0]**2*b[0]*direction[0]+a[0]*a[1]*direction[1]])
+
+        def gradient_form1(direction, a, b):
+            grad_a = gradient_a(direction, a, b)
+            grad_b = gradient_b(direction, a, b)
+            return (grad_a, grad_b)
+
+        test_model.gradient_form1 = gradient_form1
+        test_model.gradient_form2 = (gradient_a, gradient_b)
+        test_model.gradient_form2_incomplete = (gradient_a, None)
+
+        test_model.jacobian_form1 = None
+        test_model.jacobian_form2 = None
+        test_model.jacobian_form2_incomplete = None
+
+        geom_a = cuqi.geometry.MappedGeometry(cuqi.geometry.Continuous1D(2),
+                                              map=lambda x: np.sin(x))
+        geom_a.gradient = lambda direction, x: direction@np.diag(np.cos(x))
+
+        geom_b = cuqi.geometry.MappedGeometry(cuqi.geometry.Continuous1D(2),
+                                              map=lambda x: x**3)
+        geom_b.gradient = lambda direction, x: 3*direction@np.diag(x**2)
+
+        test_model.domain_geometry = (geom_a, geom_b)
+        test_model.range_geometry = cuqi.geometry.Continuous1D(2)
+        test_model.model_class = cuqi.model.Model
+        return test_model
+
 class TestCase:
     def __init__(self, test_model):
         self._test_model = test_model
@@ -214,6 +259,14 @@ class TestCase:
         self.expected_grad_output_type = None
         self.FD_grad_output = None
 
+    @property
+    def model_forward_map(self):
+        if self._test_model.pde is not None:
+            _forward = self._test_model.model_variations[0].forward
+        else:
+            _forward = self._test_model.forward_map
+        return _forward
+
     def create_input(self):
         # create a kwarg dictionary for the inputs
         input_dict = {}
@@ -225,27 +278,46 @@ class TestCase:
         self.direction = np.random.randn(self._test_model.range_geometry.par_dim)
 
     def compute_expected_fwd_output(self):
-        self.expected_fwd_output = self.model_forward(**self.forward_input)
-    
-    @property
-    def model_forward(self):
-        if self._test_model.pde is not None:
-            _forward = self._test_model.model_variations[0].forward
-        else:
-            _forward = self._test_model.forward
-        return _forward
-        
+        mapped_input = self._compute_mapped_input(self.forward_input,
+                                                  self._test_model.domain_geometry)
+        self.expected_fwd_output = self.model_forward_map(**mapped_input)
+
+    @staticmethod
+    def _compute_mapped_input(forward_input, domain_geom):
+        mapped_input = {}
+        for i, (k, v) in enumerate(forward_input.items()):
+            if hasattr(domain_geom[i], 'map'):
+                mapped_input[k] = domain_geom[i].map(v)
+            elif type(domain_geom[i]) in _identity_geometries:
+                mapped_input[k] = v
+            else:
+                raise NotImplementedError("Mapping not implemented for geometry type.")
+        return mapped_input
 
     def compute_expected_grad_output(self):
-        self.expected_grad_output_value = self._test_model.gradient_form1(self.direction, **self.forward_input)
-    
+        # check if all domain geometry components are identity geometries
+        domain_geom = self._test_model.domain_geometry
+        forward_input_fun = deepcopy(self.forward_input)
+
+        if all([type(geom) in _identity_geometries for geom in domain_geom]):
+            self.expected_grad_output_value = self._test_model.gradient_form1(self.direction, **forward_input_fun)
+        else:
+            for i, (k, v) in enumerate(forward_input_fun.items()):
+                forward_input_fun[k] = domain_geom[i].par2fun(v)
+            self.expected_grad_output_value = []
+            for i, (k, v) in enumerate(self.forward_input.items()):
+                self.expected_grad_output_value.append(self._test_model.gradient_form2[i](self.direction, **forward_input_fun))
+                self.expected_grad_output_value[-1] = domain_geom[i].gradient(self.expected_grad_output_value[-1], v)
+        self.expected_grad_output_value = tuple(self.expected_grad_output_value)
+
     def compute_FD_grad_output(self):
         FD_grad_list = []
+        model = self._test_model.model_variations[0]
         for k, v in self.forward_input.items():
             #forward_input without k, v
             forward_input = self.forward_input.copy()
             del forward_input[k]
-            fwd = lambda x: self._test_model.forward(**forward_input, **{k:x})
+            fwd = lambda x: model(**forward_input, **{k:x})
             if isinstance(v, cuqi.array.CUQIarray):
                 v = v.to_numpy()
             direction = self.direction
@@ -262,7 +334,7 @@ class TestCase:
         test_case.create_input()
         test_case.compute_expected_fwd_output()
         test_case.expected_fwd_output_type = np.ndarray
-        
+
         if test_model.gradient_form1 is not None:
             test_case.create_direction()
             test_case.compute_expected_grad_output()
@@ -343,7 +415,9 @@ class TestCase:
         expected_fwd_output = []
         for i in range(2):
             input_i = {k: v.samples[:,i] for k, v in test_case.forward_input.items()}
-            expected_fwd_output.append(test_case.model_forward(**input_i))
+            mapped_input_i = TestCase._compute_mapped_input(input_i, 
+                                                          test_model.domain_geometry)
+            expected_fwd_output.append(test_case.model_forward_map(**mapped_input_i))
         expected_fwd_output = np.vstack(expected_fwd_output).T
         test_case.expected_fwd_output = cuqi.samples.Samples(expected_fwd_output, geometry=test_model.range_geometry)
         test_case.expected_fwd_output_type = cuqi.samples.Samples
@@ -380,7 +454,6 @@ model_test_case_combinations = TestMultipleInputModel.create_model_test_case_com
 
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
 def test_multiple_input_model_forward(test_model, test_data):
-    print(test_model, test_data)
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
     if not isinstance(test_data.expected_fwd_output,
@@ -398,7 +471,7 @@ def test_multiple_input_model_forward(test_model, test_data):
             fwd_output = test_model(**test_data.forward_input)
 
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
-def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_ from function name
+def test_multiple_input_model_gradient(test_model, test_data):
     """Test that the gradient method can handle multiple inputs and
     return the correct output type and value"""
     
@@ -412,7 +485,7 @@ def test_multiple_input_model_gradient(test_model, test_data): #TODO: remove no_
         (NotImplementedError, TypeError, ValueError)):
         grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
         # assert output format is a dictionary with keys x, y, z
-        assert list(grad_output.keys()) == ['x', 'y', 'z']
+        assert list(grad_output.keys()) == test_model._non_default_args
 
         # Check type
         for i, (k, v) in enumerate(grad_output.items()):
