@@ -262,7 +262,12 @@ class TestCase:
     @property
     def model_forward_map(self):
         if self._test_model.pde is not None:
-            _forward = self._test_model.model_variations[0].forward
+            def _forward(*args, **kwargs):
+                # use the model forward map but make sure it maps function
+                # values to function value
+                value = self._test_model.model_variations[0].forward(
+                    *args, is_par=False, **kwargs)
+                return self._test_model.range_geometry.par2fun(value)
         else:
             _forward = self._test_model.forward_map
         return _forward
