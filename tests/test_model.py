@@ -392,7 +392,7 @@ class TestCase:
         for i, (k, v) in enumerate(test_case.forward_input.items()):
             if i == 0:
                 v2 = 1.3*v
-                samples = np.hstack([v, v2]).T
+                samples = np.vstack([v, v2]).T
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
             else:
                 test_case.forward_input[k] = cuqi.array.CUQIarray(v, geometry=test_model.domain_geometry[i])
@@ -434,12 +434,12 @@ class TestCase:
         for i, (k, v) in enumerate(test_case.forward_input.items()):
             if i==0:
                 v2 = 1.5*v
-                samples = np.hstack([v, v2]).T
+                samples = np.vstack([v, v2]).T
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
             else:
                 v2 = 1.5*v
                 v3 = 2*v
-                samples = np.hstack([v, v2, v3]).T
+                samples = np.vstack([v, v2, v3]).T
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
         test_case.expected_fwd_output = ValueError(
                 "If applying the function to Samples, all inputs should have the same number of samples.")
