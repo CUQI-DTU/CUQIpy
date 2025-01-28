@@ -452,6 +452,38 @@ class TestCase:
 
 model_test_case_combinations = TestMultipleInputModel.create_model_test_case_combinations()
 
+def helper_function_for_printing_test_cases(model_test_case_combinations):
+    """Helper function to print the test cases for debugging. This function
+    is not used in the tests, but can be used by developers to print the
+    test cases for debugging."""
+    for i, (test_model, test_data) in enumerate(model_test_case_combinations):
+        print("### Test Case {} ###".format(i))
+        print("## test_model ##")
+        print(test_model)
+        print("## test_model._forward_func ##")
+        print(test_model._forward_func)
+        print("## test_model._gradient_func ##")
+        print(test_model._gradient_func)
+        print("## test_model._domain_geometry ##")
+        print(test_model._domain_geometry)
+        print("## test_model._range_geometry ##")
+        print(test_model._range_geometry)
+        print("="*50)
+        print("## test_data ##")
+        print(test_data)
+        print("## test_data.forward_input ##")
+        print(test_data.forward_input)
+        print("## test_data.expected_fwd_output_type ##")
+        print(test_data.expected_fwd_output_type)
+        print("## test_data.expected_fwd_output ##")
+        print(test_data.expected_fwd_output)
+        print("## test_data.expected_grad_output_type ##")
+        print(test_data.expected_grad_output_type)
+        print("## test_data.expected_grad_output_value ##")
+        print(test_data.expected_grad_output_value)
+        print("#"*50)
+        print("#"*50)
+
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
 def test_multiple_input_model_forward(test_model, test_data):
     assert isinstance(test_model, cuqi.model.Model)
