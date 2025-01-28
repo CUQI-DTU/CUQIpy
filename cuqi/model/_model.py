@@ -395,11 +395,11 @@ class Model(object):
             if isinstance(v, CUQIarray) and v.geometry == input_geom:
                 v = v.parameters
             # Otherwise we use the geometry fun2par method
-            elif not is_par[i]:
+            elif not is_par[i] and v is not None:
                 v = input_geom.fun2par(v)
 
             # Wrap val in CUQIarray if requested
-            if to_CUQIarray[i]:
+            if to_CUQIarray[i] and v is not None:
                 v = CUQIarray(v, is_par=True, geometry=input_geom)
 
             kwargs[k] = v
@@ -795,10 +795,11 @@ class Model(object):
                 grad_is_par = tuple([grad_is_par]*len(grad))
             # apply the gradient of each geometry component
             grad_kwargs = {}
-            for i, (k, v) in enumerate(kwargs_par.items()):
+            for i, (k, v_par) in enumerate(kwargs_par.items()):
                 if hasattr(self.domain_geometry.geometries[i], 'gradient') and grad[i] is not None:
-                    grad_kwargs[k] = self.domain_geometry.geometries[i].gradient(grad[i], v)
-                    grad_is_par[i] = True # Gradient is parameters
+                    grad_kwargs[k] = self.domain_geometry.geometries[i].gradient(grad[i], v_par)
+                    # update the ith component of grad_is_par to True
+                    grad_is_par = grad_is_par[:i] + (True,) + grad_is_par[i+1:]
                 else:
                     grad_kwargs[k] = grad[i]
                 # we convert the computed gradient to parameters
