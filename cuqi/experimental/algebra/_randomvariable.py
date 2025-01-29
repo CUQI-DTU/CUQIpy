@@ -429,12 +429,3 @@ class RandomVariable:
 
     def __getitem__(self, other) -> 'RandomVariable':
         return self._apply_operation(operator.getitem, other)
-
-    def get_conditioning_variables(self):
-        return self.distribution.get_conditioning_variables()
-    
-    def logd(self, *args, **kwargs):
-        return self.distribution.logd(*args, **kwargs)
-    
-    def gradient(self, val, *args, **kwargs):
-        return self.distribution._gradient(val, *args, **kwargs)
