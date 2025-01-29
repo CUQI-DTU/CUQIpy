@@ -986,7 +986,7 @@ def test_model_parameter_name_switch_errors():
 
     y = cuqi.distribution.Gaussian(np.zeros(model.domain_dim-1), 1)
 
-    with pytest.raises(ValueError, match=r"dimension does not match"):
+    with pytest.raises(ValueError, match=r"Attempting to match parameter name of Model with given distribution\(s\), but distribution\(s\) dimension\(s\) does not match model input dimension\(s\)."):
         model(y)    
 
 def test_model_allow_other_parameter_names():
