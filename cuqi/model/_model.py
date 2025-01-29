@@ -1002,7 +1002,7 @@ class AffineModel(Model):
         if hasattr(linear_operator, '__matmul__') and hasattr(linear_operator, 'T'):
             if linear_operator_adjoint is not None:
                 raise ValueError("Adjoint of linear operator should not be provided when linear operator is a matrix. If you want to provide an adjoint, use a callable function for the linear operator.")
-            
+
             matrix = linear_operator
 
             linear_operator = lambda x: matrix@x
@@ -1029,24 +1029,37 @@ class AffineModel(Model):
             raise TypeError("Linear operator adjoint must be defined as a callable function of some kind")
 
         # If linear operator is of type Model, it needs to be a LinearModel
-        if isinstance(linear_operator, Model) and not isinstance(linear_operator, LinearModel):
-            raise TypeError("The linear operator should be a LinearModel object, a callable function or a matrix.")
+        if isinstance(linear_operator, Model) and not isinstance(
+            linear_operator, LinearModel
+        ):
+            raise TypeError(
+                "The linear operator should be a LinearModel object, a callable function or a matrix."
+            )
 
         # If the adjoint operator is of type Model, it needs to be a LinearModel
-        if isinstance(linear_operator_adjoint, Model) and not isinstance(linear_operator_adjoint, LinearModel):
-            raise TypeError("The adjoint linear operator should be a LinearModel object, a callable function or a matrix.")
+        if isinstance(linear_operator_adjoint, Model) and not isinstance(
+            linear_operator_adjoint, LinearModel
+        ):
+            raise TypeError(
+                "The adjoint linear operator should be a LinearModel object, a callable function or a matrix."
+            )
 
         # Additional checks if the linear_operator is not a LinearModel:
         if not isinstance(linear_operator, LinearModel):
-            # Ensure the linear operator have exactly one input argument
+            # Ensure the linear operator has exactly one input argument
             if len(cuqi.utilities.get_non_default_args(linear_operator)) != 1:
                 raise ValueError(
-                    "The linear operator should have exactly one input argument.")
-            # Ensure the adjoint linear operator have exactly one input argument
-            if linear_operator_adjoint is not None and\
-                len(cuqi.utilities.get_non_default_args(linear_operator_adjoint)) != 1:
+                    "The linear operator should have exactly one input argument."
+                )
+            # Ensure the adjoint linear operator has exactly one input argument
+            if (
+                linear_operator_adjoint is not None
+                and len(cuqi.utilities.get_non_default_args(linear_operator_adjoint))
+                != 1
+            ):
                 raise ValueError(
-                    "The adjoint linear operator should have exactly one input argument.")
+                    "The adjoint linear operator should have exactly one input argument."
+                )
 
         # Check size of shift and match against range_geometry
         if not np.isscalar(shift):
@@ -1077,15 +1090,14 @@ class AffineModel(Model):
         # Set stored_non_default_args to None
         self._stored_non_default_args = None
 
-    
     @property
     def _non_default_args(self):
         if self._stored_non_default_args is None:
-            # Use arguments from user's callable linear operator (overwriting those found by Model class)
+            # Use arguments from user's callable linear operator
             self._stored_non_default_args = cuqi.utilities.get_non_default_args(
-                self._linear_operator)
+                self._linear_operator
+            )
         return self._stored_non_default_args
-        
 
     @property
     def shift(self):
@@ -1099,16 +1111,26 @@ class AffineModel(Model):
         self._forward_func = lambda *args, **kwargs: self._linear_operator(*args, **kwargs) + value
 
     def _forward_func_no_shift(self, *args, is_par=True, **kwargs):
-        """ Helper function for computing the forward operator without the shift. """
+        """Helper function for computing the forward operator without the shift."""
         # convert args to kwargs
         kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par)
         return self._apply_func(self._linear_operator, **kwargs, is_par=is_par)
 
     def _adjoint_func_no_shift(self, *args, is_par=True, **kwargs):
-        """ Helper function for computing the adjoint operator without the shift. """
+        """Helper function for computing the adjoint operator without the shift."""
         # convert args to kwargs
-        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par, non_default_args=cuqi.utilities.get_non_default_args(self._linear_operator_adjoint))
-        return self._apply_func(self._linear_operator_adjoint, **kwargs, is_par=is_par, fwd=False)
+        kwargs = self._parse_args_add_to_kwargs(
+            *args,
+            **kwargs,
+            is_par=is_par,
+            non_default_args=cuqi.utilities.get_non_default_args(
+                self._linear_operator_adjoint
+            ),
+        )
+        return self._apply_func(
+            self._linear_operator_adjoint, **kwargs, is_par=is_par, fwd=False
+        )
+
 
 class LinearModel(AffineModel):
     """Model based on a Linear forward operator.
@@ -1174,10 +1196,10 @@ class LinearModel(AffineModel):
     Note that you would need to specify the range and domain geometries in this
     case as they cannot be inferred from the forward and adjoint functions.
     """
-    
+
     def __init__(self, forward, adjoint=None, range_geometry=None, domain_geometry=None):
 
-        #Initialize as AffineModel with shift=0
+        # Initialize as AffineModel with shift=0
         super().__init__(forward, 0, adjoint, range_geometry, domain_geometry)
 
     def adjoint(self, *args, is_par=True, **kwargs):
@@ -1196,33 +1218,40 @@ class LinearModel(AffineModel):
         ndarray or cuqi.array.CUQIarray
             The adjoint model output. Always returned as parameters.
         """
-        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par,
-                                                non_default_args=cuqi.utilities.get_non_default_args(self._linear_operator_adjoint))
+        kwargs = self._parse_args_add_to_kwargs(
+            *args,
+            **kwargs,
+            is_par=is_par,
+            non_default_args=cuqi.utilities.get_non_default_args(
+                self._linear_operator_adjoint
+            ),
+        )
 
         # length of kwargs should be 1
         if len(kwargs) > 1:
             raise ValueError(
-                "The adjoint operator input is specified by more than one argument. This is not supported.")
+                "The adjoint operator input is specified by more than one argument. This is not supported."
+            )
         if self._linear_operator_adjoint is None:
             raise ValueError("No adjoint operator was provided for this model.")
-        return self._apply_func(self._linear_operator_adjoint,
-                                **kwargs, is_par=is_par, fwd=False)
+        return self._apply_func(
+            self._linear_operator_adjoint, **kwargs, is_par=is_par, fwd=False
+        )
 
     def __matmul__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
-        
+
     def get_matrix(self):
         """
         Returns an ndarray with the matrix representing the forward operator.
         """
-
         if self._matrix is not None: #Matrix exists so return it
             return self._matrix
         else:
-            #TODO: Can we compute this faster while still in sparse format?
+            # TODO: Can we compute this faster while still in sparse format?
             mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
             e = np.zeros(self.domain_dim)
-            
+
             # Stacks sparse matrices on csc matrix
             for i in range(self.domain_dim):
                 e[i] = 1
@@ -1230,7 +1259,7 @@ class LinearModel(AffineModel):
                 mat = hstack((mat,col_vec[:,None])) #mat[:,i] = self.forward(e)
                 e[i] = 0
 
-            #Store matrix for future use
+            # Store matrix for future use
             self._matrix = mat
 
             return self._matrix   
@@ -1239,8 +1268,11 @@ class LinearModel(AffineModel):
     def T(self):
         """Transpose of linear model. Returns a new linear model acting as the transpose."""
         transpose = LinearModel(
-            self._linear_operator_adjoint, self._linear_operator,
-            self.domain_geometry, self.range_geometry)
+            self._linear_operator_adjoint,
+            self._linear_operator,
+            self.domain_geometry,
+            self.range_geometry,
+        )
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
