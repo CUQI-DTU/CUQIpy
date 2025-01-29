@@ -649,20 +649,11 @@ class Model(object):
         # non_default_args of the forward function
         kwargs = self._parse_args_add_to_kwargs_forward(*args, **kwargs, is_par=is_par)
 
-        # If input is a distribution, we simply change the parameter name of model to match the distribution name
+        # If input is a distribution, we simply change the parameter name of
+        # model to match the distribution name
         if all(isinstance(x, cuqi.distribution.Distribution)
                for x in kwargs.values()):
-            if not self._correct_distribution_dimension(kwargs.values()):
-                raise ValueError("Attempting to match parameter name of Model with given distribution, but distribution dimension does not match model domain dimension.")
-            new_model = copy(self)
-            # Store the original non_default_args of the model
-            new_model._original_non_default_args = self._non_default_args
-
-            # Update the non_default_args of the model to match the
-            # distribution names. Defaults to x if distribution had no name
-            new_model._stored_non_default_args = [x.name for x in kwargs.values()]
-
-            return new_model
+            return self._handle_distributions(kwargs)
 
         # If input is a random variable, we handle it separately
         # extract args from kwargs
@@ -688,12 +679,13 @@ class Model(object):
                                 **kwargs)
 
     def _correct_distribution_dimension(self, distributions):
-        """ Private function that checks if the dimension of the
-        distributions matches the domain dimension of the model. """
+        """Private function that checks if the dimension of the
+        distributions matches the domain dimension of the model."""
         if len(distributions) == 1:
             return list(distributions)[0].dim == self.domain_dim
-        elif len(distributions) > 1 and\
-            isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
+        elif len(distributions) > 1 and isinstance(
+            self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+        ):
             return all(
                 d.dim == self.domain_geometry.par_dim_list[i]
                 for i, d in enumerate(distributions)
@@ -701,8 +693,49 @@ class Model(object):
         else:
             return False
 
-    def __call__(self, *args, **kwargs):
-        return self.forward(*args, **kwargs)
+    def _handle_distributions(self, kwargs):
+        """Private function that handles the case of the input being a
+        distribution or multiple distributions."""
+
+        if not self._correct_distribution_dimension(kwargs.values()):
+            raise ValueError(
+                "Attempting to match parameter name of Model with given distribution(s), but distribution(s) dimension(s) does not match model input dimension(s)."
+            )
+        new_model = copy(self)
+
+        # Store the original non_default_args of the model
+        new_model._original_non_default_args = self._non_default_args
+
+        # Update the non_default_args of the model to match the distribution
+        # names. Defaults to x in the case of one distribution that have no name
+        new_model._stored_non_default_args = [x.name for x in kwargs.values()]
+
+        # If there is a repeated name, raise an error
+        if len(set(new_model._stored_non_default_args)) != len(
+            new_model._stored_non_default_args
+        ):
+            raise ValueError(
+                "Attempting to match parameter name of Model with given distributions, but distribution names are not unique. Please provide unique names for the distributions."
+            )
+
+        return new_model
+
+    def _handle_random_variable(self, x):
+        """ Private function that handles the case of the input being a random variable. """
+        # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
+        if not isinstance(x.tree, cuqi.experimental.algebra.VariableNode):
+            return NotImplemented        
+
+        # In leaf-type node case we simply change the parameter name of model to match the random variable name
+        dist = x.distribution
+        if dist.dim != self.domain_dim:
+            raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
+
+        new_model = copy(self)
+        # Store the original non_default_args of the model
+        new_model._original_non_default_args = self._non_default_args
+        new_model._stored_non_default_args = [dist.name]
+        return new_model
 
     def gradient(self, direction, *args, is_direction_par=True, is_wrt_par=True, **kwargs):
         """ Gradient of the forward operator (Direction-Jacobian product)
@@ -871,22 +904,8 @@ class Model(object):
                 not type(domain_geometry) in _get_identity_geometries():
                 raise NotImplementedError("Gradient not implemented for model {} with domain geometry (or domain geometry component) {}".format(self, domain_geometry))
 
-    def _handle_random_variable(self, x):
-        """ Private function that handles the case of the input being a random variable. """
-        # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
-        if not isinstance(x.tree, cuqi.experimental.algebra.VariableNode):
-            return NotImplemented        
-
-        # In leaf-type node case we simply change the parameter name of model to match the random variable name
-        dist = x.distribution
-        if dist.dim != self.domain_dim:
-            raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
-
-        new_model = copy(self)
-        # Store the original non_default_args of the model
-        new_model._original_non_default_args = self._non_default_args
-        new_model._stored_non_default_args = [dist.name]
-        return new_model
+    def __call__(self, *args, **kwargs):
+        return self.forward(*args, **kwargs)
 
     def __len__(self):
         return self.range_dim
