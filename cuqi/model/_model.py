@@ -343,7 +343,7 @@ class Model(object):
                 kwargs[k] = geometries[i].par2fun(v)
 
         return kwargs
-    
+
     def _helper_pre_conversion_checks_and_processing(self, geometry=None, is_par=True, **kwargs):
         """ Helper function that checks if kwargs and geometry are consistent
         and sets up geometries list and is_par tuple.
@@ -451,33 +451,37 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             The output of the function `func` converted to parameters.
         """ 
+        # Specify the range and domain geometries of the function
+        # If forward operator, range geometry is the model range geometry and
+        # domain geometry is the model domain geometry
         if fwd:
             func_range_geometry = self.range_geometry
             func_domain_geometry = self.domain_geometry
+        # If adjoint operator, range geometry is the model domain geometry and
+        # domain geometry is the model range geometry
         else:
             func_range_geometry = self.domain_geometry
             func_domain_geometry = self.range_geometry
 
         # If input x is Samples we apply func for each sample
         # TODO: Check if this can be done all-at-once for computational speed-up
-        if any(isinstance(x,Samples) for x in kwargs.values()):
+        if any(isinstance(x, Samples) for x in kwargs.values()):
             return self._handle_samples(func, fwd, is_par, **kwargs)
 
         # store if any input x is CUQIarray
         is_CUQIarray = any(isinstance(x, CUQIarray) for x in kwargs.values())
 
-        kwargs = self._2fun(
-            geometry=func_domain_geometry, is_par=is_par, **kwargs)
-        # turn kwargs into a list of arguments
-        # args = [v for k, v in kwargs.items()]
+        # Convert input to function values
+        kwargs = self._2fun(geometry=func_domain_geometry, is_par=is_par, **kwargs)
+
+        # Apply the function
         out = func(**kwargs)
 
         # Return output as parameters
-        # (and wrapped in CUQIarray if input was CUQIarray)
+        # (wrapped in CUQIarray if any input was CUQIarray)
         return self._2par(
-            geometry=func_range_geometry,
-            to_CUQIarray=is_CUQIarray,
-            **{"out":out})['out']
+            geometry=func_range_geometry, to_CUQIarray=is_CUQIarray, **{"out": out}
+        )["out"]
 
     def _handle_samples(self, func=None, fwd=True, is_par=True, **kwargs):
 
