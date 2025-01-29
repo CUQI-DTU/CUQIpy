@@ -49,6 +49,8 @@ class RegularizedGaussian(Distribution):
             min_z 0.5||x-z||_2^2+scale*g(x).
         If list of tuples (callable proximal operator of f_i, linear operator L_i):
             Each callable proximal operator of f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
+            Each linear operator needs to have the '__matmul__', 'T' and 'shape' attributes;
+            this includes numpy.ndarray, scipy.sparse.sparray, scipy.sparse.linalg.LinearOperator and cuqi.operator.Operator.
             The corresponding regularization takes the form
                 sum_i f_i(L_i x),
             where the sum ranges from 1 to an arbitrary n.
