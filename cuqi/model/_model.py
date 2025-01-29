@@ -852,7 +852,10 @@ class Model(object):
         if len(grad) == 1:
             return list(grad.values())[0]
         elif self._gradient_output_stacked:
-            return np.hstack(list(grad.values()))
+            return np.hstack(
+                v.to_numpy() if isinstance(v, CUQIarray) else v
+                for v in list(grad.values())
+            )
 
         return grad
 
