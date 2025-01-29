@@ -110,13 +110,13 @@ class Model(object):
         if (gradient is not None) and (jacobian is not None):
             raise TypeError("Only one of gradient and jacobian should be specified")
 
-        # Check correct gradient form
-        self._check_correct_gradient_form(gradient)
+        # Check correct gradient form (check type, signature, etc.)
+        self._check_correct_gradient_jacobian_form(gradient, "gradient")
 
-        # Check correct jacobian form
-        self._check_correct_jacobian_form(jacobian)
+        # Check correct jacobian form (check type, signature, etc.)
+        self._check_correct_gradient_jacobian_form(jacobian, "jacobian")
 
-        # If jacobian is provided, use it to specify gradient function 
+        # If jacobian is provided, use it to specify gradient function
         # (vector-Jacobian product)
         if jacobian is not None:
             gradient = self._use_jacobian_to_specify_gradient(jacobian)
@@ -132,7 +132,8 @@ class Model(object):
     @property
     def _non_default_args(self):
         if self._stored_non_default_args is None:
-            # Store non_default_args of the forward operator for faster caching when checking for those arguments.
+            # Store non_default_args of the forward operator for faster caching
+            # when checking for those arguments.
             self._stored_non_default_args =\
                 cuqi.utilities.get_non_default_args(self._forward_func)
         return self._stored_non_default_args
@@ -141,11 +142,10 @@ class Model(object):
     def range_geometry(self):
         """ The geometry representing the range of the model. """
         return self._range_geometry
-    
+
     @range_geometry.setter
     def range_geometry(self, value):
         """ Update the range geometry of the model. """
-                # Store range_geometry
         if isinstance(value, tuple) and len(value) == 2:
             self._range_geometry = _DefaultGeometry2D(value)
         elif isinstance(value, int):
@@ -153,23 +153,28 @@ class Model(object):
         elif isinstance(value, Geometry):
             self._range_geometry = value
         elif value is None:
-            raise AttributeError("The parameter 'range_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'.")
+            raise AttributeError(
+                "The parameter 'range_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'."
+            )
         else:
-            raise TypeError("The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
-        
+            raise TypeError(
+                "The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'."
+            )
+
     @property
     def domain_geometry(self):
         """ The geometry representing the domain of the model. """
         return self._domain_geometry
-    
+
     @domain_geometry.setter
     def domain_geometry(self, value):
         """ Update the domain geometry of the model. """
-        # Store domain_geometry
+        # Forward model with multiple input case
         if isinstance(value, tuple) and\
             all([isinstance(v, Geometry) for v in value]):
             self._domain_geometry = cuqi.experimental.geometry._ProductGeometry(
                 *value)
+        # Remaining cases, forward model with single input
         elif isinstance(value, tuple) and len(value) == 2:
             self._domain_geometry = _DefaultGeometry2D(value)
         elif isinstance(value, int):
@@ -177,9 +182,13 @@ class Model(object):
         elif isinstance(value, Geometry):
             self._domain_geometry = value
         elif value is None:
-            raise AttributeError("The parameter 'domain_geometry' is not specified by the user and it connot be inferred from the attribute 'forward'.")
+            raise AttributeError(
+                "The parameter 'domain_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'."
+            )
         else:
-            raise TypeError("The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'.")
+            raise TypeError(
+                "The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'."
+            )
 
     @property
     def domain_dim(self):
@@ -195,69 +204,58 @@ class Model(object):
         """
         return self.range_geometry.par_dim
 
-    def _check_correct_gradient_form(self, gradient):
-        """ Private function that checks if the gradient parameter is in the
-        correct form. """
-        if gradient is None:
-            return
-        
-        expected_gradient_non_default_args = ['direction'] + self._non_default_args
+    def _check_correct_gradient_jacobian_form(self, func, func_type):
+        """Private function that checks if the gradient/jacobian parameter is
+        in the correct form. That is, check if the gradient/jacobian has the
+        correct type, signature, etc."""
 
-        # gradient should be callable or a tuple of callables
-        if isinstance(gradient, tuple):
-            # tuple length should be same as the number of inputs
-            if len(gradient) != len(self._non_default_args):
-                raise ValueError(f"The gradient tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}")
-            # tuple items should be callables or None
-            if not all([callable(grad) or grad is None for grad in gradient]):
-                raise TypeError("Gradient tuple should contain callable functions or None.")
-        
-        elif callable(gradient):
-            gradient = (gradient,)
-
-        else:
-            raise TypeError("Gradient needs to be callable function or tuple of callable functions.")
-
-        for grad in gradient:
-            # make sure the signature of the gradient function is correct
-            # that is, the same as the expected_gradient_non_default_args
-            if grad is not None:
-                gradient_non_default_args = cuqi.utilities.get_non_default_args(grad)
-                
-                if set(gradient_non_default_args) != set(expected_gradient_non_default_args):
-                    raise ValueError(f"gradient function signature should be {expected_gradient_non_default_args}")
-
-    def _check_correct_jacobian_form(self, jacobian):
-        """ Private function that checks if the jacobian parameter is in the
-        correct form. """
-        if jacobian is None:
+        if func is None:
             return
 
-        expected_jacobian_non_default_args = self._non_default_args
-
-        # jacobian should be callable or a tuple of callables
-        if isinstance(jacobian, tuple):
+        # gradient/jacobian should be callable (for single input and multiple input case)
+        # or a tuple of callables (for multiple inputs case)
+        if isinstance(func, tuple):
             # tuple length should be same as the number of inputs
-            if len(jacobian) != len(self._non_default_args):
-                raise ValueError(f"The jacobian tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}")
+            if len(func) != len(self._non_default_args):
+                raise ValueError(
+                    f"The "
+                    + func_type.lowe()
+                    + " tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}"
+                )
             # tuple items should be callables or None
-            if not all([callable(jac) or jac is None for jac in jacobian]):
-                raise TypeError("Jacobian tuple should contain callable functions or None.")
-            
-        elif callable(jacobian):
-            jacobian = (jacobian,)
+            if not all([callable(func_i) or func_i is None for func_i in func]):
+                raise TypeError(
+                    func_type.capitalize()
+                    + " tuple should contain callable functions or None."
+                )
+
+        elif callable(func):
+            # temporarily convert gradient/jacobian to tuple for checking only
+            func = (func,)
 
         else:
-            raise TypeError("Jacobian needs to be callable function or tuple of callable functions.")
-        
-        for jac in jacobian:
-            # make sure the signature of the jacobian function is correct
-            # that is, the same as the expected_jacobian_non_default_args
-            if jac is not None:
-                jacobian_non_default_args = cuqi.utilities.get_non_default_args(jac)
-                
-                if set(jacobian_non_default_args) != set(expected_jacobian_non_default_args):
-                    raise ValueError(f"jacobian function signature should be {expected_jacobian_non_default_args}")
+            raise TypeError(
+                "Gradient needs to be callable function or tuple of callable functions."
+            )
+
+        expected_func_non_default_args = self._non_default_args
+        if func_type.lower() == "gradient":
+            # prepend 'direction' to the expected gradient non default args
+            expected_func_non_default_args = [
+                "direction"
+            ] + expected_func_non_default_args
+
+        for func_i in func:
+            # make sure the signature of the gradient/jacobian function is correct
+            # that is, the same as the expected_func_non_default_args
+            if func_i is not None:
+                func_non_default_args = cuqi.utilities.get_non_default_args(func_i)
+
+                if set(func_non_default_args) != set(expected_func_non_default_args):
+                    raise ValueError(
+                        func_type.capitalize()
+                        + f" function signature should be {expected_func_non_default_args}"
+                    )
 
     def _use_jacobian_to_specify_gradient(self, jacobian):
         """ Private function that uses the jacobian function to specify the
@@ -275,18 +273,18 @@ class Model(object):
                 else:
                     gradient.append(None)
         return tuple(gradient) if isinstance(gradient, list) else gradient
-    
+
     def _create_grad_lambda_function_with_correct_signature(self, jacobian):
         """ Private function that creates a lambda function with the correct
         signature for the gradient function based on the model non_default_args.
         """
         # create the string representation of the lambda function
         grad_fun_str = "lambda direction, " + ", ".join(self._non_default_args) + ", jacobian: direction@jacobian(" + ", ".join(self._non_default_args) + ")"
-        
+
         # create the lambda function from the string
         grad_func = eval(grad_fun_str)
 
-        # create partial function from the lambda function with jacobian as a 
+        # create partial function from the lambda function with jacobian as a
         # fixed argument
         grad_func = partial(grad_func, jacobian=jacobian)
 
@@ -452,7 +450,7 @@ class Model(object):
         kwargs = self._2fun(
             geometry=func_domain_geometry, is_par=is_par, **kwargs)
         # turn kwargs into a list of arguments
-        #args = [v for k, v in kwargs.items()]
+        # args = [v for k, v in kwargs.items()]
         out = func(**kwargs)
 
         # Return output as parameters
@@ -515,16 +513,16 @@ class Model(object):
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
                 kwargs[non_default_args[idx]] = arg
-        
+
         # Check kwargs matches non_default_args
         if set(list(kwargs.keys())) != set(non_default_args):
             raise ValueError(f"The model input is specified by a keywords arguments {kwargs.keys()} that does not match the non_default_args of the model {non_default_args}.")
-        
+
         # make sure order of kwargs is the same as non_default_args
         kwargs = {k: kwargs[k] for k in non_default_args}
 
         return kwargs
-    
+
     def _parse_args_add_to_kwargs_forward(self, *args, is_par=True, **kwargs):
         """ Private function that parses the input arguments of the model and 
         adds them as keyword arguments matching the (order of) non default arguments of
@@ -540,15 +538,14 @@ class Model(object):
                 "The model input is specified by more than one argument. "+\
                 "This is only supported for domain geometry of type"+\
                 f"{cuqi.experimental.geometry._ProductGeometry.__name__}.")
-    
+
         return kwargs
-    
+
     def _parse_args_add_to_kwargs_gradient(self, *args, is_par=True, **kwargs):
         """ Private function that parses the input arguments of the gradient and 
         adds them as keyword arguments matching the (order of) non default arguments of
         the forward function. """
         return self._parse_args_add_to_kwargs_forward(*args, is_par=is_par, **kwargs)
-    
 
     def is_stacked_args(self, *args, is_par=True):
         """ Private function that checks if the input arguments are stacked
@@ -701,8 +698,8 @@ class Model(object):
         # Add args to kwargs and ensure the order of the arguments matches the
         # non_default_args of the forward function
         kwargs = self._parse_args_add_to_kwargs_gradient(*args, **kwargs, is_par=is_wrt_par)
-        
-        #turn is_wrt_par to a tuple of bools if it is not already
+
+        # turn is_wrt_par to a tuple of bools if it is not already
         if isinstance(is_wrt_par, bool):
             is_wrt_par = tuple([is_wrt_par]*len(kwargs))
 
@@ -731,7 +728,7 @@ class Model(object):
 
         # Check for other errors that may prevent computing the gradient
         self._check_gradient_can_be_computed(direction, kwargs)
-        
+
         kwargs_fun = self._2fun(geometry=self.domain_geometry,
                                 is_par=is_wrt_par,
                                 **kwargs)
@@ -745,7 +742,7 @@ class Model(object):
         direction = self._2fun(direction=direction,
                                geometry=self.range_geometry,
                                is_par=is_direction_par)
-        
+
         # If model have _original_non_default_args, we use it to replace the
         # kwargs keys
         if hasattr(self, '_original_non_default_args'):
@@ -772,7 +769,7 @@ class Model(object):
 
             grad_is_par = False # Assume gradient is function values
 
-        # If domain_geometry is not _ProductGeometry and it has gradient 
+        # If domain_geometry is not _ProductGeometry and it has gradient
         # attribute, we apply it to the gradient.
         # The gradient returned by the domain_geometry.gradient is assumed to be
         # parameters
@@ -785,7 +782,7 @@ class Model(object):
                           geometry=self.domain_geometry,
                           to_CUQIarray=to_CUQIarray,
                           is_par=grad_is_par)
-        
+
         elif isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
             # split grad into a list of gradients
             if not isinstance(grad, (list, tuple)) and isinstance(grad, np.ndarray):
@@ -847,12 +844,12 @@ class Model(object):
         # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
         if not isinstance(x.tree, cuqi.experimental.algebra.VariableNode):
             return NotImplemented        
-        
+
         # In leaf-type node case we simply change the parameter name of model to match the random variable name
         dist = x.distribution
         if dist.dim != self.domain_dim:
             raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
-        
+
         new_model = copy(self)
         # Store the original non_default_args of the model
         new_model._original_non_default_args = self._non_default_args
@@ -1145,7 +1142,7 @@ class LinearModel(AffineModel):
         if self._matrix is not None:
             transpose._matrix = self._matrix.T
         return transpose
-        
+
 
 class PDEModel(Model):
     """
@@ -1212,4 +1209,3 @@ class PDEModel(Model):
     # Add the underlying PDE class name to the repr.
     def __repr__(self) -> str:
         return super().__repr__()+"\n    PDE: {}.".format(self.pde.__class__.__name__)
-        
