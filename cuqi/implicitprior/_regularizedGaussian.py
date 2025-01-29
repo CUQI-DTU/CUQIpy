@@ -97,7 +97,7 @@ class RegularizedGaussian(Distribution):
 
         # Guards checking whether the regularization inputs are valid
         if (proximal is not None) + (projector is not None) + max((constraint is not None), (regularization is not None)) == 0:
-            raise ValueError("At least some constraint or regularization has to be specified.")
+            raise ValueError("At least some constraint or regularization has to be specified for RegularizedGaussian")
             
         if (proximal is not None) + (projector is not None) == 2:
             raise ValueError("Only one of proximal or projector can be used.")
