@@ -854,6 +854,8 @@ class Model(object):
             raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
         
         new_model = copy(self)
+        # Store the original non_default_args of the model
+        new_model._original_non_default_args = self._non_default_args
         new_model._stored_non_default_args = [dist.name]
         return new_model
 
@@ -942,7 +944,8 @@ class AffineModel(Model):
                 raise ValueError(
                     "The linear operator should have exactly one input argument.")
             # Ensure the adjoint linear operator have exactly one input argument
-            if len(cuqi.utilities.get_non_default_args(linear_operator_adjoint)) != 1:
+            if linear_operator_adjoint is not None and\
+                len(cuqi.utilities.get_non_default_args(linear_operator_adjoint)) != 1:
                 raise ValueError(
                     "The adjoint linear operator should have exactly one input argument.")
 
