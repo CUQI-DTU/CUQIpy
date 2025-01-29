@@ -329,37 +329,38 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             `x` represented as a function.
         """
-        # if is par is bool, make it a tuple of bools
+        # If len of kwargs is larger than 1, the geometry needs to be of type
+        # _ProductGeometry
+        if (
+            not isinstance(geometry, cuqi.experimental.geometry._ProductGeometry)
+            and len(kwargs) > 1
+        ):
+            raise ValueError(
+                "The input is specified by more than one argument. This is only "
+                + "supported for domain geometry of type "
+                + f"{cuqi.experimental.geometry._ProductGeometry.__name__}."
+            )
+
+        # If is_par is bool, make it a tuple of bools of the same length as
+        # kwargs
         is_par = (is_par,) * len(kwargs) if isinstance(is_par, bool) else is_par
 
-        # Case of multiple inputs
-        if len(kwargs) >= 1 and isinstance(geometry, cuqi.experimental.geometry._ProductGeometry):
-            for i , (k, v) in enumerate(kwargs.items()):
-                if isinstance(v, CUQIarray) and\
-                    v.geometry == geometry.geometries[i]:
-                    kwargs[k] = v.funvals
-                # Otherwise we use the geometry par2fun method
-                elif is_par[i]:
-                    kwargs[k] = geometry.geometries[i].par2fun(v)
-            return kwargs
+        # Set up geometries list
+        geometries = (
+            geometry.geometries
+            if isinstance(geometry, cuqi.experimental.geometry._ProductGeometry)
+            else [geometry]
+        )
 
-        # Case of single input
-        if len(kwargs) == 1:
-            k, v = kwargs.popitem()
-            # Convert to function representation
-            # if x is CUQIarray and geometry are consistent, we obtain funvals
-            # directly
-            if isinstance(v, CUQIarray) and  v.geometry == geometry:
-                v = v.funvals
+        # Convert to function values
+        for i, (k, v) in enumerate(kwargs.items()):
+            # Use CUQIarray funvals if geometry is consistent
+            if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
+                kwargs[k] = v.funvals
             # Otherwise we use the geometry par2fun method
-            elif is_par[0]:
-                v = geometry.par2fun(v)
-            return {k: v}
-
-        raise ValueError(
-            "The input is specified by more than one argument. This is only "
-            +"supported for domain geometry of type "
-            +f"{cuqi.experimental.geometry._ProductGeometry.__name__}.")
+            elif is_par[i]:
+                kwargs[k] = geometries[i].par2fun(v)
+        return kwargs
 
     def _2par(self, geometry=None, to_CUQIarray=False, is_par=False, **kwargs):    
         """ Converts val, normally output of :class:~`cuqi.model.Model` 
