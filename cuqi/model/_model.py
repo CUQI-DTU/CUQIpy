@@ -515,27 +515,34 @@ class Model(object):
         return Samples(out, geometry=func_range_geometry)
 
     def _parse_args_add_to_kwargs(self, *args, is_par=True, non_default_args=None, **kwargs):
-        """ Private function that parses the input arguments and adds them as keyword
-        arguments matching the (order of) non default arguments of the forward function or other
-        specified non_default_args list. """
+        """ Private function that parses the input arguments and adds them as
+        keyword arguments matching (the order of) the non default arguments of
+        the forward function or other specified non_default_args list.
+        """
+        # If non_default_args is not specified, use the non_default_args of the
+        # model
         if non_default_args is None:
             non_default_args = self._non_default_args
-        if len(args) > 0:
 
+        # If any args are given, add them to kwargs
+        if len(args) > 0:
             if len(kwargs) > 0:
                 raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
 
-            if len(args) != len(non_default_args):
-                # Check if the input is stacked and split it
-                stacked_args_processed, split_args = self.is_stacked_args(*args, is_par=is_par)
-
-                # Raise error if it is not possible to interpret the input
-                # as stacked and the number of positional arguments does not
-                # match the number of non-default arguments of the model
-                if not stacked_args_processed or len(args)!=1:
-                    raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model.")
-                else:
+            # Check if the input is for multiple input case and is stacked,
+            # then split it
+            if len(args)==1 and len(non_default_args)>1:
+                split_succeeded, split_args = self.is_stacked_args(*args, is_par=is_par)
+                if split_succeeded:
                     args = split_args
+                    appending_error_message = ""
+                else:
+                    appending_error_message = f" Additionally, the input is specified by a single argument that cannot be split into multiple arguments matching the non_default_args {non_default_args} of the model."
+
+            # Check if the number of args does not match the number of
+            # non_default_args of the model
+            if len(args) != len(non_default_args):
+                raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model."+appending_error_message)
 
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
@@ -545,7 +552,7 @@ class Model(object):
         if set(list(kwargs.keys())) != set(non_default_args):
             raise ValueError(f"The model input is specified by a keywords arguments {kwargs.keys()} that does not match the non_default_args of the model {non_default_args}.")
 
-        # make sure order of kwargs is the same as non_default_args
+        # Make sure order of kwargs is the same as non_default_args
         kwargs = {k: kwargs[k] for k in non_default_args}
 
         return kwargs
@@ -557,14 +564,14 @@ class Model(object):
         kwargs = self._parse_args_add_to_kwargs(
             *args, is_par=is_par, non_default_args=None, **kwargs)
 
-        # For now only support either one input or multiple inputs with
-        # _ProductGeometry as the domain_geometry
+        # For now only support either the case of one input or the case of
+        # multiple inputs with _ProductGeometry as the domain_geometry
         if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)\
             and len(kwargs) > 1:
             raise ValueError(
                 "The model input is specified by more than one argument. "+\
-                "This is only supported for domain geometry of type"+\
-                f"{cuqi.experimental.geometry._ProductGeometry.__name__}.")
+                "This is only supported for domain geometry of type "+\
+                "tuple of cuqi.geometry.Geometry objects.")
 
         return kwargs
 
@@ -575,8 +582,8 @@ class Model(object):
         return self._parse_args_add_to_kwargs_forward(*args, is_par=is_par, **kwargs)
 
     def is_stacked_args(self, *args, is_par=True):
-        """ Private function that checks if the input arguments are stacked
-        and splits them if they are. """
+        """Private function that checks if the input arguments are stacked
+        and splits them if they are."""
         # Length of args should be 1 if the input is stacked (no partial
         # stacking is supported)
         if len(args) > 1:
@@ -597,20 +604,18 @@ class Model(object):
             return False, args
 
         # Ensure domain geometry is _ProductGeometry
-        if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
+        if not isinstance(
+            self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+        ):
             return False, args
 
         # Split the stacked input
-        split_args = np.split(
-            args[0], self.domain_geometry.stack_indices[1:-1])
+        split_args = np.split(args[0], self.domain_geometry.stacked_par_split_indices)
 
         # Covert split args to CUQIarray if input is CUQIarray
         if is_CUQIarray:
             split_args = [
-                CUQIarray(
-                    arg,
-                    is_par=True,
-                    geometry=self.domain_geometry.geometries[i])
+                CUQIarray(arg, is_par=True, geometry=self.domain_geometry.geometries[i])
                 for i, arg in enumerate(split_args)
             ]
 
