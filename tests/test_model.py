@@ -229,6 +229,8 @@ class TestMultipleInputModel:
         test_model.gradient_form1 = gradient_form1
         test_model.gradient_form2 = (gradient_a, gradient_b)
         test_model.gradient_form2_incomplete = (gradient_a, None)
+        test_model.gradient_wrong_signature = None #TODO: Add a test for this
+        test_model.gradient_wrong_signature_order = None #TODO: Add a test for this
 
         test_model.jacobian_form1 = None
         test_model.jacobian_form2 = None
@@ -252,6 +254,7 @@ class TestCase:
         self._test_model = test_model
         self._non_default_args = self._test_model.model_variations[0]._non_default_args
         self.forward_input = None
+        self.forward_input_stacked = None
         self.direction = None
         self.expected_fwd_output = None
         self.expected_grad_output_value = None
@@ -278,6 +281,7 @@ class TestCase:
         for i, arg in enumerate(self._non_default_args):
             input_dict[arg] = np.random.randn(self._test_model.domain_geometry[i].par_dim)
         self.forward_input = input_dict
+        self.forward_input_stacked = np.hstack([v for v in list(input_dict.values())])
     
     def create_direction(self):
         self.direction = np.random.randn(self._test_model.range_geometry.par_dim)
@@ -496,9 +500,13 @@ def test_multiple_input_model_forward(test_model, test_data):
     if not isinstance(test_data.expected_fwd_output,
         (NotImplementedError, TypeError, ValueError)):
         fwd_output = test_model(**test_data.forward_input)
+        fwd_output_stacked_inputs = test_model.forward(test_data.forward_input_stacked)
+        assert len(test_data.forward_input_stacked) == test_model.domain_dim
         assert isinstance(fwd_output, test_data.expected_fwd_output_type)
+        assert isinstance(fwd_output_stacked_inputs, np.ndarray)
         if isinstance(fwd_output, np.ndarray):
             assert np.allclose(fwd_output, test_data.expected_fwd_output)
+            assert np.allclose(fwd_output_stacked_inputs, test_data.expected_fwd_output)
         elif isinstance(fwd_output, cuqi.samples.Samples):
             assert np.allclose(fwd_output.samples, test_data.expected_fwd_output.samples)
         else:
