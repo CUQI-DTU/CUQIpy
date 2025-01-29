@@ -789,26 +789,26 @@ def test_gradient_raised_errors(wrt, is_wrt_par, case_id):
         # the domain_geometry and hence can't compute fun2par 
         # (and wrt is passed as function).
         with pytest.raises(ValueError):
-            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+            grad = model.gradient(direction, wrt, is_var_par=is_wrt_par)
 
     if case_id ==2:
         # Raises an error because gradient is not implemented for
         # the domain_geometry and the domain geometry is not in
         # the list cuqi.geometry._get_identity_geometries()
         with pytest.raises(NotImplementedError):
-            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+            grad = model.gradient(direction, wrt, is_var_par=is_wrt_par)
 
     if case_id ==3:
         # Raises an error because domain_geometry does not have an
         # implementation of fun2par and wrt is passed as function.
         with pytest.raises(NotImplementedError):
-            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+            grad = model.gradient(direction, wrt, is_var_par=is_wrt_par)
 
     if case_id == 4:
         # Raises an error because the range_geometry is not in the
         # cuqi.geometry._get_identity_geometries() list
         with pytest.raises(NotImplementedError):
-            grad = model.gradient(direction, wrt, is_wrt_par=is_wrt_par)
+            grad = model.gradient(direction, wrt, is_var_par=is_wrt_par)
 
 
 @pytest.mark.parametrize("forward, gradient, direction, x, domain_geometry, domain_gradient, range_geometry, is_direction_par, is_wrt_par",
@@ -936,7 +936,7 @@ def test_gradient_computation(forward, gradient, direction, x, domain_geometry, 
     if isinstance(direction, CUQIarray):
         direction.geometry = range_geometry
     # Compute cuqi model gradient 
-    grad = model.gradient(direction, x, is_wrt_par=is_wrt_par)
+    grad = model.gradient(direction, x, is_var_par=is_wrt_par)
 
     # If wrt is function value, convert wrt to parameters to
     # be passed as an input for to cuqi.utilities.approx_derivative
