@@ -258,28 +258,43 @@ class Model(object):
                     )
 
     def _use_jacobian_to_specify_gradient(self, jacobian):
-        """ Private function that uses the jacobian function to specify the
-        gradient function. """
+        """Private function that uses the jacobian function to specify the
+        gradient function."""
         # if jacobian is a single function
         if callable(jacobian):
-            gradient = self._create_grad_lambda_function_with_correct_signature(jacobian)
-        # Jacobian is a tuple of jacobian functions
+            gradient = self._create_gradient_lambda_function_from_jacobian_with_correct_signature(
+                jacobian
+            )
+
+        # Else, jacobian is a tuple of jacobian functions
         else:
-            # Jacobian is a tuple of jacobian functions
             gradient = []
             for jac in jacobian:
                 if jac is not None:
-                    gradient.append(self._create_grad_lambda_function_with_correct_signature(jac))
+                    gradient.append(
+                        self._create_gradient_lambda_function_from_jacobian_with_correct_signature(
+                            jac
+                        )
+                    )
                 else:
                     gradient.append(None)
         return tuple(gradient) if isinstance(gradient, list) else gradient
 
-    def _create_grad_lambda_function_with_correct_signature(self, jacobian):
-        """ Private function that creates a lambda function with the correct
-        signature for the gradient function based on the model non_default_args.
+    def _create_gradient_lambda_function_from_jacobian_with_correct_signature(
+        self, jacobian
+    ):
+        """Private function that creates gradient lambda function from the
+        jacobian function, with the correct signature (based on the model
+        non_default_args).
         """
         # create the string representation of the lambda function
-        grad_fun_str = "lambda direction, " + ", ".join(self._non_default_args) + ", jacobian: direction@jacobian(" + ", ".join(self._non_default_args) + ")"
+        grad_fun_str = (
+            "lambda direction, "
+            + ", ".join(self._non_default_args)
+            + ", jacobian: direction@jacobian("
+            + ", ".join(self._non_default_args)
+            + ")"
+        )
 
         # create the lambda function from the string
         grad_func = eval(grad_fun_str)
