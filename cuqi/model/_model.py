@@ -670,7 +670,7 @@ class Model(object):
 
         # Else we apply the forward operator
         # if model have _original_non_default_args, we use it to replace the
-        # kwargs keys
+        # kwargs keys so that it matches self._forward_func signature
         if hasattr(self, '_original_non_default_args'):
             kwargs = {k:v for k,v in zip(self._original_non_default_args, args)}
         return self._apply_func(func=self._forward_func,
@@ -737,7 +737,7 @@ class Model(object):
         new_model._stored_non_default_args = [dist.name]
         return new_model
 
-    def gradient(self, direction, *args, is_direction_par=True, is_wrt_par=True, **kwargs):
+    def gradient(self, direction, *args, is_direction_par=True, is_var_par=True, **kwargs):
         """ Gradient of the forward operator (Direction-Jacobian product)
 
         For non-linear models the gradient is computed using the
@@ -755,30 +755,24 @@ class Model(object):
             If True, `direction` is assumed to be parameters.
             If False, `direction` is assumed to be function values.
 
-        is_wrt_par : bool
-            If True, `wrt` is assumed to be parameters.
-            If False, `wrt` is assumed to be function values.
+        is_var_par : bool
+            If True, variables in kwargs are assumed to be parameters.
+            If False, variables in kwargs are assumed to be function values.
         
         """
         # Add args to kwargs and ensure the order of the arguments matches the
         # non_default_args of the forward function
-        kwargs = self._parse_args_add_to_kwargs_gradient(*args, **kwargs, is_par=is_wrt_par)
+        kwargs = self._parse_args_add_to_kwargs_gradient(*args, **kwargs, is_par=is_var_par)
 
-        # turn is_wrt_par to a tuple of bools if it is not already
-        if isinstance(is_wrt_par, bool):
-            is_wrt_par = tuple([is_wrt_par]*len(kwargs))
-
-        # Obtain the parameters representation of wrt and raise an error if it
-        # cannot be obtained
+        # Obtain the parameters representation of the variables and raise an
+        # error if it cannot be obtained
         error_message = \
-            "For the gradient to be computed, is_wrt_par needs " +\
-            "to be True and wrt needs to be parameter value, not function " +\
-            "value. Alternatively, the model domain_geometry: "+\
-            f"{self.domain_geometry} " +\
+            "For the gradient to be computed, is_var_par needs to be True and the variables in kwargs needs to be parameter value, not function value. Alternatively, the model domain_geometry:"+\
+            f" {self.domain_geometry} " +\
             "should have an implementation of the method fun2par"
         try:
             kwargs_par = self._2par(geometry=self.domain_geometry,
-                                           is_par=is_wrt_par,
+                                           is_par=is_var_par,
                                            to_CUQIarray=False,
                                            **kwargs)
         # NotImplementedError will be raised if fun2par of the geometry is not
@@ -793,51 +787,101 @@ class Model(object):
 
         # Check for other errors that may prevent computing the gradient
         self._check_gradient_can_be_computed(direction, kwargs)
-
+        
+        # Also obtain the function values representation of the variables
         kwargs_fun = self._2fun(geometry=self.domain_geometry,
-                                is_par=is_wrt_par,
+                                is_par=is_var_par,
                                 **kwargs)
 
         # Store if any of the inputs is a CUQIarray
         to_CUQIarray = isinstance(direction, CUQIarray) or\
             any(isinstance(x, CUQIarray) for x in kwargs_fun.values())
-        # Turn to_CUQIarray to a tuple of bools
-        to_CUQIarray = tuple([to_CUQIarray]*len(kwargs_fun))
 
-        direction = self._2fun(direction=direction,
+        # Turn to_CUQIarray to a tuple of bools of the same length as kwargs_fun
+        to_CUQIarray = tuple([to_CUQIarray]*len(kwargs_fun))
+        
+        # Convert direction to function value
+        direction_fun = self._2fun(direction=direction,
                                geometry=self.range_geometry,
                                is_par=is_direction_par)
 
         # If model have _original_non_default_args, we use it to replace the
-        # kwargs keys
+        # kwargs keys so that it matches self._gradient_func signature 
         if hasattr(self, '_original_non_default_args'):
             args_fun = list(kwargs_fun.values())
             kwargs_fun = {k:v for k,v in zip(self._original_non_default_args, args_fun)}
         # Append the direction to the kwargs_fun as first input
-        kwargs_grad_fun_input = {**direction, **kwargs_fun}
+        kwargs_fun_grad_input = {**direction_fun, **kwargs_fun}
 
-        # From 1 of gradient
+        # From 1 of gradient (callable)
         if callable(self._gradient_func):
-            grad = self._gradient_func(**kwargs_grad_fun_input)
-            grad_is_par = False # Assume gradient is function values
+            grad = self._gradient_func(**kwargs_fun_grad_input)
+            grad_is_par = False # Assume gradient is function value
 
-        # Form 2 of gradient
+        # Form 2 of gradient (tuple of callables)
         elif isinstance(self._gradient_func, tuple):
             grad = []
             for i, grad_func in enumerate(self._gradient_func):
                 if grad_func is not None:
-                    grad.append(grad_func(**kwargs_grad_fun_input))
+                    grad.append(grad_func(**kwargs_fun_grad_input))
                 else:
                     grad.append(None)
                     # set the ith item of to_CUQIarray tuple to False
+                    # because the ith gradient is None
                     to_CUQIarray = to_CUQIarray[:i] + (False,) + to_CUQIarray[i+1:]
+            grad_is_par = False # Assume gradient is function value
 
-            grad_is_par = False # Assume gradient is function values
+        grad = self._apply_chain_rule_to_account_for_domain_geometry_gradient(
+            kwargs_par, grad, grad_is_par, to_CUQIarray
+        )
 
+        if len(grad) == 1:
+            return list(grad.values())[0]
+        return grad
+
+    def _check_gradient_can_be_computed(self, direction, kwargs_dict):
+        """ Private function that checks if the gradient can be computed. By
+        raising an error for the cases where the gradient cannot be computed."""
+
+        # Raise an error if _gradient_func function is not set
+        if self._gradient_func is None:
+            raise NotImplementedError("Gradient is not implemented for this model.")
+
+        # Raise error if either the direction or kwargs are Samples objects
+        if isinstance(direction, Samples) or any(isinstance(x, Samples) for x in kwargs_dict.values()):
+            raise NotImplementedError("Gradient is not implemented for input of type Samples.")
+
+        # Raise an error if range_geometry is not in the list returned by
+        # `_get_identity_geometries()`. i.e. The Jacobian of its
+        # par2fun map is not identity.
+        # TODO: Add range geometry gradient to the chain rule
+        if not type(self.range_geometry) in _get_identity_geometries():
+            raise NotImplementedError("Gradient is not implemented for model {} with range geometry {}. You can use one of the geometries in the list {}.".format(self, self.range_geometry, [i_g.__name__ for i_g in _get_identity_geometries()])) 
+
+        # Raise an error if domain_geometry (or its components in case of
+        # _ProductGeometry) does not have gradient attribute and is not in the
+        # list returned by `_get_identity_geometries()`. i.e. The Jacobian of its
+        # par2fun map is not identity.
+        domain_geometries = self.domain_geometry.geometries\
+            if isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)\
+            else [self.domain_geometry]
+        for domain_geometry in domain_geometries:
+            if not hasattr(domain_geometry, 'gradient') and\
+                not type(domain_geometry) in _get_identity_geometries():
+                raise NotImplementedError("Gradient is not implemented for model \n{}\nwith domain geometry (or domain geometry component) {}. The domain geometries should have gradient method or be from the geometries in the list {}.".format(self, domain_geometry, [i_g.__name__ for i_g in _get_identity_geometries()]))
+
+    def _apply_chain_rule_to_account_for_domain_geometry_gradient(self,
+                                                                  kwargs_par,
+                                                                  grad,
+                                                                  grad_is_par,
+                                                                  to_CUQIarray):
+        """ Private function that applies the chain rule to account for the
+        gradient of the domain geometry. """
         # If domain_geometry is not _ProductGeometry and it has gradient
-        # attribute, we apply it to the gradient.
-        # The gradient returned by the domain_geometry.gradient is assumed to be
+        # method, we apply it to the gradient (as direction) and the input
         # parameters
+        # The gradient returned by the domain_geometry.gradient is assumed to be
+        # parameter value
         if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
             if hasattr(self.domain_geometry, 'gradient'):
                 grad = self.domain_geometry.gradient(grad, list(kwargs_par.values())[0])
@@ -869,40 +913,7 @@ class Model(object):
                               to_CUQIarray=to_CUQIarray,
                               is_par=grad_is_par,
                               **grad_kwargs)
-        if len(grad) == 1:
-            return list(grad.values())[0]
         return grad
-
-    def _check_gradient_can_be_computed(self, direction, kwargs_dict):
-        """ Private function that checks if the gradient can be computed. By
-        raising an error for the cases where the gradient cannot be computed."""
-
-        # Raise an error if _gradient_func function is not set
-        if self._gradient_func is None:
-            raise NotImplementedError("Gradient is not implemented for this model.")
-
-        # Raise error if either the direction or kwargs are Samples objects
-        if isinstance(direction, Samples) or any(isinstance(x, Samples) for x in kwargs_dict.values()):
-            raise NotImplementedError("Gradient is not implemented for input of type Samples.")
-
-        # Raise an error if range_geometry is not in the list returned by
-        # `_get_identity_geometries()`. i.e. The Jacobian of its
-        # par2fun map is not identity.
-        # TODO: Add range geometry gradient to the chain rule
-        if not type(self.range_geometry) in _get_identity_geometries():
-            raise NotImplementedError("Gradient not implemented for model {} with range geometry {}".format(self,self.range_geometry)) 
-
-        # Raise an error if domain_geometry or its components in case of
-        # _ProductGeometry does not have gradient attribute and is not in the
-        # list returned by `_get_identity_geometries()`. i.e. The Jacobian of its
-        # par2fun map is not identity.
-        domain_geometries = self.domain_geometry.geometries\
-            if isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)\
-            else [self.domain_geometry]
-        for domain_geometry in domain_geometries:
-            if not hasattr(domain_geometry, 'gradient') and\
-                not type(domain_geometry) in _get_identity_geometries():
-                raise NotImplementedError("Gradient not implemented for model {} with domain geometry (or domain geometry component) {}".format(self, domain_geometry))
 
     def __call__(self, *args, **kwargs):
         return self.forward(*args, **kwargs)
