@@ -129,6 +129,9 @@ class Model(object):
         # Store domain_geometry
         self.domain_geometry = domain_geometry
 
+        # Set gradient output stacked flag to False
+        self._gradient_output_stacked = False
+
     @property
     def _non_default_args(self):
         if self._stored_non_default_args is None:
@@ -251,7 +254,7 @@ class Model(object):
             if func_i is not None:
                 func_non_default_args = cuqi.utilities.get_non_default_args(func_i)
 
-                if set(func_non_default_args) != set(expected_func_non_default_args):
+                if list(func_non_default_args) != list(expected_func_non_default_args):
                     raise ValueError(
                         func_type.capitalize()
                         + f" function signature should be {expected_func_non_default_args}"
@@ -848,6 +851,9 @@ class Model(object):
 
         if len(grad) == 1:
             return list(grad.values())[0]
+        elif self._gradient_output_stacked:
+            return np.hstack(list(grad.values()))
+
         return grad
 
     def _check_gradient_can_be_computed(self, direction, kwargs_dict):
