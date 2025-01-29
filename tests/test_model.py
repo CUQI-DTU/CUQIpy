@@ -529,20 +529,24 @@ def test_multiple_input_model_gradient(test_model, test_data):
     elif not isinstance(test_data.expected_grad_output_value,
         (NotImplementedError, TypeError, ValueError)):
         grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+        grad_output_stacked_inputs = test_model.gradient(test_data.direction, test_data.forward_input_stacked)
         # assert output format is a dictionary with keys x, y, z
         assert list(grad_output.keys()) == test_model._non_default_args
+        assert list(grad_output_stacked_inputs.keys()) == test_model._non_default_args
 
         # Check type
         for i, (k, v) in enumerate(grad_output.items()):
             # Verify that the output is of the expected type
             if v is not None:
                 assert isinstance(v, test_data.expected_grad_output_type)
+                assert isinstance(grad_output_stacked_inputs[k], np.ndarray)
 
             # Verify that the output is of the expected value
             if isinstance(test_model._gradient_func, tuple) and test_model._gradient_func[i] is None:
                 assert v is None
             else:
                 assert np.allclose(v, test_data.expected_grad_output_value[i])
+                assert np.allclose(v, grad_output_stacked_inputs[k])
                 assert np.allclose(v, test_data.FD_grad_output[i])
     else:
         with pytest.raises(type(test_data.expected_grad_output_value), match=str(test_data.expected_grad_output_value)):
