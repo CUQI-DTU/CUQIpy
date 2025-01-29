@@ -858,7 +858,7 @@ class Model(object):
         if self._gradient_func is None:
             raise NotImplementedError("Gradient is not implemented for this model.")
 
-        # Raise error if either the direction or kwargs are Samples objects
+        # Raise an error if either the direction or kwargs are Samples objects
         if isinstance(direction, Samples) or any(
             isinstance(x, Samples) for x in kwargs_dict.values()
         ):
@@ -910,42 +910,49 @@ class Model(object):
                                                                   to_CUQIarray):
         """ Private function that applies the chain rule to account for the
         gradient of the domain geometry. """
-        # If domain_geometry is not _ProductGeometry and it has gradient
-        # method, we apply it to the gradient (as direction) and the input
-        # parameters
-        # The gradient returned by the domain_geometry.gradient is assumed to be
-        # parameter value
-        if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
-            if hasattr(self.domain_geometry, 'gradient'):
-                grad = self.domain_geometry.gradient(grad, list(kwargs_par.values())[0])
-                grad_is_par = True # Gradient is parameters
-            # we convert the computed gradient to parameters
-            grad = self._2par(grad=grad,
-                          geometry=self.domain_geometry,
-                          to_CUQIarray=to_CUQIarray,
-                          is_par=grad_is_par)
+        # Create list of domain geometries
+        geometries = (
+            self.domain_geometry.geometries
+            if isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)
+            else [self.domain_geometry]
+        )
 
-        elif isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
-            # split grad into a list of gradients
-            if not isinstance(grad, (list, tuple)) and isinstance(grad, np.ndarray):
-                grad = np.split(grad, self.domain_geometry.stacked_par_split_indices)
-            # turn grad_is_par to a tuple of bools if it is not already
-            if isinstance(grad_is_par, bool):
-                grad_is_par = tuple([grad_is_par]*len(grad))
-            # apply the gradient of each geometry component
-            grad_kwargs = {}
-            for i, (k, v_par) in enumerate(kwargs_par.items()):
-                if hasattr(self.domain_geometry.geometries[i], 'gradient') and grad[i] is not None:
-                    grad_kwargs[k] = self.domain_geometry.geometries[i].gradient(grad[i], v_par)
-                    # update the ith component of grad_is_par to True
-                    grad_is_par = grad_is_par[:i] + (True,) + grad_is_par[i+1:]
-                else:
-                    grad_kwargs[k] = grad[i]
-                # we convert the computed gradient to parameters
-            grad = self._2par(geometry=self.domain_geometry,
-                              to_CUQIarray=to_CUQIarray,
-                              is_par=grad_is_par,
-                              **grad_kwargs)
+        # turn grad_is_par to a tuple of bools if it is not already
+        if isinstance(grad_is_par, bool):
+            grad_is_par = tuple([grad_is_par]*len(grad))
+
+        # If the domain geometry is a _ProductGeometry and the gradient is
+        # stacked, split it
+        if (
+            isinstance(
+                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+            )
+            and not isinstance(grad, (list, tuple))
+            and isinstance(grad, np.ndarray)
+        ):
+            grad = np.split(grad, self.domain_geometry.stacked_par_split_indices)
+
+        # If the domain geometry is not a _ProductGeometry, turn grad into a
+        # list of length 1, so that we can iterate over it
+        if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
+            grad = [grad]
+
+        # apply the gradient of each geometry component
+        grad_kwargs = {}
+        for i, (k, v_par) in enumerate(kwargs_par.items()):
+            if hasattr(geometries[i], 'gradient') and grad[i] is not None:
+                grad_kwargs[k] = geometries[i].gradient(grad[i], v_par)
+                # update the ith component of grad_is_par to True
+                grad_is_par = grad_is_par[:i] + (True,) + grad_is_par[i+1:]
+            else:
+                grad_kwargs[k] = grad[i]
+
+        # convert the computed gradient to parameters
+        grad = self._2par(geometry=self.domain_geometry,
+                          to_CUQIarray=to_CUQIarray,
+                          is_par=grad_is_par,
+                          **grad_kwargs)
+
         return grad
 
     def __call__(self, *args, **kwargs):
