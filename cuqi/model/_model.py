@@ -329,6 +329,25 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             `x` represented as a function.
         """
+        # Check kwargs and geometry are consistent and set up geometries list and
+        # is_par tuple
+        geometries, is_par = self._helper_pre_conversion_checks_and_processing(geometry, is_par, **kwargs)
+
+        # Convert to function values
+        for i, (k, v) in enumerate(kwargs.items()):
+            # Use CUQIarray funvals if geometry is consistent
+            if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
+                kwargs[k] = v.funvals
+            # Otherwise we use the geometry par2fun method
+            elif is_par[i] and v is not None:
+                kwargs[k] = geometries[i].par2fun(v)
+
+        return kwargs
+    
+    def _helper_pre_conversion_checks_and_processing(self, geometry=None, is_par=True, **kwargs):
+        """ Helper function that checks if kwargs and geometry are consistent
+        and sets up geometries list and is_par tuple.
+        """
         # If len of kwargs is larger than 1, the geometry needs to be of type
         # _ProductGeometry
         if (
@@ -352,15 +371,7 @@ class Model(object):
             else [geometry]
         )
 
-        # Convert to function values
-        for i, (k, v) in enumerate(kwargs.items()):
-            # Use CUQIarray funvals if geometry is consistent
-            if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
-                kwargs[k] = v.funvals
-            # Otherwise we use the geometry par2fun method
-            elif is_par[i]:
-                kwargs[k] = geometries[i].par2fun(v)
-        return kwargs
+        return geometries, is_par
 
     def _2par(self, geometry=None, to_CUQIarray=False, is_par=False, **kwargs):    
         """ Converts val, normally output of :class:~`cuqi.model.Model` 
@@ -387,37 +398,29 @@ class Model(object):
         ndarray or cuqi.array.CUQIarray
             The value `val` represented as parameters.
         """
-        # If len of kwargs is larger than 1, the geometry needs to be of type
-        # _ProductGeometry
-        if len(kwargs) > 1:
-            if not isinstance(geometry, cuqi.experimental.geometry._ProductGeometry):
-                raise ValueError(
-                    "The input is specified by more than one argument. This is only "
-                    +"supported for domain geometry of type "
-                    +f"{cuqi.experimental.geometry._ProductGeometry.__name__}.")
+        # Check kwargs and geometry are consistent and set up geometries list and
+        # is_par tuple
+        geometries, is_par = self._helper_pre_conversion_checks_and_processing(geometry, is_par, **kwargs)
 
-        # if is par is bool, make it a tuple of bools
-        is_par = (is_par,) * len(kwargs) if isinstance(is_par, bool) else is_par
-        # if to_CUQIarray is bool, make it a tuple of bools
+        # if to_CUQIarray is bool, make it a tuple of bools of the same length
+        # as kwargs
         to_CUQIarray = (to_CUQIarray,) * len(kwargs) if isinstance(to_CUQIarray, bool) else to_CUQIarray
+
+        # Convert to parameters
         for i , (k, v) in enumerate(kwargs.items()):
-            # Convert to parameters
-            # if val is CUQIarray and geometry are consistent, we obtain parameters
-            # directly
-            input_geom = geometry.geometries[i]\
-                if isinstance(geometry, cuqi.experimental.geometry._ProductGeometry) else geometry
-            if isinstance(v, CUQIarray) and v.geometry == input_geom:
+            # Use CUQIarray parameters if geometry is consistent
+            if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
                 v = v.parameters
             # Otherwise we use the geometry fun2par method
             elif not is_par[i] and v is not None:
-                v = input_geom.fun2par(v)
+                v = geometries[i].fun2par(v)
 
-            # Wrap val in CUQIarray if requested
+            # Wrap the value v in CUQIarray if requested
             if to_CUQIarray[i] and v is not None:
-                v = CUQIarray(v, is_par=True, geometry=input_geom)
+                v = CUQIarray(v, is_par=True, geometry=geometries[i])
 
             kwargs[k] = v
-        # Return kwargs
+
         return kwargs
 
     def _apply_func(self, func=None, fwd=True, is_par=True, **kwargs):
