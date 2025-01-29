@@ -1,4 +1,3 @@
-#%%
 from cuqi.array import CUQIarray
 from cuqi.geometry import Continuous1D, Discrete
 import numpy as np
@@ -519,7 +518,7 @@ def test_multiple_input_model_forward(test_model, test_data):
 def test_multiple_input_model_gradient(test_model, test_data):
     """Test that the gradient method can handle multiple inputs and
     return the correct output type and value"""
-    
+
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
     if hasattr(test_model,"_test_flag_gradient") and not test_model._test_flag_gradient:
@@ -530,11 +529,25 @@ def test_multiple_input_model_gradient(test_model, test_data):
         (NotImplementedError, TypeError, ValueError)):
         grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
         grad_output_stacked_inputs = test_model.gradient(test_data.direction, test_data.forward_input_stacked)
+        test_model._gradient_output_stacked = True
+        stacked_grad_output = test_model.gradient(
+            test_data.direction, **test_data.forward_input
+        )
+        test_model._gradient_output_stacked = False
+        expected_staked_grad_output = np.hstack(
+            [v for v in list(test_data.expected_grad_output_value)]
+        )
+
         # assert output format is a dictionary with keys x, y, z
         assert list(grad_output.keys()) == test_model._non_default_args
         assert list(grad_output_stacked_inputs.keys()) == test_model._non_default_args
 
-        # Check type
+        # Check type and value of the output (stacked)
+        if np.all([value is not None for value in list(grad_output.values())]):
+            assert isinstance(stacked_grad_output, np.ndarray)
+            assert np.allclose(stacked_grad_output, expected_staked_grad_output)
+
+        # Check type and value of the output (not stacked)
         for i, (k, v) in enumerate(grad_output.items()):
             # Verify that the output is of the expected type
             if v is not None:
