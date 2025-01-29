@@ -1311,18 +1311,20 @@ class PDEModel(Model):
 
     @property
     def _non_default_args(self):
-        if self._stored_non_default_args is None:    
+        if self._stored_non_default_args is None:
             # extract the non-default arguments of the PDE
-            self._stored_non_default_args = cuqi.utilities.get_non_default_args(self.pde.PDE_form)
+            self._stored_non_default_args = cuqi.utilities.get_non_default_args(
+                self.pde.PDE_form
+            )
             # remove t from the non-default arguments
             self._stored_non_default_args = self._non_default_args
-            if 't' in self._non_default_args:
-                self._stored_non_default_args.remove('t')
+            if "t" in self._non_default_args:
+                self._stored_non_default_args.remove("t")
 
         return self._stored_non_default_args
 
     def _forward_func(self, **kwargs):
-        
+
         self.pde.assemble(**kwargs)
 
         sol, info = self.pde.solve()
@@ -1330,7 +1332,7 @@ class PDEModel(Model):
         obs = self.pde.observe(sol)
 
         return obs
-    
+
     def _gradient_func(self, direction, wrt):
         """ Compute direction-Jacobian product (gradient) of the model. """
         if hasattr(self.pde, "gradient_wrt_parameter"):
