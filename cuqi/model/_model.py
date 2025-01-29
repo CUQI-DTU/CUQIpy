@@ -484,30 +484,34 @@ class Model(object):
         )["out"]
 
     def _handle_samples(self, func=None, fwd=True, is_par=True, **kwargs):
-
-        func_range_geometry =\
-            self.range_geometry if fwd else self.domain_geometry
-
-        # all kwargs should be Samples of the same length
+        """Private function that calls apply_func for each sample in the
+        Samples object.
+        """
+        # All kwargs should be Samples objects
         if not all(isinstance(x, Samples) for x in kwargs.values()):
             raise TypeError(
-                "If applying the function to Samples, all inputs should be Samples.")
+                "If applying the function to Samples, all inputs should be Samples."
+            )
 
-        Ns = list(kwargs.values())[0].Ns        
+        # All Samples objects should have the same number of samples
+        Ns = list(kwargs.values())[0].Ns
         if not all(x.Ns == Ns for x in kwargs.values()):
             raise ValueError(
-                "If applying the function to Samples, all inputs should have the same number of samples.")
+                "If applying the function to Samples, all inputs should have the same number of samples."
+            )
 
-        out = np.zeros((func_range_geometry.par_dim, Ns))
+        # Specify the range dimension of the function
+        range_dim = self.range_dim if fwd else self.domain_dim
+
+        # Create empty array to store the output
+        out = np.zeros((range_dim, Ns))
 
         # Recursively apply func to each sample
         for i in range(Ns):
-            kwargs_i = {k: v.samples[...,i] for k, v in kwargs.items()}
-            out[:,i] = self._apply_func(func=func,
-                                        fwd=fwd,
-                                        is_par=is_par,
-                                        **kwargs_i)
-
+            kwargs_i = {k: v.samples[..., i] for k, v in kwargs.items()}
+            out[:, i] = self._apply_func(func=func, fwd=fwd, is_par=is_par, **kwargs_i)
+        # Specify the range geometries of the function
+        func_range_geometry = self.range_geometry if fwd else self.domain_geometry
         return Samples(out, geometry=func_range_geometry)
 
     def _parse_args_add_to_kwargs(self, *args, is_par=True, non_default_args=None, **kwargs):
