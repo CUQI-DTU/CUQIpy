@@ -535,12 +535,6 @@ def test_multiple_input_model_gradient(test_model, test_data):
             test_data.direction, **test_data.forward_input
         )
         test_model._gradient_output_stacked = False
-        expected_staked_grad_output = np.hstack(
-            [
-                v.to_numpy() if isinstance(v, CUQIarray) else force_ndarray(v)
-                for v in list(test_data.expected_grad_output_value)
-            ]
-        )
 
         # assert output format is a dictionary with keys x, y, z
         assert list(grad_output.keys()) == test_model._non_default_args
@@ -548,6 +542,16 @@ def test_multiple_input_model_gradient(test_model, test_data):
 
         # Check type and value of the output (stacked)
         if np.all([value is not None for value in list(grad_output.values())]):
+            expected_staked_grad_output = np.hstack(
+                [
+                    (
+                        v.to_numpy()
+                        if isinstance(v, CUQIarray)
+                        else force_ndarray(v, flatten=True)
+                    )
+                    for v in list(test_data.expected_grad_output_value)
+                ]
+            )
             assert isinstance(stacked_grad_output, np.ndarray)
             assert np.allclose(stacked_grad_output, expected_staked_grad_output)
 

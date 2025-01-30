@@ -854,7 +854,11 @@ class Model(object):
             return list(grad.values())[0]
         elif self._gradient_output_stacked:
             return np.hstack(
-                v.to_numpy() if isinstance(v, CUQIarray) else force_ndarray(v)
+                (
+                    v.to_numpy()
+                    if isinstance(v, CUQIarray)
+                    else force_ndarray(v, flatten=True)
+                )
                 for v in list(grad.values())
             )
 
