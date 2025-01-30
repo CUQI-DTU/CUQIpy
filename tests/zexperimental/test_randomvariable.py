@@ -148,7 +148,6 @@ def test_randomvariable_algebra_works_on_joint_space(operations):
     val_z = abs(np.random.randn(z.dim))+1
     assert np.allclose(rv(x=val_x, y=val_y, z=val_z), operations(val_x, val_y, val_z))
 
-@pytest.mark.xfail(reason="sampling method for random variables is not yet implemented")
 @pytest.mark.parametrize("operations", [
     lambda x, y, z: x + y,
     lambda x, y, z: x * y,
@@ -328,3 +327,30 @@ def test_RV_condition_maintains_parameter_name_order():
     assert z.condition(s=1).parameter_names == ['x', 'y']
     assert z.condition(d=1).parameter_names == ['x', 'y']
     assert z.condition(d=1, s=1).parameter_names == ['x', 'y']
+
+def test_RV_sampling_unable_if_conditioning_variables_from_lambda():
+    x = RandomVariable(cuqi.distribution.Gaussian(0, lambda s: s))
+
+    with pytest.raises(NotImplementedError, match=r"Unable to directly sample from a random variable that has distributions with conditioning variables"):
+        x.sample()
+
+    x.condition(s=1).sample() # This should work
+
+def test_RV_sampling_unable_if_conditioning_variables_from_RV():
+
+    x = RandomVariable(cuqi.distribution.Gaussian(0, 1))
+    y = RandomVariable(cuqi.distribution.Gaussian(x, 1))
+
+    with pytest.raises(NotImplementedError, match=r"Unable to directly sample from a random variable that has distributions with conditioning variables"):
+        y.sample() # One might expect this to work, but it is not implemented at this time.
+
+def test_RV_sample_against_distribution_sample():
+    x = RandomVariable(cuqi.distribution.Gaussian(np.zeros(2), 1))
+
+    np.random.seed(0)
+    rv_samples = x.sample(10)
+
+    np.random.seed(0)
+    dist_samples = x.distribution.sample(10)
+
+    assert np.allclose(rv_samples.samples, dist_samples.samples)
