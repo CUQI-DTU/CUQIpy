@@ -1380,12 +1380,42 @@ def test_wrong_gradient_signature_raises_error_at_model_initialization(
     def gradient_with_correct_signature(direction, x, y):
         return direction
 
-    model = cuqi.model.Model(forward, 1, 1, gradient=gradient_with_correct_signature)
+    model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_correct_signature)
 
     with pytest.raises(
         ValueError,
         match=r"Gradient function signature should be \['direction', 'x', 'y'\]",
     ):
         model = cuqi.model.Model(
-            forward, 1, 1, gradient=gradient_with_incorrect_signature
+            forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_incorrect_signature
         )
+def test_model_raises_error_when_domain_geometry_is_inconsistent_with_forward_signature_at_initialization():
+    """Test that the model raises an error if the domain geometry is inconsistent with the forward function signature at initialization"""
+
+    def forward(a, b):
+        return a*b
+
+    with pytest.raises(
+        ValueError,
+        match=r"The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects.",
+    ):
+        
+        model = cuqi.model.Model(forward, 1, 2)
+
+def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
+    """Test that an error is raised if the model is evaluated at a distribution with non-unique parameter names"""
+
+    def forward(a, b):
+        return a*b
+
+    model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)))
+
+    # Create a distribution with non-unique parameter names
+    a = cuqi.distribution.Gaussian(0, 1, name="x")
+    b = cuqi.distribution.Gaussian(0, 1, name="x")
+
+    with pytest.raises(
+        ValueError,
+        match=r"Attempting to match parameter name of Model with given distributions, but distribution names are not unique. Please provide unique names for the distributions.",
+    ):
+        model(a, b)
