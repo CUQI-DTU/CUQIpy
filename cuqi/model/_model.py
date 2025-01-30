@@ -107,6 +107,15 @@ class Model(object):
         self._forward_func = forward
         self._stored_non_default_args = None
 
+        # Store range_geometry
+        self.range_geometry = range_geometry
+
+        # Store domain_geometry
+        self.domain_geometry = domain_geometry
+
+        # Additional checks for the forward operator
+        self._check_domain_geometry_consistent_with_forward()
+
         # Check if only one of gradient and jacobian is given
         if (gradient is not None) and (jacobian is not None):
             raise TypeError("Only one of gradient and jacobian should be specified")
@@ -123,12 +132,6 @@ class Model(object):
             gradient = self._use_jacobian_to_specify_gradient(jacobian)
 
         self._gradient_func = gradient
-
-        # Store range_geometry
-        self.range_geometry = range_geometry
-
-        # Store domain_geometry
-        self.domain_geometry = domain_geometry
 
         # Set gradient output stacked flag to False
         self._gradient_output_stacked = False
@@ -207,6 +210,21 @@ class Model(object):
         The dimension of the range
         """
         return self.range_geometry.par_dim
+
+    def _check_domain_geometry_consistent_with_forward(self):
+        """Private function that checks if the domain geometry of the model is
+        consistent with the forward operator."""
+
+        non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
+        if (
+            not isinstance(
+                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+            )
+            and len(non_default_args) > 1
+        ):
+            raise ValueError(
+                "The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects."
+            )
 
     def _check_correct_gradient_jacobian_form(self, func, func_type):
         """Private function that checks if the gradient/jacobian parameter is
@@ -587,54 +605,6 @@ class Model(object):
 
         return kwargs
 
-    def _parse_args_add_to_kwargs_forward(self, *args, is_par=True, **kwargs):
-        """ Private function that parses the input arguments of the model and 
-        adds them as keyword arguments matching the (order of) non default arguments of
-        the forward function. """
-        kwargs = self._parse_args_add_to_kwargs(
-            *args, is_par=is_par, non_default_args=None, map_name="model", **kwargs
-        )
-
-        # For now only support either the case of one input or the case of
-        # multiple inputs with _ProductGeometry as the domain_geometry
-        if (
-            not isinstance(
-                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
-            )
-            and len(kwargs) > 1
-        ):
-            raise ValueError(
-                "The model input is specified by more than one argument. "
-                + "This is only supported for domain geometry of type "
-                + "tuple of cuqi.geometry.Geometry objects."
-            )
-
-        return kwargs
-
-    def _parse_args_add_to_kwargs_gradient(self, *args, is_par=True, **kwargs):
-        """ Private function that parses the input arguments of the gradient and 
-        adds them as keyword arguments matching the (order of) non default arguments of
-        the forward function. """
-        kwargs = self._parse_args_add_to_kwargs(
-            *args, is_par=is_par, non_default_args=None, map_name="gradient", **kwargs
-        )
-
-        # For now only support either the case of one input or the case of
-        # multiple inputs with _ProductGeometry as the domain_geometry
-        if (
-            not isinstance(
-                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
-            )
-            and len(kwargs) > 1
-        ):
-            raise ValueError(
-                "The model input is specified by more than one argument. "
-                + "This is only supported for domain geometry of type "
-                + "tuple of cuqi.geometry.Geometry objects."
-            )
-
-        return kwargs
-
     def is_stacked_args(self, *args, is_par=True):
         """Private function that checks if the input arguments are stacked
         and splits them if they are."""
@@ -701,7 +671,9 @@ class Model(object):
 
         # Add args to kwargs and ensure the order of the arguments matches the
         # non_default_args of the forward function
-        kwargs = self._parse_args_add_to_kwargs_forward(*args, **kwargs, is_par=is_par)
+        kwargs = self._parse_args_add_to_kwargs(
+            *args, **kwargs, is_par=is_par, map_name="model"
+        )
 
         # If input is a distribution, we simply change the parameter name of
         # model to match the distribution name
@@ -818,8 +790,8 @@ class Model(object):
         """
         # Add args to kwargs and ensure the order of the arguments matches the
         # non_default_args of the forward function
-        kwargs = self._parse_args_add_to_kwargs_gradient(
-            *args, **kwargs, is_par=is_var_par
+        kwargs = self._parse_args_add_to_kwargs(
+            *args, **kwargs, is_par=is_var_par, map_name="gradient"
         )
 
         # Obtain the parameters representation of the variables and raise an
