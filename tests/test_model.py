@@ -1,4 +1,5 @@
 from cuqi.array import CUQIarray
+from cuqi.samples import Samples
 from cuqi.geometry import Continuous1D, Discrete
 import numpy as np
 import scipy as sp
@@ -9,7 +10,7 @@ from copy import copy, deepcopy
 from cuqi.geometry import _identity_geometries
 from cuqi.utilities import force_ndarray
 
-class TestMultipleInputModel:
+class MultipleInputTestModel:
     def __init__(self):
         self.model_class = None
         self.forward_map = None
@@ -24,6 +25,7 @@ class TestMultipleInputModel:
         self.range_geometry = None
         self.test_data = []
         self.model_variations = []
+        self.input_bounds = None
 
     def populate_model_variations(self):
         if self.pde is not None:
@@ -101,20 +103,21 @@ class TestMultipleInputModel:
         test_model_list = []
 
         # Model 1
-        test_model = TestMultipleInputModel.helper_build_three_input_test_model()
+        test_model = MultipleInputTestModel.helper_build_three_input_test_model()
         test_model.populate_model_variations()
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
     
         # Model 2
-        test_model = TestMultipleInputModel.helper_build_steady_state_PDE_test_model()
+        test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
         test_model.populate_model_variations()
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
 
         # Model 3
-        test_model = TestMultipleInputModel.helper_build_two_input_test_with_mapped_parameter_model()
+        test_model = MultipleInputTestModel.helper_build_two_input_test_with_mapped_parameter_model()
         test_model.populate_model_variations()
+        test_model.input_bounds = [0.1, 0.9] # choose input from uniform distribution in [0.1, 0.9]
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model) 
 
@@ -130,7 +133,7 @@ class TestMultipleInputModel:
     
     @staticmethod
     def helper_build_three_input_test_model():
-        test_model = TestMultipleInputModel()
+        test_model = MultipleInputTestModel()
         test_model.forward_map = lambda x, y, z: x * y[0] + z * y[1]
 
         def gradient_x(direction, x, y, z):
@@ -199,7 +202,7 @@ class TestMultipleInputModel:
         poisson_form = lambda mag, kappa_scale: (diff_operator(kappa_scale), source(mag))
         CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
 
-        test_model = TestMultipleInputModel()
+        test_model = MultipleInputTestModel()
         test_model.model_class = cuqi.model.PDEModel
         test_model.pde = CUQI_pde
         test_model.domain_geometry = (Discrete(["mag"]), Discrete(['kappa_scale']))
@@ -210,7 +213,7 @@ class TestMultipleInputModel:
     def helper_build_two_input_test_with_mapped_parameter_model():
         """Build a model with two inputs in which the inputs are mapped
         via geometry mapping"""
-        test_model = TestMultipleInputModel()
+        test_model = MultipleInputTestModel()
         test_model.forward_map = lambda a, b: np.array([a[0]**2*b[0]*b[1], b[1]*a[0]*a[1]])
 
         def gradient_a(direction, a, b):
@@ -237,11 +240,13 @@ class TestMultipleInputModel:
         test_model.jacobian_form2_incomplete = None
 
         geom_a = cuqi.geometry.MappedGeometry(cuqi.geometry.Continuous1D(2),
-                                              map=lambda x: np.sin(x))
+                                              map=lambda x: np.sin(x),
+                                              imap=lambda x: np.arcsin(x))
         geom_a.gradient = lambda direction, x: direction@np.diag(np.cos(x))
 
         geom_b = cuqi.geometry.MappedGeometry(cuqi.geometry.Continuous1D(2),
-                                              map=lambda x: x**3)
+                                              map=lambda x: x**3,
+                                              imap=lambda x: x**(1/3))
         geom_b.gradient = lambda direction, x: 3*direction@np.diag(x**2)
 
         test_model.domain_geometry = (geom_a, geom_b)
@@ -279,10 +284,17 @@ class TestCase:
         # create a kwarg dictionary for the inputs
         input_dict = {}
         for i, arg in enumerate(self._non_default_args):
-            input_dict[arg] = np.random.randn(self._test_model.domain_geometry[i].par_dim)
+            dim = self._test_model.domain_geometry[i].par_dim
+            if self._test_model.input_bounds is not None:
+                input_dict[arg] = np.random.uniform(
+                    [self._test_model.input_bounds[0]] * dim,
+                    [self._test_model.input_bounds[1]] * dim,
+                )
+            else:
+                input_dict[arg] = np.random.randn(dim)
         self.forward_input = input_dict
         self.forward_input_stacked = np.hstack([v for v in list(input_dict.values())])
-    
+
     def create_direction(self):
         self.direction = np.random.randn(self._test_model.range_geometry.par_dim)
 
@@ -323,7 +335,7 @@ class TestCase:
         FD_grad_list = []
         model = self._test_model.model_variations[0]
         for k, v in self.forward_input.items():
-            #forward_input without k, v
+            # forward_input without k, v
             forward_input = self.forward_input.copy()
             del forward_input[k]
             fwd = lambda x: model(**forward_input, **{k:x})
@@ -436,7 +448,7 @@ class TestCase:
             test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
-        
+
         # Case 7: inputs are samples but of different length # should raise an error
         test_case = TestCase(test_model)
         test_case.create_input()
@@ -459,7 +471,9 @@ class TestCase:
 
         test_model.test_data.append(test_case)
 
-model_test_case_combinations = TestMultipleInputModel.create_model_test_case_combinations()
+model_test_case_combinations = (
+    MultipleInputTestModel.create_model_test_case_combinations()
+)
 
 def helper_function_for_printing_test_cases(model_test_case_combinations):
     """Helper function to print the test cases for debugging. This function
@@ -522,6 +536,40 @@ def test_multiple_input_model_forward(test_model, test_data):
         with pytest.raises(type(test_data.expected_fwd_output), match=str(test_data.expected_fwd_output)):
             fwd_output = test_model(**test_data.forward_input)
 
+model_test_case_combinations_no_forward_error = [
+    (test_model, test_data)
+    for test_model, test_data in model_test_case_combinations
+    if not isinstance(
+        test_data.expected_fwd_output, (NotImplementedError, TypeError, ValueError)
+    )
+]
+
+@pytest.mark.parametrize(
+    "test_model, test_data", model_test_case_combinations_no_forward_error
+)
+def test_multiple_input_model_forward_funvals_input(test_model, test_data):
+    """Test that the forward method can handle multiple inputs some of which are
+    function values and return the correct output"""
+
+    # par input
+    par_input = test_data.forward_input
+    model_output_par_input = test_model(**par_input)
+
+    # fun input
+    fun_input = {
+        k: v.funvals if (isinstance(v, CUQIarray) or isinstance(v, Samples)) else v
+        for k, v in par_input.items()
+    }
+    model_output_fun_input = test_model(**fun_input)
+
+    # Check that the output is the same
+    if isinstance(model_output_par_input, np.ndarray):
+        assert np.allclose(model_output_par_input, model_output_fun_input)
+    elif isinstance(model_output_par_input, cuqi.samples.Samples):
+        assert np.allclose(
+            model_output_par_input.samples, model_output_fun_input.samples
+        )
+
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
 def test_multiple_input_model_gradient(test_model, test_data):
     """Test that the gradient method can handle multiple inputs and
@@ -579,6 +627,47 @@ def test_multiple_input_model_gradient(test_model, test_data):
     else:
         with pytest.raises(type(test_data.expected_grad_output_value), match=str(test_data.expected_grad_output_value)):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
+
+model_test_case_combinations_no_gradient_error = [
+    (test_model, test_data)
+    for test_model, test_data in model_test_case_combinations
+    if not isinstance(
+        test_data.expected_grad_output_value,
+        (NotImplementedError, TypeError, ValueError),
+    )
+]
+# remove cases where the gradient is not implemented
+model_test_case_combinations_no_gradient_error = [
+    (test_model, test_data)
+    for test_model, test_data in model_test_case_combinations_no_gradient_error
+    if not hasattr(test_model, "_test_flag_gradient") or test_model._test_flag_gradient
+]
+
+
+@pytest.mark.parametrize(
+    "test_model, test_data", model_test_case_combinations_no_gradient_error
+)
+def test_multiple_input_model_gradient_funvals_input(test_model, test_data):
+    """Test that the gradient method can handle multiple inputs some of which are
+    function values and return the correct output"""
+
+    # par input
+    par_input = test_data.forward_input
+    grad_output_par_input = test_model.gradient(test_data.direction, **par_input)
+
+    # fun input
+    fun_input = {
+        k: v.funvals if (isinstance(v, CUQIarray) or isinstance(v, Samples)) else v
+        for k, v in par_input.items()
+    }
+    grad_output_fun_input = test_model.gradient(test_data.direction, **fun_input)
+
+    # Check that the output is the same
+    for k, v in grad_output_par_input.items():
+        if v is not None:
+            assert np.allclose(v, grad_output_fun_input[k])
+        else:
+            assert grad_output_fun_input[k] is None
 
 @pytest.mark.parametrize("seed",[(0),(1),(2)])
 def test_LinearModel_getMatrix(seed):
@@ -1222,7 +1311,7 @@ def test_AffineModel_update_shift():
 
 def test_PDE_model_multiple_input():
     """ Test that the PDE model can handle multiple inputs and return the correct output type"""
-    pde_test_model = TestMultipleInputModel.helper_build_steady_state_PDE_test_model()
+    pde_test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
     pde_test_model.populate_model_variations()
     CUQI_pde = pde_test_model.model_variations[0] # PDE model with multiple inputs
 
