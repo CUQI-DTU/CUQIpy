@@ -1050,45 +1050,73 @@ def test_model_allow_other_parameter_names():
     assert model_z(1) == 1
 
 def test_linear_model_allow_other_parameter_names():
-    """ Test that linear model automatically infers parameter names from the forward function and evaluation matches. """
+    """Test that linear model automatically infers parameter names from the forward function and evaluation matches."""
 
     forward_x = lambda x: x
     forward_y = lambda y: y
+
     def forward_z(z, not_used=None):
         return z
 
-    adjoint = lambda w: w
+    adjoint_w = lambda w: w
+    adjoint_v = lambda v: v
 
-    model_x = cuqi.model.LinearModel(forward_x, adjoint, 1, 1)
-    model_y = cuqi.model.LinearModel(forward_y, adjoint, 1, 1)
-    model_z = cuqi.model.LinearModel(forward_z, adjoint, 1, 1)
+    model_x_w = cuqi.model.LinearModel(forward_x, adjoint_w, 1, 1)
+    model_y_v = cuqi.model.LinearModel(forward_y, adjoint_v, 1, 1)
+    model_z_v = cuqi.model.LinearModel(forward_z, adjoint_v, 1, 1)
 
     A = np.array([[1]])
-    model_mat = cuqi.model.LinearModel(A) # Default parameter name is 'x'
+    model_mat = cuqi.model.LinearModel(A)  # Default parameter name is 'x'
 
+    # First: forward checks
     # Check that the model has switched its parameter name
-    assert model_x._non_default_args == ['x']
-    assert model_y._non_default_args == ['y']
-    assert model_z._non_default_args == ['z']
-    assert model_mat._non_default_args == ['x']
+    assert model_x_w._non_default_args == ["x"]
+    assert model_y_v._non_default_args == ["y"]
+    assert model_z_v._non_default_args == ["z"]
+    assert model_mat._non_default_args == ["x"]
 
     # Check that we can provide parameter names when evaluating the model
-    assert model_x(x=1) == 1
-    assert model_y(y=1) == 1
-    assert model_z(z=1) == 1
-    assert model_mat(x=np.ones(1)) == np.ones(1) # With matrix it has to be numpy array
+    assert model_x_w(x=1) == 1
+    assert model_y_v(y=1) == 1
+    assert model_z_v(z=1) == 1
+    assert model_mat(x=np.ones(1)) == np.ones(1)  # With matrix it has to be numpy array
+
+    # Check providing the wrong parameter name raises an error
+    with pytest.raises(
+        ValueError,
+        match=r"The model input is specified by a keywords arguments \['y'\] that does not match the non_default_args of the model \['x'\].",
+    ):
+        model_x_w(y=1)
 
     # And check that we can provide positional arguments
-    assert model_x(1) == 1
-    assert model_y(1) == 1
-    assert model_z(1) == 1
+    assert model_x_w(1) == 1
+    assert model_y_v(1) == 1
+    assert model_z_v(1) == 1
     assert model_mat(np.ones(1)) == np.ones(1)
 
     # Check that matrix multiplication works
-    assert model_x@1 == 1
-    assert model_y@1 == 1
-    assert model_z@1 == 1
-    assert model_mat@np.ones(1) == np.ones(1)
+    assert model_x_w @ 1 == 1
+    assert model_y_v @ 1 == 1
+    assert model_z_v @ 1 == 1
+    assert model_mat @ np.ones(1) == np.ones(1)
+
+    # Second: adjoint checks
+    # Check we can provide parameter names when evaluating the adjoint
+    assert model_x_w.adjoint(w=1) == 1
+    assert model_y_v.adjoint(v=1) == 1
+    assert model_z_v.adjoint(v=1) == 1
+
+    # Check providing the wrong parameter name raises an error
+    with pytest.raises(
+        ValueError,
+        match=r"The adjoint input is specified by a keywords arguments \['v'\] that does not match the non_default_args of the adjoint \['w'\].",
+    ):
+        model_x_w.adjoint(v=1)
+
+    # And check that we can provide positional arguments
+    assert model_x_w.adjoint(1) == 1
+    assert model_y_v.adjoint(1) == 1
+    assert model_z_v.adjoint(1) == 1
 
 def test_model_allows_jacobian_or_gradient():
     """ Test that either Jacobian or gradient (vector-jacobian product) can be specified and that it gives the same result. """

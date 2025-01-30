@@ -518,7 +518,9 @@ class Model(object):
         func_range_geometry = self.range_geometry if fwd else self.domain_geometry
         return Samples(out, geometry=func_range_geometry)
 
-    def _parse_args_add_to_kwargs(self, *args, is_par=True, non_default_args=None, **kwargs):
+    def _parse_args_add_to_kwargs(
+        self, *args, is_par=True, non_default_args=None, map_name="model", **kwargs
+    ):
         """ Private function that parses the input arguments and adds them as
         keyword arguments matching (the order of) the non default arguments of
         the forward function or other specified non_default_args list.
@@ -531,7 +533,11 @@ class Model(object):
         # If any args are given, add them to kwargs
         if len(args) > 0:
             if len(kwargs) > 0:
-                raise ValueError("The model input is specified both as positional and keyword arguments. This is not supported.")
+                raise ValueError(
+                    "The "
+                    + map_name.lower()
+                    + " input is specified both as positional and keyword arguments. This is not supported."
+                )
 
             # Check if the input is for multiple input case and is stacked,
             # then split it
@@ -541,12 +547,21 @@ class Model(object):
                     args = split_args
                     appending_error_message = ""
                 else:
-                    appending_error_message = f" Additionally, the input is specified by a single argument that cannot be split into multiple arguments matching the non_default_args {non_default_args} of the model."
+                    appending_error_message = (
+                        " Additionally, the "
+                        + map_name.lower()
+                        + f" input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args {non_default_args}."
+                    )
 
             # Check if the number of args does not match the number of
             # non_default_args of the model
             if len(args) != len(non_default_args):
-                raise ValueError("The number of positional arguments does not match the number of non-default arguments of the model."+appending_error_message)
+                raise ValueError(
+                    "The number of positional arguments does not match the number of non-default arguments of the "
+                    + map_name.lower()
+                    + "."
+                    + appending_error_message
+                )
 
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
@@ -554,7 +569,18 @@ class Model(object):
 
         # Check kwargs matches non_default_args
         if set(list(kwargs.keys())) != set(non_default_args):
-            raise ValueError(f"The model input is specified by a keywords arguments {kwargs.keys()} that does not match the non_default_args of the model {non_default_args}.")
+            if map_name == "gradient":
+                error_msg = f"The gradient input is specified by a direction and keywords arguments {list(kwargs.keys())} that does not match the non_default_args of the model {non_default_args}."
+            else:
+                error_msg = (
+                    "The "
+                    + map_name.lower()
+                    + f" input is specified by a keywords arguments {list(kwargs.keys())} that does not match the non_default_args of the "
+                    + map_name
+                    + f" {non_default_args}."
+                )
+
+            raise ValueError(error_msg)
 
         # Make sure order of kwargs is the same as non_default_args
         kwargs = {k: kwargs[k] for k in non_default_args}
@@ -566,16 +592,22 @@ class Model(object):
         adds them as keyword arguments matching the (order of) non default arguments of
         the forward function. """
         kwargs = self._parse_args_add_to_kwargs(
-            *args, is_par=is_par, non_default_args=None, **kwargs)
+            *args, is_par=is_par, non_default_args=None, map_name="model", **kwargs
+        )
 
         # For now only support either the case of one input or the case of
         # multiple inputs with _ProductGeometry as the domain_geometry
-        if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)\
-            and len(kwargs) > 1:
+        if (
+            not isinstance(
+                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+            )
+            and len(kwargs) > 1
+        ):
             raise ValueError(
-                "The model input is specified by more than one argument. "+\
-                "This is only supported for domain geometry of type "+\
-                "tuple of cuqi.geometry.Geometry objects.")
+                "The model input is specified by more than one argument. "
+                + "This is only supported for domain geometry of type "
+                + "tuple of cuqi.geometry.Geometry objects."
+            )
 
         return kwargs
 
@@ -583,7 +615,25 @@ class Model(object):
         """ Private function that parses the input arguments of the gradient and 
         adds them as keyword arguments matching the (order of) non default arguments of
         the forward function. """
-        return self._parse_args_add_to_kwargs_forward(*args, is_par=is_par, **kwargs)
+        kwargs = self._parse_args_add_to_kwargs(
+            *args, is_par=is_par, non_default_args=None, map_name="gradient", **kwargs
+        )
+
+        # For now only support either the case of one input or the case of
+        # multiple inputs with _ProductGeometry as the domain_geometry
+        if (
+            not isinstance(
+                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+            )
+            and len(kwargs) > 1
+        ):
+            raise ValueError(
+                "The model input is specified by more than one argument. "
+                + "This is only supported for domain geometry of type "
+                + "tuple of cuqi.geometry.Geometry objects."
+            )
+
+        return kwargs
 
     def is_stacked_args(self, *args, is_par=True):
         """Private function that checks if the input arguments are stacked
@@ -1129,7 +1179,9 @@ class AffineModel(Model):
     def _forward_func_no_shift(self, *args, is_par=True, **kwargs):
         """Helper function for computing the forward operator without the shift."""
         # convert args to kwargs
-        kwargs = self._parse_args_add_to_kwargs(*args, **kwargs, is_par=is_par)
+        kwargs = self._parse_args_add_to_kwargs(
+            *args, **kwargs, map_name="model", is_par=is_par
+        )
         return self._apply_func(self._linear_operator, **kwargs, is_par=is_par)
 
     def _adjoint_func_no_shift(self, *args, is_par=True, **kwargs):
@@ -1138,6 +1190,7 @@ class AffineModel(Model):
         kwargs = self._parse_args_add_to_kwargs(
             *args,
             **kwargs,
+            map_name='adjoint',
             is_par=is_par,
             non_default_args=cuqi.utilities.get_non_default_args(
                 self._linear_operator_adjoint
@@ -1237,6 +1290,7 @@ class LinearModel(AffineModel):
         kwargs = self._parse_args_add_to_kwargs(
             *args,
             **kwargs,
+            map_name='adjoint',
             is_par=is_par,
             non_default_args=cuqi.utilities.get_non_default_args(
                 self._linear_operator_adjoint
