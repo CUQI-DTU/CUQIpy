@@ -11,37 +11,40 @@ from cuqi.geometry import _identity_geometries
 from cuqi.utilities import force_ndarray
 
 class MultipleInputTestModel:
+    """Class representing a test model with ingredients to set up variations of the model. For example, model with gradient, or with jacobian, etc. All the variations shares the same forward map, the domain and range geometry."""
     def __init__(self):
-        self.model_class = None
+        self.model_class = None # the cuqi.model class to set up the model
         self.forward_map = None
-        self.pde = None
-        self.gradient_form1 = None
-        self.gradient_form2 = None
-        self.gradient_form2_incomplete = None
-        self.jacobian_form1 = None
-        self.jacobian_form2 = None
-        self.jacobian_form2_incomplete = None
+        self.pde = None # in case of PDE model
+        self.gradient_form1 = None # callable
+        self.gradient_form2 = None # tuple of callables
+        self.gradient_form2_incomplete = None # tuple of callables with some None elements
+        self.jacobian_form1 = None # callable
+        self.jacobian_form2 = None # tuple of callables
+        self.jacobian_form2_incomplete = None # tuple of callables with some None elements
         self.domain_geometry = None
         self.range_geometry = None
-        self.test_data = []
-        self.model_variations = []
-        self.input_bounds = None
+        self.test_data = [] # list of TestCase objects holding the test data
+        self.model_variations = [] # list of model variations which all share the same forward map
+        self.input_bounds = None # bounds for the test input values
 
     def populate_model_variations(self):
+        """Populate the `model_variations` list with different variations of the model that share the same forward map but differ in some other aspect like gradient, jacobian, etc."""
         if self.pde is not None:
             self.populate_pde_model_variations()
         elif self.forward_map is not None:
             self.populate_general_model_variations()
 
     def populate_general_model_variations(self):
-        # model with forward
+        """Populate the `model_variations` for general models that are not PDE models."""
+        # model with forward only
         model = self.model_class(forward=self.forward_map,
                                   domain_geometry=self.domain_geometry,
                                   range_geometry=self.range_geometry)
-        model._test_flag_gradient = False
+        model._do_test_gradient = False # do not test this model for gradient
         self.model_variations.append(model)
 
-        # model with gradient from1
+        # model with gradient of from 1 (callable)
         if self.gradient_form1 is not None:
             model = self.model_class(forward=self.forward_map,
                                       gradient=self.gradient_form1,
@@ -49,7 +52,7 @@ class MultipleInputTestModel:
                                       range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with gradient from2
+        # model with gradient of from 2 (tuple of callables)
         if self.gradient_form2 is not None:
             model = self.model_class(forward=self.forward_map,
                                       gradient=self.gradient_form2,
@@ -57,7 +60,7 @@ class MultipleInputTestModel:
                                       range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with gradient from2 incomplete
+        # model with gradient of from 2 incomplete (tuple of callables with some None elements)
         if self.gradient_form2_incomplete is not None:
             model = self.model_class(forward=self.forward_map,
                                         gradient=self.gradient_form2_incomplete,
@@ -65,7 +68,7 @@ class MultipleInputTestModel:
                                         range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with jacobian from1
+        # model with jacobian of from 1 (callable)
         if self.jacobian_form1 is not None:
             model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form1,
@@ -73,7 +76,7 @@ class MultipleInputTestModel:
                                         range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with jacobian from2
+        # model with jacobian of from 2 (tuple of callables)
         if self.jacobian_form2 is not None:
             model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form2,
@@ -81,7 +84,7 @@ class MultipleInputTestModel:
                                         range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with jacobian from2 incomplete
+        # model with jacobian of from 2 incomplete (tuple of callables with some None elements)
         if self.jacobian_form2_incomplete is not None:
             model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form2_incomplete,
@@ -90,11 +93,12 @@ class MultipleInputTestModel:
             self.model_variations.append(model)
 
     def populate_pde_model_variations(self):
-        # model with PDE
+        """Populate the `model_variations` for PDE models."""
+        # model with PDE (no gradient)
         model = self.model_class(self.pde,
                                  domain_geometry=self.domain_geometry,
                                  range_geometry=self.range_geometry)
-        model._test_flag_gradient = False
+        model._do_test_gradient = False # do not test this model for gradient
         self.model_variations.append(model)
 
     @staticmethod
@@ -577,7 +581,7 @@ def test_multiple_input_model_gradient(test_model, test_data):
 
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
-    if hasattr(test_model,"_test_flag_gradient") and not test_model._test_flag_gradient:
+    if hasattr(test_model,"_do_test_gradient") and not test_model._do_test_gradient:
         with pytest.raises(NotImplementedError, match="Gradient is not implemented for this model."):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
 
@@ -640,7 +644,7 @@ model_test_case_combinations_no_gradient_error = [
 model_test_case_combinations_no_gradient_error = [
     (test_model, test_data)
     for test_model, test_data in model_test_case_combinations_no_gradient_error
-    if not hasattr(test_model, "_test_flag_gradient") or test_model._test_flag_gradient
+    if not hasattr(test_model, "_do_test_gradient") or test_model._do_test_gradient
 ]
 
 
