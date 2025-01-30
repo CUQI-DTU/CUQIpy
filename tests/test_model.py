@@ -536,12 +536,12 @@ def test_multiple_input_model_gradient(test_model, test_data):
         assert list(grad_output_stacked_inputs.keys()) == test_model._non_default_args
 
         # Check type and value of the output (stacked)
-        test_model._gradient_output_stacked = True
-        stacked_grad_output = test_model.gradient(
-            test_data.direction, **test_data.forward_input
-        )
-        test_model._gradient_output_stacked = False
         if np.all([value is not None for value in list(grad_output.values())]):
+            test_model._gradient_output_stacked = True
+            stacked_grad_output = test_model.gradient(
+                test_data.direction, **test_data.forward_input
+            )
+            test_model._gradient_output_stacked = False
             expected_staked_grad_output = np.hstack(
                 [
                     (
