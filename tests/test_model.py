@@ -511,6 +511,13 @@ def test_multiple_input_model_forward(test_model, test_data):
             assert np.allclose(fwd_output.samples, test_data.expected_fwd_output.samples)
         else:
             raise NotImplementedError("Checks for other types of outputs not implemented.")
+
+        # evaluating forwrd on stacked input with wrong dimension raises error
+        with pytest.raises(
+            ValueError,
+            match=r"The number of positional arguments does not match the number of non-default arguments of the model. Additionally, the model input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
+        ):
+            test_model.forward(test_data.forward_input_stacked[:-1])
     else:
         with pytest.raises(type(test_data.expected_fwd_output), match=str(test_data.expected_fwd_output)):
             fwd_output = test_model(**test_data.forward_input)
