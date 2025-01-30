@@ -1358,3 +1358,34 @@ def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_
     model_adjoint = model.adjoint(y=model_input)
     model_a_adjoint = model_a.adjoint(y=model_input)
     assert np.allclose(model_adjoint, model_a_adjoint)
+
+
+@pytest.mark.parametrize(
+    "gradient_with_incorrect_signature",
+    [
+        (lambda direction, x, y, z: direction),
+        (lambda direction, x: direction),
+        (lambda direction, y, x: direction),
+        (lambda direction, x, w: direction),
+    ],
+)
+def test_wrong_gradient_signature_raises_error_at_model_initialization(
+    gradient_with_incorrect_signature,
+):
+    """Test that an error is raised if the gradient signature is wrong"""
+
+    def forward(x, y):
+        return x
+
+    def gradient_with_correct_signature(direction, x, y):
+        return direction
+
+    model = cuqi.model.Model(forward, 1, 1, gradient=gradient_with_correct_signature)
+
+    with pytest.raises(
+        ValueError,
+        match=r"Gradient function signature should be \['direction', 'x', 'y'\]",
+    ):
+        model = cuqi.model.Model(
+            forward, 1, 1, gradient=gradient_with_incorrect_signature
+        )
