@@ -488,7 +488,7 @@ class Model(object):
         # If input x is Samples we apply func for each sample
         # TODO: Check if this can be done all-at-once for computational speed-up
         if any(isinstance(x, Samples) for x in kwargs.values()):
-            return self._handle_samples(func, fwd, is_par, **kwargs)
+            return self._handle_samples(func, fwd, **kwargs)
 
         # store if any input x is CUQIarray
         is_CUQIarray = any(isinstance(x, CUQIarray) for x in kwargs.values())
@@ -505,7 +505,7 @@ class Model(object):
             geometry=func_range_geometry, to_CUQIarray=is_CUQIarray, **{"out": out}
         )["out"]
 
-    def _handle_samples(self, func=None, fwd=True, is_par=True, **kwargs):
+    def _handle_samples(self, func=None, fwd=True, **kwargs):
         """Private function that calls apply_func for each sample in the
         Samples object.
         """
@@ -530,8 +530,11 @@ class Model(object):
 
         # Recursively apply func to each sample
         for i in range(Ns):
-            kwargs_i = {k: v.samples[..., i] for k, v in kwargs.items()}
-            out[:, i] = self._apply_func(func=func, fwd=fwd, is_par=is_par, **kwargs_i)
+            kwargs_i = {
+                k: CUQIarray(v.samples[..., i], is_par=v.is_par, geometry=v.geometry)
+                for k, v in kwargs.items()
+            }
+            out[:, i] = self._apply_func(func=func, fwd=fwd, **kwargs_i)
         # Specify the range geometries of the function
         func_range_geometry = self.range_geometry if fwd else self.domain_geometry
         return Samples(out, geometry=func_range_geometry)
