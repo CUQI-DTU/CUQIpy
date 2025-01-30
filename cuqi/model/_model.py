@@ -11,6 +11,7 @@ import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
 from functools import partial
+from cuqi.utilities import force_ndarray
 
 class Model(object):
     """Generic model defined by a forward operator.
@@ -853,7 +854,7 @@ class Model(object):
             return list(grad.values())[0]
         elif self._gradient_output_stacked:
             return np.hstack(
-                v.to_numpy() if isinstance(v, CUQIarray) else v
+                v.to_numpy() if isinstance(v, CUQIarray) else force_ndarray(v)
                 for v in list(grad.values())
             )
 
