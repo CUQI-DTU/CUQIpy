@@ -7,6 +7,7 @@ import pytest
 from scipy import optimize
 from copy import copy, deepcopy
 from cuqi.geometry import _identity_geometries
+from cuqi.utilities import force_ndarray
 
 class TestMultipleInputModel:
     def __init__(self):
@@ -535,7 +536,10 @@ def test_multiple_input_model_gradient(test_model, test_data):
         )
         test_model._gradient_output_stacked = False
         expected_staked_grad_output = np.hstack(
-            [v for v in list(test_data.expected_grad_output_value)]
+            [
+                v.to_numpy() if isinstance(v, CUQIarray) else force_ndarray(v)
+                for v in list(test_data.expected_grad_output_value)
+            ]
         )
 
         # assert output format is a dictionary with keys x, y, z
