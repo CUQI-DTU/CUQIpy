@@ -384,7 +384,7 @@ class TestCase:
         for k, v in self.forward_input.items():
             # Create forward lambda function with one input x, representing
             # the value of k to be used in computing the finite difference
-            # gradient with respect to k 
+            # gradient with respect to k
             forward_input = self.forward_input.copy()
             del forward_input[k]
             fwd = lambda x: model(**forward_input, **{k:x})
@@ -488,6 +488,16 @@ class TestCase:
             v2 = 1.5*v
             samples = np.vstack([v, v2]).T
             test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+        # Create stacked samples input (not supported for forward or gradient)
+        # We use it in testing that it raises an error
+        stacked_input_samples = []
+        for i in range(2):
+            stacked_input_samples.append(
+                np.hstack([v.samples[:, i] for v in test_case.forward_input.values()])
+            )
+        test_case.forward_input_stacked = cuqi.samples.Samples(
+            np.vstack([stacked_input_samples]).T, geometry=test_model.domain_geometry
+        )
 
         # Compute expected forward output
         expected_fwd_output = []
@@ -531,6 +541,8 @@ class TestCase:
 
         test_model.test_data.append(test_case)
 
+# Create all combinations of test model variations and test cases and
+# store them in model_test_case_combinations to be used in the tests
 model_test_case_combinations = (
     MultipleInputTestModel.create_model_test_case_combinations()
 )
@@ -569,33 +581,33 @@ def helper_function_for_printing_test_cases(model_test_case_combinations):
 
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
 def test_multiple_input_model_forward(test_model, test_data):
+    """Test that the forward method can handle multiple inputs when evaluated on the test data and return the correct output type and value"""
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
+    
+    # If case: cases where we can apply the forward function without raising an error
     if not isinstance(test_data.expected_fwd_output,
         (NotImplementedError, TypeError, ValueError)):
         fwd_output = test_model(**test_data.forward_input)
-        fwd_output_stacked_inputs = test_model.forward(test_data.forward_input_stacked)
-        assert len(test_data.forward_input_stacked) == test_model.domain_dim
+
+        # Assert output has the expected type
         assert isinstance(fwd_output, test_data.expected_fwd_output_type)
-        assert isinstance(fwd_output_stacked_inputs, np.ndarray)
+
+        # Assert output has the expected value
         if isinstance(fwd_output, np.ndarray):
             assert np.allclose(fwd_output, test_data.expected_fwd_output)
-            assert np.allclose(fwd_output_stacked_inputs, test_data.expected_fwd_output)
         elif isinstance(fwd_output, cuqi.samples.Samples):
             assert np.allclose(fwd_output.samples, test_data.expected_fwd_output.samples)
         else:
             raise NotImplementedError("Checks for other types of outputs not implemented.")
 
-        # evaluating forwrd on stacked input with wrong dimension raises error
-        with pytest.raises(
-            ValueError,
-            match=r"The number of positional arguments does not match the number of non-default arguments of the model. Additionally, the model input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
-        ):
-            test_model.forward(test_data.forward_input_stacked[:-1])
+    # Else case: cases where applying the forward function raises an error
     else:
         with pytest.raises(type(test_data.expected_fwd_output), match=str(test_data.expected_fwd_output)):
             fwd_output = test_model(**test_data.forward_input)
 
+# Create a sublist of model_test_case_combinations for cases where the expected
+# forward output is not an error
 model_test_case_combinations_no_forward_error = [
     (test_model, test_data)
     for test_model, test_data in model_test_case_combinations
@@ -603,11 +615,40 @@ model_test_case_combinations_no_forward_error = [
         test_data.expected_fwd_output, (NotImplementedError, TypeError, ValueError)
     )
 ]
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_forward_error)
+def test_multiple_stacked_input_model_forward(test_model, test_data):
+    """Test that the forward method can handle stacked inputs and return the correct
+    output type and value"""
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    # If case: the output is expected to be a numpy array
+    if isinstance(test_data.expected_fwd_output, np.ndarray):
+        assert len(test_data.forward_input_stacked) == test_model.domain_dim
+        fwd_output_stacked_inputs = test_model.forward(test_data.forward_input_stacked)
+        assert isinstance(fwd_output_stacked_inputs, np.ndarray)    
+        assert np.allclose(fwd_output_stacked_inputs, test_data.expected_fwd_output)
+    # Else case: case where the input (and hence expected output) are Samples object.
+    # For this case, the forward method should raise an error since applying the 
+    # forward function to a Samples object of stacked input is not supported.
+    elif isinstance(test_data.expected_fwd_output, Samples):
+        with pytest.raises(ValueError, match=r"The model input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args"):
+            test_model.forward(test_data.forward_input_stacked)
+    else:
+        raise NotImplementedError
+
+    # Assert evaluating forward on stacked input with wrong dimension raises error
+    if isinstance(test_data.expected_fwd_output, np.ndarray):
+        with pytest.raises(
+            ValueError,
+            match=r"The number of positional arguments does not match the number of non-default arguments of the model. Additionally, the model input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
+        ):
+            test_model.forward(test_data.forward_input_stacked[:-1])
 
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_forward_error
 )
-def test_multiple_input_model_forward_funvals_input(test_model, test_data):
+def test_multiple_input_model_forward_applied_to_funvals_input(test_model, test_data):
     """Test that the forward method can handle multiple inputs some of which are
     function values and return the correct output"""
 
@@ -615,7 +656,9 @@ def test_multiple_input_model_forward_funvals_input(test_model, test_data):
     par_input = test_data.forward_input
     model_output_par_input = test_model(**par_input)
 
-    # fun input
+    # fun input (note because some of the test data cases have a mix of numpy
+    # arrays and cuqi arrays, only the cuqi arrays are converted to funvals 
+    # below, hence it will be a case of mixed input of funvals and par values)
     fun_input = {
         k: v.funvals if (isinstance(v, CUQIarray) or isinstance(v, Samples)) else v
         for k, v in par_input.items()
