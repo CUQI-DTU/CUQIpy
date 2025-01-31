@@ -62,12 +62,18 @@ class RegularizedGaussian(Distribution):
         min_(z in C) 0.5||x-z||_2^2.
 
     constraint : string or None
-        Preset constraints that generate the corresponding proximal parameter. Can be set to "nonnegativity" and "box". Required for use in Gibbs.
-        For "box", the following additional parameters can be passed:
+        Preset constraints that generate the corresponding proximal parameter. Required for use in Gibbs. For any geometry the following can be chosen:
+        - "nonnegativity"
+        - "box", the following additional parameters can be passed:
             lower_bound : array_like or None
                 Lower bound of box, defaults to zero
             upper_bound : array_like
                 Upper bound of box, defaults to one
+        Additionally, for Continuous1D geometry the following options can be chosen:
+        - "increasing"
+        - "decreasing"
+        - "convex"
+        - "concave"
 
     regularization : string or None
         Preset regularization that generate the corresponding proximal parameter. Can be set to "l1" or 'tv'. Required for use in Gibbs in future update.
