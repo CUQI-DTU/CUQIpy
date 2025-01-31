@@ -17,8 +17,8 @@ class Conjugate(Sampler):
     - (GMRF, Gamma) where Gamma is defined on the precision parameter of the GMRF
     - (RegularizedGaussian, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
     - (RegularizedGMRF, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
-    - (RegularizedGaussian, ModifiedHalfNormal) with preset constraints and regularization only
-    - (RegularizedGMRF, ModifiedHalfNormal) with preset constraints and regularization only
+    - (RegularizedGaussian, ModifiedHalfNormal) with most preset constraints and regularization
+    - (RegularizedGMRF, ModifiedHalfNormal) with most preset constraints and regularization
 
     Currently the Gamma and ModifiedHalfNormal distribution must be univariate.
 
@@ -272,6 +272,7 @@ def _compute_sparsity_level(target):
     constraint = target.likelihood.distribution.preset["constraint"]
     regularization = target.likelihood.distribution.preset["regularization"]
 
+    # There is no reference for some of these conjugacy rules
     if constraint == "nonnegativity":
         if regularization is None:
             return count_nonzero(x)
@@ -303,7 +304,7 @@ def _compute_sparsity_level(target):
         if regularization is None:
             return count_nonzero(x[:-1] - x[1:])
         elif regularization == "l1":
-            pass # Count number of piecewise linear components that are not zero
+            pass # TODO: or not to-do, nobody is probably going to use this anyway
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
             return count_nonzero(x[:-1] - x[1:])
         # convex and concave has only been implemented in 1D

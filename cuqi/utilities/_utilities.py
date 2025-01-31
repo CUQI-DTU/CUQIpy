@@ -363,7 +363,7 @@ def count_nonzero(x, threshold = 1e-6):
 
         
 def count_within_bounds(x, lower_bounds, upper_bounds, threshold = 1e-6, exception = np.nan):
-        """ Returns the number of values in an array whose value lies between the proided lower and upper bounds.
+        """ Returns the number of values in an array whose value lies between the provided lower and upper bounds.
 
         Parameters
         ----------
