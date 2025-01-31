@@ -4,7 +4,7 @@ import math
 from cuqi.experimental.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ModifiedHalfNormal
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUnboundedUniform
-from cuqi.utilities import get_non_default_args, count_nonzero, count_constant_components_1D, count_constant_components_2D
+from cuqi.utilities import get_non_default_args, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 class Conjugate(Sampler):
@@ -17,8 +17,8 @@ class Conjugate(Sampler):
     - (GMRF, Gamma) where Gamma is defined on the precision parameter of the GMRF
     - (RegularizedGaussian, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
     - (RegularizedGMRF, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
-    - (RegularizedGaussian, ModifiedHalfNormal) with preset constraints and regularization only
-    - (RegularizedGMRF, ModifiedHalfNormal) with preset constraints and regularization only
+    - (RegularizedGaussian, ModifiedHalfNormal) with most preset constraints and regularization
+    - (RegularizedGMRF, ModifiedHalfNormal) with most preset constraints and regularization
 
     Currently the Gamma and ModifiedHalfNormal distribution must be univariate.
 
@@ -147,8 +147,8 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedGaussian-Gamma conjugacy only works with univariate ModifiedHalfNormal prior")
 
-        if self.target.likelihood.distribution.preset["constraint"] not in ["nonnegativity"]:
-            raise ValueError("RegularizedGaussian-Gamma conjugacy only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+        # Raises error if preset is not supported
+        _compute_sparsity_level(self.target)
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
@@ -183,9 +183,9 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with univariate Gamma prior")
         
-        if self.target.likelihood.distribution.preset["regularization"] not in ["l1", "tv"]:
-            raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
-        
+        # Raises error if preset is not supported
+        _compute_sparsity_level(self.target)
+
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
             raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
@@ -219,8 +219,8 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with univariate ModifiedHalfNormal prior")
         
-        if self.target.likelihood.distribution.preset["regularization"] not in ["l1", "tv"]:
-            raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
+        # Raises error if preset is not supported
+        _compute_sparsity_level(self.target)
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 2:
@@ -268,21 +268,55 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
 def _compute_sparsity_level(target):
     """Computes the sparsity level in accordance with Section 4 from [2],"""
     x = target.likelihood.data
-    if target.likelihood.distribution.preset["constraint"] == "nonnegativity":
-        if target.likelihood.distribution.preset["regularization"] == "l1":
-            m = count_nonzero(x)
-        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            m = count_constant_components_1D(x, lower = 0.0)
-        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            m = count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
-    else: # No constraints, only regularization
-        if target.likelihood.distribution.preset["regularization"] == "l1":
-            m = count_nonzero(x)
-        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            m = count_constant_components_1D(x)
-        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            m = count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x))
-    return m
+
+    constraint = target.likelihood.distribution.preset["constraint"]
+    regularization = target.likelihood.distribution.preset["regularization"]
+
+    # There is no reference for some of these conjugacy rules
+    if constraint == "nonnegativity":
+        if regularization is None:
+            return count_nonzero(x)
+        elif regularization == "l1":
+            return count_nonzero(x)
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            return count_constant_components_1D(x, lower = 0.0)
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
+    elif constraint == "box":
+        bounds = target.likelihood.distribution._box_bounds
+        if regularization is None:
+            return count_within_bounds(x, bounds[0], bounds[1])
+        elif regularization == "l1":
+            return count_within_bounds(x, bounds[0], bounds[1], exception = 0.0)
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
+    elif constraint in ["increasing", "decreasing"]:
+        if regularization is None:
+            return count_constant_components_1D(x)
+        elif regularization == "l1":
+            return count_constant_components_1D(x, exception = 0.0)
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            return count_constant_components_1D(x)
+        # Increasing and decreasing cannot be done in 2D
+    elif constraint in ["convex", "concave"]:
+        if regularization is None:
+            return count_nonzero(x[:-1] - x[1:])
+        elif regularization == "l1":
+            pass # TODO: or not to-do, nobody is probably going to use this anyway
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            return count_nonzero(x[:-1] - x[1:])
+        # convex and concave has only been implemented in 1D
+    elif constraint == None: 
+        if regularization == "l1":
+            return count_nonzero(x)
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            return count_constant_components_1D(x)
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x))
+
+    raise ValueError("RegularizedGaussian preset constraint and regularization choice is currently not supported with conjugacy.")
 
 
 def _get_conjugate_parameter(target):
