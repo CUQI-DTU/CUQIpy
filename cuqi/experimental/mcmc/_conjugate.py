@@ -147,8 +147,8 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedGaussian-Gamma conjugacy only works with univariate ModifiedHalfNormal prior")
 
-        if self.target.likelihood.distribution.preset["constraint"] not in ["nonnegativity"]:
-            raise ValueError("RegularizedGaussian-Gamma conjugacy only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
+        # Raises error if preset is not supported
+        _compute_sparsity_level(self.target)
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
@@ -183,9 +183,9 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with univariate Gamma prior")
         
-        if self.target.likelihood.distribution.preset["regularization"] not in ["l1", "tv"]:
-            raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
-        
+        # Raises error if preset is not supported
+        _compute_sparsity_level(self.target)
+
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 1:
             raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
@@ -219,8 +219,8 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with univariate ModifiedHalfNormal prior")
         
-        if self.target.likelihood.distribution.preset["regularization"] not in ["l1", "tv"]:
-            raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
+        # Raises error if preset is not supported
+        _compute_sparsity_level(self.target)
 
         key_value_pairs = _get_conjugate_parameter(self.target)
         if len(key_value_pairs) != 2:
@@ -282,6 +282,8 @@ def _compute_sparsity_level(target):
             m = count_constant_components_1D(x)
         elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
             m = count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x))
+    else:
+        raise ValueError("RegularizedGaussian preset constraint and regularization choice is currently not supported with conjugacy.")
     return m
 
 
