@@ -37,14 +37,14 @@ class MultipleInputTestModel:
 
     def populate_general_model_variations(self):
         """Populate the `model_variations` for general models that are not PDE models."""
-        # model with forward only
+        # Model with forward only
         model = self.model_class(forward=self.forward_map,
                                   domain_geometry=self.domain_geometry,
                                   range_geometry=self.range_geometry)
         model._do_test_gradient = False # do not test this model for gradient
         self.model_variations.append(model)
 
-        # model with gradient of from 1 (callable)
+        # Model with gradient of from 1 (callable)
         if self.gradient_form1 is not None:
             model = self.model_class(forward=self.forward_map,
                                       gradient=self.gradient_form1,
@@ -52,7 +52,7 @@ class MultipleInputTestModel:
                                       range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with gradient of from 2 (tuple of callables)
+        # Model with gradient of from 2 (tuple of callables)
         if self.gradient_form2 is not None:
             model = self.model_class(forward=self.forward_map,
                                       gradient=self.gradient_form2,
@@ -60,7 +60,7 @@ class MultipleInputTestModel:
                                       range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with gradient of from 2 incomplete (tuple of callables with some None elements)
+        # Model with gradient of from 2 incomplete (tuple of callables with some None elements)
         if self.gradient_form2_incomplete is not None:
             model = self.model_class(forward=self.forward_map,
                                         gradient=self.gradient_form2_incomplete,
@@ -68,7 +68,7 @@ class MultipleInputTestModel:
                                         range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with jacobian of from 1 (callable)
+        # Model with jacobian of from 1 (callable)
         if self.jacobian_form1 is not None:
             model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form1,
@@ -76,7 +76,7 @@ class MultipleInputTestModel:
                                         range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with jacobian of from 2 (tuple of callables)
+        # Model with jacobian of from 2 (tuple of callables)
         if self.jacobian_form2 is not None:
             model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form2,
@@ -84,7 +84,7 @@ class MultipleInputTestModel:
                                         range_geometry=self.range_geometry)
             self.model_variations.append(model)
 
-        # model with jacobian of from 2 incomplete (tuple of callables with some None elements)
+        # Model with jacobian of from 2 incomplete (tuple of callables with some None elements)
         if self.jacobian_form2_incomplete is not None:
             model = self.model_class(forward=self.forward_map,
                                         jacobian=self.jacobian_form2_incomplete,
@@ -94,7 +94,7 @@ class MultipleInputTestModel:
 
     def populate_pde_model_variations(self):
         """Populate the `model_variations` for PDE models."""
-        # model with PDE (no gradient)
+        # Model with PDE (no gradient)
         model = self.model_class(self.pde,
                                  domain_geometry=self.domain_geometry,
                                  range_geometry=self.range_geometry)
@@ -103,6 +103,8 @@ class MultipleInputTestModel:
 
     @staticmethod
     def create_model_test_case_combinations():
+        """Create all combinations of test model variations and test cases 
+        (test data) for the test models."""
         model_test_case_combinations = []
         test_model_list = []
 
@@ -125,7 +127,7 @@ class MultipleInputTestModel:
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model) 
 
-        # append all combinations of test model variations and test cases
+        # Append all combinations of test model variations and test cases
         # to model_test_case_combinations
         for test_model in test_model_list:
             for test_model_variation in test_model.model_variations:
@@ -137,45 +139,56 @@ class MultipleInputTestModel:
     
     @staticmethod
     def helper_build_three_input_test_model():
+        """Build a MultipleInputTestModel with three inputs: x, y, z, and gradient and jacobian functions."""
         test_model = MultipleInputTestModel()
         test_model.forward_map = lambda x, y, z: x * y[0] + z * y[1]
-
+        
+        # gradient with respect to x
         def gradient_x(direction, x, y, z):
             return direction * y[0]
         
+        # gradient with respect to y
         def gradient_y(direction, x, y, z):
             return np.array([direction @ x, direction @ z])
         
+        # gradient with respect to z
         def gradient_z(direction, x, y, z):
             return direction * y[1]
         
+        # gradient with respect to all inputs (form 1, callable)
         def gradient_form1(direction, x, y, z):
             grad_x = gradient_x(direction, x, y, z)
             grad_y = gradient_y(direction, x, y, z)
             grad_z = gradient_z(direction, x, y, z)
             return (grad_x, grad_y, grad_z)
         
+        # Assign the gradient functions to the test model
         test_model.gradient_form1 = gradient_form1
         test_model.gradient_form2 = (gradient_x, gradient_y, gradient_z)
         test_model.gradient_form2_incomplete = (gradient_x, None, gradient_z)
 
+        # jacobian with respect to x
         def jacobian_x(x, y, z):
             ones = np.ones_like(x)
             return np.diag(y[0] * ones)
         
+        # jacobian with respect to y
         def jacobian_y(x, y, z):
             return np.array([x, z]).T
         
+        # jacobian with respect to z
         def jacobian_z(x, y, z):
             ones = np.ones_like(x)
             return np.diag(y[1] * ones)
         
+        # jacobian with respect to all inputs (form 1, callable)
         def jacobian_form1(x, y, z):
             jac_x = jacobian_x(x, y, z)
             jac_y = jacobian_y(x, y, z)
             jac_z = jacobian_z(x, y, z)
             return np.hstack([jac_x, jac_y, jac_z])
-
+        
+        # Assign the jacobian functions to the test model
         test_model.jacobian_form1 = jacobian_form1
         test_model.jacobian_form2 = (jacobian_x, jacobian_y, jacobian_z)
         test_model.jacobian_form2_incomplete = (None, jacobian_y, jacobian_z)
