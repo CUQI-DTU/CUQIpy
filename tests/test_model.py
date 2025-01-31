@@ -28,6 +28,18 @@ class MultipleInputTestModel:
         self.model_variations = [] # list of model variations which all share the same forward map
         self.input_bounds = None # bounds for the test input values
 
+    @property
+    def has_gradient(self):
+        """Check if the test model has gradient functions or jacobian functions (which are used in specifying the gradient)"""
+        return (
+            self.gradient_form1 is not None
+            or self.gradient_form2 is not None
+            or self.gradient_form2_incomplete is not None
+            or self.jacobian_form1 is not None
+            or self.jacobian_form2 is not None
+            or self.jacobian_form2_incomplete is not None
+        )
+
     def populate_model_variations(self):
         """Populate the `model_variations` list with different variations of the model that share the same forward map but differ in some other aspect like gradient, jacobian, etc."""
         if self.pde is not None:
@@ -113,7 +125,7 @@ class MultipleInputTestModel:
         test_model.populate_model_variations()
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
-    
+
         # Model 2
         test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
         test_model.populate_model_variations()
@@ -134,34 +146,34 @@ class MultipleInputTestModel:
                 for test_data_item in test_model.test_data:
                     model_test_case_combinations.append(
                         (test_model_variation, test_data_item))
-        
+
         return model_test_case_combinations
-    
+
     @staticmethod
     def helper_build_three_input_test_model():
         """Build a MultipleInputTestModel with three inputs: x, y, z, and gradient and jacobian functions."""
         test_model = MultipleInputTestModel()
         test_model.forward_map = lambda x, y, z: x * y[0] + z * y[1]
-        
+
         # gradient with respect to x
         def gradient_x(direction, x, y, z):
             return direction * y[0]
-        
+
         # gradient with respect to y
         def gradient_y(direction, x, y, z):
             return np.array([direction @ x, direction @ z])
-        
+
         # gradient with respect to z
         def gradient_z(direction, x, y, z):
             return direction * y[1]
-        
+
         # gradient with respect to all inputs (form 1, callable)
         def gradient_form1(direction, x, y, z):
             grad_x = gradient_x(direction, x, y, z)
             grad_y = gradient_y(direction, x, y, z)
             grad_z = gradient_z(direction, x, y, z)
             return (grad_x, grad_y, grad_z)
-        
+
         # Assign the gradient functions to the test model
         test_model.gradient_form1 = gradient_form1
         test_model.gradient_form2 = (gradient_x, gradient_y, gradient_z)
@@ -171,23 +183,23 @@ class MultipleInputTestModel:
         def jacobian_x(x, y, z):
             ones = np.ones_like(x)
             return np.diag(y[0] * ones)
-        
+
         # jacobian with respect to y
         def jacobian_y(x, y, z):
             return np.array([x, z]).T
-        
+
         # jacobian with respect to z
         def jacobian_z(x, y, z):
             ones = np.ones_like(x)
             return np.diag(y[1] * ones)
-        
+
         # jacobian with respect to all inputs (form 1, callable)
         def jacobian_form1(x, y, z):
             jac_x = jacobian_x(x, y, z)
             jac_y = jacobian_y(x, y, z)
             jac_z = jacobian_z(x, y, z)
             return np.hstack([jac_x, jac_y, jac_z])
-        
+
         # Assign the jacobian functions to the test model
         test_model.jacobian_form1 = jacobian_form1
         test_model.jacobian_form2 = (jacobian_x, jacobian_y, jacobian_z)
@@ -213,7 +225,7 @@ class MultipleInputTestModel:
         grid_obs = grid_sol[5:] # observation grid
         source =  lambda mag: mag*np.sin(grid_sol) # source term depending on magnitude `mag`
         kappa = np.ones(dim) # kappa is the diffusivity
-    
+
         # Build the differential operator (depending on kappa_scale, a scale of the diffusivity)
         FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
         diff_operator = lambda kappa_scale: FOFD_operator.T @ np.diag(kappa_scale*kappa) @ FOFD_operator
@@ -397,7 +409,7 @@ class TestCase:
         test_case.compute_expected_fwd_output()
         test_case.expected_fwd_output_type = np.ndarray
 
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.create_direction()
             test_case.compute_expected_grad_output()
             test_case.compute_FD_grad_output()
