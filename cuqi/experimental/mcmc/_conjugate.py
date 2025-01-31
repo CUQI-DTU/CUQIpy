@@ -282,17 +282,54 @@ def _compute_sparsity_level(target):
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
             return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
     elif constraint == "box":
-        pass
+        if regularization is None:
+            pass
+        elif regularization == "l1":
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            pass
     elif constraint == "increasing":
-        pass
+        if regularization is None:
+            pass
+        elif regularization == "l1":
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            pass
     elif constraint == "decreasing":
-        pass
+        if regularization is None:
+            pass
+        elif regularization == "l1":
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            pass
     elif constraint == "convex":
-        pass
+        if regularization is None:
+            pass
+        elif regularization == "l1":
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            pass
     elif regularization == "concave":
-        pass
+        if regularization is None:
+            pass
+        elif regularization == "l1":
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            pass
+        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            pass
     elif constraint == None: # No constraints, only regularization
-        if regularization == "l1":
+        if regularization is None:
+            pass
+        elif regularization == "l1":
             return count_nonzero(x)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
             return count_constant_components_1D(x)
