@@ -1,0 +1,35 @@
+LinearPDE
+=========
+
+.. currentmodule:: cuqi.pde
+
+.. autoclass:: LinearPDE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearPDE.__init__
+      ~LinearPDE.assemble
+      ~LinearPDE.observe
+      ~LinearPDE.solve
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~LinearPDE.grid_obs
+      ~LinearPDE.grid_sol
+      ~LinearPDE.grids_equal
+   
+   

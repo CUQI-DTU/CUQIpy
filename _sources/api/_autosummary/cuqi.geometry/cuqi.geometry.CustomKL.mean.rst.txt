@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.mean
+===========================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.mean

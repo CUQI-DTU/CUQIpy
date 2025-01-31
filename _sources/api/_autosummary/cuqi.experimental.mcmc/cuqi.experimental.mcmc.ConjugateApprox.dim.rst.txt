@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.dim
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: ConjugateApprox.dim

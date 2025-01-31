@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.transformation
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.transformation

@@ -1,0 +1,6 @@
+cuqi.solver.PDHG.\_\_init\_\_
+=============================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: PDHG.__init__

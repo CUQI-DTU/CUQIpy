@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.warmup
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.warmup

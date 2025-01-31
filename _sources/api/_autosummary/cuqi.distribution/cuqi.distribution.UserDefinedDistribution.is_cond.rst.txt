@@ -1,0 +1,6 @@
+cuqi.distribution.UserDefinedDistribution.is\_cond
+==================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: UserDefinedDistribution.is_cond

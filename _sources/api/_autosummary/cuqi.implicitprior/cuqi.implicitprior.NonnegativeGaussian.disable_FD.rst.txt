@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.disable\_FD
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.disable_FD

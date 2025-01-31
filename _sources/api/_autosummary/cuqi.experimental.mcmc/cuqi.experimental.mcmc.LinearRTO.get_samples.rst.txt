@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.get\_samples
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTO.get_samples

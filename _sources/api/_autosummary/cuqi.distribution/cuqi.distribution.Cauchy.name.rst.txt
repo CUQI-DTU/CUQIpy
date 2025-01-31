@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.name
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Cauchy.name

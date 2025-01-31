@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.\_\_init\_\_
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTS.__init__

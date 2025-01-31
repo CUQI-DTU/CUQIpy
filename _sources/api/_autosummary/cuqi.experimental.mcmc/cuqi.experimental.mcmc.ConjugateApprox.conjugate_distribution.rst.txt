@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.conjugate\_distribution
+==============================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApprox.conjugate_distribution

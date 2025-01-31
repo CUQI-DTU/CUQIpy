@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ProposalBasedSampler.warmup
+==================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ProposalBasedSampler.warmup

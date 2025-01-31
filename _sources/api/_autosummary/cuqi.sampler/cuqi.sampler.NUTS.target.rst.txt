@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.target
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: NUTS.target

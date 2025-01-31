@@ -1,0 +1,38 @@
+ULA
+===
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: ULA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ULA.__init__
+      ~ULA.sample
+      ~ULA.sample_adapt
+      ~ULA.single_update
+      ~ULA.step
+      ~ULA.step_tune
+      ~ULA.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ULA.dim
+      ~ULA.geometry
+      ~ULA.target
+   
+   

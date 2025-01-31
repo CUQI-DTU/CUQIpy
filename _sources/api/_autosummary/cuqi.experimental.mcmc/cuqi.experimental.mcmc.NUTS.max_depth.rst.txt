@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.max\_depth
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: NUTS.max_depth

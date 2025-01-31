@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.load\_checkpoint
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.load_checkpoint

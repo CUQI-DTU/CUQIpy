@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.single\_update
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.single_update

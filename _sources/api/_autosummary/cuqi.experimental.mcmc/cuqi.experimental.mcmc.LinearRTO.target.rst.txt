@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.target
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: LinearRTO.target

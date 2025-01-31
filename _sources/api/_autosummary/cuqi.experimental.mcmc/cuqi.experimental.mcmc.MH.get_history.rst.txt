@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MH.get\_history
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MH.get_history
