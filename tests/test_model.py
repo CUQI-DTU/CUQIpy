@@ -203,7 +203,7 @@ class MultipleInputTestModel:
 
     @staticmethod
     def helper_build_steady_state_PDE_test_model():
-        """helper function to build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale. This model does not have gradient or jacobian functions."""
+        """Build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale. This model does not have gradient or jacobian functions."""
 
         # Poisson equation setup
         dim = 20 #Number of nodes
@@ -240,14 +240,17 @@ class MultipleInputTestModel:
         test_model = MultipleInputTestModel()
         test_model.forward_map = lambda a, b: np.array([a[0]**2*b[0]*b[1], b[1]*a[0]*a[1]])
 
+        # gradient with respect to a
         def gradient_a(direction, a, b):
             return np.array([2*a[0]*b[0]*b[1]*direction[0] + b[1]*a[1]*direction[1],
                              b[1]*a[0]*direction[1]])
 
+        # gradient with respect to b
         def gradient_b(direction, a, b):
             return np.array([a[0]**2*b[1]*direction[0],
                              a[0]**2*b[0]*direction[0]+a[0]*a[1]*direction[1]])
 
+        # gradient with respect to all inputs (form 1, callable)
         def gradient_form1(direction, a, b):
             grad_a = gradient_a(direction, a, b)
             grad_b = gradient_b(direction, a, b)
@@ -256,13 +259,12 @@ class MultipleInputTestModel:
         test_model.gradient_form1 = gradient_form1
         test_model.gradient_form2 = (gradient_a, gradient_b)
         test_model.gradient_form2_incomplete = (gradient_a, None)
-        test_model.gradient_wrong_signature = None #TODO: Add a test for this
-        test_model.gradient_wrong_signature_order = None #TODO: Add a test for this
 
         test_model.jacobian_form1 = None
         test_model.jacobian_form2 = None
         test_model.jacobian_form2_incomplete = None
 
+        # Setting up domain and range geometries
         geom_a = cuqi.geometry.MappedGeometry(cuqi.geometry.Continuous1D(2),
                                               map=lambda x: np.sin(x),
                                               imap=lambda x: np.arcsin(x))
@@ -272,15 +274,19 @@ class MultipleInputTestModel:
                                               map=lambda x: x**3,
                                               imap=lambda x: x**(1/3))
         geom_b.gradient = lambda direction, x: 3*direction@np.diag(x**2)
-
         test_model.domain_geometry = (geom_a, geom_b)
         test_model.range_geometry = cuqi.geometry.Continuous1D(2)
+
+        # Assign the model class
         test_model.model_class = cuqi.model.Model
         return test_model
 
 class TestCase:
+    """Class representing a test case for a test model. A test case consists of the input values, the expected output values, and the expected output types and error messages."""
     def __init__(self, test_model):
         self._test_model = test_model
+
+        # Non default arguments of the cuqi.model.Model object
         self._non_default_args = self._test_model.model_variations[0]._non_default_args
         self.forward_input = None
         self.forward_input_stacked = None
@@ -289,87 +295,98 @@ class TestCase:
         self.expected_grad_output_value = None
         self.expected_fwd_output_type = None
         self.expected_grad_output_type = None
-        self.FD_grad_output = None
+        self.FD_grad_output = None # finite difference gradient for verification
 
     @property
     def model_forward_map(self):
-        if self._test_model.pde is not None:
-            def _forward(*args, **kwargs):
-                # use the model forward map but make sure it maps function
-                # values to function value
-                value = self._test_model.model_variations[0].forward(
-                    *args, is_par=False, **kwargs)
-                return self._test_model.range_geometry.par2fun(value)
-        else:
-            _forward = self._test_model.forward_map
-        return _forward
+        """Returns the underlying forward map of the test model (the one that maps funvals to funvals). Note that for cuqi.model.Model objects, the underlying forward map, stored in the `_forward_func` attribute, maps funvals to funvals, while the `forward` method that wraps the underlying `_forward_func` maps parameter values to parameter values."""
+
+        return self._test_model.model_variations[0]._forward_func
 
     def create_input(self):
-        # create a kwarg dictionary for the inputs
-        input_dict = {}
+        """Create random input values for the test case, stored in two formats, a kwargs dictionary and a stacked numpy array."""
+        input_dict = {} # kwargs dictionary
+
         for i, arg in enumerate(self._non_default_args):
             dim = self._test_model.domain_geometry[i].par_dim
+            # If case: input bounds are specified, sample from uniform distribution
             if self._test_model.input_bounds is not None:
                 input_dict[arg] = np.random.uniform(
                     [self._test_model.input_bounds[0]] * dim,
                     [self._test_model.input_bounds[1]] * dim,
                 )
+            # Else case: sample from standard normal distribution
             else:
                 input_dict[arg] = np.random.randn(dim)
+
         self.forward_input = input_dict
         self.forward_input_stacked = np.hstack([v for v in list(input_dict.values())])
 
     def create_direction(self):
+        """Create a random direction for the gradient computation."""
         self.direction = np.random.randn(self._test_model.range_geometry.par_dim)
 
     def compute_expected_fwd_output(self):
+        """Compute the expected output of the forward map for the test case. Note that this does not use the method `forward` of the `cuqi.model.Model` object, but the underlying forward map stored in the `_forward_func` attribute which is the function supplied by the user (in Model class case) or built from the PDE object (in PDEModel case)."""
         mapped_input = self._compute_mapped_input(self.forward_input,
                                                   self._test_model.domain_geometry)
         self.expected_fwd_output = self.model_forward_map(**mapped_input)
 
     @staticmethod
     def _compute_mapped_input(forward_input, domain_geom):
+        """Map the input values to function values using the par2fun method of the domain geometry."""
         mapped_input = {}
         for i, (k, v) in enumerate(forward_input.items()):
             if hasattr(domain_geom[i], 'map'):
-                mapped_input[k] = domain_geom[i].map(v)
+                mapped_input[k] = domain_geom[i].par2fun(v)
             elif type(domain_geom[i]) in _identity_geometries:
                 mapped_input[k] = v
             else:
-                raise NotImplementedError("Mapping not implemented for geometry type.")
+                raise NotImplementedError
         return mapped_input
 
     def compute_expected_grad_output(self):
-        # check if all domain geometry components are identity geometries
-        domain_geom = self._test_model.domain_geometry
-        forward_input_fun = deepcopy(self.forward_input)
+        """Compute the expected output of the gradient computation for the test case. Note that this does not use the method `gradient` of the `cuqi.model.Model` object, but the underlying gradient functions supplied by the user."""
 
-        if all([type(geom) in _identity_geometries for geom in domain_geom]):
-            self.expected_grad_output_value = self._test_model.gradient_form1(self.direction, **forward_input_fun)
-        else:
-            for i, (k, v) in enumerate(forward_input_fun.items()):
-                forward_input_fun[k] = domain_geom[i].par2fun(v)
-            self.expected_grad_output_value = []
-            for i, (k, v) in enumerate(self.forward_input.items()):
-                self.expected_grad_output_value.append(self._test_model.gradient_form2[i](self.direction, **forward_input_fun))
+        domain_geom = self._test_model.domain_geometry
+
+        # Map input values to function values
+        forward_input_fun = deepcopy(self.forward_input)
+        forward_input_fun = self._compute_mapped_input(self.forward_input, domain_geom)
+
+        # Compute the expected gradient output
+        self.expected_grad_output_value = []
+        for i, (k, v) in enumerate(self.forward_input.items()):
+            self.expected_grad_output_value.append(self._test_model.gradient_form2[i](self.direction, **forward_input_fun))
+            # If case: apply the chain rule for the gradient computation if the geometry has a gradient method
+            if hasattr(domain_geom[i], 'gradient'):
                 self.expected_grad_output_value[-1] = domain_geom[i].gradient(self.expected_grad_output_value[-1], v)
+            elif type(domain_geom[i]) not in _identity_geometries:
+                raise NotImplementedError
         self.expected_grad_output_value = tuple(self.expected_grad_output_value)
 
     def compute_FD_grad_output(self):
+        """Compute the finite difference gradient for the test case, for verification."""
         FD_grad_list = []
         model = self._test_model.model_variations[0]
         for k, v in self.forward_input.items():
-            # forward_input without k, v
+            # Create forward lambda function with one input x, representing
+            # the value of k to be used in computing the finite difference
+            # gradient with respect to k 
             forward_input = self.forward_input.copy()
             del forward_input[k]
             fwd = lambda x: model(**forward_input, **{k:x})
+
             if isinstance(v, cuqi.array.CUQIarray):
                 v = v.to_numpy()
+
             direction = self.direction
             if isinstance(self.direction, cuqi.array.CUQIarray):
                 direction = self.direction.to_numpy()
+
             FD_grad = cuqi.utilities.approx_derivative(fwd, v, direction)
             FD_grad_list.append(FD_grad)
+
         self.FD_grad_output = tuple(FD_grad_list)
 
     @staticmethod
