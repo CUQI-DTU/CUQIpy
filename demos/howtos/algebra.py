@@ -110,15 +110,14 @@ samples["x"].plot_ci(exact=info.exactSolution)
 
 # %%
 # Conditioning on random variables (example 1)
-from cuqi.distribution import Gaussian
-from cuqi.experimental.algebra import RandomVariable
-
-x = Gaussian(0, lambda s: s).rv
+s = Gaussian(0, 1).rv
+x = Gaussian(0, s).rv
 y = Gaussian(0, lambda d: d).rv
 
 z = x+y
 
-z.condition(x=1)
+z.condition(s=1)
+z.condition(d=2)
 
 # %%
 # Or conditioning on the variables s, or d

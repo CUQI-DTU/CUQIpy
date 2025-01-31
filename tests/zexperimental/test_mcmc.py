@@ -1279,7 +1279,7 @@ def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimen
     # Set up RandomVariable prior and do posterior sampling
     np.random.seed(0)
     x_rv = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1).rv
-    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001)
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001).rv
     joint_rv = cuqi.distribution.JointDistribution(x_rv, y_rv)(y_rv=y_data)
     sampler_rv = sampler(joint_rv)
     sampler_rv.sample(10)
@@ -1310,7 +1310,7 @@ def test_RandomVariable_prior_against_Distribution_prior_regularized_RTO():
     # Set up RandomVariable prior and do posterior sampling
     np.random.seed(0)
     x_rv = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint="nonnegativity").rv
-    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001)
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001).rv
     joint_rv = cuqi.distribution.JointDistribution(x_rv, y_rv)(y_rv=y_data)
     sampler_rv = cuqi.experimental.mcmc.RegularizedLinearRTO(joint_rv)
     sampler_rv.sample(10)
