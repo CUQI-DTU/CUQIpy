@@ -12,6 +12,7 @@ operations on them, and finally use them in Bayesian Problems.
 #%%
 # Defining Random Variables
 # -------------------------
+
 # Random variables can be defined by either initialising the RandomVariable class
 # with a distribution object or by retrieving the `rv` attribute of a distribution.
 # The distribution object can be any distribution from the `cuqi.distribution` module.
@@ -146,3 +147,50 @@ z = x+y
 z.condition(x=np.zeros(A.domain_dim))
 
 # %%
+# Sampling from random variables
+# ------------------------------
+# Random variables can be sampled using the `sample` method. The method returns a
+# sample from the distribution of the random variable.
+
+x = RandomVariable(Normal(0, 1))
+
+print(f"Sample from x: {x.sample()}")
+
+# %%
+# This can be combined with algebraic operations to sample from more complex
+# random variables.
+
+z = x + x**2 + 25
+
+print(f"Sample from z: {z.sample()}")
+
+# %%
+# Constructing a Beta distribution using Gamma random variables
+# -------------------------------------------------------------
+# Random variables can also be combined to create new distributions.
+# This is primarily useful for sampling at this stage.
+# For example, a Beta distribution can be constructed from two Gamma distributions:
+# If X ~ Gamma(a1, 1) and Y ~ Gamma(a2, 1), then Z = X / (X + Y) ~ Beta(a1, a2).
+# We illustrate this by comparing samples from a Beta distribution to samples
+# constructed using two Gamma distributions.
+
+from cuqi.distribution import Beta, Gamma
+
+# Define the shape parameters of the Beta distribution
+a1, a2 = 3, 2
+
+# Step 1: Directly define a Beta distribution
+z_ref = RandomVariable(Beta(a1, a2))
+
+# Step 2: Construct the Beta distribution using Gamma random variables
+x = RandomVariable(Gamma(a1, 1))  # X ~ Gamma(a1, 1)
+y = RandomVariable(Gamma(a2, 1))  # Y ~ Gamma(a2, 1)
+z = x / (x + y)                   # Z ~ Beta(a1, a2)
+
+# Step 3: Sample from both distributions
+z_samples = z.sample(10000)       # Samples from constructed Beta distribution
+z_ref_samples = z_ref.sample(10000)  # Samples from direct Beta distribution
+
+# Step 4: Plot histograms of the samples for comparison
+z_samples.hist_chain([0], bins=100)
+z_ref_samples.hist_chain([0], bins=100)
