@@ -147,7 +147,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedGaussian-Gamma conjugacy only works with univariate ModifiedHalfNormal prior")
 
-        if self.target.likelihood.distribution.preset not in ["nonnegativity"]:
+        if self.target.likelihood.distribution.preset["constraint"] not in ["nonnegativity"]:
             raise ValueError("RegularizedGaussian-Gamma conjugacy only works with implicit regularized Gaussian likelihood with nonnegativity constraints")
 
         key_value_pairs = _get_conjugate_parameter(self.target)
@@ -183,7 +183,7 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with univariate Gamma prior")
         
-        if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
+        if self.target.likelihood.distribution.preset["regularization"] not in ["l1", "tv"]:
             raise ValueError("RegularizedUnboundedUniform-Gamma conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
         
         key_value_pairs = _get_conjugate_parameter(self.target)
@@ -203,12 +203,7 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
 
         # Compute likelihood quantities
         x = self.target.likelihood.data
-        if self.target.likelihood.distribution.preset == "l1":
-            m = count_nonzero(x)
-        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, Continuous1D):
-            m = count_constant_components_1D(x)
-        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            m = count_constant_components_2D(self.target.likelihood.distribution.geometry.par2fun(x))
+        m = _compute_sparsity_level(self.target)
 
         reg_op = self.target.likelihood.distribution._regularization_oper
         reg_strength = self.target.likelihood.distribution(np.array([1])).strength
@@ -224,7 +219,7 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         if self.target.prior.dim != 1:
             raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with univariate ModifiedHalfNormal prior")
         
-        if self.target.likelihood.distribution.preset not in ["l1", "tv"]:
+        if self.target.likelihood.distribution.preset["regularization"] not in ["l1", "tv"]:
             raise ValueError("RegularizedGaussian-ModifiedHalfNormal conjugacy only works with implicit regularized Gaussian likelihood with l1 or tv regularization")
 
         key_value_pairs = _get_conjugate_parameter(self.target)
@@ -254,13 +249,8 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         x = self.target.likelihood.data
         mu = self.target.likelihood.distribution.mean
         L = self.target.likelihood.distribution(np.array([1])).sqrtprec
-
-        if self.target.likelihood.distribution.preset == "l1":
-            m = count_nonzero(x)
-        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, Continuous1D):
-            m = count_constant_components_1D(x)
-        elif self.target.likelihood.distribution.preset == "tv" and isinstance(self.target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            m = count_constant_components_2D(self.target.likelihood.distribution.geometry.par2fun(x))
+        
+        m = _compute_sparsity_level(self.target)
 
         reg_op = self.target.likelihood.distribution._regularization_oper
         reg_strength = self.target.likelihood.distribution(np.array([1])).strength
@@ -274,6 +264,26 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         # Create conjugate distribution
         return ModifiedHalfNormal(conj_alpha, conj_beta, conj_gamma)
     
+
+def _compute_sparsity_level(target):
+    """Computes the sparsity level in accordance with Section 4 from [2],"""
+    x = target.likelihood.data
+    if target.likelihood.distribution.preset["constraint"] == "nonnegativity":
+        if target.likelihood.distribution.preset["regularization"] == "l1":
+            m = count_nonzero(x)
+        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            m = count_constant_components_1D(x, lower = 0.0)
+        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            m = count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
+    else: # No constraints, only regularization
+        if target.likelihood.distribution.preset["regularization"] == "l1":
+            m = count_nonzero(x)
+        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            m = count_constant_components_1D(x)
+        elif target.likelihood.distribution.preset["regularization"] == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            m = count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x))
+    return m
+
 
 def _get_conjugate_parameter(target):
     """Extract the conjugate parameter name (e.g. d), and returns the mutable variable that is defined by the conjugate parameter, e.g. cov and its value e.g. lambda d:1/d"""

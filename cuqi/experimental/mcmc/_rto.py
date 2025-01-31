@@ -239,7 +239,7 @@ class RegularizedLinearRTO(LinearRTO):
     @solver.setter
     def solver(self, value):
         if value == "ScipyLinearLSQ":
-            if (self.target.prior._preset == "nonnegativity" or self.target.prior._preset == "box"):
+            if (self.target.prior.preset["constraint"] == "nonnegativity" or self.target.prior.preset["constraint"] == "box"):
                 self._solver = value
             else:
                 raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")

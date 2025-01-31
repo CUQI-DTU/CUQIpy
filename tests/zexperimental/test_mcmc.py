@@ -1255,6 +1255,142 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     # Check that the samples are the same
     assert np.allclose(samples_linear.samples, samples_affine.samples)
 
+# ============ Test for sampling with RandomVariable prior against Distribution prior ============
+samplers_for_rv_against_dist = [cuqi.experimental.mcmc.MALA, 
+                                cuqi.experimental.mcmc.ULA,
+                                cuqi.experimental.mcmc.MH,
+                                cuqi.experimental.mcmc.PCN,
+                                cuqi.experimental.mcmc.CWMH,
+                                cuqi.experimental.mcmc.NUTS,
+                                cuqi.experimental.mcmc.LinearRTO]
+
+@pytest.mark.parametrize("sampler", samplers_for_rv_against_dist)
+def test_RandomVariable_prior_against_Distribution_prior(sampler: cuqi.experimental.mcmc.Sampler):
+    """ Test RandomVariable prior is equivalent to Distribution prior for 
+        MALA, ULA, MH, PCN, CWMH, NUTS and LinearRTO. 
+    """
+
+    # Set dim
+    dim = 32
+
+    # Extract model and data
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=32, phantom='square').get_components()
+
+    # Set up RandomVariable prior and do posterior sampling
+    np.random.seed(0)
+    x_rv = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1).rv
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001).rv
+    joint_rv = cuqi.distribution.JointDistribution(x_rv, y_rv)(y_rv=y_data)
+    sampler_rv = sampler(joint_rv)
+    sampler_rv.sample(10)
+    samples_rv = sampler_rv.get_samples()
+    
+    # Set up Distribution prior and do posterior sampling
+    np.random.seed(0)
+    x_dist = cuqi.distribution.Gaussian(0.5*np.ones(dim), 0.1)
+    y_dist = cuqi.distribution.Gaussian(A@x_dist, 0.001)
+    joint_dist = cuqi.distribution.JointDistribution(x_dist, y_dist)(y_dist=y_data)
+    sampler_dist = sampler(joint_dist)
+    sampler_dist.sample(10)
+    samples_dist = sampler_dist.get_samples()
+
+    assert np.allclose(samples_rv.samples, samples_dist.samples)
+
+def test_RandomVariable_prior_against_Distribution_prior_regularized_RTO():
+    """ Test RandomVariable prior is equivalent to Distribution prior for 
+        RegularizedLinearRTO. 
+    """
+
+    # Set dim
+    dim = 32
+
+    # Extract model and data
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=32, phantom='square').get_components()
+
+    # Set up RandomVariable prior and do posterior sampling
+    np.random.seed(0)
+    x_rv = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint="nonnegativity").rv
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, 0.001).rv
+    joint_rv = cuqi.distribution.JointDistribution(x_rv, y_rv)(y_rv=y_data)
+    sampler_rv = cuqi.experimental.mcmc.RegularizedLinearRTO(joint_rv)
+    sampler_rv.sample(10)
+    samples_rv = sampler_rv.get_samples()
+    
+    # Set up Distribution prior and do posterior sampling
+    np.random.seed(0)
+    x_dist = cuqi.implicitprior.RegularizedGaussian(0.5*np.ones(dim), 0.1, constraint="nonnegativity")
+    y_dist = cuqi.distribution.Gaussian(A@x_dist, 0.001)
+    joint_dist = cuqi.distribution.JointDistribution(x_dist, y_dist)(y_dist=y_data)
+    sampler_dist = cuqi.experimental.mcmc.RegularizedLinearRTO(joint_dist)
+    sampler_dist.sample(10)
+    samples_dist = sampler_dist.get_samples()
+
+    assert np.allclose(samples_rv.samples, samples_dist.samples)
+
+def test_RandomVariable_prior_against_Distribution_prior_UGLA_Conjugate_ConjugateApprox_HybridGibbs():
+    """ Test RandomVariable prior is equivalent to Distribution prior for 
+        UGLA, Conjugate, ConjugateApprox and HybridGibbs samplers.
+    """
+
+    # Forward problem
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=28, phantom='square', noise_std=0.001).get_components()
+
+    # Random seed
+    np.random.seed(0)
+
+    # Bayesian Inverse Problem
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    s = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.LMRF(0, lambda d: 1/d, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+
+    # Posterior
+    target = cuqi.distribution.JointDistribution(y, x, s, d)(y=y_data)
+
+    # Sampling strategy
+    sampling_strategy = {
+        "x" : cuqi.experimental.mcmc.UGLA(),
+        "s" : cuqi.experimental.mcmc.Conjugate(),
+        "d" : cuqi.experimental.mcmc.ConjugateApprox()
+    }
+
+    # Gibbs sampler
+    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy)
+
+    # Run sampler
+    sampler.warmup(50)
+    sampler.sample(200)
+    samples = sampler.get_samples()
+
+    # Random seed
+    np.random.seed(0)
+
+    # Bayesian Inverse Problem
+    d_rv = cuqi.distribution.Gamma(1, 1e-4).rv
+    s_rv = cuqi.distribution.Gamma(1, 1e-4).rv
+    x_rv = cuqi.distribution.LMRF(0, lambda d_rv: 1/d_rv, geometry=A.domain_geometry).rv
+    y_rv = cuqi.distribution.Gaussian(A@x_rv, lambda s_rv: 1/s_rv).rv
+
+    # Posterior
+    target_rv = cuqi.distribution.JointDistribution(y_rv, x_rv, s_rv, d_rv)(y_rv=y_data)
+
+    # Sampling strategy
+    sampling_strategy_rv = {
+        "x_rv" : cuqi.experimental.mcmc.UGLA(),
+        "s_rv" : cuqi.experimental.mcmc.Conjugate(),
+        "d_rv" : cuqi.experimental.mcmc.ConjugateApprox()
+    }
+
+    # Gibbs sampler
+    sampler_rv = cuqi.experimental.mcmc.HybridGibbs(target_rv, sampling_strategy_rv)
+
+    # Run sampler
+    sampler_rv.warmup(50)
+    sampler_rv.sample(200)
+    samples_rv = sampler_rv.get_samples()
+
+    assert np.allclose(samples['x'].samples, samples_rv['x_rv'].samples)
+
 def Conjugate_GaussianGammaPair():
     """ Unit test whether Conjugacy Pair (Gaussian, Gamma) constructs the right distribution """
     x = cuqi.distribution.Gamma(1.0, 2.0)
@@ -1340,3 +1476,37 @@ def test_RegularizedGaussianHierchical_sample_regression():
     assert np.allclose(samples['l'].samples, np.array([[43.51120066, 109.27863688, 117.44177758, 93.02865816, 2.09937242,22.28328818, 58.69566463, 66.46108287, 21.68571243, 76.04025099]]))
     
     assert np.allclose(samples['d'].samples, np.array([[9.25399315, 5.04438304, 26.84002718, 7.69622219, 8.47935032, 5.15752285, 16.4884862, 13.44909853, 3.34200395, 5.71966806]]))
+
+def test_RegularizedLinearRTO_ScipyLinearLSQ_option_valid():
+    n = 2
+
+    A_mat = np.array([[1,2],[3,4]])
+    y_data = np.array([1,2])
+
+    A = cuqi.model.LinearModel(A_mat, domain_geometry=cuqi.geometry.Continuous1D(2), range_geometry=cuqi.geometry.Continuous1D(2))
+
+    x = cuqi.implicitprior.RegularizedGMRF(mean = np.zeros(n), prec = 1, constraint = "nonnegativity")
+    y = cuqi.distribution. Gaussian(A@x, prec = 1)
+    
+    joint = cuqi.distribution.JointDistribution(x, y)
+    posterior = joint(y=y_data)
+
+    sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver = "ScipyLinearLSQ")
+    assert sampler.solver == "ScipyLinearLSQ"
+
+def test_RegularizedLinearRTO_ScipyLinearLSQ_option_invalid():
+    n = 2
+
+    A_mat = np.array([[1,2],[3,4]])
+    y_data = np.array([1,2])
+
+    A = cuqi.model.LinearModel(A_mat, domain_geometry=cuqi.geometry.Continuous1D(2), range_geometry=cuqi.geometry.Continuous1D(2))
+
+    x = cuqi.implicitprior.RegularizedGMRF(mean = np.zeros(n), prec = 0, regularization= "TV", strength = 10, geometry = A.domain_geometry)
+    y = cuqi.distribution. Gaussian(A@x, prec = 1)
+    
+    joint = cuqi.distribution.JointDistribution(x, y)
+    posterior = joint(y=y_data)
+
+    with pytest.raises(ValueError, match="ScipyLinearLSQ"):
+        sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver = "ScipyLinearLSQ")
