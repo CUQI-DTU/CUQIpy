@@ -63,4 +63,5 @@ class RegularizedUnboundedUniform(RegularizedGaussian):
                 # Init from abstract distribution class
                 super(Distribution, self).__init__(**kwargs)
 
+                self._force_list = False
                 self._parse_regularization_input_arguments(proximal, projector, constraint, regularization, args)
