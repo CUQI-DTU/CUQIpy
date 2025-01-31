@@ -197,33 +197,40 @@ class MultipleInputTestModel:
                 cuqi.geometry.Continuous1D(2),
                 cuqi.geometry.Continuous1D(3))
         test_model.range_geometry = cuqi.geometry.Continuous1D(3)
+
         test_model.model_class = cuqi.model.Model
         return test_model
 
     @staticmethod
     def helper_build_steady_state_PDE_test_model():
-    # method that builds a multiple input PDE model
+        """helper function to build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale. This model does not have gradient or jacobian functions."""
 
-        # Poisson equation
+        # Poisson equation setup
         dim = 20 #Number of nodes
         L = 20 # Length of the domain
         dx = L/(dim-1) # grid spacing 
-        grid_sol = np.linspace(dx, L, dim-1, endpoint=False)
-        grid_obs = grid_sol[5:]
-        source =  lambda mag: mag*np.sin(grid_sol) #source term
-        kappa = np.ones(dim) #kappa is the diffusivity 
+        grid_sol = np.linspace(dx, L, dim-1, endpoint=False) # solution grid
+        grid_obs = grid_sol[5:] # observation grid
+        source =  lambda mag: mag*np.sin(grid_sol) # source term depending on magnitude `mag`
+        kappa = np.ones(dim) # kappa is the diffusivity
     
-        # Build the solver
+        # Build the differential operator (depending on kappa_scale, a scale of the diffusivity)
         FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
         diff_operator = lambda kappa_scale: FOFD_operator.T @ np.diag(kappa_scale*kappa) @ FOFD_operator
+
+        # Build the PDE form
         poisson_form = lambda mag, kappa_scale: (diff_operator(kappa_scale), source(mag))
+
+        # Build the PDE object
         CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
 
+        # Build the test model
         test_model = MultipleInputTestModel()
         test_model.model_class = cuqi.model.PDEModel
         test_model.pde = CUQI_pde
         test_model.domain_geometry = (Discrete(["mag"]), Discrete(['kappa_scale']))
         test_model.range_geometry = Continuous1D(len(grid_obs))
+
         return test_model
 
     @staticmethod
