@@ -705,7 +705,7 @@ class Model(object):
             return NotImplemented
 
         # Else we apply the forward operator
-        # if model have _original_non_default_args, we use it to replace the
+        # if model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._forward_func signature
         if hasattr(self, '_original_non_default_args'):
             kwargs = {k:v for k,v in zip(self._original_non_default_args, args)}
@@ -850,9 +850,9 @@ class Model(object):
             direction=direction, geometry=self.range_geometry, is_par=is_direction_par
         )
 
-        # If model have _original_non_default_args, we use it to replace the
+        # If model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._gradient_func signature
-        if hasattr(self, "_original_non_default_args"):
+        if hasattr(self, '_original_non_default_args'):
             args_fun = list(kwargs_fun.values())
             kwargs_fun = {
                 k: v for k, v in zip(self._original_non_default_args, args_fun)
@@ -1164,6 +1164,10 @@ class AffineModel(Model):
         kwargs = self._parse_args_add_to_kwargs(
             *args, **kwargs, map_name="model", is_par=is_par
         )
+        # if model has _original_non_default_args, we use it to replace the
+        # kwargs keys so that it matches self._linear_operator signature
+        if hasattr(self, '_original_non_default_args'):
+            kwargs = {k:v for k,v in zip(self._original_non_default_args, args)}
         return self._apply_func(self._linear_operator, **kwargs, is_par=is_par)
 
     def _adjoint_func_no_shift(self, *args, is_par=True, **kwargs):
