@@ -563,6 +563,13 @@ class Model(object):
             # Check if the input is for multiple input case and is stacked,
             # then split it
             if len(args)==1 and len(non_default_args)>1:
+                # If the argument is a Sample object, splitting is not supported
+                if isinstance(args[0], Samples):
+                    raise ValueError(
+                        "The "
+                        + map_name.lower()
+                        + f" input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args {non_default_args}."
+                    )
                 split_succeeded, split_args = self.is_stacked_args(*args, is_par=is_par)
                 if split_succeeded:
                     args = split_args
