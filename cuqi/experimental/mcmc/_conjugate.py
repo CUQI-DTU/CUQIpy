@@ -284,9 +284,9 @@ def _compute_sparsity_level(target):
     elif constraint == "box":
         bounds = target.likelihood.distribution._box_bounds
         if regularization is None:
-            return count_bounds(x, bounds[0], bounds[1])
+            return count_within_bounds(x, bounds[0], bounds[1])
         elif regularization == "l1":
-            return count_bounds(x, bounds[0], bounds[1], exception = 0.0)
+            return count_within_bounds(x, bounds[0], bounds[1], exception = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
             pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
@@ -295,7 +295,7 @@ def _compute_sparsity_level(target):
         if regularization is None:
             return count_constant_components_1D(x)
         elif regularization == "l1":
-            pass # Count number of piecewise constant components that are not zero
+            return count_constant_components_1D(x, exception = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
             return count_constant_components_1D(x)
         # Increasing and decreasing cannot be done in 2D

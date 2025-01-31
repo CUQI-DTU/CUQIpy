@@ -362,7 +362,7 @@ def count_nonzero(x, threshold = 1e-6):
         return np.sum([np.abs(v) >= threshold for v in x])
 
         
-def count_bounds(x, lower_bounds, upper_bounds, threshold = 1e-6, exception = None):
+def count_within_bounds(x, lower_bounds, upper_bounds, threshold = 1e-6, exception = np.nan):
         """ Returns the number of values in an array whose value lies between the proided lower and upper bounds.
 
         Parameters
@@ -379,12 +379,10 @@ def count_bounds(x, lower_bounds, upper_bounds, threshold = 1e-6, exception = No
         threshold : float
             Theshold for considering a value as nonzero.
         """
-        if exception is None:
-            return np.sum([l + threshold <= v and v <= u + threshold for v, l, u in zip(x, lower_bounds, upper_bounds)])
         return np.sum([l + threshold <= v and v <= u - threshold and not (exception - threshold <= v and v <= exception + threshold) for v, l, u in zip(x, lower_bounds, upper_bounds)])
         
     
-def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
+def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf, exception = np.nan):
         """ Returns the number of piecewise constant components in a one-dimensional array
 
         Parameters
@@ -411,7 +409,8 @@ def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = n
         for x_current in x[1:]:
             if (abs(x_previous - x_current) >= threshold and
                 x_current > lower and
-                x_current < upper):
+                x_current < upper and
+                not (exception - threshold <= x_current and x_current <= exception + threshold)):
                     counter += 1
 
             x_previous = x_current
