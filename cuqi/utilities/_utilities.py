@@ -360,6 +360,29 @@ def count_nonzero(x, threshold = 1e-6):
             Theshold for considering a value as nonzero.
         """
         return np.sum([np.abs(v) >= threshold for v in x])
+
+        
+def count_bounds(x, lower_bounds, upper_bounds, threshold = 1e-6, exception = None):
+        """ Returns the number of values in an array whose value lies between the proided lower and upper bounds.
+
+        Parameters
+        ----------
+        x : `np.ndarray` 
+            Array to count elements of.
+
+        lower_bounds : `np.ndarray` 
+            Lower bound on values to disregard when counting.
+
+        upper_bounds : `np.ndarray` 
+            Upper bound on values to disregard.
+
+        threshold : float
+            Theshold for considering a value as nonzero.
+        """
+        if exception is None:
+            return np.sum([l + threshold <= v and v <= u + threshold for v, l, u in zip(x, lower_bounds, upper_bounds)])
+        return np.sum([l + threshold <= v and v <= u - threshold and not (exception - threshold <= v and v <= exception + threshold) for v, l, u in zip(x, lower_bounds, upper_bounds)])
+        
     
 def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
         """ Returns the number of piecewise constant components in a one-dimensional array

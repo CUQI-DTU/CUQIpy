@@ -4,7 +4,7 @@ import math
 from cuqi.experimental.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ModifiedHalfNormal
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUnboundedUniform
-from cuqi.utilities import get_non_default_args, count_nonzero, count_constant_components_1D, count_constant_components_2D
+from cuqi.utilities import get_non_default_args, count_nonzero, count_bounds, count_constant_components_1D, count_constant_components_2D
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 class Conjugate(Sampler):
@@ -282,54 +282,33 @@ def _compute_sparsity_level(target):
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
             return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
     elif constraint == "box":
+        bounds = target.likelihood.distribution._box_bounds
         if regularization is None:
-            pass
+            return count_bounds(x, bounds[0], bounds[1])
         elif regularization == "l1":
-            pass
+            return count_bounds(x, bounds[0], bounds[1], exception = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            pass
+            pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            pass
-    elif constraint == "increasing":
+            pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
+    elif constraint in ["increasing", "decreasing"]:
         if regularization is None:
-            pass
+            return count_constant_components_1D(x)
         elif regularization == "l1":
-            pass
+            pass # Count number of piecewise constant components that are not zero
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            pass
-        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            pass
-    elif constraint == "decreasing":
+            return count_constant_components_1D(x)
+        # Increasing and decreasing cannot be done in 2D
+    elif constraint in ["convex", "concave"]:
         if regularization is None:
-            pass
+            return count_nonzero(x[:-1] - x[1:])
         elif regularization == "l1":
-            pass
+            pass # Count number of piecewise linear components that are not zero
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            pass
-        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            pass
-    elif constraint == "convex":
-        if regularization is None:
-            pass
-        elif regularization == "l1":
-            pass
-        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            pass
-        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            pass
-    elif regularization == "concave":
-        if regularization is None:
-            pass
-        elif regularization == "l1":
-            pass
-        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            pass
-        elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            pass
-    elif constraint == None: # No constraints, only regularization
-        if regularization is None:
-            pass
-        elif regularization == "l1":
+            return count_nonzero(x[:-1] - x[1:])
+        # convex and concave has only been implemented in 1D
+    elif constraint == None: 
+        if regularization == "l1":
             return count_nonzero(x)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
             return count_constant_components_1D(x)

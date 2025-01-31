@@ -14,6 +14,7 @@ from ._utilities import (
     plot_1D_density,
     plot_2D_density,
     count_nonzero,
+    count_bounds,
     count_constant_components_1D,
     count_constant_components_2D
 )
