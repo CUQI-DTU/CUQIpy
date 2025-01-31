@@ -4,7 +4,7 @@ import math
 from cuqi.experimental.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ModifiedHalfNormal
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUnboundedUniform
-from cuqi.utilities import get_non_default_args, count_nonzero, count_bounds, count_constant_components_1D, count_constant_components_2D
+from cuqi.utilities import get_non_default_args, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 class Conjugate(Sampler):
