@@ -2,10 +2,12 @@ from cuqi.utilities import get_non_default_args
 from cuqi.distribution import Distribution, Gaussian
 from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
-from cuqi.operator import FirstOrderFiniteDifference, Operator
+from cuqi.operator import FirstOrderFiniteDifference, SecondOrderFiniteDifference, Operator
 
 import numpy as np
 import scipy.sparse as sparse
+import scipy.optimize as spoptimize
+
 from copy import copy
 
 
@@ -178,6 +180,28 @@ class RegularizedGaussian(Distribution):
                 self._proximal = lambda z, _: ProjectBox(z, _box_lower, _box_upper)
                 self._box_bounds = (np.ones(self.dim)*_box_lower, np.ones(self.dim)*_box_upper)
                 self._preset["constraint"] = "box"
+            elif c_lower == "increasing":
+                if not isinstance(self.geometry, Continuous1D):
+                    raise ValueError("Geometry not supported for " + c_lower)
+                self._constraint_prox = lambda z, _: spoptimize.isotonic_regression(z, increasing=True).x
+                self._preset["constraint"] = "increasing"
+            elif c_lower == "decreasing":
+                if not isinstance(self.geometry, Continuous1D):
+                    raise ValueError("Geometry not supported for " + c_lower)
+                self._constraint_prox = lambda z, _: spoptimize.isotonic_regression(z, increasing=False).x
+                self._preset["constraint"] = "decreasing"
+            elif c_lower == "convex":
+                if not isinstance(self.geometry, Continuous1D):
+                    raise ValueError("Geometry not supported for " + c_lower)
+                self._constraint_prox = lambda z, _: -ProjectNonnegative(-z)
+                self._constraint_oper = SecondOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
+                self._preset["constraint"] = "convex"
+            elif c_lower == "concave":
+                if not isinstance(self.geometry, Continuous1D):
+                    raise ValueError("Geometry not supported for " + c_lower)
+                self._constraint_prox = lambda z, _: ProjectNonnegative(z)
+                self._constraint_oper = SecondOrderFiniteDifference(self.geometry.fun_shape, bc_type='neumann')
+                self._preset["constraint"] = "concave"
             else:
                 raise ValueError("Constraint not supported.")
 
