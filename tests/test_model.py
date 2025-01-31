@@ -426,7 +426,7 @@ class TestCase:
         test_case.expected_fwd_output = cuqi.array.CUQIarray(test_case.expected_fwd_output, geometry=test_model.range_geometry)
         test_case.expected_fwd_output_type = cuqi.array.CUQIarray
 
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.create_direction()
             test_case.direction = cuqi.array.CUQIarray(test_case.direction, geometry=test_model.range_geometry)
             test_case.compute_expected_grad_output()
@@ -445,7 +445,7 @@ class TestCase:
         test_case.expected_fwd_output = cuqi.array.CUQIarray(test_case.expected_fwd_output, geometry=test_model.range_geometry)
         test_case.expected_fwd_output_type = cuqi.array.CUQIarray
 
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.create_direction()
             test_case.compute_expected_grad_output()
             test_case.compute_FD_grad_output()
@@ -455,12 +455,12 @@ class TestCase:
 
         # Case 4: same as previous case but direction is a CUQIarray
         test_case = deepcopy(test_case)
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.direction = cuqi.array.CUQIarray(test_case.direction, geometry=test_model.range_geometry)
 
         test_model.test_data.append(test_case)
 
-        # Case 5: inputs are mix of CUQIarrays and samples # should raise an error
+        # Case 5: inputs are mix of CUQIarrays and samples (should raise an error)
         test_case = TestCase(test_model)
         test_case.create_input()
         for i, (k, v) in enumerate(test_case.forward_input.items()):
@@ -473,19 +473,23 @@ class TestCase:
         test_case.expected_fwd_output = TypeError(
                 "If applying the function to Samples, all inputs should be Samples.")
 
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.create_direction()
             test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
 
-        # Case 6: inputs are samples # should work for forward but not for gradient
+        # Case 6: inputs are samples (should work for forward but not for gradient)
         test_case = TestCase(test_model)
+
+        # Create model input as samples
         test_case.create_input()
         for i, (k, v) in enumerate(test_case.forward_input.items()):
             v2 = 1.5*v
             samples = np.vstack([v, v2]).T
             test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+
+        # Compute expected forward output
         expected_fwd_output = []
         for i in range(2):
             input_i = {k: v.samples[:,i] for k, v in test_case.forward_input.items()}
@@ -496,29 +500,32 @@ class TestCase:
         test_case.expected_fwd_output = cuqi.samples.Samples(expected_fwd_output, geometry=test_model.range_geometry)
         test_case.expected_fwd_output_type = cuqi.samples.Samples
 
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.create_direction()
             test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
         test_model.test_data.append(test_case)
 
-        # Case 7: inputs are samples but of different length # should raise an error
+        # Case 7: inputs are samples but of different length (should raise an error)
         test_case = TestCase(test_model)
+
+        # Create model input as samples
         test_case.create_input()
         for i, (k, v) in enumerate(test_case.forward_input.items()):
-            if i==0:
+            if i==0: # Case i=0: two samples
                 v2 = 1.5*v
                 samples = np.vstack([v, v2]).T
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
-            else:
+            else: # Case i>0: three samples
                 v2 = 1.5*v
                 v3 = 2*v
                 samples = np.vstack([v, v2, v3]).T
                 test_case.forward_input[k] = cuqi.samples.Samples(samples, geometry=test_model.domain_geometry[i])
+
         test_case.expected_fwd_output = ValueError(
                 "If applying the function to Samples, all inputs should have the same number of samples.")
 
-        if test_model.gradient_form1 is not None:
+        if test_model.has_gradient:
             test_case.create_direction()
             test_case.expected_grad_output_value = NotImplementedError("Gradient is not implemented for input of type Samples.")
 
