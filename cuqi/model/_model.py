@@ -1164,6 +1164,7 @@ class AffineModel(Model):
         kwargs = self._parse_args_add_to_kwargs(
             *args, **kwargs, map_name="model", is_par=is_par
         )
+        args = list(kwargs.values())
         # if model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._linear_operator signature
         if hasattr(self, '_original_non_default_args'):

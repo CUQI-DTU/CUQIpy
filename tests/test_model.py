@@ -1518,10 +1518,17 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
     assert np.allclose(model_grad_v1[0], grad_FD[:2])
     assert np.allclose(model_grad_v1[1], grad_FD[-1])
 
-def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        cuqi.testproblem.Deconvolution1D().model,
+        cuqi.model.LinearModel(lambda x: x, lambda y: y, 1, 1),
+    ],
+)
+def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names(model):
     """ Test that the linear model changes parameter names if given a distribution as input with new parameter names """
 
-    model = cuqi.testproblem.Deconvolution1D().model
     model_input = np.random.randn(model.domain_dim)
 
     # assert model parameter names are 'x'
@@ -1539,6 +1546,16 @@ def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_
 
     # assert the two models output are equal
     assert np.allclose(model(x=model_input), model_a(a=model_input))
+    # assert _forward_func_no_shift also works with new parameter names
+    assert np.allclose(
+        model._forward_func_no_shift(x=model_input),
+        model_a._forward_func_no_shift(a=model_input),
+    )
+    # and also when inputs are positional arguments
+    assert np.allclose(
+        model._forward_func_no_shift(model_input),
+        model_a._forward_func_no_shift(model_input),
+    )
 
     # assert the two models gradient are equal
     direction = np.random.randn(model.range_dim)
