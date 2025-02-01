@@ -1503,19 +1503,22 @@ def test_AffineModel_update_shift():
     assert np.all(model_copy(x) == np.array([3,0]))
 
 def test_PDE_model_multiple_input():
-    """ Test that the PDE model can handle multiple inputs and return the correct output type"""
+    """ Test that the PDE model can accept multiple inputs specified as positional arguments or keyword arguments """
     pde_test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
     pde_test_model.populate_model_variations()
     CUQI_pde = pde_test_model.model_variations[0] # PDE model with multiple inputs
 
-    # Check that the model has switched its parameter name
+    # Check that the model has correct parameter name
     assert CUQI_pde._non_default_args == ['mag', 'kappa_scale']
 
     # Check that we can provide parameter names when evaluating the model
-    assert CUQI_pde(mag=2, kappa_scale=2) is not None
+    output1 = CUQI_pde(mag=2, kappa_scale=2)
 
     # And check that we can provide positional arguments
-    assert CUQI_pde(2, 2) is not None
+    output2 = CUQI_pde(2, 2)
+
+    # Check that the two outputs are the same
+    assert np.allclose(output1, output2)
 
 def test_constructing_gradient_from_jacobian():
     """ Test that the gradient is correctly constructed from the
