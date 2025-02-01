@@ -10,6 +10,311 @@ from copy import copy, deepcopy
 from cuqi.geometry import _identity_geometries
 from cuqi.utilities import force_ndarray
 
+def test_PDE_model_multiple_input():
+    """ Test that the PDE model can accept multiple inputs specified as positional arguments or keyword arguments """
+    pde_test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
+    pde_test_model.populate_model_variations()
+    CUQI_pde = pde_test_model.model_variations[0] # PDE model with multiple inputs
+
+    # Check that the model has correct parameter name
+    assert CUQI_pde._non_default_args == ['mag', 'kappa_scale']
+
+    # Check that we can provide parameter names when evaluating the model
+    output1 = CUQI_pde(mag=2, kappa_scale=2)
+
+    # And check that we can provide positional arguments
+    output2 = CUQI_pde(2, 2)
+
+    # Check that the two outputs are the same
+    assert np.allclose(output1, output2)
+
+def test_constructing_gradient_from_jacobian():
+    """ Test that the gradient is correctly constructed from the
+    jacobian when only the jacobian is specified """
+
+    model = cuqi.model.Model(
+        lambda x, y: x * 2 + y,
+        domain_geometry=(Discrete(1), Discrete(1)),
+        range_geometry=1,
+        jacobian=lambda x, y: np.array([[2, 1]]),
+    )
+
+    # Evaluate the gradient which was constructed from the jacobian:
+    grad1 = model.gradient(x=1, y=1, direction=np.array([2]))
+    # Stack grad1
+    grad1 = np.hstack([grad1[k] for k in grad1])
+
+    # Compute the gradient using the FD approximation:
+
+    # Slightly different form of the forward function
+    # that takes a single input (which approx_derivative requires)
+    forward2 = lambda x: x[0] * 2 + x[1]
+    grad2 = cuqi.utilities.approx_derivative(
+        forward2, np.array([1, 1]), np.array([2]), 1e-6
+    )
+
+    assert np.allclose(grad1, grad2)
+
+def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
+    """Test that the model changes the parameter names if given a distribution as input with new parameter names"""
+
+    def forward(x, y):
+        return y * x[0] + x[1]
+
+    def gradient_x(direction, x, y):
+        return direction * np.array([y, 1])
+
+    def gradient_y(direction, x, y):
+        return direction * x[0]
+
+    # forward model inputs
+    input1 = np.array([1, 2])
+    input2 = 1
+    direction = 3
+
+    model = cuqi.model.Model(
+        forward=forward,
+        range_geometry=1,
+        domain_geometry=(Continuous1D(2), Discrete(1)),
+        gradient=(gradient_x, gradient_y),
+    )
+
+    # assert model parameter names are 'x' and 'y'
+    assert model._non_default_args == ["x", "y"]
+
+    # create two random distributions a and b
+    a = cuqi.distribution.Gaussian(np.zeros(2), 1)
+    b = cuqi.distribution.Gaussian(np.zeros(1), 1)
+
+    model_a_b = model(a, b)
+
+    # assert model still has parameter names 'x' and 'y'
+    assert model._non_default_args == ["x", "y"]
+
+    # assert new model parameter names are 'a' and 'b'
+    assert model_a_b._non_default_args == ["a", "b"]
+
+    # assert the two models output are equal
+    model_output = model(x=input1, y=input2)
+    model_a_b_output = model_a_b(b=input2, a=input1)
+    assert np.allclose(model_output, model_a_b_output)
+
+    # assert the two models gradient are equal
+    model_grad_v1 = list(model.gradient(direction, x=input1, y=input2).values())
+    model_grad_v2 = list(model.gradient(direction, input1, input2).values())
+    model_grad_v3 = list(model.gradient(direction, y=input2, x=input1).values())
+    model_a_b_grad_v1 = list(model_a_b.gradient(direction, a=input1, b=input2).values())
+    model_a_b_grad_v2 = list(model_a_b.gradient(direction, input1, input2).values())
+    model_a_b_grad_v3 = list(model_a_b.gradient(direction, b=input2, a=input1).values())
+
+    # assert all gradients are equal
+    for i in range(len(model_grad_v1)):
+        assert np.allclose(model_grad_v1[i], model_grad_v2[i])
+        assert np.allclose(model_grad_v1[i], model_grad_v3[i])
+        assert np.allclose(model_grad_v1[i], model_a_b_grad_v1[i])
+        assert np.allclose(model_grad_v1[i], model_a_b_grad_v2[i])
+        assert np.allclose(model_grad_v1[i], model_a_b_grad_v3[i])
+
+    # compare to FD gradient
+    grad_FD = cuqi.utilities.approx_derivative(
+        lambda par: model.forward(par[:2], par[-1]),
+        np.hstack([input1, np.array([input2])]),
+        np.array([direction]),
+    )
+    assert np.allclose(model_grad_v1[0], grad_FD[:2])
+    assert np.allclose(model_grad_v1[1], grad_FD[-1])
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        cuqi.testproblem.Deconvolution1D().model,
+        cuqi.model.LinearModel(lambda x: x, lambda y: y, 1, 1),
+    ],
+)
+def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names(
+    model,
+):
+    """Test that the linear model changes parameter names if given a distribution as input with new parameter names"""
+
+    model_input = np.random.randn(model.domain_dim)
+
+    # assert model parameter names are 'x'
+    assert model._non_default_args == ["x"]
+
+    # create a random distribution a
+    a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+
+    model_a = model(a)
+
+    # assert model still has parameter names 'x'
+    assert model._non_default_args == ["x"]
+    # assert new model parameter names are 'a'
+    assert model_a._non_default_args == ["a"]
+
+    # assert the two models output are equal
+    assert np.allclose(model(x=model_input), model_a(a=model_input))
+    # assert _forward_func_no_shift also works with new parameter names
+    assert np.allclose(
+        model._forward_func_no_shift(x=model_input),
+        model_a._forward_func_no_shift(a=model_input),
+    )
+    # and also when inputs are positional arguments
+    assert np.allclose(
+        model._forward_func_no_shift(model_input),
+        model_a._forward_func_no_shift(model_input),
+    )
+
+    # assert the two models gradient are equal
+    direction = np.random.randn(model.range_dim)
+    model_grad = model.gradient(direction, x=model_input)
+    model_a_grad = model_a.gradient(direction, a=model_input)
+    assert np.allclose(model_grad, model_a_grad)
+
+    # assert the two models adjoint are equal
+    model_adjoint = model.adjoint(y=model_input)
+    model_a_adjoint = model_a.adjoint(y=model_input)
+    assert np.allclose(model_adjoint, model_a_adjoint)
+
+@pytest.mark.parametrize(
+    "gradient_with_incorrect_signature",
+    [
+        (lambda direction, x, y, z: direction),
+        (lambda direction, x: direction),
+        (lambda direction, y, x: direction),
+        (lambda direction, x, w: direction),
+    ],
+)
+def test_wrong_gradient_signature_raises_error_at_model_initialization(
+    gradient_with_incorrect_signature,
+):
+    """Test that an error is raised if the gradient signature is wrong"""
+
+    def forward(x, y):
+        return x
+
+    def gradient_with_correct_signature(direction, x, y):
+        return direction
+
+    cuqi.model.Model(
+        forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_correct_signature
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"Gradient function signature should be \['direction', 'x', 'y'\]",
+    ):
+        cuqi.model.Model(
+            forward,
+            1,
+            (Discrete(1), Discrete(1)),
+            gradient=gradient_with_incorrect_signature,
+        )
+
+def test_model_raises_error_when_domain_geometry_is_inconsistent_with_forward_signature_at_initialization():
+    """Test that the model raises an error if the domain geometry is inconsistent with the forward function signature at initialization"""
+
+    def forward(a, b):
+        return a * b
+
+    with pytest.raises(
+        ValueError,
+        match=r"The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects.",
+    ):
+        cuqi.model.Model(forward, 1, 2)
+
+def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
+    """Test that an error is raised if the model is evaluated at a distribution with non-unique parameter names"""
+
+    def forward(a, b):
+        return a*b
+
+    model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)))
+
+    # Create distributions with non-unique parameter names
+    a = cuqi.distribution.Gaussian(0, 1, name="x")
+    b = cuqi.distribution.Gaussian(0, 1, name="x")
+
+    with pytest.raises(
+        ValueError,
+        match=r"Attempting to match parameter name of Model with given distributions, but distribution names are not unique. Please provide unique names for the distributions.",
+    ):
+        model(a, b)
+
+@pytest.mark.parametrize(
+    "x, y, z, forward, domain_geometry, range_geometry, expected_value, expected_type",
+    [
+        (
+            np.array([1, 3, 4]),
+            np.array([1, 3]),
+            3,
+            lambda x, y, z: x * y[0] + z * y[1],
+            cuqi.experimental.geometry._ProductGeometry(
+                cuqi.geometry.Continuous1D(3),
+                cuqi.geometry.Continuous1D(2),
+                cuqi.geometry.Continuous1D(3),
+            ),
+            cuqi.geometry.Continuous1D(3),
+            np.array([10, 12, 13]),
+            np.ndarray,
+        )
+    ],
+)
+class TestForwardWithMultipleInputs:
+    def test_forward_with_multiple_inputs(
+        self,
+        x,
+        y,
+        z,
+        forward,
+        domain_geometry,
+        range_geometry,
+        expected_value,
+        expected_type,
+    ):
+        """Test that the forward method can handle multiple inputs and return
+        the correct output type (even if order of kwargs inputs is switched)"""
+
+        model = cuqi.model.Model(
+            forward=forward,
+            domain_geometry=domain_geometry,
+            range_geometry=range_geometry,
+        )
+
+        fwd = model.forward(x, y, z)
+        fwd2 = model(y=y, x=x, z=z)
+        fwd3 = model.forward(x, y, z, is_par=True)
+        fwd4 = model(z=z, x=x, y=y, is_par=True)
+        assert isinstance(fwd, expected_type)
+        assert np.allclose(fwd, expected_value)
+        assert np.allclose(fwd, fwd2)
+        assert np.allclose(fwd, fwd3)
+        assert np.allclose(fwd, fwd4)
+
+    def test_forward_with_multiple_inputs_error_when_mixing_args_and_kwargs(
+        self,
+        x,
+        y,
+        z,
+        forward,
+        domain_geometry,
+        range_geometry,
+        expected_value,
+        expected_type,
+    ):
+        """Test that the forward method raises an error when mixing positional
+        arguments and keyword arguments"""
+
+        model = cuqi.model.Model(
+            forward=forward,
+            domain_geometry=domain_geometry,
+            range_geometry=range_geometry,
+        )
+
+        with pytest.raises(
+            ValueError,
+            match=r"The model input is specified both as positional and keyword arguments. This is not supported",
+        ):
+            model.forward(x, y=y, z=z)
 
 class MultipleInputTestModel:
     """Class representing a test model with ingredients to set up variations of the model. For example, model with gradient, or with jacobian, etc. All the variations shares the same forward map, the domain and range geometry."""
@@ -1050,84 +1355,6 @@ def test_forward(x, expected_type):
     fwd = model.forward(x)
     assert(isinstance(fwd, expected_type))
 
-
-@pytest.mark.parametrize(
-    "x, y, z, forward, domain_geometry, range_geometry, expected_value, expected_type",
-    [
-        (
-            np.array([1, 3, 4]),
-            np.array([1, 3]),
-            3,
-            lambda x, y, z: x * y[0] + z * y[1],
-            cuqi.experimental.geometry._ProductGeometry(
-                cuqi.geometry.Continuous1D(3),
-                cuqi.geometry.Continuous1D(2),
-                cuqi.geometry.Continuous1D(3),
-            ),
-            cuqi.geometry.Continuous1D(3),
-            np.array([10, 12, 13]),
-            np.ndarray,
-        )
-    ],
-)
-class TestForwardWithMultipleInputs:
-    def test_forward_with_multiple_inputs(
-        self,
-        x,
-        y,
-        z,
-        forward,
-        domain_geometry,
-        range_geometry,
-        expected_value,
-        expected_type,
-    ):
-        """Test that the forward method can handle multiple inputs and return
-        the correct output type (even if order of kwargs inputs is switched)"""
-
-        model = cuqi.model.Model(
-            forward=forward,
-            domain_geometry=domain_geometry,
-            range_geometry=range_geometry,
-        )
-
-        fwd = model.forward(x, y, z)
-        fwd2 = model(y=y, x=x, z=z)
-        fwd3 = model.forward(x, y, z, is_par=True)
-        fwd4 = model(z=z, x=x, y=y, is_par=True)
-        assert isinstance(fwd, expected_type)
-        assert np.allclose(fwd, expected_value)
-        assert np.allclose(fwd, fwd2)
-        assert np.allclose(fwd, fwd3)
-        assert np.allclose(fwd, fwd4)
-
-    def test_forward_with_multiple_inputs_error_when_mixing_args_and_kwargs(
-        self,
-        x,
-        y,
-        z,
-        forward,
-        domain_geometry,
-        range_geometry,
-        expected_value,
-        expected_type,
-    ):
-        """Test that the forward method raises an error when mixing positional
-        arguments and keyword arguments"""
-
-        model = cuqi.model.Model(
-            forward=forward,
-            domain_geometry=domain_geometry,
-            range_geometry=range_geometry,
-        )
-
-        with pytest.raises(
-            ValueError,
-            match=r"The model input is specified both as positional and keyword arguments. This is not supported",
-        ):
-            model.forward(x, y=y, z=z)
-
-
 @pytest.mark.parametrize("x, expected_type",
                          [(np.array([1, 3]),
                            np.ndarray),
@@ -1630,233 +1857,3 @@ def test_AffineModel_update_shift():
     # check model output of copied model with updated shift
     model_copy.shift = new_shift
     assert np.all(model_copy(x) == np.array([3,0]))
-
-def test_PDE_model_multiple_input():
-    """ Test that the PDE model can accept multiple inputs specified as positional arguments or keyword arguments """
-    pde_test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
-    pde_test_model.populate_model_variations()
-    CUQI_pde = pde_test_model.model_variations[0] # PDE model with multiple inputs
-
-    # Check that the model has correct parameter name
-    assert CUQI_pde._non_default_args == ['mag', 'kappa_scale']
-
-    # Check that we can provide parameter names when evaluating the model
-    output1 = CUQI_pde(mag=2, kappa_scale=2)
-
-    # And check that we can provide positional arguments
-    output2 = CUQI_pde(2, 2)
-
-    # Check that the two outputs are the same
-    assert np.allclose(output1, output2)
-
-def test_constructing_gradient_from_jacobian():
-    """ Test that the gradient is correctly constructed from the
-    jacobian when only the jacobian is specified """
-
-    model = cuqi.model.Model(
-        lambda x, y: x * 2 + y,
-        domain_geometry=(Discrete(1), Discrete(1)),
-        range_geometry=1,
-        jacobian=lambda x, y: np.array([[2, 1]]),
-    )
-
-    # Evaluate the gradient which was constructed from the jacobian:
-    grad1 = model.gradient(x=1, y=1, direction=np.array([2]))
-    # Stack grad1
-    grad1 = np.hstack([grad1[k] for k in grad1])
-
-    # Compute the gradient using the FD approximation:
-
-    # Slightly different form of the forward function
-    # that takes a single input (which approx_derivative requires)
-    forward2 = lambda x: x[0] * 2 + x[1]
-    grad2 = cuqi.utilities.approx_derivative(
-        forward2, np.array([1, 1]), np.array([2]), 1e-6
-    )
-
-    assert np.allclose(grad1, grad2)
-
-def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
-    """Test that the model changes the parameter names if given a distribution as input with new parameter names"""
-
-    def forward(x, y):
-        return y * x[0] + x[1]
-
-    def gradient_x(direction, x, y):
-        return direction * np.array([y, 1])
-
-    def gradient_y(direction, x, y):
-        return direction * x[0]
-
-    # forward model inputs
-    input1 = np.array([1, 2])
-    input2 = 1
-    direction = 3
-
-    model = cuqi.model.Model(
-        forward=forward,
-        range_geometry=1,
-        domain_geometry=(Continuous1D(2), Discrete(1)),
-        gradient=(gradient_x, gradient_y),
-    )
-
-    # assert model parameter names are 'x' and 'y'
-    assert model._non_default_args == ["x", "y"]
-
-    # create two random distributions a and b
-    a = cuqi.distribution.Gaussian(np.zeros(2), 1)
-    b = cuqi.distribution.Gaussian(np.zeros(1), 1)
-
-    model_a_b = model(a, b)
-
-    # assert model still has parameter names 'x' and 'y'
-    assert model._non_default_args == ["x", "y"]
-
-    # assert new model parameter names are 'a' and 'b'
-    assert model_a_b._non_default_args == ["a", "b"]
-
-    # assert the two models output are equal
-    model_output = model(x=input1, y=input2)
-    model_a_b_output = model_a_b(b=input2, a=input1)
-    assert np.allclose(model_output, model_a_b_output)
-
-    # assert the two models gradient are equal
-    model_grad_v1 = list(model.gradient(direction, x=input1, y=input2).values())
-    model_grad_v2 = list(model.gradient(direction, input1, input2).values())
-    model_grad_v3 = list(model.gradient(direction, y=input2, x=input1).values())
-    model_a_b_grad_v1 = list(model_a_b.gradient(direction, a=input1, b=input2).values())
-    model_a_b_grad_v2 = list(model_a_b.gradient(direction, input1, input2).values())
-    model_a_b_grad_v3 = list(model_a_b.gradient(direction, b=input2, a=input1).values())
-
-    # assert all gradients are equal
-    for i in range(len(model_grad_v1)):
-        assert np.allclose(model_grad_v1[i], model_grad_v2[i])
-        assert np.allclose(model_grad_v1[i], model_grad_v3[i])
-        assert np.allclose(model_grad_v1[i], model_a_b_grad_v1[i])
-        assert np.allclose(model_grad_v1[i], model_a_b_grad_v2[i])
-        assert np.allclose(model_grad_v1[i], model_a_b_grad_v3[i])
-
-    # compare to FD gradient
-    grad_FD = cuqi.utilities.approx_derivative(
-        lambda par: model.forward(par[:2], par[-1]),
-        np.hstack([input1, np.array([input2])]),
-        np.array([direction]),
-    )
-    assert np.allclose(model_grad_v1[0], grad_FD[:2])
-    assert np.allclose(model_grad_v1[1], grad_FD[-1])
-
-@pytest.mark.parametrize(
-    "model",
-    [
-        cuqi.testproblem.Deconvolution1D().model,
-        cuqi.model.LinearModel(lambda x: x, lambda y: y, 1, 1),
-    ],
-)
-def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names(
-    model,
-):
-    """Test that the linear model changes parameter names if given a distribution as input with new parameter names"""
-
-    model_input = np.random.randn(model.domain_dim)
-
-    # assert model parameter names are 'x'
-    assert model._non_default_args == ["x"]
-
-    # create a random distribution a
-    a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
-
-    model_a = model(a)
-
-    # assert model still has parameter names 'x'
-    assert model._non_default_args == ["x"]
-    # assert new model parameter names are 'a'
-    assert model_a._non_default_args == ["a"]
-
-    # assert the two models output are equal
-    assert np.allclose(model(x=model_input), model_a(a=model_input))
-    # assert _forward_func_no_shift also works with new parameter names
-    assert np.allclose(
-        model._forward_func_no_shift(x=model_input),
-        model_a._forward_func_no_shift(a=model_input),
-    )
-    # and also when inputs are positional arguments
-    assert np.allclose(
-        model._forward_func_no_shift(model_input),
-        model_a._forward_func_no_shift(model_input),
-    )
-
-    # assert the two models gradient are equal
-    direction = np.random.randn(model.range_dim)
-    model_grad = model.gradient(direction, x=model_input)
-    model_a_grad = model_a.gradient(direction, a=model_input)
-    assert np.allclose(model_grad, model_a_grad)
-
-    # assert the two models adjoint are equal
-    model_adjoint = model.adjoint(y=model_input)
-    model_a_adjoint = model_a.adjoint(y=model_input)
-    assert np.allclose(model_adjoint, model_a_adjoint)
-
-@pytest.mark.parametrize(
-    "gradient_with_incorrect_signature",
-    [
-        (lambda direction, x, y, z: direction),
-        (lambda direction, x: direction),
-        (lambda direction, y, x: direction),
-        (lambda direction, x, w: direction),
-    ],
-)
-def test_wrong_gradient_signature_raises_error_at_model_initialization(
-    gradient_with_incorrect_signature,
-):
-    """Test that an error is raised if the gradient signature is wrong"""
-
-    def forward(x, y):
-        return x
-
-    def gradient_with_correct_signature(direction, x, y):
-        return direction
-
-    cuqi.model.Model(
-        forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_correct_signature
-    )
-
-    with pytest.raises(
-        ValueError,
-        match=r"Gradient function signature should be \['direction', 'x', 'y'\]",
-    ):
-        cuqi.model.Model(
-            forward,
-            1,
-            (Discrete(1), Discrete(1)),
-            gradient=gradient_with_incorrect_signature,
-        )
-
-def test_model_raises_error_when_domain_geometry_is_inconsistent_with_forward_signature_at_initialization():
-    """Test that the model raises an error if the domain geometry is inconsistent with the forward function signature at initialization"""
-
-    def forward(a, b):
-        return a * b
-
-    with pytest.raises(
-        ValueError,
-        match=r"The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects.",
-    ):
-        cuqi.model.Model(forward, 1, 2)
-
-def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
-    """Test that an error is raised if the model is evaluated at a distribution with non-unique parameter names"""
-
-    def forward(a, b):
-        return a*b
-
-    model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)))
-
-    # Create distributions with non-unique parameter names
-    a = cuqi.distribution.Gaussian(0, 1, name="x")
-    b = cuqi.distribution.Gaussian(0, 1, name="x")
-
-    with pytest.raises(
-        ValueError,
-        match=r"Attempting to match parameter name of Model with given distributions, but distribution names are not unique. Please provide unique names for the distributions.",
-    ):
-        model(a, b)
