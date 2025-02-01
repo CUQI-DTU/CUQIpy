@@ -1327,7 +1327,7 @@ def test_model_allow_other_parameter_names():
     assert model_z(1) == 1
 
 def test_linear_model_allow_other_parameter_names():
-    """Test that linear model automatically infers parameter names from the forward function and evaluation matches."""
+    """Test that linear model automatically infers parameter names from the forward and adjoint functions and evaluation matches."""
 
     forward_x = lambda x: x
     forward_y = lambda y: y
