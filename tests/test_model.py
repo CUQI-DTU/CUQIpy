@@ -305,6 +305,7 @@ class TestCase:
         self.direction = None
         self.expected_fwd_output = None
         self.expected_grad_output_value = None
+        self.expected_staked_grad_output_value = None
         self.expected_fwd_output_type = None
         self.expected_grad_output_type = None
         self.FD_grad_output = None # finite difference gradient for verification
@@ -376,6 +377,21 @@ class TestCase:
             elif type(domain_geom[i]) not in _identity_geometries:
                 raise NotImplementedError
         self.expected_grad_output_value = tuple(self.expected_grad_output_value)
+        self._compute_expected_stacked_grad_output()
+
+    def _compute_expected_stacked_grad_output(self):
+        """Compute the expected stacked gradient output for the test case. This is used for testing the gradient computation when the model flag _gradient_output_stacked is enabled."""
+        expected_staked_grad_output = np.hstack(
+            [
+                (
+                    v.to_numpy()
+                    if isinstance(v, CUQIarray)
+                    else force_ndarray(v, flatten=True)
+                )
+                for v in list(self.expected_grad_output_value)
+            ]
+        )
+        self.expected_staked_grad_output_value = expected_staked_grad_output
 
     def compute_FD_grad_output(self):
         """Compute the finite difference gradient for the test case, for verification."""
@@ -580,11 +596,11 @@ def helper_function_for_printing_test_cases(model_test_case_combinations):
         print("#"*50)
 
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
-def test_multiple_input_model_forward(test_model, test_data):
+def test_forward_of_multiple_input_model_is_correct(test_model, test_data):
     """Test that the forward method can handle multiple inputs when evaluated on the test data and return the correct output type and value"""
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
-    
+
     # If case: cases where we can apply the forward function without raising an error
     if not isinstance(test_data.expected_fwd_output,
         (NotImplementedError, TypeError, ValueError)):
@@ -616,7 +632,7 @@ model_test_case_combinations_no_forward_error = [
     )
 ]
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_forward_error)
-def test_multiple_stacked_input_model_forward(test_model, test_data):
+def test_forward_of_multiple_input_model_is_correct_when_input_is_stacked(test_model, test_data):
     """Test that the forward method can handle stacked inputs and return the correct
     output type and value"""
     assert isinstance(test_model, cuqi.model.Model)
@@ -648,7 +664,7 @@ def test_multiple_stacked_input_model_forward(test_model, test_data):
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_forward_error
 )
-def test_multiple_input_model_forward_applied_to_funvals_input(test_model, test_data):
+def test_forward_of_multiple_input_model_applied_to_funvals_input_is_correct(test_model, test_data):
     """Test that the forward method can handle multiple inputs some of which are
     function values and return the correct output"""
 
@@ -674,63 +690,46 @@ def test_multiple_input_model_forward_applied_to_funvals_input(test_model, test_
         )
 
 @pytest.mark.parametrize("test_model, test_data", model_test_case_combinations)
-def test_multiple_input_model_gradient(test_model, test_data):
+def test_gradient_of_multiple_input_model_is_correct(test_model, test_data):
     """Test that the gradient method can handle multiple inputs and
     return the correct output type and value"""
 
     assert isinstance(test_model, cuqi.model.Model)
     assert isinstance(test_data, TestCase)
+
+    # If case: gradient is not implemented for the model
     if hasattr(test_model,"_do_test_gradient") and not test_model._do_test_gradient:
         with pytest.raises(NotImplementedError, match="Gradient is not implemented for this model."):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
-
+    
+    # Elif case: gradient is implemented for the model and expected to work
     elif not isinstance(test_data.expected_grad_output_value,
         (NotImplementedError, TypeError, ValueError)):
         grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
-        grad_output_stacked_inputs = test_model.gradient(test_data.direction, test_data.forward_input_stacked)
 
-        # assert output format is a dictionary with keys x, y, z
+        # Assert output format is a dictionary with expected keys
         assert list(grad_output.keys()) == test_model._non_default_args
-        assert list(grad_output_stacked_inputs.keys()) == test_model._non_default_args
 
-        # Check type and value of the output (stacked)
-        if np.all([value is not None for value in list(grad_output.values())]):
-            test_model._gradient_output_stacked = True
-            stacked_grad_output = test_model.gradient(
-                test_data.direction, **test_data.forward_input
-            )
-            test_model._gradient_output_stacked = False
-            expected_staked_grad_output = np.hstack(
-                [
-                    (
-                        v.to_numpy()
-                        if isinstance(v, CUQIarray)
-                        else force_ndarray(v, flatten=True)
-                    )
-                    for v in list(test_data.expected_grad_output_value)
-                ]
-            )
-            assert isinstance(stacked_grad_output, np.ndarray)
-            assert np.allclose(stacked_grad_output, expected_staked_grad_output)
-
-        # Check type and value of the output (not stacked)
+        # Check type and value of the output
         for i, (k, v) in enumerate(grad_output.items()):
             # Verify that the output is of the expected type
             if v is not None:
                 assert isinstance(v, test_data.expected_grad_output_type)
-                assert isinstance(grad_output_stacked_inputs[k], np.ndarray)
 
             # Verify that the output is of the expected value
             if isinstance(test_model._gradient_func, tuple) and test_model._gradient_func[i] is None:
                 assert v is None
             else:
                 assert np.allclose(v, test_data.expected_grad_output_value[i])
-                assert np.allclose(v, grad_output_stacked_inputs[k])
                 assert np.allclose(v, test_data.FD_grad_output[i])
+    
+    # Else case: gradient is implemented for the model but expected to raise an error
     else:
         with pytest.raises(type(test_data.expected_grad_output_value), match=str(test_data.expected_grad_output_value)):
             grad_output = test_model.gradient(test_data.direction, **test_data.forward_input)
 
+# Create a sublist of model_test_case_combinations for cases where the expected
+# gradient output is not an error
 model_test_case_combinations_no_gradient_error = [
     (test_model, test_data)
     for test_model, test_data in model_test_case_combinations
@@ -739,26 +738,71 @@ model_test_case_combinations_no_gradient_error = [
         (NotImplementedError, TypeError, ValueError),
     )
 ]
-# remove cases where the gradient is not implemented
+# Also, remove cases where the gradient is not implemented
 model_test_case_combinations_no_gradient_error = [
     (test_model, test_data)
     for test_model, test_data in model_test_case_combinations_no_gradient_error
     if not hasattr(test_model, "_do_test_gradient") or test_model._do_test_gradient
 ]
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_gradient_error)
+def test_gradient_of_multiple_input_model_accepts_stacked_input(test_model, test_data):
+    """Test that the gradient method can handle multiple inputs that are stacked and
+    return the correct output type and value"""
 
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    grad_output_stacked_inputs = test_model.gradient(test_data.direction, test_data.forward_input_stacked)
+
+    # Assert output format is a dictionary with expected keys
+    assert list(grad_output_stacked_inputs.keys()) == test_model._non_default_args
+
+    # Assert type and value of the output are correct
+    for i, (k, v) in enumerate(grad_output_stacked_inputs.items()):
+        if v is not None:
+            assert isinstance(grad_output_stacked_inputs[k], np.ndarray)
+            assert np.allclose(grad_output_stacked_inputs[k],
+                               test_data.expected_grad_output_value[i])
+    
+    # Assert evaluating gradient on stacked input with wrong dimension raises error
+    with pytest.raises(
+        ValueError,
+        match=r"The number of positional arguments does not match the number of non-default arguments of the gradient. Additionally, the gradient input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
+    ):
+        test_model.gradient(test_data.direction, test_data.forward_input_stacked[:-1])
+
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_gradient_error)
+def test_gradient_of_multiple_input_model_can_generate_stacked_output(test_model, test_data):
+    """Test that the gradient method can generate stacked output of correct 
+    value and type if the flag _gradient_output_stacked is enabled."""
+
+    # Generate stacked output for cases where the gradient specification is
+    # complete: all gradient functions are specified
+    if callable(test_model._gradient_func) or None not in test_model._gradient_func:
+        # Set the model flag _gradient_output_stacked to True to generate stacked output
+        test_model._gradient_output_stacked = True
+        stacked_grad_output = test_model.gradient(
+            test_data.direction, **test_data.forward_input
+        )
+        # Reset the flag to False
+        test_model._gradient_output_stacked = False
+
+        # Assert type and value of the output are correct
+        assert isinstance(stacked_grad_output, np.ndarray)
+        assert np.allclose(stacked_grad_output, test_data.expected_staked_grad_output_value)
 
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_gradient_error
 )
-def test_multiple_input_model_gradient_funvals_input(test_model, test_data):
+def test_gradient_of_multiple_input_model_is_correct_with_funvals_input(test_model, test_data):
     """Test that the gradient method can handle multiple inputs some of which are
     function values and return the correct output"""
 
-    # par input
+    # Par input
     par_input = test_data.forward_input
     grad_output_par_input = test_model.gradient(test_data.direction, **par_input)
 
-    # fun input
+    # Fun input
     fun_input = {
         k: v.funvals if (isinstance(v, CUQIarray) or isinstance(v, Samples)) else v
         for k, v in par_input.items()
