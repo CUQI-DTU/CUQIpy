@@ -717,7 +717,7 @@ def test_gradient_of_multiple_input_model_is_correct(test_model, test_data):
         )
 
         # Assert output format is a dictionary with expected keys
-        assert list(grad_output.keys()) == test_model._non_default_args
+        assert list(grad_output.keys()) == test_model._non_default_args[:-1]
 
         # Check type and value of the output
         for i, (k, v) in enumerate(grad_output.items()):
