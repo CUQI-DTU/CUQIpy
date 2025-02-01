@@ -1548,26 +1548,31 @@ def test_constructing_gradient_from_jacobian():
     assert np.allclose(grad1, grad2)
 
 def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
-    """ Test that the model changes the parameter names if given a distribution as input with new parameter names """
+    """Test that the model changes the parameter names if given a distribution as input with new parameter names"""
 
     def forward(x, y):
-        return y*x[0] + x[1]
+        return y * x[0] + x[1]
 
     def gradient_x(direction, x, y):
-        return direction*np.array([y, 1])
+        return direction * np.array([y, 1])
 
     def gradient_y(direction, x, y):
-        return direction*x[0]
+        return direction * x[0]
 
     # forward model inputs
     input1 = np.array([1, 2])
     input2 = 1
     direction = 3
 
-    model = cuqi.model.Model(forward=forward, range_geometry=1, domain_geometry=(Continuous1D(2), Discrete(1)), gradient=(gradient_x, gradient_y))
+    model = cuqi.model.Model(
+        forward=forward,
+        range_geometry=1,
+        domain_geometry=(Continuous1D(2), Discrete(1)),
+        gradient=(gradient_x, gradient_y),
+    )
 
     # assert model parameter names are 'x' and 'y'
-    assert model._non_default_args == ['x', 'y']
+    assert model._non_default_args == ["x", "y"]
 
     # create two random distributions a and b
     a = cuqi.distribution.Gaussian(np.zeros(2), 1)
@@ -1576,10 +1581,10 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
     model_a_b = model(a, b)
 
     # assert model still has parameter names 'x' and 'y'
-    assert model._non_default_args == ['x', 'y']
+    assert model._non_default_args == ["x", "y"]
 
     # assert new model parameter names are 'a' and 'b'
-    assert model_a_b._non_default_args == ['a', 'b']
+    assert model_a_b._non_default_args == ["a", "b"]
 
     # assert the two models output are equal
     model_output = model(x=input1, y=input2)
@@ -1606,10 +1611,10 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
     grad_FD = cuqi.utilities.approx_derivative(
         lambda par: model.forward(par[:2], par[-1]),
         np.hstack([input1, np.array([input2])]),
-        np.array([direction]))
+        np.array([direction]),
+    )
     assert np.allclose(model_grad_v1[0], grad_FD[:2])
     assert np.allclose(model_grad_v1[1], grad_FD[-1])
-
 
 @pytest.mark.parametrize(
     "model",
