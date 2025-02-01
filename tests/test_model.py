@@ -763,7 +763,6 @@ model_test_case_combinations_no_gradient_error = [
     if not hasattr(test_model, "_do_test_gradient") or test_model._do_test_gradient
 ]
 
-
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_gradient_error
 )
