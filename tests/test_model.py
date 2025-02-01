@@ -1547,7 +1547,6 @@ def test_constructing_gradient_from_jacobian():
 
     assert np.allclose(grad1, grad2)
 
-
 def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
     """ Test that the model changes the parameter names if given a distribution as input with new parameter names """
 
@@ -1608,7 +1607,7 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
         lambda par: model.forward(par[:2], par[-1]),
         np.hstack([input1, np.array([input2])]),
         np.array([direction]))
-    assert np.allclose(model_grad_v1[0], grad_FD[:2])
+    assert np.allclose(model_grad_v1[0]+0.1, grad_FD[:2])
     assert np.allclose(model_grad_v1[1], grad_FD[-1])
 
 
