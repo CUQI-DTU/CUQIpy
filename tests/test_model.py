@@ -1533,12 +1533,12 @@ def test_constructing_gradient_from_jacobian():
 
     # Evaluate the gradient which was constructed from the jacobian:
     grad1 = model.gradient(x=1, y=1, direction=np.array([2]))
-    # stack grad1
+    # Stack grad1
     grad1 = np.hstack([grad1[k] for k in grad1])
 
     # Compute the gradient using the FD approximation:
 
-    # slightly different form of the forward function
+    # Slightly different form of the forward function
     # that takes a single input (which approx_derivative requires)
     forward2 = lambda x: x[0] * 2 + x[1]
     grad2 = cuqi.utilities.approx_derivative(
