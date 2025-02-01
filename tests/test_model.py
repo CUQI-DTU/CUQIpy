@@ -1623,13 +1623,15 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
         cuqi.model.LinearModel(lambda x: x, lambda y: y, 1, 1),
     ],
 )
-def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names(model):
-    """ Test that the linear model changes parameter names if given a distribution as input with new parameter names """
+def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names(
+    model,
+):
+    """Test that the linear model changes parameter names if given a distribution as input with new parameter names"""
 
     model_input = np.random.randn(model.domain_dim)
 
     # assert model parameter names are 'x'
-    assert model._non_default_args == ['x']
+    assert model._non_default_args == ["x"]
 
     # create a random distribution a
     a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
@@ -1637,9 +1639,9 @@ def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_
     model_a = model(a)
 
     # assert model still has parameter names 'x'
-    assert model._non_default_args == ['x']
+    assert model._non_default_args == ["x"]
     # assert new model parameter names are 'a'
-    assert model_a._non_default_args == ['a']
+    assert model_a._non_default_args == ["a"]
 
     # assert the two models output are equal
     assert np.allclose(model(x=model_input), model_a(a=model_input))
@@ -1665,7 +1667,6 @@ def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_
     model_a_adjoint = model_a.adjoint(y=model_input)
     assert np.allclose(model_adjoint, model_a_adjoint)
 
-
 @pytest.mark.parametrize(
     "gradient_with_incorrect_signature",
     [
@@ -1686,27 +1687,32 @@ def test_wrong_gradient_signature_raises_error_at_model_initialization(
     def gradient_with_correct_signature(direction, x, y):
         return direction
 
-    model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_correct_signature)
+    cuqi.model.Model(
+        forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_correct_signature
+    )
 
     with pytest.raises(
         ValueError,
         match=r"Gradient function signature should be \['direction', 'x', 'y'\]",
     ):
-        model = cuqi.model.Model(
-            forward, 1, (Discrete(1), Discrete(1)), gradient=gradient_with_incorrect_signature
+        cuqi.model.Model(
+            forward,
+            1,
+            (Discrete(1), Discrete(1)),
+            gradient=gradient_with_incorrect_signature,
         )
+
 def test_model_raises_error_when_domain_geometry_is_inconsistent_with_forward_signature_at_initialization():
     """Test that the model raises an error if the domain geometry is inconsistent with the forward function signature at initialization"""
 
     def forward(a, b):
-        return a*b
+        return a * b
 
     with pytest.raises(
         ValueError,
         match=r"The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects.",
     ):
-        
-        model = cuqi.model.Model(forward, 1, 2)
+        cuqi.model.Model(forward, 1, 2)
 
 def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
     """Test that an error is raised if the model is evaluated at a distribution with non-unique parameter names"""
@@ -1716,7 +1722,7 @@ def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
 
     model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)))
 
-    # Create a distribution with non-unique parameter names
+    # Create distributions with non-unique parameter names
     a = cuqi.distribution.Gaussian(0, 1, name="x")
     b = cuqi.distribution.Gaussian(0, 1, name="x")
 
