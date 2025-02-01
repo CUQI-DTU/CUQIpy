@@ -953,8 +953,8 @@ class TestForwardWithMultipleInputs:
         expected_value,
         expected_type,
     ):
-        """Test that the forward method can handle multiple inputs and
-        return the correct output type"""
+        """Test that the forward method can handle multiple inputs and return
+        the correct output type (even if order of kwargs inputs is switched)"""
 
         model = cuqi.model.Model(
             forward=forward,
@@ -971,7 +971,6 @@ class TestForwardWithMultipleInputs:
         assert np.allclose(fwd, fwd2)
         assert np.allclose(fwd, fwd3)
         assert np.allclose(fwd, fwd4)
-
 
     def test_forward_with_multiple_inputs_error_when_mixing_args_and_kwargs(
         self,
@@ -997,7 +996,7 @@ class TestForwardWithMultipleInputs:
             ValueError,
             match=r"The model input is specified both as positional and keyword arguments. This is not supported",
         ):
-            fwd = model.forward(x, y=y, z=z)
+            model.forward(x, y=y, z=z)
 
 
 @pytest.mark.parametrize("x, expected_type",
