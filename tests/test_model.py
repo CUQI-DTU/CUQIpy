@@ -36,7 +36,7 @@ def test_constructing_gradient_from_jacobian():
         lambda x, y: x * 2 + y,
         domain_geometry=(Discrete(1), Discrete(1)),
         range_geometry=1,
-        jacobian=lambda x, y: np.array([[2, 1]]),
+        jacobian=lambda x, y: (np.array([2]), np.array([1])),
     )
 
     # Evaluate the gradient which was constructed from the jacobian:
@@ -533,7 +533,7 @@ class MultipleInputTestModel:
             jac_x = jacobian_x(x, y, z)
             jac_y = jacobian_y(x, y, z)
             jac_z = jacobian_z(x, y, z)
-            return np.hstack([jac_x, jac_y, jac_z])
+            return (jac_x, jac_y, jac_z)
 
         # Assign the jacobian functions to the test model
         test_model.jacobian_form1 = jacobian_form1

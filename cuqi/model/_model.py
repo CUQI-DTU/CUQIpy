@@ -18,38 +18,37 @@ class Model(object):
 
     Parameters
     -----------
-    forward : 2D ndarray or callable function.
-        Forward operator.
+    forward : callable function
+        Forward operator of the model. It takes one or more inputs and returns the model output.
 
     range_geometry : integer or cuqi.geometry.Geometry
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
-    domain_geometry : integer or cuqi.geometry.Geometry
-        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
+    domain_geometry : integer, cuqi.geometry.Geometry or tuple of cuqi.geometry.Geometry objects
+        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer. If tuple of cuqi.geometry.Geometry objects is given, a cuqi.geometry._ProductGeometry is created with the geometries in the tuple. The latter is used for models with multiple inputs.
 
-    gradient : callable function, optional
-        The direction-Jacobian product of the forward operator Jacobian with 
-        respect to the forward operator input, evaluated at a point (`wrt`).
-        The signature of the gradient function should be (`direction`, `wrt`),
-        where `direction` is the direction by which the Jacobian matrix is
-        multiplied and `wrt` is the point at which the Jacobian is computed.
+    gradient : callable function, a tuple of callable functions or None, optional
+        The direction-Jacobian product of the forward model Jacobian with respect to the model input, evaluated at the model input. For example, if the forward model inputs are `x` and `y`, the gradient callable signature should be (`direction`, `x`, `y`), in that order, where `direction` is the direction by which the Jacobian matrix is multiplied and `x` and `y` are the parameters at which the Jacobian is computed.
 
-    jacobian : callable function, optional
-        The Jacobian of the forward operator with respect to the forward operator input,
-        evaluated at a point (`wrt`). The signature of the Jacobian function should be (`wrt`).
-        The Jacobian function should return a 2D ndarray of shape (range_dim, domain_dim).
-        The Jacobian function is used to specify the gradient function by computing the vector-Jacobian
-        product (VJP), here we refer to the vector in the VJP as the `direction` since it is the direction at 
-        which the gradient is computed.
-        automatically and thus the gradient function should not be specified when the Jacobian
-        function is specified.
+        If the gradient function is a single callable function, it returns a 1D ndarray if the model has only one input. If the model has multiple inputs, this gradient function should return a tuple of 1D ndarrays, each representing the gradient with respect to each input.
+
+        If the gradient function is a tuple of callable functions, each callable function should return a 1D ndarray representing the gradient with respect to each input. The order of the callable functions in the tuple should match the order of the model inputs.
+
+    jacobian : callable function, a tuple of callable functions or None, optional
+        The Jacobian of the forward model with respect to the forward model input, evaluated at the model input. For example, if the forward model inputs are `x` and `y`, the jacobian signature should be (`x`, `y`), in that order, where `x` and `y` are the parameters at which the Jacobian is computed.
+
+        If the Jacobian function is a single callable function, it should return a 2D ndarray of shape (range_dim, domain_dim) if the model has only one input. If the model has multiple inputs, this Jacobian function should return a tuple of 2D ndarrays, each representing the Jacobian with respect to each input. 
+        
+        If the Jacobian function is a tuple of callable functions, each callable function should return a 2D ndarray representing the Jacobian with respect to each input. The order of the callable functions in the tuple should match the order of the model inputs.
+    
+        The Jacobian function is used to specify the gradient function by computing the vector-Jacobian product (VJP), here we refer to the vector in the VJP as the `direction` since it is the direction at which the gradient is computed. Either the gradient or the Jacobian can be specified, but not both.
 
 
     :ivar range_geometry: The geometry representing the range.
     :ivar domain_geometry: The geometry representing the domain.
 
-    Example
-    -------
+    Example 1
+    ----------
 
     Consider a forward model :math:`F: \mathbb{R}^2 \\rightarrow \mathbb{R}` defined by the following forward operator:
 
@@ -78,6 +77,9 @@ class Model(object):
 
         model = Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian)
 
+        print(model(np.array([1, 1])))
+        print(model.gradient(np.array([1]), np.array([1, 1])))
+
     Alternatively, the gradient information in the forward model can be defined by direction-Jacobian product using the gradient keyword argument.
 
     This may be more efficient if forming the Jacobian matrix is expensive.
@@ -90,12 +92,40 @@ class Model(object):
         def forward(x):
             return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
 
-        def gradient(direction, wrt):
-            # Direction-Jacobian product direction@jacobian(wrt)
-            return direction@np.array([[-30*wrt[0]**2 + 10*wrt[0] + 6, 10]])
+        def gradient(direction, x):
+            # Direction-Jacobian product direction@jacobian(x)
+            return direction@np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
 
         model = Model(forward, range_geometry=1, domain_geometry=2, gradient=gradient)
 
+        print(model(np.array([1, 1])))
+        print(model.gradient(np.array([1]), np.array([1, 1])))
+
+    Example 2
+    ----------
+    Alternatively, the example above can be defined as a model with multiple inputs :math:`x` and :math:`y`:
+
+    .. code-block:: python
+
+        import numpy as np
+        from cuqi.model import Model
+        from cuqi.geometry import Discrete
+    
+        def forward(x, y):
+            return 10 * y - 10 * x**3 + 5 * x**2 + 6 * x
+    
+        def jacobian(x, y):
+            return (np.array([[-30 * x**2 + 10 * x + 6]]), np.array([[10]]))
+    
+        model = Model(
+            forward,
+            range_geometry=1,
+            domain_geometry=(Discrete(1), Discrete(1)),
+            jacobian=jacobian,
+        )
+    
+        print(model(1, 1))
+        print(model.gradient(np.array([1]), 1, 1))
     """
     def __init__(self, forward, range_geometry, domain_geometry, gradient=None, jacobian=None):
 
@@ -282,12 +312,16 @@ class Model(object):
     def _use_jacobian_to_specify_gradient(self, jacobian):
         """Private function that uses the jacobian function to specify the
         gradient function."""
-        # if jacobian is a single function
-        if callable(jacobian):
+        # if jacobian is a single function and model has multiple inputs
+        if callable(jacobian) and len(self._non_default_args) > 1:
             gradient = self._create_gradient_lambda_function_from_jacobian_with_correct_signature(
-                jacobian
+                jacobian, form='one_callable_multiple_inputs'
             )
-
+        # Elif jacobian is a single function and model has only one input
+        elif callable(jacobian):
+            gradient = self._create_gradient_lambda_function_from_jacobian_with_correct_signature(
+                jacobian, form='one_callable_one_input'
+            )
         # Else, jacobian is a tuple of jacobian functions
         else:
             gradient = []
@@ -295,7 +329,7 @@ class Model(object):
                 if jac is not None:
                     gradient.append(
                         self._create_gradient_lambda_function_from_jacobian_with_correct_signature(
-                            jac
+                            jac, form='tuple_of_callables'
                         )
                     )
                 else:
@@ -303,20 +337,32 @@ class Model(object):
         return tuple(gradient) if isinstance(gradient, list) else gradient
 
     def _create_gradient_lambda_function_from_jacobian_with_correct_signature(
-        self, jacobian
+        self, jacobian, form
     ):
         """Private function that creates gradient lambda function from the
         jacobian function, with the correct signature (based on the model
         non_default_args).
         """
         # create the string representation of the lambda function
-        grad_fun_str = (
-            "lambda direction, "
-            + ", ".join(self._non_default_args)
-            + ", jacobian: direction@jacobian("
-            + ", ".join(self._non_default_args)
-            + ")"
-        )
+        # for different forms of jacobian
+        if form=='one_callable_multiple_inputs':
+            grad_fun_str = (
+                "lambda direction, "
+                + ", ".join(self._non_default_args)
+                + ", jacobian: tuple([direction@jacobian("
+                + ", ".join(self._non_default_args)
+                + ")[i] for i in range("+str(len(self._non_default_args))+")])"
+            )
+        elif form=='tuple_of_callables' or form=='one_callable_one_input':
+            grad_fun_str = (
+                "lambda direction, "
+                + ", ".join(self._non_default_args)
+                + ", jacobian: direction@jacobian("
+                + ", ".join(self._non_default_args)
+                + ")"
+            )
+        else:
+            raise ValueError("form should be either 'one_callable' or 'tuple_of_callables'.")
 
         # create the lambda function from the string
         grad_func = eval(grad_fun_str)
@@ -328,28 +374,23 @@ class Model(object):
         return grad_func
 
     def _2fun(self, geometry=None, is_par=True, **kwargs):
-        """ Converts `x` to function values (if needed) using the appropriate 
-        geometry. For example, `x` can be the model input which need to be
-        converted to function value before being passed to 
-        :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func,
-        _gradient_func).
+        """ Converts `kwargs` to function values (if needed) using the geometry. For example, `kwargs` can be the model input which need to be converted to function value before being passed to :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func).
 
         Parameters
         ----------
-        x : ndarray or cuqi.array.CUQIarray
-            The value to be converted.
-
         geometry : cuqi.geometry.Geometry
-            The geometry representing `x`.
+            The geometry representing the values in `kwargs`.
 
-        is_par : bool
-            If True, `x` is assumed to be parameters.
-            If False, `x` is assumed to be function values.
+        is_par : bool or a tuple of bools
+            If `is_par` is True, the values in `kwargs` are assumed to be parameters.
+            If `is_par` is False, the values in `kwargs` are assumed to be function values.
+            If `is_par` is a tuple of bools, the values in `kwargs` are assumed to be parameters or function values based on the corresponding boolean value in the tuple.
+        
+        **kwargs : keyword arguments to be converted to function values.
 
         Returns
         -------
-        ndarray or cuqi.array.CUQIarray
-            `x` represented as a function.
+        dict of the converted values
         """
         # Check kwargs and geometry are consistent and set up geometries list and
         # is_par tuple
@@ -396,29 +437,26 @@ class Model(object):
         return geometries, is_par
 
     def _2par(self, geometry=None, to_CUQIarray=False, is_par=False, **kwargs):    
-        """ Converts val, normally output of :class:~`cuqi.model.Model` 
-        operators (e.g. _forward_func, _adjoint_func, _gradient_func), to
-        parameters using the appropriate geometry.
+        """ Converts `kwargs` to parameters using the geometry. For example, `kwargs` can be the output of :class:`~cuqi.model.Model` operators (e.g. _forward_func, _adjoint_func, _gradient_func) which need to be converted to parameters before being returned.
 
         Parameters
         ----------
-        val : ndarray or cuqi.array.CUQIarray
-            The value to be converted to parameters.
-
         geometry : cuqi.geometry.Geometry
-            The geometry representing the argument `val`.
+            The geometry representing the values in `kwargs`.
 
-        to_CUQIarray : bool
-            If True, the returned value is wrapped as a cuqi.array.CUQIarray.
+        to_CUQIarray : bool or a tuple of bools
+            If `to_CUQIarray` is True, the values in `kwargs` will be wrapped in `CUQIarray`.
+            If `to_CUQIarray` is False, the values in `kwargs` will not be wrapped in `CUQIarray`.
+            If `to_CUQIarray` is a tuple of bools, the values in `kwargs` will be wrapped in `CUQIarray` or not based on the corresponding boolean value in the tuple.
         
-        is_par : bool
-            If True, `val` is assumed to be of parameter representation and
-            hence no conversion to parameters is performed.
+        is_par : bool or a tuple of bools
+            If `is_par` is True, the values in `kwargs` are assumed to be parameters.
+            If `is_par` is False, the values in `kwargs` are assumed to be function values.
+            If `is_par` is a tuple of bools, the values in `kwargs` are assumed to be parameters or function values based on the corresponding boolean value in the tuple.
 
         Returns
         -------
-        ndarray or cuqi.array.CUQIarray
-            The value `val` represented as parameters.
+        dict of the converted values
         """
         # Check kwargs and geometry are consistent and set up geometries list and
         # is_par tuple
@@ -446,32 +484,27 @@ class Model(object):
         return kwargs
 
     def _apply_func(self, func=None, fwd=True, is_par=True, **kwargs):
-        """ Private function that applies the given function `func` to the input value `x`. It converts the input to function values (if needed) using the given `func_domain_geometry` and converts the output function values to parameters using the given `func_range_geometry`. It additionally handles the case of applying the function `func` to the cuqi.samples.Samples object.
-
-        kwargs are keyword arguments passed to the functions `func`.
+        """ Private function that applies the given function `func` to the input `kwargs`. It converts the input to function values (if needed) and converts the output to parameter values. It additionally handles the case of applying the function `func` to cuqi.samples.Samples objects.
         
         Parameters
         ----------
         func: function handler 
             The function to be applied.
 
-        func_range_geometry : cuqi.geometry.Geometry
-            The geometry representing the function `func` range.
+        fwd : bool
+            Flag indicating the direction of the operator to determine the range and domain geometries of the function.
+            If True the function is a forward operator.
+            If False the function is an adjoint operator.
 
-        func_domain_geometry : cuqi.geometry.Geometry
-            The geometry representing the function `func` domain.
-
-        x : ndarray or cuqi.array.CUQIarray
-            The input value to the operator.
-
-        is_par : bool
-            If True the input is assumed to be parameters.
-            If False the input is assumed to be function values.
+        is_par : bool or list of bool
+            If True, the inputs in `kwargs` are assumed to be parameters.
+            If False, the input in `kwargs` are assumed to be function values.
+            If `is_par` is a list of bools, the inputs are assumed to be parameters or function values based on the corresponding boolean value in the list.
 
         Returns
         -------
-        ndarray or cuqi.array.CUQIarray
-            The output of the function `func` converted to parameters.
+        ndarray or cuqi.array.CUQIarray or cuqi.samples.Samples object
+            The output of the function.
         """ 
         # Specify the range and domain geometries of the function
         # If forward operator, range geometry is the model range geometry and
@@ -506,8 +539,8 @@ class Model(object):
         )["out"]
 
     def _handle_samples(self, func=None, fwd=True, **kwargs):
-        """Private function that calls apply_func for each sample in the
-        Samples object.
+        """Private function that calls apply_func for samples in the
+        Samples object(s).
         """
         # All kwargs should be Samples objects
         if not all(isinstance(x, Samples) for x in kwargs.values()):
@@ -658,24 +691,28 @@ class Model(object):
     def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
         
-        Forward converts the input to function values (if needed) using the domain geometry of the model.
-        Forward converts the output function values to parameters using the range geometry of the model.
+        Forward converts the input to function values (if needed) using the domain geometry of the model. Then it applies the forward operator to the function values and converts the output to parameters using the range geometry of the model.
 
         Parameters
         ----------
-        *args : ndarray or cuqi.array.CUQIarray
-            The model input.
+        *args : ndarrays or cuqi.array.CUQIarray objects or cuqi.samples.Samples objects
+            Positional arguments for the forward operator. The forward operator input can be specified as either positional arguments or keyword arguments but not both.
 
-        is_par : bool or list of bool
-            If True the input is assumed to be parameters.
-            If False the input is assumed to be function values.
+            If the input is specified as positional arguments, the order of the arguments should match the non_default_args of the model.
+
+        is_par : bool or a tuple of bools
+            If True, the inputs in `args` or `kwargs` are assumed to be parameters.
+            If False, the inputs in `args` or `kwargs` are assumed to be function values.
+            If `is_par` is a tuple of bools, the inputs are assumed to be parameters or function values based on the corresponding boolean value in the tuple.
         
-        **kwargs : keyword arguments for model input.
-            Keywords must match the names of the non_default_args of the model.
+        **kwargs : keyword arguments
+            keyword arguments for the forward operator. The forward operator input can be specified as either positional arguments or keyword arguments but not both.
+
+            If the input is specified as keyword arguments, the keys should match the non_default_args of the model.
 
         Returns
         -------
-        ndarray or cuqi.array.CUQIarray
+        ndarray or cuqi.array.CUQIarray or cuqi.samples.Samples object
             The model output. Always returned as parameters.
         """
 
@@ -778,25 +815,26 @@ class Model(object):
     ):
         """Gradient of the forward operator (Direction-Jacobian product)
 
-        For non-linear models the gradient is computed using the
-        forward operator and the Jacobian of the forward operator.
+        The gradient computes the Vector-Jacobian product (VJP) of the forward operator evaluated at the given model input and the given vector (direction).
 
         Parameters
         ----------
-        direction : ndarray
-            The direction to compute the gradient. The Jacobian is applied to this direction.
+        direction : ndarray or cuqi.array.CUQIarray
+            The direction at which to compute the gradient.
 
-        wrt : ndarray
-            The point to compute the Jacobian at. This is only used for non-linear models.
+        *args : ndarrays or cuqi.array.CUQIarray objects
+            Positional arguments for the values at which to compute the gradient. The gradient operator input can be specified as either positional arguments or keyword arguments but not both.
+
+            If the input is specified as positional arguments, the order of the arguments should match the non_default_args of the model.
 
         is_direction_par : bool
             If True, `direction` is assumed to be parameters.
             If False, `direction` is assumed to be function values.
 
-        is_var_par : bool
-            If True, variables in kwargs are assumed to be parameters.
-            If False, variables in kwargs are assumed to be function values.
-
+        is_var_par : bool or a tuple of bools
+            If True, the inputs in `args` or `kwargs` are assumed to be parameters.
+            If False, the inputs in `args` or `kwargs` are assumed to be function values.
+            If `is_var_par` is a tuple of bools, the inputs in `args` or `kwargs` are assumed to be parameters or function values based on the corresponding boolean value in the tuple.
         """
         # Add args to kwargs and ensure the order of the arguments matches the
         # non_default_args of the forward function
@@ -1261,13 +1299,17 @@ class LinearModel(AffineModel):
     def adjoint(self, *args, is_par=True, **kwargs):
         """ Adjoint of the model.
         
-        Adjoint converts the input to function values (if needed) using the range geometry of the model.
-        Adjoint converts the output function values to parameters using the range geometry of the model.
+        Adjoint converts the input to function values (if needed) using the range geometry of the model then applies the adjoint operator to the function values and converts the output function values to parameters using the domain geometry of the model.
 
         Parameters
         ----------
-        y : ndarray or cuqi.array.CUQIarray
-            The adjoint model input.
+        *args : ndarrays or cuqi.array.CUQIarray object
+            Positional arguments for the adjoint operator ( maximum one argument). The adjoint operator input can be specified as either positional arguments or keyword arguments but not both.
+
+        **kwargs : keyword arguments
+            keyword arguments for the adjoint operator (maximum one argument). The adjoint operator input can be specified as either positional arguments or keyword arguments but not both.
+
+            If the input is specified as keyword arguments, the keys should match the non_default_args of the model.
 
         Returns
         -------
@@ -1338,12 +1380,12 @@ class LinearModel(AffineModel):
 class PDEModel(Model):
     """
     Model based on an underlying cuqi.pde.PDE.
-    In the forward operation the PDE is assembled, solved and observed.
+    In the forward method the PDE is assembled, solved and observed.
     
     Parameters
     -----------
-    forward : 2D ndarray or callable function.
-        Forward operator assembling, solving and observing the pde.
+    PDE : cuqi.pde.PDE
+        The PDE that specifies the forward operator.
 
     range_geometry : integer or cuqi.geometry.Geometry (optional)
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
