@@ -271,8 +271,8 @@ class Model(object):
             if len(func) != len(self._non_default_args):
                 raise ValueError(
                     f"The "
-                    + func_type.lowe()
-                    + " tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}"
+                    + func_type.lower()
+                    + f" tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}"
                 )
             # tuple items should be callables or None
             if not all([callable(func_i) or func_i is None for func_i in func]):
