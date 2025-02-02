@@ -24,7 +24,7 @@ class Model(object):
     range_geometry : integer or cuqi.geometry.Geometry
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
-    domain_geometry : integer, cuqi.geometry.Geometry or tuple of cuqi.geometry.Geometry objects
+    domain_geometry : integer, cuqi.geometry.Geometry, a tuple of cuqi.geometry.Geometry objects
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer. If tuple of cuqi.geometry.Geometry objects is given, a cuqi.geometry._ProductGeometry is created with the geometries in the tuple. The latter is used for models with multiple inputs.
 
     gradient : callable function, a tuple of callable functions or None, optional
@@ -103,7 +103,7 @@ class Model(object):
 
     Example 2
     ----------
-    Alternatively, the example above can be defined as a model with multiple inputs :math:`x` and :math:`y`:
+    Alternatively, the example above can be defined as a model with multiple inputs: :math:`x` and :math:`y`:
 
     .. code-block:: python
 
@@ -603,7 +603,7 @@ class Model(object):
                         + map_name.lower()
                         + f" input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args {non_default_args}."
                     )
-                split_succeeded, split_args = self.is_stacked_args(*args, is_par=is_par)
+                split_succeeded, split_args = self._is_stacked_args(*args, is_par=is_par)
                 if split_succeeded:
                     args = split_args
                     appending_error_message = ""
@@ -648,7 +648,7 @@ class Model(object):
 
         return kwargs
 
-    def is_stacked_args(self, *args, is_par=True):
+    def _is_stacked_args(self, *args, is_par=True):
         """Private function that checks if the input arguments are stacked
         and splits them if they are."""
         # Length of args should be 1 if the input is stacked (no partial
@@ -1387,10 +1387,10 @@ class PDEModel(Model):
     PDE : cuqi.pde.PDE
         The PDE that specifies the forward operator.
 
-    range_geometry : integer or cuqi.geometry.Geometry (optional)
+    range_geometry : integer or cuqi.geometry.Geometry, optional
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
-    domain_geometry : integer or cuqi.geometry.Geometry (optional)
+    domain_geometry : integer or cuqi.geometry.Geometry, optional
         If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
 
 
