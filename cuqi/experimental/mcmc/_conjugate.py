@@ -4,7 +4,7 @@ import math
 from cuqi.experimental.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ModifiedHalfNormal
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUnboundedUniform
-from cuqi.utilities import get_non_default_args, count_nonzero, count_within_bounds, count_piecewise_linear_1D, count_constant_components_1D, count_constant_components_2D
+from cuqi.utilities import get_non_default_args, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D, piecewise_linear_1D_DoF
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 class Conjugate(Sampler):
@@ -313,13 +313,13 @@ def _compute_sparsity_level(target):
     elif constraint in ["convex", "concave"]:
         if regularization is None:
             # Number of piecewise linear components in x
-            return count_piecewise_linear_1D(x)
+            return piecewise_linear_1D_DoF(x)
         elif regularization == "l1":
             # Number of piecewise linear components in x that are not zero
-            return count_piecewise_linear_1D(x, exception_zero = True)
+            return piecewise_linear_1D_DoF(x, exception_zero = True)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
             # Number of piecewise linear components in x that are not flat
-            return count_piecewise_linear_1D(x, exception_flat = True)
+            return piecewise_linear_1D_DoF(x, exception_flat = True)
         # convex and concave has only been implemented in 1D
     elif constraint == None: 
         if regularization == "l1":
