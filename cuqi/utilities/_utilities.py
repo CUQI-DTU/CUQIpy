@@ -484,22 +484,23 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
                     
 
 
-def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, exception_flat = False):
-        """ Returns the number of piecewise linear components in a one-dimensional array
+def piecewise_linear_1D_DoF,(x, threshold = 1e-2, exception_zero = False, exception_flat = False):
+        """ Returns the degrees of freedom of a piecewise linear signal.
+        Assuming linear interpolation, this corresponds to the number of non-differentiable points, including end-points.
 
         Parameters
         ----------
         x : `np.ndarray` 
-            1D Array to count components of.
+            1D Array to compute degrees of freedom of.
 
         threshold : float
             Strict theshold on when values are considered zero.
 
         exception_zero : Boolean
-            Whether a zero component should be counted.
+            Whether a zero piecewise linear components should be considered.
 
         exception_flat : Boolean
-            Whether a flat component should be counted.
+            Whether a flat piecewise linear components should be considered.
         """
 
         differences = x[1:] - x[:-1]
@@ -510,18 +511,7 @@ def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, excep
         if not exception_zero and not exception_flat:
             return np.sum(joints)
         elif exception_zero:
-            prev_joint = None
-            counter = 0
-            for i in range(len(joints)):
-                if joints[i]:
-                    counter += 1
-                    if prev_joint is None:
-                        prev_joint = i
-                    else:
-                        if np.abs(x[i]) < threshold and np.abs(x[prev_joint]) < threshold:
-                            counter -= 2
-                        prev_joint = i
-            return counter
+            return np.sum(joints and [np.abs(v) < threshold for v in x])
         elif exception_flat:
             prev_joint = None
             counter = 0

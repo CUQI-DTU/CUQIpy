@@ -15,9 +15,9 @@ from ._utilities import (
     plot_2D_density,
     count_nonzero,
     count_within_bounds,
-    count_piecewise_linear_1D,
     count_constant_components_1D,
-    count_constant_components_2D
+    count_constant_components_2D,
+    piecewise_linear_1D_DoF
 )
 
 from ._get_python_variable_name import _get_python_variable_name

@@ -1,7 +1,7 @@
 import pytest
 from scipy.linalg import cholesky
 from scipy.sparse import diags
-from cuqi.utilities import sparse_cholesky, plot_1D_density, plot_2D_density, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D, count_piecewise_linear_1D
+from cuqi.utilities import sparse_cholesky, plot_1D_density, plot_2D_density, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D, piecewise_linear_1D_DoF
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Uniform, JointDistribution
 import numpy as np
@@ -111,15 +111,15 @@ def count_constant_components_2d_threshold():
     assert(components == 1)
 
     
-def count_piecewise_linear_1D_exceptions():
+def piecewise_linear_1D_DoF_exceptions():
     threshold = 1e-4
     test_array = np.array([0, 0, 0, 0.5, 1.0, 1.5, 2.0, 2.0, 2.0, 3.0, 4.0])
 
-    components = count_piecewise_linear_1D(test_array, threshold)
+    components = piecewise_linear_1D_DoF(test_array, threshold)
     assert(components == 5)
 
-    components = count_piecewise_linear_1D(test_array, threshold, exception_zero = True)
+    components = piecewise_linear_1D_DoF(test_array, threshold, exception_zero = True)
     assert(components == 3)
 
-    components = count_piecewise_linear_1D(test_array, threshold, exception_flat = True)
+    components = piecewise_linear_1D_DoF(test_array, threshold, exception_flat = True)
     assert(components == 3)
