@@ -408,7 +408,9 @@ def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = n
 
         counter = 0
         index = 0
-        if x[index] > lower[index] and x[index] < upper[index]:
+        if (x[index] > lower[index] and
+            x[index] < upper[index] and
+            not (exception - threshold <= x[index] and x[index] <= exception + threshold)):
             counter += 1
         
         x_previous = x[0]
@@ -481,7 +483,7 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
         return counter
                     
 
-def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, expection_flat = False):
+def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, exception_flat = False):
         """ Returns the number of piecewise linear components in a one-dimensional array
 
         Parameters
@@ -499,13 +501,25 @@ def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, expec
             Whether a flat component should be counted.
         """
 
-        diffs = x[:-1] - x[1:]
-        doublediffs = diffs[:-1] - diffs[1:]
+        differences = x[1:] - x[:-1]
+        double_differences = differences[1:] - differences[:-1]
 
-        def condition(i):
-            return (np.abs(doublediffs[i]) >= threshold and
-                    (exception_zero or np.abs(x[i]) >= threshold) and
-                    (expection_flat or np.abs(diffs[i]) >= threshold))
-
-        return np.sum([condition for i in range(len(doublediffs))])
+        joints = [True] + [np.abs(d) >= threshold for d in double_differences] + [True]
         
+        if not exception_zero and not exception_flat:
+            return np.sum(joints)
+        elif exception_zero:
+            return np.sum(joints and [np.abs(v) < threshold for v in x])
+        elif exception_flat:
+            prev_joint = None
+            counter = 0
+            for i in range(len(joints)):
+                if joints[i]:
+                    counter += 1
+                    if prev_joint is None:
+                        prev_joint = i
+                    else:
+                        if np.abs(x[i] - x[prev_joint]) < threshold:
+                            counter -= 1
+                        prev_joint = i
+            return counter
