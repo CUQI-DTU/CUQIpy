@@ -4,7 +4,7 @@ import math
 from cuqi.experimental.mcmc import Sampler
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF, ModifiedHalfNormal
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF, RegularizedUnboundedUniform
-from cuqi.utilities import get_non_default_args, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D
+from cuqi.utilities import get_non_default_args, count_nonzero, count_within_bounds, count_piecewise_linear_1D, count_constant_components_1D, count_constant_components_2D
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 
 class Conjugate(Sampler):
@@ -266,7 +266,9 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
     
 
 def _compute_sparsity_level(target):
-    """Computes the sparsity level in accordance with Section 4 from [2],"""
+    """Computes the sparsity level in accordance with Section 4 from [2],
+    this can be interpreted as the number of degrees of freedom.
+    """
     x = target.likelihood.data
 
     constraint = target.likelihood.distribution.preset["constraint"]
@@ -274,7 +276,7 @@ def _compute_sparsity_level(target):
 
     # There is no reference for some of these conjugacy rules
     if constraint == "nonnegativity":
-        if regularization is None:
+        if regularization in [None, "l1"]:
             return count_nonzero(x)
         elif regularization == "l1":
             return count_nonzero(x)
@@ -289,9 +291,9 @@ def _compute_sparsity_level(target):
         elif regularization == "l1":
             return count_within_bounds(x, bounds[0], bounds[1], exception = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
+            pass # TODO: The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
-            pass # The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
+            pass # TODO: The count_constant_components_1D and 2D methods only have scalar bounds, whilst box constraints can have list-valued bounds
     elif constraint in ["increasing", "decreasing"]:
         if regularization is None:
             return count_constant_components_1D(x)
@@ -302,11 +304,11 @@ def _compute_sparsity_level(target):
         # Increasing and decreasing cannot be done in 2D
     elif constraint in ["convex", "concave"]:
         if regularization is None:
-            return count_nonzero(x[:-1] - x[1:])
+            return count_piecewise_linear_1D(x)
         elif regularization == "l1":
-            pass # TODO: or not to-do, nobody is probably going to use this anyway
+            return count_piecewise_linear_1D(x, exception_zero = True)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
-            return count_nonzero(x[:-1] - x[1:])
+            return count_piecewise_linear_1D(x, exception_zero = True)
         # convex and concave has only been implemented in 1D
     elif constraint == None: 
         if regularization == "l1":
