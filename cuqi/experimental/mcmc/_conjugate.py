@@ -277,45 +277,59 @@ def _compute_sparsity_level(target):
     # There is no reference for some of these conjugacy rules
     if constraint == "nonnegativity":
         if regularization in [None, "l1"]:
-            return count_nonzero(x)
-        elif regularization == "l1":
+            # Number of non-zero components in x
             return count_nonzero(x)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            # Number of non-zero constant components in x
             return count_constant_components_1D(x, lower = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            # Number of non-zero constant components in x
             return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = 0.0)
     elif constraint == "box":
         bounds = target.likelihood.distribution._box_bounds
         if regularization is None:
+            # Number of components in x that are strictly between the lower and upper bound
             return count_within_bounds(x, bounds[0], bounds[1])
         elif regularization == "l1":
+            # Number of components in x that are strictly between the lower and upper bound and are not zero
             return count_within_bounds(x, bounds[0], bounds[1], exception = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            # Number of constant components in x between are strictly between the lower and upper bound
             return count_constant_components_1D(x, lower = bounds[0], upper = bounds[1])
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            # Number of constant components in x between are strictly between the lower and upper bound
             return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x), lower = bounds[0], upper = bounds[1])
     elif constraint in ["increasing", "decreasing"]:
         if regularization is None:
+            # Number of constant components in x
             return count_constant_components_1D(x)
         elif regularization == "l1":
+            # Number of constant components in x that are not zero
             return count_constant_components_1D(x, exception = 0.0)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            # Number of constant components in x
             return count_constant_components_1D(x)
         # Increasing and decreasing cannot be done in 2D
     elif constraint in ["convex", "concave"]:
         if regularization is None:
+            # Number of piecewise linear components in x
             return count_piecewise_linear_1D(x)
         elif regularization == "l1":
+            # Number of piecewise linear components in x that are not zero
             return count_piecewise_linear_1D(x, exception_zero = True)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            # Number of piecewise linear components in x that are not flat
             return count_piecewise_linear_1D(x, exception_flat = True)
         # convex and concave has only been implemented in 1D
     elif constraint == None: 
         if regularization == "l1":
+            # Number of non-zero components in x
             return count_nonzero(x)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, Continuous1D):
+            # Number of non-zero constant components in x
             return count_constant_components_1D(x)
         elif regularization == "tv" and isinstance(target.likelihood.distribution.geometry, (Continuous2D, Image2D)):
+            # Number of non-zero constant components in x
             return count_constant_components_2D(target.likelihood.distribution.geometry.par2fun(x))
 
     raise ValueError("RegularizedGaussian preset constraint and regularization choice is currently not supported with conjugacy.")
