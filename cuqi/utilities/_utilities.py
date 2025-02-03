@@ -483,6 +483,7 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
         return counter
                     
 
+
 def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, exception_flat = False):
         """ Returns the number of piecewise linear components in a one-dimensional array
 
@@ -509,7 +510,18 @@ def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, excep
         if not exception_zero and not exception_flat:
             return np.sum(joints)
         elif exception_zero:
-            return np.sum(joints and [np.abs(v) < threshold for v in x])
+            prev_joint = None
+            counter = 0
+            for i in range(len(joints)):
+                if joints[i]:
+                    counter += 1
+                    if prev_joint is None:
+                        prev_joint = i
+                    else:
+                        if np.abs(x[i]) < threshold and np.abs(x[prev_joint]) < threshold:
+                            counter -= 2
+                        prev_joint = i
+            return counter
         elif exception_flat:
             prev_joint = None
             counter = 0
