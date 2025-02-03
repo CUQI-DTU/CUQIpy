@@ -416,6 +416,34 @@ def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = n
             x_previous = x_current
     
         return counter
+
+def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, expection_flat = False):
+        """ Returns the number of piecewise linear components in a one-dimensional array
+
+        Parameters
+        ----------
+        x : `np.ndarray` 
+            1D Array to count components of.
+
+        threshold : float
+            Strict theshold on when values are considered zero.
+
+        exception_zero : Boolean
+            Whether a zero component should be counted.
+
+        exception_flat : Boolean
+            Whether a flat component should be counted.
+        """
+
+        diffs = x[:-1] - x[1:]
+        doublediffs = diffs[:-1] - diffs[1:]
+
+        def condition(i):
+            return (np.abs(doublediffs[i]) >= threshold and
+                    (exception_zero or np.abs(x[i]) >= threshold) and
+                    (expection_flat or np.abs(diffs[i]) >= threshold))
+
+        return np.sum([condition for i in range(len(doublediffs))])
         
 def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
         """ Returns the number of piecewise constant components in a two-dimensional array
