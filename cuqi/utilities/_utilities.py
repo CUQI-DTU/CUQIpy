@@ -393,29 +393,93 @@ def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = n
         threshold : float
             Strict theshold on when the difference of neighbouring values is considered zero.
 
-        lower : float
+        lower : float or numpy.ndarray
             Piecewise constant components below this value are not counted.
 
-        upper : float
+        upper : float or numpy.ndarray
             Piecewise constant components above this value are not counted.
         """
 
+        if not isinstance(lower, np.ndarray):
+            lower = lower*np.ones_like(x)
+
+        if not isinstance(upper, np.ndarray):
+            upper = upper*np.ones_like(x)
+
         counter = 0
-        if x[0] > lower and x[0] < upper:
+        index = 0
+        if x[index] > lower[index] and x[index] < upper[index]:
             counter += 1
         
         x_previous = x[0]
 
         for x_current in x[1:]:
+            index += 1
             if (abs(x_previous - x_current) >= threshold and
-                x_current > lower and
-                x_current < upper and
+                x_current > lower[index] and
+                x_current < upper[index] and
                 not (exception - threshold <= x_current and x_current <= exception + threshold)):
                     counter += 1
 
             x_previous = x_current
     
         return counter
+
+def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
+        """ Returns the number of piecewise constant components in a two-dimensional array
+
+        Parameters
+        ----------
+        x : `np.ndarray` 
+            2D Array to count components of.
+
+        threshold : float
+            Strict theshold on when the difference of neighbouring values is considered zero.
+
+        lower : float or numpy.ndarray
+            Piecewise constant components below this value are not counted.
+
+        upper : float or numpy.ndarray
+            Piecewise constant components above this value are not counted.
+        """
+
+        if not isinstance(lower, np.ndarray):
+            lower = lower*np.ones_like(x)
+
+        if not isinstance(upper, np.ndarray):
+            upper = upper*np.ones_like(x)
+
+        filled = np.zeros_like(x, dtype = int)
+        counter = 0
+
+        def process(i, j):
+            queue = []
+            queue.append((i,j))
+            filled[i, j] = 1
+            while len(queue) != 0:
+                (icur, jcur) = queue.pop(0)
+                
+                if icur > 0 and filled[icur - 1, jcur] == 0 and abs(x[icur, jcur] - x[icur - 1, jcur]) <= threshold:
+                    filled[icur - 1, jcur] = 1
+                    queue.append((icur-1, jcur))
+                if jcur > 0 and filled[icur, jcur-1] == 0 and abs(x[icur, jcur] - x[icur, jcur - 1]) <= threshold:
+                    filled[icur, jcur-1] = 1
+                    queue.append((icur, jcur-1))
+                if icur < x.shape[0]-1 and filled[icur + 1, jcur] == 0 and abs(x[icur, jcur] - x[icur + 1, jcur]) <= threshold:
+                    filled[icur + 1, jcur] = 1
+                    queue.append((icur+1, jcur))
+                if jcur < x.shape[1]-1 and filled[icur, jcur + 1] == 0 and abs(x[icur, jcur] - x[icur, jcur + 1]) <= threshold:
+                    filled[icur, jcur + 1] = 1
+                    queue.append((icur, jcur+1))
+        
+        for i in range(x.shape[0]):
+            for j in range(x.shape[1]):
+                if filled[i,j] == 0:
+                    if x[i,j] > lower[i,j] and x[i,j] < upper[i,j]:
+                        counter += 1
+                    process(i, j)
+        return counter
+                    
 
 def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, expection_flat = False):
         """ Returns the number of piecewise linear components in a one-dimensional array
@@ -445,51 +509,3 @@ def count_piecewise_linear_1D(x, threshold = 1e-2, exception_zero = False, expec
 
         return np.sum([condition for i in range(len(doublediffs))])
         
-def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
-        """ Returns the number of piecewise constant components in a two-dimensional array
-
-        Parameters
-        ----------
-        x : `np.ndarray` 
-            2D Array to count components of.
-
-        threshold : float
-            Strict theshold on when the difference of neighbouring values is considered zero.
-
-        lower : float
-            Piecewise constant components below this value are not counted.
-
-        upper : float
-            Piecewise constant components above this value are not counted.
-        """
-        filled = np.zeros_like(x, dtype = int)
-        counter = 0
-
-        def process(i, j):
-            queue = []
-            queue.append((i,j))
-            filled[i, j] = 1
-            while len(queue) != 0:
-                (icur, jcur) = queue.pop(0)
-                
-                if icur > 0 and filled[icur - 1, jcur] == 0 and abs(x[icur, jcur] - x[icur - 1, jcur]) <= threshold:
-                    filled[icur - 1, jcur] = 1
-                    queue.append((icur-1, jcur))
-                if jcur > 0 and filled[icur, jcur-1] == 0 and abs(x[icur, jcur] - x[icur, jcur - 1]) <= threshold:
-                    filled[icur, jcur-1] = 1
-                    queue.append((icur, jcur-1))
-                if icur < x.shape[0]-1 and filled[icur + 1, jcur] == 0 and abs(x[icur, jcur] - x[icur + 1, jcur]) <= threshold:
-                    filled[icur + 1, jcur] = 1
-                    queue.append((icur+1, jcur))
-                if jcur < x.shape[1]-1 and filled[icur, jcur + 1] == 0 and abs(x[icur, jcur] - x[icur, jcur + 1]) <= threshold:
-                    filled[icur, jcur + 1] = 1
-                    queue.append((icur, jcur+1))
-        
-        for i in range(x.shape[0]):
-            for j in range(x.shape[1]):
-                if filled[i,j] == 0:
-                    if x[i,j] > lower and x[i,j] < upper:
-                        counter += 1
-                    process(i, j)
-        return counter
-                    
