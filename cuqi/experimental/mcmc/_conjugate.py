@@ -166,7 +166,7 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
     def conjugate_distribution(self):
         # Extract variables
         b = self.target.likelihood.data                                 # mu
-        m = np.count_nonzero(b)                                         # n
+        m = _compute_sparsity_level(self.target)
         Ax = self.target.likelihood.distribution.mean                   # x_i
         L = self.target.likelihood.distribution(np.array([1])).sqrtprec # L
         alpha = self.target.prior.shape                                 # alpha
