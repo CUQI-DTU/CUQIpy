@@ -484,7 +484,7 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
                     
 
 
-def piecewise_linear_1D_DoF(x, threshold = 1e-2, exception_zero = False, exception_flat = False):
+def piecewise_linear_1D_DoF(x, threshold = 1e-5, exception_zero = False, exception_flat = False):
         """ Returns the degrees of freedom of a piecewise linear signal.
         Assuming linear interpolation, this corresponds to the number of non-differentiable points, including end-points.
 
