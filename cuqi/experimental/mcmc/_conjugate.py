@@ -17,8 +17,8 @@ class Conjugate(Sampler):
     - (GMRF, Gamma) where Gamma is defined on the precision parameter of the GMRF
     - (RegularizedGaussian, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian
     - (RegularizedGMRF, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF
-    - (RegularizedGaussian, ModifiedHalfNormal) with most preset constraints and regularization
-    - (RegularizedGMRF, ModifiedHalfNormal) with most preset constraints and regularization
+    - (RegularizedGaussian, ModifiedHalfNormal) with most of the preset constraints and regularization
+    - (RegularizedGMRF, ModifiedHalfNormal) with most of the preset constraints and regularization
 
     Currently the Gamma and ModifiedHalfNormal distribution must be univariate.
 
@@ -267,7 +267,8 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
 
 def _compute_sparsity_level(target):
     """Computes the sparsity level in accordance with Section 4 from [2],
-    this can be interpreted as the number of degrees of freedom.
+    this can be interpreted as the number of degrees of freedom, that is,
+    the number of components n minus the dimension the of the subdifferential of the regularized.
     """
     x = target.likelihood.data
 
