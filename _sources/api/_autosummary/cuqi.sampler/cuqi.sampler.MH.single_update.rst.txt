@@ -1,0 +1,6 @@
+cuqi.sampler.MH.single\_update
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MH.single_update

@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.\_\_init\_\_
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.__init__

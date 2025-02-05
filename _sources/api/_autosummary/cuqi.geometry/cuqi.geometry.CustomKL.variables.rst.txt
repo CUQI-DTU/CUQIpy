@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.variables
+================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.variables

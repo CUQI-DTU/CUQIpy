@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.step
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.step

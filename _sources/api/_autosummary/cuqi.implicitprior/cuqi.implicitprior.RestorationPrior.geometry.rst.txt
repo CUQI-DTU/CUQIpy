@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.geometry
+============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RestorationPrior.geometry

@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.get\_components
+=======================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel1D.get_components

@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.variables
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.variables

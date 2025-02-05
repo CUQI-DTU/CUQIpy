@@ -1,0 +1,26 @@
+Gibbs
+=====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: Gibbs
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Gibbs.__init__
+      ~Gibbs.sample
+      ~Gibbs.step
+      ~Gibbs.step_tune
+   
+   
+
+   
+   
+   

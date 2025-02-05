@@ -1,0 +1,38 @@
+EvaluatedDensity
+================
+
+.. currentmodule:: cuqi.density
+
+.. autoclass:: EvaluatedDensity
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~EvaluatedDensity.__init__
+      ~EvaluatedDensity.disable_FD
+      ~EvaluatedDensity.enable_FD
+      ~EvaluatedDensity.get_parameter_names
+      ~EvaluatedDensity.gradient
+      ~EvaluatedDensity.logd
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~EvaluatedDensity.FD_enabled
+      ~EvaluatedDensity.FD_epsilon
+      ~EvaluatedDensity.dim
+      ~EvaluatedDensity.name
+   
+   

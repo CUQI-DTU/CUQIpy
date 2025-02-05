@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.initialize
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.initialize

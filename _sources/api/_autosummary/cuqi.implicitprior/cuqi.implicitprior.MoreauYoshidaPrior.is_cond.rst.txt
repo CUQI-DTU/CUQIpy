@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.is\_cond
+==============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: MoreauYoshidaPrior.is_cond

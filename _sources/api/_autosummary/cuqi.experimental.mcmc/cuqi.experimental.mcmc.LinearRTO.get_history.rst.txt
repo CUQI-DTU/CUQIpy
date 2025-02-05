@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.get\_history
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTO.get_history

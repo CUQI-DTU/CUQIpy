@@ -1,0 +1,6 @@
+cuqi.testproblem.Abel1D.sample\_prior
+=====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Abel1D.sample_prior

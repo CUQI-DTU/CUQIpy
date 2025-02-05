@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMH.proposal
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: CWMH.proposal

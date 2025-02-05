@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.compute\_cov
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gaussian.compute_cov

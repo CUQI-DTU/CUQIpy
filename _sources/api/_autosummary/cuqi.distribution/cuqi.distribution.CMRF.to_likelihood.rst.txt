@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.to\_likelihood
+=====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: CMRF.to_likelihood

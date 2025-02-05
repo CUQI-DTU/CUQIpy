@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMH.initialize
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMH.initialize

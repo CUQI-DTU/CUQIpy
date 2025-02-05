@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.tune
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.tune

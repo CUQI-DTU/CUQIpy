@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.\_\_init\_\_
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.__init__

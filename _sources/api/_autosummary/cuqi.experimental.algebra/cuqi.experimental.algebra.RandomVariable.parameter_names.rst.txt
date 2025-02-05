@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.RandomVariable.parameter\_names
+=========================================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. autoproperty:: RandomVariable.parameter_names

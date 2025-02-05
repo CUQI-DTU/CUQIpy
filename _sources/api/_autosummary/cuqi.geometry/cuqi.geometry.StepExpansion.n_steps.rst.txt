@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.n\_steps
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.n_steps

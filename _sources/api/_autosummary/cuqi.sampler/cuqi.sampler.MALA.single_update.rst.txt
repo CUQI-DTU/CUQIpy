@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.single\_update
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.single_update

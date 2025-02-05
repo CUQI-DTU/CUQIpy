@@ -1,0 +1,39 @@
+CWMH
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: CWMH
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CWMH.__init__
+      ~CWMH.sample
+      ~CWMH.sample_adapt
+      ~CWMH.single_update
+      ~CWMH.step
+      ~CWMH.step_tune
+      ~CWMH.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~CWMH.dim
+      ~CWMH.geometry
+      ~CWMH.proposal
+      ~CWMH.target
+   
+   

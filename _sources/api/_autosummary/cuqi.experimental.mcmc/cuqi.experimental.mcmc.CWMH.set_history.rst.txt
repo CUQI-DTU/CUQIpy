@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMH.set\_history
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMH.set_history
