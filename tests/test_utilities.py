@@ -1,7 +1,7 @@
 import pytest
 from scipy.linalg import cholesky
 from scipy.sparse import diags
-from cuqi.utilities import sparse_cholesky, plot_1D_density, plot_2D_density, count_nonzero, count_constant_components_1D, count_constant_components_2D
+from cuqi.utilities import sparse_cholesky, plot_1D_density, plot_2D_density, count_nonzero, count_within_bounds, count_constant_components_1D, count_constant_components_2D, piecewise_linear_1D_DoF
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, Uniform, JointDistribution
 import numpy as np
@@ -72,10 +72,18 @@ def count_nonzero_threshold():
     eps_min = 1e-1
     eps_plus = 1e1
     test_array = np.array([0, -eps_min*threshold, -threshold, -eps_plus*threshold, eps_min*threshold, threshold, eps_plus*threshold])
-    print(test_array)
 
     nonzeros = count_nonzero(test_array, threshold)
     assert(nonzeros == 4)
+
+
+def count_within_bounds_exceptions():
+    test_array = np.array([-1.0, -0.5, 0.0, 0.5, 1.0])
+    lower = -np.ones_like(test_array)
+    upper = np.ones_like(test_array)
+    
+    within_bounds = count_within_bounds(test_array, lower, upper, exception=0.0)
+    assert(within_bounds == 2)
 
 def count_constant_components_1d_threshold():
     threshold = 1e-4
@@ -86,6 +94,9 @@ def count_constant_components_1d_threshold():
 
     components = count_constant_components_1D(test_array, threshold, lower = 0, upper = 2)
     assert(components == 2)
+
+    components = count_constant_components_1D(test_array, threshold, exception = 0)
+    assert(components == 3)
 
 def count_constant_components_2d_threshold():
     threshold = 1e-4
@@ -98,3 +109,17 @@ def count_constant_components_2d_threshold():
 
     components = count_constant_components_2D(test_array, threshold, lower = 0, upper = 2)
     assert(components == 1)
+
+    
+def piecewise_linear_1D_DoF_exceptions():
+    threshold = 1e-4
+    test_array = np.array([0, 0, 0, 0.5, 1.0, 1.5, 2.0, 2.0, 2.0, 3.0, 4.0])
+
+    components = piecewise_linear_1D_DoF(test_array, threshold)
+    assert(components == 5)
+
+    components = piecewise_linear_1D_DoF(test_array, threshold, exception_zero = True)
+    assert(components == 3)
+
+    components = piecewise_linear_1D_DoF(test_array, threshold, exception_flat = True)
+    assert(components == 3)
