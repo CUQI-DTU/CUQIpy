@@ -103,7 +103,7 @@ class HybridGibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None, callback=None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -119,6 +119,8 @@ class HybridGibbs:
 
         # Initialize sampler (after target is set)
         self._initialize()
+
+        self.callback = callback
 
     def _initialize(self):
         """ Initialize sampler """
@@ -158,10 +160,11 @@ class HybridGibbs:
             The number of samples to draw.
 
         """
-
-        for _ in tqdm(range(Ns), "Sample: "):
+        self._Ns = Ns
+        for idx in tqdm(range(Ns), "Sample: "):
 
             self.step()
+            self.callback(self, idx)
 
             self._store_samples()
 

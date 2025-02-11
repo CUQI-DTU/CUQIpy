@@ -209,7 +209,7 @@ class Sampler(ABC):
             The path to save the samples. If not specified, the samples are saved to the current working directory under a folder called 'CUQI_samples'.
 
         """
-
+        self._Ns = Ns
         self._ensure_initialized()
 
         # Initialize batch handler
@@ -370,7 +370,7 @@ class Sampler(ABC):
     def _call_callback(self, sample, sample_index):
         """ Calls the callback function. Assumes input is sample and sample index"""
         if self.callback is not None:
-            self.callback(sample, sample_index)
+            self.callback(self, sample_index)
 
     def _validate_initialization(self):
         """ Validate the initialization of the sampler by checking all state and history keys are set. """
