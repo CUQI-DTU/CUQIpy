@@ -36,11 +36,9 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
         
     """
     def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, **kwargs):
@@ -204,11 +202,9 @@ class RegularizedLinearRTO(LinearRTO):
     solver : string
         If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA or ADMM is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
         
     """
     def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, **kwargs):

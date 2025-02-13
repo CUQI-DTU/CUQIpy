@@ -32,11 +32,9 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
         be smaller than 1/L, where L is the Lipschitz of the gradient of the log
         target density, logd).
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
 
 
     Example
@@ -164,11 +162,9 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
         be smaller than 1/L, where L is the Lipschitz of the gradient of the log
         target density, logd).
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
 
 
     Example
@@ -288,12 +284,9 @@ class MYULA(ULA):
     smoothing_strength : float
         This parameter controls the smoothing strength of MYULA.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of
-        the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
 
     A Deblur example can be found in demos/howtos/myula.py
     # TODO: update demo once sampler merged
@@ -378,12 +371,9 @@ class PnPULA(MYULA):
         This parameter controls the smoothing strength of PnP-ULA.
 
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of
-        the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
 
     # TODO: update demo once sampler merged
     """

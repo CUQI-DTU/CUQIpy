@@ -38,13 +38,9 @@ class NUTS(Sampler):
         opt_acc_rate should be in (0, 1), however, choosing a value that is very
         close to 1 or 0 might lead to poor performance of the sampler.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is
-        `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of
-        the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
 
     Example
     -------
