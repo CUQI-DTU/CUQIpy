@@ -34,7 +34,7 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
 
 
     Example
@@ -164,7 +164,7 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
 
 
     Example
@@ -286,7 +286,7 @@ class MYULA(ULA):
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
 
     A Deblur example can be found in demos/howtos/myula.py
     # TODO: update demo once sampler merged
@@ -373,7 +373,7 @@ class PnPULA(MYULA):
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
 
     # TODO: update demo once sampler merged
     """

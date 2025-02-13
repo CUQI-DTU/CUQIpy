@@ -304,7 +304,7 @@ class BayesianProblem(object):
             The signature of the callback function is `callback(sample, sample_index)`,
             where `sample` is the current sample and `sample_index` is the index of the sample.
             An example is shown in demos/demo31_callback.py.
-            Note: if the parameter `experimental` is set to True, the callback function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature in the case is: `callback(sampler, sample_index, total_num_of_samples)`.
+            Note: if the parameter `experimental` is set to True, the callback function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature in the case is: `callback(sampler, sample_index, num_of_samples)`.
 
         experimental : bool, *Optional*
             If set to True, the sampler selection will use the samplers from the :mod:`cuqi.experimental.mcmc` module.

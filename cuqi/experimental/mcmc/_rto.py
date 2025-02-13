@@ -38,7 +38,7 @@ class LinearRTO(Sampler):
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
     def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, **kwargs):
@@ -204,7 +204,7 @@ class RegularizedLinearRTO(LinearRTO):
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
     def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, **kwargs):

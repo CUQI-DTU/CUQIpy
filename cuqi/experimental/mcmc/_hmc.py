@@ -40,7 +40,7 @@ class NUTS(Sampler):
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
-        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
 
     Example
     -------
