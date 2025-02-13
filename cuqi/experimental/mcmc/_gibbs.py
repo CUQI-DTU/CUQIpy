@@ -59,7 +59,8 @@ class HybridGibbs:
         Default is 1 for all variables.
 
     callback : callable, optional
-        A function that will be called after each sampling step. The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. The callback function is useful for monitoring the sampler during sampling.
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
 
     Example
     -------
@@ -171,7 +172,7 @@ class HybridGibbs:
             self._store_samples()
 
             # Call callback function if specified
-            self._call_callback(len(self._samples)-1, Ns)
+            self._call_callback(idx, Ns)
 
         return self
 
@@ -201,7 +202,7 @@ class HybridGibbs:
             self._store_samples()
 
             # Call callback function if specified
-            self._call_callback(len(self._samples)-1, Nb)
+            self._call_callback(idx, Nb)
 
         return self
 

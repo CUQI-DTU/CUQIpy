@@ -59,7 +59,8 @@ class Sampler(ABC):
             The initial point for the sampler. If not given, the sampler will choose an initial point.
 
         callback : callable, optional
-            A function that will be called after each sampling step. The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. The callback function is useful for monitoring the sampler during sampling.
+            A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+            The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, total_num_of_samples)`.
         """
 
         self.target = target
@@ -233,7 +234,7 @@ class Sampler(ABC):
                 batch_handler.add_sample(self.current_point)
 
             # Call callback function if specified            
-            self._call_callback(len(self._samples)-1, Ns)
+            self._call_callback(idx, Ns)
                 
         return self
     
@@ -274,7 +275,7 @@ class Sampler(ABC):
             pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
-            self._call_callback(len(self._samples)-1, Nb)
+            self._call_callback(idx, Nb)
 
         return self
     
