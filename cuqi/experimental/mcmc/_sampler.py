@@ -208,7 +208,6 @@ class Sampler(ABC):
             The path to save the samples. If not specified, the samples are saved to the current working directory under a folder called 'CUQI_samples'.
 
         """
-        self._Ns = Ns
         self._ensure_initialized()
 
         # Initialize batch handler
