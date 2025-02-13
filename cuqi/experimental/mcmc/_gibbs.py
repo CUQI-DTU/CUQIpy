@@ -59,7 +59,7 @@ class HybridGibbs:
         Default is 1 for all variables.
 
     callback : callable, optional
-        A function that will be called after each sampling step. The function should take two arguments: the sampler object and the index (integer) of the current sampling step. The callback function is useful for monitoring the sampler during sampling.
+        A function that will be called after each sampling step. The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. The callback function is useful for monitoring the sampler during sampling.
 
     Example
     -------
@@ -164,13 +164,14 @@ class HybridGibbs:
             The number of samples to draw.
 
         """
-        self._Ns = Ns
         for idx in tqdm(range(Ns), "Sample: "):
 
             self.step()
-            self.callback(self, idx)
 
             self._store_samples()
+
+            # Call callback function if specified
+            self._call_callback(len(self._samples)-1, Ns)
 
         return self
 
@@ -198,6 +199,9 @@ class HybridGibbs:
                 self.tune(tune_interval, idx // tune_interval) 
                 
             self._store_samples()
+
+            # Call callback function if specified
+            self._call_callback(len(self._samples)-1, Nb)
 
         return self
 
@@ -270,6 +274,11 @@ class HybridGibbs:
             self.samplers[par_name].tune(skip_len=skip_len, update_count=update_count)
 
     # ------------ Private methods ------------
+    def _call_callback(self, sample_index, total_num_of_samples):
+        """ Calls the callback function. Assumes input is sampler, sample index, and total number of samples """
+        if self.callback is not None:
+            self.callback(self, sample_index, total_num_of_samples)
+
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():

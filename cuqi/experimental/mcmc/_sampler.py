@@ -59,8 +59,7 @@ class Sampler(ABC):
             The initial point for the sampler. If not given, the sampler will choose an initial point.
 
         callback : callable, optional
-            A function that will be called after each sampling step. The function should take two arguments: the sampler object and the index (integer) of the current sampling step. The callback function is useful for monitoring the sampler during sampling.
-
+            A function that will be called after each sampling step. The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. The callback function is useful for monitoring the sampler during sampling.
         """
 
         self.target = target
@@ -234,7 +233,7 @@ class Sampler(ABC):
                 batch_handler.add_sample(self.current_point)
 
             # Call callback function if specified            
-            self._call_callback(self.current_point, len(self._samples)-1)
+            self._call_callback(len(self._samples)-1, Ns)
                 
         return self
     
@@ -275,7 +274,7 @@ class Sampler(ABC):
             pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
-            self._call_callback(self.current_point, len(self._samples)-1)
+            self._call_callback(len(self._samples)-1, Nb)
 
         return self
     
@@ -366,10 +365,10 @@ class Sampler(ABC):
                 raise ValueError(f"Key {key} not recognized in history dictionary of sampler {self.__class__.__name__}.")
 
     # ------------ Private methods ------------
-    def _call_callback(self, sample, sample_index):
-        """ Calls the callback function. Assumes input is sample and sample index"""
+    def _call_callback(self, sample_index, total_num_of_samples):
+        """ Calls the callback function. Assumes input is sampler, sample index, and total number of samples """
         if self.callback is not None:
-            self.callback(self, sample_index)
+            self.callback(self, sample_index, total_num_of_samples)
 
     def _validate_initialization(self):
         """ Validate the initialization of the sampler by checking all state and history keys are set. """
