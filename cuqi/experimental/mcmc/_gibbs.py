@@ -58,6 +58,9 @@ class HybridGibbs:
         will call its step method in each Gibbs step.
         Default is 1 for all variables.
 
+    callback : callable, optional
+        A function that will be called after each sampling step. The function should take two arguments: the sampler object and the index (integer) of the current sampling step. The callback function is useful for monitoring the sampler during sampling.
+
     Example
     -------
     .. code-block:: python
@@ -120,6 +123,7 @@ class HybridGibbs:
         # Initialize sampler (after target is set)
         self._initialize()
 
+        # Set the callback function
         self.callback = callback
 
     def _initialize(self):

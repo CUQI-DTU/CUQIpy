@@ -59,8 +59,7 @@ class Sampler(ABC):
             The initial point for the sampler. If not given, the sampler will choose an initial point.
 
         callback : callable, optional
-            A function that will be called after each sample is drawn. The function should take two arguments: the sample and the index of the sample.
-            The sample is a 1D numpy array and the index is an integer. The callback function is useful for monitoring the sampler during sampling.
+            A function that will be called after each sampling step. The function should take two arguments: the sampler object and the index (integer) of the current sampling step. The callback function is useful for monitoring the sampler during sampling.
 
         """
 
