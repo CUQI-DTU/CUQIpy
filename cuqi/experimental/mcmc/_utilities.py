@@ -88,3 +88,28 @@ def suggest_sampler(target, as_string = True):
                 return suggestion
             
     return None
+
+def suggest_sampling_strategy(target):
+    """
+        Suggests a possible sampling strategy to be used with the HybridGibbs sampler.
+
+        For reasoning behind the suggestion, see 'suggest_sampler'.
+    """
+
+    if not isinstance(target, cuqi.distribution.JointDistribution):
+        return None
+
+    par_names = target.get_parameter_names()
+
+    suggested_samplers = dict()
+    for par_name in par_names:
+        conditional_params = {par_name_: np.ones(target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
+        conditional = target(**conditional_params)
+
+        sampler = suggest_sampler(conditional, as_string = True)
+        if sampler is None:
+            return None
+        
+        suggested_samplers[par_name] = sampler
+
+    return suggested_samplers
