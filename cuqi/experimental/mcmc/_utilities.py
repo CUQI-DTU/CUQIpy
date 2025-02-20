@@ -47,49 +47,57 @@ def find_valid_sampling_strategy(target, as_string = True):
 
     return valid_samplers
 
-def suggest_sampler(target, as_string = True):
+def suggest_sampler(target, as_string = False, exceptions = []):
     """
         Suggests a possible sampler that can be used for sampling from the target distribution.
 
         DESCRIBE ARGUMENTS BEHIND SUGGESTION
     """
 
+    n = target.dim
+
+    # Samplers with suggested default values (when no defaults are defined)
     ordering = [
         # Direct and Conjugate samplers
-        samplers.Direct,
-        samplers.Conjugate,
-        samplers.ConjugateApprox,
+        (samplers.Direct, {}),
+        (samplers.Conjugate, {}),
+        (samplers.ConjugateApprox, {}),
         # Specialized samplers
-        samplers.LinearRTO,
-        samplers.RegularizedLinearRTO,
-        samplers.UGLA,
+        (samplers.LinearRTO, {}),
+        (samplers.RegularizedLinearRTO, {}),
+        (samplers.UGLA, {}),
         # Hamiltonian samplers
-        samplers.NUTS,
+        (samplers.NUTS, {}),
         # Langevin based samplers
-        samplers.MALA,
-        samplers.ULA,
+        (samplers.MALA, {}),
+        (samplers.ULA, {}),
         # Gibbs and Componentwise samplers
-        samplers.HybridGibbs,
-        samplers.CWMH,
+        (samplers.HybridGibbs, {}),
+        (samplers.CWMH, {"scale" : 0.05*np.ones(n),
+                         "x0" : 0.5*np.ones(n)}),
         # Proposal based samplers
-        samplers.PCN,
-        samplers.MH,
+        (samplers.PCN, {"scale" : 0.02}),
+        (samplers.MH, {}),
     ]
 
     valid_samplers = find_valid_samplers(target, as_string = False)
     
-    for suggestion in ordering:
-        if suggestion in valid_samplers:
+    for suggestion, values in ordering:
+        if suggestion in valid_samplers and suggestion not in exceptions:
             # Sampler found
             if as_string:
                 return suggestion.__name__
-            else: 
-                # TODO: Instantiate if possible
-                return suggestion
+            else:
+                # Cases for samplers that might need default values
+                if suggestion is not samplers.HybridGibbs:
+                    return suggestion(target, **values)
+                else:
+                    return suggestion(target, sampling_strategy = suggest_sampling_strategy(target, as_string = False))
+
             
     return None
 
-def suggest_sampling_strategy(target):
+def suggest_sampling_strategy(target, as_string = False):
     """
         Suggests a possible sampling strategy to be used with the HybridGibbs sampler.
 
@@ -106,7 +114,7 @@ def suggest_sampling_strategy(target):
         conditional_params = {par_name_: np.ones(target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
         conditional = target(**conditional_params)
 
-        sampler = suggest_sampler(conditional, as_string = True)
+        sampler = suggest_sampler(conditional, as_string = as_string)
         if sampler is None:
             return None
         
