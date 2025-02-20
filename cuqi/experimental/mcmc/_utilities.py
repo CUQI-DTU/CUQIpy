@@ -30,7 +30,6 @@ def find_valid_sampling_strategy(target):
         return None
 
     par_names = target.get_parameter_names()
-    print(par_names)
 
     valid_samplers = dict()
     for par_name in par_names:
