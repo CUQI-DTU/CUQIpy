@@ -51,10 +51,11 @@ def suggest_sampler(target, as_string = False, exceptions = []):
     """
         Suggests a possible sampler that can be used for sampling from the target distribution.
 
-        DESCRIBE ARGUMENTS BEHIND SUGGESTION
+        TODO: DESCRIBE ARGUMENTS BEHIND SUGGESTION
     """
 
-    n = target.dim
+    # TODO: Conditions for suggestions, e.g., only use CWMH when the dimension of the problem is low
+    # TODO: Discuss ordering
 
     # Samplers with suggested default values (when no defaults are defined)
     ordering = [
@@ -66,15 +67,14 @@ def suggest_sampler(target, as_string = False, exceptions = []):
         (samplers.LinearRTO, {}),
         (samplers.RegularizedLinearRTO, {}),
         (samplers.UGLA, {}),
-        # Hamiltonian samplers
+        # Gradient.based samplers (Hamiltonian and Langevin)
         (samplers.NUTS, {}),
-        # Langevin based samplers
         (samplers.MALA, {}),
         (samplers.ULA, {}),
         # Gibbs and Componentwise samplers
-        (samplers.HybridGibbs, {}),
-        (samplers.CWMH, {"scale" : 0.05*np.ones(n),
-                         "x0" : 0.5*np.ones(n)}),
+        (samplers.HybridGibbs, {"sampling_strategy" : suggest_sampling_strategy(target, as_string = False)}),
+        (samplers.CWMH, {"scale" : 0.05*np.ones(target.dim),
+                         "x0" : 0.5*np.ones(target.dim)}),
         # Proposal based samplers
         (samplers.PCN, {"scale" : 0.02}),
         (samplers.MH, {}),
@@ -88,13 +88,9 @@ def suggest_sampler(target, as_string = False, exceptions = []):
             if as_string:
                 return suggestion.__name__
             else:
-                # Cases for samplers that might need default values
-                if suggestion is not samplers.HybridGibbs:
-                    return suggestion(target, **values)
-                else:
-                    return suggestion(target, sampling_strategy = suggest_sampling_strategy(target, as_string = False))
+                return suggestion(target, **values)
 
-            
+    # No sampler can be suggested
     return None
 
 def suggest_sampling_strategy(target, as_string = False):
