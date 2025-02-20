@@ -34,7 +34,6 @@ def find_valid_sampling_strategy(target):
 
     valid_samplers = dict()
     for par_name in par_names:
-        # TODO: Compute conditional distribution
         conditional_params = {par_name_: np.ones(target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
         conditional = target(**conditional_params)
 
