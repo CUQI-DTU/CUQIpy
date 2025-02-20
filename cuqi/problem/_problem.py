@@ -111,7 +111,7 @@ class BayesianProblem(object):
         plt.show()
         
         # Plot difference between MAP and sample mean
-        (x_MAP - x_samples.mean()).plot()
+        (x_MAP - x_samples.mean).plot()
         plt.title("MAP estimate - sample mean")
         plt.show()
 

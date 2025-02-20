@@ -102,7 +102,7 @@ class CWMH(ProposalBasedSampler):
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
         acccomp = acc[:, Nb:].mean(axis=1)   
-        print('\nAverage acceptance rate all components:', acccomp.mean(), '\n')
+        print('\nAverage acceptance rate all components:', acccomp.mean, '\n')
         
         return samples, target_eval, acccomp
 
@@ -158,7 +158,7 @@ class CWMH(ProposalBasedSampler):
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
         acccomp = acc[:, Nb:].mean(axis=1)
-        print('\nAverage acceptance rate all components:', acccomp.mean(), '\n')
+        print('\nAverage acceptance rate all components:', acccomp.mean, '\n')
         
         return samples, target_eval, acccomp
 

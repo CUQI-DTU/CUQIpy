@@ -101,7 +101,7 @@ class MH(ProposalBasedSampler):
         # remove burn-in
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
-        accave = acc[Nb:].mean()   
+        accave = acc[Nb:].mean  
         print('\nAverage acceptance rate:', accave, '\n')
         #
         return samples, target_eval, accave
@@ -158,7 +158,7 @@ class MH(ProposalBasedSampler):
         # remove burn-in
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
-        accave = acc[Nb:].mean()   
+        accave = acc[Nb:].mean  
         print('\nAverage acceptance rate:', accave, 'MCMC scale:', self.scale, '\n')
         
         return samples, target_eval, accave

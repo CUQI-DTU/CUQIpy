@@ -69,7 +69,7 @@ samplesLinear = Linearsampler.get_samples()
 samplesLinear_burnin = samplesLinear.burnthin(200)
 
 # Compute posterior mean and variance and plot
-meanLinear = samplesLinear_burnin.mean()
+meanLinear = samplesLinear_burnin.mean
 varLinear = samplesLinear_burnin.variance()
 
 print("Posterior mean and variance using Linear model: ")
@@ -77,7 +77,7 @@ print("mean: {}".format(meanLinear))
 print("cov: {}".format(varLinear))
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 4))
-ax.plot(t, A(samplesLinear_burnin).mean(), linestyle="--", label="Sample mean using Linear model")
+ax.plot(t, A(samplesLinear_burnin).mean, linestyle="--", label="Sample mean using Linear model")
 ax.plot(t, y_obs - b, "o", label="Noisy data")
 ax.set_xlabel("t")
 ax.set_ylabel("y")
@@ -110,7 +110,7 @@ samplesAffine = Affinesampler.get_samples()
 samplesAffine_burnin = samplesAffine.burnthin(200)
 
 # Compute posterior mean and variance and plot
-meanAffine = samplesAffine_burnin.mean()
+meanAffine = samplesAffine_burnin.mean
 varAffine = samplesAffine_burnin.variance()
 
 print("Posterior mean and variance from Affine model: ")
@@ -118,7 +118,7 @@ print("mean: {}".format(meanAffine))
 print("cov: {}".format(varAffine))
 
 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(5, 4))
-ax.plot(t, affine_model(samplesAffine_burnin).mean(), linestyle="--", label="Sample mean using Affine model")
+ax.plot(t, affine_model(samplesAffine_burnin).mean, linestyle="--", label="Sample mean using Affine model")
 ax.plot(t, y_obs, "o", label="Noisy data")
 ax.set_xlabel("t")
 ax.set_ylabel("y")

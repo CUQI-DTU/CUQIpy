@@ -280,7 +280,7 @@ class Samples(object):
         """
         self._process_is_par_kwarg(kwargs)
 
-        mean = self.mean()
+        mean = self.mean
         
         # If mean is function in vector form, convert to function values
         mean = self._convert_to_funvals_if_needed(mean)
@@ -344,6 +344,7 @@ class Samples(object):
         plt.title('Width of sample credibility intervals')
         return ax
 
+    @property
     def mean(self):
         """Compute mean of the samples."""
         return self._compute_numpy_stats(np.mean, axis=-1)
