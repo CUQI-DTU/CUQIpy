@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.Node.get\_variables
+=============================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. automethod:: Node.get_variables

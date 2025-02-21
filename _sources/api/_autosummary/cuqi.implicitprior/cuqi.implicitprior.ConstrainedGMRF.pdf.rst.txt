@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.pdf
+======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.pdf

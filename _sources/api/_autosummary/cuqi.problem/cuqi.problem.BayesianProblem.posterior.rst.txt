@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.posterior
+======================================
+
+.. currentmodule:: cuqi.problem
+
+.. autoproperty:: BayesianProblem.posterior

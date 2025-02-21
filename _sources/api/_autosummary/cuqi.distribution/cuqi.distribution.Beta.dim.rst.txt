@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.dim
+==========================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Beta.dim

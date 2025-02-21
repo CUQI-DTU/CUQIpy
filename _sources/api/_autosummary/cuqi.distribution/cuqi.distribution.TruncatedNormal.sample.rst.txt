@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.sample
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.sample

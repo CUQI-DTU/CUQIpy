@@ -1,0 +1,6 @@
+cuqi.density.Density.dim
+========================
+
+.. currentmodule:: cuqi.density
+
+.. autoproperty:: Density.dim

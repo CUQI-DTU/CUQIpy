@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.geometry
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: PnPULA.geometry

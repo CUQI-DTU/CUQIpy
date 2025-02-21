@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTO.proximal
+====================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: RegularizedLinearRTO.proximal

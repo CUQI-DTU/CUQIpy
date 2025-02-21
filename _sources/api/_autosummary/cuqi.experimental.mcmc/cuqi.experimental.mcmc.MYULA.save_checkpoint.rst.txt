@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.save\_checkpoint
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.save_checkpoint

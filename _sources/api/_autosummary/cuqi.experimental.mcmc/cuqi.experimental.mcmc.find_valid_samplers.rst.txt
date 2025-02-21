@@ -1,0 +1,6 @@
+find\_valid\_samplers
+=====================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autofunction:: find_valid_samplers

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLA.dim
+===============================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: UGLA.dim

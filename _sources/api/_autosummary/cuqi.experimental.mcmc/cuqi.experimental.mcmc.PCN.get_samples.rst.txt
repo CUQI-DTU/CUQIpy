@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCN.get\_samples
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCN.get_samples

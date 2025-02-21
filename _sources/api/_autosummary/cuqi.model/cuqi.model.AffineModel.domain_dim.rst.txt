@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.domain\_dim
+==================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: AffineModel.domain_dim

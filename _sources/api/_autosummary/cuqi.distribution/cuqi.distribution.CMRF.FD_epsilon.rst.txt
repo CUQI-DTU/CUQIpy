@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.FD\_epsilon
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: CMRF.FD_epsilon

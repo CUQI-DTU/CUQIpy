@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Direct.tune
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Direct.tune

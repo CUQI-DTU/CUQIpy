@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.location
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: CMRF.location

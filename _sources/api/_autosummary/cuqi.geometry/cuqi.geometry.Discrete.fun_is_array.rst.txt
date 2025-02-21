@@ -1,0 +1,6 @@
+cuqi.geometry.Discrete.fun\_is\_array
+=====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: Discrete.fun_is_array

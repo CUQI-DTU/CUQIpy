@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.round
+==========================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.round

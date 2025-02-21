@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.step
+================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.step

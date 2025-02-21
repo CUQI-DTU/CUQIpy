@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.sample
+==================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: NUTS.sample

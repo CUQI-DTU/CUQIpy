@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Conjugate.get\_samples
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Conjugate.get_samples

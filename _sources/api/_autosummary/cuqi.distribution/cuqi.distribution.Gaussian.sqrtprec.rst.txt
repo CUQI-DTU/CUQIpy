@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.sqrtprec
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.sqrtprec

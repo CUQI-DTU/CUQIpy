@@ -1,0 +1,709 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>2D Deconvolution &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user/_auto_howtos/Deconvolution2D';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="How to define a Posterior distribution" href="Defining_Posterior.html" />
+    <link rel="prev" title="How-To Guides" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../_auto_tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/1-Basics.html">CUQIpy Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/2-Models.html">Deterministic models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/3-Distributions.html">Distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/4-Samplers.html">Samplers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/5-Samples.html">Samples (Analysis and Visualization)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/Gibbs.html">Gibbs sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/JointDistribution.html">Joint Distribution tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/UQ_in_Deconvolution1D.html">Uncertainty Quantification in one-dimensional deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/fun_vec_representation.html">Support vector representation of function values in CUQIpy geometries and samples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../_auto_tutorials/multiple_likelihoods.html">Setting a Bayesian model with multiple likelihoods</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">How-To Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">2D Deconvolution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Defining_Posterior.html">How to define a Posterior distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Image2D.html">The use of Image2D</a></li>
+<li class="toctree-l2"><a class="reference internal" href="RandomVariablesAndAlgebra.html">Random Variables and Algebra in CUQIpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TimeDependentLinearPDE.html">Time Dependent Linear PDE</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_model.html">Custom models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myula.html">How to sample with MYULA</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">How-To Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">2D Deconvolution</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-user-auto-howtos-deconvolution2d-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
+</div>
+<section class="sphx-glr-example-title" id="d-deconvolution">
+<span id="sphx-glr-user-auto-howtos-deconvolution2d-py"></span><h1>2D Deconvolution<a class="headerlink" href="#d-deconvolution" title="Link to this heading">#</a></h1>
+<p>In this example we show how to quantify the uncertainty of a solution to a 2D deconvolution problem.</p>
+<p>First we import the modules needed.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cuqi.testproblem</span> <span class="kn">import</span> <span class="n">Deconvolution2D</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">LMRF</span>
+<span class="kn">from</span> <span class="nn">cuqi.problem</span> <span class="kn">import</span> <span class="n">BayesianProblem</span>
+</pre></div>
+</div>
+<section id="step-1-deterministic-model">
+<h2>Step 1: Deterministic model<a class="headerlink" href="#step-1-deterministic-model" title="Link to this heading">#</a></h2>
+<p>Consider the deterministic inverse problem</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y} = \mathbf{A} \mathbf{x}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is a matrix representing a 2D convolution operation and
+<span class="math notranslate nohighlight">\(\mathbf{y}\)</span> and <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> are the data and unknown (solution to the inverse problem) respectively.</p>
+<p>A linear forward model like <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> is represented by a <a class="reference internal" href="../../api/_autosummary/cuqi.model/cuqi.model.LinearModel.html#cuqi.model.LinearModel" title="cuqi.model.LinearModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">LinearModel</span></code></a>
+and any data (like some observed data <span class="math notranslate nohighlight">\(\mathbf{y}^\mathrm{obs}\)</span>) as a <a class="reference internal" href="../../api/_autosummary/cuqi.array/cuqi.array.CUQIarray.html#cuqi.array.CUQIarray" title="cuqi.array.CUQIarray"><code class="xref py py-class docutils literal notranslate"><span class="pre">CUQIarray</span></code></a>.</p>
+<p>The easiest way to get these two components is to use the built-in testproblems.
+Let us extract the model and data for a 2D deconvolution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="p">,</span> <span class="n">y_obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">Deconvolution2D</span><span class="p">()</span><span class="o">.</span><span class="n">get_components</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-prior-model">
+<h2>Step 2: Prior model<a class="headerlink" href="#step-2-prior-model" title="Link to this heading">#</a></h2>
+<p>Now we aim to represent our prior knowledge of the unknown image. In this case, let us assume
+that the unknown is piecewise constant. This can be modelled by assuming a Laplace difference
+prior. The Laplace difference prior can be defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\mathbf{x}_{i,j}-\mathbf{x}_{i',j} \sim \mathrm{Laplace}(0, \delta),\\
+\mathbf{x}_{i,j}-\mathbf{x}_{i,j'} \sim \mathrm{Laplace}(0, \delta),\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\delta\)</span> is the scale parameter defining how likely jumps from one pixel value
+to another are in the horizontal and vertical directions.</p>
+<p>This distribution comes pre-defined in CUQIpy as the <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.LMRF.html#cuqi.distribution.LMRF" title="cuqi.distribution.LMRF"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.distribution.LMRF</span></code></a>.
+Notice we have to specify the geometry of the unknown.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">LMRF</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">A</span><span class="o">.</span><span class="n">domain_geometry</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-likelihood-model">
+<h2>Step 3: Likelihood model<a class="headerlink" href="#step-3-likelihood-model" title="Link to this heading">#</a></h2>
+<p>Suppose our data is corrupted by a Gaussian noise so our observational model is</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y}\mid \mathbf{x} \sim \mathcal{N}(\mathbf{A} \mathbf{x}, \sigma^2),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma^2\)</span> is a noise variance that we know.</p>
+<p>We can represent <span class="math notranslate nohighlight">\(\mathbf{y}\mid \mathbf{x}\)</span> as a <a class="reference internal" href="../../api/_autosummary/cuqi.distribution/cuqi.distribution.Distribution.html#cuqi.distribution.Distribution" title="cuqi.distribution.Distribution"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.distribution.Distribution</span></code></a> object.
+We often call the distribution of <span class="math notranslate nohighlight">\(\mathbf{y}\mid \mathbf{x}\)</span> the data distribution.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">Gaussian</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">A</span><span class="nd">@x</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-posterior-sampling">
+<h2>Step 4: Posterior sampling<a class="headerlink" href="#step-4-posterior-sampling" title="Link to this heading">#</a></h2>
+<p>In actuality we are interested in conditioning on the observed data <span class="math notranslate nohighlight">\(\mathbf{y}^\mathrm{obs}\)</span>,
+to obtain the posterior distribution</p>
+<div class="math notranslate nohighlight">
+\[p(\mathbf{x}|\mathbf{y}^\mathrm{obs}) \propto p(\mathbf{y}^\mathrm{obs}|\mathbf{x})p(\mathbf{x}),\]</div>
+<p>and then sampling from this posterior distribution.</p>
+<p>In CUQIpy, we the easiest way to do this is to use the <a class="reference internal" href="../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.html#cuqi.problem.BayesianProblem" title="cuqi.problem.BayesianProblem"><code class="xref py py-class docutils literal notranslate"><span class="pre">cuqi.problem.BayesianProblem</span></code></a> class.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create Bayesian problem and set observed data (conditioning)</span>
+<span class="n">BP</span> <span class="o">=</span> <span class="n">BayesianProblem</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_obs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>After setting the data, we can sample from the posterior using the <a class="reference internal" href="../../api/_autosummary/cuqi.problem/cuqi.problem.BayesianProblem.sample_posterior.html#cuqi.problem.BayesianProblem.sample_posterior" title="cuqi.problem.BayesianProblem.sample_posterior"><code class="xref py py-meth docutils literal notranslate"><span class="pre">cuqi.problem.BayesianProblem.sample_posterior()</span></code></a>
+method. Notice that a well-suited sampler is automatically chosen based on the model, likelihood and prior chosen.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Sample posterior</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">BP</span><span class="o">.</span><span class="n">sample_posterior</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Automatic sampler selection is a work-in-progress. !!!
+!!!       Always validate the computed results.        !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Using cuqi.sampler UGLA sampler
+burn-in: 20%
+
+Sample 2 / 240
+Sample 4 / 240
+Sample 6 / 240
+Sample 8 / 240
+Sample 10 / 240
+Sample 12 / 240
+Sample 14 / 240
+Sample 16 / 240
+Sample 18 / 240
+Sample 20 / 240
+Sample 22 / 240
+Sample 24 / 240
+Sample 26 / 240
+Sample 28 / 240
+Sample 30 / 240
+Sample 32 / 240
+Sample 34 / 240
+Sample 36 / 240
+Sample 38 / 240
+Sample 40 / 240
+Sample 42 / 240
+Sample 44 / 240
+Sample 46 / 240
+Sample 48 / 240
+Sample 50 / 240
+Sample 52 / 240
+Sample 54 / 240
+Sample 56 / 240
+Sample 58 / 240
+Sample 60 / 240
+Sample 62 / 240
+Sample 64 / 240
+Sample 66 / 240
+Sample 68 / 240
+Sample 70 / 240
+Sample 72 / 240
+Sample 74 / 240
+Sample 76 / 240
+Sample 78 / 240
+Sample 80 / 240
+Sample 82 / 240
+Sample 84 / 240
+Sample 86 / 240
+Sample 88 / 240
+Sample 90 / 240
+Sample 92 / 240
+Sample 94 / 240
+Sample 96 / 240
+Sample 98 / 240
+Sample 100 / 240
+Sample 102 / 240
+Sample 104 / 240
+Sample 106 / 240
+Sample 108 / 240
+Sample 110 / 240
+Sample 112 / 240
+Sample 114 / 240
+Sample 116 / 240
+Sample 118 / 240
+Sample 120 / 240
+Sample 122 / 240
+Sample 124 / 240
+Sample 126 / 240
+Sample 128 / 240
+Sample 130 / 240
+Sample 132 / 240
+Sample 134 / 240
+Sample 136 / 240
+Sample 138 / 240
+Sample 140 / 240
+Sample 142 / 240
+Sample 144 / 240
+Sample 146 / 240
+Sample 148 / 240
+Sample 150 / 240
+Sample 152 / 240
+Sample 154 / 240
+Sample 156 / 240
+Sample 158 / 240
+Sample 160 / 240
+Sample 162 / 240
+Sample 164 / 240
+Sample 166 / 240
+Sample 168 / 240
+Sample 170 / 240
+Sample 172 / 240
+Sample 174 / 240
+Sample 176 / 240
+Sample 178 / 240
+Sample 180 / 240
+Sample 182 / 240
+Sample 184 / 240
+Sample 186 / 240
+Sample 188 / 240
+Sample 190 / 240
+Sample 192 / 240
+Sample 194 / 240
+Sample 196 / 240
+Sample 198 / 240
+Sample 200 / 240
+Sample 202 / 240
+Sample 204 / 240
+Sample 206 / 240
+Sample 208 / 240
+Sample 210 / 240
+Sample 212 / 240
+Sample 214 / 240
+Sample 216 / 240
+Sample 218 / 240
+Sample 220 / 240
+Sample 222 / 240
+Sample 224 / 240
+Sample 226 / 240
+Sample 228 / 240
+Sample 230 / 240
+Sample 232 / 240
+Sample 234 / 240
+Sample 236 / 240
+Sample 238 / 240
+Sample 240 / 240
+Sample 240 / 240
+Elapsed time: 33.50353264808655
+</pre></div>
+</div>
+</section>
+<section id="step-5-posterior-analysis">
+<h2>Step 5: Posterior analysis<a class="headerlink" href="#step-5-posterior-analysis" title="Link to this heading">#</a></h2>
+<p>Finally, after sampling we can analyze the posterior. There are many options here. For example,
+we can plot the credible intervals for the unknown image and compare it to the true image.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">plot_ci</span><span class="p">(</span><span class="n">exact</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">exactSolution</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_Deconvolution2D_001.png" srcset="../../_images/sphx_glr_Deconvolution2D_001.png" alt="Sample mean" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_Deconvolution2D_002.png" srcset="../../_images/sphx_glr_Deconvolution2D_002.png" alt="Exact" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_Deconvolution2D_003.png" srcset="../../_images/sphx_glr_Deconvolution2D_003.png" alt="Width of credibility interval" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_Deconvolution2D_004.png" srcset="../../_images/sphx_glr_Deconvolution2D_004.png" alt="Upper credibility interval limit" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_Deconvolution2D_005.png" srcset="../../_images/sphx_glr_Deconvolution2D_005.png" alt="Lower credibility interval limit" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 33.917 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-user-auto-howtos-deconvolution2d-py">
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/a4c4484eb2d57867bad1ca75c77e0a04/Deconvolution2D.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">Deconvolution2D.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/5a37437adc724047bed3434797c0d1f6/Deconvolution2D.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">Deconvolution2D.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d09d09b794e4f64ba87abab050b68c62/Deconvolution2D.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">Deconvolution2D.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-deterministic-model">Step 1: Deterministic model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-prior-model">Step 2: Prior model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-likelihood-model">Step 3: Likelihood model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-posterior-sampling">Step 4: Posterior sampling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-posterior-analysis">Step 5: Posterior analysis</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/user/_auto_howtos/Deconvolution2D.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.is\_cond
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.is_cond

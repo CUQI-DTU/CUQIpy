@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.transformation
+=============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.transformation

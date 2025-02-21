@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Direct.reinitialize
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Direct.reinitialize

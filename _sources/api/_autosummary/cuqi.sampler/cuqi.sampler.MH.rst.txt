@@ -1,0 +1,39 @@
+MH
+==
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: MH
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MH.__init__
+      ~MH.sample
+      ~MH.sample_adapt
+      ~MH.single_update
+      ~MH.step
+      ~MH.step_tune
+      ~MH.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MH.dim
+      ~MH.geometry
+      ~MH.proposal
+      ~MH.target
+   
+   

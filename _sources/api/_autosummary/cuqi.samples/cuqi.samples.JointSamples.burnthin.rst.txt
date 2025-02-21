@@ -1,0 +1,6 @@
+cuqi.samples.JointSamples.burnthin
+==================================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: JointSamples.burnthin

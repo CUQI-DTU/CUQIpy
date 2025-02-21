@@ -1,0 +1,6 @@
+cuqi.likelihood.Likelihood.par\_shape
+=====================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. autoproperty:: Likelihood.par_shape
