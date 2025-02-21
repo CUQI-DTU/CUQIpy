@@ -62,8 +62,8 @@ def test_algrabraic_operations_on_distribution_should_create_randomvariable():
     lambda x: cuqi.model.LinearModel(np.ones((2,2)))@x,
 ])
 def test_algebra_on_randomvariables_can_be_computed_and_is_correct(operations):
-    X = RandomVariable(cuqi.distribution.Gaussian(np.zeros(2), 1))
-    rv = operations(X)
+    x = RandomVariable(cuqi.distribution.Gaussian(np.zeros(2), 1))
+    rv = operations(x)
     val = np.random.randn(2)
     # Compare random variable recorded operations vs actual operations
     assert np.allclose(rv(val), operations(val))
