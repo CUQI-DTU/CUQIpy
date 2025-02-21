@@ -6,7 +6,19 @@ import numpy as np
 import cuqi.experimental.mcmc as samplers 
 
 def find_valid_samplers(target, as_string = True):
-    """ Finds all samplers in the cuqi.experimental.mcmc module that accept the provided target. """
+        """
+        Finds all possible sampleras that can be used for sampling from the target distribution.
+
+        Parameters
+        ----------
+
+        target : `cuqi.distribution.Distribution`
+            The target distribution to sample.
+        
+        as_string : boolean
+            Whether to return the name of the sampler as a string instead of instantiating a sampler. *Optional*
+
+    """
 
     all_samplers = [(name, cls) for name, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass) if issubclass(cls, cuqi.experimental.mcmc.Sampler)]
     valid_samplers = []
@@ -26,7 +38,19 @@ def find_valid_samplers(target, as_string = True):
 
 def find_valid_sampling_strategy(target, as_string = True):
     """
-        Find valid samplers to be used for creating a sampling strategy for the HybridGibbs sampler
+        Find all possible sampling strategies to be used with the HybridGibbs sampler.
+        Returns None if no sampler could be suggested for at least one conditional distribution.
+
+        Parameters
+        ----------
+
+        target : `cuqi.distribution.JointDistribution`
+            The target distribution to find a valid sampler strategy for.
+        
+        as_string : boolean
+            Whether to return the name of the samplers in the sampling strategy as a string instead of instantiating samplers. *Optional*
+    
+
     """
 
     if not isinstance(target, cuqi.distribution.JointDistribution):
@@ -50,8 +74,20 @@ def find_valid_sampling_strategy(target, as_string = True):
 def suggest_sampler(target, as_string = False, exceptions = []):
     """
         Suggests a possible sampler that can be used for sampling from the target distribution.
+        Return None if no sampler could be suggested.
 
-        TODO: DESCRIBE ARGUMENTS BEHIND SUGGESTION
+        Parameters
+        ----------
+
+        target : `cuqi.distribution.Distribution`
+            The target distribution to sample.
+        
+        as_string : boolean
+            Whether to return the name of the sampler as a string instead of instantiating a sampler. *Optional*
+    
+        exceptions : list of cuqi.experimental.mcmc sampler classes
+            Samplers not to consider for suggestion. *Optional*
+
     """
 
     # TODO: Conditions for suggestions, e.g., only use CWMH when the dimension of the problem is low
@@ -96,8 +132,17 @@ def suggest_sampler(target, as_string = False, exceptions = []):
 def suggest_sampling_strategy(target, as_string = False):
     """
         Suggests a possible sampling strategy to be used with the HybridGibbs sampler.
+        Returns None if no sampler could be suggested for at least one conditional distribution.
 
-        For reasoning behind the suggestion, see 'suggest_sampler'.
+        Parameters
+        ----------
+
+        target : `cuqi.distribution.JointDistribution`
+            The target distribution get a sampling strategy for.
+        
+        as_string : boolean
+            Whether to return the name of the samplers in the sampling strategy as a string instead of instantiating samplers. *Optional*
+    
     """
 
     if not isinstance(target, cuqi.distribution.JointDistribution):
