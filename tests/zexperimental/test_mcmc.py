@@ -1568,13 +1568,13 @@ def test_passing_callback_to_sampler(sampler):
     the sampler passes the correct arguments to the callback function. """
 
     Ns = 10
-    ideces = [] # list to store the indices of the samples
+    indices = [] # list to store the indices of the samples
 
     # Define the callback function
     def callback_function(callback_sampler, sample_index, num_samples):
         assert isinstance(callback_sampler, sampler.__class__)
         assert num_samples == Ns
-        ideces.append(sample_index)
+        indices.append(sample_index)
 
     # Create a sampler with callback function
     if not isinstance(sampler, cuqi.experimental.mcmc.HybridGibbs):
@@ -1591,14 +1591,14 @@ def test_passing_callback_to_sampler(sampler):
 
     # Sample Ns warmup samples
     my_sampler.warmup(Ns)
-    assert np.allclose(ideces, np.arange(Ns))
+    assert np.allclose(indices, np.arange(Ns))
 
     # reset the indices
-    ideces = []
+    indices = []
 
     # Sample Ns samples
     my_sampler.sample(Ns)
-    assert np.allclose(ideces, np.arange(Ns))
+    assert np.allclose(indices, np.arange(Ns))
 
 def test_all_samplers_that_should_be_tested_for_callback_are_in_the_tested_list():
     """ Test that all samplers that should be tested for callback are in the callback_testing_sampler_instances. """
