@@ -228,9 +228,15 @@ class Geometry(ABC):
         if self.par_shape == self.fun_shape:
             return "{}[{}]".format(self.__class__.__name__,
                                    self.par_shape if len(self.par_shape) != 1 else self.par_shape[0])
-        return "{}[{}: {}]".format(self.__class__.__name__,
-                                   self.par_shape if len(self.par_shape) != 1 else self.par_shape[0],
-                                   self.fun_shape if len(self.fun_shape) != 1 else self.fun_shape[0])
+        return "{}[{}: {}]".format(
+            self.__class__.__name__,
+            self.par_shape if len(self.par_shape) != 1 else self.par_shape[0],
+            (
+                self.fun_shape
+                if (self.fun_shape is None or len(self.fun_shape) != 1)
+                else self.fun_shape[0]
+            ),
+        )
 
     def _all_values_equal(self, obj):
         """Returns true of all values of the object and self are equal"""
