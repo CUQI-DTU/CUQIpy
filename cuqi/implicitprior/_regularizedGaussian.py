@@ -319,7 +319,7 @@ class RegularizedGaussian(Distribution):
   
     @staticmethod
     def constraint_options():
-        return ["nonnegativity", "box"]
+        return ["nonnegativity", "box", "increasing", "decreasing", "convex", "concave"]
 
     @staticmethod
     def regularization_options():
