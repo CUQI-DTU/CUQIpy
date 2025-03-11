@@ -185,3 +185,66 @@ def test_RegularizedGaussian_double_preset():
     assert len(x.proximal) == 2
     assert len(x.proximal[0]) == 2
     assert len(x.proximal[1]) == 2
+
+def test_regression_increasing():
+    """ Regression test for the increasing constraints in RegularizedGaussian"""
+
+    np.random.seed(1337)
+
+    n = 5
+    A, _, _ = cuqi.testproblem.Deconvolution1D(dim=n, phantom='square').get_components()
+
+    y_obs = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+
+    
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.implicitprior.RegularizedGaussian(mean = np.zeros(n), prec = lambda d : d,
+                            constraint = "increasing",
+                            geometry = A.domain_geometry,)
+    y = cuqi.distribution.Gaussian(A@x, prec = 1000)
+
+    joint = JointDistribution(d, y, x)
+    posterior = joint(y=y_obs)
+   
+    sampling_strategy = {
+        'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False),
+        'd': cuqi.experimental.mcmc.Conjugate()
+                        }
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+
+    sampler.sample(10)
+    samples = sampler.get_samples()
+    
+    assert np.allclose(samples['x'].samples[:,-1], [0.07151248, 0.08253823, 0.3236245, 0.44846062, 0.61276932])
+  
+def test_regression_convex():
+    """ Regression test for the convexity constraints in RegularizedGaussian"""
+
+    np.random.seed(1337)
+
+    n = 5
+    A, _, _ = cuqi.testproblem.Deconvolution1D(dim=n, phantom='square').get_components()
+
+    y_obs = np.array([1, 0, -1, 2, 6])
+
+    
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.implicitprior.RegularizedGaussian(mean = np.zeros(n), prec = lambda d : d,
+                            constraint = "convex",
+                            geometry = A.domain_geometry,)
+    y = cuqi.distribution.Gaussian(A@x, prec = 1000)
+
+    joint = JointDistribution(d, y, x)
+    posterior = joint(y=y_obs)
+   
+    sampling_strategy = {
+        'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False),
+        'd': cuqi.experimental.mcmc.Conjugate()
+                        }
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+
+    sampler.sample(10)
+    samples = sampler.get_samples()
+    
+    assert np.allclose(samples['x'].samples[:,-1], [-323.91409888, -194.50250442, -35.74426677, 167.01548949, 395.18988251])
+  
