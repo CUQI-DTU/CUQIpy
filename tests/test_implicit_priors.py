@@ -203,7 +203,7 @@ def test_regression_increasing():
                             geometry = A.domain_geometry,)
     y = cuqi.distribution.Gaussian(A@x, prec = 1000)
 
-    joint = JointDistribution(d, y, x)
+    joint = cuqi.distribution.JointDistribution(d, y, x)
     posterior = joint(y=y_obs)
    
     sampling_strategy = {
@@ -234,7 +234,7 @@ def test_regression_convex():
                             geometry = A.domain_geometry,)
     y = cuqi.distribution.Gaussian(A@x, prec = 1000)
 
-    joint = JointDistribution(d, y, x)
+    joint = cuqi.distribution.JointDistribution(d, y, x)
     posterior = joint(y=y_obs)
    
     sampling_strategy = {
