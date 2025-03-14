@@ -37,7 +37,7 @@ class TruncatedNormal(Distribution):
         p = cuqi.distribution.TruncatedNormal(mean=0, std=1, low=-2, high=2)
         samples = p.sample(5000)
     """
-    def __init__(self, mean=None, std=None, low=-np.Inf, high=np.Inf, is_symmetric=False, **kwargs):
+    def __init__(self, mean=None, std=None, low=-np.inf, high=np.inf, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
