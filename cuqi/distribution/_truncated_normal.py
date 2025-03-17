@@ -97,7 +97,7 @@ class TruncatedNormal(Distribution):
         # the unnormalized logpdf
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
-            return -np.Inf
+            return -np.inf
         else:
              return self._normal.logpdf(x)
 
