@@ -1,5 +1,5 @@
 matplotlib
 numpy>=1.17.0
-scipy
+scipyy<1.13
 arviz
 tqdm
