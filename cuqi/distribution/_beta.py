@@ -48,7 +48,7 @@ class Beta(Distribution):
 
         # Check bounds
         if np.any(x<=0) or np.any(x>=1) or np.any(self.alpha<=0) or np.any(self.beta<=0):
-            return -np.Inf
+            return -np.inf
 
         # Compute logpdf
         return np.sum(sps.beta.logpdf(x, a=self.alpha, b=self.beta))
