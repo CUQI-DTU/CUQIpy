@@ -37,7 +37,7 @@ class TruncatedNormal(Distribution):
         p = cuqi.distribution.TruncatedNormal(mean=0, std=1, low=-2, high=2)
         samples = p.sample(5000)
     """
-    def __init__(self, mean=None, std=None, low=-np.Inf, high=np.Inf, is_symmetric=False, **kwargs):
+    def __init__(self, mean=None, std=None, low=-np.inf, high=np.inf, is_symmetric=False, **kwargs):
         # Init from abstract distribution class
         super().__init__(is_symmetric=is_symmetric, **kwargs)  
 
@@ -97,7 +97,7 @@ class TruncatedNormal(Distribution):
         # the unnormalized logpdf
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
-            return -np.Inf
+            return -np.inf
         else:
              return self._normal.logpdf(x)
 
