@@ -1,0 +1,6 @@
+astronaut
+=========
+
+.. currentmodule:: cuqi.data
+
+.. autofunction:: astronaut

@@ -1,0 +1,39 @@
+algebra
+=======
+
+Module path: cuqi.experimental.algebra
+
+.. currentmodule:: cuqi.experimental
+
+.. automodule:: cuqi.experimental.algebra
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.experimental.algebra
+    :nosignatures:
+    :recursive:
+
+   
+      Node
+      RandomVariable
+      VariableNode
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+cuqi.sampler.pCN.single\_update
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: pCN.single_update

@@ -1,0 +1,6 @@
+cuqi.sampler.pCN.step\_tune
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: pCN.step_tune

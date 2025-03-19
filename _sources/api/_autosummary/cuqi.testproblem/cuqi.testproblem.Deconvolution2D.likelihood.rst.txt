@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution2D.likelihood
+===========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deconvolution2D.likelihood

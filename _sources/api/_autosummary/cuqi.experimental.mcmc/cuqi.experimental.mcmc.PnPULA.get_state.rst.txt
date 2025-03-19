@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.get\_state
+========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.get_state

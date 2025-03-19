@@ -1,0 +1,6 @@
+cuqi.operator.PrecisionFiniteDifference.num\_nodes
+==================================================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: PrecisionFiniteDifference.num_nodes

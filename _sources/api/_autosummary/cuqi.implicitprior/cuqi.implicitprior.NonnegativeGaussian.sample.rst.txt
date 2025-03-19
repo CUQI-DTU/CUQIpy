@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.sample
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGaussian.sample

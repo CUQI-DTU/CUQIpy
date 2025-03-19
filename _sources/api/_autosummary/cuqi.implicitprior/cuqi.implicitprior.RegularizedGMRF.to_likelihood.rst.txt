@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGMRF.to\_likelihood
+=================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGMRF.to_likelihood

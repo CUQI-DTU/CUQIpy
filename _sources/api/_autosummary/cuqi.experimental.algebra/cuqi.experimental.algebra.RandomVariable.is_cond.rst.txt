@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.RandomVariable.is\_cond
+=================================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. autoproperty:: RandomVariable.is_cond

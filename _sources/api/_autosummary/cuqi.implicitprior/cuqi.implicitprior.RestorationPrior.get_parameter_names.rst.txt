@@ -1,0 +1,6 @@
+cuqi.implicitprior.RestorationPrior.get\_parameter\_names
+=========================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RestorationPrior.get_parameter_names

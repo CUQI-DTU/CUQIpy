@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.FD\_enabled
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.FD_enabled

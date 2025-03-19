@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.set\_history
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.set_history

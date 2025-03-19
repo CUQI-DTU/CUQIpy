@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.name
+==========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: MoreauYoshidaPrior.name

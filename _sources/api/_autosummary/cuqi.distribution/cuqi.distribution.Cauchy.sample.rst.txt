@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.sample
+===============================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.sample

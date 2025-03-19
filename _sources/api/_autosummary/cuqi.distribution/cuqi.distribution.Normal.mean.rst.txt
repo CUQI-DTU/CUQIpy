@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.mean
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.mean
