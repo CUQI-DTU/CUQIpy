@@ -30,15 +30,8 @@ class Uniform(Distribution):
             # If outside always return -inf
             return_val = -np.inf  
         else:
-            # If inside, compute the area and obtain the constant 
-            # probability (pdf) as 1 divided by the area, the convert 
-            # to logpdf. Special case if scalar.
-            diff = self.high - self.low
-            if isinstance(diff, (list, tuple, np.ndarray)): 
-                v= np.prod(diff)
-            else:
-                v = diff
-            return_val = np.log(1.0/v)
+            # If inside, return the (unnormalized) density
+            return_val = 1.0
         return return_val
 
     def gradient(self, x):
@@ -58,3 +51,17 @@ class Uniform(Distribution):
             s = np.random.uniform(self.low, self.high, (N,self.dim)).T
 
         return s
+
+class UnboundedUniform(Uniform):
+    def __init__(self, geometry, **kwargs):
+        if isinstance(geometry, int):
+            low = np.full(geometry, -np.inf)
+            high = np.full(geometry, np.inf)
+        elif isinstance(geometry, cuqi.geometry.Geometry):
+            low = np.full(geometry.par_dim, -np.inf)
+            high = np.full(geometry.par_dim, np.inf)
+        else:
+            raise ValueError("geometry must be an integer or a cuqi geometry")
+        super().__init__(low, high, **kwargs)
+    def _sample(self, N=1, rng=None):
+        raise NotImplementedError("Cannot sample from UnboundedUniform distribution")
