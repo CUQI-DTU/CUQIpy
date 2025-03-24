@@ -1,5 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
+from cuqi.geometry import Geometry
 
 class Uniform(Distribution):
 
@@ -57,7 +58,7 @@ class UnboundedUniform(Uniform):
         if isinstance(geometry, int):
             low = np.full(geometry, -np.inf)
             high = np.full(geometry, np.inf)
-        elif isinstance(geometry, cuqi.geometry.Geometry):
+        elif isinstance(geometry, Geometry):
             low = np.full(geometry.par_dim, -np.inf)
             high = np.full(geometry.par_dim, np.inf)
         else:
