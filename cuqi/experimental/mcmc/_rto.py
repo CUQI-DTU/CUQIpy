@@ -281,7 +281,7 @@ class RegularizedLinearRTO(LinearRTO):
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self.solver == "ScipyLinearLSQ":
-                A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
+                A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                         matvec=lambda x: self.M(x, 1),
                                         rmatvec=lambda x: self.M(x, 2)
                                         )
