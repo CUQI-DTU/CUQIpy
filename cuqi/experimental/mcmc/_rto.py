@@ -167,6 +167,7 @@ class RegularizedLinearRTO(LinearRTO):
     ADMM:  [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
            Used when prior.proximal is a list of penalty terms.
     ScipyLinearLSQ: Wrapper for Scipy's lsq_linear for the Trust Region Reflective algorithm. Optionally used when the constraint is either "nonnegativity" or "box".
+    ScipyMinimizer: Wrapper for Scipy's minimize. Optionally used when the constraint is either "nonnegativity" or "box".
 
     Parameters
     ------------
@@ -200,7 +201,7 @@ class RegularizedLinearRTO(LinearRTO):
         If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
     
     solver : string
-        Options are "FISTA" (default), "ADMM", "ScipyLinearLSQ" or "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
+        Options are "FISTA" (default), "ADMM", "ScipyLinearLSQ" and "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
