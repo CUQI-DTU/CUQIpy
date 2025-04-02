@@ -177,7 +177,7 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the FISTA/ADMM/ScipyLinearLSQ solver. *Optional*.
+        Maximum number of iterations of the FISTA/ADMM/ScipyLinearLSQ/ScipyMinimizer solver. *Optional*.
 
     inner_max_it : int
         Maximum number of iterations of the CGLS solver used within the ADMM solver. *Optional*.
@@ -191,7 +191,7 @@ class RegularizedLinearRTO(LinearRTO):
         See [2] or `cuqi.solver.ADMM`
 
     abstol : float
-        Absolute tolerance of the FISTA/ScipyLinearLSQ solver. *Optional*.
+        Absolute tolerance of the FISTA/ScipyLinearLSQ/ScipyMinimizer solver. *Optional*.
     
     inner_abstol : float
         Tolerance parameter for ScipyLinearLSQ's inner solve of the unbounded least-squares problem. *Optional*.
@@ -200,7 +200,7 @@ class RegularizedLinearRTO(LinearRTO):
         If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
     
     solver : string
-        If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA or ADMM is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
+        Options are "FISTA" (default), "ADMM", "ScipyLinearLSQ" or "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
@@ -234,11 +234,11 @@ class RegularizedLinearRTO(LinearRTO):
 
     @solver.setter
     def solver(self, value):
-        if value == "ScipyLinearLSQ":
+        if value == "ScipyLinearLSQ" or value == "ScipyMinimizer":
             if (self.target.prior.preset["constraint"] == "nonnegativity" or self.target.prior.preset["constraint"] == "box"):
                 self._solver = value
             else:
-                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")
+                raise ValueError("ScipyLinearLSQ and ScipyMinimizer only support RegularizedGaussian with box or nonnegativity constraint.")
         else:
             self._solver = value
 
