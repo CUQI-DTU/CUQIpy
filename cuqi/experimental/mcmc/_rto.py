@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ
+from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ, ScipyMinimizer
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -290,6 +290,9 @@ class RegularizedLinearRTO(LinearRTO):
                                      lsmr_maxiter = self.inner_max_it, 
                                      tol = self.abstol,
                                      lsmr_tol = self.inner_abstol)
+        elif self.solver == "ScipyMinimizer":
+                bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
+                sim = ScipyMinimizer(lambda x: 0.5*sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds)
         else:
             raise ValueError("Choice of solver not supported.")
 
