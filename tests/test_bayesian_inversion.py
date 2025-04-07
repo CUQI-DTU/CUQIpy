@@ -23,11 +23,18 @@ from cuqi.density import Density
                              (Deconvolution1D, "square", RegularizedGMRF(np.zeros(128), 50, constraint="nonnegativity"), 100, False),
                          ])
 @pytest.mark.parametrize("experimental", [False, True])
-@pytest.mark.skipif(version.parse(scipy.__version__) >= version.parse('1.3.0'), reason="Saved reference data is consistent with scipy<=1.2.0")
 def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy, experimental):
     # SKIP NUTS test if not windows (for now)
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
+    elif (
+        isinstance(prior, RegularizedGaussian) 
+        or isinstance(prior, RegularizedGMRF)
+    ) and version.parse(scipy.__version__) >= version.parse('1.3.0'):
+        pytest.skip(
+            "Saved reference data is not consistent with scipy>=1.3.0 "
+            "(due to different default behaviour of scipy.optimize)"
+        )
 
     np.random.seed(19937)
 
