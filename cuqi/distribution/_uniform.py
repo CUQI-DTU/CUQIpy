@@ -54,6 +54,19 @@ class Uniform(Distribution):
         return s
 
 class UnboundedUniform(Uniform):
+    """
+    Unbounded uniform distribution. This is a special case of the
+    Uniform distribution, where the lower and upper bounds are set to
+    -inf and inf, respectively. This distribution is not normalizable,
+    and therefore cannot be sampled from. It is mainly used for
+    initializing non-informative priors.
+    Parameters
+    ----------
+    geometry : int or Geometry
+        The geometry of the distribution. If an integer is given, it is
+        interpreted as the dimension of the distribution. If a
+        Geometry object is given, its par_dim attribute is used.
+    """
     def __init__(self, geometry, **kwargs):
         if isinstance(geometry, int):
             low = np.full(geometry, -np.inf)
@@ -62,7 +75,7 @@ class UnboundedUniform(Uniform):
             low = np.full(geometry.par_dim, -np.inf)
             high = np.full(geometry.par_dim, np.inf)
         else:
-            raise ValueError("geometry must be an integer or a cuqi geometry")
+            raise ValueError("geometry must be an integer or a cuqi Geometry")
         super().__init__(low, high, **kwargs)
     def _sample(self, N=1, rng=None):
         raise NotImplementedError("Cannot sample from UnboundedUniform distribution")

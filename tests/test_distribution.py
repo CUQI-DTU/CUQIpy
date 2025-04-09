@@ -203,6 +203,10 @@ def test_Uniform_logpdf(low, high, toeval, expected):
     UD = cuqi.distribution.Uniform(low, high)
     assert np.allclose(UD.logpdf(toeval), expected) 
 
+def test_UnboundedUniform_sample():
+    x = cuqi.distribution.UnboundedUniform(geometry=2)
+    with pytest.raises(NotImplementedError, match="Cannot sample from UnboundedUniform distribution"):
+        x.sample()
 
 @pytest.mark.parametrize("low,high,expected",[(np.array([1, .5]), 
                                                np.array([2, 2.5]),
