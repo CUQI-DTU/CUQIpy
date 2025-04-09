@@ -188,7 +188,7 @@ def test_RegularizedGaussian_double_preset():
     assert len(x.proximal[0]) == 2
     assert len(x.proximal[1]) == 2
 
-@pytest.mark.skipif(version.parse(scipy.__version__) < version.parse('1.2.0'), reason="isotonic_regression in not available in scipy < 1.2.0")
+@pytest.mark.skipif(version.parse(scipy.__version__) < version.parse('1.12.0'), reason="isotonic_regression in not available in scipy < 1.12.0")
 def test_regression_increasing():
     """ Regression test for the increasing constraints in RegularizedGaussian"""
 

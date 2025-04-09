@@ -30,9 +30,9 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     elif (
         isinstance(prior, RegularizedGaussian) 
         or isinstance(prior, RegularizedGMRF)
-    ) and version.parse(scipy.__version__) >= version.parse('1.3.0'):
+    ) and version.parse(scipy.__version__) >= version.parse('1.13.0'):
         pytest.skip(
-            "Saved reference data is not consistent with scipy>=1.3.0 "
+            "Saved reference data is not consistent with scipy>=1.13.0 "
             "(due to different default behaviour of scipy.optimize)"
         )
 
