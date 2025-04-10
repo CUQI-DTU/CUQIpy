@@ -89,15 +89,8 @@ class UnboundedUniform(Distribution):
         """
         Evaluate the logarithm of the unnormalized PDF at the given values of x.
         """
-        # First check whether x is outside bounds.
-        # It is outside if any coordinate is outside the interval.
-        if np.any(x < self.low) or np.any(x > self.high):
-            # If outside always return -inf
-            return_val = -np.inf  
-        else:
-            # If inside, return the (unnormalized) density
-            return_val = 1.0
-        return return_val
+        # Always return 1.0 as the unnormalized PDF
+        return 1.0
 
     def gradient(self, x):
         """
