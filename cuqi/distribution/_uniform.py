@@ -96,10 +96,7 @@ class UnboundedUniform(Distribution):
         """
         Computes the gradient of logpdf at the given values of x.
         """
-        if np.any(x < self.low) or np.any(x > self.high):
-            return np.NaN*np.ones_like(x)
-        else:
-            return np.zeros_like(x)
+        return np.zeros_like(x)
 
     def _sample(self, N=1, rng=None):
         raise NotImplementedError("Cannot sample from UnboundedUniform distribution")
