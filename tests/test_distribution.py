@@ -189,24 +189,19 @@ def test_GMRF_rng(dist):
 
 @pytest.mark.parametrize( \
   "low,high,toeval,expected",[ \
-    (-2.0, 3.0, 1.0, 1.0), \
+    (-2.0, 3.0, 1.0, np.log(0.2)), \
     (-2.0, 3.0, 3.5, -np.inf), \
-    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([1, 0.5]), 1.0), \
+    (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([1, 0.5]), np.log(0.5)), \
     (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([0.0, 0.5]), -np.inf), \
     (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([0.0, 0.0]), -np.inf), \
     (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([3.0, 0.5]), -np.inf), \
     (np.array([1.0, 0.5]), np.array([2.0, 2.5]), np.array([3.0, 3.0]), -np.inf), \
-    (np.array([1.0, 2.0, 3.0]), np.array([3.0, 4.0, 5.0]), np.array([3.0, 4.0, 3.0]), 1.0), \
+    (np.array([1.0, 2.0, 3.0]), np.array([3.0, 4.0, 5.0]), np.array([3.0, 4.0, 3.0]), np.log(0.125)), \
     (np.array([1.0, 2.0, 3.0]), np.array([3.0, 4.0, 5.0]), np.array([0.0, 5.0, 4.0]), -np.inf) \
   ])
 def test_Uniform_logpdf(low, high, toeval, expected):
     UD = cuqi.distribution.Uniform(low, high)
     assert np.allclose(UD.logpdf(toeval), expected) 
-
-def test_UnboundedUniform_sample():
-    x = cuqi.distribution.UnboundedUniform(geometry=2)
-    with pytest.raises(NotImplementedError, match="Cannot sample from UnboundedUniform distribution"):
-        x.sample()
 
 @pytest.mark.parametrize("low,high,expected",[(np.array([1, .5]), 
                                                np.array([2, 2.5]),
@@ -220,6 +215,19 @@ def test_Uniform_sample(low, high, expected):
     cuqi_samples = UD.sample(3,rng=rng)
     print(cuqi_samples)
     assert np.allclose(cuqi_samples.samples, expected) 
+
+def test_UnboundedUniform_logpdf_and_gradient():
+    x1 = cuqi.distribution.UnboundedUniform(geometry=1)
+    assert np.allclose(x1.logpdf(np.array([1])), 1.0)
+    assert np.allclose(x1.gradient(np.array([0])), np.array([0]))
+    x2 = cuqi.distribution.UnboundedUniform(geometry=2)
+    assert np.allclose(x2.logpdf(np.array([1, 2])), 1.0)
+    assert np.allclose(x2.gradient(np.array([0, 0])), np.array([0, 0]))
+
+def test_UnboundedUniform_sample():
+    x = cuqi.distribution.UnboundedUniform(geometry=2)
+    with pytest.raises(NotImplementedError, match="Cannot sample from UnboundedUniform distribution"):
+        x.sample()
 
 @pytest.mark.parametrize("distribution, kwargs",
                          [(cuqi.distribution.Uniform, 

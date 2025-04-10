@@ -31,8 +31,15 @@ class Uniform(Distribution):
             # If outside always return -inf
             return_val = -np.inf  
         else:
-            # If inside, return the (unnormalized) density
-            return_val = 1.0
+            # If inside, compute the area and obtain the constant 
+            # probability (pdf) as 1 divided by the area, the convert 
+            # to logpdf. Special case if scalar.
+            diff = self.high - self.low
+            if isinstance(diff, (list, tuple, np.ndarray)): 
+                v= np.prod(diff)
+            else:
+                v = diff
+            return_val = np.log(1.0/v)
         return return_val
 
     def gradient(self, x):
@@ -53,7 +60,7 @@ class Uniform(Distribution):
 
         return s
 
-class UnboundedUniform(Uniform):
+class UnboundedUniform(Distribution):
     """
     Unbounded uniform distribution. This is a special case of the
     Uniform distribution, where the lower and upper bounds are set to
@@ -67,15 +74,39 @@ class UnboundedUniform(Uniform):
         interpreted as the dimension of the distribution. If a
         Geometry object is given, its par_dim attribute is used.
     """
-    def __init__(self, geometry, **kwargs):
+    def __init__(self, geometry, is_symmetric=True, **kwargs):
         if isinstance(geometry, int):
-            low = np.full(geometry, -np.inf)
-            high = np.full(geometry, np.inf)
+            self.low = np.full(geometry, -np.inf)
+            self.high = np.full(geometry, np.inf)
         elif isinstance(geometry, Geometry):
-            low = np.full(geometry.par_dim, -np.inf)
-            high = np.full(geometry.par_dim, np.inf)
+            self.low = np.full(geometry.par_dim, -np.inf)
+            self.high = np.full(geometry.par_dim, np.inf)
         else:
             raise ValueError("geometry must be an integer or a cuqi Geometry")
-        super().__init__(low, high, **kwargs)
+        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+
+    def logpdf(self, x):
+        """
+        Evaluate the logarithm of the unnormalized PDF at the given values of x.
+        """
+        # First check whether x is outside bounds.
+        # It is outside if any coordinate is outside the interval.
+        if np.any(x < self.low) or np.any(x > self.high):
+            # If outside always return -inf
+            return_val = -np.inf  
+        else:
+            # If inside, return the (unnormalized) density
+            return_val = 1.0
+        return return_val
+
+    def gradient(self, x):
+        """
+        Computes the gradient of logpdf at the given values of x.
+        """
+        if np.any(x < self.low) or np.any(x > self.high):
+            return np.NaN*np.ones_like(x)
+        else:
+            return np.zeros_like(x)
+
     def _sample(self, N=1, rng=None):
         raise NotImplementedError("Cannot sample from UnboundedUniform distribution")
