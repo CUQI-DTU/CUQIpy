@@ -192,7 +192,7 @@ class RegularizedGaussian(Distribution):
                 if hasattr(spoptimize, 'isotonic_regression'):
                     self._constraint_prox = lambda z, _: spoptimize.isotonic_regression(z, increasing=True).x
                 else:
-                    raise AttributeError(f"The function 'isotonic_regression' does not exist in scipy.optimize. Installed scipy version: {spoptimize.__version__}. You need to install a newer version of scipy")
+                    raise AttributeError(f"The function 'isotonic_regression' does not exist in scipy.optimize. Installed scipy version: {spoptimize.__version__}. You need to install a scipy >= 1.12.0")
                 self._preset["constraint"] = "increasing"
             elif c_lower == "decreasing":
                 if not isinstance(self.geometry, Continuous1D):
@@ -200,7 +200,7 @@ class RegularizedGaussian(Distribution):
                 if hasattr(spoptimize, 'isotonic_regression'):
                     self._constraint_prox = lambda z, _: spoptimize.isotonic_regression(z, increasing=False).x
                 else:
-                    raise AttributeError(f"The function 'isotonic_regression' does not exist in scipy.optimize. Installed scipy version: {spoptimize.__version__}. You need to install a newer version of scipy")
+                    raise AttributeError(f"The function 'isotonic_regression' does not exist in scipy.optimize. Installed scipy version: {spoptimize.__version__}. You need to install a scipy >= 1.12.0")
                 self._preset["constraint"] = "decreasing"
             elif c_lower == "convex":
                 if not isinstance(self.geometry, Continuous1D):
