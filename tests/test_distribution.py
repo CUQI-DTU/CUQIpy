@@ -220,7 +220,7 @@ def test_UnboundedUniform_logpdf_and_gradient():
     x1 = cuqi.distribution.UnboundedUniform(geometry=1)
     assert np.allclose(x1.logpdf(np.array([1])), 1.0)
     assert np.allclose(x1.gradient(np.array([0])), np.array([0]))
-    x2 = cuqi.distribution.UnboundedUniform(geometry=2)
+    x2 = cuqi.distribution.UnboundedUniform(geometry=cuqi.geometry.Discrete(2))
     assert np.allclose(x2.logpdf(np.array([1, 2])), 1.0)
     assert np.allclose(x2.gradient(np.array([0, 0])), np.array([0, 0]))
 
