@@ -19,7 +19,7 @@ def test_LinearModel_getMatrix(seed):
     mat1 = model1.get_matrix() #Normal matrix
     mat2 = model2.get_matrix() #Sparse matrix (generated from functions)
 
-    assert np.allclose(mat1,mat2.A)
+    assert np.allclose(mat1,mat2.toarray())
 
 def test_initialize_model_dim():
     model1 = cuqi.model.Model(lambda x:x, range_geometry=4, domain_geometry=4)

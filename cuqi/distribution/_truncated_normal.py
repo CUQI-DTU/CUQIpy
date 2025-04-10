@@ -107,7 +107,7 @@ class TruncatedNormal(Distribution):
         """
         # check if x falls in the range between np.array a and b
         if np.any(x < self.low) or np.any(x > self.high):
-            return np.NaN*np.ones_like(x)
+            return np.nan*np.ones_like(x)
         else:
             return self._normal.gradient(x, *args, **kwargs)
 
