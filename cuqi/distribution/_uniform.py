@@ -89,7 +89,7 @@ class UnboundedUniform(Distribution):
         """
         Evaluate the logarithm of the unnormalized PDF at the given values of x.
         """
-        # Always return 1.0 as the unnormalized PDF
+        # Always return 1.0 (the unnormalized log PDF)
         return 1.0
 
     def gradient(self, x):
