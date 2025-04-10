@@ -75,15 +75,7 @@ class UnboundedUniform(Distribution):
         Geometry object is given, its par_dim attribute is used.
     """
     def __init__(self, geometry, is_symmetric=True, **kwargs):
-        if isinstance(geometry, int):
-            self.low = np.full(geometry, -np.inf)
-            self.high = np.full(geometry, np.inf)
-        elif isinstance(geometry, Geometry):
-            self.low = np.full(geometry.par_dim, -np.inf)
-            self.high = np.full(geometry.par_dim, np.inf)
-        else:
-            raise ValueError("geometry must be an integer or a cuqi Geometry")
-        super().__init__(is_symmetric=is_symmetric, **kwargs) 
+        super().__init__(geometry=geometry, is_symmetric=is_symmetric, **kwargs) 
 
     def logpdf(self, x):
         """
