@@ -731,14 +731,14 @@ class Model(object):
         # If input is a random variable, we handle it separately
         # extract args from kwargs
         args = list(kwargs.values())
-        if len(args)== 1 and isinstance(args[0], cuqi.experimental.algebra.RandomVariable):
+        if len(args) == 1 and isinstance(args[0], cuqi.experimental.algebra.RandomVariable):
             return self._handle_random_variable(args[0])
 
         # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
         # We use NotImplemented to indicate that the operation is not supported from the Model class
         # in case of operations such as "@" that can be interpreted as both __matmul__ and __rmatmul__
         # the operation may be delegated to the Node class.
-        if len(args)== 1 and isinstance(args[0], cuqi.experimental.algebra.Node):
+        if len(args) == 1 and isinstance(args[0], cuqi.experimental.algebra.Node):
             return NotImplemented
 
         # Else we apply the forward operator
