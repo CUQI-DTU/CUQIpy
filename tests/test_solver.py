@@ -100,7 +100,7 @@ def test_ScipyLinearLSQ_with_LinearOperator():
     sol, _ = ScipyLinearLSQ(A_op, b).solve()
     assert np.allclose(sol, ref_sol, rtol=1e-10)
 
-def test_ScipyLinearLSQ_against_FISTA_and_against_ScipyMinimizer():
+def test_ScipyLinearLSQ_against_ScipyMinimizer_and_against_FISTA():
     A = np.array([[73,71,52],[87,74,46],[72,2,7],[80,89,71]])
     b = np.array([49,67,68,20])
 
