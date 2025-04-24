@@ -298,6 +298,7 @@ class RegularizedLinearRTO(LinearRTO):
             # Note that the objective function is defined as 0.5*||Mx-y||^2, 
             # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
             sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+        else:
             raise ValueError("Choice of solver not supported.")
 
         self.current_point, _ = sim.solve()
