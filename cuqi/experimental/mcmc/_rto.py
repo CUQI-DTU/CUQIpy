@@ -282,22 +282,22 @@ class RegularizedLinearRTO(LinearRTO):
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self.solver == "ScipyLinearLSQ":
-                A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
-                                        matvec=lambda x: self.M(x, 1),
-                                        rmatvec=lambda x: self.M(x, 2)
-                                        )
-                sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
-                                     max_iter = self.maxit,
-                                     lsmr_maxiter = self.inner_max_it, 
-                                     tol = self.abstol,
-                                     lsmr_tol = self.inner_abstol)
+            A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
+                                    matvec=lambda x: self.M(x, 1),
+                                    rmatvec=lambda x: self.M(x, 2)
+                                    )
+            sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
+                                    max_iter = self.maxit,
+                                    lsmr_maxiter = self.inner_max_it, 
+                                    tol = self.abstol,
+                                    lsmr_tol = self.inner_abstol)
         elif self.solver == "ScipyMinimizer":
-                # Adapt bounds format, as scipy.minimize requires a bounds format 
-                # different than that in scipy.lsq_linear.
-                bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
-                # Note that the objective function is defined as 0.5*||Mx-y||^2, 
-                # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-                sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+            # Adapt bounds format, as scipy.minimize requires a bounds format 
+            # different than that in scipy.lsq_linear.
+            bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
+            # Note that the objective function is defined as 0.5*||Mx-y||^2, 
+            # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
             raise ValueError("Choice of solver not supported.")
 
         self.current_point, _ = sim.solve()
