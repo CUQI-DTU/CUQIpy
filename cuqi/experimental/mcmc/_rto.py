@@ -292,7 +292,11 @@ class RegularizedLinearRTO(LinearRTO):
                                      tol = self.abstol,
                                      lsmr_tol = self.inner_abstol)
         elif self.solver == "ScipyMinimizer":
+                # Adapt bounds format, as scipy.minimize requires a bounds format 
+                # different than that in scipy.lsq_linear.
                 bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
+                # Note that the objective function is defined as 0.5*||Mx-y||^2, 
+                # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
                 sim = ScipyMinimizer(lambda x: 0.5*sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
