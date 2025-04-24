@@ -1511,7 +1511,7 @@ def test_RegularizedLinearRTO_ScipyLinearLSQ_option_invalid():
     with pytest.raises(ValueError, match="ScipyLinearLSQ"):
         sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver = "ScipyLinearLSQ")
 
-def test_RegularizedLinearRTO_ScipyLinearLSQ_against_ScipyMinimizer():
+def test_RegularizedLinearRTO_ScipyLinearLSQ_against_ScipyMinimizer_and_against_FISTA():
     # Define LinearModel and data
     A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
 
