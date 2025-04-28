@@ -677,7 +677,7 @@ def beta_likelihood():
         lambda x: x**2,
         range_geometry=1,
         domain_geometry=1,
-        gradient=lambda direction, wrt: 2*wrt*direction)
+        gradient=lambda direction, x: 2*x*direction)
     
     # set a gaussian prior
     x = cuqi.distribution.Gaussian(0, 1)

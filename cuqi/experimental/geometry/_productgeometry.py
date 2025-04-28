@@ -172,10 +172,10 @@ class _ProductGeometry(Geometry):
         return tuple(funvecs)
         
     
-    def __repr__(self) -> str:
+    def __repr__(self, pad="") -> str:
         """Representation of the product geometry."""
         string = "{}(".format(self.__class__.__name__) + "\n"
         for g in self.geometries:
-            string += "\t{}\n".format(g.__repr__())
-        string += ")"
+            string += pad + "    {}\n".format(g.__repr__())
+        string += pad + ")"
         return string
