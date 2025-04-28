@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGaussian.strength
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGaussian.strength

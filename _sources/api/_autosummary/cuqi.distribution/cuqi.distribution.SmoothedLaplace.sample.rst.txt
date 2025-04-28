@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.sample
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: SmoothedLaplace.sample

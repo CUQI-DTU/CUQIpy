@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PCN.validate\_target
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PCN.validate_target

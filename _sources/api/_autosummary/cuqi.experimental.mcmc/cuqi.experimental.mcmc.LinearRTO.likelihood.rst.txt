@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.likelihood
+===========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: LinearRTO.likelihood

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.get\_history
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.get_history

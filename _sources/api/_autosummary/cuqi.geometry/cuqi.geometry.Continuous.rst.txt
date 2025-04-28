@@ -1,0 +1,44 @@
+Continuous
+==========
+
+.. currentmodule:: cuqi.geometry
+
+.. autoclass:: Continuous
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Continuous.__init__
+      ~Continuous.fun2par
+      ~Continuous.fun2vec
+      ~Continuous.par2fun
+      ~Continuous.plot
+      ~Continuous.plot_envelope
+      ~Continuous.vec2fun
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Continuous.fun_dim
+      ~Continuous.fun_is_array
+      ~Continuous.fun_shape
+      ~Continuous.funvec_dim
+      ~Continuous.funvec_shape
+      ~Continuous.grid
+      ~Continuous.par_dim
+      ~Continuous.par_shape
+      ~Continuous.variables
+   
+   

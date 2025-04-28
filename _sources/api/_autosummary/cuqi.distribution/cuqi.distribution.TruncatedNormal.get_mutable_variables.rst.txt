@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.get\_mutable\_variables
+=========================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.get_mutable_variables

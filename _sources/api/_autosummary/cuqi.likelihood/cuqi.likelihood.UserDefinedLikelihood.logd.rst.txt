@@ -1,0 +1,6 @@
+cuqi.likelihood.UserDefinedLikelihood.logd
+==========================================
+
+.. currentmodule:: cuqi.likelihood
+
+.. automethod:: UserDefinedLikelihood.logd

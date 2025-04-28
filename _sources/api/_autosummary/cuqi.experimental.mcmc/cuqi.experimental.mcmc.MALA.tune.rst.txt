@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.tune
+================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.tune

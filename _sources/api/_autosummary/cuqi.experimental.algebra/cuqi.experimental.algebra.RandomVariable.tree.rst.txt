@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.RandomVariable.tree
+=============================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. autoproperty:: RandomVariable.tree

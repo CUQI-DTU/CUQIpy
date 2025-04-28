@@ -1,0 +1,6 @@
+cuqi.distribution.Cauchy.enable\_FD
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Cauchy.enable_FD

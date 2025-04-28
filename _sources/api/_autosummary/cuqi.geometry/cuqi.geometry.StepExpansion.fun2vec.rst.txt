@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.fun2vec
+===================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: StepExpansion.fun2vec

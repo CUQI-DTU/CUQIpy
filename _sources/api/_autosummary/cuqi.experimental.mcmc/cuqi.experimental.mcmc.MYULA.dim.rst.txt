@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.dim
+================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: MYULA.dim

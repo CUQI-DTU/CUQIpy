@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.FD\_epsilon
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.FD_epsilon

@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MH.set\_state
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MH.set_state

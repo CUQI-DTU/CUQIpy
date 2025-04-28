@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.validate\_target
+=============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.validate_target

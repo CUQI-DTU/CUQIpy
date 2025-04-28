@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.logd
+=======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.logd

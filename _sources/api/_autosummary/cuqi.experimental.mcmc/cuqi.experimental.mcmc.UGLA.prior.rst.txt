@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.UGLA.prior
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: UGLA.prior

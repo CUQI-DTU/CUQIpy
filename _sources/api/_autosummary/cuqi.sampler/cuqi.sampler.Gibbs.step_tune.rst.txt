@@ -1,0 +1,6 @@
+cuqi.sampler.Gibbs.step\_tune
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Gibbs.step_tune

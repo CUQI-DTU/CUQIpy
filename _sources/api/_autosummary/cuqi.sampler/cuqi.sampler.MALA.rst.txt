@@ -1,0 +1,39 @@
+MALA
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: MALA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MALA.__init__
+      ~MALA.log_proposal
+      ~MALA.sample
+      ~MALA.sample_adapt
+      ~MALA.single_update
+      ~MALA.step
+      ~MALA.step_tune
+      ~MALA.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MALA.dim
+      ~MALA.geometry
+      ~MALA.target
+   
+   
