@@ -761,7 +761,7 @@ class Model(object):
         # We use NotImplemented to indicate that the operation is not supported from the Model class
         # in case of operations such as "@" that can be interpreted as both __matmul__ and __rmatmul__
         # the operation may be delegated to the Node class.
-        if len(args)== 1 and isinstance(args[0], cuqi.experimental.algebra.Node):
+        if len(args) == 1 and isinstance(args[0], cuqi.experimental.algebra.Node):
             return NotImplemented
 
         # Else we apply the forward operator
