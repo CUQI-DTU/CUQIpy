@@ -7,8 +7,9 @@ import cuqi
 import pytest
 from scipy import optimize
 from copy import copy, deepcopy
-from cuqi.geometry import _identity_geometries
+from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeometry2D, Geometry, Discrete, Image2D
 from cuqi.utilities import force_ndarray
+from cuqi.experimental.geometry import _ProductGeometry
 
 def test_PDE_model_multiple_input():
     """ Test that the PDE model can accept multiple inputs specified as positional arguments or keyword arguments """
@@ -55,8 +56,10 @@ def test_constructing_gradient_from_jacobian():
 
     assert np.allclose(grad1, grad2)
 
-def test_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names():
-    """Test that the model changes the parameter names if given a distribution as input with new parameter names"""
+@pytest.mark.parametrize(
+    "obj_type", ['distribution', 'random_variable'])
+def test_model_updates_parameters_names_to_follow_distribution_or_random_variable_names(obj_type):
+    """Test that the model changes the parameter names if given distributions or random variables as input with new parameter names"""
 
     def forward(x, y):
         return y * x[0] + x[1]
@@ -81,10 +84,17 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
 
     # assert model parameter names are 'x' and 'y'
     assert model._non_default_args == ["x", "y"]
-
-    # create two random distributions a and b
-    a = cuqi.distribution.Gaussian(np.zeros(2), 1)
-    b = cuqi.distribution.Gaussian(np.zeros(1), 1)
+    
+    if obj_type == 'distribution':
+        # create two random distributions a and b
+        a = cuqi.distribution.Gaussian(np.zeros(2), 1)
+        b = cuqi.distribution.Gaussian(np.zeros(1), 1)
+    elif obj_type == 'random_variable':
+        # create two random variables a and b
+        a = cuqi.distribution.Gaussian(np.zeros(2), 1).rv
+        b = cuqi.distribution.Gaussian(np.zeros(1), 1).rv
+    else:
+        raise ValueError("obj_type must be either 'distribution' or 'random_variable'")
 
     model_a_b = model(a, b)
 
@@ -131,18 +141,25 @@ def test_model_updates_parameters_names_if_distributions_are_passed_with_new_par
         cuqi.model.LinearModel(lambda x: x, lambda y: y, 1, 1),
     ],
 )
-def test_linear_model_updates_parameters_names_if_distributions_are_passed_with_new_parameter_names(
-    model,
+@pytest.mark.parametrize("obj_type", ['distribution', 'random_variable'])
+def test_linear_model_updates_parameters_names_to_follow_distribution_or_random_variable_names(
+    model, obj_type
 ):
-    """Test that the linear model changes parameter names if given a distribution as input with new parameter names"""
+    """Test that the linear model changes parameter names if given a distribution or a random variable as input with new parameter names"""
 
     model_input = np.random.randn(model.domain_dim)
 
     # assert model parameter names are 'x'
     assert model._non_default_args == ["x"]
-
-    # create a random distribution a
-    a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+    
+    if obj_type == 'distribution':
+        # create a random distribution a
+        a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+    elif obj_type == 'random_variable':
+        # create a random variable a
+        a = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1).rv
+    else:
+        raise ValueError("obj_type must be either 'distribution' or 'random_variable'")
 
     model_a = model(a)
 
@@ -218,12 +235,12 @@ def test_model_raises_error_when_domain_geometry_is_inconsistent_with_forward_si
 
     with pytest.raises(
         ValueError,
-        match=r"The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects.",
+        match=r"The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple",
     ):
         cuqi.model.Model(forward, 1, 2)
 
 def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
-    """Test that an error is raised if the model is evaluated at a distribution with non-unique parameter names"""
+    """Test that an error is raised if the model is evaluated at distributions with non-unique parameter names"""
 
     def forward(a, b):
         return a*b
@@ -237,6 +254,24 @@ def test_evaluating_model_at_distribution_with_non_unique_names_raises_error():
     with pytest.raises(
         ValueError,
         match=r"Attempting to match parameter name of Model with given distributions, but distribution names are not unique. Please provide unique names for the distributions.",
+    ):
+        model(a, b)
+
+def test_evaluating_model_at_random_variables_with_non_unique_names_raises_error():
+    """Test that an error is raised if the model is evaluated at random variables with non-unique parameter names"""
+
+    def forward(a, b):
+        return a*b
+
+    model = cuqi.model.Model(forward, 1, (Discrete(1), Discrete(1)))
+
+    # Create distributions with non-unique parameter names
+    a = cuqi.distribution.Gaussian(0, 1, name="x").rv
+    b = cuqi.distribution.Gaussian(0, 1, name="x").rv
+
+    with pytest.raises(
+        ValueError,
+        match=r"Attempting to match parameter name of Model with given random variables, but random variables names are not unique. Please provide unique names for the random variables.",
     ):
         model(a, b)
 
@@ -1857,3 +1892,48 @@ def test_AffineModel_update_shift():
     # check model output of copied model with updated shift
     model_copy.shift = new_shift
     assert np.all(model_copy(x) == np.array([3,0]))
+
+
+@pytest.mark.parametrize("domain_geometry, num_inputs, expected_domain_geometry", [
+    (4, 1, _DefaultGeometry1D(4)),
+    ((4,), 1, _DefaultGeometry1D(4)),
+    (Discrete(4), 1, Discrete(4)),
+    ((Discrete(4),), 1, Discrete(4)),
+    ((2, 2), 1, _DefaultGeometry2D((2, 2))),
+    (((2, 2),), 1, _DefaultGeometry2D((2, 2))),
+    (Image2D((2,2)), 1, Image2D((2,2))),
+    ((Image2D((2,2)),), 1, Image2D((2,2))),
+    ((Discrete(5), 3), 2, _ProductGeometry(Discrete(5), _DefaultGeometry1D(3))),
+    ((5, 3), 2, _ProductGeometry(_DefaultGeometry1D(5), _DefaultGeometry1D(3))),
+    ((5, Discrete(3),), 2, _ProductGeometry(_DefaultGeometry1D(5), Discrete(3)))
+])
+@pytest.mark.parametrize("range_geometry, expected_range_geometry", [
+    (1, _DefaultGeometry1D(1)),
+    ((1,), _DefaultGeometry1D(1)),
+    (Discrete(1), Discrete(1)),
+    ((Discrete(1),), Discrete(1))
+])
+def test_setting_domain_and_range_geometry(domain_geometry, range_geometry, num_inputs, expected_domain_geometry, expected_range_geometry):
+    """Test that the model can be initialized with different types of domain and range geometries"""
+    # Set up the forward map for 1 input
+    forward = lambda x: np.sum(x)
+    # Set up the forward map for 2 inputs
+    forward_2_inputs = lambda x, y: np.sum(x) + np.sum(y)
+
+    # Create the model with the specified domain and range geometries
+    if num_inputs == 1:
+        model = cuqi.model.Model(
+            forward,
+            domain_geometry=domain_geometry,
+            range_geometry=range_geometry,
+        )
+    else:
+        model = cuqi.model.Model(
+            forward_2_inputs,
+            domain_geometry=domain_geometry,
+            range_geometry=range_geometry,
+        )
+
+    # Check the model domain and range geometries are of the expected type
+    assert model.domain_geometry == expected_domain_geometry
+    assert model.range_geometry == expected_range_geometry
