@@ -1511,6 +1511,31 @@ def test_RegularizedLinearRTO_ScipyLinearLSQ_option_invalid():
     with pytest.raises(ValueError, match="ScipyLinearLSQ"):
         sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver = "ScipyLinearLSQ")
 
+def test_RegularizedLinearRTO_ScipyLinearLSQ_against_ScipyMinimizer_and_against_FISTA():
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Bayesian Problem
+    x = cuqi.implicitprior.NonnegativeGMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up RegularizedLinearRTO with three solvers
+    sampler1 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="ScipyMinimizer", maxit=1000, tol=1e-8)
+    sampler2 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="ScipyLinearLSQ", maxit=1000, tol=1e-8)
+    sampler3 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="FISTA", maxit=1000, tol=1e-8)
+
+    # Sample with fixed seed
+    np.random.seed(0)
+    samples1 = sampler1.sample(5).get_samples()
+    np.random.seed(0)
+    samples2 = sampler2.sample(5).get_samples()
+    np.random.seed(0)
+    samples3 = sampler3.sample(5).get_samples()
+
+    assert np.allclose(samples1.samples.mean(), samples2.samples.mean(), rtol=1e-5)
+    assert np.allclose(samples1.samples.mean(), samples3.samples.mean(), rtol=1e-5)
+
 # ============ Start testing sampler callback ============
 # Samplers that should be tested for callback
 callback_testing_sampler_classes = [
