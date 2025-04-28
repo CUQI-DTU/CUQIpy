@@ -21,11 +21,16 @@ class Model(object):
     forward : callable function
         Forward operator of the model. It takes one or more inputs and returns the model output.
 
-    range_geometry : integer or cuqi.geometry.Geometry
-        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer.
+    range_geometry : integer, a 1D or 2D tuple of integers, cuqi.geometry.Geometry 
+        If integer or 1D tuple of integers is given, a cuqi.geometry._DefaultGeometry1D is created with dimension of the integer.
+        If 2D tuple of integers is given, a cuqi.geometry._DefaultGeometry2D is created with dimensions of the tuple.
+        If cuqi.geometry.Geometry object is given, it is used as the range geometry of the model.
 
-    domain_geometry : integer, cuqi.geometry.Geometry, a tuple of cuqi.geometry.Geometry objects
-        If integer is given, a cuqi.geometry._DefaultGeometry is created with dimension of the integer. If tuple of cuqi.geometry.Geometry objects is given, a cuqi.geometry._ProductGeometry is created with the geometries in the tuple. The latter is used for models with multiple inputs.
+    domain_geometry : integer, a 1D or 2D tuple of integers, cuqi.geometry.Geometry or a tuple with items of any of the listed types
+        If integer or 1D tuple of integers is given, a cuqi.geometry._DefaultGeometry1D is created with dimension of the integer.
+        If 2D tuple of integers is given (and the forward model has one input only), a cuqi.geometry._DefaultGeometry2D is created with dimensions of the tuple.
+        If cuqi.geometry.Geometry is given, it is used as the domain geometry.
+        If tuple of the above types is given, a cuqi.geometry._ProductGeometry is created based on the tuple entries. This is used for models with multiple inputs where each entry in the tuple represents the geometry of each input.
 
     gradient : callable function, a tuple of callable functions or None, optional
         The direction-Jacobian product of the forward model Jacobian with respect to the model input, evaluated at the model input. For example, if the forward model inputs are `x` and `y`, the gradient callable signature should be (`direction`, `x`, `y`), in that order, where `direction` is the direction by which the Jacobian matrix is multiplied and `x` and `y` are the parameters at which the Jacobian is computed.
@@ -174,6 +179,11 @@ class Model(object):
             self._stored_non_default_args =\
                 cuqi.utilities.get_non_default_args(self._forward_func)
         return self._stored_non_default_args
+ 
+    @property
+    def number_of_inputs(self):
+        """ The number of inputs of the model. """
+        return len(self._non_default_args)
 
     @property
     def range_geometry(self):
@@ -183,19 +193,19 @@ class Model(object):
     @range_geometry.setter
     def range_geometry(self, value):
         """ Update the range geometry of the model. """
-        if isinstance(value, tuple) and len(value) == 2:
-            self._range_geometry = _DefaultGeometry2D(value)
-        elif isinstance(value, int):
-            self._range_geometry = _DefaultGeometry1D(grid=value)
-        elif isinstance(value, Geometry):
+        if isinstance(value, Geometry):
             self._range_geometry = value
+        elif isinstance(value, int):
+            self._range_geometry = self._create_default_geometry(value)
+        elif isinstance(value, tuple):
+            self._range_geometry = self._create_default_geometry(value)
         elif value is None:
             raise AttributeError(
                 "The parameter 'range_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'."
             )
         else:
             raise TypeError(
-                "The parameter 'range_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'."
+                " The allowed types for 'range_geometry' are: 'cuqi.geometry.Geometry', int, 1D tuple of int, or 2D tuple of int."
             )
 
     @property
@@ -206,25 +216,38 @@ class Model(object):
     @domain_geometry.setter
     def domain_geometry(self, value):
         """ Update the domain geometry of the model. """
-        # Forward model with multiple input case
-        if isinstance(value, tuple) and\
-            all([isinstance(v, Geometry) for v in value]):
-            self._domain_geometry = cuqi.experimental.geometry._ProductGeometry(
-                *value)
-        # Remaining cases, forward model with single input
-        elif isinstance(value, tuple) and len(value) == 2:
-            self._domain_geometry = _DefaultGeometry2D(value)
-        elif isinstance(value, int):
-            self._domain_geometry = _DefaultGeometry1D(grid=value)
-        elif isinstance(value, Geometry):
+
+        if isinstance(value, Geometry):
             self._domain_geometry = value
+        elif isinstance(value, int):
+            self._domain_geometry = self._create_default_geometry(value)
+        elif isinstance(value, tuple) and self.number_of_inputs == 1:
+            self._domain_geometry = self._create_default_geometry(value)
+        elif isinstance(value, tuple) and self.number_of_inputs > 1:
+            geometries = [item if isinstance(item, Geometry) else self._create_default_geometry(item) for item in value]
+            self._domain_geometry = cuqi.experimental.geometry._ProductGeometry(*geometries)
         elif value is None:
             raise AttributeError(
                 "The parameter 'domain_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'."
             )
         else:
             raise TypeError(
-                "The parameter 'domain_geometry' should be of type 'int', 2 dimensional 'tuple' or 'cuqi.geometry.Geometry'."
+                "For forward model with 1 input, the allowed types for 'domain_geometry' are: 'cuqi.geometry.Geometry', int, 1D tuple of int, or 2D tuple of int. For forward model with multiple inputs, the 'domain_geometry' should be a tuple with items of any of the above types."
+            )
+
+    def _create_default_geometry(self, value):
+        """Private function that creates default geometries for the model."""
+        if isinstance(value, tuple) and len(value) == 1:
+            value = value[0]
+        if isinstance(value, Geometry):
+            return value
+        if isinstance(value, int):
+            return _DefaultGeometry1D(grid=value)
+        elif isinstance(value, tuple) and len(value) == 2:
+            return _DefaultGeometry2D(im_shape=value)
+        else:
+            raise ValueError(
+                "Default geometry creation can be specified by an integer or a 2D tuple of integers."
             )
 
     @property
@@ -244,16 +267,14 @@ class Model(object):
     def _check_domain_geometry_consistent_with_forward(self):
         """Private function that checks if the domain geometry of the model is
         consistent with the forward operator."""
-
-        non_default_args = cuqi.utilities.get_non_default_args(self._forward_func)
         if (
             not isinstance(
                 self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
             )
-            and len(non_default_args) > 1
+            and self.number_of_inputs > 1
         ):
             raise ValueError(
-                "The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple of cuqi.geometry.Geometry objects."
+                "The forward operator input is specified by more than one argument. This is only supported for domain geometry of type tuple with items of type: cuqi.geometry.Geometry object, int, or 2D tuple of int."
             )
 
     def _check_correct_gradient_jacobian_form(self, func, func_type):
@@ -268,11 +289,11 @@ class Model(object):
         # or a tuple of callables (for multiple inputs case)
         if isinstance(func, tuple):
             # tuple length should be same as the number of inputs
-            if len(func) != len(self._non_default_args):
+            if len(func) != self.number_of_inputs:
                 raise ValueError(
                     f"The "
                     + func_type.lower()
-                    + f" tuple length should be {len(self._non_default_args)} for model with inputs {self._non_default_args}"
+                    + f" tuple length should be {self.number_of_inputs} for model with inputs {self._non_default_args}"
                 )
             # tuple items should be callables or None
             if not all([callable(func_i) or func_i is None for func_i in func]):
@@ -313,7 +334,7 @@ class Model(object):
         """Private function that uses the jacobian function to specify the
         gradient function."""
         # if jacobian is a single function and model has multiple inputs
-        if callable(jacobian) and len(self._non_default_args) > 1:
+        if callable(jacobian) and self.number_of_inputs > 1:
             gradient = self._create_gradient_lambda_function_from_jacobian_with_correct_signature(
                 jacobian, form='one_callable_multiple_inputs'
             )
@@ -351,7 +372,7 @@ class Model(object):
                 + ", ".join(self._non_default_args)
                 + ", jacobian: tuple([direction@jacobian("
                 + ", ".join(self._non_default_args)
-                + ")[i] for i in range("+str(len(self._non_default_args))+")])"
+                + ")[i] for i in range("+str(self.number_of_inputs)+")])"
             )
         elif form=='tuple_of_callables' or form=='one_callable_one_input':
             grad_fun_str = (
@@ -593,6 +614,7 @@ class Model(object):
                     + " input is specified both as positional and keyword arguments. This is not supported."
                 )
 
+            appending_error_message = ""
             # Check if the input is for multiple input case and is stacked,
             # then split it
             if len(args)==1 and len(non_default_args)>1:
@@ -606,7 +628,6 @@ class Model(object):
                 split_succeeded, split_args = self._is_stacked_args(*args, is_par=is_par)
                 if split_succeeded:
                     args = split_args
-                    appending_error_message = ""
                 else:
                     appending_error_message = (
                         " Additionally, the "
@@ -722,6 +743,9 @@ class Model(object):
             *args, **kwargs, is_par=is_par, map_name="model"
         )
 
+        # extract args from kwargs
+        args = list(kwargs.values())
+
         # If input is a distribution, we simply change the parameter name of
         # model to match the distribution name
         if all(isinstance(x, cuqi.distribution.Distribution)
@@ -729,10 +753,9 @@ class Model(object):
             return self._handle_distributions(kwargs)
 
         # If input is a random variable, we handle it separately
-        # extract args from kwargs
-        args = list(kwargs.values())
-        if len(args)== 1 and isinstance(args[0], cuqi.experimental.algebra.RandomVariable):
-            return self._handle_random_variable(args[0])
+        elif all(isinstance(x, cuqi.experimental.algebra.RandomVariable)
+               for x in kwargs.values()):
+            return self._handle_random_variable(kwargs)
 
         # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
         # We use NotImplemented to indicate that the operation is not supported from the Model class
@@ -780,7 +803,8 @@ class Model(object):
         new_model._original_non_default_args = self._non_default_args
 
         # Update the non_default_args of the model to match the distribution
-        # names. Defaults to x in the case of one distribution that have no name
+        # names. Defaults to x in the case of only one distribution that has no
+        # name
         new_model._stored_non_default_args = [x.name for x in kwargs.values()]
 
         # If there is a repeated name, raise an error
@@ -793,21 +817,35 @@ class Model(object):
 
         return new_model
 
-    def _handle_random_variable(self, x):
+    def _handle_random_variable(self, kwargs):
         """ Private function that handles the case of the input being a random variable. """
         # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
-        if not isinstance(x.tree, cuqi.experimental.algebra.VariableNode):
+        if any(not isinstance(x.tree, cuqi.experimental.algebra.VariableNode) for x in kwargs.values()):
             return NotImplemented        
 
-        # In leaf-type node case we simply change the parameter name of model to match the random variable name
-        dist = x.distribution
-        if dist.dim != self.domain_dim:
-            raise ValueError("Attempting to match parameter name of Model with given random variable, but random variable dimension does not match model domain dimension.")
+        # Extract the random variable distributions and check dimensions consistency with domain geometry
+        distributions = [value.distribution for value in kwargs.values()]
+        if not self._correct_distribution_dimension(distributions):
+            raise ValueError("Attempting to match parameter name of Model with given random variable(s), but random variable dimension(s) does not match model input dimension(s).")
 
         new_model = copy(self)
+
         # Store the original non_default_args of the model
         new_model._original_non_default_args = self._non_default_args
-        new_model._stored_non_default_args = [dist.name]
+
+        # Update the non_default_args of the model to match the random variable
+        # names. Defaults to x in the case of only one random variable that has
+        # no name
+        new_model._stored_non_default_args = [x.name for x in distributions]
+
+        # If there is a repeated name, raise an error
+        if len(set(new_model._stored_non_default_args)) != len(
+            new_model._stored_non_default_args
+        ):
+            raise ValueError(
+                "Attempting to match parameter name of Model with given random variables, but random variables names are not unique. Please provide unique names for the random variables."
+            )
+
         return new_model
 
     def gradient(
@@ -1048,8 +1086,11 @@ class Model(object):
         return self.range_dim
 
     def __repr__(self) -> str:
-        return "CUQI {}: {} -> {}.\n    Forward parameters: {}.".format(self.__class__.__name__,self.domain_geometry,self.range_geometry,cuqi.utilities.get_non_default_args(self))
-
+        kwargs = {}
+        if self.number_of_inputs > 1:
+            pad = " " * len("CUQI {}: ".format(self.__class__.__name__))
+            kwargs["pad"]=pad  
+        return "CUQI {}: {} -> {}.\n    Forward parameters: {}.".format(self.__class__.__name__,self.domain_geometry.__repr__(**kwargs),self.range_geometry,self._non_default_args)
 
 class AffineModel(Model):
     """ Model class representing an affine model, i.e. a linear operator with a fixed shift. For linear models, represented by a linear operator only, see :class:`~cuqi.model.LinearModel`.
@@ -1152,6 +1193,12 @@ class AffineModel(Model):
             if len(shift) != range_geometry.par_dim:
                 raise ValueError("The shift should have the same dimension as the range geometry.")
 
+        # Store linear operator privately
+        # Note: we need to set the _linear_operator before calling the
+        # super().__init__() because it is needed when calling the property
+        # _non_default_args within the super().__init__()
+        self._linear_operator = linear_operator
+
         # Initialize Model class
         super().__init__(linear_operator, range_geometry, domain_geometry)
 
@@ -1161,8 +1208,6 @@ class AffineModel(Model):
         # Store shift as private attribute
         self._shift = shift
 
-        # Store linear operator privately
-        self._linear_operator = linear_operator
 
         # Store adjoint function
         self._linear_operator_adjoint = linear_operator_adjoint
