@@ -944,7 +944,7 @@ class Model(object):
         # Append the direction to the kwargs_fun as first input
         kwargs_fun_grad_input = {**direction_fun, **kwargs_fun}
 
-        # From 1 of gradient (callable)
+        # Form 1 of gradient (callable)
         if callable(self._gradient_func):
             grad = self._gradient_func(**kwargs_fun_grad_input)
             grad_is_par = False  # Assume gradient is function value
