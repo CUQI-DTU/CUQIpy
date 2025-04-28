@@ -422,9 +422,13 @@ class Model(object):
             # Use CUQIarray funvals if geometry is consistent
             if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
                 kwargs[k] = v.funvals
-            # Otherwise we use the geometry par2fun method
+            # Else, if we still need to convert to function value (is_par[i] is True) 
+            # we use the geometry par2fun method
             elif is_par[i] and v is not None:
                 kwargs[k] = geometries[i].par2fun(v)
+            else:
+                # No need to convert
+                pass
 
         return kwargs
 
@@ -492,9 +496,13 @@ class Model(object):
             # Use CUQIarray parameters if geometry is consistent
             if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
                 v = v.parameters
-            # Otherwise we use the geometry fun2par method
+            # Else, if we still need to convert to parameter value (is_par[i] is False) 
+            # we use the geometry fun2par method
             elif not is_par[i] and v is not None:
                 v = geometries[i].fun2par(v)
+            else:
+                # No need to convert
+                pass
 
             # Wrap the value v in CUQIarray if requested
             if to_CUQIarray[i] and v is not None:
@@ -542,7 +550,7 @@ class Model(object):
         # If input x is Samples we apply func for each sample
         # TODO: Check if this can be done all-at-once for computational speed-up
         if any(isinstance(x, Samples) for x in kwargs.values()):
-            return self._handle_samples(func, fwd, **kwargs)
+            return self._handle_case_when_model_input_is_samples(func, fwd, **kwargs)
 
         # store if any input x is CUQIarray
         is_CUQIarray = any(isinstance(x, CUQIarray) for x in kwargs.values())
@@ -559,7 +567,7 @@ class Model(object):
             geometry=func_range_geometry, to_CUQIarray=is_CUQIarray, **{"out": out}
         )["out"]
 
-    def _handle_samples(self, func=None, fwd=True, **kwargs):
+    def _handle_case_when_model_input_is_samples(self, func=None, fwd=True, **kwargs):
         """Private function that calls apply_func for samples in the
         Samples object(s).
         """
@@ -750,12 +758,12 @@ class Model(object):
         # model to match the distribution name
         if all(isinstance(x, cuqi.distribution.Distribution)
                for x in kwargs.values()):
-            return self._handle_distributions(kwargs)
+            return self._handle_case_when_model_input_is_distributions(kwargs)
 
         # If input is a random variable, we handle it separately
         elif all(isinstance(x, cuqi.experimental.algebra.RandomVariable)
                for x in kwargs.values()):
-            return self._handle_random_variable(kwargs)
+            return self._handle_case_when_model_input_is_random_variables(kwargs)
 
         # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
         # We use NotImplemented to indicate that the operation is not supported from the Model class
@@ -789,7 +797,7 @@ class Model(object):
         else:
             return False
 
-    def _handle_distributions(self, kwargs):
+    def _handle_case_when_model_input_is_distributions(self, kwargs):
         """Private function that handles the case of the input being a
         distribution or multiple distributions."""
 
@@ -817,7 +825,7 @@ class Model(object):
 
         return new_model
 
-    def _handle_random_variable(self, kwargs):
+    def _handle_case_when_model_input_is_random_variables(self, kwargs):
         """ Private function that handles the case of the input being a random variable. """
         # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
         if any(not isinstance(x.tree, cuqi.experimental.algebra.VariableNode) for x in kwargs.values()):
