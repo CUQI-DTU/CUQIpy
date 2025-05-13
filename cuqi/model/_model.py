@@ -1041,7 +1041,8 @@ class Model(object):
                                                                   grad_is_par,
                                                                   to_CUQIarray):
         """ Private function that applies the chain rule to account for the
-        gradient of the domain geometry. """
+        gradient of the domain geometry. That is, it computes the gradient of
+        the function values with respect to the parameters values."""
         # Create list of domain geometries
         geometries = (
             self.domain_geometry.geometries

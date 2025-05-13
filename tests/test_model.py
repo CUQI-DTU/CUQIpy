@@ -378,7 +378,9 @@ class MultipleInputTestModel:
 
     @property
     def has_gradient(self):
-        """Check if the test model has gradient functions or jacobian functions (which are used in specifying the gradient)"""
+        """Check if the MultipleInputTestModel object has a way of determining 
+        the model gradient. That is, if this object has gradient or jacobian
+        (which can be used to specify the gradient) function of any form"""
         return (
             self.gradient_form1 is not None
             or self.gradient_form2 is not None
