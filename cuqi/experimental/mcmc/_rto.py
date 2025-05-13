@@ -228,6 +228,13 @@ class RegularizedLinearRTO(LinearRTO):
             self.solver = "FISTA" if callable(self.proximal) else "ADMM"
         if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
+        self._compute_unconstrained_MAP()
+
+    def _compute_unconstrained_MAP(self):
+        bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
+        y = self.b_tild
+        sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+        self._unconstrained_MAP, _ = sim.solve()
 
     @property
     def solver(self):
@@ -297,7 +304,7 @@ class RegularizedLinearRTO(LinearRTO):
             bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
             # Note that the objective function is defined as 0.5*||Mx-y||^2, 
             # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self._unconstrained_MAP, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
 
