@@ -1,0 +1,6 @@
+cuqi.distribution.InverseGamma.enable\_FD
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: InverseGamma.enable_FD

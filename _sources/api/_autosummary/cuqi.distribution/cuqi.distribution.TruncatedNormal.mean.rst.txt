@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.mean
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: TruncatedNormal.mean

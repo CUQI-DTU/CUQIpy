@@ -1,0 +1,36 @@
+config
+======
+
+Module path: cuqi.config
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.config
+
+   
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      MAX_DIM_INV
+      DEFAULT_SEED
+      MAX_STACK_SEARCH_DEPTH
+      MIN_DIM_SPARSE
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

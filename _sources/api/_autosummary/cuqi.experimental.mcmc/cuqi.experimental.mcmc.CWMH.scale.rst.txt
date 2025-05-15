@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMH.scale
+=================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: CWMH.scale

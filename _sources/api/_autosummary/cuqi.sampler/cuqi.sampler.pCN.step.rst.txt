@@ -1,0 +1,6 @@
+cuqi.sampler.pCN.step
+=====================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: pCN.step

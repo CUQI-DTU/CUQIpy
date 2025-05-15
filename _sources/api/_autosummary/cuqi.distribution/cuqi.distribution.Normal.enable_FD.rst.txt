@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.enable\_FD
+===================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Normal.enable_FD

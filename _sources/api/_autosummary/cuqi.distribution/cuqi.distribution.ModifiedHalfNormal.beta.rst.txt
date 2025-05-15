@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.beta
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: ModifiedHalfNormal.beta

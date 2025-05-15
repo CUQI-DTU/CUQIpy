@@ -1,0 +1,64 @@
+
+:orphan:
+
+.. _sphx_glr_user__auto_tutorials_sg_execution_times:
+
+
+Computation times
+=================
+**01:02.439** total execution time for 10 files **from user/_auto_tutorials**:
+
+.. container::
+
+  .. raw:: html
+
+    <style scoped>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+    </style>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script type="text/javascript" class="init">
+    $(document).ready( function () {
+        $('table.sg-datatable').DataTable({order: [[1, 'desc']]});
+    } );
+    </script>
+
+  .. list-table::
+   :header-rows: 1
+   :class: table table-striped sg-datatable
+
+   * - Example
+     - Time
+     - Mem (MB)
+   * - :ref:`sphx_glr_user__auto_tutorials_Gibbs.py` (``Gibbs.py``)
+     - 00:29.583
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_multiple_likelihoods.py` (``multiple_likelihoods.py``)
+     - 00:17.706
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_UQ_in_Deconvolution1D.py` (``UQ_in_Deconvolution1D.py``)
+     - 00:13.116
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_fun_vec_representation.py` (``fun_vec_representation.py``)
+     - 00:01.152
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_1-Basics.py` (``1-Basics.py``)
+     - 00:00.872
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_JointDistribution.py` (``JointDistribution.py``)
+     - 00:00.010
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_3-Distributions.py` (``3-Distributions.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_2-Models.py` (``2-Models.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_4-Samplers.py` (``4-Samplers.py``)
+     - 00:00.000
+     - 0.0
+   * - :ref:`sphx_glr_user__auto_tutorials_5-Samples.py` (``5-Samples.py``)
+     - 00:00.000
+     - 0.0

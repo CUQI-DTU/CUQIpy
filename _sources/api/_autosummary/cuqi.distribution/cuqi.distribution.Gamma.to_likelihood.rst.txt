@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.to\_likelihood
+======================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.to_likelihood

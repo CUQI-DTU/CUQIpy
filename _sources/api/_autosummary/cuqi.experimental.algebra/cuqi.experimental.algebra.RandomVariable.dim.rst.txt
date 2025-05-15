@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.RandomVariable.dim
+============================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. autoproperty:: RandomVariable.dim

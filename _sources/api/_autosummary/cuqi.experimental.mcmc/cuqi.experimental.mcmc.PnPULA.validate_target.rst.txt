@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.validate\_target
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.validate_target

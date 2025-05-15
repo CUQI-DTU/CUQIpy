@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.sample\_adapt
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.sample_adapt

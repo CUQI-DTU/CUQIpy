@@ -1,0 +1,46 @@
+PnPULA
+======
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoclass:: PnPULA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PnPULA.__init__
+      ~PnPULA.get_history
+      ~PnPULA.get_samples
+      ~PnPULA.get_state
+      ~PnPULA.initialize
+      ~PnPULA.load_checkpoint
+      ~PnPULA.reinitialize
+      ~PnPULA.sample
+      ~PnPULA.save_checkpoint
+      ~PnPULA.set_history
+      ~PnPULA.set_state
+      ~PnPULA.step
+      ~PnPULA.tune
+      ~PnPULA.validate_target
+      ~PnPULA.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PnPULA.dim
+      ~PnPULA.geometry
+      ~PnPULA.target
+   
+   

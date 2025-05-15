@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.prec
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: NonnegativeGMRF.prec

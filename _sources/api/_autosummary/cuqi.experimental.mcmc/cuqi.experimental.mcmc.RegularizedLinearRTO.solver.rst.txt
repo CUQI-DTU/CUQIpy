@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTO.solver
+==================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: RegularizedLinearRTO.solver

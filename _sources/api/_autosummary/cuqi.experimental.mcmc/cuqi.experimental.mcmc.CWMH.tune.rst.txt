@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.CWMH.tune
+================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: CWMH.tune
