@@ -4,6 +4,7 @@ from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
 
+
 class PDE(ABC):
     """
     Parametrized PDE abstract base class
@@ -30,7 +31,7 @@ class PDE(ABC):
         self.observation_map = observation_map
 
     @abstractmethod
-    def assemble(self,parameter):
+    def assemble(self, *args, **kwargs):
         pass
 
     @abstractmethod
@@ -155,9 +156,9 @@ class SteadyStateLinearPDE(LinearPDE):
     def __init__(self, PDE_form, **kwargs):
         super().__init__(PDE_form, **kwargs)
 
-    def assemble(self, parameter):
+    def assemble(self, *args, **kwargs):
         """Assembles differential operator and rhs according to PDE_form"""
-        self.diff_op, self.rhs = self.PDE_form(parameter)
+        self.diff_op, self.rhs = self.PDE_form(*args, **kwargs)
 
     def solve(self):
         """Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution."""
@@ -178,7 +179,7 @@ class SteadyStateLinearPDE(LinearPDE):
             solution_obs = self.observation_map(solution_obs)
                 
         return solution_obs
-        
+
 class TimeDependentLinearPDE(LinearPDE):
     """Time Dependent Linear PDE with fixed time stepping using Euler method (backward or forward).
     
@@ -234,13 +235,16 @@ class TimeDependentLinearPDE(LinearPDE):
                 "method can be set to either `forward_euler` or `backward_euler`")
         self._method = value
 
-    def assemble(self, parameter):
+    def assemble(self, *args, **kwargs):
         """Assemble PDE"""
-        self._parameter = parameter
+        self._parameter_kwargs = kwargs
+        self._parameter_args = args
 
     def assemble_step(self, t):
         """Assemble time step at time t"""
-        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(self._parameter, t)
+        self.diff_op, self.rhs, self.initial_condition = self.PDE_form(
+            *self._parameter_args, **self._parameter_kwargs, t=t
+        )
 
     def solve(self):
         """Solve PDE by time-stepping"""
@@ -279,7 +283,7 @@ class TimeDependentLinearPDE(LinearPDE):
         # Interpolate solution in time and space to the observation
         # time and space
         else:
-            # Raise error if solution is 2D or 3D in space 
+            # Raise error if solution is 2D or 3D in space
             if len(solution.shape) > 2:
                 raise ValueError("Interpolation of solutions of 2D and 3D "+ 
                                  "space dimensions based on the provided "+
@@ -287,7 +291,7 @@ class TimeDependentLinearPDE(LinearPDE):
                                  "You can, instead, pass a custom "+
                                  "observation_map and pass grid_obs and "+
                                  "time_obs as None.")
-            
+
             # Interpolate solution in space and time to the observation
             # time and space
             solution_obs = scipy.interpolate.RectBivariateSpline(
@@ -297,7 +301,7 @@ class TimeDependentLinearPDE(LinearPDE):
         # Apply observation map
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs)
-        
+
         # squeeze if only one time observation
         if len(self._time_obs) == 1:
             solution_obs = solution_obs.squeeze()
