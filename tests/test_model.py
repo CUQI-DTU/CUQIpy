@@ -1754,7 +1754,7 @@ def test_linear_model_allow_other_parameter_names():
     # Check providing the wrong parameter name raises an error
     with pytest.raises(
         ValueError,
-        match=r"The model input is specified by a keywords arguments \['y'\] that does not match the non_default_args of the model \['x'\].",
+        match=r"The model input is specified by keywords arguments \['y'\] that does not match the non_default_args of the model \['x'\].",
     ):
         model_x_w(y=1)
 
@@ -1779,7 +1779,7 @@ def test_linear_model_allow_other_parameter_names():
     # Check providing the wrong parameter name raises an error
     with pytest.raises(
         ValueError,
-        match=r"The adjoint input is specified by a keywords arguments \['v'\] that does not match the non_default_args of the adjoint \['w'\].",
+        match=r"The adjoint input is specified by keywords arguments \['v'\] that does not match the non_default_args of the adjoint \['w'\].",
     ):
         model_x_w.adjoint(v=1)
 
