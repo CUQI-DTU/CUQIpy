@@ -39,7 +39,7 @@ def test_PDE_model_multiple_input():
     # Passing wrong kwargs should raise an error
     with pytest.raises(
         ValueError,
-        match=r"Gradient function signature should be \['direction', 'mag', 'kappa_scale'\]",
+        match=r"The gradient input is specified by a direction and keywords arguments \['mag', 'kappa'\] that does not match the non_default_args of the model \['mag', 'kappa_scale'\].",
     ):
         CUQI_pde.gradient(direction, mag=2, kappa=2)
 
