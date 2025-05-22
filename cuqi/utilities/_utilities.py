@@ -188,7 +188,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(float)
     # We compute the Jacobian matrix of func using forward differences.
     # If the function is scalar-valued, we compute the gradient instead.
     # If the direction is provided, we compute the direction-Jacobian product.
-    wrt = np.asarray(wrt)
+    wrt = force_ndarray(wrt, flatten=True)
     f0 = func(wrt)
     Matr = np.zeros([infer_len(wrt), infer_len(f0)])
     dx = np.zeros(len(wrt))
