@@ -1455,7 +1455,7 @@ class PDEModel(Model):
     :ivar range_geometry: The geometry representing the range.
     :ivar domain_geometry: The geometry representing the domain.
     """
-    def __init__(self, PDE: cuqi.pde.PDE, range_geometry, domain_geometry):
+    def __init__(self, PDE: cuqi.pde.PDE, range_geometry, domain_geometry, **kwargs):
 
         if not isinstance(PDE, cuqi.pde.PDE):
             raise ValueError("PDE needs to be a cuqi PDE.")
@@ -1464,15 +1464,20 @@ class PDEModel(Model):
         self.pde = PDE
         self._stored_non_default_args = None
 
-        # Create gradient or jacobian function to pass to the Model based on the
-        # PDE object. The dictionary derivative_kwarg contains the created function
-        # along with the function type (either "gradient" or "jacobian")
-        derivative_kwarg = self._create_derivative_function()
+        # If gradient or jacobian is not provided, we create it from the PDE
+        if not np.any([k in kwargs.keys() for k in ["gradient", "jacobian"]]):
+            # Create gradient or jacobian function to pass to the Model based on
+            # the PDE object. The dictionary derivative_kwarg contains the
+            # created function along with the function type (either "gradient"
+            # or "jacobian")
+            derivative_kwarg = self._create_derivative_function()
+            # append derivative_kwarg to kwargs
+            kwargs.update(derivative_kwarg)
 
         super().__init__(forward=self._forward_func_pde,
                          range_geometry=range_geometry,
                          domain_geometry=domain_geometry,
-                         **derivative_kwarg)
+                         **kwargs)
 
     @property
     def _non_default_args(self):
