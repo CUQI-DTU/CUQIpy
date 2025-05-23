@@ -7,7 +7,7 @@ import cuqi
 import pytest
 from scipy import optimize
 from copy import copy, deepcopy
-from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeometry2D, Geometry, Discrete, Image2D
+from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeometry2D, Geometry, Discrete, Image2D, KLExpansion
 from cuqi.utilities import force_ndarray
 from cuqi.experimental.geometry import _ProductGeometry
 
@@ -512,6 +512,12 @@ class MultipleInputTestModel:
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
 
+        # Model 4
+        test_model = MultipleInputTestModel.helper_build_time_dependent_PDE_test_model()
+        test_model.populate_model_variations()
+        TestCase.create_test_cases_for_test_model(test_model)
+        test_model_list.append(test_model)
+
         # Append all combinations of test model variations and test cases
         # to model_test_case_combinations
         for test_model in test_model_list:
@@ -591,7 +597,7 @@ class MultipleInputTestModel:
 
     @staticmethod
     def helper_build_steady_state_PDE_test_model():
-        """Build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale. This model does not have gradient or jacobian functions."""
+        """Build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale."""
 
         # Poisson equation setup
         dim = 20  # Number of nodes
@@ -763,6 +769,103 @@ class MultipleInputTestModel:
         test_model.model_class = cuqi.model.Model
         return test_model
 
+    @staticmethod
+    def helper_build_time_dependent_PDE_test_model():
+        """Build a PDE model with a time-dependent PDE and two inputs: mag, and IC."""
+
+        # Prepare PDE form
+        N = 20   # Number of solution nodes
+        endpoint = 1.0 # Length of the domain
+        max_time = 0.1 # Maximum time
+        dx = endpoint/(N+1)   # space step size
+        cfl = 5/11 # the cfl condition to have a stable solution
+        dt_approx = cfl*dx**2 # defining approximate time step size
+        max_iter = int(max_time/dt_approx) # number of time steps
+        Dxx_matr = (np.diag( -2*np.ones(N) ) + np.diag(np.ones(N-1),-1) + np.diag(np.ones(N-1),1))/dx**2
+        Dxx = lambda mag: mag * Dxx_matr # FD diffusion operator
+
+        # Grids for model
+        grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
+        grid_range = np.linspace(dx, endpoint, N, endpoint=False) 
+        time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
+
+        # PDE form (mag, IC, time)
+        def PDE_form(mag, IC, t): return (Dxx(mag), np.zeros(N), IC)
+        PDE = cuqi.pde.TimeDependentLinearPDE(
+            PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_range, method='backward_euler')
+
+        # Build the test model
+        test_model = MultipleInputTestModel()
+        test_model.model_class = cuqi.model.PDEModel
+        test_model.pde = PDE
+        test_model.domain_geometry = (Discrete(["mag"]), Continuous1D(grid_domain))
+        test_model.range_geometry = Continuous1D(grid_range)
+        
+        test_model.model_class = cuqi.model.PDEModel
+
+        # Gradient with respect to mag
+        def gradient_mag(direction, mag, IC):
+            def fwd_mag(mag_):
+                PDE.assemble(mag_, IC)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            mag = mag.to_numpy() if isinstance(mag, CUQIarray) else mag 
+            return direction @ cuqi.utilities.approx_derivative(fwd_mag, mag)
+        
+        # Gradient with respect to IC
+        def gradient_IC(direction, mag, IC):
+            def fwd_IC(IC_):
+                PDE.assemble(mag, IC_)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            IC = IC.to_numpy() if isinstance(IC, CUQIarray) else IC 
+            return direction @ cuqi.utilities.approx_derivative(fwd_IC, IC)
+        
+        # Gradient with respect to all inputs (form 1, callable)
+        def gradient_form1(direction, mag, IC):
+            grad_mag = gradient_mag(direction, mag, IC)
+            grad_IC = gradient_IC(direction, mag, IC)
+            return (grad_mag, grad_IC)
+        
+        # Assign the gradient functions to the test model
+        test_model.gradient_form1 = gradient_form1
+        test_model.gradient_form2 = (gradient_mag, gradient_IC)
+        test_model.gradient_form2_incomplete = (gradient_mag, None)
+
+        # Jacobian with respect to mag
+        def jacobian_mag(mag, IC):
+            def fwd_mag(mag_):
+                PDE.assemble(mag_, IC)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            mag = mag.to_numpy() if isinstance(mag, CUQIarray) else mag 
+            return cuqi.utilities.approx_derivative(fwd_mag, mag)
+        
+        # Jacobian with respect to IC
+        def jacobian_IC(mag, IC):
+            def fwd_IC(IC_):
+                PDE.assemble(mag, IC_)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            IC = IC.to_numpy() if isinstance(IC, CUQIarray) else IC 
+            return cuqi.utilities.approx_derivative(fwd_IC, IC)
+        
+        # Jacobian with respect to all inputs (form 1, callable)
+        def jacobian_form1(mag, IC):
+            jac_mag = jacobian_mag(mag, IC)
+            jac_IC = jacobian_IC(mag, IC)
+            return (jac_mag, jac_IC)
+        
+        # Assign the jacobian functions to the test model
+        test_model.jacobian_form1 = jacobian_form1
+        test_model.jacobian_form2 = (jacobian_mag, jacobian_IC)
+        test_model.jacobian_form2_incomplete = (jacobian_mag, None)
+
+        return test_model
 
 class TestCase:
     """Class representing a test case for a test model. A test case consists of the input values, the expected output values, and the expected output types and error messages."""
