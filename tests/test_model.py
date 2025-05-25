@@ -515,6 +515,10 @@ class MultipleInputTestModel:
         # Model 4
         test_model = MultipleInputTestModel.helper_build_time_dependent_PDE_test_model()
         test_model.populate_model_variations()
+        test_model.input_bounds = [
+            0.1,
+            4,
+        ]  # choose input from uniform distribution in [0.1, 4]
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
 
