@@ -11,7 +11,7 @@ import cuqi
 import matplotlib.pyplot as plt
 from copy import copy
 from functools import partial
-from cuqi.utilities import force_ndarray, get_non_default_args
+from cuqi.utilities import force_ndarray
 
 class Model(object):
     """Generic model defined by a forward operator.
