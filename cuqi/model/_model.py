@@ -1502,8 +1502,8 @@ class PDEModel(Model):
         jacobian) based on the PDE object. The derivative function is created as
         a lambda function that takes the direction and the parameters as input 
         and returns the gradient or jacobian of the PDE. This private function
-        returns a dictionary with the function and the function type (either
-        "gradient" or "jacobian")."""
+        returns a dictionary with the created function and the function type
+        (either "gradient" or "jacobian")."""
 
         if hasattr(self.pde, "gradient_wrt_parameter"):
             # Build the string that will be used to create the lambda function
