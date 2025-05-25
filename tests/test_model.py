@@ -11,8 +11,8 @@ from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeom
 from cuqi.utilities import force_ndarray
 from cuqi.experimental.geometry import _ProductGeometry
 
-def test_PDE_model_multiple_input():
-    """ Test that the PDE model can accept multiple inputs specified as positional arguments or keyword arguments """
+def test_steady_state_PDE_model_multiple_input():
+    """ Test that the steady state PDE model and gradient can accept multiple inputs specified as positional arguments or keyword arguments """
     pde_test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
     pde_test_model.populate_model_variations()
     CUQI_pde = pde_test_model.model_variations[1] # PDE model with multiple inputs
@@ -42,6 +42,40 @@ def test_PDE_model_multiple_input():
         match=r"The gradient input is specified by a direction and keywords arguments \['mag', 'kappa'\] that does not match the non_default_args of the model \['mag', 'kappa_scale'\].",
     ):
         CUQI_pde.gradient(direction, mag=2, kappa=2)
+
+def test_time_dependent_PDE_model_multiple_input():
+    """ Test that the time dependent PDE model and gradient can accept multiple inputs specified as positional arguments or keyword arguments """
+    pde_test_model = MultipleInputTestModel.helper_build_time_dependent_PDE_test_model()
+    pde_test_model.populate_model_variations()
+    CUQI_pde = pde_test_model.model_variations[1] # PDE model with multiple inputs
+
+    # Check that the model has correct parameter name
+    assert CUQI_pde._non_default_args == ['mag', 'IC']
+
+    # Check that we can provide parameter names when evaluating the model
+    mag = 2
+    IC_ = np.random.randn(CUQI_pde.domain_geometry.geometries[1].par_dim)
+    output1 = CUQI_pde(mag=mag, IC=IC_)
+
+    # And check that we can provide positional arguments
+    output2 = CUQI_pde(mag, IC_)
+
+    # Check that the two outputs are the same
+    assert np.allclose(output1, output2)
+
+    # Assert evaluating gradient works
+    direction = np.random.randn(CUQI_pde.range_dim)
+
+    # Make sure gradient can be computed with positional or keyword arguments
+    grad1 = CUQI_pde.gradient(direction, mag=mag, IC=IC_)
+    grad2 = CUQI_pde.gradient(direction, mag, IC_)
+
+    # Passing wrong kwargs should raise an error
+    with pytest.raises(
+        ValueError,
+        match=r"The gradient input is specified by a direction and keywords arguments \['mag', 'IC_value'\] that does not match the non_default_args of the model \['mag', 'IC'\].",
+    ):
+        CUQI_pde.gradient(direction, mag=mag, IC_value=IC_)
 
 def test_constructing_gradient_from_jacobian():
     """ Test that the gradient is correctly constructed from the
