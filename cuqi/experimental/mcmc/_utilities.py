@@ -7,7 +7,7 @@ import cuqi.experimental.mcmc as samplers
 
 def find_valid_samplers(target, as_string = True):
     """
-        Finds all possible sampleras that can be used for sampling from the target distribution.
+        Finds all possible samplers that can be used for sampling from the target distribution.
 
         Parameters
         ----------
