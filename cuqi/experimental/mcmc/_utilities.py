@@ -31,12 +31,12 @@ def find_valid_samplers(target, as_string = True):
             pass
 
     # Need a separate case for HybridGibbs
-    if find_valid_sampling_strategy(target) is not None:
+    if find_valid_HybridGibbs_sampling_strategy(target) is not None:
         valid_samplers += [cuqi.experimental.mcmc.HybridGibbs.__name__ if as_string else cuqi.experimental.mcmc.HybridGibbs]
 
     return valid_samplers
 
-def find_valid_sampling_strategy(target, as_string = True):
+def find_valid_HybridGibbs_sampling_strategy(target, as_string = True):
     """
         Find all possible sampling strategies to be used with the HybridGibbs sampler.
         Returns None if no sampler could be suggested for at least one conditional distribution.
@@ -108,7 +108,7 @@ def recommend_sampler(target, as_string = False, exceptions = []):
         (samplers.MALA, {}),
         (samplers.ULA, {}),
         # Gibbs and Componentwise samplers
-        (samplers.HybridGibbs, {"sampling_strategy" : recommend_sampling_strategy(target, as_string = False)}),
+        (samplers.HybridGibbs, {"sampling_strategy" : recommend_HybridGibbs_sampling_strategy(target, as_string = False)}),
         (samplers.CWMH, {"scale" : 0.05*np.ones(target.dim),
                          "x0" : 0.5*np.ones(target.dim)}),
         # Proposal based samplers
@@ -129,7 +129,7 @@ def recommend_sampler(target, as_string = False, exceptions = []):
     # No sampler can be suggested
     return None
 
-def recommend_sampling_strategy(target, as_string = False):
+def recommend_HybridGibbs_sampling_strategy(target, as_string = False):
     """
         Suggests a possible sampling strategy to be used with the HybridGibbs sampler.
         Returns None if no sampler could be suggested for at least one conditional distribution.
