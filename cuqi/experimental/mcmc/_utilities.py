@@ -71,7 +71,7 @@ def find_valid_sampling_strategy(target, as_string = True):
 
     return valid_samplers
 
-def suggest_sampler(target, as_string = False, exceptions = []):
+def recommend_sampler(target, as_string = False, exceptions = []):
     """
         Suggests a possible sampler that can be used for sampling from the target distribution.
         Return None if no sampler could be suggested.
@@ -108,7 +108,7 @@ def suggest_sampler(target, as_string = False, exceptions = []):
         (samplers.MALA, {}),
         (samplers.ULA, {}),
         # Gibbs and Componentwise samplers
-        (samplers.HybridGibbs, {"sampling_strategy" : suggest_sampling_strategy(target, as_string = False)}),
+        (samplers.HybridGibbs, {"sampling_strategy" : recommend_sampling_strategy(target, as_string = False)}),
         (samplers.CWMH, {"scale" : 0.05*np.ones(target.dim),
                          "x0" : 0.5*np.ones(target.dim)}),
         # Proposal based samplers
@@ -129,7 +129,7 @@ def suggest_sampler(target, as_string = False, exceptions = []):
     # No sampler can be suggested
     return None
 
-def suggest_sampling_strategy(target, as_string = False):
+def recommend_sampling_strategy(target, as_string = False):
     """
         Suggests a possible sampling strategy to be used with the HybridGibbs sampler.
         Returns None if no sampler could be suggested for at least one conditional distribution.
@@ -155,7 +155,7 @@ def suggest_sampling_strategy(target, as_string = False):
         conditional_params = {par_name_: np.ones(target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
         conditional = target(**conditional_params)
 
-        sampler = suggest_sampler(conditional, as_string = as_string)
+        sampler = recommend_sampler(conditional, as_string = as_string)
         if sampler is None:
             return None
         
