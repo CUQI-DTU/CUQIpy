@@ -19,14 +19,9 @@ class SamplerRecommender(object):
         Samplers not to be recommended.
     """
 
-    def __init__(self, target:cuqi.density.Density, exceptions = None):
+    def __init__(self, target:cuqi.density.Density, exceptions = []):
         self._target = target
-
-        if exceptions is not None:
-            self._exceptions = exceptions
-        else:
-            self._exceptions = []
-
+        self._exceptions = exceptions
         self._create_ordering()
 
     @property
@@ -40,10 +35,6 @@ class SamplerRecommender(object):
         if value is None:
             raise ValueError("Target needs to be of type cuqi.density.Density.")
         self._target = value
-
-    def add_exception(self, sampler):
-        """ Provide a sampler class you do not want to be recommended. """
-        self._exceptions += [sampler]
 
     def _create_ordering(self):
         """
@@ -72,7 +63,7 @@ class SamplerRecommender(object):
             # Gibbs and Componentwise samplers
             (samplers.HybridGibbs, True, {"sampling_strategy" : self.recommend_HybridGibbs_sampling_strategy(as_string = False)}),
             (samplers.CWMH, number_of_components <= 100, {"scale" : 0.05*np.ones(number_of_components),
-                            "x0" : 0.5*np.ones(number_of_components)}),
+                            "initial_point" : 0.5*np.ones(number_of_components)}),
             # Proposal based samplers
             (samplers.PCN, True, {"scale" : 0.02}),
             (samplers.MH, number_of_components <= 1000, {}),
@@ -159,8 +150,6 @@ class SamplerRecommender(object):
 
         """
 
-        # TODO: Conditions for suggestions, e.g., only use CWMH when the dimension of the problem is low
-
         valid_samplers = self.valid_samplers(as_string = False)
 
         for suggestion, flag, values in self._ordering:
@@ -200,7 +189,7 @@ class SamplerRecommender(object):
             conditional_params = {par_name_: np.ones(self.target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
             conditional = self.target(**conditional_params)
 
-            recommender = SamplerRecommender(conditional)
+            recommender = SamplerRecommender(conditional, exceptions = self._exceptions.copy())
             sampler = recommender.recommend(as_string = as_string)
 
             if sampler is None:
