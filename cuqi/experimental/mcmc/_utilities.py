@@ -7,11 +7,25 @@ import cuqi.experimental.mcmc as samplers
 
 
 class SamplerRecommender(object):
+    """
+    This class can be used to automatically choose a sampler.
 
-    def __init__(self, target:cuqi.density.Density, exceptions = []):
+    Parameters
+    ----------
+    target: Density or JointDistribution
+        Distribution to get sampler recommendations for.
 
+    exceptions: list[cuqi.experimental.mcmcm.Sampler], *optional*
+        Samplers not to be recommended.
+    """
+
+    def __init__(self, target:cuqi.density.Density, exceptions = None):
         self._target = target
-        self.exceptions = exceptions
+
+        if exceptions is not None:
+            self._exceptions = exceptions
+        else:
+            self._exceptions = []
 
         self._create_ordering()
 
@@ -27,27 +41,41 @@ class SamplerRecommender(object):
             raise ValueError("Target needs to be of type cuqi.density.Density.")
         self._target = value
 
+    def add_exception(self, sampler):
+        """ Provide a sampler class you do not want to be recommended. """
+        self._exceptions += [sampler]
+
     def _create_ordering(self):
+        """
+        Every element in the ordering consists of a tuple:
+        (
+            Sampler: Class
+            boolean: additional conditions on the target
+            parameters: additional parameters to be passed to the sampler once initialized
+        )
+        """
+        number_of_components = np.sum(self._target.dim)
+
         self._ordering = [
             # Direct and Conjugate samplers
-            (samplers.Direct, {}),
-            (samplers.Conjugate, {}),
-            (samplers.ConjugateApprox, {}),
+            (samplers.Direct, True, {}),
+            (samplers.Conjugate, True, {}),
+            (samplers.ConjugateApprox, True, {}),
             # Specialized samplers
-            (samplers.LinearRTO, {}),
-            (samplers.RegularizedLinearRTO, {}),
-            (samplers.UGLA, {}),
+            (samplers.LinearRTO, True, {}),
+            (samplers.RegularizedLinearRTO, True, {}),
+            (samplers.UGLA, True, {}),
             # Gradient.based samplers (Hamiltonian and Langevin)
-            (samplers.NUTS, {}),
-            (samplers.MALA, {}),
-            (samplers.ULA, {}),
+            (samplers.NUTS, True, {}),
+            (samplers.MALA, True, {}),
+            (samplers.ULA, True, {}),
             # Gibbs and Componentwise samplers
-            (samplers.HybridGibbs, {"sampling_strategy" : self.recommend_HybridGibbs_sampling_strategy(as_string = False)}),
-            (samplers.CWMH, {"scale" : 0.05*np.ones(self._target.dim),
-                            "x0" : 0.5*np.ones(self._target.dim)}),
+            (samplers.HybridGibbs, True, {"sampling_strategy" : self.recommend_HybridGibbs_sampling_strategy(as_string = False)}),
+            (samplers.CWMH, number_of_components <= 100, {"scale" : 0.05*np.ones(number_of_components),
+                            "x0" : 0.5*np.ones(number_of_components)}),
             # Proposal based samplers
-            (samplers.PCN, {"scale" : 0.02}),
-            (samplers.MH, {}),
+            (samplers.PCN, True, {"scale" : 0.02}),
+            (samplers.MH, number_of_components <= 1000, {}),
         ]
 
     @property
@@ -135,8 +163,8 @@ class SamplerRecommender(object):
 
         valid_samplers = self.valid_samplers(as_string = False)
 
-        for suggestion, values in self._ordering:
-            if suggestion in valid_samplers and suggestion not in self.exceptions:
+        for suggestion, flag, values in self._ordering:
+            if flag and (suggestion in valid_samplers) and (suggestion not in self._exceptions):
                 # Sampler found
                 if as_string:
                     return suggestion.__name__
@@ -144,7 +172,7 @@ class SamplerRecommender(object):
                     return suggestion(self.target, **values)
 
         # No sampler can be suggested
-        return None
+        raise ValueError("Cannot suggest any sampler. Either the provided distribution is incorrectly defined or there are too many exceptions provided.")
 
     def recommend_HybridGibbs_sampling_strategy(self, as_string = False):
         """
