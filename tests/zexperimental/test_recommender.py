@@ -63,3 +63,34 @@ def test_find_valid_samplers_implicit_prior():
     valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(len(set(valid_samplers)) == 0)
+
+def test_recommend_1():
+    A, y_data, info = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
+
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    s = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.LMRF(0, lambda d: 1/d, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+
+    target = cuqi.distribution.JointDistribution(y,x,s,d)(y = y_data)
+
+    recommender = cuqi.experimental.SamplerRecommender(target)
+    sampler = recommender.recommend()
+
+    assert(isinstance(sampler, cuqi.experimental.mcmc.HybridGibbs))
+    assert(isinstance(sampler.samplers['x'], cuqi.experimental.mcmc.UGLA))
+    assert(isinstance(sampler.samplers['s'], cuqi.experimental.mcmc.Conjugate))
+    assert(isinstance(sampler.samplers['d'], cuqi.experimental.mcmc.ConjugateApprox))
+
+def test_recommend_2():
+    A, y_data, info = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
+
+    x = cuqi.distribution.GMRF(0, 2, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+
+    target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
+
+    recommender = cuqi.experimental.SamplerRecommender(target)
+    sampler = recommender.recommend()
+
+    assert(isinstance(sampler, cuqi.experimental.mcmc.LinearRTO))
