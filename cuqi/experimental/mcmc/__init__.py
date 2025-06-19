@@ -120,4 +120,3 @@ from ._gibbs import HybridGibbs
 from ._conjugate import Conjugate
 from ._conjugate_approx import ConjugateApprox
 from ._direct import Direct
-from ._utilities import SamplerRecommender
