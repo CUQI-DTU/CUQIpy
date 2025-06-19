@@ -13,7 +13,7 @@ def test_find_valid_samplers_linearGaussianGaussian():
     assert(set(valid_samplers) == set(['CWMH', 'LinearRTO', 'MALA', 'MH', 'NUTS', 'PCN', 'ULA']))
 
 def test_find_valid_samplers_nonlinearGaussianGaussian():
-    posterior = cuqi.testproblem.Poisson1D(dim=2).posterior
+    target = cuqi.testproblem.Poisson1D(dim=2).posterior
 
     valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
