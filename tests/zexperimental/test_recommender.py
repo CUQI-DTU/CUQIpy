@@ -85,7 +85,7 @@ def test_recommend_1():
 def test_recommend_2():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
 
-    x = cuqi.distribution.GMRF(4, 2, geometry=A.domain_geometry)
+    x = cuqi.distribution.GMRF(np.zeros(4), 2, geometry=A.domain_geometry)
     y = cuqi.distribution.Gaussian(A@x, 1)
 
     target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
