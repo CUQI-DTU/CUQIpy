@@ -26,12 +26,12 @@ class SamplerRecommender(object):
 
     @property
     def target(self) -> cuqi.density.Density:
-        """ Return the target density. """
+        """ Return the target Distribution. """
         return self._target
     
     @target.setter
     def target(self, value:cuqi.density.Density):
-        """ Set the target density. Runs validation of the target. """
+        """ Set the target Distribution. Runs validation of the target. """
         if value is None:
             raise ValueError("Target needs to be of type cuqi.density.Density.")
         self._target = value
