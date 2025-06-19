@@ -64,7 +64,27 @@ def test_find_valid_samplers_implicit_prior():
 
     assert(len(set(valid_samplers)) == 0)
 
-def test_recommend_1():
+def test_recommend_direct():
+    x = cuqi.distribution.Gamma(1, 1e-4)
+    recommender = cuqi.experimental.SamplerRecommender(x)
+    sampler = recommender.recommend()
+
+    assert(isinstance(sampler, cuqi.experimental.mcmc.Direct))
+
+def test_recommend_posterior():
+    A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
+
+    x = cuqi.distribution.GMRF(np.zeros(4), 2, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, 1)
+
+    target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
+
+    recommender = cuqi.experimental.SamplerRecommender(target)
+    sampler = recommender.recommend()
+
+    assert(isinstance(sampler, cuqi.experimental.mcmc.LinearRTO))
+
+def test_recommend_hierarchical():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
 
     d = cuqi.distribution.Gamma(1, 1e-4)
@@ -82,7 +102,23 @@ def test_recommend_1():
     assert(isinstance(sampler.samplers['s'], cuqi.experimental.mcmc.Conjugate))
     assert(isinstance(sampler.samplers['d'], cuqi.experimental.mcmc.ConjugateApprox))
 
-def test_recommend_2():
+def test_recommend_exceptions_1():
+    A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
+
+    s = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.LMRF(0, 1, geometry=A.domain_geometry)
+    y = cuqi.distribution.Gaussian(A@x, lambda s: 1/s)
+
+    target = cuqi.distribution.JointDistribution(y,x,s)(y = y_data)
+
+    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.experimental.mcmc.Conjugate])
+    sampler = recommender.recommend()
+
+    assert(isinstance(sampler, cuqi.experimental.mcmc.HybridGibbs))
+    assert(isinstance(sampler.samplers['x'], cuqi.experimental.mcmc.UGLA))
+    assert(isinstance(sampler.samplers['s'], cuqi.experimental.mcmc.CWMH))
+
+def test_recommend_exceptions_2():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
 
     x = cuqi.distribution.GMRF(np.zeros(4), 2, geometry=A.domain_geometry)
@@ -90,7 +126,7 @@ def test_recommend_2():
 
     target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
 
-    recommender = cuqi.experimental.SamplerRecommender(target)
+    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.experimental.mcmc.LinearRTO])
     sampler = recommender.recommend()
 
-    assert(isinstance(sampler, cuqi.experimental.mcmc.LinearRTO))
+    assert(isinstance(sampler, cuqi.experimental.mcmc.NUTS))
