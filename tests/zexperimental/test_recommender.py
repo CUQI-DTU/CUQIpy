@@ -65,7 +65,7 @@ def test_find_valid_samplers_implicit_prior():
     assert(len(set(valid_samplers)) == 0)
 
 def test_recommend_1():
-    A, y_data, info = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
+    A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
 
     d = cuqi.distribution.Gamma(1, 1e-4)
     s = cuqi.distribution.Gamma(1, 1e-4)
@@ -83,9 +83,9 @@ def test_recommend_1():
     assert(isinstance(sampler.samplers['d'], cuqi.experimental.mcmc.ConjugateApprox))
 
 def test_recommend_2():
-    A, y_data, info = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
+    A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
 
-    x = cuqi.distribution.GMRF(0, 2, geometry=A.domain_geometry)
+    x = cuqi.distribution.GMRF(4, 2, geometry=A.domain_geometry)
     y = cuqi.distribution.Gaussian(A@x, 1)
 
     target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
