@@ -9,6 +9,8 @@ from cuqi.operator import PrecisionFiniteDifference
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
 
+import collections
+
 class GMRF(Distribution):
     """ Gaussian Markov random field (GMRF).
        
@@ -147,7 +149,12 @@ class GMRF(Distribution):
     
     @mean.setter
     def mean(self, value):
-        self._mean = force_ndarray(value, flatten=True)
+        # Force the mean to be an array of proper length to be used in RegularizedLinearRTO sampler.
+        if isinstance(value, collections.abc.Iterable):
+            self._mean = force_ndarray(value, flatten=True)
+        else:
+            # Direct call to the private '_geometry' as the public 'geometry' tries to infer the dimension using the variable we currently setting.
+            self._mean = value*np.ones(self._geometry.par_dim)
 
     @property
     def prec(self):
