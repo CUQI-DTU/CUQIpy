@@ -99,13 +99,13 @@ class GMRF(Distribution):
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
+        # Ensure geometry has shape
+        if not self._geometry.fun_shape or self._geometry.par_dim == 1:
+            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (geometry of which the fun_shape is not None) and has parameter dimension greater than 1.")
+
         self.mean = mean
         self.prec = prec
         self._bc_type = bc_type
-
-        # Ensure geometry has shape
-        if not self.geometry.fun_shape or self.geometry.par_dim == 1:
-            raise ValueError(f"Distribution {self.__class__.__name__} must be initialized with supported geometry (geometry of which the fun_shape is not None) and has parameter dimension greater than 1.")
 
         # Default physical_dim to geometry's dimension if not provided
         physical_dim = len(self.geometry.fun_shape)
