@@ -196,8 +196,11 @@ class ScipyLSQ(object):
         'trf', Trust Region Reflective algorithm: for large sparse problems with bounds.
         'dogbox', dogleg algorithm with rectangular trust regions, for small problems with bounds.
         'lm', Levenberg-Marquardt algorithm as implemented in MINPACK. Doesn't handle bounds and sparse Jacobians.
+    tol : The numerical tolerance for convergence checks.
+    maxit : The maximum number of iterations.
+    kwargs : Additional keyword arguments passed to scipy's least_squares. Empty by default. See documentation for scipy.optimize.least_squares
     """
-    def __init__(self, func, x0, jacfun='2-point', method='trf', loss='linear', tol=1e-6, maxit=1e4):
+    def __init__(self, func, x0, jacfun='2-point', method='trf', loss='linear', tol=1e-6, maxit=1e4, **kwargs):
         self.func = func
         self.x0 = x0
         self.jacfun = jacfun
@@ -205,6 +208,7 @@ class ScipyLSQ(object):
         self.loss = loss
         self.tol = tol
         self.maxit = int(maxit)
+        self.kwargs = kwargs
     
     def solve(self):
         """Runs optimization algorithm and returns solution and info.
@@ -215,7 +219,7 @@ class ScipyLSQ(object):
             Solution found (array_like) and optimization information (dictionary).
         """
         solution = least_squares(self.func, self.x0, jac=self.jacfun, \
-                                method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit)
+                                method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit, **self.kwargs)
         info = {"success": solution['success'],
                 "message": solution['message'],
                 "func": solution['fun'],

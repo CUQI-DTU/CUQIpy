@@ -12,8 +12,8 @@ import matplotlib.pyplot as plt
 p = cuqi.distribution.TruncatedNormal(
     mean=np.array([0, 0]),
     std=np.array([1, 1]),
-    low=np.array([0, -np.Inf]),
-    high=np.array([np.Inf, 0]))
+    low=np.array([0, -np.inf]),
+    high=np.array([np.inf, 0]))
 
 plt.figure()
 plot_2D_density(p, -5, 5, -5, 5)
@@ -40,8 +40,8 @@ A = cuqi.model.LinearModel(A_matrix)
 x = cuqi.distribution.TruncatedNormal(
     mean=np.array([0, 0]),
     std=np.array([1, 1]),
-    low=np.array([0, -np.Inf]),
-    high=np.array([np.Inf, 0]))
+    low=np.array([0, -np.inf]),
+    high=np.array([np.inf, 0]))
 # the data distribution
 b = cuqi.distribution.Gaussian(A@x, 0.1)
 

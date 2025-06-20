@@ -3,7 +3,7 @@ from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
-from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ
+from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ, ScipyMinimizer
 from cuqi.experimental.mcmc import Sampler
 
 
@@ -36,11 +36,9 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
     def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, **kwargs):
@@ -169,6 +167,7 @@ class RegularizedLinearRTO(LinearRTO):
     ADMM:  [2] Boyd et al. "Distributed optimization and statistical learning via the alternating direction method of multipliers."Foundations and Trends® in Machine learning, 2011.
            Used when prior.proximal is a list of penalty terms.
     ScipyLinearLSQ: Wrapper for Scipy's lsq_linear for the Trust Region Reflective algorithm. Optionally used when the constraint is either "nonnegativity" or "box".
+    ScipyMinimizer: Wrapper for Scipy's minimize. Optionally used when the constraint is either "nonnegativity" or "box".
 
     Parameters
     ------------
@@ -179,7 +178,7 @@ class RegularizedLinearRTO(LinearRTO):
         Initial point for the sampler. *Optional*.
 
     maxit : int
-        Maximum number of iterations of the FISTA/ADMM/ScipyLinearLSQ solver. *Optional*.
+        Maximum number of iterations of the FISTA/ADMM/ScipyLinearLSQ/ScipyMinimizer solver. *Optional*.
 
     inner_max_it : int
         Maximum number of iterations of the CGLS solver used within the ADMM solver. *Optional*.
@@ -193,7 +192,7 @@ class RegularizedLinearRTO(LinearRTO):
         See [2] or `cuqi.solver.ADMM`
 
     abstol : float
-        Absolute tolerance of the FISTA/ScipyLinearLSQ solver. *Optional*.
+        Absolute tolerance of the FISTA/ScipyLinearLSQ/ScipyMinimizer solver. *Optional*.
     
     inner_abstol : float
         Tolerance parameter for ScipyLinearLSQ's inner solve of the unbounded least-squares problem. *Optional*.
@@ -202,13 +201,11 @@ class RegularizedLinearRTO(LinearRTO):
         If True, FISTA is used as solver, otherwise ISTA is used. *Optional*.
     
     solver : string
-        If set to "ScipyLinearLSQ", solver is set to cuqi.solver.ScipyLinearLSQ, otherwise FISTA/ISTA or ADMM is used. Note "ScipyLinearLSQ" can only be used with `RegularizedGaussian` of `box` or `nonnegativity` constraint. *Optional*.
+        Options are "FISTA" (default for a single constraint or regularization), "ADMM" (default and the only option for multiple constraints or regularizations), "ScipyLinearLSQ" and "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of a single `box` or `nonnegativity` constraint. *Optional*.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
     def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, **kwargs):
@@ -238,11 +235,11 @@ class RegularizedLinearRTO(LinearRTO):
 
     @solver.setter
     def solver(self, value):
-        if value == "ScipyLinearLSQ":
+        if value == "ScipyLinearLSQ" or value == "ScipyMinimizer":
             if (self.target.prior.preset["constraint"] == "nonnegativity" or self.target.prior.preset["constraint"] == "box"):
                 self._solver = value
             else:
-                raise ValueError("ScipyLinearLSQ only supports RegularizedGaussian with box or nonnegativity constraint.")
+                raise ValueError("ScipyLinearLSQ and ScipyMinimizer only support RegularizedGaussian with box or nonnegativity constraint.")
         else:
             self._solver = value
 
@@ -285,15 +282,22 @@ class RegularizedLinearRTO(LinearRTO):
             sim = ADMM(self.M, y, self.proximal,
                         self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self.solver == "ScipyLinearLSQ":
-                A_op = sp.sparse.linalg.LinearOperator((sum([llh.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
-                                        matvec=lambda x: self.M(x, 1),
-                                        rmatvec=lambda x: self.M(x, 2)
-                                        )
-                sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
-                                     max_iter = self.maxit,
-                                     lsmr_maxiter = self.inner_max_it, 
-                                     tol = self.abstol,
-                                     lsmr_tol = self.inner_abstol)
+            A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
+                                    matvec=lambda x: self.M(x, 1),
+                                    rmatvec=lambda x: self.M(x, 2)
+                                    )
+            sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
+                                    max_iter = self.maxit,
+                                    lsmr_maxiter = self.inner_max_it, 
+                                    tol = self.abstol,
+                                    lsmr_tol = self.inner_abstol)
+        elif self.solver == "ScipyMinimizer":
+            # Adapt bounds format, as scipy.minimize requires a bounds format 
+            # different than that in scipy.lsq_linear.
+            bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
+            # Note that the objective function is defined as 0.5*||Mx-y||^2, 
+            # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
 

@@ -304,6 +304,7 @@ class BayesianProblem(object):
             The signature of the callback function is `callback(sample, sample_index)`,
             where `sample` is the current sample and `sample_index` is the index of the sample.
             An example is shown in demos/demo31_callback.py.
+            Note: if the parameter `experimental` is set to True, the callback function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature in the case is: `callback(sampler, sample_index, num_of_samples)`.
 
         experimental : bool, *Optional*
             If set to True, the sampler selection will use the samplers from the :mod:`cuqi.experimental.mcmc` module.
@@ -848,16 +849,14 @@ class BayesianProblem(object):
             print(f"burn-in: {Nb/Ns*100:g}%")
             print("")
 
-            if callback is not None:
-                raise NotImplementedError("Callback not implemented for Gibbs sampler")
-
             # Start timing
             ti = time.time()
 
             # Sampling strategy
             sampling_strategy = self._determine_sampling_strategy(experimental=True)
 
-            sampler = cuqi.experimental.mcmc.HybridGibbs(self._target, sampling_strategy)
+            sampler = cuqi.experimental.mcmc.HybridGibbs(
+                self._target, sampling_strategy, callback=callback)
             sampler.warmup(Nb)
             sampler.sample(Ns)
             samples = sampler.get_samples()
@@ -876,7 +875,7 @@ class BayesianProblem(object):
             print("")
 
             if callback is not None:
-                raise NotImplementedError("Callback not implemented for Gibbs sampler")
+                raise NotImplementedError("Callback not implemented for Gibbs sampler. It is only implemented for experimental Gibbs sampler.")
 
             # Start timing
             ti = time.time()

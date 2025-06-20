@@ -1452,3 +1452,126 @@ def test_RegularizedLinearRTO_ScipyLinearLSQ_option_invalid():
 
     with pytest.raises(ValueError, match="ScipyLinearLSQ"):
         sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver = "ScipyLinearLSQ")
+
+def test_RegularizedLinearRTO_ScipyLinearLSQ_against_ScipyMinimizer_and_against_FISTA():
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Bayesian Problem
+    x = cuqi.implicitprior.NonnegativeGMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up RegularizedLinearRTO with three solvers
+    sampler1 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="ScipyMinimizer", maxit=1000, tol=1e-8)
+    sampler2 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="ScipyLinearLSQ", maxit=1000, tol=1e-8)
+    sampler3 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="FISTA", maxit=1000, tol=1e-8)
+
+    # Sample with fixed seed
+    np.random.seed(0)
+    samples1 = sampler1.sample(5).get_samples()
+    np.random.seed(0)
+    samples2 = sampler2.sample(5).get_samples()
+    np.random.seed(0)
+    samples3 = sampler3.sample(5).get_samples()
+
+    assert np.allclose(samples1.samples.mean(), samples2.samples.mean(), rtol=1e-5)
+    assert np.allclose(samples1.samples.mean(), samples3.samples.mean(), rtol=1e-5)
+
+# ============ Start testing sampler callback ============
+# Samplers that should be tested for callback
+callback_testing_sampler_classes = [
+    cls
+    for _, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass)
+    if cls not in [cuqi.experimental.mcmc.Sampler, cuqi.experimental.mcmc.ProposalBasedSampler]
+]
+
+# Instances of samplers that should be tested for callback
+callback_testing_sampler_instances = [
+    cuqi.experimental.mcmc.MH(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.PCN(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.CWMH(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.ULA(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.MALA(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.NUTS(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.LinearRTO(
+        target=cuqi.testproblem.Deconvolution1D(dim=10).posterior
+    ),
+    cuqi.experimental.mcmc.RegularizedLinearRTO(
+        target=create_regularized_target(dim=16)
+    ),
+    cuqi.experimental.mcmc.UGLA(target=create_lmrf_prior_target(dim=16)),
+    cuqi.experimental.mcmc.Direct(target=cuqi.distribution.Gaussian(np.zeros(10), 1)),
+    cuqi.experimental.mcmc.Conjugate(target=create_conjugate_target("Gaussian-Gamma")),
+    cuqi.experimental.mcmc.ConjugateApprox(
+        target=create_conjugate_target("LMRF-Gamma")
+    ),
+    cuqi.experimental.mcmc.MYULA(target=create_myula_target(dim=16)),
+    cuqi.experimental.mcmc.PnPULA(target=create_myula_target(dim=16)),
+    cuqi.experimental.mcmc.HybridGibbs(
+        target=HybridGibbs_target_1(),
+        sampling_strategy={
+            "x" : cuqi.experimental.mcmc.NUTS(max_depth=7),
+            "s" : cuqi.experimental.mcmc.Conjugate()
+        },
+    ),
+]
+
+@pytest.mark.parametrize("sampler", callback_testing_sampler_instances)
+def test_passing_callback_to_sampler(sampler):
+    """ Test that the callback function is called by the sampler and
+    the sampler passes the correct arguments to the callback function. """
+
+    Ns = 10
+    indices = [] # list to store the indices of the samples
+
+    # Define the callback function
+    def callback_function(callback_sampler, sample_index, num_samples):
+        assert isinstance(callback_sampler, sampler.__class__)
+        assert num_samples == Ns
+        indices.append(sample_index)
+
+    # Create a sampler with callback function
+    if not isinstance(sampler, cuqi.experimental.mcmc.HybridGibbs):
+        my_sampler = sampler.__class__(sampler.target, callback=callback_function)
+    else:
+        my_sampler = cuqi.experimental.mcmc.HybridGibbs(
+            sampler.target,
+            sampling_strategy={
+                "x": cuqi.experimental.mcmc.NUTS(max_depth=7),
+                "s": cuqi.experimental.mcmc.Conjugate(),
+            },
+            callback=callback_function,
+        )
+
+    # Sample Ns warmup samples
+    my_sampler.warmup(Ns)
+    assert np.allclose(indices, np.arange(Ns))
+
+    # reset the indices
+    indices = []
+
+    # Sample Ns samples
+    my_sampler.sample(Ns)
+    assert np.allclose(indices, np.arange(Ns))
+
+def test_all_samplers_that_should_be_tested_for_callback_are_in_the_tested_list():
+    """ Test that all samplers that should be tested for callback are in the callback_testing_sampler_instances. """
+    # The classes of the tested samplers:
+    tested_classes = [sampler.__class__ for sampler in callback_testing_sampler_instances]
+    for cls in callback_testing_sampler_classes:
+        assert cls in tested_classes, f"Sampler {cls} is not tested for callback."
+
+# ============= End testing sampler callback =============

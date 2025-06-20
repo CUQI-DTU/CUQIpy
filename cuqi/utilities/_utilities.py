@@ -188,7 +188,7 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(float)
     # We compute the Jacobian matrix of func using forward differences.
     # If the function is scalar-valued, we compute the gradient instead.
     # If the direction is provided, we compute the direction-Jacobian product.
-    wrt = np.asfarray(wrt)
+    wrt = np.asarray(wrt)
     f0 = func(wrt)
     Matr = np.zeros([infer_len(wrt), infer_len(f0)])
     dx = np.zeros(len(wrt))
@@ -360,8 +360,29 @@ def count_nonzero(x, threshold = 1e-6):
             Theshold for considering a value as nonzero.
         """
         return np.sum([np.abs(v) >= threshold for v in x])
+
+        
+def count_within_bounds(x, lower_bounds, upper_bounds, threshold = 1e-6, exception = np.nan):
+        """ Returns the number of values in an array whose value lies between the provided lower and upper bounds.
+
+        Parameters
+        ----------
+        x : `np.ndarray` 
+            Array to count elements of.
+
+        lower_bounds : `np.ndarray` 
+            Lower bound on values to disregard when counting.
+
+        upper_bounds : `np.ndarray` 
+            Upper bound on values to disregard.
+
+        threshold : float
+            Theshold for considering a value as nonzero.
+        """
+        return np.sum([l + threshold <= v and v <= u - threshold and not (exception - threshold <= v and v <= exception + threshold) for v, l, u in zip(x, lower_bounds, upper_bounds)])
+        
     
-def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
+def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf, exception = np.nan):
         """ Returns the number of piecewise constant components in a one-dimensional array
 
         Parameters
@@ -372,29 +393,40 @@ def count_constant_components_1D(x, threshold = 1e-2, lower = -np.inf, upper = n
         threshold : float
             Strict theshold on when the difference of neighbouring values is considered zero.
 
-        lower : float
+        lower : float or numpy.ndarray
             Piecewise constant components below this value are not counted.
 
-        upper : float
+        upper : float or numpy.ndarray
             Piecewise constant components above this value are not counted.
         """
 
+        if not isinstance(lower, np.ndarray):
+            lower = lower*np.ones_like(x)
+
+        if not isinstance(upper, np.ndarray):
+            upper = upper*np.ones_like(x)
+
         counter = 0
-        if x[0] > lower and x[0] < upper:
+        index = 0
+        if (x[index] > lower[index] and
+            x[index] < upper[index] and
+            not (exception - threshold <= x[index] and x[index] <= exception + threshold)):
             counter += 1
         
         x_previous = x[0]
 
         for x_current in x[1:]:
+            index += 1
             if (abs(x_previous - x_current) >= threshold and
-                x_current > lower and
-                x_current < upper):
+                x_current > lower[index] and
+                x_current < upper[index] and
+                not (exception - threshold <= x_current and x_current <= exception + threshold)):
                     counter += 1
 
             x_previous = x_current
     
         return counter
-        
+
 def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = np.inf):
         """ Returns the number of piecewise constant components in a two-dimensional array
 
@@ -406,12 +438,19 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
         threshold : float
             Strict theshold on when the difference of neighbouring values is considered zero.
 
-        lower : float
+        lower : float or numpy.ndarray
             Piecewise constant components below this value are not counted.
 
-        upper : float
+        upper : float or numpy.ndarray
             Piecewise constant components above this value are not counted.
         """
+
+        if not isinstance(lower, np.ndarray):
+            lower = lower*np.ones_like(x)
+
+        if not isinstance(upper, np.ndarray):
+            upper = upper*np.ones_like(x)
+
         filled = np.zeros_like(x, dtype = int)
         counter = 0
 
@@ -438,8 +477,51 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 if filled[i,j] == 0:
-                    if x[i,j] > lower and x[i,j] < upper:
+                    if x[i,j] > lower[i,j] and x[i,j] < upper[i,j]:
                         counter += 1
                     process(i, j)
         return counter
                     
+
+
+def piecewise_linear_1D_DoF(x, threshold = 1e-5, exception_zero = False, exception_flat = False):
+        """ Returns the degrees of freedom of a piecewise linear signal.
+        Assuming linear interpolation, this corresponds to the number of non-differentiable points, including end-points.
+
+        Parameters
+        ----------
+        x : `np.ndarray` 
+            1D Array to compute degrees of freedom of.
+
+        threshold : float
+            Strict theshold on when values are considered zero.
+
+        exception_zero : Boolean
+            Whether a zero piecewise linear components should be considered.
+
+        exception_flat : Boolean
+            Whether a flat piecewise linear components should be considered.
+        """
+
+        differences = x[1:] - x[:-1]
+        double_differences = differences[1:] - differences[:-1]
+
+        joints = [True] + [np.abs(d) >= threshold for d in double_differences] + [True]
+        
+        if not exception_zero and not exception_flat:
+            return np.sum(joints)
+        elif exception_zero:
+            return np.sum(joints and [np.abs(v) < threshold for v in x])
+        elif exception_flat:
+            prev_joint = None
+            counter = 0
+            for i in range(len(joints)):
+                if joints[i]:
+                    counter += 1
+                    if prev_joint is None:
+                        prev_joint = i
+                    else:
+                        if np.abs(x[i] - x[prev_joint]) < threshold:
+                            counter -= 1
+                        prev_joint = i
+            return counter

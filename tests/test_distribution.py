@@ -203,7 +203,6 @@ def test_Uniform_logpdf(low, high, toeval, expected):
     UD = cuqi.distribution.Uniform(low, high)
     assert np.allclose(UD.logpdf(toeval), expected) 
 
-
 @pytest.mark.parametrize("low,high,expected",[(np.array([1, .5]), 
                                                np.array([2, 2.5]),
                                                np.array([[1.5507979 , 1.29090474, 1.89294695],
@@ -216,6 +215,19 @@ def test_Uniform_sample(low, high, expected):
     cuqi_samples = UD.sample(3,rng=rng)
     print(cuqi_samples)
     assert np.allclose(cuqi_samples.samples, expected) 
+
+def test_UnboundedUniform_logpdf_and_gradient():
+    x1 = cuqi.distribution.UnboundedUniform(geometry=1)
+    assert np.allclose(x1.logpdf(np.array([1])), 1.0)
+    assert np.allclose(x1.gradient(np.array([0])), np.array([0]))
+    x2 = cuqi.distribution.UnboundedUniform(geometry=cuqi.geometry.Discrete(2))
+    assert np.allclose(x2.logpdf(np.array([1, 2])), 1.0)
+    assert np.allclose(x2.gradient(np.array([0, 0])), np.array([0, 0]))
+
+def test_UnboundedUniform_sample():
+    x = cuqi.distribution.UnboundedUniform(geometry=2)
+    with pytest.raises(NotImplementedError, match="Cannot sample from UnboundedUniform distribution"):
+        x.sample()
 
 @pytest.mark.parametrize("distribution, kwargs",
                          [(cuqi.distribution.Uniform, 
@@ -665,7 +677,7 @@ def beta_likelihood():
         lambda x: x**2,
         range_geometry=1,
         domain_geometry=1,
-        gradient=lambda direction, wrt: 2*wrt*direction)
+        gradient=lambda direction, x: 2*x*direction)
     
     # set a gaussian prior
     x = cuqi.distribution.Gaussian(0, 1)

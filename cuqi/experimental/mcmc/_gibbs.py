@@ -58,6 +58,10 @@ class HybridGibbs:
         will call its step method in each Gibbs step.
         Default is 1 for all variables.
 
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
+
     Example
     -------
     .. code-block:: python
@@ -103,7 +107,7 @@ class HybridGibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None, callback=None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -119,6 +123,9 @@ class HybridGibbs:
 
         # Initialize sampler (after target is set)
         self._initialize()
+
+        # Set the callback function
+        self.callback = callback
 
     def _initialize(self):
         """ Initialize sampler """
@@ -158,12 +165,14 @@ class HybridGibbs:
             The number of samples to draw.
 
         """
-
-        for _ in tqdm(range(Ns), "Sample: "):
+        for idx in tqdm(range(Ns), "Sample: "):
 
             self.step()
 
             self._store_samples()
+
+            # Call callback function if specified
+            self._call_callback(idx, Ns)
 
         return self
 
@@ -191,6 +200,9 @@ class HybridGibbs:
                 self.tune(tune_interval, idx // tune_interval) 
                 
             self._store_samples()
+
+            # Call callback function if specified
+            self._call_callback(idx, Nb)
 
         return self
 
@@ -263,6 +275,11 @@ class HybridGibbs:
             self.samplers[par_name].tune(skip_len=skip_len, update_count=update_count)
 
     # ------------ Private methods ------------
+    def _call_callback(self, sample_index, num_of_samples):
+        """ Calls the callback function. Assumes input is sampler, sample index, and total number of samples """
+        if self.callback is not None:
+            self.callback(self, sample_index, num_of_samples)
+
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():

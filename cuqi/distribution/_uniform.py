@@ -1,5 +1,6 @@
 import numpy as np
 from cuqi.distribution import Distribution
+from cuqi.geometry import Geometry
 
 class Uniform(Distribution):
 
@@ -46,7 +47,7 @@ class Uniform(Distribution):
         Computes the gradient of logpdf at the given values of x.
         """
         if np.any(x < self.low) or np.any(x > self.high):
-            return np.NaN*np.ones_like(x)
+            return np.nan*np.ones_like(x)
         else:
             return np.zeros_like(x)
 
@@ -58,3 +59,36 @@ class Uniform(Distribution):
             s = np.random.uniform(self.low, self.high, (N,self.dim)).T
 
         return s
+
+class UnboundedUniform(Distribution):
+    """
+    Unbounded uniform distribution. This is a special case of the
+    Uniform distribution, where the lower and upper bounds are set to
+    -inf and inf, respectively. This distribution is not normalizable,
+    and therefore cannot be sampled from. It is mainly used for
+    initializing non-informative priors.
+    Parameters
+    ----------
+    geometry : int or Geometry
+        The geometry of the distribution. If an integer is given, it is
+        interpreted as the dimension of the distribution. If a
+        Geometry object is given, its par_dim attribute is used.
+    """
+    def __init__(self, geometry, is_symmetric=True, **kwargs):
+        super().__init__(geometry=geometry, is_symmetric=is_symmetric, **kwargs) 
+
+    def logpdf(self, x):
+        """
+        Evaluate the logarithm of the unnormalized PDF at the given values of x.
+        """
+        # Always return 1.0 (the unnormalized log PDF)
+        return 1.0
+
+    def gradient(self, x):
+        """
+        Computes the gradient of logpdf at the given values of x.
+        """
+        return np.zeros_like(x)
+
+    def _sample(self, N=1, rng=None):
+        raise NotImplementedError("Cannot sample from UnboundedUniform distribution")

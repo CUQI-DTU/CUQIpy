@@ -75,14 +75,14 @@ class Cauchy(Distribution):
     def logpdf(self, x):
 
         if self._is_out_of_bounds(x):
-            return -np.Inf
+            return -np.inf
         
         return np.sum(-np.log(np.pi*self.scale*(1+((x-self.location)/self.scale)**2)))
     
     def cdf(self, x):
 
         if self._is_out_of_bounds(x):
-            return -np.Inf
+            return -np.inf
         
         return np.sum(sps.cauchy.cdf(x, loc=self.location, scale=self.scale))
     

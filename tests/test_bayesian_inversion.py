@@ -2,7 +2,9 @@ from typing import Dict
 
 import pytest
 import numpy as np
+import scipy
 import sys
+from packaging import version
 
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, GMRF, CMRF, LMRF, Gamma
@@ -25,6 +27,14 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     # SKIP NUTS test if not windows (for now)
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
+    elif (
+        isinstance(prior, RegularizedGaussian) 
+        or isinstance(prior, RegularizedGMRF)
+    ) and version.parse(scipy.__version__) >= version.parse('1.13.0'):
+        pytest.skip(
+            "Saved reference data is not consistent with scipy>=1.13.0 "
+            "(due to different default behaviour of scipy.optimize)"
+        )
 
     np.random.seed(19937)
 
