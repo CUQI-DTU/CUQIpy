@@ -42,6 +42,9 @@ class HybridGibbs:
     fully stateful at this point. This means samplers like NUTS will lose
     their internal state between Gibbs steps.
 
+    The order in which the conditionals are sampled is the order of the
+    variables in the sampling strategy.
+
     Parameters
     ----------
     target : cuqi.distribution.JointDistribution
@@ -120,6 +123,11 @@ class HybridGibbs:
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
+
+        # Check that the parameters of the target align with the sampling_strategy
+        for par_name in self.par_names:
+            if par_name not in self.samplers.keys():
+                raise ValueError("Parameter '{}' does not have a sampler in sampling_strategy.".format(par_name))
 
         # Initialize sampler (after target is set)
         self._initialize()
@@ -217,7 +225,7 @@ class HybridGibbs:
         """ Sequentially go through all parameters and sample them conditionally on each other """
 
         # Sample from each conditional distribution
-        for par_name in self.par_names:
+        for par_name in self.samplers.keys():
 
             # Set target for current parameter
             self._set_target(par_name)
