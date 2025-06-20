@@ -96,6 +96,9 @@ class GMRF(Distribution):
     """
 
     def __init__(self, mean=None, prec=None, bc_type="zero", order=1, **kwargs):
+        if not isinstance(mean, collections.abc.Iterable) and 'geometry' not in kwargs.keys():
+            raise ValueError(f"Cannot infer dimension if scalar mean and no supported geometry is provided.")
+        
         # Init from abstract distribution class
         super().__init__(**kwargs)
 
