@@ -121,6 +121,11 @@ class HybridGibbs:
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
 
+        # Check that the parameters of the target align with the sampling_strategy
+        for par_name in self.par_names:
+            if par_name not in self.samplers.keys():
+                raise ValueError("Parameter '{}' does not have a sampler in sampling_strategy.".format(par_name))
+
         # Initialize sampler (after target is set)
         self._initialize()
 
