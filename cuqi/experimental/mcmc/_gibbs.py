@@ -42,6 +42,9 @@ class HybridGibbs:
     fully stateful at this point. This means samplers like NUTS will lose
     their internal state between Gibbs steps.
 
+    The order in which the conditionals are sampled is the order of the
+    variables in the sampling strategy.
+
     Parameters
     ----------
     target : cuqi.distribution.JointDistribution
