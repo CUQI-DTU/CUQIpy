@@ -217,7 +217,7 @@ class HybridGibbs:
         """ Sequentially go through all parameters and sample them conditionally on each other """
 
         # Sample from each conditional distribution
-        for par_name in self.par_names:
+        for par_name in self.samplers.keys():
 
             # Set target for current parameter
             self._set_target(par_name)
