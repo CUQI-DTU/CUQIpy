@@ -645,20 +645,20 @@ class Model(object):
 
             # Check if the number of args does not match the number of
             # non_default_args of the model
-            if len(args) != len(non_default_args):
-                raise ValueError(
-                    "The number of positional arguments does not match the number of non-default arguments of the "
-                    + map_name.lower()
-                    + "."
-                    + appending_error_message
-                )
+            #if len(args) != len(non_default_args):
+            #    raise ValueError(
+            #        "The number of positional arguments does not match the number of non-default arguments of the "
+            #        + map_name.lower()
+            #        + "."
+            #        + appending_error_message
+            #    )
 
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
                 kwargs[non_default_args[idx]] = arg
 
         # Check kwargs matches non_default_args
-        if set(list(kwargs.keys())) != set(non_default_args):
+        if not (set(list(kwargs.keys())) <= set(non_default_args)):
             if map_name == "gradient":
                 error_msg = f"The gradient input is specified by a direction and keywords arguments {list(kwargs.keys())} that does not match the non_default_args of the model {non_default_args}."
             else:
@@ -669,11 +669,11 @@ class Model(object):
                     + map_name
                     + f" {non_default_args}."
                 )
-
+        
             raise ValueError(error_msg)
 
         # Make sure order of kwargs is the same as non_default_args
-        kwargs = {k: kwargs[k] for k in non_default_args}
+        kwargs = {k: kwargs[k] for k in non_default_args if k in kwargs}
 
         return kwargs
 
@@ -750,6 +750,26 @@ class Model(object):
         kwargs = self._parse_args_add_to_kwargs(
             *args, **kwargs, is_par=is_par, map_name="model"
         )
+        model = self
+
+        if len(kwargs) < len(self._non_default_args):
+            # create new model with partial input
+            partial_forward = partial(self._forward_func, **kwargs)
+            partial_gradient = None if self._gradient_func is None else partial(self._gradient_func, **kwargs)
+            partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
+                *[self.domain_geometry.geometries[i] for i in range(len(self._non_default_args)) if self._non_default_args[i]not in kwargs.keys()]
+            )
+            if len(partial_domain_geometry.geometries) == 1:
+                partial_domain_geometry = partial_domain_geometry.geometries[0]
+            
+            partial_model = Model(
+                forward=partial_forward,
+                range_geometry=self.range_geometry,
+                domain_geometry=partial_domain_geometry,
+                gradient=partial_gradient
+            )
+            model = partial_model
+
 
         # extract args from kwargs
         args = list(kwargs.values())
@@ -771,7 +791,10 @@ class Model(object):
         # the operation may be delegated to the Node class.
         elif any(isinstance(args_i, cuqi.experimental.algebra.Node) for args_i in args):
             return NotImplemented
-
+        
+        # if input is partial, we create a new model with the partial input
+        if len(args) < len(self._non_default_args):
+            return model
         # Else we apply the forward operator
         # if model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._forward_func signature
