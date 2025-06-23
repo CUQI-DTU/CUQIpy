@@ -15,7 +15,7 @@ class SamplerRecommender(object):
     target: Density or JointDistribution
         Distribution to get sampler recommendations for.
 
-    exceptions: list[cuqi.experimental.mcmcm.Sampler], *optional*
+    exceptions: list[cuqi.experimental.mcmc.Sampler], *optional*
         Samplers not to be recommended.
     """
 
