@@ -61,9 +61,10 @@ class HybridGibbs:
         will call its step method in each Gibbs step.
         Default is 1 for all variables.
 
-    scan_order : list, *optional*
+    scan_order : list or str, *optional*
         Order in which the conditional distributions are sampled.
-        If not specified, it will be the order in the sampling_strategy
+        If set to "random", use a random ordering at each step.
+        If not specified, it will be the order in the sampling_strategy.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
@@ -133,7 +134,7 @@ class HybridGibbs:
 
         # Check that the parameters of the target align with the sampling_strategy and scan_order
         for par_name in self.par_names:
-            if par_name not in self.samplers.keys() or par_name not in self.scan_order:
+            if par_name not in self.scan_order:
                 raise ValueError("Parameter '{}' does not have a sampler in sampling_strategy or scan_order.".format(par_name))
 
         # Initialize sampler (after target is set)
@@ -163,11 +164,14 @@ class HybridGibbs:
         # Validate all targets for samplers.
         self.validate_targets()
 
-
     @property
     def scan_order(self):
         if self._scan_order is None:
             return list(self.samplers.keys())
+        if self._scan_order == "random":
+            arr = list(self.samplers.keys())
+            np.random.shuffle(arr) # Shuffle works in-place
+            return arr
         return self._scan_order
 
     # ------------ Public methods ------------
