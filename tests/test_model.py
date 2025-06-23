@@ -1939,3 +1939,49 @@ def test_setting_domain_and_range_geometry(domain_geometry, range_geometry, num_
     # Check the model domain and range geometries are of the expected type
     assert model.domain_geometry == expected_domain_geometry
     assert model.range_geometry == expected_range_geometry
+
+def test_reduction_of_number_of_model_inputs_by_partial_specification():
+    # Create a model with multiple inputs
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form1,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Input values for the model
+    x_val = np.array([1, 2, 3])
+    y_val = np.array([4, 5])
+    z_val = np.array([6, 7, 8])
+
+    # Check partial specification of model inputs generates a model with
+    # reduced inputs
+    model_given_x = model(x=x_val)
+    assert list(model_given_x._non_default_args)==['y', 'z']
+    model_given_y = model(y=y_val)
+    assert list(model_given_y._non_default_args)==['x', 'z']
+    model_given_z = model(z=z_val)
+    assert list(model_given_z._non_default_args)==['x', 'y']
+    model_given_xy = model(x=x_val, y=y_val)
+    assert list(model_given_xy._non_default_args)==['z']
+    model_given_yz = model(y=y_val, z=z_val)
+    assert list(model_given_yz._non_default_args)==['x']
+    model_given_xz = model(x=x_val, z=z_val)
+    assert list(model_given_xz._non_default_args)==['y']
+
+    # Check all ways of specifying inputs generate the same output
+    output = model(x=x_val, y=y_val, z=z_val)
+    assert(np.allclose(model(x=x_val)(y=y_val, z=z_val), output))
+    assert(np.allclose(model(x=x_val)(z=z_val, y=y_val), output))
+    assert(np.allclose(model(y=y_val)(x=x_val, z=z_val), output))
+    assert(np.allclose(model(y=y_val)(z=z_val, x=x_val), output))
+    assert(np.allclose(model(z=z_val)(x=x_val, y=y_val), output))
+    assert(np.allclose(model(z=z_val)(y=y_val, x=x_val), output))
+    assert(np.allclose(model(x=x_val, y=y_val)(z=z_val), output))
+    assert(np.allclose(model(y=y_val, x=x_val)(z=z_val), output))
+    assert(np.allclose(model(x=x_val, z=z_val)(y=y_val), output))
+    assert(np.allclose(model(z=z_val, x=x_val)(y=y_val), output))
+    assert(np.allclose(model(y=y_val, z=z_val)(x=x_val), output))
+    assert(np.allclose(model(z=z_val, y=y_val)(x=x_val), output))
+    assert(np.allclose(model(x=x_val)(y=y_val)(z=z_val), output))
