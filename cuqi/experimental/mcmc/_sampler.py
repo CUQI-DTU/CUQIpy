@@ -388,6 +388,8 @@ class Sampler(ABC):
             
     def _get_default_initial_point(self, dim):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
+        if isinstance(dim, list):
+            return [np.ones(d) for d in dim]
         return np.ones(dim)
     
     def __repr__(self):
