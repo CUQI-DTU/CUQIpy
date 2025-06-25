@@ -134,7 +134,7 @@ class HybridGibbs:
         self._scan_order = scan_order
 
         # Check that the parameters of the target align with the sampling_strategy and scan_order
-        if set(self.par_names) != set(self._scan_order):
+        if set(self.par_names) != set(self.scan_order):
             raise ValueError("Parameter names in JointDistribution do not equal the names in the scan order.")
 
         # Initialize sampler (after target is set)
