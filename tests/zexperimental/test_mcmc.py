@@ -1653,5 +1653,5 @@ def test_gibbs_scan_order():
                 "s": cuqi.experimental.mcmc.Conjugate(),
             }
     
-    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 'd'])
-    assert sampler.scan_order == ['x', 'd']
+    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
+    assert sampler.scan_order == ['x', 's']
