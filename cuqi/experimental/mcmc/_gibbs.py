@@ -43,7 +43,8 @@ class HybridGibbs:
     their internal state between Gibbs steps.
 
     The order in which the conditionals are sampled is the order of the
-    variables in the sampling strategy.
+    variables in the sampling strategy, unless a different sampling order
+    is specified by the parameter `scan_order`
 
     Parameters
     ----------
