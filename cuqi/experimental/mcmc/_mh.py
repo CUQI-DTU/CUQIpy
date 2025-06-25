@@ -33,8 +33,7 @@ class MH(ProposalBasedSampler):
 
     def validate_target(self):
         # Fail only when there is no log density, which is currently assumed to be the case in case NaN is returned.
-        initial_point = self._get_default_initial_point(self.dim)
-        if (isinstance(initial_point, list) and np.isnan(self.target.logd(*initial_point))) or (not isinstance(initial_point, list) and np.isnan(self.target.logd(initial_point))):
+        if np.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
             raise ValueError("Target does not have valid logd")
 
     def validate_proposal(self):

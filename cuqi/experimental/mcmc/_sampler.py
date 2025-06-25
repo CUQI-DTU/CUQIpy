@@ -477,6 +477,26 @@ class ProposalBasedSampler(Sampler, ABC):
 
         self._is_initialized = True
 
+    @Sampler.target.setter
+    def target(self, value):
+        """ Set the target density. Runs validation of the target. """
+        self._target = value
+
+        if isinstance(self._target, cuqi.distribution.JointDistribution):
+            self._target = self._target._as_stacked()
+
+        if self._target is not None:
+            self.validate_target()
+
+    def get_samples(self) -> Samples:
+        """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
+        
+        samples = Samples(np.array(self._samples).T, self.target.geometry)
+        if isinstance(self.target, cuqi.distribution.JointDistribution):
+            return self.target._unstack_samples(samples)
+        return Samples(samples)
+
+
     @abstractmethod
     def validate_proposal(self):
         """ Validate the proposal distribution. """
