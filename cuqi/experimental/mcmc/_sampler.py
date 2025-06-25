@@ -494,7 +494,7 @@ class ProposalBasedSampler(Sampler, ABC):
         samples = Samples(np.array(self._samples).T, self.target.geometry)
         if isinstance(self.target, cuqi.distribution.JointDistribution):
             return self.target._unstack_samples(samples)
-        return Samples(samples)
+        return samples
 
 
     @abstractmethod
