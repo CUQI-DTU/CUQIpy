@@ -42,6 +42,10 @@ class HybridGibbs:
     fully stateful at this point. This means samplers like NUTS will lose
     their internal state between Gibbs steps.
 
+    The order in which the conditionals are sampled is the order of the
+    variables in the sampling strategy, unless a different sampling order
+    is specified by the parameter `scan_order`
+
     Parameters
     ----------
     target : cuqi.distribution.JointDistribution
@@ -57,6 +61,11 @@ class HybridGibbs:
         The sampling steps are defined as the number of times the sampler
         will call its step method in each Gibbs step.
         Default is 1 for all variables.
+
+    scan_order : list or str, *optional*
+        Order in which the conditional distributions are sampled.
+        If set to "random", use a random ordering at each step.
+        If not specified, it will be the order in the sampling_strategy.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
@@ -107,7 +116,7 @@ class HybridGibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None, callback=None):
+    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None, scan_order = None, callback=None):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -120,6 +129,13 @@ class HybridGibbs:
 
         # Store parameter names
         self.par_names = self.target.get_parameter_names()
+
+        # Store the scan order
+        self._scan_order = scan_order
+
+        # Check that the parameters of the target align with the sampling_strategy and scan_order
+        if set(self.par_names) != set(self.scan_order):
+            raise ValueError("Parameter names in JointDistribution do not equal the names in the scan order.")
 
         # Initialize sampler (after target is set)
         self._initialize()
@@ -147,6 +163,16 @@ class HybridGibbs:
 
         # Validate all targets for samplers.
         self.validate_targets()
+
+    @property
+    def scan_order(self):
+        if self._scan_order is None:
+            return list(self.samplers.keys())
+        if self._scan_order == "random":
+            arr = list(self.samplers.keys())
+            np.random.shuffle(arr) # Shuffle works in-place
+            return arr
+        return self._scan_order
 
     # ------------ Public methods ------------
     def validate_targets(self):
@@ -217,7 +243,7 @@ class HybridGibbs:
         """ Sequentially go through all parameters and sample them conditionally on each other """
 
         # Sample from each conditional distribution
-        for par_name in self.par_names:
+        for par_name in self.scan_order:
 
             # Set target for current parameter
             self._set_target(par_name)

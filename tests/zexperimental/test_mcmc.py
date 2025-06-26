@@ -1575,3 +1575,25 @@ def test_all_samplers_that_should_be_tested_for_callback_are_in_the_tested_list(
         assert cls in tested_classes, f"Sampler {cls} is not tested for callback."
 
 # ============= End testing sampler callback =============
+def test_gibbs_random_scan_order():
+    target = HybridGibbs_target_1()
+    sampling_strategy={
+                "x": cuqi.experimental.mcmc.LinearRTO(),
+                "s": cuqi.experimental.mcmc.Conjugate(),
+            }
+    
+    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order='random')
+    np.random.seed(0)
+    scan_order1 = sampler.scan_order
+    scan_order2 = sampler.scan_order
+    assert scan_order1 != scan_order2
+
+def test_gibbs_scan_order():
+    target = HybridGibbs_target_1()
+    sampling_strategy={
+                "x": cuqi.experimental.mcmc.LinearRTO(),
+                "s": cuqi.experimental.mcmc.Conjugate(),
+            }
+    
+    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
+    assert sampler.scan_order == ['x', 's']
