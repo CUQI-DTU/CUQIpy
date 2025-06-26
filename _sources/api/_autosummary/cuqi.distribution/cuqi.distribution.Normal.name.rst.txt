@@ -1,0 +1,6 @@
+cuqi.distribution.Normal.name
+=============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Normal.name

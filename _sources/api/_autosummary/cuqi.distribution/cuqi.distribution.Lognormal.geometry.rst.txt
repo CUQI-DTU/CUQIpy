@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.geometry
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Lognormal.geometry

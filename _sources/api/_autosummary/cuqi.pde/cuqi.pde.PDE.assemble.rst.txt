@@ -1,0 +1,6 @@
+cuqi.pde.PDE.assemble
+=====================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: PDE.assemble

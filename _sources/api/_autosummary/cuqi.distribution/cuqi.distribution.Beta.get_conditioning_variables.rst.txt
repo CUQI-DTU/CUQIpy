@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.get\_conditioning\_variables
+===================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.get_conditioning_variables

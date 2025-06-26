@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.NUTS.step\_size
+======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: NUTS.step_size

@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.dim
+=====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ProposalBasedSampler.dim

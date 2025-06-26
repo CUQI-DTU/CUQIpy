@@ -1,0 +1,6 @@
+cuqi.sampler.Gibbs.\_\_init\_\_
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: Gibbs.__init__

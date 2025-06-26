@@ -1,0 +1,6 @@
+cuqi.utilities.ProblemInfo.Miscellaneous
+========================================
+
+.. currentmodule:: cuqi.utilities
+
+.. autoattribute:: ProblemInfo.Miscellaneous

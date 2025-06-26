@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ULA.initialize
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ULA.initialize

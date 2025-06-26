@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Conjugate.validate\_target
+=================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Conjugate.validate_target

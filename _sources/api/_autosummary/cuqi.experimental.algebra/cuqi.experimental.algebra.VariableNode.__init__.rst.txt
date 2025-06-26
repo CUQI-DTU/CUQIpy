@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.VariableNode.\_\_init\_\_
+===================================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. automethod:: VariableNode.__init__

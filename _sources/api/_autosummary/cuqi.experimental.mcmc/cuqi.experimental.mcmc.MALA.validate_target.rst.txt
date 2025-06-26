@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MALA.validate\_target
+============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MALA.validate_target

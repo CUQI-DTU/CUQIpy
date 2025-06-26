@@ -1,0 +1,27 @@
+geometry
+========
+
+Module path: cuqi.experimental.geometry
+
+.. currentmodule:: cuqi.experimental
+
+.. automodule:: cuqi.experimental.geometry
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

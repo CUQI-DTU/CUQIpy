@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MYULA.set\_state
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MYULA.set_state

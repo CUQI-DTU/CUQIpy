@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.ConjugateApprox.save\_checkpoint
+=======================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: ConjugateApprox.save_checkpoint

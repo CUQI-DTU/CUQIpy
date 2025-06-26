@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.Node.condition
+========================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. automethod:: Node.condition

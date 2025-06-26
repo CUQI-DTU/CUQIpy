@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.LinearRTO.load\_checkpoint
+=================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: LinearRTO.load_checkpoint

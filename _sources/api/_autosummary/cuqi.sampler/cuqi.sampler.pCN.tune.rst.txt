@@ -1,0 +1,6 @@
+cuqi.sampler.pCN.tune
+=====================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: pCN.tune

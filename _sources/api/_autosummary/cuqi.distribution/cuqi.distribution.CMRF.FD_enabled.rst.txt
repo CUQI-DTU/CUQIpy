@@ -1,0 +1,6 @@
+cuqi.distribution.CMRF.FD\_enabled
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: CMRF.FD_enabled

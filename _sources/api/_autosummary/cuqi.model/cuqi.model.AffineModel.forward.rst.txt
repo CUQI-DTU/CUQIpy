@@ -1,0 +1,6 @@
+cuqi.model.AffineModel.forward
+==============================
+
+.. currentmodule:: cuqi.model
+
+.. automethod:: AffineModel.forward
