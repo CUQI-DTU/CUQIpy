@@ -7,15 +7,15 @@ import cuqi
 import pytest
 from scipy import optimize
 from copy import copy, deepcopy
-from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeometry2D, Geometry, Discrete, Image2D
+from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeometry2D, Geometry, Discrete, Image2D, KLExpansion
 from cuqi.utilities import force_ndarray
 from cuqi.experimental.geometry import _ProductGeometry
 
-def test_PDE_model_multiple_input():
-    """ Test that the PDE model can accept multiple inputs specified as positional arguments or keyword arguments """
+def test_steady_state_PDE_model_multiple_input():
+    """ Test that the steady state PDE model and gradient can accept multiple inputs specified as positional arguments or keyword arguments """
     pde_test_model = MultipleInputTestModel.helper_build_steady_state_PDE_test_model()
     pde_test_model.populate_model_variations()
-    CUQI_pde = pde_test_model.model_variations[0] # PDE model with multiple inputs
+    CUQI_pde = pde_test_model.model_variations[1] # PDE model with multiple inputs
 
     # Check that the model has correct parameter name
     assert CUQI_pde._non_default_args == ['mag', 'kappa_scale']
@@ -28,6 +28,54 @@ def test_PDE_model_multiple_input():
 
     # Check that the two outputs are the same
     assert np.allclose(output1, output2)
+
+    # Assert evaluating gradient works
+    direction = np.random.randn(CUQI_pde.range_dim)
+
+    # Make sure gradient can be computed with positional or keyword arguments
+    grad1 = CUQI_pde.gradient(direction, mag=2, kappa_scale=2)
+    grad2 = CUQI_pde.gradient(direction, 2, 2)
+
+    # Passing wrong kwargs should raise an error
+    with pytest.raises(
+        ValueError,
+        match=r"The gradient input is specified by a direction and keywords arguments \['mag', 'kappa'\] that does not match the non_default_args of the model \['mag', 'kappa_scale'\].",
+    ):
+        CUQI_pde.gradient(direction, mag=2, kappa=2)
+
+def test_time_dependent_PDE_model_multiple_input():
+    """ Test that the time dependent PDE model and gradient can accept multiple inputs specified as positional arguments or keyword arguments """
+    pde_test_model = MultipleInputTestModel.helper_build_time_dependent_PDE_test_model()
+    pde_test_model.populate_model_variations()
+    CUQI_pde = pde_test_model.model_variations[1] # PDE model with multiple inputs
+
+    # Check that the model has correct parameter name
+    assert CUQI_pde._non_default_args == ['mag', 'IC']
+
+    # Check that we can provide parameter names when evaluating the model
+    mag = 2
+    IC_ = np.random.randn(CUQI_pde.domain_geometry.geometries[1].par_dim)
+    output1 = CUQI_pde(mag=mag, IC=IC_)
+
+    # And check that we can provide positional arguments
+    output2 = CUQI_pde(mag, IC_)
+
+    # Check that the two outputs are the same
+    assert np.allclose(output1, output2)
+
+    # Assert evaluating gradient works
+    direction = np.random.randn(CUQI_pde.range_dim)
+
+    # Make sure gradient can be computed with positional or keyword arguments
+    grad1 = CUQI_pde.gradient(direction, mag=mag, IC=IC_)
+    grad2 = CUQI_pde.gradient(direction, mag, IC_)
+
+    # Passing wrong kwargs should raise an error
+    with pytest.raises(
+        ValueError,
+        match=r"The gradient input is specified by a direction and keywords arguments \['mag', 'IC_value'\] that does not match the non_default_args of the model \['mag', 'IC'\].",
+    ):
+        CUQI_pde.gradient(direction, mag=mag, IC_value=IC_)
 
 def test_constructing_gradient_from_jacobian():
     """ Test that the gradient is correctly constructed from the
@@ -392,18 +440,17 @@ class MultipleInputTestModel:
 
     def populate_model_variations(self):
         """Populate the `model_variations` list with different variations of the model that share the same forward map but differ in some other aspect like gradient, jacobian, etc."""
-        if self.pde is not None:
-            self.populate_pde_model_variations()
-        elif self.forward_map is not None:
-            self.populate_general_model_variations()
 
-    def populate_general_model_variations(self):
-        """Populate the `model_variations` for general models that are not PDE models."""
+        if self.pde is not None:
+            first_kwarg = {"PDE": self.pde}
+        else:
+            first_kwarg = {"forward": self.forward_map}
+
         # Model with forward only
         model = self.model_class(
-            forward=self.forward_map,
+            **first_kwarg,
             domain_geometry=self.domain_geometry,
-            range_geometry=self.range_geometry,
+            range_geometry=self.range_geometry
         )
         model._do_test_gradient = False  # do not test this model for gradient
         self.model_variations.append(model)
@@ -411,7 +458,7 @@ class MultipleInputTestModel:
         # Model with gradient of from 1 (callable)
         if self.gradient_form1 is not None:
             model = self.model_class(
-                forward=self.forward_map,
+                **first_kwarg,
                 gradient=self.gradient_form1,
                 domain_geometry=self.domain_geometry,
                 range_geometry=self.range_geometry,
@@ -421,7 +468,7 @@ class MultipleInputTestModel:
         # Model with gradient of from 2 (tuple of callables)
         if self.gradient_form2 is not None:
             model = self.model_class(
-                forward=self.forward_map,
+                **first_kwarg,
                 gradient=self.gradient_form2,
                 domain_geometry=self.domain_geometry,
                 range_geometry=self.range_geometry,
@@ -431,7 +478,7 @@ class MultipleInputTestModel:
         # Model with gradient of from 2 incomplete (tuple of callables with some None elements)
         if self.gradient_form2_incomplete is not None:
             model = self.model_class(
-                forward=self.forward_map,
+                **first_kwarg,
                 gradient=self.gradient_form2_incomplete,
                 domain_geometry=self.domain_geometry,
                 range_geometry=self.range_geometry,
@@ -441,7 +488,7 @@ class MultipleInputTestModel:
         # Model with jacobian of from 1 (callable)
         if self.jacobian_form1 is not None:
             model = self.model_class(
-                forward=self.forward_map,
+                **first_kwarg,
                 jacobian=self.jacobian_form1,
                 domain_geometry=self.domain_geometry,
                 range_geometry=self.range_geometry,
@@ -451,7 +498,7 @@ class MultipleInputTestModel:
         # Model with jacobian of from 2 (tuple of callables)
         if self.jacobian_form2 is not None:
             model = self.model_class(
-                forward=self.forward_map,
+                **first_kwarg,
                 jacobian=self.jacobian_form2,
                 domain_geometry=self.domain_geometry,
                 range_geometry=self.range_geometry,
@@ -461,23 +508,12 @@ class MultipleInputTestModel:
         # Model with jacobian of from 2 incomplete (tuple of callables with some None elements)
         if self.jacobian_form2_incomplete is not None:
             model = self.model_class(
-                forward=self.forward_map,
+                **first_kwarg,
                 jacobian=self.jacobian_form2_incomplete,
                 domain_geometry=self.domain_geometry,
                 range_geometry=self.range_geometry,
             )
             self.model_variations.append(model)
-
-    def populate_pde_model_variations(self):
-        """Populate the `model_variations` for PDE models."""
-        # Model with PDE (no gradient)
-        model = self.model_class(
-            self.pde,
-            domain_geometry=self.domain_geometry,
-            range_geometry=self.range_geometry,
-        )
-        model._do_test_gradient = False  # do not test this model for gradient
-        self.model_variations.append(model)
 
     @staticmethod
     def create_model_test_case_combinations():
@@ -507,6 +543,16 @@ class MultipleInputTestModel:
             0.1,
             0.9,
         ]  # choose input from uniform distribution in [0.1, 0.9]
+        TestCase.create_test_cases_for_test_model(test_model)
+        test_model_list.append(test_model)
+
+        # Model 4
+        test_model = MultipleInputTestModel.helper_build_time_dependent_PDE_test_model()
+        test_model.populate_model_variations()
+        test_model.input_bounds = [
+            0.1,
+            4,
+        ]  # choose input from uniform distribution in [0.1, 4]
         TestCase.create_test_cases_for_test_model(test_model)
         test_model_list.append(test_model)
 
@@ -589,7 +635,7 @@ class MultipleInputTestModel:
 
     @staticmethod
     def helper_build_steady_state_PDE_test_model():
-        """Build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale. This model does not have gradient or jacobian functions."""
+        """Build a PDE model with a steady state Poisson equation and two inputs: mag and kappa_scale."""
 
         # Poisson equation setup
         dim = 20  # Number of nodes
@@ -634,6 +680,68 @@ class MultipleInputTestModel:
         test_model.pde = CUQI_pde
         test_model.domain_geometry = (Discrete(["mag"]), Discrete(["kappa_scale"]))
         test_model.range_geometry = Continuous1D(len(grid_obs))
+
+        # Gradient with respect to mag
+        def gradient_mag(direction, mag, kappa_scale):
+            def fwd_mag(mag_):
+                CUQI_pde.assemble(mag_, kappa_scale)
+                u, _ = CUQI_pde.solve()
+                obs_u = CUQI_pde.observe(u)
+                return obs_u
+            mag = mag.to_numpy() if isinstance(mag, CUQIarray) else mag 
+            return direction @ cuqi.utilities.approx_derivative(fwd_mag, mag)
+
+        # Gradient with respect to kappa_scale
+        def gradient_kappa_scale(direction, mag, kappa_scale):
+            def fwd_kappa_scale(kappa_scale_):
+                CUQI_pde.assemble(mag, kappa_scale_)
+                u, _ = CUQI_pde.solve()
+                obs_u = CUQI_pde.observe(u)
+                return obs_u
+            kappa_scale = kappa_scale.to_numpy() if isinstance(kappa_scale, CUQIarray) else kappa_scale
+            return direction @ cuqi.utilities.approx_derivative(fwd_kappa_scale, kappa_scale)
+
+        # Gradient with respect to all inputs (form 1, callable)
+        def gradient_form1(direction, mag, kappa_scale):
+            grad_mag = gradient_mag(direction, mag, kappa_scale)
+            grad_kappa_scale = gradient_kappa_scale(direction, mag, kappa_scale)
+            return (grad_mag, grad_kappa_scale)
+
+        # Assign the gradient functions to the test model
+        test_model.gradient_form1 = gradient_form1
+        test_model.gradient_form2 = (gradient_mag, gradient_kappa_scale)
+        test_model.gradient_form2_incomplete = (gradient_mag, None)
+
+        # Jacobian with respect to mag
+        def jacobian_mag(mag, kappa_scale):
+            def fwd_mag(mag_):
+                CUQI_pde.assemble(mag_, kappa_scale)
+                u, _ = CUQI_pde.solve()
+                obs_u = CUQI_pde.observe(u)
+                return obs_u
+            mag = mag.to_numpy() if isinstance(mag, CUQIarray) else mag
+            return cuqi.utilities.approx_derivative(fwd_mag, mag).reshape(-1, 1)
+
+        # Jacobian with respect to kappa_scale
+        def jacobian_kappa_scale(mag, kappa_scale):
+            def fwd_kappa_scale(kappa_scale_):
+                CUQI_pde.assemble(mag, kappa_scale_)
+                u, _ = CUQI_pde.solve()
+                obs_u = CUQI_pde.observe(u)
+                return obs_u
+            kappa_scale = kappa_scale.to_numpy() if isinstance(kappa_scale, CUQIarray) else kappa_scale
+            return cuqi.utilities.approx_derivative(fwd_kappa_scale, kappa_scale).reshape(-1, 1)
+
+        # Jacobian with respect to all inputs (form 1, callable)
+        def jacobian_form1(mag, kappa_scale):
+            jac_mag = jacobian_mag(mag, kappa_scale)
+            jac_kappa_scale = jacobian_kappa_scale(mag, kappa_scale)
+            return (jac_mag, jac_kappa_scale)
+
+        # Assign the jacobian functions to the test model
+        test_model.jacobian_form1 = jacobian_form1
+        test_model.jacobian_form2 = (jacobian_mag, jacobian_kappa_scale)
+        test_model.jacobian_form2_incomplete = (jacobian_mag, None)
 
         return test_model
 
@@ -699,6 +807,103 @@ class MultipleInputTestModel:
         test_model.model_class = cuqi.model.Model
         return test_model
 
+    @staticmethod
+    def helper_build_time_dependent_PDE_test_model():
+        """Build a PDE model with a time-dependent PDE and two inputs: mag, and IC."""
+
+        # Prepare PDE form
+        N = 20   # Number of solution nodes
+        endpoint = 1.0 # Length of the domain
+        max_time = 0.1 # Maximum time
+        dx = endpoint/(N+1)   # space step size
+        cfl = 5/11 # the cfl condition to have a stable solution
+        dt_approx = cfl*dx**2 # defining approximate time step size
+        max_iter = int(max_time/dt_approx) # number of time steps
+        Dxx_matr = (np.diag( -2*np.ones(N) ) + np.diag(np.ones(N-1),-1) + np.diag(np.ones(N-1),1))/dx**2
+        Dxx = lambda mag: mag * Dxx_matr # FD diffusion operator
+
+        # Grids for model
+        grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
+        grid_range = np.linspace(dx, endpoint, N, endpoint=False) 
+        time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
+
+        # PDE form (mag, IC, time)
+        def PDE_form(mag, IC, t): return (Dxx(mag), np.zeros(N), IC)
+        PDE = cuqi.pde.TimeDependentLinearPDE(
+            PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_range, method='backward_euler')
+
+        # Build the test model
+        test_model = MultipleInputTestModel()
+        test_model.model_class = cuqi.model.PDEModel
+        test_model.pde = PDE
+        test_model.domain_geometry = (Discrete(["mag"]), Continuous1D(grid_domain))
+        test_model.range_geometry = Continuous1D(grid_range)
+        
+        test_model.model_class = cuqi.model.PDEModel
+
+        # Gradient with respect to mag
+        def gradient_mag(direction, mag, IC):
+            def fwd_mag(mag_):
+                PDE.assemble(mag_, IC)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            mag = mag.to_numpy() if isinstance(mag, CUQIarray) else mag 
+            return direction @ cuqi.utilities.approx_derivative(fwd_mag, mag)
+        
+        # Gradient with respect to IC
+        def gradient_IC(direction, mag, IC):
+            def fwd_IC(IC_):
+                PDE.assemble(mag, IC_)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            IC = IC.to_numpy() if isinstance(IC, CUQIarray) else IC 
+            return direction @ cuqi.utilities.approx_derivative(fwd_IC, IC)
+        
+        # Gradient with respect to all inputs (form 1, callable)
+        def gradient_form1(direction, mag, IC):
+            grad_mag = gradient_mag(direction, mag, IC)
+            grad_IC = gradient_IC(direction, mag, IC)
+            return (grad_mag, grad_IC)
+        
+        # Assign the gradient functions to the test model
+        test_model.gradient_form1 = gradient_form1
+        test_model.gradient_form2 = (gradient_mag, gradient_IC)
+        test_model.gradient_form2_incomplete = (gradient_mag, None)
+
+        # Jacobian with respect to mag
+        def jacobian_mag(mag, IC):
+            def fwd_mag(mag_):
+                PDE.assemble(mag_, IC)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            mag = mag.to_numpy() if isinstance(mag, CUQIarray) else mag 
+            return cuqi.utilities.approx_derivative(fwd_mag, mag)
+        
+        # Jacobian with respect to IC
+        def jacobian_IC(mag, IC):
+            def fwd_IC(IC_):
+                PDE.assemble(mag, IC_)
+                u, _ = PDE.solve()
+                obs_u = PDE.observe(u)
+                return obs_u
+            IC = IC.to_numpy() if isinstance(IC, CUQIarray) else IC 
+            return cuqi.utilities.approx_derivative(fwd_IC, IC)
+        
+        # Jacobian with respect to all inputs (form 1, callable)
+        def jacobian_form1(mag, IC):
+            jac_mag = jacobian_mag(mag, IC)
+            jac_IC = jacobian_IC(mag, IC)
+            return (jac_mag, jac_IC)
+        
+        # Assign the jacobian functions to the test model
+        test_model.jacobian_form1 = jacobian_form1
+        test_model.jacobian_form2 = (jacobian_mag, jacobian_IC)
+        test_model.jacobian_form2_incomplete = (jacobian_mag, None)
+
+        return test_model
 
 class TestCase:
     """Class representing a test case for a test model. A test case consists of the input values, the expected output values, and the expected output types and error messages."""
@@ -1754,7 +1959,7 @@ def test_linear_model_allow_other_parameter_names():
     # Check providing the wrong parameter name raises an error
     with pytest.raises(
         ValueError,
-        match=r"The model input is specified by a keywords arguments \['y'\] that does not match the non_default_args of the model \['x'\].",
+        match=r"The model input is specified by keywords arguments \['y'\] that does not match the non_default_args of the model \['x'\].",
     ):
         model_x_w(y=1)
 
@@ -1779,7 +1984,7 @@ def test_linear_model_allow_other_parameter_names():
     # Check providing the wrong parameter name raises an error
     with pytest.raises(
         ValueError,
-        match=r"The adjoint input is specified by a keywords arguments \['v'\] that does not match the non_default_args of the adjoint \['w'\].",
+        match=r"The adjoint input is specified by keywords arguments \['v'\] that does not match the non_default_args of the adjoint \['w'\].",
     ):
         model_x_w.adjoint(v=1)
 

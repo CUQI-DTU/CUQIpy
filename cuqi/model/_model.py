@@ -179,7 +179,7 @@ class Model(object):
             self._stored_non_default_args =\
                 cuqi.utilities.get_non_default_args(self._forward_func)
         return self._stored_non_default_args
- 
+
     @property
     def number_of_inputs(self):
         """ The number of inputs of the model. """
@@ -422,7 +422,7 @@ class Model(object):
             # Use CUQIarray funvals if geometry is consistent
             if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
                 kwargs[k] = v.funvals
-            # Else, if we still need to convert to function value (is_par[i] is True) 
+            # Else, if we still need to convert to function value (is_par[i] is True)
             # we use the geometry par2fun method
             elif is_par[i] and v is not None:
                 kwargs[k] = geometries[i].par2fun(v)
@@ -496,7 +496,7 @@ class Model(object):
             # Use CUQIarray parameters if geometry is consistent
             if isinstance(v, CUQIarray) and v.geometry == geometries[i]:
                 v = v.parameters
-            # Else, if we still need to convert to parameter value (is_par[i] is False) 
+            # Else, if we still need to convert to parameter value (is_par[i] is False)
             # we use the geometry fun2par method
             elif not is_par[i] and v is not None:
                 v = geometries[i].fun2par(v)
@@ -665,7 +665,7 @@ class Model(object):
                 error_msg = (
                     "The "
                     + map_name.lower()
-                    + f" input is specified by a keywords arguments {list(kwargs.keys())} that does not match the non_default_args of the "
+                    + f" input is specified by keywords arguments {list(kwargs.keys())} that does not match the non_default_args of the "
                     + map_name
                     + f" {non_default_args}."
                 )
@@ -808,7 +808,11 @@ class Model(object):
         new_model = copy(self)
 
         # Store the original non_default_args of the model
-        new_model._original_non_default_args = self._non_default_args
+        new_model._original_non_default_args = (
+            self._original_non_default_args
+            if hasattr(self, "_original_non_default_args")
+            else self._non_default_args
+        )
 
         # Update the non_default_args of the model to match the distribution
         # names. Defaults to x in the case of only one distribution that has no
@@ -1052,7 +1056,7 @@ class Model(object):
 
         # turn grad_is_par to a tuple of bools if it is not already
         if isinstance(grad_is_par, bool):
-            grad_is_par = tuple([grad_is_par]*len(grad))
+            grad_is_par = tuple([grad_is_par]*self.number_of_inputs)
 
         # If the domain geometry is a _ProductGeometry and the gradient is
         # stacked, split it
@@ -1451,7 +1455,7 @@ class PDEModel(Model):
     :ivar range_geometry: The geometry representing the range.
     :ivar domain_geometry: The geometry representing the domain.
     """
-    def __init__(self, PDE: cuqi.pde.PDE, range_geometry, domain_geometry):
+    def __init__(self, PDE: cuqi.pde.PDE, range_geometry, domain_geometry, **kwargs):
 
         if not isinstance(PDE, cuqi.pde.PDE):
             raise ValueError("PDE needs to be a cuqi PDE.")
@@ -1460,23 +1464,30 @@ class PDEModel(Model):
         self.pde = PDE
         self._stored_non_default_args = None
 
-        super().__init__(self._forward_func, range_geometry, domain_geometry)
+        # If gradient or jacobian is not provided, we create it from the PDE
+        if not np.any([k in kwargs.keys() for k in ["gradient", "jacobian"]]):
+            # Create gradient or jacobian function to pass to the Model based on
+            # the PDE object. The dictionary derivative_kwarg contains the
+            # created function along with the function type (either "gradient"
+            # or "jacobian")
+            derivative_kwarg = self._create_derivative_function()
+            # append derivative_kwarg to kwargs
+            kwargs.update(derivative_kwarg)
+
+        super().__init__(forward=self._forward_func_pde,
+                         range_geometry=range_geometry,
+                         domain_geometry=domain_geometry,
+                         **kwargs)
 
     @property
     def _non_default_args(self):
         if self._stored_non_default_args is None:
             # extract the non-default arguments of the PDE
-            self._stored_non_default_args = cuqi.utilities.get_non_default_args(
-                self.pde.PDE_form
-            )
-            # remove t from the non-default arguments
-            self._stored_non_default_args = self._non_default_args
-            if "t" in self._non_default_args:
-                self._stored_non_default_args.remove("t")
+            self._stored_non_default_args = self.pde._non_default_args
 
         return self._stored_non_default_args
 
-    def _forward_func(self, **kwargs):
+    def _forward_func_pde(self, **kwargs):
 
         self.pde.assemble(**kwargs)
 
@@ -1486,14 +1497,55 @@ class PDEModel(Model):
 
         return obs
 
-    def _gradient_func(self, direction, wrt):
-        """ Compute direction-Jacobian product (gradient) of the model. """
+    def _create_derivative_function(self):
+        """Private function that creates the derivative function (gradient or
+        jacobian) based on the PDE object. The derivative function is created as
+        a lambda function that takes the direction and the parameters as input 
+        and returns the gradient or jacobian of the PDE. This private function
+        returns a dictionary with the created function and the function type
+        (either "gradient" or "jacobian")."""
+
         if hasattr(self.pde, "gradient_wrt_parameter"):
-            return self.pde.gradient_wrt_parameter(direction, wrt)
+            # Build the string that will be used to create the lambda function
+            function_str = (
+                "lambda direction, "
+                + ", ".join(self._non_default_args)
+                + ", pde_func: pde_func(direction, "
+                + ", ".join(self._non_default_args)
+                + ")"
+            )
+
+            # create the lambda function from the string
+            function = eval(function_str)
+
+            # create partial function from the lambda function with gradient_wrt_parameter
+            # as the first argument
+            grad_func = partial(function, pde_func=self.pde.gradient_wrt_parameter)
+
+            # Return the gradient function
+            return {"gradient": grad_func}
+
         elif hasattr(self.pde, "jacobian_wrt_parameter"):
-            return direction@self.pde.jacobian_wrt_parameter(wrt)
+            # Build the string that will be used to create the lambda function
+            function_str = (
+                "lambda "
+                + ", ".join(self._non_default_args)
+                + ", pde_func: pde_func( "
+                + ", ".join(self._non_default_args)
+                + ")"
+            )
+
+            # create the lambda function from the string
+            function = eval(function_str)
+
+            # create partial function from the lambda function with jacobian_wrt_parameter
+            # as the first argument
+            jacobian_func = partial(function, pde_func=self.pde.jacobian_wrt_parameter)
+
+            # Return the jacobian function
+            return {"jacobian": jacobian_func}
         else:
-            raise NotImplementedError("Gradient is not implemented for this model.")
+            return {} # empty dictionary if no gradient or jacobian is found
 
     # Add the underlying PDE class name to the repr.
     def __repr__(self) -> str:
