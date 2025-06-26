@@ -757,7 +757,7 @@ class Model(object):
             partial_forward = partial(self._forward_func, **kwargs)
             partial_gradient = None if self._gradient_func is None else partial(self._gradient_func, **kwargs)
             partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
-                *[self.domain_geometry.geometries[i] for i in range(len(self._non_default_args)) if self._non_default_args[i]not in kwargs.keys()]
+                *[self.domain_geometry.geometries[i] for i in range(len(self._non_default_args)) if self._non_default_args[i] not in kwargs.keys()]
             )
             if len(partial_domain_geometry.geometries) == 1:
                 partial_domain_geometry = partial_domain_geometry.geometries[0]
