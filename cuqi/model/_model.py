@@ -755,7 +755,20 @@ class Model(object):
         if len(kwargs) < len(self._non_default_args):
             # create new model with partial input
             partial_forward = partial(self._forward_func, **kwargs)
-            partial_gradient = None if self._gradient_func is None else partial(self._gradient_func, **kwargs)
+            if isinstance(self._gradient_func, tuple):
+                # If gradient is a tuple, we create a partial function for each
+                # gradient function in the tuple
+                partial_gradient = tuple(
+                    partial(self._gradient_func[i], **kwargs)
+                    for i in range(len(self._non_default_args)) if self._non_default_args[i] not in kwargs.keys()
+                )
+                if len(partial_gradient) == 1:
+                    partial_gradient = partial_gradient[0]
+            else:
+                raise NotImplementedError(
+                    "Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions."
+                )
+
             partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
                 *[self.domain_geometry.geometries[i] for i in range(len(self._non_default_args)) if self._non_default_args[i] not in kwargs.keys()]
             )
