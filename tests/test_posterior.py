@@ -36,4 +36,66 @@ def test_posterior_should_not_allow_prior_wrong_shape_if_model_has_geometry():
         posterior = cuqi.distribution.Posterior(y.to_likelihood(np.zeros(10**2)), x)
 
 
+def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
+    forward_map = lambda x, y, z: x * y[0] + z * y[1]
 
+    # gradient with respect to x
+    def gradient_x(direction, x, y, z):
+        return direction * y[0]
+
+    # gradient with respect to y
+    def gradient_y(direction, x, y, z):
+        return np.array([direction @ x, direction @ z])
+
+    # gradient with respect to z
+    def gradient_z(direction, x, y, z):
+        return direction * y[1]
+
+    # gradient with respect to all inputs (form 1, callable)
+    def gradient_form1(direction, x, y, z):
+        grad_x = gradient_x(direction, x, y, z)
+        grad_y = gradient_y(direction, x, y, z)
+        grad_z = gradient_z(direction, x, y, z)
+        return (grad_x, grad_y, grad_z)
+
+    # Assign the gradient functions to the test model
+    domain_geometry = (
+        cuqi.geometry.Continuous1D(3),
+        cuqi.geometry.Continuous1D(2),
+        cuqi.geometry.Continuous1D(3),
+    )
+    range_geometry = cuqi.geometry.Continuous1D(3)
+
+    model_class = cuqi.model.Model
+
+    model = model_class(
+        forward=forward_map,
+        gradient=gradient_form1,
+        domain_geometry=domain_geometry,
+        range_geometry=range_geometry)
+
+    data_dist = cuqi.distribution.Gaussian(
+        mean=model, cov = 1.0)#, cov=lambda x:x)
+    likelihood = data_dist(data_dist = np.array([2,2,3]))
+
+    x = cuqi.distribution.Gaussian(
+        mean=np.zeros(3),
+        cov=np.eye(3))
+    y = cuqi.distribution.Gaussian(
+        mean=np.zeros(2),
+        cov=np.eye(2))
+    z = cuqi.distribution.Gaussian(
+        mean=np.zeros(3),
+        cov=np.eye(3)) 
+
+    posterior = cuqi.distribution.JointDistribution(
+        likelihood,
+        x,
+        y,
+        z)
+
+    assert isinstance(posterior, cuqi.distribution.JointDistribution)
+
+    post_x_y = posterior(x=np.array([1, 1, 1]), y=np.array([0, 1]))
+
+    assert isinstance(post_x_y, cuqi.distribution.Posterior)
