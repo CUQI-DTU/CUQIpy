@@ -750,7 +750,9 @@ class Model(object):
         kwargs = self._parse_args_add_to_kwargs(
             *args, **kwargs, is_par=is_par, map_name="model"
         )
-        model = self
+
+        if len(kwargs) == 0:
+            return copy(self)
 
         if len(kwargs) < len(self._non_default_args):
             # create new model with partial input
@@ -781,7 +783,7 @@ class Model(object):
                 domain_geometry=partial_domain_geometry,
                 gradient=partial_gradient
             )
-            model = partial_model
+            partial_model
 
 
         # extract args from kwargs
@@ -807,7 +809,7 @@ class Model(object):
         
         # if input is partial, we create a new model with the partial input
         if len(args) < len(self._non_default_args):
-            return model
+            return partial_model
         # Else we apply the forward operator
         # if model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._forward_func signature
