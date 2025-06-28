@@ -155,14 +155,9 @@ def test_conditioning_likelihood_of_multiple_inputs_model():
     def gradient_z(direction, x, y, z):
         return direction * y[1]
     
-    # gradient with respect to all inputs (form 1, callable)
-    def gradient_form1(direction, x, y, z):
-        grad_x = gradient_x(direction, x, y, z)
-        grad_y = gradient_y(direction, x, y, z)
-        grad_z = gradient_z(direction, x, y, z)
-        return (grad_x, grad_y, grad_z)
-    
-    
+    # gradient with respect to all inputs (form 2, callable)
+    gradient_form2 = (gradient_x, gradient_y, gradient_z)
+
     domain_geometry = (
         cuqi.geometry.Continuous1D(3),
         cuqi.geometry.Continuous1D(2),
@@ -174,7 +169,7 @@ def test_conditioning_likelihood_of_multiple_inputs_model():
     
     model = model_class(
         forward=forward_map,
-        gradient=gradient_form1,
+        gradient=gradient_form2,
         domain_geometry=domain_geometry,
         range_geometry=range_geometry)
     
