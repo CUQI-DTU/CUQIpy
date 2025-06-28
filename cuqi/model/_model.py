@@ -760,7 +760,7 @@ class Model(object):
         )
 
         if len(kwargs) == 0:
-            return copy(self)
+            return self
 
         if len(kwargs) < len(self._non_default_args):
             # create new model with partial input
