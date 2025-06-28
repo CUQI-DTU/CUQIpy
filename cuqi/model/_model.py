@@ -633,10 +633,8 @@ class Model(object):
                         + map_name.lower()
                         + f" input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args {non_default_args}."
                     )
-                split_succeeded, split_args = self._is_stacked_args(*args, is_par=is_par)
-                if split_succeeded:
-                    args = split_args
-                else:
+                arg_format, args = self._detect_args_format(*args, is_par=is_par)
+                if arg_format == "unknown":
                     appending_error_message = (
                         " Additionally, the "
                         + map_name.lower()
@@ -645,13 +643,13 @@ class Model(object):
 
             # Check if the number of args does not match the number of
             # non_default_args of the model
-            #if len(args) != len(non_default_args):
-            #    raise ValueError(
-            #        "The number of positional arguments does not match the number of non-default arguments of the "
-            #        + map_name.lower()
-            #        + "."
-            #        + appending_error_message
-            #    )
+            if len(args) != len(non_default_args) and arg_format != "partial":
+                raise ValueError(
+                    "The number of positional arguments does not match the number of non-default arguments of the "
+                    + map_name.lower()
+                    + "."
+                    + appending_error_message
+                )
 
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
@@ -677,33 +675,43 @@ class Model(object):
 
         return kwargs
 
-    def _is_stacked_args(self, *args, is_par=True):
+    def _detect_args_format(self, *args, is_par=True):
         """Private function that checks if the input arguments are stacked
         and splits them if they are."""
         # Length of args should be 1 if the input is stacked (no partial
         # stacking is supported)
+        
+        arg_format = "partial"
+        for i, arg in enumerate(args):
+            if len(arg) != self.domain_geometry.geometries[i]:
+                arg_format = "unknown"
+                break
+
+        if arg_format == "partial":
+            return arg_format, args
+
         if len(args) > 1:
-            return False, args
+            return "unknown", args
 
         # Type of args should be parameter
         if not is_par:
-            return False, args
+            return "unknown", args
 
         # args[0] should be numpy array or CUQIarray
         is_CUQIarray = isinstance(args[0], CUQIarray)
         is_numpy_array = isinstance(args[0], np.ndarray)
         if not is_CUQIarray and not is_numpy_array:
-            return False, args
+            return "unknown", args
 
         # Shape of args[0] should be (domain_dim,)
         if not args[0].shape == (self.domain_dim,):
-            return False, args
+            return "unknown", args
 
         # Ensure domain geometry is _ProductGeometry
         if not isinstance(
             self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
         ):
-            return False, args
+            return "unknown", args
 
         # Split the stacked input
         split_args = np.split(args[0], self.domain_geometry.stacked_par_split_indices)
@@ -715,7 +723,7 @@ class Model(object):
                 for i, arg in enumerate(split_args)
             ]
 
-        return True, split_args
+        return "stacked", split_args
 
     def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
