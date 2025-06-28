@@ -1,3 +1,4 @@
+
 from cuqi.array import CUQIarray
 from cuqi.samples import Samples
 from cuqi.geometry import Continuous1D, Discrete
@@ -1945,7 +1946,7 @@ def test_reduction_of_number_of_model_inputs_by_partial_specification():
     test_model = MultipleInputTestModel.helper_build_three_input_test_model()
     model = cuqi.model.Model(
         test_model.forward_map,
-        gradient=test_model.gradient_form1,
+        gradient=test_model.gradient_form2,
         domain_geometry=test_model.domain_geometry,
         range_geometry=test_model.range_geometry,
     )
