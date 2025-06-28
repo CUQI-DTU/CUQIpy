@@ -148,7 +148,7 @@ class Likelihood(Density):
     def get_non_model_parameter_names(self) -> Model:
 
         model_value = None
-
+        parameters = self.get_parameter_names()
         for var in self.distribution.get_mutable_variables():
             value = getattr(self.distribution, var)
             if isinstance(value, Model):
@@ -158,7 +158,8 @@ class Likelihood(Density):
                     new_likelihood = copy(self.distribution)
                     setattr(new_likelihood, var, [1]*value.range_dim)
                     parameters = new_likelihood.get_parameter_names()
-                    parameters.remove(self.name)
+                    if self.name in parameters:
+                        parameters.remove(self.name)
 
                 else:
                     raise ValueError(f"Multiple models found in data distribution {self.distribution} of {self}. Extracting model is ambiguous and not supported.")
@@ -175,8 +176,9 @@ class Likelihood(Density):
         new_likelihood.distribution = self.distribution(**dist_kwargs)
 
         # extract kwargs belonging to the model
-        model_kwargs = {k: v for k, v in kwargs.items() if k in self.model._non_default_args}
-        setattr(new_likelihood.distribution, self.model_var, self.model(**model_kwargs))  # Set the model variable to the model
+        if self.model is not None:
+            model_kwargs = {k: v for k, v in kwargs.items() if k in self.model._non_default_args}
+            setattr(new_likelihood.distribution, self.model_var, self.model(**model_kwargs))  # Set the model variable to the model
 
         # If dist is no longer conditional, return a constant density
         if not new_likelihood.distribution.is_cond:
