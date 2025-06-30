@@ -768,8 +768,9 @@ class Model(object):
             original_non_default_args = self._original_non_default_args if hasattr(self, '_original_non_default_args') else self._non_default_args
 
             if hasattr(self, '_original_non_default_args'):
-                reduced_original_non_default_args = [self._original_non_default_args[i] for i in range(len(self._original_non_default_args)) if self._non_default_args[i] not in kwargs.keys()]
-                kwargs = {k:v for k,v in zip(set(original_non_default_args) - set(reduced_original_non_default_args), args)}
+                reduced_original_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] not in kwargs.keys()]
+                substituted_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] in kwargs.keys()]
+                kwargs = {k:v for k,v in zip(substituted_non_default_args, args)}
             # create new model with partial input
             partial_forward = partial(self._forward_func, **kwargs)
             if isinstance(self._gradient_func, tuple):
