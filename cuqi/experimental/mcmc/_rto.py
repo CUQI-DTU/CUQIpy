@@ -41,13 +41,14 @@ class LinearRTO(Sampler):
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, independent=False, **kwargs):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         # Other parameters
         self.maxit = maxit
         self.tol = tol
+        self.independent = independent
 
     def _initialize(self):
         self._precompute()
@@ -111,10 +112,17 @@ class LinearRTO(Sampler):
             self.M = M  
         else:
             raise TypeError("All likelihoods need to be callable or none need to be callable.")
+        # compute the map
+        sim = CGLS(self.M, self.b_tild, self.current_point, self.maxit, self.tol)            
+        self.map, _ = sim.solve()
+
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
+        if self.independent:
+            sim = CGLS(self.M, y, self.map, self.maxit, self.tol)
+        else:
+            sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
@@ -228,6 +236,7 @@ class RegularizedLinearRTO(LinearRTO):
             self.solver = "FISTA" if callable(self.proximal) else "ADMM"
         if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
+        self.compute_map_regularized()
 
     @property
     def solver(self):
@@ -272,15 +281,15 @@ class RegularizedLinearRTO(LinearRTO):
     def prior(self):
         return self.target.prior.gaussian
 
-    def step(self):
-        y = self.b_tild + np.random.randn(len(self.b_tild))
+    def compute_map_regularized(self):
+        y = self.b_tild
 
         if self.solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
-                        self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+                        self.initial_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
         elif self.solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
-                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
+                        self.initial_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self.solver == "ScipyLinearLSQ":
             A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                     matvec=lambda x: self.M(x, 1),
@@ -297,7 +306,40 @@ class RegularizedLinearRTO(LinearRTO):
             bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
             # Note that the objective function is defined as 0.5*||Mx-y||^2, 
             # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.initial_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+        else:
+            raise ValueError("Choice of solver not supported.")
+
+        self.map_regularized, _ = sim.solve()
+
+    def step(self):
+        y = self.b_tild + np.random.randn(len(self.b_tild))
+        
+        self.initial_point_per_step = self.current_point if not self.independent else self.map_regularized
+
+        if self.solver == "FISTA":
+            sim = FISTA(self.M, y, self.proximal,
+                        self.initial_point_per_step, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+        elif self.solver == "ADMM":
+            sim = ADMM(self.M, y, self.proximal,
+                        self.initial_point_per_step, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
+        elif self.solver == "ScipyLinearLSQ":
+            A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
+                                    matvec=lambda x: self.M(x, 1),
+                                    rmatvec=lambda x: self.M(x, 2)
+                                    )
+            sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
+                                    max_iter = self.maxit,
+                                    lsmr_maxiter = self.inner_max_it, 
+                                    tol = self.abstol,
+                                    lsmr_tol = self.inner_abstol)
+        elif self.solver == "ScipyMinimizer":
+            # Adapt bounds format, as scipy.minimize requires a bounds format 
+            # different than that in scipy.lsq_linear.
+            bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
+            # Note that the objective function is defined as 0.5*||Mx-y||^2, 
+            # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.initial_point_per_step, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
 
