@@ -36,6 +36,11 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
+    independent : bool
+        This will influence how the solver is set up in step().
+        If True, the initial point for the inner CGLS solver is set to the MAP estimate of the unperturbed linear least squares problem, and the samples will be independent.
+        If False, the initial point for the inner CGLS solver is set to the current point of the sampler, and the samples will be dependent.
+
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
@@ -211,6 +216,11 @@ class RegularizedLinearRTO(LinearRTO):
     solver : string
         Options are "FISTA" (default for a single constraint or regularization), "ADMM" (default and the only option for multiple constraints or regularizations), "ScipyLinearLSQ" and "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of a single `box` or `nonnegativity` constraint. *Optional*.
 
+    independent : bool
+        This will influence how the solver is set up in step().
+        If True, the initial point the inner solver is set to the MAP estimate of the unperturbed regularized linear least squares problem, and the samples will be independent.
+        If False, the initial point for the inner solver is set to the current point of the sampler, and the samples will be dependent.
+        
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
