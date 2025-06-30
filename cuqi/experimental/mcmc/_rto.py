@@ -237,6 +237,7 @@ class RegularizedLinearRTO(LinearRTO):
         if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
         self.compute_map_regularized()
+        self.initial_point_per_step = None
 
     @property
     def solver(self):
@@ -282,6 +283,13 @@ class RegularizedLinearRTO(LinearRTO):
         return self.target.prior.gaussian
 
     def compute_map_regularized(self):
+        """
+        Compute the MAP estimate of the regularized linear least squares problem.
+        The code is largely borrowed from step() and the only differences are that
+        1. the data vector y is not perturbed;
+        2. the initial point for the solver is set to the specified "initial_point",
+           instead of the current pooint.
+        """
         y = self.b_tild
 
         if self.solver == "FISTA":
