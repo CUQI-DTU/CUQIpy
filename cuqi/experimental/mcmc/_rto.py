@@ -328,7 +328,7 @@ class RegularizedLinearRTO(LinearRTO):
         else:
             raise ValueError("Choice of solver not supported.")
 
-        self.map_regularized, _ = sim.solve()
+        self._map_regularized, _ = sim.solve()
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
