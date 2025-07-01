@@ -36,27 +36,37 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
-    independent : bool
-        This will influence how the solver is set up in step().
-        If True, the initial point for the inner CGLS solver is set to the MAP estimate of the unperturbed linear least squares problem, and the samples will be independent.
-        If False, the initial point for the inner CGLS solver is set to the current point of the sampler, and the samples will be dependent.
+    inner_initial_point : string
+        Options are "previous_sample" (default) and "MAP". *Optional*.
+        This will influence how the inner solver at step() is set up. If set to "previous_sample", the initial point for the inner CGLS solver is set to the current point of the sampler, and the samples will be dependent. If set to "MAP", the initial point for the inner CGLS solver is set to the MAP estimate of the unperturbed linear least squares problem, and the samples will be independent.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, independent=False, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, inner_initial_point="previous_sample", **kwargs):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         # Other parameters
         self.maxit = maxit
         self.tol = tol
-        self.independent = independent
+        self.inner_initial_point = inner_initial_point
 
     def _initialize(self):
         self._precompute()
+
+    @property
+    def inner_initial_point(self):
+        return self._inner_initial_point
+    
+    @inner_initial_point.setter
+    def inner_initial_point(self, value):
+        if value == "previous_sample" or value == "MAP":
+            self._inner_initial_point = value
+        else:
+            raise ValueError("inner_initial_point must be either 'previous_sample' or 'MAP'.")
 
     @property
     def prior(self):
@@ -117,17 +127,20 @@ class LinearRTO(Sampler):
             self.M = M  
         else:
             raise TypeError("All likelihoods need to be callable or none need to be callable.")
-        # compute the map
+        
+        # compute the map, i.e., solution of the "unperturbed" linear least squares problem
         sim = CGLS(self.M, self.b_tild, self.current_point, self.maxit, self.tol)            
-        self.map, _ = sim.solve()
-
+        self._map, _ = sim.solve()
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        if self.independent:
+        if self.inner_initial_point == "MAP":
             sim = CGLS(self.M, y, self.map, self.maxit, self.tol)
+        elif self.inner_initial_point == "previous_sample":
+            sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)
         else:
-            sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
+            # This should never happen, as we check the value of inner_initial_point in the setter.
+            raise ValueError("inner_initial_point must be either 'previous_sample' or 'MAP'.")
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
@@ -216,10 +229,9 @@ class RegularizedLinearRTO(LinearRTO):
     solver : string
         Options are "FISTA" (default for a single constraint or regularization), "ADMM" (default and the only option for multiple constraints or regularizations), "ScipyLinearLSQ" and "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of a single `box` or `nonnegativity` constraint. *Optional*.
 
-    independent : bool
-        This will influence how the solver is set up in step().
-        If True, the initial point the inner solver is set to the MAP estimate of the unperturbed regularized linear least squares problem, and the samples will be independent.
-        If False, the initial point for the inner solver is set to the current point of the sampler, and the samples will be dependent.
+    inner_initial_point : string
+        Options are "previous_sample" (default) and "MAP". *Optional*.
+        This will influence how the inner solver at step() is set up. If set to "previous_sample", the initial point for the inner solver is set to the current point of the sampler, and the samples will be dependent. If set to "MAP", the initial point for the inner solver is set to the MAP estimate of the unperturbed linear least squares problem, and the samples will be independent.
         
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
