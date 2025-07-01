@@ -246,8 +246,8 @@ class RegularizedLinearRTO(LinearRTO):
             self.solver = "FISTA" if callable(self.proximal) else "ADMM"
         if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
-        self.compute_map_regularized()
-        self.initial_point_per_step = None
+        self._compute_map_regularized()
+        self._initial_point_per_step = None
 
     @property
     def solver(self):
