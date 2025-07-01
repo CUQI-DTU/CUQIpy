@@ -17,6 +17,22 @@ class SamplerRecommender(object):
 
     exceptions: list[cuqi.experimental.mcmc.Sampler], *optional*
         Samplers not to be recommended.
+    
+    Example
+    -------
+    .. code-block:: python
+        import cuqi
+        import numpy as np
+
+        x = cuqi.distribution.Gamma(1, 1)
+        y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x: 1 / x)
+        target = cuqi.distribution.JointDistribution(y, x)(y=1)
+
+        valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
+        recommended_sampler = cuqi.experimental.SamplerRecommender(target).recommend()
+        print("Valid samplers:", valid_samplers)
+        print("Recommended sampler:", recommended_sampler)
+
     """
 
     def __init__(self, target:cuqi.density.Density, exceptions = []):
@@ -28,7 +44,7 @@ class SamplerRecommender(object):
     def target(self) -> cuqi.density.Density:
         """ Return the target Distribution. """
         return self._target
-    
+
     @target.setter
     def target(self, value:cuqi.density.Density):
         """ Set the target Distribution. Runs validation of the target. """
@@ -73,7 +89,7 @@ class SamplerRecommender(object):
     def ordering(self):
         """ Returns the ordered list of recommendation rules used by the recommender. """
         return self._ordering
-    
+
     def valid_samplers(self, as_string = True):
         """
         Finds all possible samplers that can be used for sampling from the target distribution.
@@ -101,7 +117,6 @@ class SamplerRecommender(object):
             valid_samplers += [cuqi.experimental.mcmc.HybridGibbs.__name__ if as_string else cuqi.experimental.mcmc.HybridGibbs]
 
         return valid_samplers
-    
 
     def valid_HybridGibbs_sampling_strategy(self, as_string = True):
         """
@@ -131,11 +146,10 @@ class SamplerRecommender(object):
             samplers = recommender.valid_samplers(as_string)
             if len(samplers) == 0:
                 return None
-            
+
             valid_samplers[par_name] = samplers
 
         return valid_samplers
-    
 
     def recommend(self, as_string = False):
         """
@@ -194,7 +208,7 @@ class SamplerRecommender(object):
 
             if sampler is None:
                 return None
-            
+
             suggested_samplers[par_name] = sampler
 
         return suggested_samplers
