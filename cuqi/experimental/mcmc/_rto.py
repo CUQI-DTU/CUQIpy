@@ -38,7 +38,7 @@ class LinearRTO(Sampler):
 
     inner_initial_point : string
         Options are "previous_sample" (default) and "MAP". *Optional*.
-        This will influence how the inner solver at step() is set up. If set to "previous_sample", the initial point for the inner CGLS solver is set to the current point of the sampler, and the samples will be dependent. If set to "MAP", the initial point for the inner CGLS solver is set to the MAP estimate of the unperturbed linear least squares problem, and the samples will be independent.
+        This will influence how the inner solver at step() is set up. If set to "previous_sample", the initial point for the inner CGLS solver is set to the current point of the sampler. If set to "MAP", the initial point for the inner CGLS solver is set to the MAP estimate of the unperturbed linear least squares problem.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
@@ -231,7 +231,7 @@ class RegularizedLinearRTO(LinearRTO):
 
     inner_initial_point : string
         Options are "previous_sample" (default) and "MAP". *Optional*.
-        This will influence how the inner solver at step() is set up. If set to "previous_sample", the initial point for the inner solver is set to the current point of the sampler, and the samples will be dependent. If set to "MAP", the initial point for the inner solver is set to the MAP estimate of the unperturbed linear least squares problem, and the samples will be independent.
+        This will influence how the inner solver at step() is set up. If set to "previous_sample", the initial point for the inner solver is set to the current point of the sampler. If set to "MAP", the initial point for the inner solver is set to the MAP estimate of the unperturbed regularized linear least squares problem.
         
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
@@ -259,7 +259,6 @@ class RegularizedLinearRTO(LinearRTO):
         if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
         self._compute_map_regularized()
-        self._initial_point_per_step = None
 
     @property
     def solver(self):
@@ -304,22 +303,13 @@ class RegularizedLinearRTO(LinearRTO):
     def prior(self):
         return self.target.prior.gaussian
 
-    def compute_map_regularized(self):
-        """
-        Compute the MAP estimate of the regularized linear least squares problem.
-        The code is largely borrowed from step() and the only differences are that
-        1. the data vector y is not perturbed;
-        2. the initial point for the solver is set to the specified "initial_point",
-           instead of the current pooint.
-        """
-        y = self.b_tild
-
+    def _customized_step(self, y, x0):
         if self.solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
-                        self.initial_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+                        x0, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
         elif self.solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
-                        self.initial_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
+                        x0, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self.solver == "ScipyLinearLSQ":
             A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                     matvec=lambda x: self.M(x, 1),
@@ -336,43 +326,22 @@ class RegularizedLinearRTO(LinearRTO):
             bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
             # Note that the objective function is defined as 0.5*||Mx-y||^2, 
             # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.initial_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), x0, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
+        
+        sol, _ = sim.solve()
+        return sol
 
-        self._map_regularized, _ = sim.solve()
+    def _compute_map_regularized(self):
+        self._map_regularized = self._customized_step(self.b_tild, self.initial_point)
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
         
-        self.initial_point_per_step = self.current_point if not self.independent else self.map_regularized
+        x0 = self.current_point if self.inner_initial_point == "previous_sample" else self._map_regularized
 
-        if self.solver == "FISTA":
-            sim = FISTA(self.M, y, self.proximal,
-                        self.initial_point_per_step, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
-        elif self.solver == "ADMM":
-            sim = ADMM(self.M, y, self.proximal,
-                        self.initial_point_per_step, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
-        elif self.solver == "ScipyLinearLSQ":
-            A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
-                                    matvec=lambda x: self.M(x, 1),
-                                    rmatvec=lambda x: self.M(x, 2)
-                                    )
-            sim = ScipyLinearLSQ(A_op, y, self.target.prior._box_bounds, 
-                                    max_iter = self.maxit,
-                                    lsmr_maxiter = self.inner_max_it, 
-                                    tol = self.abstol,
-                                    lsmr_tol = self.inner_abstol)
-        elif self.solver == "ScipyMinimizer":
-            # Adapt bounds format, as scipy.minimize requires a bounds format 
-            # different than that in scipy.lsq_linear.
-            bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
-            # Note that the objective function is defined as 0.5*||Mx-y||^2, 
-            # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.initial_point_per_step, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
-        else:
-            raise ValueError("Choice of solver not supported.")
+        self.current_point = self._customized_step(y, x0)
 
-        self.current_point, _ = sim.solve()
         acc = 1
         return acc
