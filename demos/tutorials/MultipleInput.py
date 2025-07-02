@@ -4,7 +4,7 @@
 import cuqi
 import numpy as np
 
-# Define the forward model
+# %% Define the forward map
 def forward_map(h_v, h_t, c_v, c_t): 
     # volume
     volume = h_v + c_v
@@ -13,6 +13,7 @@ def forward_map(h_v, h_t, c_v, c_t):
 
     return np.array([volume, temp]).reshape(2,)
 
+#%% Define the gradients
 # TODO: fix the gradients and try MALA or NUTS
 # Define the gradients
 def gradient_h_v(direction, h_v, h_t, c_v, c_t):
@@ -28,6 +29,7 @@ def gradient_c_v(direction, h_v, h_t, c_v, c_t):
 def gradient_c_t(direction, h_v, h_t, c_v, c_t):
     return direction[0] * 0 + c_v * direction[1]
 
+#%% Domain geometry and range geometry
 # Define the forward model with gradients
 domain_geometry = (
     cuqi.geometry.Discrete(['h_v']),
@@ -36,7 +38,9 @@ domain_geometry = (
     cuqi.geometry.Discrete(['c_t'])
 )
 
-range_geometry = cuqi.geometry.Continuous1D(2)#(['temperature','volume'])
+range_geometry = cuqi.geometry.Discrete(['temperature','volume'])
+
+#%% Model
 model = cuqi.model.Model(
     forward=forward_map,
     gradient=(gradient_h_v, gradient_h_t, gradient_c_v, gradient_c_t),
@@ -44,19 +48,27 @@ model = cuqi.model.Model(
     range_geometry=range_geometry
 )
 
+#%% Partial evaluation
+print("\nmodel()\n", model())
+print("\nmodel(h_v = 50)\n", model(h_v = 50))
+print("\nmodel(h_v = 50, h_t = 60)\n", model(h_v = 50, h_t = 60))
+print("\nmodel(h_v = 50, h_t = 60, c_v = 30)\n", model(h_v = 50, h_t = 60, c_v = 30))
+print("\nmodel(h_v = 50, h_t = 60, c_v = 30, c_t = 10)\n", model(h_v = 50, h_t = 60, c_v = 30, c_t = 10))
+
+#%%
 h_v = cuqi.distribution.Uniform(0, 60, geometry=domain_geometry[0])
 h_t = cuqi.distribution.Uniform(40, 70, geometry=domain_geometry[1])
 c_v = cuqi.distribution.Uniform(0, 60, geometry= domain_geometry[2])
 c_t = cuqi.distribution.TruncatedNormal(10, 2**2, 7, 15, geometry=domain_geometry[3])  # Truncated normal distribution between 7 and 15
 
-# Data distribution and likelihood
+#%% Data distribution and likelihood
 data_dist = cuqi.distribution.Gaussian(
     mean=model(h_v, h_t, c_v, c_t),
     cov=np.array([[1**2, 0], [0, 0.5**2]])
 )
 
 
-# Define the joint distribution
+#%% Define the joint distribution
 joint_dist = cuqi.distribution.JointDistribution(
     data_dist,
     h_v,
@@ -65,9 +77,15 @@ joint_dist = cuqi.distribution.JointDistribution(
     c_t
 )
 
+#%% Define the posterior distribution
 posterior = joint_dist(data_dist=np.array([60, 38]))
 
-# Sample from the joint distribution
+print("posterior", posterior)
+print("\nposterior(h_v = 50)\n", posterior(h_v=50))
+print("\nposterior(h_v = 50, h_t = 60)\n", posterior(h_v=50, h_t=60))
+print("\nposterior(h_v = 50, h_t = 60, c_v = 30)\n", posterior(h_v=50, h_t=60, c_v=30))
+
+#%% Sample from the joint distribution
 sampling_strategy = {
     'h_v': cuqi.experimental.mcmc.MH(scale=0.05, initial_point= np.array([30])),
     'h_t': cuqi.experimental.mcmc.MH(scale=0.02, initial_point= np.array([50])),
@@ -84,10 +102,7 @@ hybridGibbs.warmup(1000)
 hybridGibbs.sample(2000)
 samples = hybridGibbs.get_samples()
 
-# Plot the results
-
-
-# %%
+#%% Plot the results
 mean_h_v = samples['h_v'].mean()
 mean_h_t = samples['h_t'].mean()
 mean_c_v = samples['c_v'].mean()
@@ -105,4 +120,3 @@ samples['h_v'].plot_trace()
 samples['h_t'].plot_trace()
 samples['c_v'].plot_trace()
 samples['c_t'].plot_trace()
-# %%
