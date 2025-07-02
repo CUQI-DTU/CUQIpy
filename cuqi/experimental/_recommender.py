@@ -21,17 +21,19 @@ class SamplerRecommender(object):
     Example
     -------
     .. code-block:: python
-        import cuqi
         import numpy as np
+        from cuqi.distribution import Gamma, Gaussian, JointDistribution
+        from cuqi.experimental import SamplerRecommender
 
-        x = cuqi.distribution.Gamma(1, 1)
-        y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x: 1 / x)
-        target = cuqi.distribution.JointDistribution(y, x)(y=1)
+        x = Gamma(1, 1)
+        y = Gaussian(np.zeros(2), cov=lambda x: 1 / x)
+        target = JointDistribution(y, x)(y=1)
 
-        valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
-        recommended_sampler = cuqi.experimental.SamplerRecommender(target).recommend()
+        recommender = SamplerRecommender(target)
+        valid_samplers = recommender.valid_samplers()
+        recommended_sampler = recommender.recommend()
         print("Valid samplers:", valid_samplers)
-        print("Recommended sampler:", recommended_sampler)
+        print("Recommended sampler:\n", recommended_sampler)
 
     """
 
