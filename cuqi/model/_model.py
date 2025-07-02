@@ -633,10 +633,8 @@ class Model(object):
                         + map_name.lower()
                         + f" input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args {non_default_args}."
                     )
-                split_succeeded, split_args = self._is_stacked_args(*args, is_par=is_par)
-                if split_succeeded:
-                    args = split_args
-                else:
+                arg_format, args = self._detect_args_format(*args, is_par=is_par)
+                if arg_format == "unknown":
                     appending_error_message = (
                         " Additionally, the "
                         + map_name.lower()
@@ -645,7 +643,7 @@ class Model(object):
 
             # Check if the number of args does not match the number of
             # non_default_args of the model
-            if len(args) != len(non_default_args):
+            if len(args) != len(non_default_args) and arg_format != "partial":
                 raise ValueError(
                     "The number of positional arguments does not match the number of non-default arguments of the "
                     + map_name.lower()
@@ -658,7 +656,7 @@ class Model(object):
                 kwargs[non_default_args[idx]] = arg
 
         # Check kwargs matches non_default_args
-        if set(list(kwargs.keys())) != set(non_default_args):
+        if not (set(list(kwargs.keys())) <= set(non_default_args)):
             if map_name == "gradient":
                 error_msg = f"The gradient input is specified by a direction and keywords arguments {list(kwargs.keys())} that does not match the non_default_args of the model {non_default_args}."
             else:
@@ -669,41 +667,51 @@ class Model(object):
                     + map_name
                     + f" {non_default_args}."
                 )
-
+        
             raise ValueError(error_msg)
 
         # Make sure order of kwargs is the same as non_default_args
-        kwargs = {k: kwargs[k] for k in non_default_args}
+        kwargs = {k: kwargs[k] for k in non_default_args if k in kwargs}
 
         return kwargs
 
-    def _is_stacked_args(self, *args, is_par=True):
+    def _detect_args_format(self, *args, is_par=True):
         """Private function that checks if the input arguments are stacked
         and splits them if they are."""
         # Length of args should be 1 if the input is stacked (no partial
         # stacking is supported)
+        
+        arg_format = "partial"
+        for i, arg in enumerate(args):
+            if len(arg) != self.domain_geometry.geometries[i]:
+                arg_format = "unknown"
+                break
+
+        if arg_format == "partial":
+            return arg_format, args
+
         if len(args) > 1:
-            return False, args
+            return "unknown", args
 
         # Type of args should be parameter
         if not is_par:
-            return False, args
+            return "unknown", args
 
         # args[0] should be numpy array or CUQIarray
         is_CUQIarray = isinstance(args[0], CUQIarray)
         is_numpy_array = isinstance(args[0], np.ndarray)
         if not is_CUQIarray and not is_numpy_array:
-            return False, args
+            return "unknown", args
 
         # Shape of args[0] should be (domain_dim,)
         if not args[0].shape == (self.domain_dim,):
-            return False, args
+            return "unknown", args
 
         # Ensure domain geometry is _ProductGeometry
         if not isinstance(
             self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
         ):
-            return False, args
+            return "unknown", args
 
         # Split the stacked input
         split_args = np.split(args[0], self.domain_geometry.stacked_par_split_indices)
@@ -715,7 +723,7 @@ class Model(object):
                 for i, arg in enumerate(split_args)
             ]
 
-        return True, split_args
+        return "stacked", split_args
 
     def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
@@ -750,9 +758,53 @@ class Model(object):
         kwargs = self._parse_args_add_to_kwargs(
             *args, **kwargs, is_par=is_par, map_name="model"
         )
-
         # extract args from kwargs
         args = list(kwargs.values())
+
+        if len(kwargs) == 0:
+            return self
+
+        if len(kwargs) < len(self._non_default_args):
+            original_non_default_args = self._original_non_default_args if hasattr(self, '_original_non_default_args') else self._non_default_args
+
+            if hasattr(self, '_original_non_default_args'):
+                reduced_original_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] not in kwargs.keys()]
+                substituted_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] in kwargs.keys()]
+                kwargs = {k:v for k,v in zip(substituted_non_default_args, args)}
+            # create new model with partial input
+            partial_forward = partial(self._forward_func, **kwargs)
+            if isinstance(self._gradient_func, tuple):
+                # If gradient is a tuple, we create a partial function for each
+                # gradient function in the tuple
+                partial_gradient = tuple(
+                    partial(self._gradient_func[i], **kwargs)
+                    for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()
+                )
+                if len(partial_gradient) == 1:
+                    partial_gradient = partial_gradient[0]
+            else:
+                raise NotImplementedError(
+                    "Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions."
+                )
+
+            partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
+                *[self.domain_geometry.geometries[i] for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()]
+            )
+            if len(partial_domain_geometry.geometries) == 1:
+                partial_domain_geometry = partial_domain_geometry.geometries[0]
+            
+            partial_model = Model(
+                forward=partial_forward,
+                range_geometry=self.range_geometry,
+                domain_geometry=partial_domain_geometry,
+                gradient=partial_gradient
+            )
+            if hasattr(self, '_original_non_default_args'):
+                partial_model._original_non_default_args = reduced_original_non_default_args
+            partial_model._stored_non_default_args = [self._non_default_args[i] for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()]
+
+            #TODO: partial is only supported when passing actual parameters, not distributions or random variables
+
 
         # If input is a distribution, we simply change the parameter name of
         # model to match the distribution name
@@ -771,7 +823,10 @@ class Model(object):
         # the operation may be delegated to the Node class.
         elif any(isinstance(args_i, cuqi.experimental.algebra.Node) for args_i in args):
             return NotImplemented
-
+        
+        # if input is partial, we create a new model with the partial input
+        if len(args) < len(self._non_default_args):
+            return partial_model
         # Else we apply the forward operator
         # if model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._forward_func signature
