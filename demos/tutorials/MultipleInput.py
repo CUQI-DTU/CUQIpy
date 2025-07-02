@@ -8,7 +8,7 @@ import numpy as np
 def forward_map(h_v, h_t, c_v, c_t): 
     # volume
     volume = h_v + c_v
-    # temprature
+    # temperature
     temp = (h_v * h_t + c_v * c_t) / (h_v + c_v)
 
     return np.array([volume, temp]).reshape(2,)
