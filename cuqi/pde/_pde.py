@@ -288,6 +288,8 @@ class TimeDependentLinearPDE(LinearPDE):
         if self._stored_non_default_args is None:
             self._stored_non_default_args = get_non_default_args(self.PDE_form)
             # Remove the time argument from the non-default arguments
+            # since it is provided automatically by `solve` method and is not
+            # an argument to be inferred in Bayesian inference setting.
             if 't' in self._stored_non_default_args:
                 self._stored_non_default_args.remove('t')
         return self._stored_non_default_args
