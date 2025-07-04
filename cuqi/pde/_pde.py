@@ -3,6 +3,7 @@ import scipy
 from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
+from cuqi.utilities import get_non_default_args
 
 
 class PDE(ABC):
@@ -29,6 +30,7 @@ class PDE(ABC):
         self.grid_sol = grid_sol
         self.grid_obs = grid_obs
         self.observation_map = observation_map
+        self._stored_non_default_args = None
 
     @abstractmethod
     def assemble(self, *args, **kwargs):
@@ -65,6 +67,13 @@ class PDE(ABC):
         return equal_arrays
 
     @property
+    def _non_default_args(self):
+        """Returns the non-default arguments of the PDE_form function"""
+        if self._stored_non_default_args is None:
+            self._stored_non_default_args = get_non_default_args(self.PDE_form)
+        return self._stored_non_default_args
+
+    @property
     def grid_sol(self):
         if hasattr(self,"_grid_sol"):
             return self._grid_sol
@@ -94,6 +103,48 @@ class PDE(ABC):
     def grids_equal(self):
         return self._grids_equal
 
+    def _parse_args_add_to_kwargs(
+        self, *args,  map_name, **kwargs):
+        """ Private function that parses the input arguments and adds them as
+        keyword arguments matching (the order of) the non default arguments of
+        the pde class.
+        """
+
+        # If any args are given, add them to kwargs
+        if len(args) > 0:
+            if len(kwargs) > 0:
+                raise ValueError(
+                    + map_name.lower()
+                    + " input is specified both as positional and keyword arguments. This is not supported."
+                )
+
+            # Check if the number of args does not match the number of
+            # non_default_args of the model
+            if len(args) != len(self._non_default_args):
+                raise ValueError(
+                    "The number of positional arguments does not match the number of non-default arguments of "
+                    + map_name.lower()
+                    + "."
+                )
+
+            # Add args to kwargs following the order of non_default_args
+            for idx, arg in enumerate(args):
+                kwargs[self._non_default_args[idx]] = arg
+
+        # Check kwargs matches non_default_args
+        if set(list(kwargs.keys())) != set(self._non_default_args):
+            error_msg = (
+                map_name.lower()
+                + f" input is specified by keywords arguments {list(kwargs.keys())} that does not match the non_default_args of "
+                + map_name
+                + f" {self._non_default_args}."
+            )
+            raise ValueError(error_msg)
+
+        # Make sure order of kwargs is the same as non_default_args
+        kwargs = {k: kwargs[k] for k in self._non_default_args}
+
+        return kwargs
 
 class LinearPDE(PDE):
     """
@@ -143,7 +194,7 @@ class SteadyStateLinearPDE(LinearPDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function with signature `PDE_form(parameter)` where `parameter` is the Bayesian parameter. The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
+        Callable function with signature `PDE_form(parameter1, parameter2, ...)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.). The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
 
     kwargs: 
         See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments. 
@@ -158,7 +209,10 @@ class SteadyStateLinearPDE(LinearPDE):
 
     def assemble(self, *args, **kwargs):
         """Assembles differential operator and rhs according to PDE_form"""
-        self.diff_op, self.rhs = self.PDE_form(*args, **kwargs)
+        kwargs = self._parse_args_add_to_kwargs(
+            *args, map_name="assemble", **kwargs
+        )
+        self.diff_op, self.rhs = self.PDE_form(**kwargs)
 
     def solve(self):
         """Solve the PDE and returns the solution and an information variable `info` which is a tuple of all variables returned by the function `linalg_solve` after the solution."""
@@ -186,7 +240,7 @@ class TimeDependentLinearPDE(LinearPDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function with signature `PDE_form(parameter, t)` where `parameter` is the Bayesian parameter and `t` is the time at which the PDE form is evaluated. The function returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. The types of `differential_operator` and `source_term` are determined by what the method :meth:`linalg_solve` accepts as linear operator and right-hand side, respectively. The type of `initial_condition` should be the same type as the solution returned by :meth:`linalg_solve`.
+        Callable function with signature `PDE_form(parameter1, parameter2, ..., t)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.) and `t` is the time at which the PDE form is evaluated. The function returns a tuple of (`differential_operator`, `source_term`, `initial_condition`) where `differential_operator` is the linear operator at time `t`, `source_term` is the source term at time `t`, and `initial_condition` is the initial condition. The types of `differential_operator` and `source_term` are determined by what the method :meth:`linalg_solve` accepts as linear operator and right-hand side, respectively. The type of `initial_condition` should be the same type as the solution returned by :meth:`linalg_solve`.
 
     time_steps : ndarray 
         An array of the discretized times corresponding to the time steps that starts with the initial time and ends with the final time
@@ -228,6 +282,18 @@ class TimeDependentLinearPDE(LinearPDE):
     def method(self):
         return self._method
 
+    @property
+    def _non_default_args(self):
+        """Returns the non-default arguments of the PDE_form function"""
+        if self._stored_non_default_args is None:
+            self._stored_non_default_args = get_non_default_args(self.PDE_form)
+            # Remove the time argument from the non-default arguments
+            # since it is provided automatically by `solve` method and is not
+            # an argument to be inferred in Bayesian inference setting.
+            if 't' in self._stored_non_default_args:
+                self._stored_non_default_args.remove('t')
+        return self._stored_non_default_args
+
     @method.setter
     def method(self, value):
         if value.lower() != 'forward_euler' and value.lower() != 'backward_euler':
@@ -237,13 +303,13 @@ class TimeDependentLinearPDE(LinearPDE):
 
     def assemble(self, *args, **kwargs):
         """Assemble PDE"""
+        kwargs = self._parse_args_add_to_kwargs(*args, map_name="assemble", **kwargs)
         self._parameter_kwargs = kwargs
-        self._parameter_args = args
 
     def assemble_step(self, t):
         """Assemble time step at time t"""
         self.diff_op, self.rhs, self.initial_condition = self.PDE_form(
-            *self._parameter_args, **self._parameter_kwargs, t=t
+            **self._parameter_kwargs, t=t
         )
 
     def solve(self):
