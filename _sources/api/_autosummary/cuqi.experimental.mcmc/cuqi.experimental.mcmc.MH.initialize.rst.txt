@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.MH.initialize
+====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: MH.initialize

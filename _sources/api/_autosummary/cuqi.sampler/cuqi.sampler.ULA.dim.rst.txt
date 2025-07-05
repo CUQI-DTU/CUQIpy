@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.dim
+====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: ULA.dim

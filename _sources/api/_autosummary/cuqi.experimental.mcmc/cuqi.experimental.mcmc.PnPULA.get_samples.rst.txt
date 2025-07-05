@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.get\_samples
+==========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.get_samples

@@ -1,0 +1,6 @@
+cuqi.geometry.KLExpansion\_Full.fun2par
+=======================================
+
+.. currentmodule:: cuqi.geometry
+
+.. automethod:: KLExpansion_Full.fun2par

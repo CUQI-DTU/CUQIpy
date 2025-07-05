@@ -1,0 +1,6 @@
+cuqi.pde.SteadyStateLinearPDE.grids\_equal
+==========================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: SteadyStateLinearPDE.grids_equal

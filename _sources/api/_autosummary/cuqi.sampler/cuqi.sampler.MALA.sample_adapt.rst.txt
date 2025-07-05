@@ -1,0 +1,6 @@
+cuqi.sampler.MALA.sample\_adapt
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MALA.sample_adapt

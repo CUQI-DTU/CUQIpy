@@ -1,0 +1,6 @@
+cuqi.pde.SteadyStateLinearPDE.grid\_obs
+=======================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: SteadyStateLinearPDE.grid_obs

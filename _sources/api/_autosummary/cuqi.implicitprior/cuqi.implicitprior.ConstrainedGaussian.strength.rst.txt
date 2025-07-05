@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.strength
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.strength

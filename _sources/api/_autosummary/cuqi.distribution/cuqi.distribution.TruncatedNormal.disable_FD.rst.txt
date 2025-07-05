@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.disable\_FD
+=============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.disable_FD

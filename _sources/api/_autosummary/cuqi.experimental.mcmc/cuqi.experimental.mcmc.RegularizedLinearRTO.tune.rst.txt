@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.RegularizedLinearRTO.tune
+================================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: RegularizedLinearRTO.tune

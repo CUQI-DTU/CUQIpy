@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Sampler.geometry
+=======================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: Sampler.geometry

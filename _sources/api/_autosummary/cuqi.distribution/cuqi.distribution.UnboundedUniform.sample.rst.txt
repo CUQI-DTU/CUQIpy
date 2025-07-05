@@ -1,0 +1,6 @@
+cuqi.distribution.UnboundedUniform.sample
+=========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: UnboundedUniform.sample

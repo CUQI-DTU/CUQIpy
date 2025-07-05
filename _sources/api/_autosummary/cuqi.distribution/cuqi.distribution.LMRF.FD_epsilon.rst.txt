@@ -1,0 +1,6 @@
+cuqi.distribution.LMRF.FD\_epsilon
+==================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: LMRF.FD_epsilon

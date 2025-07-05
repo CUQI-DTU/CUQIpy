@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.cov
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.cov

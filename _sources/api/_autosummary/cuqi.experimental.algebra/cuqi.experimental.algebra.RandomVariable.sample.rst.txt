@@ -1,0 +1,6 @@
+cuqi.experimental.algebra.RandomVariable.sample
+===============================================
+
+.. currentmodule:: cuqi.experimental.algebra
+
+.. automethod:: RandomVariable.sample

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.regularization\_options
+======================================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedUnboundedUniform.regularization_options

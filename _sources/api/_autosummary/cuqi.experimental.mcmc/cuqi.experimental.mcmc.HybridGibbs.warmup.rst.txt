@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbs.warmup
+=========================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: HybridGibbs.warmup

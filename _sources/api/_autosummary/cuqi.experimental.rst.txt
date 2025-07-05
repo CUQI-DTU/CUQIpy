@@ -1,0 +1,47 @@
+experimental
+============
+
+Module path: cuqi.experimental
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.experimental
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.experimental
+    :nosignatures:
+    :recursive:
+
+   
+      SamplerRecommender
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   algebra
+   geometry
+   mcmc
+

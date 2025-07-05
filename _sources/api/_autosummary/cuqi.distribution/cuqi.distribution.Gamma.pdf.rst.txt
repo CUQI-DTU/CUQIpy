@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.pdf
+===========================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.pdf

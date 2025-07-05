@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.Sampler.sample
+=====================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: Sampler.sample
