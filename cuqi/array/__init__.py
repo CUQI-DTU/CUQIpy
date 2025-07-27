@@ -92,6 +92,7 @@ def _expose_backend_functions():
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
     global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort, any, all, argwhere
     global cumsum, cumprod, diff, gradient, maximum, minimum, repeat, isclose
+    global percentile, median, multiply, piecewise, tile, float_power, polynomial
     global dot, matmul, inner, outer, cross, tensordot, einsum, tril, triu
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
@@ -218,6 +219,40 @@ def _expose_backend_functions():
         minimum = lambda x, y: _backend_module.minimum(x, y)
         repeat = lambda x, repeats, axis=None: _backend_module.repeat_interleave(x, repeats, dim=axis) if axis is not None else x.repeat(repeats)
         isclose = lambda a, b, rtol=1e-05, atol=1e-08: _backend_module.isclose(a, b, rtol=rtol, atol=atol)
+        
+        # Additional missing functions for PyTorch
+        def percentile(a, q, axis=None, keepdims=False):
+            # PyTorch doesn't have percentile, use quantile
+            q_tensor = _backend_module.tensor(q) / 100.0
+            return _backend_module.quantile(a, q_tensor, dim=axis, keepdim=keepdims)
+        
+        def median(a, axis=None, keepdims=False):
+            return _backend_module.median(a, dim=axis, keepdim=keepdims)[0] if axis is not None else _backend_module.median(a)
+        
+        def multiply(x, y):
+            return _backend_module.mul(x, y)
+        
+        def piecewise(x, condlist, funclist, *args, **kwargs):
+            # PyTorch doesn't have piecewise, implement basic version
+            import numpy as np
+            # Convert to numpy, apply piecewise, convert back
+            x_np = x.detach().cpu().numpy() if isinstance(x, _backend_module.Tensor) else x
+            condlist_np = [c.detach().cpu().numpy() if isinstance(c, _backend_module.Tensor) else c for c in condlist]
+            result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
+            return _backend_module.tensor(result_np, dtype=x.dtype if isinstance(x, _backend_module.Tensor) else _backend_module.float64)
+        
+        def tile(A, reps):
+            return A.repeat(*reps)
+        
+        def float_power(x1, x2):
+            return _backend_module.pow(x1.float(), x2)
+        
+        def polynomial(p, x):
+            # Basic polynomial evaluation: p[0] + p[1]*x + p[2]*x^2 + ...
+            result = _backend_module.zeros_like(x)
+            for i, coeff in enumerate(p):
+                result = result + coeff * _backend_module.pow(x, i)
+            return result
     else:
         sum = _backend_module.sum
         mean = _backend_module.mean
@@ -240,6 +275,15 @@ def _expose_backend_functions():
         minimum = _backend_module.minimum
         repeat = _backend_module.repeat
         isclose = _backend_module.isclose
+        
+        # Additional missing functions for other backends
+        percentile = _backend_module.percentile if hasattr(_backend_module, 'percentile') else lambda a, q, axis=None, keepdims=False: _backend_module.quantile(a, q/100.0, axis=axis, keepdims=keepdims) if hasattr(_backend_module, 'quantile') else None
+        median = _backend_module.median if hasattr(_backend_module, 'median') else lambda a, axis=None, keepdims=False: _backend_module.percentile(a, 50, axis=axis, keepdims=keepdims)
+        multiply = _backend_module.multiply if hasattr(_backend_module, 'multiply') else lambda x, y: x * y
+        piecewise = _backend_module.piecewise if hasattr(_backend_module, 'piecewise') else lambda x, condlist, funclist, *args, **kwargs: None
+        tile = _backend_module.tile if hasattr(_backend_module, 'tile') else lambda A, reps: None
+        float_power = _backend_module.float_power if hasattr(_backend_module, 'float_power') else lambda x1, x2: _backend_module.power(x1.astype(_backend_module.float64), x2)
+        polynomial = _backend_module.polynomial if hasattr(_backend_module, 'polynomial') else lambda p, x: None
     
     # Linear algebra
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
@@ -1030,6 +1074,7 @@ __all__ = [
     'concatenate', 'stack', 'vstack', 'hstack', 'dstack', 'split', 'hsplit', 'vsplit', 'dsplit',
     'sum', 'prod', 'mean', 'std', 'var', 'min', 'max', 'argmin', 'argmax', 'sort', 'argsort', 'any', 'all', 'argwhere',
     'cumsum', 'cumprod', 'diff', 'gradient', 'maximum', 'minimum', 'repeat', 'isclose',
+    'percentile', 'median', 'multiply', 'piecewise', 'tile', 'float_power', 'polynomial',
     'dot', 'matmul', 'inner', 'outer', 'cross', 'tensordot', 'einsum', 'tril', 'triu',
     'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'arctan2', 'sinh', 'cosh', 'tanh',
     'exp', 'exp2', 'log', 'log2', 'log10', 'sqrt', 'square', 'power', 'abs', 'sign',
