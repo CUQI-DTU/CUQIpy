@@ -927,7 +927,7 @@ class Model(object):
 
         # Store if any of the inputs is a CUQIarray
         to_CUQIarray = isinstance(direction, CUQIarray) or any(
-            isinstance(x, CUQIarray) for x in kwargs_fun.values()
+            isinstance(x, CUQIarray) for x in kwargs.values()
         )
 
         # Turn to_CUQIarray to a tuple of bools of the same length as kwargs_fun
@@ -961,19 +961,23 @@ class Model(object):
                     grad.append(grad_func(**kwargs_fun_grad_input))
                 else:
                     grad.append(None)
-                    # set the ith item of to_CUQIarray tuple to False
-                    # because the ith gradient is None
-                    to_CUQIarray = to_CUQIarray[:i] + (False,) + to_CUQIarray[i + 1 :]
-            grad_is_par = False  # Assume gradient is function value
+            grad_is_par = tuple([False] * len(self._gradient_func))  # Assume gradient is function value
 
+        # Apply chain rule to account for domain geometry gradient
         grad = self._apply_chain_rule_to_account_for_domain_geometry_gradient(
             kwargs_par, grad, grad_is_par, to_CUQIarray
         )
 
+        # Handle the output based on whether we expect CUQIarray objects
         if len(grad) == 1:
-            return list(grad.values())[0]
+            result = list(grad.values())[0]
+            # If inputs were CUQIarray objects, ensure output is also CUQIarray
+            if to_CUQIarray[0] and not isinstance(result, CUQIarray):
+                # Wrap in CUQIarray if needed
+                result = CUQIarray(result, geometry=self.domain_geometry)
+            return result
         elif self._gradient_output_stacked:
-            return np.hstack(
+            stacked_result = np.hstack(
                 [
                     (
                         v.to_numpy()
@@ -983,7 +987,18 @@ class Model(object):
                     for v in list(grad.values())
                 ]
             )
+            # If inputs were CUQIarray objects, ensure output is also CUQIarray
+            if to_CUQIarray[0] and not isinstance(stacked_result, CUQIarray):
+                # Wrap in CUQIarray if needed
+                stacked_result = CUQIarray(stacked_result, geometry=self.domain_geometry)
+            return stacked_result
 
+        # For multiple outputs, ensure each is properly wrapped
+        if to_CUQIarray[0]:
+            for key, value in grad.items():
+                if not isinstance(value, CUQIarray) and value is not None:
+                    grad[key] = CUQIarray(value, geometry=self.domain_geometry)
+        
         return grad
 
     def _check_gradient_can_be_computed(self, direction, kwargs_dict):

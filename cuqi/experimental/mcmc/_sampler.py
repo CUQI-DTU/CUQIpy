@@ -151,7 +151,24 @@ class Sampler(ABC):
     # ------------ Public methods ------------
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
-        return Samples(np.array(self._samples).T, self.target.geometry)
+        # Convert CUQIarray objects to their underlying arrays
+        sample_list = []
+        for sample in self._samples:
+            if hasattr(sample, '_array'):  # CUQIarray object
+                sample_list.append(sample._array)
+            else:
+                sample_list.append(sample)
+        
+        # Ensure proper array shape
+        samples_array = np.array(sample_list)
+        if samples_array.ndim == 1:
+            # If 1D, reshape to (1, Ns) for proper dimensionality
+            samples_array = samples_array.reshape(1, -1)
+        else:
+            # If already 2D, transpose to get (dim, Ns)
+            samples_array = samples_array.T
+            
+        return Samples(samples_array, self.target.geometry)
     
     def reinitialize(self):
         """ Re-initialize the sampler. This clears the state and history and initializes the sampler again by setting state and history to their original values. """

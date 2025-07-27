@@ -242,7 +242,16 @@ class HybridGibbs:
                     sample_list.append(sample._array)
                 else:
                     sample_list.append(sample)
-            samples_array = np.array(sample_list).T
+            
+            # Ensure proper array shape
+            samples_array = np.array(sample_list)
+            if samples_array.ndim == 1:
+                # If 1D, reshape to (1, Ns) for proper dimensionality
+                samples_array = samples_array.reshape(1, -1)
+            else:
+                # If already 2D, transpose to get (dim, Ns)
+                samples_array = samples_array.T
+                
             samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)
         return samples_object
     
@@ -286,9 +295,13 @@ class HybridGibbs:
                 # Store acceptance rate in sampler (matching behavior of Sampler class Sample method)
                 sampler._acc.append(acc)
 
-            # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
+            # Extract samples (Maintain proper dimensionality)
             if isinstance(sampler.current_point, np.ndarray):
-                self.current_samples[par_name] = sampler.current_point.reshape(-1)
+                # Ensure the sample maintains its proper shape
+                if sampler.current_point.ndim == 0:  # Scalar
+                    self.current_samples[par_name] = sampler.current_point.reshape(1)
+                else:
+                    self.current_samples[par_name] = sampler.current_point
             else:
                 self.current_samples[par_name] = sampler.current_point
 

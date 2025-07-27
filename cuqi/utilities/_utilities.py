@@ -458,7 +458,7 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
         if not isinstance(upper, np.ndarray):
             upper = upper*np.ones_like(x)
 
-        filled = zeros_like(x, dtype = int)
+        filled = np.zeros_like(x, dtype = int)
         counter = 0
 
         def process(i, j):
