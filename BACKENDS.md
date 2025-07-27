@@ -16,6 +16,12 @@ CUQIpy now supports multiple array backends, allowing you to choose between NumP
 - **Installation**: `pip install cupy`
 - **Use case**: GPU acceleration for NVIDIA GPUs
 
+### PyTorch
+- **Backend name**: `pytorch` or `torch`
+- **Description**: Deep learning framework with GPU support and automatic differentiation
+- **Installation**: `pip install torch`
+- **Use case**: Deep learning, GPU acceleration, automatic differentiation
+
 ### JAX
 - **Backend name**: `jax`
 - **Description**: Arrays with just-in-time compilation and automatic differentiation

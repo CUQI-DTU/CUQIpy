@@ -87,13 +87,13 @@ def _expose_backend_functions():
     """Expose backend functions at module level."""
     global array, zeros, ones, zeros_like, ones_like, empty, empty_like, full, full_like
     global arange, linspace, logspace, eye, identity, diag, diagonal
-    global reshape, ravel, flatten, transpose, swapaxes, moveaxis
+    global reshape, ravel, flatten, transpose, swapaxes, moveaxis, shape, size
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
     global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort
     global dot, matmul, inner, outer, cross, tensordot, einsum
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
-    global floor, ceil, round, clip, where, isnan, isinf, isfinite
+    global floor, ceil, round, clip, where, isnan, isinf, isfinite, count_nonzero, allclose, array_equiv, array_equal
     global real, imag, conj, angle, absolute
     global random, linalg, fft
     global ndarray, dtype, newaxis, inf, nan, pi, e
@@ -140,10 +140,16 @@ def _expose_backend_functions():
         diagonal = lambda a, offset=0, axis1=0, axis2=1: _backend_module.diag(a, diagonal=offset)
     
     # Shape manipulation
-    reshape = _backend_module.reshape
-    ravel = _backend_module.ravel
-    flatten = _backend_module.ravel  # Some backends don't have flatten
-    transpose = _backend_module.transpose
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        reshape = lambda x, *args: x.reshape(*args) if hasattr(x, 'reshape') else _backend_module.reshape(x, *args)
+        ravel = lambda x: x.flatten() if hasattr(x, 'flatten') else _backend_module.flatten(x)
+        flatten = lambda x: x.flatten() if hasattr(x, 'flatten') else _backend_module.flatten(x)
+        transpose = lambda x, axes=None: x.permute(*reversed(range(x.ndim))) if axes is None else x.permute(*axes)
+    else:
+        reshape = _backend_module.reshape
+        ravel = _backend_module.ravel
+        flatten = _backend_module.ravel  # Some backends don't have flatten
+        transpose = _backend_module.transpose
     
     # Array joining and splitting
     concatenate = _backend_module.concatenate
@@ -217,6 +223,32 @@ def _expose_backend_functions():
     isnan = _backend_module.isnan
     isinf = _backend_module.isinf
     isfinite = _backend_module.isfinite
+    
+    # Counting and comparison functions
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        count_nonzero = lambda x: _backend_module.count_nonzero(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        allclose = lambda a, b, rtol=1e-05, atol=1e-08: _backend_module.allclose(
+            _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a,
+            _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b,
+            rtol=rtol, atol=atol
+        )
+        array_equiv = lambda a, b: (lambda result: result.all() if hasattr(result, 'all') else result)(
+            _backend_module.equal(
+                _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a,
+                _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b
+            )
+        )
+        array_equal = lambda a, b: (lambda result: result.all() if hasattr(result, 'all') else result)(
+            _backend_module.equal(
+                _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a,
+                _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b
+            )
+        )
+    else:
+        count_nonzero = _backend_module.count_nonzero if hasattr(_backend_module, 'count_nonzero') else lambda x: (x != 0).sum()
+        allclose = _backend_module.allclose if hasattr(_backend_module, 'allclose') else lambda a, b, rtol=1e-05, atol=1e-08: (abs(a - b) <= atol + rtol * abs(b)).all()
+        array_equiv = _backend_module.array_equiv if hasattr(_backend_module, 'array_equiv') else lambda a, b: (a == b).all()
+        array_equal = _backend_module.array_equal if hasattr(_backend_module, 'array_equal') else lambda a, b: (a == b).all()
     
     # Complex number operations
     real = _backend_module.real
@@ -422,6 +454,13 @@ def _expose_backend_functions():
     # Deep copy - use standard library
     import copy as copy_module
     deepcopy = copy_module.deepcopy
+    
+    # Shape and size functions
+    shape = lambda x: x.shape
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        size = lambda x: x.numel() if hasattr(x, 'numel') else _backend_module.numel(x)
+    else:
+        size = lambda x: x.size if hasattr(x, 'size') else _backend_module.size(x)
     
     # Type information functions
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
@@ -831,13 +870,13 @@ __all__ = [
     'dot', 'matmul', 'inner', 'outer', 'cross', 'tensordot', 'einsum',
     'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'arctan2', 'sinh', 'cosh', 'tanh',
     'exp', 'exp2', 'log', 'log2', 'log10', 'sqrt', 'square', 'power', 'abs', 'sign',
-    'floor', 'ceil', 'round', 'clip', 'where', 'isnan', 'isinf', 'isfinite',
+    'floor', 'ceil', 'round', 'clip', 'where', 'isnan', 'isinf', 'isfinite', 'count_nonzero', 'allclose', 'array_equiv', 'array_equal',
     'real', 'imag', 'conj', 'angle', 'absolute',
     'random', 'linalg', 'fft',
     'ndarray', 'dtype', 'newaxis', 'inf', 'nan', 'pi', 'e',
     'asarray', 'asanyarray', 'ascontiguousarray', 'asfortranarray',
     'copy', 'deepcopy', 'meshgrid', 'broadcast_arrays', 'expand_dims', 'squeeze',
-    'fix', 'isscalar', 'matrix', 'finfo', 'iinfo',
+    'fix', 'isscalar', 'matrix', 'finfo', 'iinfo', 'shape', 'size',
     'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64',
     'float16', 'float32', 'float64', 'complex64', 'complex128',
     'integer', 'floating', 'complexfloating'
