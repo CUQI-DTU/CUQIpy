@@ -655,7 +655,8 @@ def _expose_backend_functions():
                 # This would need proper implementation for each backend
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.linalg.solve(a, b)
+                    import numpy
+                    return numpy.linalg.solve(a, b)
                 else:
                     raise NotImplementedError(f"linalg.solve not implemented for backend {_BACKEND_NAME}")
             
@@ -663,7 +664,8 @@ def _expose_backend_functions():
             def inv(a):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.linalg.inv(a)
+                    import numpy
+                    return numpy.linalg.inv(a)
                 else:
                     raise NotImplementedError(f"linalg.inv not implemented for backend {_BACKEND_NAME}")
             
@@ -671,7 +673,8 @@ def _expose_backend_functions():
             def det(a):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.linalg.det(a)
+                    import numpy
+                    return numpy.linalg.det(a)
                 else:
                     raise NotImplementedError(f"linalg.det not implemented for backend {_BACKEND_NAME}")
             
@@ -679,7 +682,8 @@ def _expose_backend_functions():
             def eig(a):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.linalg.eig(a)
+                    import numpy
+                    return numpy.linalg.eig(a)
                 else:
                     raise NotImplementedError(f"linalg.eig not implemented for backend {_BACKEND_NAME}")
             
@@ -687,7 +691,8 @@ def _expose_backend_functions():
             def eigvals(a):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.linalg.eigvals(a)
+                    import numpy
+                    return numpy.linalg.eigvals(a)
                 else:
                     raise NotImplementedError(f"linalg.eigvals not implemented for backend {_BACKEND_NAME}")
             
@@ -695,7 +700,8 @@ def _expose_backend_functions():
             def svd(a, full_matrices=True):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.linalg.svd(a, full_matrices)
+                    import numpy
+                    return numpy.linalg.svd(a, full_matrices)
                 else:
                     raise NotImplementedError(f"linalg.svd not implemented for backend {_BACKEND_NAME}")
         
@@ -710,7 +716,8 @@ def _expose_backend_functions():
             def fft(a, n=None, axis=-1, norm=None):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.fft.fft(a, n, axis, norm)
+                    import numpy
+                    return numpy.fft.fft(a, n, axis, norm)
                 else:
                     raise NotImplementedError(f"fft.fft not implemented for backend {_BACKEND_NAME}")
             
@@ -718,7 +725,8 @@ def _expose_backend_functions():
             def ifft(a, n=None, axis=-1, norm=None):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.fft.ifft(a, n, axis, norm)
+                    import numpy
+                    return numpy.fft.ifft(a, n, axis, norm)
                 else:
                     raise NotImplementedError(f"fft.ifft not implemented for backend {_BACKEND_NAME}")
             
@@ -726,7 +734,8 @@ def _expose_backend_functions():
             def fftfreq(n, d=1.0):
                 if _BACKEND_NAME == "numpy":
                     import numpy
-                    return xp.fft.fftfreq(n, d)
+                    import numpy
+                    return numpy.fft.fftfreq(n, d)
                 else:
                     raise NotImplementedError(f"fft.fftfreq not implemented for backend {_BACKEND_NAME}")
         
@@ -740,15 +749,15 @@ def is_array_like(obj):
     """Check if object is array-like for the current backend."""
     if _BACKEND_NAME == "numpy":
         import numpy
-        return isinstance(obj, (xp.ndarray, list, tuple)) or xp.isscalar(obj)
+        return isinstance(obj, (_backend_module.ndarray, list, tuple)) or _backend_module.isscalar(obj)
     elif _BACKEND_NAME == "cupy":
         import cupy
         import numpy
-        return isinstance(obj, (cupy.ndarray, xp.ndarray, list, tuple)) or xp.isscalar(obj)
+        return isinstance(obj, (cupy.ndarray, _backend_module.ndarray, list, tuple)) or _backend_module.isscalar(obj)
     elif _BACKEND_NAME == "jax":
         import jax.numpy as jnp
         import numpy
-        return isinstance(obj, (jnp.ndarray, xp.ndarray, list, tuple)) or xp.isscalar(obj)
+        return isinstance(obj, (jnp.ndarray, _backend_module.ndarray, list, tuple)) or _backend_module.isscalar(obj)
     else:
         return hasattr(obj, '__array__') or hasattr(obj, '__array_interface__')
 
@@ -851,7 +860,7 @@ def isscalar(element):
         return _backend_module.isscalar(element)
     else:
         import numpy
-        return xp.isscalar(element)
+        return _backend_module.isscalar(element)
 
 # Matrix operations that might be needed
 def matrix(data, dtype=None):

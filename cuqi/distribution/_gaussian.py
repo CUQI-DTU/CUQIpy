@@ -1,7 +1,8 @@
 import warnings
 import numbers
 import cuqi.array as xp
-import cuqi.array as xp  # nplinalg = xp.linalg
+import cuqi.array as xp
+nplinalg = xp.linalg  # Alias for numpy linalg operations
 
 import scipy.stats as sps
 import scipy.sparse as spa

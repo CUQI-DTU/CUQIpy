@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 import cuqi.array as xp
-import cuqi.array as xp  # matlib = xp.matlib
+import cuqi.array as xp
+# Add numpy matlib functionality if needed
+import numpy
+matlib = numpy.matlib
 import matplotlib.pyplot as plt
 import math
 from scipy.fftpack import dst, idst
