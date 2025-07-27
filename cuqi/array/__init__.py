@@ -92,7 +92,7 @@ def _expose_backend_functions():
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
     global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort, any, all, argwhere
     global cumsum, cumprod, diff, gradient, maximum, minimum, repeat, isclose
-    global dot, matmul, inner, outer, cross, tensordot, einsum, pad, tril, triu
+    global dot, matmul, inner, outer, cross, tensordot, einsum, tril, triu
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
     global floor, ceil, round, clip, where, isnan, isinf, isfinite, count_nonzero, allclose, array_equiv, array_equal, sinc, fix
