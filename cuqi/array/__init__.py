@@ -161,8 +161,9 @@ def _expose_backend_functions():
         # PyTorch has slightly different APIs
         sum = lambda x, axis=None, keepdims=False: _backend_module.sum(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.sum(x)
         mean = lambda x, axis=None, keepdims=False: _backend_module.mean(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.mean(x)
-        std = lambda x, axis=None, keepdims=False: _backend_module.std(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.std(x)
-        var = lambda x, axis=None, keepdims=False: _backend_module.var(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.var(x)
+        # Use unbiased=False to match NumPy's behavior (ddof=0)
+        std = lambda x, axis=None, keepdims=False: _backend_module.std(x, dim=axis, keepdim=keepdims, unbiased=False) if axis is not None else _backend_module.std(x, unbiased=False)
+        var = lambda x, axis=None, keepdims=False: _backend_module.var(x, dim=axis, keepdim=keepdims, unbiased=False) if axis is not None else _backend_module.var(x, unbiased=False)
         min = lambda x, axis=None, keepdims=False: _backend_module.min(x, dim=axis, keepdim=keepdims)[0] if axis is not None else _backend_module.min(x)
         max = lambda x, axis=None, keepdims=False: _backend_module.max(x, dim=axis, keepdim=keepdims)[0] if axis is not None else _backend_module.max(x)
         argmin = lambda x, axis=None, keepdims=False: _backend_module.argmin(x, dim=axis, keepdim=keepdims)
@@ -277,6 +278,20 @@ def _expose_backend_functions():
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
         asarray = lambda x, dtype=None: _backend_module.tensor(x, dtype=dtype) if not isinstance(x, _backend_module.Tensor) else x
         asanyarray = lambda x, dtype=None: _backend_module.tensor(x, dtype=dtype) if not isinstance(x, _backend_module.Tensor) else x
+        
+        # Add astype method for PyTorch tensors
+        def _add_astype_to_tensor():
+            if not hasattr(_backend_module.Tensor, 'astype'):
+                def astype(self, dtype):
+                    if dtype == float:
+                        return self.float()
+                    elif dtype == int:
+                        return self.int()
+                    else:
+                        return self.to(dtype)
+                _backend_module.Tensor.astype = astype
+        _add_astype_to_tensor()
+        
     else:
         asarray = _backend_module.asarray
         asanyarray = _backend_module.asanyarray
