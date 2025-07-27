@@ -68,9 +68,17 @@ def _load_backend(backend_name):
             warnings.warn("JAX not available, falling back to NumPy")
             import numpy as backend_module
             return backend_module
+    elif backend_name == "pytorch" or backend_name == "torch":
+        try:
+            import torch as backend_module
+            return backend_module
+        except ImportError:
+            warnings.warn("PyTorch not available, falling back to NumPy")
+            import numpy as backend_module
+            return backend_module
     else:
         raise ValueError(f"Unsupported array backend '{backend_name}'. "
-                        f"Supported backends: numpy, cupy, jax")
+                        f"Supported backends: numpy, cupy, jax, pytorch")
 
 # Load the initial backend
 _backend_module = _load_backend(_BACKEND_NAME)
@@ -96,22 +104,40 @@ def _expose_backend_functions():
     global integer, floating, complexfloating
     
     # Core array creation and manipulation
-    array = _backend_module.array
-    zeros = _backend_module.zeros
-    ones = _backend_module.ones
-    zeros_like = _backend_module.zeros_like
-    ones_like = _backend_module.ones_like
-    empty = _backend_module.empty
-    empty_like = _backend_module.empty_like
-    full = _backend_module.full
-    full_like = _backend_module.full_like
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch uses tensor instead of array
+        array = lambda x, dtype=None: _backend_module.tensor(x, dtype=dtype)
+        zeros = _backend_module.zeros
+        ones = _backend_module.ones
+        zeros_like = _backend_module.zeros_like
+        ones_like = _backend_module.ones_like
+        empty = _backend_module.empty
+        empty_like = _backend_module.empty_like
+        full = _backend_module.full
+        full_like = _backend_module.full_like
+    else:
+        array = _backend_module.array
+        zeros = _backend_module.zeros
+        ones = _backend_module.ones
+        zeros_like = _backend_module.zeros_like
+        ones_like = _backend_module.ones_like
+        empty = _backend_module.empty
+        empty_like = _backend_module.empty_like
+        full = _backend_module.full
+        full_like = _backend_module.full_like
     
     # Array generation
     arange = _backend_module.arange
-    linspace = _backend_module.linspace
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        linspace = lambda start, end, steps=50, **kwargs: _backend_module.linspace(start, end, steps, **kwargs)
+    else:
+        linspace = _backend_module.linspace
     eye = _backend_module.eye
     diag = _backend_module.diag
-    diagonal = _backend_module.diagonal
+    if hasattr(_backend_module, 'diagonal'):
+        diagonal = _backend_module.diagonal
+    else:
+        diagonal = lambda a, offset=0, axis1=0, axis2=1: _backend_module.diag(a, diagonal=offset)
     
     # Shape manipulation
     reshape = _backend_module.reshape
@@ -125,34 +151,67 @@ def _expose_backend_functions():
     split = _backend_module.split
     
     # Mathematical operations
-    sum = _backend_module.sum
-    mean = _backend_module.mean
-    std = _backend_module.std
-    var = _backend_module.var
-    min = _backend_module.min
-    max = _backend_module.max
-    argmin = _backend_module.argmin
-    argmax = _backend_module.argmax
-    sort = _backend_module.sort
-    argsort = _backend_module.argsort
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch has slightly different APIs
+        sum = lambda x, axis=None, keepdims=False: _backend_module.sum(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.sum(x)
+        mean = lambda x, axis=None, keepdims=False: _backend_module.mean(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.mean(x)
+        std = lambda x, axis=None, keepdims=False: _backend_module.std(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.std(x)
+        var = lambda x, axis=None, keepdims=False: _backend_module.var(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.var(x)
+        min = lambda x, axis=None, keepdims=False: _backend_module.min(x, dim=axis, keepdim=keepdims)[0] if axis is not None else _backend_module.min(x)
+        max = lambda x, axis=None, keepdims=False: _backend_module.max(x, dim=axis, keepdim=keepdims)[0] if axis is not None else _backend_module.max(x)
+        argmin = lambda x, axis=None, keepdims=False: _backend_module.argmin(x, dim=axis, keepdim=keepdims)
+        argmax = lambda x, axis=None, keepdims=False: _backend_module.argmax(x, dim=axis, keepdim=keepdims)
+        sort = lambda x, axis=-1: _backend_module.sort(x, dim=axis)[0]
+        argsort = lambda x, axis=-1: _backend_module.argsort(x, dim=axis)
+    else:
+        sum = _backend_module.sum
+        mean = _backend_module.mean
+        std = _backend_module.std
+        var = _backend_module.var
+        min = _backend_module.min
+        max = _backend_module.max
+        argmin = _backend_module.argmin
+        argmax = _backend_module.argmax
+        sort = _backend_module.sort
+        argsort = _backend_module.argsort
     
     # Linear algebra
-    dot = _backend_module.dot
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch uses different function names
+        dot = lambda a, b: _backend_module.dot(a, b) if a.dim() == 1 and b.dim() == 1 else _backend_module.matmul(a, b)
+    else:
+        dot = _backend_module.dot
     
     # Mathematical functions
-    sin = _backend_module.sin
-    cos = _backend_module.cos
-    tan = _backend_module.tan
-    exp = _backend_module.exp
-    log = _backend_module.log
-    sqrt = _backend_module.sqrt
-    square = _backend_module.square
-    abs = _backend_module.abs
-    sign = _backend_module.sign
-    floor = _backend_module.floor
-    ceil = _backend_module.ceil
-    clip = _backend_module.clip
-    where = _backend_module.where
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch functions need tensor inputs
+        sin = lambda x: _backend_module.sin(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        cos = lambda x: _backend_module.cos(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        tan = lambda x: _backend_module.tan(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        exp = lambda x: _backend_module.exp(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        log = lambda x: _backend_module.log(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        sqrt = lambda x: _backend_module.sqrt(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        square = lambda x: _backend_module.square(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        abs = lambda x: _backend_module.abs(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        sign = lambda x: _backend_module.sign(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        floor = lambda x: _backend_module.floor(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        ceil = lambda x: _backend_module.ceil(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
+        clip = lambda x, min_val, max_val: _backend_module.clamp(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x, min_val, max_val)
+        where = lambda condition, x, y: _backend_module.where(condition, x, y)
+    else:
+        sin = _backend_module.sin
+        cos = _backend_module.cos
+        tan = _backend_module.tan
+        exp = _backend_module.exp
+        log = _backend_module.log
+        sqrt = _backend_module.sqrt
+        square = _backend_module.square
+        abs = _backend_module.abs
+        sign = _backend_module.sign
+        floor = _backend_module.floor
+        ceil = _backend_module.ceil
+        clip = _backend_module.clip
+        where = _backend_module.where
     
     # Type checking
     isnan = _backend_module.isnan
@@ -166,16 +225,29 @@ def _expose_backend_functions():
     absolute = _backend_module.absolute
     
     # Constants
-    inf = _backend_module.inf
-    nan = _backend_module.nan
-    pi = _backend_module.pi
-    e = _backend_module.e
-    newaxis = _backend_module.newaxis
-    ndarray = _backend_module.ndarray
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        import math
+        inf = float('inf')
+        nan = float('nan')
+        pi = math.pi
+        e = math.e
+        newaxis = None  # PyTorch uses None for new axis
+        ndarray = _backend_module.Tensor  # PyTorch uses Tensor class
+    else:
+        inf = _backend_module.inf
+        nan = _backend_module.nan
+        pi = _backend_module.pi
+        e = _backend_module.e
+        newaxis = _backend_module.newaxis
+        ndarray = _backend_module.ndarray
     
     # Type conversion
-    asarray = _backend_module.asarray
-    asanyarray = _backend_module.asanyarray
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        asarray = lambda x, dtype=None: _backend_module.tensor(x, dtype=dtype) if not isinstance(x, _backend_module.Tensor) else x
+        asanyarray = lambda x, dtype=None: _backend_module.tensor(x, dtype=dtype) if not isinstance(x, _backend_module.Tensor) else x
+    else:
+        asarray = _backend_module.asarray
+        asanyarray = _backend_module.asanyarray
     
     # Handle backend-specific differences
     if hasattr(_backend_module, 'logspace'):
@@ -352,7 +424,11 @@ def _expose_backend_functions():
     deepcopy = copy_module.deepcopy
     
     # Type information functions
-    if hasattr(_backend_module, 'finfo'):
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch doesn't have finfo, use numpy's
+        import numpy
+        finfo = numpy.finfo
+    elif hasattr(_backend_module, 'finfo'):
         finfo = _backend_module.finfo
     else:
         import numpy
@@ -365,7 +441,25 @@ def _expose_backend_functions():
         iinfo = numpy.iinfo
     
     # Data types
-    if hasattr(_backend_module, 'int8'):
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch dtypes
+        int8 = _backend_module.int8
+        int16 = _backend_module.int16
+        int32 = _backend_module.int32
+        int64 = _backend_module.int64
+        uint8 = _backend_module.uint8
+        # PyTorch doesn't have all unsigned integer types
+        uint16 = _backend_module.uint8  # Fallback
+        uint32 = _backend_module.uint8  # Fallback
+        uint64 = _backend_module.uint8  # Fallback
+        float16 = _backend_module.float16
+        float32 = _backend_module.float32
+        float64 = _backend_module.float64
+        complex64 = _backend_module.complex64
+        complex128 = _backend_module.complex128
+        # Add dtype function
+        dtype = lambda x: x  # PyTorch dtypes are already objects
+    elif hasattr(_backend_module, 'int8'):
         int8 = _backend_module.int8
         int16 = _backend_module.int16
         int32 = _backend_module.int32
@@ -379,6 +473,7 @@ def _expose_backend_functions():
         float64 = _backend_module.float64
         complex64 = _backend_module.complex64
         complex128 = _backend_module.complex128
+        dtype = _backend_module.dtype
     else:
         import numpy
         int8 = numpy.int8
@@ -394,6 +489,7 @@ def _expose_backend_functions():
         float64 = numpy.float64
         complex64 = numpy.complex64
         complex128 = numpy.complex128
+        dtype = numpy.dtype
     
     # Type hierarchies
     if hasattr(_backend_module, 'integer'):
@@ -407,7 +503,51 @@ def _expose_backend_functions():
         complexfloating = numpy.complexfloating
     
     # Submodules
-    if hasattr(_backend_module, 'random'):
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch has different random API
+        class TorchRandomModule:
+            @staticmethod
+            def normal(loc=0.0, scale=1.0, size=None):
+                if size is None:
+                    return _backend_module.normal(loc, scale, (1,))
+                elif isinstance(size, int):
+                    return _backend_module.normal(loc, scale, (size,))
+                else:
+                    return _backend_module.normal(loc, scale, size)
+            
+            @staticmethod
+            def rand(*args):
+                if len(args) == 0:
+                    return _backend_module.rand(1)
+                return _backend_module.rand(*args)
+            
+            @staticmethod
+            def randn(*args):
+                if len(args) == 0:
+                    return _backend_module.randn(1)
+                return _backend_module.randn(*args)
+            
+            @staticmethod
+            def randint(low, high=None, size=None, dtype=None):
+                if high is None:
+                    high = low
+                    low = 0
+                if size is None:
+                    size = (1,)
+                elif isinstance(size, int):
+                    size = (size,)
+                return _backend_module.randint(low, high, size, dtype=dtype)
+            
+            @staticmethod
+            def uniform(low=0.0, high=1.0, size=None):
+                if size is None:
+                    size = (1,)
+                elif isinstance(size, int):
+                    size = (size,)
+                return _backend_module.uniform(low, high, size)
+        
+        random = TorchRandomModule()
+    elif hasattr(_backend_module, 'random'):
         random = _backend_module.random
     else:
         # Create a minimal random interface
@@ -421,7 +561,7 @@ def _expose_backend_functions():
                 else:
                     # Fallback to numpy random
                     import numpy
-                    return xp.random.normal(loc, scale, size)
+                    return numpy.random.normal(loc, scale, size)
             
             @staticmethod
             def rand(*args):
@@ -431,7 +571,7 @@ def _expose_backend_functions():
                     return jax_random.uniform(key, shape=args)
                 else:
                     import numpy
-                    return xp.random.rand(*args)
+                    return numpy.random.rand(*args)
             
             @staticmethod
             def randn(*args):
@@ -441,7 +581,7 @@ def _expose_backend_functions():
                     return jax_random.normal(key, shape=args)
                 else:
                     import numpy
-                    return xp.random.randn(*args)
+                    return numpy.random.randn(*args)
             
             @staticmethod
             def randint(low, high=None, size=None, dtype=int):
@@ -451,7 +591,7 @@ def _expose_backend_functions():
                     return jax_random.randint(key, shape=size or (), minval=low, maxval=high, dtype=dtype)
                 else:
                     import numpy
-                    return xp.random.randint(low, high, size, dtype)
+                    return numpy.random.randint(low, high, size, dtype)
         
         random = RandomModule()
     
@@ -583,6 +723,10 @@ def to_numpy(arr):
         import jax.numpy as jnp
         if isinstance(arr, jnp.ndarray):
             return jnp.asarray(arr).__array__()
+    elif _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        import torch
+        if isinstance(arr, torch.Tensor):
+            return arr.detach().cpu().numpy()
     
     import numpy
     return numpy.asarray(arr)
@@ -595,6 +739,9 @@ def from_numpy(arr):
     elif _BACKEND_NAME == "jax":
         import jax.numpy as jnp
         return jnp.asarray(arr)
+    elif _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        import torch
+        return torch.from_numpy(arr)
     else:
         return asarray(arr)
 
