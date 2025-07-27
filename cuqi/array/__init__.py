@@ -90,7 +90,7 @@ def _expose_backend_functions():
     global reshape, ravel, flatten, transpose, swapaxes, moveaxis, shape, size
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
     global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort
-    global dot, matmul, inner, outer, cross, tensordot, einsum
+    global dot, matmul, inner, outer, cross, tensordot, einsum, pad
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
     global floor, ceil, round, clip, where, isnan, isinf, isfinite, count_nonzero, allclose, array_equiv, array_equal
@@ -159,7 +159,17 @@ def _expose_backend_functions():
     # Mathematical operations
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
         # PyTorch has slightly different APIs
-        sum = lambda x, axis=None, keepdims=False: _backend_module.sum(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.sum(x)
+        def _safe_sum(x, axis=None, keepdims=False):
+            # Handle numpy arrays passed to PyTorch functions
+            if hasattr(x, 'numpy') and callable(x.numpy):
+                # It's a PyTorch tensor
+                return _backend_module.sum(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.sum(x)
+            else:
+                # Convert to tensor first
+                x_tensor = _backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x
+                return _backend_module.sum(x_tensor, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.sum(x_tensor)
+        
+        sum = _safe_sum
         mean = lambda x, axis=None, keepdims=False: _backend_module.mean(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.mean(x)
         # Use unbiased=False to match NumPy's behavior (ddof=0)
         std = lambda x, axis=None, keepdims=False: _backend_module.std(x, dim=axis, keepdim=keepdims, unbiased=False) if axis is not None else _backend_module.std(x, unbiased=False)
@@ -826,6 +836,35 @@ def meshgrid(*xi, **kwargs):
         else:
             raise NotImplementedError("meshgrid for more than 2 dimensions not implemented")
 
+def pad(array, pad_width, mode='constant', constant_values=0):
+    """Pad an array."""
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        import torch.nn.functional as F
+        # Convert numpy-style pad_width to PyTorch format
+        if isinstance(pad_width, int):
+            pad_width = [(pad_width, pad_width)]
+        elif isinstance(pad_width, tuple) and len(pad_width) == 2 and isinstance(pad_width[0], int):
+            pad_width = [pad_width]
+        
+        # PyTorch expects padding in reverse order and flattened
+        torch_pad = []
+        for pw in reversed(pad_width):
+            if isinstance(pw, int):
+                torch_pad.extend([pw, pw])
+            else:
+                torch_pad.extend([pw[0], pw[1]])
+        
+        if mode == 'constant':
+            return F.pad(array, torch_pad, mode='constant', value=constant_values)
+        else:
+            return F.pad(array, torch_pad, mode=mode)
+    else:
+        if hasattr(_backend_module, 'pad'):
+            return _backend_module.pad(array, pad_width, mode=mode, constant_values=constant_values)
+        else:
+            import numpy
+            return numpy.pad(to_numpy(array), pad_width, mode=mode, constant_values=constant_values)
+
 def broadcast_arrays(*arrays):
     """Broadcast arrays to a common shape."""
     if hasattr(_backend_module, 'broadcast_arrays'):
@@ -899,7 +938,7 @@ __all__ = [
     'random', 'linalg', 'fft',
     'ndarray', 'dtype', 'newaxis', 'inf', 'nan', 'pi', 'e',
     'asarray', 'asanyarray', 'ascontiguousarray', 'asfortranarray',
-    'copy', 'deepcopy', 'meshgrid', 'broadcast_arrays', 'expand_dims', 'squeeze',
+    'copy', 'deepcopy', 'meshgrid', 'broadcast_arrays', 'expand_dims', 'squeeze', 'pad',
     'fix', 'isscalar', 'matrix', 'finfo', 'iinfo', 'shape', 'size',
     'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64',
     'float16', 'float32', 'float64', 'complex64', 'complex128',
