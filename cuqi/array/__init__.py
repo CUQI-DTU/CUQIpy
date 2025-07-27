@@ -89,7 +89,7 @@ def _expose_backend_functions():
     global arange, linspace, logspace, eye, identity, diag, diagonal
     global reshape, ravel, flatten, transpose, swapaxes, moveaxis, shape, size
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
-    global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort, any, all
+    global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort, any, all, argwhere
     global dot, matmul, inner, outer, cross, tensordot, einsum, pad, tril, triu
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
@@ -185,6 +185,7 @@ def _expose_backend_functions():
         argsort = lambda x, axis=-1: _backend_module.argsort(x, dim=axis)
         any = lambda x, axis=None, keepdims=False: _backend_module.any(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.any(x)
         all = lambda x, axis=None, keepdims=False: _backend_module.all(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.all(x)
+        argwhere = lambda x: _backend_module.nonzero(x, as_tuple=False)
     else:
         sum = _backend_module.sum
         mean = _backend_module.mean
@@ -198,6 +199,7 @@ def _expose_backend_functions():
         argsort = _backend_module.argsort
         any = _backend_module.any
         all = _backend_module.all
+        argwhere = _backend_module.argwhere if hasattr(_backend_module, 'argwhere') else lambda x: _backend_module.nonzero(x)
     
     # Linear algebra
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
@@ -978,7 +980,7 @@ __all__ = [
     'arange', 'linspace', 'logspace', 'eye', 'identity', 'diag', 'diagonal',
     'reshape', 'ravel', 'flatten', 'transpose', 'swapaxes', 'moveaxis',
     'concatenate', 'stack', 'vstack', 'hstack', 'dstack', 'split', 'hsplit', 'vsplit', 'dsplit',
-    'sum', 'prod', 'mean', 'std', 'var', 'min', 'max', 'argmin', 'argmax', 'sort', 'argsort', 'any', 'all',
+    'sum', 'prod', 'mean', 'std', 'var', 'min', 'max', 'argmin', 'argmax', 'sort', 'argsort', 'any', 'all', 'argwhere',
     'dot', 'matmul', 'inner', 'outer', 'cross', 'tensordot', 'einsum', 'tril', 'triu',
     'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'arctan2', 'sinh', 'cosh', 'tanh',
     'exp', 'exp2', 'log', 'log2', 'log10', 'sqrt', 'square', 'power', 'abs', 'sign',
