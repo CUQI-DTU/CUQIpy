@@ -91,7 +91,7 @@ def _expose_backend_functions():
     global flip, flipud, fliplr, rot90, roll
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
     global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort, any, all, argwhere
-    global cumsum, cumprod, diff, gradient
+    global cumsum, cumprod, diff, gradient, maximum, minimum, repeat, isclose
     global dot, matmul, inner, outer, cross, tensordot, einsum, pad, tril, triu
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
@@ -162,11 +162,21 @@ def _expose_backend_functions():
         ravel = lambda x: x.flatten() if hasattr(x, 'flatten') else _backend_module.flatten(x)
         flatten = lambda x: x.flatten() if hasattr(x, 'flatten') else _backend_module.flatten(x)
         transpose = lambda x, axes=None: x.permute(*reversed(range(x.ndim))) if axes is None else x.permute(*axes)
+        flip = lambda x, axis=None: _backend_module.flip(x, dims=axis)
+        flipud = lambda x: _backend_module.flip(x, dims=[0])
+        fliplr = lambda x: _backend_module.flip(x, dims=[1])
+        rot90 = lambda x, k=1, axes=(0, 1): _backend_module.rot90(x, k, dims=axes)
+        roll = lambda x, shifts, axis=None: _backend_module.roll(x, shifts, dims=axis)
     else:
         reshape = _backend_module.reshape
         ravel = _backend_module.ravel
         flatten = _backend_module.ravel  # Some backends don't have flatten
         transpose = _backend_module.transpose
+        flip = _backend_module.flip if hasattr(_backend_module, 'flip') else lambda x, axis=None: x[::-1] if axis is None else x
+        flipud = _backend_module.flipud if hasattr(_backend_module, 'flipud') else lambda x: x[::-1]
+        fliplr = _backend_module.fliplr if hasattr(_backend_module, 'fliplr') else lambda x: x[:, ::-1]
+        rot90 = _backend_module.rot90 if hasattr(_backend_module, 'rot90') else lambda x, k=1, axes=(0, 1): x
+        roll = _backend_module.roll if hasattr(_backend_module, 'roll') else lambda x, shifts, axis=None: x
     
     # Array joining and splitting
     concatenate = _backend_module.concatenate
@@ -204,6 +214,10 @@ def _expose_backend_functions():
         cumprod = lambda x, axis=None: _backend_module.cumprod(x, dim=axis) if axis is not None else _backend_module.cumprod(x)
         diff = lambda x, n=1, axis=-1: _backend_module.diff(x, n=n, dim=axis)
         gradient = lambda x, *args, axis=None, **kwargs: _backend_module.gradient(x, dim=axis, **kwargs) if hasattr(_backend_module, 'gradient') else NotImplemented
+        maximum = lambda x, y: _backend_module.maximum(x, y)
+        minimum = lambda x, y: _backend_module.minimum(x, y)
+        repeat = lambda x, repeats, axis=None: _backend_module.repeat_interleave(x, repeats, dim=axis) if axis is not None else x.repeat(repeats)
+        isclose = lambda a, b, rtol=1e-05, atol=1e-08: _backend_module.isclose(a, b, rtol=rtol, atol=atol)
     else:
         sum = _backend_module.sum
         mean = _backend_module.mean
@@ -222,6 +236,10 @@ def _expose_backend_functions():
         cumprod = _backend_module.cumprod
         diff = _backend_module.diff
         gradient = _backend_module.gradient if hasattr(_backend_module, 'gradient') else lambda x, *args, **kwargs: NotImplemented
+        maximum = _backend_module.maximum
+        minimum = _backend_module.minimum
+        repeat = _backend_module.repeat
+        isclose = _backend_module.isclose
     
     # Linear algebra
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
@@ -1008,9 +1026,10 @@ __all__ = [
     'array', 'zeros', 'ones', 'zeros_like', 'ones_like', 'empty', 'empty_like', 'full', 'full_like',
     'arange', 'linspace', 'logspace', 'eye', 'identity', 'diag', 'diagonal',
     'reshape', 'ravel', 'flatten', 'transpose', 'swapaxes', 'moveaxis',
+    'flip', 'flipud', 'fliplr', 'rot90', 'roll',
     'concatenate', 'stack', 'vstack', 'hstack', 'dstack', 'split', 'hsplit', 'vsplit', 'dsplit',
     'sum', 'prod', 'mean', 'std', 'var', 'min', 'max', 'argmin', 'argmax', 'sort', 'argsort', 'any', 'all', 'argwhere',
-    'cumsum', 'cumprod', 'diff', 'gradient',
+    'cumsum', 'cumprod', 'diff', 'gradient', 'maximum', 'minimum', 'repeat', 'isclose',
     'dot', 'matmul', 'inner', 'outer', 'cross', 'tensordot', 'einsum', 'tril', 'triu',
     'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'arctan2', 'sinh', 'cosh', 'tanh',
     'exp', 'exp2', 'log', 'log2', 'log10', 'sqrt', 'square', 'power', 'abs', 'sign',
