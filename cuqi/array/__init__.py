@@ -89,11 +89,11 @@ def _expose_backend_functions():
     global arange, linspace, logspace, eye, identity, diag, diagonal
     global reshape, ravel, flatten, transpose, swapaxes, moveaxis, shape, size
     global concatenate, stack, vstack, hstack, dstack, split, hsplit, vsplit, dsplit
-    global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort
-    global dot, matmul, inner, outer, cross, tensordot, einsum, pad
+    global sum, prod, mean, std, var, min, max, argmin, argmax, sort, argsort, any, all
+    global dot, matmul, inner, outer, cross, tensordot, einsum, pad, tril, triu
     global sin, cos, tan, arcsin, arccos, arctan, arctan2, sinh, cosh, tanh
     global exp, exp2, log, log2, log10, sqrt, square, power, abs, sign
-    global floor, ceil, round, clip, where, isnan, isinf, isfinite, count_nonzero, allclose, array_equiv, array_equal
+    global floor, ceil, round, clip, where, isnan, isinf, isfinite, count_nonzero, allclose, array_equiv, array_equal, sinc, fix
     global real, imag, conj, angle, absolute
     global random, linalg, fft
     global ndarray, dtype, newaxis, inf, nan, pi, e
@@ -106,7 +106,10 @@ def _expose_backend_functions():
     # Core array creation and manipulation
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
         # PyTorch uses tensor instead of array
-        array = lambda x, dtype=None: _backend_module.tensor(x, dtype=dtype)
+        def array(x, dtype=None):
+            if x is None:
+                return None
+            return _backend_module.tensor(x, dtype=dtype)
         zeros = _backend_module.zeros
         ones = _backend_module.ones
         zeros_like = _backend_module.zeros_like
@@ -180,6 +183,8 @@ def _expose_backend_functions():
         argmax = lambda x, axis=None, keepdims=False: _backend_module.argmax(x, dim=axis, keepdim=keepdims)
         sort = lambda x, axis=-1: _backend_module.sort(x, dim=axis)[0]
         argsort = lambda x, axis=-1: _backend_module.argsort(x, dim=axis)
+        any = lambda x, axis=None, keepdims=False: _backend_module.any(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.any(x)
+        all = lambda x, axis=None, keepdims=False: _backend_module.all(x, dim=axis, keepdim=keepdims) if axis is not None else _backend_module.all(x)
     else:
         sum = _backend_module.sum
         mean = _backend_module.mean
@@ -191,13 +196,19 @@ def _expose_backend_functions():
         argmax = _backend_module.argmax
         sort = _backend_module.sort
         argsort = _backend_module.argsort
+        any = _backend_module.any
+        all = _backend_module.all
     
     # Linear algebra
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
         # PyTorch uses different function names
         dot = lambda a, b: _backend_module.dot(a, b) if a.dim() == 1 and b.dim() == 1 else _backend_module.matmul(a, b)
+        tril = lambda x, diagonal=0: _backend_module.tril(x, diagonal=diagonal)
+        triu = lambda x, diagonal=0: _backend_module.triu(x, diagonal=diagonal)
     else:
         dot = _backend_module.dot
+        tril = _backend_module.tril if hasattr(_backend_module, 'tril') else lambda x, diagonal=0: x
+        triu = _backend_module.triu if hasattr(_backend_module, 'triu') else lambda x, diagonal=0: x
     
     # Mathematical functions
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
@@ -214,7 +225,30 @@ def _expose_backend_functions():
         floor = lambda x: _backend_module.floor(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
         ceil = lambda x: _backend_module.ceil(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x)
         clip = lambda x, min_val, max_val: _backend_module.clamp(_backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x, min_val, max_val)
-        where = lambda condition, x, y: _backend_module.where(condition, x, y)
+        # where function - PyTorch has different signature
+        def where(*args):
+            if len(args) == 1:
+                # Single argument: return indices where condition is True
+                condition = args[0]
+                return _backend_module.nonzero(condition, as_tuple=True)
+            elif len(args) == 3:
+                # Three arguments: condition, x, y
+                condition, x, y = args
+                return _backend_module.where(condition, x, y)
+            else:
+                raise ValueError("where() takes 1 or 3 arguments")
+        
+        # fix function (rounds towards zero)
+        def fix(x):
+            x_tensor = _backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x
+            return _backend_module.trunc(x_tensor)
+        
+        # sinc function for PyTorch
+        def sinc(x):
+            x_tensor = _backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x
+            # PyTorch doesn't have sinc, so implement it: sinc(x) = sin(pi*x)/(pi*x)
+            pi_x = _backend_module.tensor(3.14159265359) * x_tensor
+            return _backend_module.where(x_tensor == 0, _backend_module.ones_like(x_tensor), _backend_module.sin(pi_x) / pi_x)
     else:
         sin = _backend_module.sin
         cos = _backend_module.cos
@@ -229,6 +263,8 @@ def _expose_backend_functions():
         ceil = _backend_module.ceil
         clip = _backend_module.clip
         where = _backend_module.where
+        sinc = _backend_module.sinc if hasattr(_backend_module, 'sinc') else lambda x: sin(pi * x) / (pi * x)
+        fix = _backend_module.fix if hasattr(_backend_module, 'fix') else lambda x: sign(x) * floor(abs(x))
     
     # Type checking
     isnan = _backend_module.isnan
@@ -243,18 +279,24 @@ def _expose_backend_functions():
             _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b,
             rtol=rtol, atol=atol
         )
-        array_equiv = lambda a, b: (lambda result: result.all() if hasattr(result, 'all') else result)(
-            _backend_module.equal(
-                _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a,
-                _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b
-            )
-        )
-        array_equal = lambda a, b: (lambda result: result.all() if hasattr(result, 'all') else result)(
-            _backend_module.equal(
-                _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a,
-                _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b
-            )
-        )
+        def array_equiv(a, b):
+            if a is None and b is None:
+                return True
+            elif a is None or b is None:
+                return False
+            a_tensor = _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a
+            b_tensor = _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b
+            result = _backend_module.equal(a_tensor, b_tensor)
+            return result.all() if hasattr(result, 'all') else result
+        def array_equal(a, b):
+            if a is None and b is None:
+                return True
+            elif a is None or b is None:
+                return False
+            a_tensor = _backend_module.tensor(a) if not isinstance(a, _backend_module.Tensor) else a
+            b_tensor = _backend_module.tensor(b) if not isinstance(b, _backend_module.Tensor) else b
+            result = _backend_module.equal(a_tensor, b_tensor)
+            return result.all() if hasattr(result, 'all') else result
     else:
         count_nonzero = _backend_module.count_nonzero if hasattr(_backend_module, 'count_nonzero') else lambda x: (x != 0).sum()
         allclose = _backend_module.allclose if hasattr(_backend_module, 'allclose') else lambda a, b, rtol=1e-05, atol=1e-08: (abs(a - b) <= atol + rtol * abs(b)).all()
@@ -903,18 +945,25 @@ def squeeze(a, axis=None):
 # Additional mathematical functions that might be needed
 def fix(x):
     """Round to nearest integer towards zero."""
-    if hasattr(_backend_module, 'fix'):
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        x_tensor = _backend_module.tensor(x) if not isinstance(x, _backend_module.Tensor) else x
+        return _backend_module.trunc(x_tensor)
+    elif hasattr(_backend_module, 'fix'):
         return _backend_module.fix(x)
     else:
         return _backend_module.trunc(x) if hasattr(_backend_module, 'trunc') else _backend_module.floor(x)
 
 def isscalar(element):
     """Check if element is a scalar."""
-    if hasattr(_backend_module, 'isscalar'):
+    if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+        # PyTorch doesn't have isscalar, so implement it
+        import numpy
+        return numpy.isscalar(element) or (isinstance(element, _backend_module.Tensor) and element.dim() == 0)
+    elif hasattr(_backend_module, 'isscalar'):
         return _backend_module.isscalar(element)
     else:
         import numpy
-        return _backend_module.isscalar(element)
+        return numpy.isscalar(element)
 
 # Matrix operations that might be needed
 def matrix(data, dtype=None):
@@ -929,11 +978,11 @@ __all__ = [
     'arange', 'linspace', 'logspace', 'eye', 'identity', 'diag', 'diagonal',
     'reshape', 'ravel', 'flatten', 'transpose', 'swapaxes', 'moveaxis',
     'concatenate', 'stack', 'vstack', 'hstack', 'dstack', 'split', 'hsplit', 'vsplit', 'dsplit',
-    'sum', 'prod', 'mean', 'std', 'var', 'min', 'max', 'argmin', 'argmax', 'sort', 'argsort',
-    'dot', 'matmul', 'inner', 'outer', 'cross', 'tensordot', 'einsum',
+    'sum', 'prod', 'mean', 'std', 'var', 'min', 'max', 'argmin', 'argmax', 'sort', 'argsort', 'any', 'all',
+    'dot', 'matmul', 'inner', 'outer', 'cross', 'tensordot', 'einsum', 'tril', 'triu',
     'sin', 'cos', 'tan', 'arcsin', 'arccos', 'arctan', 'arctan2', 'sinh', 'cosh', 'tanh',
     'exp', 'exp2', 'log', 'log2', 'log10', 'sqrt', 'square', 'power', 'abs', 'sign',
-    'floor', 'ceil', 'round', 'clip', 'where', 'isnan', 'isinf', 'isfinite', 'count_nonzero', 'allclose', 'array_equiv', 'array_equal',
+    'floor', 'ceil', 'round', 'clip', 'where', 'isnan', 'isinf', 'isfinite', 'count_nonzero', 'allclose', 'array_equiv', 'array_equal', 'sinc',
     'real', 'imag', 'conj', 'angle', 'absolute',
     'random', 'linalg', 'fft',
     'ndarray', 'dtype', 'newaxis', 'inf', 'nan', 'pi', 'e',
