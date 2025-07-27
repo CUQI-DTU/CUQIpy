@@ -109,9 +109,21 @@ def _expose_backend_functions():
         def array(x, dtype=None):
             if x is None:
                 return None
+            # Default to float64 for consistency with NumPy
+            if dtype is None:
+                dtype = _backend_module.float64
             return _backend_module.tensor(x, dtype=dtype)
-        zeros = _backend_module.zeros
-        ones = _backend_module.ones
+        
+        def zeros(*args, dtype=None, **kwargs):
+            if dtype is None:
+                dtype = _backend_module.float64
+            return _backend_module.zeros(*args, dtype=dtype, **kwargs)
+        
+        def ones(*args, dtype=None, **kwargs):
+            if dtype is None:
+                dtype = _backend_module.float64
+            return _backend_module.ones(*args, dtype=dtype, **kwargs)
+        
         zeros_like = _backend_module.zeros_like
         ones_like = _backend_module.ones_like
         empty = _backend_module.empty
