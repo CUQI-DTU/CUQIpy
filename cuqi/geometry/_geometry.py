@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 import cuqi.array as xp
 import cuqi.array as xp
-# Add numpy matlib functionality if needed
+# Add numpy functionality
 import numpy
-matlib = numpy.matlib
 import matplotlib.pyplot as plt
 import math
 from scipy.fftpack import dst, idst
@@ -1096,8 +1095,8 @@ class CustomKL(Continuous1D):
         
         # compute diagonal matrix 
         D = sparse.spdiags(xp.sqrt(w_s), 0, N_GL, N_GL).toarray()
-        S1 = matlib.repmat(xp.sqrt(w_s).reshape(1, N_GL), N_GL, 1)
-        S2 = matlib.repmat(xp.sqrt(w_s).reshape(N_GL, 1), 1, N_GL)
+        S1 = xp.tile(xp.sqrt(w_s).reshape(1, N_GL), (N_GL, 1))
+        S2 = xp.tile(xp.sqrt(w_s).reshape(N_GL, 1), (1, N_GL))
         S = S1 * S2
         
         # compute covariance matrix 
@@ -1133,7 +1132,7 @@ class CustomKL(Continuous1D):
             for j in range(N_GL):
                 Sigma_nu[i,j] = C_nu(xnod[i], xi_s[j])
                           
-        M1 = Sigma_nu * xp.matlib.repmat(w_s.reshape(N_GL,1), 1, n).T
+        M1 = Sigma_nu * xp.tile(w_s.reshape(N_GL,1), (1, n)).T
         M2 = phi @ xp.diag(1/eigval)
         eigvec = M1 @ M2
 
@@ -1141,7 +1140,7 @@ class CustomKL(Continuous1D):
         #norm_fact = xp.zeros((M,1))
         #for i in range(M):
         #    norm_fact[i] = xp.sqrt(xp.trapz(eigvec[:,i]**2, xnod))
-        #eigvec = eigvec/xp.matlib.repmat(norm_fact, 1, n)             
+        #eigvec = eigvec/xp.tile(norm_fact, (1, n))             
         self._eigval = eigval
         self._eigvec = eigvec
 
