@@ -437,24 +437,24 @@ def get_sqrtprec_from_cov(dim, cov, sparse_flag):
 
 def get_sqrtprec_from_prec(dim, prec, sparse_flag):
     """ Compute square root of precision matrix from precision matrix.
-    
+
     Also computes log determinant and rank of precision matrix.
 
     Parameters
     ----------
     dim : int
         Dimension of the precision matrix.
-    
+
     prec : 1-d or 2-d ndarray or sparse matrix
         Precision matrix. If 1-dimensional, then assumed to be a diagonal matrix.
 
     sparse_flag: bool
         Whether to store matrices as Dense or Sparse
-    
+
     """
     # prec is scalar
-    if (prec.shape[0] == 1): 
-        precision = prec.ravel()[0]
+    if prec.shape == () or (len(prec.shape) > 0 and prec.shape[0] == 1): 
+        precision = prec.ravel()[0] if prec.shape != () else prec.item()
         logdet = -dim*np.log(precision)
         rank = dim
         if sparse_flag:

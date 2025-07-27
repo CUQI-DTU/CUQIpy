@@ -552,7 +552,7 @@ class Model(object):
         if any(isinstance(x, Samples) for x in kwargs.values()):
             return self._handle_case_when_model_input_is_samples(func, fwd, **kwargs)
 
-        # store if any input x is CUQIarray
+        # store if any input x is CUQIarray (before conversion)
         is_CUQIarray = any(isinstance(x, CUQIarray) for x in kwargs.values())
 
         # Convert input to function values

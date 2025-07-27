@@ -1267,6 +1267,8 @@ def test_forward_of_multiple_input_model_is_correct(test_model, test_data):
         # Assert output has the expected value
         if isinstance(fwd_output, np.ndarray):
             assert np.allclose(fwd_output, test_data.expected_fwd_output)
+        elif isinstance(fwd_output, cuqi.array.CUQIarray):
+            assert np.allclose(fwd_output._array, test_data.expected_fwd_output._array)
         elif isinstance(fwd_output, cuqi.samples.Samples):
             assert np.allclose(
                 fwd_output.samples, test_data.expected_fwd_output.samples
@@ -1313,6 +1315,18 @@ def test_forward_of_multiple_input_model_is_correct_when_input_is_stacked(
         fwd_output_stacked_inputs = test_model.forward(test_data.forward_input_stacked)
         assert isinstance(fwd_output_stacked_inputs, np.ndarray)
         assert np.allclose(fwd_output_stacked_inputs, test_data.expected_fwd_output)
+    # Else case: case where the input (and hence expected output) are CUQIarray objects.
+    elif isinstance(test_data.expected_fwd_output, cuqi.array.CUQIarray):
+        assert len(test_data.forward_input_stacked) == test_model.domain_dim
+        # For CUQIarray inputs, we need to pass CUQIarray objects to the model
+        # Create CUQIarray from the stacked input
+        stacked_cuqiarray = cuqi.array.CUQIarray(
+            test_data.forward_input_stacked, 
+            geometry=test_model.domain_geometry
+        )
+        fwd_output_stacked_inputs = test_model.forward(stacked_cuqiarray)
+        assert isinstance(fwd_output_stacked_inputs, cuqi.array.CUQIarray)
+        assert np.allclose(fwd_output_stacked_inputs._array, test_data.expected_fwd_output._array)
     # Else case: case where the input (and hence expected output) are Samples object.
     # For this case, the forward method should raise an error since applying the
     # forward function to a Samples object of stacked input is not supported.
@@ -1359,6 +1373,11 @@ def test_forward_of_multiple_input_model_applied_to_funvals_input_is_correct(
     # Check that the output is the same
     if isinstance(model_output_par_input, np.ndarray):
         assert np.allclose(model_output_par_input, model_output_fun_input)
+    elif isinstance(model_output_par_input, cuqi.array.CUQIarray):
+        if isinstance(model_output_fun_input, cuqi.array.CUQIarray):
+            assert np.allclose(model_output_par_input._array, model_output_fun_input._array)
+        else:
+            assert np.allclose(model_output_par_input._array, model_output_fun_input)
     elif isinstance(model_output_par_input, cuqi.samples.Samples):
         assert np.allclose(
             model_output_par_input.samples, model_output_fun_input.samples

@@ -121,6 +121,9 @@ class TruncatedNormal(Distribution):
             if len(samples) == N:
                 break
             sample = self._normal.sample(1,rng)
+            # Extract underlying array if it's a CUQIarray
+            if hasattr(sample, '_array'):
+                sample = sample._array
             if np.all(sample >= self.low) and np.all(sample <= self.high):
                 samples.append(sample)
         # raise a error if the number of iterations exceeds max_iter

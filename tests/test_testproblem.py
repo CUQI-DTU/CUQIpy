@@ -186,18 +186,18 @@ def test_Deconvolution2D_convolve(BC_MAP, PSF, PSF_size):
 
     # Extract kernel + image + data
     P = TP.Miscellaneous["PSF"]
-    x = TP.exactSolution.funvals # Image
-    y = TP.exactData.funvals # Data
+    x = TP.exactSolution  # Image (CUQIarray)
+    y = TP.exactData  # Data (CUQIarray)
 
     # ndimage convolve forward and adjoint (non-FFT)
     forward = lambda x: convolve(x, P, mode=BC_MAP[1])
     adjoint = lambda y: convolve(y, np.flipud(np.fliplr(P)), mode=BC_MAP[1])
 
     # Compare forward
-    assert np.allclose(forward(x), TP.model.forward(x).funvals)
+    assert np.allclose(forward(x.funvals), TP.model.forward(x).funvals)
     
     # Compare adjoint
-    assert np.allclose(adjoint(y), TP.model.adjoint(y).funvals)
+    assert np.allclose(adjoint(y.funvals), TP.model.adjoint(y).funvals)
 
 def test_WangCubic():
     """ Test the WangCubic testproblem with simple regression test"""

@@ -1,6 +1,7 @@
 from cuqi.array import CUQIarray
 from cuqi.density import Density
-import numpy as np
+import cuqi.backend as xp
+import numpy as np  # Only for legacy/scipy/matplotlib compatibility
 import inspect
 from numbers import Number
 from scipy.sparse import issparse, diags
@@ -12,11 +13,14 @@ import matplotlib.pyplot as plt
 
 
 def force_ndarray(value,flatten=False):
-    if not isinstance(value, np.ndarray) and value is not None and not issparse(value) and not callable(value):
-        if hasattr(value,'__len__') and len(value)>1:
-            value = np.array(value)
+    if not xp.is_array(value) and value is not None and not issparse(value) and not callable(value):
+        # Handle CUQIarray objects
+        if hasattr(value, '_array'):
+            value = value._array
+        elif hasattr(value,'__len__') and len(value)>1:
+            value = xp.array(value)
         else:
-            value = np.array(value).reshape((1,1))
+            value = xp.array(value).reshape((1,1))
             
         if flatten is True:
             value = value.flatten()
@@ -35,7 +39,10 @@ def infer_len(value):
         try:
             return len(value)
         except TypeError: #Special-case for scipy sparse matrices, which have len but return an error
-            return value.shape[0]
+            if hasattr(value, 'shape') and len(value.shape) > 0:
+                return value.shape[0]
+            else:
+                return 1  # Scalar array
     elif isinstance(value, Number):
         return 1
     else:
@@ -190,8 +197,8 @@ def approx_derivative(func, wrt, direction=None, epsilon=np.sqrt(np.finfo(float)
     # If the direction is provided, we compute the direction-Jacobian product.
     wrt = force_ndarray(wrt, flatten=True)
     f0 = func(wrt)
-    Matr = np.zeros([infer_len(wrt), infer_len(f0)])
-    dx = np.zeros(len(wrt))
+    Matr = xp.zeros([infer_len(wrt), infer_len(f0)])
+    dx = xp.zeros(len(wrt))
 
     # Compute the Jacobian matrix (transpose)
     for i in range(len(wrt)):
@@ -328,7 +335,7 @@ def plot_2D_density(density: Density,
     density_map = (lambda x: x) if log_scale else (lambda x: np.exp(x))
 
     # Evaluate density on grid
-    evaluated_density = np.zeros((N1, N2))
+    evaluated_density = xp.zeros((N1, N2))
     for ii in range(N1):
         for jj in range(N2):
             evaluated_density[ii,jj] = density_map(
@@ -451,7 +458,7 @@ def count_constant_components_2D(x, threshold = 1e-2, lower = -np.inf, upper = n
         if not isinstance(upper, np.ndarray):
             upper = upper*np.ones_like(x)
 
-        filled = np.zeros_like(x, dtype = int)
+        filled = zeros_like(x, dtype = int)
         counter = 0
 
         def process(i, j):

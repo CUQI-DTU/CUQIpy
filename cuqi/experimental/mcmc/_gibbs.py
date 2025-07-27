@@ -235,7 +235,14 @@ class HybridGibbs:
     def get_samples(self) -> Dict[str, Samples]:
         samples_object = JointSamples()
         for par_name in self.par_names:
-            samples_array = np.array(self.samples[par_name]).T
+            # Convert CUQIarray objects to their underlying arrays
+            sample_list = []
+            for sample in self.samples[par_name]:
+                if hasattr(sample, '_array'):  # CUQIarray object
+                    sample_list.append(sample._array)
+                else:
+                    sample_list.append(sample)
+            samples_array = np.array(sample_list).T
             samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)
         return samples_object
     
