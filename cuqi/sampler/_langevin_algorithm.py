@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.sampler import Sampler
 
@@ -43,11 +43,11 @@ class ULA(Sampler):
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
         gradient_func = lambda x: -2/(std**2)*(x - mu)
 
         # Define distribution from logpdf and gradient as UserDefinedDistribution
@@ -73,10 +73,10 @@ class ULA(Sampler):
     def _sample(self, N, Nb):    
         # allocation
         Ns = Nb+N
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        g_target_eval = np.empty((self.dim, Ns))
-        acc = np.zeros(Ns)
+        samples = xp.empty((self.dim, Ns))
+        target_eval = xp.empty(Ns)
+        g_target_eval = xp.empty((self.dim, Ns))
+        acc = xp.zeros(Ns)
 
         # initial state
         samples[:, 0] = self.x0
@@ -94,16 +94,16 @@ class ULA(Sampler):
         samples = samples[:, Nb:]
         target_eval = target_eval[Nb:]
         acc = acc[Nb:]
-        return samples, target_eval, np.mean(acc)
+        return samples, target_eval, xp.mean(acc)
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
         # approximate Langevin diffusion
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        xi = cuqi.distribution.Normal(mean=xp.zeros(self.dim), std=xp.sqrt(self.scale)).sample(rng=self.rng)
         x_star = x_t + 0.5*self.scale*g_target_eval_t + xi
         logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
 
         # msg
-        if np.isnan(logpi_eval_star):
+        if xp.isnan(logpi_eval_star):
             raise NameError('NaN potential func. Consider using smaller scale parameter')
 
         return x_star, logpi_eval_star, g_logpi_star, 1 # sample always accepted without Metropolis correction
@@ -150,11 +150,11 @@ class MALA(ULA):
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
         gradient_func = lambda x: -2/(std**2)*(x-mu)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
@@ -174,7 +174,7 @@ class MALA(ULA):
 
     def single_update(self, x_t, target_eval_t, g_target_eval_t):
         # approximate Langevin diffusion
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample(rng=self.rng)
+        xi = cuqi.distribution.Normal(mean=xp.zeros(self.dim), std=xp.sqrt(self.scale)).sample(rng=self.rng)
         x_star = x_t + (self.scale/2)*g_target_eval_t + xi
         logpi_eval_star, g_logpi_star = self.target.logd(x_star), self.target.gradient(x_star)
 
@@ -185,8 +185,8 @@ class MALA(ULA):
         log_alpha = min(0, log_target_ratio + log_prop_ratio)
 
         # accept/reject
-        log_u = np.log(cuqi.distribution.Uniform(low=0, high=1).sample(rng=self.rng))
-        if (log_u <= log_alpha) and (np.isnan(logpi_eval_star) == False):
+        log_u = xp.log(cuqi.distribution.Uniform(low=0, high=1).sample(rng=self.rng))
+        if (log_u <= log_alpha) and (xp.isnan(logpi_eval_star) == False):
             return x_star, logpi_eval_star, g_logpi_star, 1
         else:
             return x_t.copy(), target_eval_t, g_target_eval_t.copy(), 0

@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
@@ -28,12 +28,12 @@ class Beta(Distribution):
     .. code-block:: python
 
         # % Generate a beta distribution
-        import numpy as np
+        import cuqi.array as xp
         import cuqi
         import matplotlib.pyplot as plt
         alpha = 0.5
         beta  = 0.5
-        rng = np.random.RandomState(1)
+        rng = xp.random.RandomState(1)
         x = cuqi.distribution.Beta(alpha, beta)
         samples = x.sample(1000, rng=rng)
         samples.hist_chain(0, bins=70)
@@ -47,20 +47,20 @@ class Beta(Distribution):
     def logpdf(self, x):
 
         # Check bounds
-        if np.any(x<=0) or np.any(x>=1) or np.any(self.alpha<=0) or np.any(self.beta<=0):
-            return -np.inf
+        if xp.any(x<=0) or xp.any(x>=1) or xp.any(self.alpha<=0) or xp.any(self.beta<=0):
+            return -xp.inf
 
         # Compute logpdf
-        return np.sum(sps.beta.logpdf(x, a=self.alpha, b=self.beta))
+        return xp.sum(sps.beta.logpdf(x, a=self.alpha, b=self.beta))
 
     def cdf(self, x):
 
         # Check bounds
-        if np.any(x<=0) or np.any(x>=1) or np.any(self.alpha<=0) or np.any(self.beta<=0):
+        if xp.any(x<=0) or xp.any(x>=1) or xp.any(self.alpha<=0) or xp.any(self.beta<=0):
             return 0
 
         # Compute logpdf
-        return np.prod(sps.beta.cdf(x, a=self.alpha, b=self.beta))
+        return xp.prod(sps.beta.cdf(x, a=self.alpha, b=self.beta))
 
     def _sample(self, N=1, rng=None):
         return sps.beta.rvs(a=self.alpha, b=self.beta, size=(N,self.dim), random_state=rng).T
@@ -75,8 +75,8 @@ class Beta(Distribution):
             raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
         
         # Check bounds (return nan if out of bounds)
-        if np.any(x<=0) or np.any(x>=1) or np.any(self.alpha<=0) or np.any(self.beta<=0):
-            return x*np.nan
+        if xp.any(x<=0) or xp.any(x>=1) or xp.any(self.alpha<=0) or xp.any(self.beta<=0):
+            return x*xp.nan
 
         #Compute the gradient
         return (self.alpha - 1)/x + (self.beta-1)/(x-1)

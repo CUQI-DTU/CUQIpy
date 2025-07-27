@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.sampler import ProposalBasedSampler
 
@@ -38,11 +38,11 @@ class MH(ProposalBasedSampler):
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
@@ -66,7 +66,7 @@ class MH(ProposalBasedSampler):
         fail_msg = "Proposal should be either None, symmetric cuqi.distribution.Distribution or a lambda function."
 
         if value is None:
-            self._proposal = cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+            self._proposal = cuqi.distribution.Gaussian(xp.zeros(self.dim), 1)
         elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
             raise NotImplementedError(fail_msg)
         elif isinstance(value, cuqi.distribution.Distribution) and value.is_symmetric:
@@ -82,9 +82,9 @@ class MH(ProposalBasedSampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        acc = np.zeros(Ns, dtype=int)
+        samples = xp.empty((self.dim, Ns))
+        target_eval = xp.empty(Ns)
+        acc = xp.zeros(Ns, dtype=int)
 
         # initial state    
         samples[:, 0] = self.x0
@@ -114,9 +114,9 @@ class MH(ProposalBasedSampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        acc = np.zeros(Ns)
+        samples = xp.empty((self.dim, Ns))
+        target_eval = xp.empty(Ns)
+        acc = xp.zeros(Ns)
 
         # initial state    
         samples[:, 0] = self.x0
@@ -125,7 +125,7 @@ class MH(ProposalBasedSampler):
 
         # initial adaptation params 
         Na = int(0.1*N)                              # iterations to adapt
-        hat_acc = np.empty(int(np.floor(Ns/Na)))     # average acceptance rate of the chains
+        hat_acc = xp.empty(int(xp.floor(Ns/Na)))     # average acceptance rate of the chains
         lambd = self.scale
         star_acc = 0.234    # target acceptance rate RW
         i, idx = 0, 0
@@ -138,11 +138,11 @@ class MH(ProposalBasedSampler):
             # adapt prop spread using acc of past samples
             if ((s+1) % Na == 0):
                 # evaluate average acceptance rate
-                hat_acc[i] = np.mean(acc[idx:idx+Na])
+                hat_acc[i] = xp.mean(acc[idx:idx+Na])
 
                 # d. compute new scaling parameter
-                zeta = 1/np.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
-                lambd = np.exp(np.log(lambd) + zeta*(hat_acc[i]-star_acc))
+                zeta = 1/xp.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
+                lambd = xp.exp(xp.log(lambd) + zeta*(hat_acc[i]-star_acc))
 
                 # update parameters
                 self.scale = min(lambd, 1)
@@ -177,7 +177,7 @@ class MH(ProposalBasedSampler):
         alpha = min(0, ratio)
 
         # accept/reject
-        u_theta = np.log(np.random.rand())
+        u_theta = xp.log(xp.random.rand())
         if (u_theta <= alpha):
             x_next = x_star
             target_eval_next = target_eval_star

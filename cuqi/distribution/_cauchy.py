@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
@@ -70,21 +70,21 @@ class Cauchy(Distribution):
 
     def _is_out_of_bounds(self, x):
         """ Check if x is out of bounds """
-        return np.any(self.scale <= 0)
+        return xp.any(self.scale <= 0)
 
     def logpdf(self, x):
 
         if self._is_out_of_bounds(x):
-            return -np.inf
+            return -xp.inf
         
-        return np.sum(-np.log(np.pi*self.scale*(1+((x-self.location)/self.scale)**2)))
+        return xp.sum(-xp.log(xp.pi*self.scale*(1+((x-self.location)/self.scale)**2)))
     
     def cdf(self, x):
 
         if self._is_out_of_bounds(x):
-            return -np.inf
+            return -xp.inf
         
-        return np.sum(sps.cauchy.cdf(x, loc=self.location, scale=self.scale))
+        return xp.sum(sps.cauchy.cdf(x, loc=self.location, scale=self.scale))
     
     def gradient(self, x):
 
@@ -98,7 +98,7 @@ class Cauchy(Distribution):
         
         # Check bounds (return nan if out of bounds)
         if self._is_out_of_bounds(x):
-            return x*np.nan
+            return x*xp.nan
         
         #Compute the gradient
         x_translated = x-self.location

@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.distribution import Distribution
 from cuqi.geometry import Geometry
 
@@ -27,36 +27,36 @@ class Uniform(Distribution):
         """
         # First check whether x is outside bounds.
         # It is outside if any coordinate is outside the interval.
-        if np.any(x < self.low) or np.any(x > self.high):
+        if xp.any(x < self.low) or xp.any(x > self.high):
             # If outside always return -inf
-            return_val = -np.inf  
+            return_val = -xp.inf  
         else:
             # If inside, compute the area and obtain the constant 
             # probability (pdf) as 1 divided by the area, the convert 
             # to logpdf. Special case if scalar.
             diff = self.high - self.low
-            if isinstance(diff, (list, tuple, np.ndarray)): 
-                v= np.prod(diff)
+            if isinstance(diff, (list, tuple, xp.ndarray)): 
+                v= xp.prod(diff)
             else:
                 v = diff
-            return_val = np.log(1.0/v)
+            return_val = xp.log(1.0/v)
         return return_val
 
     def gradient(self, x):
         """
         Computes the gradient of logpdf at the given values of x.
         """
-        if np.any(x < self.low) or np.any(x > self.high):
-            return np.nan*np.ones_like(x)
+        if xp.any(x < self.low) or xp.any(x > self.high):
+            return xp.nan*xp.ones_like(x)
         else:
-            return np.zeros_like(x)
+            return xp.zeros_like(x)
 
     def _sample(self,N=1, rng=None):
 
         if rng is not None:
             s = rng.uniform(self.low, self.high, (N,self.dim)).T
         else:
-            s = np.random.uniform(self.low, self.high, (N,self.dim)).T
+            s = xp.random.uniform(self.low, self.high, (N,self.dim)).T
 
         return s
 
@@ -88,7 +88,7 @@ class UnboundedUniform(Distribution):
         """
         Computes the gradient of logpdf at the given values of x.
         """
-        return np.zeros_like(x)
+        return xp.zeros_like(x)
 
     def _sample(self, N=1, rng=None):
         raise NotImplementedError("Cannot sample from UnboundedUniform distribution")

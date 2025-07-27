@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import matplotlib.pyplot as plt
 from cuqi.diagnostics import Geweke
 from cuqi.geometry import _DefaultGeometry1D, Continuous2D, Image2D
@@ -47,7 +47,7 @@ class Samples(object):
         """Returns a new Samples object with the samples indexed by indices."""
         sub_samples = self.samples[..., indices]
         if isinstance(indices, Number):
-            sub_samples = sub_samples[..., np.newaxis]
+            sub_samples = sub_samples[..., xp.newaxis]
 
         return Samples(sub_samples,
                        geometry=self.geometry,
@@ -79,7 +79,7 @@ class Samples(object):
     @property
     def geometry(self):
         if self._geometry is None:
-            self._geometry = _DefaultGeometry1D(grid=np.prod(self.samples.shape[:-1]))
+            self._geometry = _DefaultGeometry1D(grid=xp.prod(self.samples.shape[:-1]))
         return self._geometry
 
     @property
@@ -113,7 +113,7 @@ class Samples(object):
         # If the function representation is an array, return funvals samples
         # as an array, else, return a list of function values 
         if self.geometry.fun_is_array:
-            funvals = np.empty(self.geometry.fun_shape+(self.Ns,))
+            funvals = xp.empty(self.geometry.fun_shape+(self.Ns,))
             for i, value in enumerate(self):
                 funvals[..., i] = convert(value)
         else:
@@ -121,7 +121,7 @@ class Samples(object):
 
         # Check if the function values are in vector representations after
         # conversion
-        if isinstance(funvals, np.ndarray) and len(funvals.shape) <= 2:
+        if isinstance(funvals, xp.ndarray) and len(funvals.shape) <= 2:
             is_vec = True 
         else:
             is_vec = False
@@ -143,7 +143,7 @@ class Samples(object):
         convert = self.geometry.fun2vec
 
         # Convert the samples to vector form
-        vecvals = np.empty((self.geometry.funvec_dim, self.Ns))
+        vecvals = xp.empty((self.geometry.funvec_dim, self.Ns))
         for i, value in enumerate(self):
             vecvals[..., i] = convert(value)
 
@@ -167,7 +167,7 @@ class Samples(object):
                 lambda vec: self.geometry.fun2par(self.geometry.vec2fun(vec))
             
         # Convert the samples to parameter values
-        parameters = np.empty((self.geometry.par_dim, self.Ns))
+        parameters = xp.empty((self.geometry.par_dim, self.Ns))
         for i, value in enumerate(self):
             parameters[:, i] = convert(value)
 
@@ -346,22 +346,22 @@ class Samples(object):
 
     def mean(self):
         """Compute mean of the samples."""
-        return self._compute_numpy_stats(np.mean, axis=-1)
+        return self._compute_numpy_stats(xp.mean, axis=-1)
 
     def median(self):
         """Compute pointwise median of the samples"""
-        return self._compute_numpy_stats(np.median, axis=-1)
+        return self._compute_numpy_stats(xp.median, axis=-1)
 
     def variance(self):
         """Compute pointwise variance of the samples"""
-        return self._compute_numpy_stats(np.var, axis=-1)
+        return self._compute_numpy_stats(xp.var, axis=-1)
 
     def compute_ci(self, percent=95):
         """Compute pointwise credibility intervals of the samples."""
         lb = (100-percent)/2
         up = 100-lb
         return self._compute_numpy_stats(
-            np.percentile, [lb, up], axis=-1) 
+            xp.percentile, [lb, up], axis=-1) 
 
     def ci_width(self, percent = 95):
         """Compute width of the pointwise credibility intervals of the samples"""
@@ -370,7 +370,7 @@ class Samples(object):
     
     def std(self):
         """Compute pointwise standard deviation of the samples"""
-        return self._compute_numpy_stats(np.std, axis=-1)
+        return self._compute_numpy_stats(xp.std, axis=-1)
 
     def plot_std(self,*args,**kwargs):
         """Plot pointwise standard deviation of the samples
@@ -424,7 +424,7 @@ class Samples(object):
             variable_indices = self._select_random_indices(Nv, dim)
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
-        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = xp.array(self.geometry.variables) #Convert to np array for better slicing
         variables = variables[variable_indices].flatten()
         lines = plt.plot(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
@@ -437,7 +437,7 @@ class Samples(object):
 
         if 'label' in kwargs.keys():
             raise Exception("Argument 'label' cannot be passed by the user")
-        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = xp.array(self.geometry.variables) #Convert to np array for better slicing
         variables = variables[variable_indices].flatten()
         n, bins, patches = plt.hist(self.samples[variable_indices,:].T,*args,**kwargs)
         plt.legend(variables)
@@ -721,9 +721,9 @@ class Samples(object):
         """ Selects a random number (sorted) of indices defined by input number from a total number. If total>=dim returns all. """
         total
         if total<=number:
-            indices = np.arange(total)
+            indices = xp.arange(total)
         else:
-            indices = np.random.choice(total, number, replace=False)
+            indices = xp.random.choice(total, number, replace=False)
             indices.sort()
         return indices
 
@@ -739,10 +739,10 @@ class Samples(object):
 
         # If no variable indices given we convert all
         if variable_indices is None:
-            variable_indices = np.arange(self._geometry_dim)
+            variable_indices = xp.arange(self._geometry_dim)
 
         # Get variable names from geometry
-        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = xp.array(self.geometry.variables) #Convert to np array for better slicing
         variables = variables[variable_indices].flatten()
 
         # Construct inference data structure
@@ -763,7 +763,7 @@ class Samples(object):
         _check_for_arviz()
         ESS_xarray = arviz.ess(self.to_arviz_inferencedata(), **kwargs)
         ESS_items = ESS_xarray.items()
-        ESS = np.empty(len(ESS_items))
+        ESS = xp.empty(len(ESS_items))
         for i, (key, value) in enumerate(ESS_items):
             ESS[i] = value.to_numpy()
         return ESS
@@ -803,11 +803,11 @@ class Samples(object):
             raise TypeError("Raw samples within each chain must have len(shape)==2, i.e. (variable, draws) structure.")
         
         # Get variable names from geometry
-        variables = np.array(self.geometry.variables) #Convert to np array for better slicing
+        variables = xp.array(self.geometry.variables) #Convert to np array for better slicing
         variables = variables.flatten()
 
         # Construct full samples for all chains
-        samples = np.empty((self.samples.shape[0], n_chains+1, self.samples.shape[1]))
+        samples = xp.empty((self.samples.shape[0], n_chains+1, self.samples.shape[1]))
         samples[:,0,:] = self.samples
         for i, chain in enumerate(chains):
             samples[:,i+1,:] = chain.samples
@@ -820,7 +820,7 @@ class Samples(object):
         RHAT_xarray = arviz.rhat(datadict, **kwargs)
 
         # Convert to numpy array
-        RHAT = np.empty(self._geometry_shape)
+        RHAT = xp.empty(self._geometry_shape)
         for i, (key, value) in enumerate(RHAT_xarray.items()):
             RHAT[i] = value.to_numpy()
         return RHAT

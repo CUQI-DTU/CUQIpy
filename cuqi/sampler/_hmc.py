@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.sampler import Sampler
 
 
@@ -136,9 +136,9 @@ class NUTS(Sampler):
 
         # Allocation
         Ns = Nb+N # total number of chains
-        theta = np.empty((self.dim, Ns))
-        joint_eval = np.empty(Ns)
-        step_sizes = np.empty(Ns)
+        theta = xp.empty((self.dim, Ns))
+        joint_eval = xp.empty(Ns)
+        step_sizes = xp.empty(Ns)
 
         # Initial state
         theta[:, 0] = self.x0
@@ -150,7 +150,7 @@ class NUTS(Sampler):
         # parameters dual averaging
         if (self.adapt_step_size == True):
             epsilon = self._FindGoodEpsilon(theta[:, 0], joint_eval[0], grad)
-            mu = np.log(10*epsilon)
+            mu = xp.log(10*epsilon)
             gamma, t_0, kappa = 0.05, 10, 0.75 # kappa in (0.5, 1]
             epsilon_bar, H_bar = 1, 0
             delta = self.opt_acc_rate # https://mc-stan.org/docs/2_18/reference-manual/hmc-algorithm-parameters.html
@@ -170,19 +170,19 @@ class NUTS(Sampler):
             Ham = joint_k - self._Kfun(r_k, 'eval') # Hamiltonian
 
             # slice variable
-            log_u = Ham - np.random.exponential(1, size=1) # u = np.log(np.random.uniform(0, np.exp(H)))
+            log_u = Ham - xp.random.exponential(1, size=1) # u = xp.log(xp.random.uniform(0, xp.exp(H)))
 
             # initialization
             j, s, n = 0, 1, 1
             theta[:, k], joint_eval[k] = theta_k, joint_k
-            theta_minus, theta_plus = np.copy(theta_k), np.copy(theta_k)
-            grad_minus, grad_plus = np.copy(grad), np.copy(grad)
-            r_minus, r_plus = np.copy(r_k), np.copy(r_k)
+            theta_minus, theta_plus = xp.copy(theta_k), xp.copy(theta_k)
+            grad_minus, grad_plus = xp.copy(grad), xp.copy(grad)
+            r_minus, r_plus = xp.copy(r_k), xp.copy(r_k)
 
             # run NUTS
             while (s == 1) and (j <= self.max_depth):
                 # sample a direction
-                v = int(2*(np.random.rand() < 0.5)-1)
+                v = int(2*(xp.random.rand() < 0.5)-1)
 
                 # build tree: doubling procedure
                 if (v == -1):
@@ -195,11 +195,11 @@ class NUTS(Sampler):
                         self._BuildTree(theta_plus, r_plus, grad_plus, Ham, log_u, v, j, epsilon)
 
                 # Metropolis step
-                alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
-                if (s_prime == 1) and (np.random.rand() <= alpha2):
+                alpha2 = min(1, (n_prime/n)) #min(0, xp.log(n_p) - xp.log(n))
+                if (s_prime == 1) and (xp.random.rand() <= alpha2):
                     theta[:, k] = theta_prime
                     joint_eval[k] = joint_prime
-                    grad = np.copy(grad_prime)
+                    grad = xp.copy(grad_prime)
 
                 # update number of particles, tree level, and stopping criterion
                 n += n_prime
@@ -215,9 +215,9 @@ class NUTS(Sampler):
             if (k <= Nb) and (self.adapt_step_size == True):
                 eta1 = 1/(k + t_0)
                 H_bar = (1-eta1)*H_bar + eta1*(delta - (alpha/n_alpha))
-                epsilon = np.exp(mu - (np.sqrt(k)/gamma)*H_bar)
+                epsilon = xp.exp(mu - (xp.sqrt(k)/gamma)*H_bar)
                 eta = k**(-kappa)
-                epsilon_bar = np.exp(eta*np.log(epsilon) + (1-eta)*np.log(epsilon_bar))
+                epsilon_bar = xp.exp(eta*xp.log(epsilon) + (1-eta)*xp.log(epsilon_bar))
             elif (k == Nb+1) and (self.adapt_step_size == True):
                 epsilon = epsilon_bar   # fix epsilon after burn-in
             step_sizes[k] = epsilon
@@ -226,7 +226,7 @@ class NUTS(Sampler):
             self._print_progress(k+1, Ns) #k+1 is the sample number, k is index assuming x0 is the first sample
             self._call_callback(theta[:, k], k)
             
-            if np.isnan(joint_eval[k]):
+            if xp.isnan(joint_eval[k]):
                 raise NameError('NaN potential func')
             
         # apply burn-in
@@ -237,12 +237,12 @@ class NUTS(Sampler):
 
     #=========================================================================
     # auxiliary standard Gaussian PDF: kinetic energy function
-    # d_log_2pi = d*np.log(2*np.pi)
+    # d_log_2pi = d*xp.log(2*xp.pi)
     def _Kfun(self, r, flag):
         if flag == 'eval': # evaluate
             return 0.5*(r.T @ r) #+ d_log_2pi 
         if flag == 'sample': # sample
-            return np.random.standard_normal(size=self.dim)
+            return xp.random.standard_normal(size=self.dim)
 
     #=========================================================================
     def _FindGoodEpsilon(self, theta, joint, grad, epsilon=1):
@@ -252,7 +252,7 @@ class NUTS(Sampler):
 
         # trick to make sure the step is not huge, leading to infinite values of the likelihood
         k = 1
-        while np.isinf(joint_prime) or np.isinf(grad_prime).any():
+        while xp.isinf(joint_prime) or xp.isinf(grad_prime).any():
             k *= 0.5
             _, r_prime, joint_prime, grad_prime = self._Leapfrog(theta, r, grad, epsilon*k)
         epsilon = 0.5*k*epsilon
@@ -260,8 +260,8 @@ class NUTS(Sampler):
         # doubles/halves the value of epsilon until the accprob of the Langevin proposal crosses 0.5
         Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
         log_ratio = Ham_prime - Ham
-        a = 1 if log_ratio > np.log(0.5) else -1
-        while (a*log_ratio > -a*np.log(2)):
+        a = 1 if log_ratio > xp.log(0.5) else -1
+        while (a*log_ratio > -a*xp.log(2)):
             epsilon = (2**a)*epsilon
             _, r_prime, joint_prime, _ = self._Leapfrog(theta, r, grad, epsilon)
             Ham_prime = joint_prime - self._Kfun(r_prime, 'eval')
@@ -293,10 +293,10 @@ class NUTS(Sampler):
             diff_Ham = Ham_prime - Ham
 
             # Compute the acceptance probability
-            # alpha_prime = min(1, np.exp(diff_Ham))
+            # alpha_prime = min(1, xp.exp(diff_Ham))
             # written in a stable way to avoid overflow when computing
             # exp(diff_Ham) for large values of diff_Ham
-            alpha_prime = 1 if diff_Ham > 0 else np.exp(diff_Ham)
+            alpha_prime = 1 if diff_Ham > 0 else xp.exp(diff_Ham)
             n_alpha_prime = 1
             #
             theta_minus, theta_plus = theta_prime, theta_prime
@@ -319,10 +319,10 @@ class NUTS(Sampler):
 
                 # Metropolis step
                 alpha2 = n_2prime / max(1, (n_prime + n_2prime))
-                if (np.random.rand() <= alpha2):
-                    theta_prime = np.copy(theta_2prime)
-                    joint_prime = np.copy(joint_2prime)
-                    grad_prime = np.copy(grad_2prime)
+                if (xp.random.rand() <= alpha2):
+                    theta_prime = xp.copy(theta_2prime)
+                    joint_prime = xp.copy(joint_2prime)
+                    grad_prime = xp.copy(grad_2prime)
 
                 # update number of particles and stopping criterion
                 alpha_prime += alpha_2prime

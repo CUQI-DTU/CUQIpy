@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import scipy.stats as sps
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import force_ndarray
@@ -30,13 +30,13 @@ class InverseGamma(Distribution):
     .. code-block:: python
 
         # Generate an InverseGamma distribution
-        import numpy as np
+        import cuqi.array as xp
         import cuqi
         import matplotlib.pyplot as plt
         shape = [1,2]
         location = 0
         scale = 1
-        rng = np.random.RandomState(1)
+        rng = xp.random.RandomState(1)
         x = cuqi.distribution.InverseGamma(shape, location, scale)
         samples = x.sample(1000, rng=rng)
         samples.hist_chain(0, bins=70)
@@ -51,10 +51,10 @@ class InverseGamma(Distribution):
         self.scale = force_ndarray(scale, flatten=True)
     
     def logpdf(self, x):
-        return np.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
+        return xp.sum(sps.invgamma.logpdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
     def cdf(self, x):
-        return np.prod(sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale))
+        return xp.prod(sps.invgamma.cdf(x, a=self.shape, loc=self.location, scale=self.scale))
 
     def _gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
@@ -65,8 +65,8 @@ class InverseGamma(Distribution):
             raise NotImplementedError(f"Gradient is not implemented for {self} with conditioning variables {self.get_conditioning_variables()}")
         
         #Compute the gradient
-        if np.any(val <= self.location):
-            return val*np.nan
+        if xp.any(val <= self.location):
+            return val*xp.nan
         else:
             return (-self.shape-1)/(val - self.location) +\
                     self.scale/(val - self.location)**2

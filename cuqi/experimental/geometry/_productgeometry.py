@@ -1,5 +1,5 @@
 from cuqi.geometry import Geometry
-import numpy as np
+import cuqi.array as xp
 
 class _ProductGeometry(Geometry):
     """ A class for representing a product geometry. A product geometry
@@ -15,10 +15,10 @@ class _ProductGeometry(Geometry):
     Example
     -------
     .. code-block:: python
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.geometry import Continuous1D, Discrete
         from cuqi.experimental.geometry import _ProductGeometry
-        geometry1 = Continuous1D(np.linspace(0, 1, 100))
+        geometry1 = Continuous1D(xp.linspace(0, 1, 100))
         geometry2 = Discrete(["sound_speed"])
         product_geometry = _ProductGeometry(geometry1, geometry2)
     """
@@ -82,7 +82,7 @@ class _ProductGeometry(Geometry):
         the stacked parameter vector is [1, 2, 3, 4, 5, 6] and the parameter
         vectors for each geometry are [1, 2], [3, 4], and [5, 6], then the
         split indices are [2, 4]"""
-        return np.cumsum(self.par_dim_list[:-1])
+        return xp.cumsum(self.par_dim_list[:-1])
 
     @property
     def number_of_geometries(self):
@@ -92,7 +92,7 @@ class _ProductGeometry(Geometry):
     def _split_par(self, par):
         """Splits a stacked parameter vector into parameter vectors for each
         geometry."""
-        return tuple(np.split(par, self.stacked_par_split_indices))
+        return tuple(xp.split(par, self.stacked_par_split_indices))
     
     def _plot(self, values, **kwargs):
         """Plotting function for the product geometry."""
@@ -139,9 +139,9 @@ class _ProductGeometry(Geometry):
         if stacked:
             # if single sample
             if len(pars[0].shape) == 1:
-                stacked_val = np.hstack(pars)
+                stacked_val = xp.hstack(pars)
             elif len(pars[0].shape) == 2:
-                stacked_val = np.vstack(pars)
+                stacked_val = xp.vstack(pars)
             else:
                 raise ValueError(
                     "Cannot stack parameter vectors with more than 2 dimensions."

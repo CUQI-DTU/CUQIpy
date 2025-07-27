@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import scipy.stats as sps
 from cuqi.distribution import Distribution
 from cuqi.utilities import force_ndarray
@@ -31,7 +31,7 @@ class Gamma(Distribution):
     --------
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         import cuqi
         import matplotlib.pyplot as plt
 
@@ -49,7 +49,7 @@ class Gamma(Distribution):
 
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         import cuqi
         import matplotlib.pyplot as plt
 
@@ -96,14 +96,14 @@ class Gamma(Distribution):
         return 1/self.rate
 
     def logpdf(self, x):
-        return np.sum(sps.gamma.logpdf(x, a=self.shape, loc=0, scale=self.scale))
+        return xp.sum(sps.gamma.logpdf(x, a=self.shape, loc=0, scale=self.scale))
 
     def cdf(self, x):
-        return np.prod(sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale))
+        return xp.prod(sps.gamma.cdf(x, a=self.shape, loc=0, scale=self.scale))
 
     def _sample(self, N, rng=None):
         if rng is not None:
             return rng.gamma(shape=self.shape, scale=self.scale, size=(N, self.dim)).T
         else:
-            return np.random.gamma(shape=self.shape, scale=self.scale, size=(N, self.dim)).T
+            return xp.random.gamma(shape=self.shape, scale=self.scale, size=(N, self.dim)).T
             

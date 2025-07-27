@@ -1,15 +1,32 @@
-import numpy as np
 from cuqi.geometry import _DefaultGeometry1D
 
+# Import the backend module directly to avoid circular import
+import os
+_backend_name = os.getenv("CUQI_ARRAY_BACKEND", "numpy").lower()
+if _backend_name == "numpy":
+    import numpy as _backend_module
+elif _backend_name == "cupy":
+    try:
+        import cupy as _backend_module
+    except ImportError:
+        import numpy as _backend_module
+elif _backend_name == "jax":
+    try:
+        import jax.numpy as _backend_module
+    except ImportError:
+        import numpy as _backend_module
+else:
+    import numpy as _backend_module
 
-class CUQIarray(np.ndarray):
+
+class CUQIarray(_backend_module.ndarray):
     """
-    A class to represent data arrays, subclassed from numpy array, along with geometry and plotting
+    A class to represent data arrays, subclassed from backend array, along with geometry and plotting
 
     Parameters
     ----------
     input_array : ndarray
-        A numpy array holding the parameter or function values. 
+        A backend array holding the parameter or function values. 
     
     is_par : bool, default True
         Boolean flag whether input_array is to be interpreted as parameter (True) or function values (False).
@@ -19,7 +36,7 @@ class CUQIarray(np.ndarray):
     """
 
     def __repr__(self) -> str: 
-        return "CUQIarray: NumPy array wrapped with geometry.\n" + \
+        return "CUQIarray: Backend array wrapped with geometry.\n" + \
                "---------------------------------------------\n\n" + \
             "Geometry:\n {}\n\n".format(self.geometry) + \
             "Parameters:\n {}\n\n".format(self.is_par) + \
@@ -29,7 +46,7 @@ class CUQIarray(np.ndarray):
     def __new__(cls, input_array, is_par=True, geometry=None):
         # Input array is an already formed ndarray instance
         # We first cast to be our class type
-        obj = np.asarray(input_array).view(cls)
+        obj = _backend_module.asarray(input_array).view(cls)
         # add the new attribute to the created instance
         obj.is_par = is_par
         if (not is_par) and (geometry is None):
@@ -56,16 +73,16 @@ class CUQIarray(np.ndarray):
         else:
             vals = self
 
-        if isinstance(vals, np.ndarray):
-            if vals.dtype == np.dtype('O'):
-                # if vals is of type np.ndarray, but the data type of the array
+        if isinstance(vals, _backend_module.ndarray):
+            if vals.dtype == _backend_module.dtype('O'):
+                # if vals is of type ndarray, but the data type of the array
                 # is object (e.g. FEniCS function), then extract the object and
                 # return it. reshape(1) is needed to convert the shape from
                 # () to (1,).
                 return self.reshape(1)[0]
             else:
-                # else, cast the np.ndarray to a CUQIarray
-                return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(np.ndarray)
+                # else, cast the ndarray to a CUQIarray
+                return type(self)(vals,is_par=False,geometry=self.geometry) #vals.view(_backend_module.ndarray)
         else:
             return vals 
 
@@ -73,7 +90,7 @@ class CUQIarray(np.ndarray):
     def parameters(self):
         """ Returns itself as parameters. """
         if self.is_par is False:
-            if self.dtype == np.dtype('O'):
+            if self.dtype == _backend_module.dtype('O'):
                 # If the current state if the CUQIarray is function values, and
                 # the data type of self is object (e.g. FEniCS function), then
                 # extract the object and save it. reshape(1) is needed to
@@ -89,11 +106,23 @@ class CUQIarray(np.ndarray):
 
     def to_numpy(self):
         """Return a numpy array of the CUQIarray data. If is_par is True, then 
-        the parameters are returned as numpy.ndarray. If is_par is False, then 
+        the parameters are returned as xp.ndarray. If is_par is False, then 
         the function values are returned instead.
         """
         try:
-            return self.view(np.ndarray)
+            # Convert to numpy regardless of backend
+            if _backend_name == "cupy":
+                import cupy
+                if isinstance(self, cupy.ndarray):
+                    return cupy.asnumpy(self.view(_backend_module.ndarray))
+            elif _backend_name == "jax":
+                import jax.numpy as jnp
+                if isinstance(self, jnp.ndarray):
+                    return jnp.asarray(self.view(_backend_module.ndarray)).__array__()
+            
+            # For numpy or fallback
+            import numpy
+            return numpy.asarray(self.view(_backend_module.ndarray))
         except:
             raise ValueError(
                 f"Cannot convert {self.__class__.__name__} to numpy array")

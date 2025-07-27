@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.experimental.mcmc import Sampler
 from cuqi.array import CUQIarray
@@ -30,7 +30,7 @@ class PCN(Sampler):  # Refactor to Proposal-based sampler?
     def step(self):
         # propose state
         xi = self.prior.sample(1).flatten()   # sample from the prior
-        x_star = np.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # PCN proposal
+        x_star = xp.sqrt(1-self.scale**2)*self.current_point + self.scale*xi   # PCN proposal
 
         # evaluate target
         loglike_eval_star =  self._loglikelihood(x_star) 
@@ -41,7 +41,7 @@ class PCN(Sampler):  # Refactor to Proposal-based sampler?
 
         # accept/reject
         acc = 0
-        u_theta = np.log(np.random.rand())
+        u_theta = xp.log(xp.random.rand())
         if (u_theta <= alpha):
             self.current_point = x_star
             self.current_likelihood_logd = loglike_eval_star
@@ -77,13 +77,13 @@ class PCN(Sampler):  # Refactor to Proposal-based sampler?
         """
 
         # average acceptance rate in the past skip_len iterations
-        hat_acc = np.mean(self._acc[-skip_len:])
+        hat_acc = xp.mean(self._acc[-skip_len:])
 
         # new scaling parameter zeta to be used in the Robbins-Monro recursion
-        zeta = 1/np.sqrt(update_count+1)
+        zeta = 1/xp.sqrt(update_count+1)
 
         # Robbins-Monro recursion to ensure that the variation of lambd vanishes
-        self.lambd = np.exp(np.log(self.lambd) + zeta*(hat_acc-self.star_acc))
+        self.lambd = xp.exp(xp.log(self.lambd) + zeta*(hat_acc-self.star_acc))
 
         # update scale parameter
         self.scale = min(self.lambd, 1)

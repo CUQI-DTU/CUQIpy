@@ -1,7 +1,7 @@
 from cuqi.implicitprior import RegularizedGaussian
 from cuqi.distribution import Distribution, Gaussian
 
-import numpy as np
+import cuqi.array as xp
 
 
 class RegularizedUnboundedUniform(RegularizedGaussian):
@@ -58,7 +58,7 @@ class RegularizedUnboundedUniform(RegularizedGaussian):
 
                 # Underlying explicit Gaussian
                 # This line throws a warning due trying to applying get_sqrtprec_from_sqrtprec to an all zero matrix  
-                self._gaussian = Gaussian(mean = np.zeros(geometry.par_dim), sqrtprec = np.zeros((geometry.par_dim,geometry.par_dim)), geometry = geometry, **kwargs) 
+                self._gaussian = Gaussian(mean = xp.zeros(geometry.par_dim), sqrtprec = xp.zeros((geometry.par_dim,geometry.par_dim)), geometry = geometry, **kwargs) 
 
                 # Init from abstract distribution class
                 super(Distribution, self).__init__(**kwargs)

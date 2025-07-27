@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from abc import ABC, abstractmethod
 import math
 from cuqi.experimental.mcmc import Sampler
@@ -132,12 +132,12 @@ class _GaussianGammaPair(_ConjugatePair):
         b = self.target.likelihood.data                                 # mu
         m = len(b)                                                      # n
         Ax = self.target.likelihood.distribution.mean                   # x_i
-        L = self.target.likelihood.distribution(np.array([1])).sqrtprec # L
+        L = self.target.likelihood.distribution(xp.array([1])).sqrtprec # L
         alpha = self.target.prior.shape                                 # alpha
         beta = self.target.prior.rate                                   # beta
 
         # Create Gamma distribution and sample
-        return Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
+        return Gamma(shape=m/2 + alpha, rate=.5 * xp.linalg.norm(L @ (Ax - b))**2 + beta)
 
 
 class _RegularizedGaussianGammaPair(_ConjugatePair):
@@ -168,12 +168,12 @@ class _RegularizedGaussianGammaPair(_ConjugatePair):
         b = self.target.likelihood.data                                 # mu
         m = _compute_sparsity_level(self.target)
         Ax = self.target.likelihood.distribution.mean                   # x_i
-        L = self.target.likelihood.distribution(np.array([1])).sqrtprec # L
+        L = self.target.likelihood.distribution(xp.array([1])).sqrtprec # L
         alpha = self.target.prior.shape                                 # alpha
         beta = self.target.prior.rate                                   # beta
 
         # Create Gamma distribution and sample
-        return Gamma(shape=m/2 + alpha, rate=.5 * np.linalg.norm(L @ (Ax - b))**2 + beta)
+        return Gamma(shape=m/2 + alpha, rate=.5 * xp.linalg.norm(L @ (Ax - b))**2 + beta)
     
     
 class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
@@ -206,8 +206,8 @@ class _RegularizedUnboundedUniformGammaPair(_ConjugatePair):
         m = _compute_sparsity_level(self.target)
 
         reg_op = self.target.likelihood.distribution._regularization_oper
-        reg_strength = self.target.likelihood.distribution(np.array([1])).strength
-        fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
+        reg_strength = self.target.likelihood.distribution(xp.array([1])).strength
+        fx = reg_strength*xp.linalg.norm(reg_op@x, ord = 1)
 
         # Create Gamma distribution
         return Gamma(shape=m/2 + alpha, rate=fx + beta)
@@ -248,17 +248,17 @@ class _RegularizedGaussianModifiedHalfNormalPair(_ConjugatePair):
         # Compute likelihood variables
         x = self.target.likelihood.data
         mu = self.target.likelihood.distribution.mean
-        L = self.target.likelihood.distribution(np.array([1])).sqrtprec
+        L = self.target.likelihood.distribution(xp.array([1])).sqrtprec
         
         m = _compute_sparsity_level(self.target)
 
         reg_op = self.target.likelihood.distribution._regularization_oper
-        reg_strength = self.target.likelihood.distribution(np.array([1])).strength
-        fx = reg_strength*np.linalg.norm(reg_op@x, ord = 1)
+        reg_strength = self.target.likelihood.distribution(xp.array([1])).strength
+        fx = reg_strength*xp.linalg.norm(reg_op@x, ord = 1)
 
         # Compute parameters of conjugate distribution
         conj_alpha = m + alpha
-        conj_beta = 0.5*np.linalg.norm(L @ (mu - x))**2 + beta
+        conj_beta = 0.5*xp.linalg.norm(L @ (mu - x))**2 + beta
         conj_gamma = -fx + gamma
 
         # Create conjugate distribution
@@ -354,7 +354,7 @@ def _get_conjugate_parameter(target):
 def _check_conjugate_parameter_is_scalar_identity(f):
     """Tests whether a function (scalar to scalar) is the identity (lambda x: x)."""
     test_values = [1.0, 10.0, 100.0]
-    return all(np.allclose(f(x), x) for x in test_values)
+    return all(xp.allclose(f(x), x) for x in test_values)
 
 def _check_conjugate_parameter_is_scalar_reciprocal(f):
     """Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x)."""
@@ -368,7 +368,7 @@ def _check_conjugate_parameter_is_scalar_linear(f):
     test_values = [1.0, 10.0, 100.0]
     h = 1e-2
     finite_diffs = [(f(x + h*x)-f(x))/(h*x) for x in test_values]
-    return np.isclose(f(0.0), 0.0) and all(np.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
+    return xp.isclose(f(0.0), 0.0) and all(xp.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
 
 def _check_conjugate_parameter_is_scalar_linear_reciprocal(f):
     """
@@ -379,7 +379,7 @@ def _check_conjugate_parameter_is_scalar_linear_reciprocal(f):
     test_values = [1.0, 10.0, 100.0]
     h = 1e-2
     finite_diffs = [(g(x + h*x)-g(x))/(h*x) for x in test_values]
-    return all(np.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
+    return all(xp.allclose(c, finite_diffs[0]) for c in finite_diffs[1:])
 
 def _check_conjugate_parameter_is_scalar_quadratic(f):
     """

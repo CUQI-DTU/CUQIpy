@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.utilities import force_ndarray
 from cuqi.distribution import Distribution
 
@@ -72,10 +72,10 @@ class SmoothedLaplace(Distribution):
         """
         # x accepts scalar, list, tuple, or ndarray
         if isinstance(x, (float, int)):
-            x = np.array([x])
+            x = xp.array([x])
         elif isinstance(x, (list, tuple)):
-            x = np.array(x)
-        return np.sum(np.log(0.5 / self.scale)) - np.sum(np.sqrt((x - self.location) ** 2 + self.beta) / self.scale)
+            x = xp.array(x)
+        return xp.sum(xp.log(0.5 / self.scale)) - xp.sum(xp.sqrt((x - self.location) ** 2 + self.beta) / self.scale)
 
     def gradient(self, x):
         """
@@ -83,10 +83,10 @@ class SmoothedLaplace(Distribution):
         """
         # x accepts scalar, list, tuple, or ndarray
         if isinstance(x, (float, int)):
-            x = np.array([x])
+            x = xp.array([x])
         elif isinstance(x, (list, tuple)):
-            x = np.array(x)
-        return -np.array((x - self.location) / self.scale / np.sqrt((x - self.location) ** 2 + self.beta))
+            x = xp.array(x)
+        return -xp.array((x - self.location) / self.scale / xp.sqrt((x - self.location) ** 2 + self.beta))
 
     def _sample(self, N=1, rng=None):
         """

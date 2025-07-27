@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from scipy.sparse import spdiags, eye, kron, vstack
 
 # ========== Operator class ===========
@@ -61,11 +61,11 @@ class FirstOrderFiniteDifference(Operator):
 
     def __init__(self, num_nodes, bc_type= 'periodic', dx=None):	
 
-        if isinstance(num_nodes, (int,np.integer)):
+        if isinstance(num_nodes, (int,xp.integer)):
             self._num_nodes = (num_nodes,)
 
         elif isinstance(num_nodes, tuple) and len(num_nodes) in [1,2] and\
-            np.all([isinstance(num,(int,np.integer)) for num in num_nodes]):
+            xp.all([isinstance(num,(int,xp.integer)) for num in num_nodes]):
             
             if len(num_nodes)==2 and (num_nodes[0] != num_nodes[1]):
                 raise NotImplementedError("The case in which the number of nodes in the x direction is not equal to the number of nodes in the y direction is not implemented.")
@@ -98,7 +98,7 @@ class FirstOrderFiniteDifference(Operator):
 
     @property
     def dim(self):
-        return np.prod(self.num_nodes)
+        return xp.prod(self.num_nodes)
 
 
     def _create_diff_matrix(self):
@@ -111,8 +111,8 @@ class FirstOrderFiniteDifference(Operator):
             raise Exception("Cannot define N")
 
         # finite difference matrix
-        one_vec = np.ones(N)
-        diags = np.vstack([-one_vec, one_vec])
+        one_vec = xp.ones(N)
+        diags = xp.vstack([-one_vec, one_vec])
         if (self.bc_type == 'zero'):
             locs = [-1, 0]
             Dmat = spdiags(diags, locs, N+1, N)
@@ -175,8 +175,8 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
             raise Exception("Cannot define N")
 
         # finite difference matrix
-        one_vec = np.ones(N)
-        diags = np.vstack([-one_vec, 2*one_vec, -one_vec])
+        one_vec = xp.ones(N)
+        diags = xp.vstack([-one_vec, 2*one_vec, -one_vec])
         if (self.bc_type == 'zero'):
             locs = [-2, -1, 0]
             Dmat = spdiags(diags, locs, N+2, N)

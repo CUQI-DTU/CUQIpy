@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import sys
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.samples import Samples
 
@@ -20,7 +20,7 @@ class Sampler(ABC):
         self.target = target
 
         if x0 is None:
-            x0 = np.ones(self.dim)
+            x0 = xp.ones(self.dim)
         self.x0 = x0
 
         self.callback = callback
@@ -110,7 +110,7 @@ class Sampler(ABC):
                 
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
-            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+            if len(s) == 1 and isinstance(s,xp.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
             else:
                 s = s.flatten()

@@ -1,5 +1,5 @@
 from __future__ import annotations
-import numpy as np
+import cuqi.array as xp
 from scipy.sparse import csc_matrix
 from scipy.sparse import hstack
 from scipy.linalg import solve
@@ -71,19 +71,19 @@ class Model(object):
 
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.model import Model
 
         def forward(x):
             return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
 
         def jacobian(x): # Can use "x" or "wrt" as the input argument name
-            return np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
+            return xp.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
 
         model = Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian)
 
-        print(model(np.array([1, 1])))
-        print(model.gradient(np.array([1]), np.array([1, 1])))
+        print(model(xp.array([1, 1])))
+        print(model.gradient(xp.array([1]), xp.array([1, 1])))
 
     Alternatively, the gradient information in the forward model can be defined by direction-Jacobian product using the gradient keyword argument.
 
@@ -91,7 +91,7 @@ class Model(object):
 
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.model import Model
 
         def forward(x):
@@ -99,12 +99,12 @@ class Model(object):
 
         def gradient(direction, x):
             # Direction-Jacobian product direction@jacobian(x)
-            return direction@np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
+            return direction@xp.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
 
         model = Model(forward, range_geometry=1, domain_geometry=2, gradient=gradient)
 
-        print(model(np.array([1, 1])))
-        print(model.gradient(np.array([1]), np.array([1, 1])))
+        print(model(xp.array([1, 1])))
+        print(model.gradient(xp.array([1]), xp.array([1, 1])))
 
     Example 2
     ----------
@@ -112,7 +112,7 @@ class Model(object):
 
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.model import Model
         from cuqi.geometry import Discrete
     
@@ -120,7 +120,7 @@ class Model(object):
             return 10 * y - 10 * x**3 + 5 * x**2 + 6 * x
     
         def jacobian(x, y):
-            return (np.array([[-30 * x**2 + 10 * x + 6]]), np.array([[10]]))
+            return (xp.array([[-30 * x**2 + 10 * x + 6]]), xp.array([[10]]))
     
         model = Model(
             forward,
@@ -130,7 +130,7 @@ class Model(object):
         )
     
         print(model(1, 1))
-        print(model.gradient(np.array([1]), 1, 1))
+        print(model.gradient(xp.array([1]), 1, 1))
     """
     def __init__(self, forward, range_geometry, domain_geometry, gradient=None, jacobian=None):
 
@@ -588,7 +588,7 @@ class Model(object):
         range_dim = self.range_dim if fwd else self.domain_dim
 
         # Create empty array to store the output
-        out = np.zeros((range_dim, Ns))
+        out = xp.zeros((range_dim, Ns))
 
         # Recursively apply func to each sample
         for i in range(Ns):
@@ -691,7 +691,7 @@ class Model(object):
 
         # args[0] should be numpy array or CUQIarray
         is_CUQIarray = isinstance(args[0], CUQIarray)
-        is_numpy_array = isinstance(args[0], np.ndarray)
+        is_numpy_array = isinstance(args[0], xp.ndarray)
         if not is_CUQIarray and not is_numpy_array:
             return False, args
 
@@ -706,7 +706,7 @@ class Model(object):
             return False, args
 
         # Split the stacked input
-        split_args = np.split(args[0], self.domain_geometry.stacked_par_split_indices)
+        split_args = xp.split(args[0], self.domain_geometry.stacked_par_split_indices)
 
         # Covert split args to CUQIarray if input is CUQIarray
         if is_CUQIarray:
@@ -973,7 +973,7 @@ class Model(object):
         if len(grad) == 1:
             return list(grad.values())[0]
         elif self._gradient_output_stacked:
-            return np.hstack(
+            return xp.hstack(
                 [
                     (
                         v.to_numpy()
@@ -1065,9 +1065,9 @@ class Model(object):
                 self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
             )
             and not isinstance(grad, (list, tuple))
-            and isinstance(grad, np.ndarray)
+            and isinstance(grad, xp.ndarray)
         ):
-            grad = np.split(grad, self.domain_geometry.stacked_par_split_indices)
+            grad = xp.split(grad, self.domain_geometry.stacked_par_split_indices)
 
         # If the domain geometry is not a _ProductGeometry, turn grad into a
         # list of length 1, so that we can iterate over it
@@ -1202,7 +1202,7 @@ class AffineModel(Model):
                 )
 
         # Check size of shift and match against range_geometry
-        if not np.isscalar(shift):
+        if not xp.isscalar(shift):
             if len(shift) != range_geometry.par_dim:
                 raise ValueError("The shift should have the same dimension as the range geometry.")
 
@@ -1314,10 +1314,10 @@ class LinearModel(AffineModel):
 
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.model import LinearModel
 
-        A = np.random.randn(2,3)
+        A = xp.random.randn(2,3)
 
         model = LinearModel(A)
 
@@ -1329,10 +1329,10 @@ class LinearModel(AffineModel):
 
     .. code-block:: python
 
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.model import LinearModel
 
-        A = np.random.randn(2,3)
+        A = xp.random.randn(2,3)
 
         def forward(x):
             return A@x
@@ -1407,7 +1407,7 @@ class LinearModel(AffineModel):
         else:
             # TODO: Can we compute this faster while still in sparse format?
             mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
-            e = np.zeros(self.domain_dim)
+            e = xp.zeros(self.domain_dim)
 
             # Stacks sparse matrices on csc matrix
             for i in range(self.domain_dim):
@@ -1465,7 +1465,7 @@ class PDEModel(Model):
         self._stored_non_default_args = None
 
         # If gradient or jacobian is not provided, we create it from the PDE
-        if not np.any([k in kwargs.keys() for k in ["gradient", "jacobian"]]):
+        if not xp.any([k in kwargs.keys() for k in ["gradient", "jacobian"]]):
             # Create gradient or jacobian function to pass to the Model based on
             # the PDE object. The dictionary derivative_kwarg contains the
             # created function along with the function type (either "gradient"

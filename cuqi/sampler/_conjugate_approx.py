@@ -1,5 +1,5 @@
 from cuqi.distribution import Posterior, LMRF, Gamma
-import numpy as np
+import cuqi.array as xp
 import scipy as sp
 
 class ConjugateApprox: # TODO: Subclass from Sampler once updated
@@ -36,7 +36,7 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
         # Current has a zero mean assumption on likelihood! TODO
         beta=1e-5
         def Lk_fun(x_k):
-            dd =  1/np.sqrt((D @ x_k)**2 + beta*np.ones(n))
+            dd =  1/xp.sqrt((D @ x_k)**2 + beta*xp.ones(n))
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
 
@@ -47,6 +47,6 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
         beta = self.target.prior.rate                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
+        dist = Gamma(shape=d+alpha, rate=xp.linalg.norm(Lx)**2+beta)
 
         return dist.sample()

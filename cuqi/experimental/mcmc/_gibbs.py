@@ -3,7 +3,7 @@ from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples, JointSamples
 from cuqi.experimental.mcmc import NUTS
 from typing import Dict
-import numpy as np
+import cuqi.array as xp
 import warnings
 
 try:
@@ -76,7 +76,7 @@ class HybridGibbs:
     .. code-block:: python
 
         import cuqi
-        import numpy as np
+        import cuqi.array as xp
 
         # Model and data
         A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D(phantom='sinc').get_components()
@@ -85,7 +85,7 @@ class HybridGibbs:
         # Define distributions
         d = cuqi.distribution.Gamma(1, 1e-4)
         l = cuqi.distribution.Gamma(1, 1e-4)
-        x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d)
+        x = cuqi.distribution.GMRF(xp.zeros(n), lambda d: d)
         y = cuqi.distribution.Gaussian(A, lambda l: 1/l)
 
         # Combine into a joint distribution and create posterior
@@ -170,7 +170,7 @@ class HybridGibbs:
             return list(self.samplers.keys())
         if self._scan_order == "random":
             arr = list(self.samplers.keys())
-            np.random.shuffle(arr) # Shuffle works in-place
+            xp.random.shuffle(arr) # Shuffle works in-place
             return arr
         return self._scan_order
 
@@ -235,7 +235,7 @@ class HybridGibbs:
     def get_samples(self) -> Dict[str, Samples]:
         samples_object = JointSamples()
         for par_name in self.par_names:
-            samples_array = np.array(self.samples[par_name]).T
+            samples_array = xp.array(self.samples[par_name]).T
             samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)
         return samples_object
     
@@ -280,7 +280,7 @@ class HybridGibbs:
                 sampler._acc.append(acc)
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
-            if isinstance(sampler.current_point, np.ndarray):
+            if isinstance(sampler.current_point, xp.ndarray):
                 self.current_samples[par_name] = sampler.current_point.reshape(-1)
             else:
                 self.current_samples[par_name] = sampler.current_point

@@ -1,6 +1,6 @@
 import pkg_resources
 import scipy.io as spio
-import numpy as np
+import cuqi.array as xp
 import scipy.ndimage as spnd
 import matplotlib.pyplot as plt
 
@@ -18,7 +18,7 @@ def astronaut(size=None, grayscale=True):
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.astronaut
     """
     stream = pkg_resources.resource_stream(__name__, 'astronaut.npz')
-    img = np.load(stream)['arr_0']
+    img = xp.load(stream)['arr_0']
     if grayscale:
         img = rgb2gray(img)
     if size:
@@ -31,7 +31,7 @@ def camera(size=None):
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.camera
     """
     stream = pkg_resources.resource_stream(__name__, 'camera.npz')
-    img = np.load(stream)['arr_0']
+    img = xp.load(stream)['arr_0']
     if size:
         img = imresize(img, size) 
     return img
@@ -42,7 +42,7 @@ def cat(size=None, grayscale=True):
     See https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.cat
     """
     stream = pkg_resources.resource_stream(__name__, 'cat.npz')
-    img = np.load(stream)['arr_0']
+    img = xp.load(stream)['arr_0']
     if grayscale:
         img = rgb2gray(img)
     if size:
@@ -80,7 +80,7 @@ def grains(size=128, num_grains=34, seed=1):
         raise ValueError("num_grains must be greater than 2")
 
     # Set the random seed
-    rng = np.random.RandomState(seed)
+    rng = xp.random.RandomState(seed)
 
     # Image size is N x N
     N         = size
@@ -89,29 +89,29 @@ def grains(size=128, num_grains=34, seed=1):
     total_dim = Nbig**2
 
     # random pixels whose coordinates (xG,yG,zG) are the "centre" of the grains
-    xG = np.ceil(Nbig*rng.rand(num_grains, 1))
-    yG = np.ceil(Nbig*rng.rand(num_grains, 1))
+    xG = xp.ceil(Nbig*rng.rand(num_grains, 1))
+    yG = xp.ceil(Nbig*rng.rand(num_grains, 1))
 
     # set up voxel coordinates for distance computation
-    xx   = np.arange(1, Nbig+1)
-    X, Y = np.meshgrid(xx, xx, indexing='xy')
+    xx   = xp.arange(1, Nbig+1)
+    X, Y = xp.meshgrid(xx, xx, indexing='xy')
     X    = X.flatten(order='F')
     Y    = Y.flatten(order='F')
 
     # for centre pixel k [xG(k),yG(k),zG(k)] compute the distance to all the 
     # voxels in the box and store the distances in column k.
-    distArray = np.zeros((total_dim, num_grains))
+    distArray = xp.zeros((total_dim, num_grains))
     for k in range(num_grains):
         distArray[:,k] = (X-xG[k])**2 + (Y-yG[k])**2
 
     # determine to which grain each of the voxels belong. This is found as the
     # centre with minimal distance to the given voxel
-    minIdx = np.argmin(distArray, axis=1)
+    minIdx = xp.argmin(distArray, axis=1)
 
     # reshape to 2D, subtract 1 to have 0 as minimal value, extract the
     # middle part of the image, and scale to have 1 as maximum value
     img   = minIdx.reshape(Nbig, Nbig) - 1
-    img   = img[np.ix_(dN+np.arange(1, N+1)-1, dN+np.arange(1, N+1)-1)]
+    img   = img[xp.ix_(dN+xp.arange(1, N+1)-1, dN+xp.arange(1, N+1)-1)]
     img   = img/img.max()
     
     return img
@@ -148,7 +148,7 @@ def shepp_logan(size=128):
     N = size
 
     #                  A      a      b     x0      y0    phi
-    e = np.array( [ [  1,    .69,   .92,    0,       0,   0 ], 
+    e = xp.array( [ [  1,    .69,   .92,    0,       0,   0 ], 
                     [-.8,  .6624, .8740,    0,  -.0184,   0 ],
                     [-.2,  .1100, .3100,  .22,       0,  -18],
                     [-.2,  .1600, .4100, -.22,       0,   18],
@@ -159,10 +159,10 @@ def shepp_logan(size=128):
                     [ .1,  .0230, .0230,    0,   -.606,   0 ],
                     [ .1,  .0230, .0460,  .06,   -.605,   0 ] ] )
     
-    xn = ((np.arange(0,N)-(N-1)/2) / ((N-1)/2))
-    Xn = np.tile(xn, (N,1))
-    Yn = np.rot90(Xn)
-    X  = np.zeros((N,N))
+    xn = ((xp.arange(0,N)-(N-1)/2) / ((N-1)/2))
+    Xn = xp.tile(xn, (N,1))
+    Yn = xp.rot90(Xn)
+    X  = xp.zeros((N,N))
 
     # for each ellipse to be added     
     nn = len(e)
@@ -172,17 +172,17 @@ def shepp_logan(size=128):
         b2  = e[i,2]**2
         x0  = e[i,3]
         y0  = e[i,4]
-        phi = e[i,5]*np.pi/180        
+        phi = e[i,5]*xp.pi/180        
         #
         x   = Xn-x0
         y   = Yn-y0
-        idd = ((x*np.cos(phi) + y*np.sin(phi))**2)/a2 + ((y*np.cos(phi) - x*np.sin(phi))**2)/b2
-        idx = np.where( idd <= 1 )
+        idd = ((x*xp.cos(phi) + y*xp.sin(phi))**2)/a2 + ((y*xp.cos(phi) - x*xp.sin(phi))**2)/b2
+        idx = xp.where( idd <= 1 )
 
         # add the amplitude of the ellipse
         X[idx] += A
     
-    idx    = np.where( X < 0 )
+    idx    = xp.where( X < 0 )
     X[idx] = 0
 
     return X
@@ -217,23 +217,23 @@ def threephases(size=128, p=70):
     N = size
 
     # 1st
-    xx     = np.arange(1,N+1)-1
-    I, J   = np.meshgrid(xx,xx, indexing='xy')
+    xx     = xp.arange(1,N+1)-1
+    I, J   = xp.meshgrid(xx,xx, indexing='xy')
     sigma1 = 0.025*N
-    c1     = np.random.rand(p,2)*N
-    x1     = np.zeros((N,N))
+    c1     = xp.random.rand(p,2)*N
+    x1     = xp.zeros((N,N))
     for i in range(p):
-        x1 += np.exp(-abs(I-c1[i,0])**3/(2.5*sigma1)**3 - abs(J-c1[i,1])**3/sigma1**3)
+        x1 += xp.exp(-abs(I-c1[i,0])**3/(2.5*sigma1)**3 - abs(J-c1[i,1])**3/sigma1**3)
     t1 = 0.35
     x1[x1 < t1]  = 0
     x1[x1 >= t1] = 2
 
     # 2nd
     sigma2 = 0.03*N
-    c2     = np.random.rand(p,2)*N
-    x2     = np.zeros((N,N))
+    c2     = xp.random.rand(p,2)*N
+    x2     = xp.zeros((N,N))
     for i in range(p):
-        x2 += np.exp(-(I-c2[i,0])**2/(2*sigma2)**2 - (J-c2[i,1])**2/sigma2**2)
+        x2 += xp.exp(-(I-c2[i,0])**2/(2*sigma2)**2 - (J-c2[i,1])**2/sigma2**2)
     t2 = 0.55
     x2[x2 < t2]  = 0
     x2[x2 >= t2] = 1
@@ -286,7 +286,7 @@ def p_power(size=128, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
     """
 
     # Set random seed
-    rng = np.random.RandomState(seed)
+    rng = xp.random.RandomState(seed)
 
     # image is N x N
     N = size
@@ -302,12 +302,12 @@ def p_power(size=128, relnz=0.3, p=2, seed=1): #relnz=0.65, p=2.3
     P   = rng.randn(N,N)
 
     # Create the pattern
-    xx   = np.arange(1,N+1)
-    I, J = np.meshgrid(xx,xx, indexing='xy')
+    xx   = xp.arange(1,N+1)
+    I, J = xp.meshgrid(xx,xx, indexing='xy')
     U = ( ( (2*I-1)/N - 1)**2 + ( (2*J-1)/N - 1)**2 )**(-p/2)
-    F = U*np.exp(2*np.pi*np.sqrt(-1+0j)*P)
-    F = abs(np.fft.ifft2(F))
-    f = -np.sort(-F.flatten(order='F'))   # 'descend'
+    F = U*xp.exp(2*xp.pi*xp.sqrt(-1+0j)*P)
+    F = abs(xp.fft.ifft2(F))
+    f = -xp.sort(-F.flatten(order='F'))   # 'descend'
     k = round(relnz*N**2)-1
     F[F < f[k]] = 0
     x = F/f[0]
@@ -366,12 +366,12 @@ def rgb2gray(img):
     method compared to the classical [0.299, 0.587, 0.114] weights.
     
     """
-    return img @ np.array([0.2125, 0.7154, 0.0721])
+    return img @ xp.array([0.2125, 0.7154, 0.0721])
 
 def imresize(image, size, **kwargs):
     """Resize an image to a new size.
     
     kwargs are passed to scipy.ndimage.zoom.
     """
-    zoom_factor = size/np.array(image.shape)
+    zoom_factor = size/xp.array(image.shape)
     return spnd.zoom(image, zoom_factor, **kwargs)

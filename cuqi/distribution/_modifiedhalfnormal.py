@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import scipy.stats as sps
 import scipy.special as special
 from cuqi.distribution import Distribution
@@ -70,28 +70,28 @@ class ModifiedHalfNormal(Distribution):
         self._gamma = force_ndarray(value, flatten=True)
 
     def logpdf(self, x): # Unnormalized
-        return np.sum((self.alpha - 1)*np.log(x) - self.beta * x * x + self.gamma * x)
+        return xp.sum((self.alpha - 1)*xp.log(x) - self.beta * x * x + self.gamma * x)
 
     def _gradient_scalar(self, val):
         if val <= 0.0:
-            return np.nan
+            return xp.nan
         return (self.alpha - 1)/val - 2*self.beta*val + self.gamma
 
     def _gradient(self, val, *args, **kwargs):
-        return np.array([self._gradient_scalar(v) for v in val])
+        return xp.array([self._gradient_scalar(v) for v in val])
 
     def _MHN_sample_gamma_proposal(self, alpha, beta, gamma, rng, delta=None):
         """
             Sample from a modified half-normal distribution using a Gamma distribution proposal.
         """
         if delta is None:
-            delta = beta + (gamma*gamma - gamma*np.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
+            delta = beta + (gamma*gamma - gamma*xp.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
             
         while True:
             T = rng.gamma(alpha/2, 1.0/delta)
-            X = np.sqrt(T)
+            X = xp.sqrt(T)
             U = rng.uniform()
-            if X > 0 and np.log(U) < -(beta-delta)*T + gamma*X - gamma*gamma/(4*(beta-delta)):
+            if X > 0 and xp.log(U) < -(beta-delta)*T + gamma*X - gamma*gamma/(4*(beta-delta)):
                 return X
             
     def _MHN_sample_normal_proposal(self, alpha, beta, gamma, mu, rng):
@@ -99,12 +99,12 @@ class ModifiedHalfNormal(Distribution):
             Sample from a modified half-normal distribution using a Normal/Gaussian distribution proposal.
         """
         if mu is None:
-            mu = (gamma + np.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)    
+            mu = (gamma + xp.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)    
         
         while True:
-            X = rng.normal(mu, np.sqrt(0.5/beta))
+            X = rng.normal(mu, xp.sqrt(0.5/beta))
             U = rng.uniform()
-            if X > 0 and np.log(U) < (alpha-1)*np.log(X) - np.log(mu) + (2*beta*mu-gamma)*(mu-X):
+            if X > 0 and xp.log(U) < (alpha-1)*xp.log(X) - xp.log(mu) + (2*beta*mu-gamma)*(mu-X):
                 return X
 
     def _MHN_sample_positive_gamma_1(self, alpha, beta, gamma, rng):
@@ -118,15 +118,15 @@ class ModifiedHalfNormal(Distribution):
             raise ValueError("alpha needs to be greater than 1.0")
 
         # Decide whether to use Normal or sqrt(Gamma) proposals for acceptance-rejectance scheme
-        mu = (gamma + np.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)
-        K1  = 2*np.sqrt(np.pi)
-        K1 *= np.power((np.sqrt(beta)*(alpha-1))/(2*beta*mu-gamma), alpha - 1)
-        K1 *= np.exp(-(alpha-1)+beta*mu*mu)
+        mu = (gamma + xp.sqrt(gamma*gamma + 8*beta*(alpha - 1)))/(4*beta)
+        K1  = 2*xp.sqrt(xp.pi)
+        K1 *= xp.power((xp.sqrt(beta)*(alpha-1))/(2*beta*mu-gamma), alpha - 1)
+        K1 *= xp.exp(-(alpha-1)+beta*mu*mu)
         
-        delta = beta + (gamma*gamma - gamma*np.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
-        K2  = np.power(beta/delta, 0.5*alpha)
+        delta = beta + (gamma*gamma - gamma*xp.sqrt(gamma*gamma + 8*beta*alpha))/(4*alpha)
+        K2  = xp.power(beta/delta, 0.5*alpha)
         K2 *= special.gamma(alpha/2.0)
-        K2 *= np.exp(gamma*gamma/(4*(beta-delta)))
+        K2 *= xp.exp(gamma*gamma/(4*(beta-delta)))
 
         if K2 > K1: # Use normal proposal
             return self._MHN_sample_normal_proposal(alpha, beta, gamma, mu, rng)
@@ -149,15 +149,15 @@ class ModifiedHalfNormal(Distribution):
         
         # The acceptance rate of this choice is at least 0.5*sqrt(2) approx 70.7 percent, according to Theorem 4 from [1].
         if isinstance(m, str) and m.lower() == "mode":
-            m = (gamma + np.sqrt(gamma*gamma + 8*beta*alpha))/(4*beta)
+            m = (gamma + xp.sqrt(gamma*gamma + 8*beta*alpha))/(4*beta)
 
         while True:
             val1 = (beta*m-gamma)/(2*beta*m-gamma)
             val2 = m*(beta*m-gamma)
             T = rng.gamma(alpha*val1, 1.0/val2)
-            X = m*np.power(T,val1)
+            X = m*xp.power(T,val1)
             U = rng.uniform()
-            if np.log(U) < val2*T-beta*X*X+gamma*X:
+            if xp.log(U) < val2*T-beta*X*X+gamma*X:
                 return X
             
     def _MHN_sample(self, alpha, beta, gamma, m=None, rng=None):
@@ -165,7 +165,7 @@ class ModifiedHalfNormal(Distribution):
         Sample from a modified half-normal distribution using an algorithm from [1].
         """
         if rng == None:
-            rng = np.random
+            rng = xp.random
 
         if gamma <= 0.0:
             return self._MHN_sample_negative_gamma(alpha, beta, gamma, m=m, rng=rng)
@@ -177,8 +177,8 @@ class ModifiedHalfNormal(Distribution):
 
     def _sample(self, N, rng=None):
         if hasattr(self.alpha, '__getitem__'):
-            return np.array([[self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(len(self.alpha))] for _ in range(N)])
+            return xp.array([[self._MHN_sample(self.alpha[i], self.beta[i], self.gamma[i], rng=rng) for i in range(len(self.alpha))] for _ in range(N)])
         else:
-            return np.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for i in range(N)])
+            return xp.array([self._MHN_sample(self.alpha, self.beta, self.gamma, rng=rng) for i in range(N)])
 
             

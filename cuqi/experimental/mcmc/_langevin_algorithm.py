@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.experimental.mcmc import Sampler
 from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
@@ -43,11 +43,11 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
         gradient_func = lambda x: -2/(std**2)*(x - mu)
 
         # Define distribution from logpdf and gradient as UserDefinedDistribution
@@ -77,7 +77,7 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
 
     def validate_target(self):
         try:
-            self._eval_target_grad(np.ones(self.dim))
+            self._eval_target_grad(xp.ones(self.dim))
             pass
         except (NotImplementedError, AttributeError):
             raise ValueError("The target needs to have a gradient method")
@@ -118,7 +118,7 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
 
     def step(self):
         # propose state
-        xi = cuqi.distribution.Normal(mean=np.zeros(self.dim), std=np.sqrt(self.scale)).sample()
+        xi = cuqi.distribution.Normal(mean=xp.zeros(self.dim), std=xp.sqrt(self.scale)).sample()
         x_star = self.current_point + 0.5*self.scale*self.current_target_grad + xi
 
         # evaluate target
@@ -173,11 +173,11 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
         gradient_func = lambda x: -2/(std**2)*(x-mu)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)
@@ -232,10 +232,10 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
 
         # accept/reject with Metropolis
         acc = 0
-        log_u = np.log(np.random.rand())
+        log_u = xp.log(xp.random.rand())
         if (log_u <= log_alpha) and \
-           (not np.isnan(target_eval_star)) and \
-           (not np.isinf(target_eval_star)):
+           (not xp.isnan(target_eval_star)) and \
+           (not xp.isinf(target_eval_star)):
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             self.current_target_grad = target_grad_star

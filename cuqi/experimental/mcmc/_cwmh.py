@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.experimental.mcmc import ProposalBasedSampler
 from cuqi.array import CUQIarray
@@ -42,15 +42,15 @@ class CWMH(ProposalBasedSampler):
     Example
     -------
     .. code-block:: python
-        import numpy as np
+        import cuqi.array as xp
         import cuqi
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample
         # and gradients also supported as inputs to UserDefinedDistribution)
@@ -74,8 +74,8 @@ class CWMH(ProposalBasedSampler):
         
     def _initialize(self):
         if isinstance(self.scale, Number):
-            self.scale = np.ones(self.dim)*self.scale
-        self._acc = [np.ones((self.dim))] # Overwrite acc from ProposalBasedSampler with list of arrays
+            self.scale = xp.ones(self.dim)*self.scale
+        self._acc = [xp.ones((self.dim))] # Overwrite acc from ProposalBasedSampler with list of arrays
 
         # Handling of temporary scale parameter due to possible bug in old CWMH
         self._scale_temp = self.scale.copy()
@@ -89,7 +89,7 @@ class CWMH(ProposalBasedSampler):
     def scale(self, value):
         """ Set the scale parameter. """
         if self._is_initialized and isinstance(value, Number):
-            value = np.ones(self.dim)*value
+            value = xp.ones(self.dim)*value
         self._scale = value
 
     def validate_target(self):
@@ -98,7 +98,7 @@ class CWMH(ProposalBasedSampler):
                 "Target should be an instance of "+\
                 f"{cuqi.density.Density.__class__.__name__}")
         # Fail when there is no log density, which is currently assumed to be the case in case NaN is returned.
-        if np.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
+        if xp.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
             raise ValueError("Target does not have valid logd")
         
     def validate_proposal(self):
@@ -139,7 +139,7 @@ class CWMH(ProposalBasedSampler):
             x_all_components = self.proposal(self.current_point, self.scale)
 
         # Initialize acceptance rate
-        acc = np.zeros(self.dim)
+        acc = xp.zeros(self.dim)
 
         # Loop over all the components of the sample and accept/reject
         # each component update.
@@ -154,10 +154,10 @@ class CWMH(ProposalBasedSampler):
             alpha = min(0, target_eval_star - target_eval_t)
 
             # accept/reject
-            u_theta = np.log(np.random.rand())
+            u_theta = xp.log(xp.random.rand())
             if (u_theta <= alpha) and \
-               (not np.isnan(target_eval_star)) and \
-               (not np.isinf(target_eval_star)):
+               (not xp.isnan(target_eval_star)) and \
+               (not xp.isinf(target_eval_star)):
                 x_t[j] = x_all_components[j]
                 target_eval_t = target_eval_star
                 acc[j] = 1
@@ -177,14 +177,14 @@ class CWMH(ProposalBasedSampler):
         star_acc = 0.21/self.dim + 0.23
 
         # Mean of acceptance rate over the last skip_len samples
-        hat_acc = np.mean(self._acc[i*skip_len:(i+1)*skip_len], axis=0)
+        hat_acc = xp.mean(self._acc[i*skip_len:(i+1)*skip_len], axis=0)
 
         # Compute new intermediate scaling parameter scale_temp
         # Factor zeta ensures that the variation of the scale update vanishes
-        zeta = 1/np.sqrt(update_count+1)  
-        scale_temp = np.exp(
-            np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
+        zeta = 1/xp.sqrt(update_count+1)  
+        scale_temp = xp.exp(
+            xp.log(self._scale_temp) + zeta*(hat_acc-star_acc))
 
         # Update the scale parameter
-        self.scale = np.minimum(scale_temp, np.ones(self.dim))
+        self.scale = xp.minimum(scale_temp, xp.ones(self.dim))
         self._scale_temp = scale_temp
