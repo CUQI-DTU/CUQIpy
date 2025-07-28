@@ -565,9 +565,7 @@ def _getExactSolution(dim, phantom, phantom_param):
                         (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.35), (0.35 <= x) & (x < 0.38),\
                         (0.38  <= x) & (x < 0.45), (0.45 <= x) & (x < 0.55), \
                         (0.55  <= x) & (x < 0.75), (0.75 <= x) & (x < 0.8), (0.8 <= x) & (x <= x_max)]
-        # Use numpy directly for piecewise as it's not available in all backends
-        import numpy as np
-        f_fun = lambda x: np.piecewise(xp.to_numpy(x), conds(xp.to_numpy(x)), vals)
+        f_fun = lambda x: xp.piecewise(x, conds(x), vals)
         mesh = xp.linspace(x_min, x_max, dim)
         x = f_fun(mesh)
         return x

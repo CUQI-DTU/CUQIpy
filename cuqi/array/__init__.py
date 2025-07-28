@@ -88,7 +88,18 @@ def _load_backend(backend_name):
 _backend_module = _load_backend(_BACKEND_NAME)
 
 def _expose_backend_functions():
-    """Expose backend functions at module level."""
+    """Expose backend functions at module level.
+    
+    This function dynamically exposes array functions from the selected backend
+    at the module level, providing a unified interface regardless of the underlying
+    backend (NumPy, PyTorch, CuPy, JAX, etc.).
+    
+    The function handles backend-specific differences by:
+    1. Using native backend functions when available
+    2. Providing custom implementations for missing functions
+    3. Ensuring consistent behavior across backends
+    4. Maintaining proper dtype handling (defaulting to float64)
+    """
     global array, zeros, ones, zeros_like, ones_like, empty, empty_like, full, full_like
     global arange, linspace, logspace, eye, identity, diag, diagonal
     global reshape, ravel, flatten, transpose, swapaxes, moveaxis, shape, size
@@ -110,7 +121,12 @@ def _expose_backend_functions():
     global float16, float32, float64, complex64, complex128
     global integer, floating, complexfloating
     
-    # Core array creation and manipulation
+    # ========================================================================
+    # PYTORCH BACKEND SPECIFIC IMPLEMENTATIONS
+    # ========================================================================
+    # PyTorch has different API conventions compared to NumPy, requiring
+    # custom implementations for many functions to maintain compatibility
+    
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
         # PyTorch uses tensor instead of array
         def array(x, dtype=None):
@@ -261,6 +277,12 @@ def _expose_backend_functions():
                 result = result + coeff * _backend_module.pow(x, i)
             return result
     else:
+        # ====================================================================
+        # STANDARD BACKEND IMPLEMENTATIONS (NumPy, CuPy, JAX, etc.)
+        # ====================================================================
+        # For most backends, we can use the native functions directly
+        # with minimal adaptation
+        
         sum = _backend_module.sum
         mean = _backend_module.mean
         std = _backend_module.std
