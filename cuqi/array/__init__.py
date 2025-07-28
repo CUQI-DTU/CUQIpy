@@ -129,13 +129,14 @@ def _expose_backend_functions():
     
     if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
         # PyTorch uses tensor instead of array
-        def array(x, dtype=None):
+        def array(x, dtype=None, requires_grad=False):
+            """Create array/tensor with optional gradient tracking for PyTorch."""
             if x is None:
                 return None
             # Default to float64 for consistency with NumPy
             if dtype is None:
                 dtype = _backend_module.float64
-            return _backend_module.tensor(x, dtype=dtype)
+            return _backend_module.tensor(x, dtype=dtype, requires_grad=requires_grad)
         
         def zeros(*args, dtype=None, **kwargs):
             if dtype is None:
