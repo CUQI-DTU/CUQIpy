@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
 """
-Simple 1D Deconvolution with MRF Priors Demo
+Array-Agnostic 1D Deconvolution with MRF Priors
+===============================================
 
-This demo demonstrates the array-agnostic capabilities of CUQIpy by switching
-between NumPy and PyTorch backends for the same 1D deconvolution problem.
+This demo showcases CUQIpy's array-agnostic framework by solving the same 1D 
+deconvolution problem across multiple array backends (NumPy and PyTorch).
 
-Shows different Markov Random Field priors:
-- GMRF: Gaussian (promotes smoothness)
-- CMRF: Cauchy (preserves edges)  
-- LMRF: Laplace (promotes sparsity)
+Key Features Demonstrated:
+- **Backend Switching**: Seamless switching between NumPy and PyTorch
+- **Consistent Results**: Numerical consistency across backends
+- **Automatic Differentiation**: PyTorch gradient computation for advanced inference
+- **Performance Options**: Choose optimal backend for your use case
 
-The demo showcases:
-1. Backend switching with xp.set_backend()
-2. Equivalent results across backends
-3. PyTorch gradient computation capabilities
-4. Array-agnostic Bayesian inference
+Markov Random Field Priors:
+- GMRF: Gaussian Markov Random Field (promotes smoothness)
+- CMRF: Cauchy Markov Random Field (preserves edges)  
+- LMRF: Laplace Markov Random Field (promotes sparsity)
+
+This demo represents a key capability of modern CUQIpy: the ability to write
+backend-agnostic code that can leverage different computational frameworks
+for optimal performance and advanced features like automatic differentiation.
 """
 
 import cuqi.array as xp

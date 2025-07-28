@@ -11,6 +11,8 @@
 **CUQIpy** stands for Computational Uncertainty Quantification for Inverse Problems in python. It's a robust Python package designed for modeling and solving inverse problems using Bayesian inference. Here's what it brings to the table:
 
 - A straightforward high-level interface for UQ analysis.
+- **🔀 Array-agnostic framework** supporting NumPy, PyTorch, CuPy, and JAX backends.
+- **🧠 Automatic differentiation** capabilities with PyTorch for gradient-based inference.
 - Complete control over the models and methods.
 - An array of predefined distributions, samplers, models, and test problems.
 - Easy extendability for your unique needs.
@@ -39,9 +41,13 @@ Experience the simplicity and power of CUQIpy with this Image deconvolution exam
 ```python
 # Imports
 import matplotlib.pyplot as plt
+import cuqi.array as xp  # Array-agnostic backend
 from cuqi.testproblem import Deconvolution2D
 from cuqi.distribution import Gaussian, LMRF, Gamma
 from cuqi.problem import BayesianProblem
+
+# Optional: Switch to PyTorch for GPU acceleration and gradients
+# xp.set_backend("pytorch")
 
 # Step 1: Set up forward model and data, y = Ax
 A, y_data, info = Deconvolution2D(dim=256, phantom="cookie").get_components()
@@ -64,6 +70,23 @@ samples["x"].plot_mean(); plt.title("Estimated image (posterior mean)")
 samples["x"].plot_std(); plt.title("Uncertainty (posterior standard deviation)")
 samples["s"].plot_trace(); plt.suptitle("Noise level (posterior trace)")
 samples["d"].plot_trace(); plt.suptitle("Regularization parameter (posterior trace)")
+```
+
+### 🔀 Array Backend Example
+CUQIpy's array-agnostic framework allows seamless backend switching:
+```python
+import cuqi.array as xp
+from cuqi.distribution import Gaussian
+
+# Start with NumPy (default)
+xp.set_backend("numpy")
+x = Gaussian(xp.zeros(100), 1.0)
+
+# Switch to PyTorch for gradients
+xp.set_backend("pytorch") 
+x_torch = xp.array([1.0, 2.0], requires_grad=True)
+logpdf = x.logpdf(x_torch)
+logpdf.backward()  # Automatic differentiation!
 ```
 
 <p float="left">

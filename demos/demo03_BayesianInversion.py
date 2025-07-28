@@ -7,6 +7,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import cuqi
+import cuqi.array as xp  # Array-agnostic backend
+
+print("🔍 Bayesian Inversion with Array-Agnostic Backends")
+print("=" * 55)
+
+# Set default backend
+xp.set_backend("numpy")
+print(f"Using backend: {xp.get_backend_name()}")
 
 #%% %Cuqi deblur test problem
 tp = cuqi.testproblem._Deblur() #Default values

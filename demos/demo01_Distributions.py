@@ -7,6 +7,14 @@ import matplotlib.pyplot as plt
 
 sys.path.append("..")
 import cuqi
+import cuqi.array as xp  # Array-agnostic backend
+
+print("📊 CUQIpy Distributions with Array Backends")
+print("=" * 45)
+
+# Set default backend (can be changed to "pytorch", "cupy", etc.)
+xp.set_backend("numpy")
+print(f"Using backend: {xp.get_backend_name()}\n")
 
 # Create X ~ Normal( -1.0,4.0) distirbution
 pX = cuqi.distribution.Normal(-1.0, 4.0)

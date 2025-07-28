@@ -5,6 +5,10 @@ Uncertainty Quantification in one-dimensional deconvolution
     This tutorial walks through the process of solving a simple 1D 
     deconvolution problem in a Bayesian setting. It also shows how
     to define such a convolution model in CUQIpy.
+    
+    This tutorial also demonstrates CUQIpy's array-agnostic capabilities,
+    allowing you to seamlessly switch between NumPy and PyTorch backends
+    for enhanced performance and automatic differentiation.
 
 """
 # %%
@@ -13,8 +17,18 @@ Uncertainty Quantification in one-dimensional deconvolution
 # We start by importing the necessary modules
 
 import cuqi
+import cuqi.array as xp  # Array-agnostic backend
 import numpy as np
 import matplotlib.pyplot as plt
+
+print("🎓 UQ in 1D Deconvolution - Array-Agnostic Tutorial")
+print("=" * 55)
+print("This tutorial demonstrates Bayesian uncertainty quantification")
+print("with support for multiple array backends.\n")
+
+# Set default backend (can be changed to "pytorch" for GPU/gradients)
+xp.set_backend("numpy")
+print(f"Using backend: {xp.get_backend_name()}")
 
 # %%
 # Setting up the forward model
