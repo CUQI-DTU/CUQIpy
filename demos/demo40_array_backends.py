@@ -110,7 +110,8 @@ def benchmark_backend(backend_name, problem_size=n):
         
         setup_time = time.time() - start_time
         
-        # Benchmark logpdf computation
+        # Benchmark logpdf computation (use same seed for consistency)
+        np.random.seed(123)  # Fixed seed for consistency
         x_test = xp.array(np.random.randn(problem_size), dtype=xp.float64)
         
         start_time = time.time()
@@ -121,6 +122,7 @@ def benchmark_backend(backend_name, problem_size=n):
         # Test gradient computation if PyTorch
         grad_time = None
         if backend_name == "pytorch":
+            np.random.seed(123)  # Same seed for gradient test
             x_grad = xp.array(np.random.randn(problem_size), requires_grad=True, dtype=xp.float64)
             start_time = time.time()
             logpdf_grad = BP.posterior.logpdf(x_grad)
@@ -187,11 +189,11 @@ if "pytorch" in available_backends:
     
     xp.set_backend("pytorch")
     
-    # Set up problem
+    # Set up problem (use same variable names for BayesianProblem)
     A_torch = LinearModel(xp.array(A_data, dtype=xp.float64))
-    x_prior = Gaussian(mean=xp.zeros(n, dtype=xp.float64), cov=1.0)
-    y_like = Gaussian(mean=A_torch@x_prior, cov=0.01)
-    BP_torch = BayesianProblem(y_like, x_prior)
+    x = Gaussian(mean=xp.zeros(n, dtype=xp.float64), cov=1.0)
+    y = Gaussian(mean=A_torch@x, cov=0.01)
+    BP_torch = BayesianProblem(y, x)
     BP_torch.set_data(y=xp.array(y_data, dtype=xp.float64))
     
     # Demonstrate gradient-based optimization
