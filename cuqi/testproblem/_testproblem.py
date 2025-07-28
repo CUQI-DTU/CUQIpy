@@ -125,7 +125,9 @@ class _Deblur(BayesianProblem):
         conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
                 (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
                 (0.6 <= x) & (x <= x_max)]
-        f_signal = lambda x: xp.piecewise(x, conds(x), vals)
+        # Use numpy directly for piecewise as it's not available in all backends
+        import numpy as np
+        f_signal = lambda x: np.piecewise(xp.to_numpy(x), conds(xp.to_numpy(x)), vals)
 
         # numerically integrate the convolution
         g_conv = lambda x: quad_vec(lambda y: f_signal(y)*kernel(x, y, blur_size), x_min, x_max)
@@ -552,7 +554,9 @@ def _getExactSolution(dim, phantom, phantom_param):
         conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
                 (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
                 (0.6 <= x) & (x <= x_max)]
-        f_signal = lambda x: xp.piecewise(x, conds(x), vals)
+        # Use numpy directly for piecewise as it's not available in all backends
+        import numpy as np
+        f_signal = lambda x: np.piecewise(xp.to_numpy(x), conds(xp.to_numpy(x)), vals)
         x = f_signal(mesh)
         return x
 

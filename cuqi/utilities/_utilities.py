@@ -21,7 +21,11 @@ def force_ndarray(value,flatten=False):
         if flatten is True:
             value = value.flatten()
     # Convert numpy matrix to array if needed (matrix acts different on (n,) arrays)
-    if hasattr(value, 'A') and hasattr(value, 'shape') and callable(getattr(value, 'A', None)):
+    if xp.get_backend_name() == "numpy":
+        import numpy as np
+        if isinstance(value, np.matrix):
+            value = value.A
+    elif hasattr(value, 'A') and hasattr(value, 'shape') and callable(getattr(value, 'A', None)):
         value = value.A
     return value
 
