@@ -1,8 +1,5 @@
 from abc import ABC, abstractmethod
 import cuqi.array as xp
-import cuqi.array as xp
-# Add numpy functionality
-import numpy
 import matplotlib.pyplot as plt
 import math
 from scipy.fftpack import dst, idst
@@ -773,7 +770,7 @@ class KLExpansion(Continuous1D):
 
 
     .. math::
-        f = \sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
+        f = \\sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
         + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}
 
@@ -943,7 +940,7 @@ class KLExpansion_Full(Continuous1D):
 
 
     .. math::
-        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
+        f = \\frac{\\text{std}^2}{\\pi}\\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) 
         
         + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}
 
@@ -1132,6 +1129,7 @@ class CustomKL(Continuous1D):
             for j in range(N_GL):
                 Sigma_nu[i,j] = C_nu(xnod[i], xi_s[j])
                           
+        # Use tile to replicate weights across dimensions (verified equivalent across backends)
         M1 = Sigma_nu * xp.tile(w_s.reshape(N_GL,1), (1, n)).T
         M2 = phi @ xp.diag(1/eigval)
         eigvec = M1 @ M2

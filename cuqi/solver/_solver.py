@@ -1,5 +1,4 @@
 import cuqi.array as xp
-import cuqi.array as xp
 LA = xp.linalg  # Linear algebra operations
 from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt

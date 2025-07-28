@@ -20,7 +20,8 @@ def force_ndarray(value,flatten=False):
             
         if flatten is True:
             value = value.flatten()
-    if hasattr(value, 'A'): # Convert matrix to array if needed (matrix acts different on (n,) arrays)
+    # Convert numpy matrix to array if needed (matrix acts different on (n,) arrays)
+    if hasattr(value, 'A') and hasattr(value, 'shape') and callable(getattr(value, 'A', None)):
         value = value.A
     return value
 
