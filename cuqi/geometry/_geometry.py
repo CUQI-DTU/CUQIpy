@@ -1084,9 +1084,7 @@ class CustomKL(Continuous1D):
         
         # compute the Gauss-Legendre abscissas and weights
         #xi, w   = quad.Gauss_Legendre(N_GL) 
-        # Use numpy directly for Gauss-Legendre quadrature as it's not available in all backends
-        import numpy as np
-        xi, w = np.polynomial.legendre.leggauss(N_GL)
+        xi, w = xp.polynomial.legendre.leggauss(N_GL)
 
         # transform nodes and weights to [0, L]
         xi_s = a*xi + a

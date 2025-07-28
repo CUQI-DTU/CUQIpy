@@ -233,13 +233,13 @@ def _expose_backend_functions():
             return _backend_module.mul(x, y)
         
         def piecewise(x, condlist, funclist, *args, **kwargs):
-            # PyTorch doesn't have piecewise, implement basic version
+            # PyTorch doesn't have piecewise, use numpy with backend conversion
             import numpy as np
-            # Convert to numpy, apply piecewise, convert back
-            x_np = x.detach().cpu().numpy() if isinstance(x, _backend_module.Tensor) else x
-            condlist_np = [c.detach().cpu().numpy() if isinstance(c, _backend_module.Tensor) else c for c in condlist]
+            # Convert to numpy, apply piecewise, convert back to backend
+            x_np = to_numpy(x)
+            condlist_np = [to_numpy(c) for c in condlist]
             result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
-            return _backend_module.tensor(result_np, dtype=x.dtype if isinstance(x, _backend_module.Tensor) else _backend_module.float64)
+            return array(result_np, dtype=x.dtype if hasattr(x, 'dtype') else _backend_module.float64)
         
         def tile(A, reps):
             return A.repeat(*reps)
@@ -280,7 +280,16 @@ def _expose_backend_functions():
         percentile = _backend_module.percentile if hasattr(_backend_module, 'percentile') else lambda a, q, axis=None, keepdims=False: _backend_module.quantile(a, q/100.0, axis=axis, keepdims=keepdims) if hasattr(_backend_module, 'quantile') else None
         median = _backend_module.median if hasattr(_backend_module, 'median') else lambda a, axis=None, keepdims=False: _backend_module.percentile(a, 50, axis=axis, keepdims=keepdims)
         multiply = _backend_module.multiply if hasattr(_backend_module, 'multiply') else lambda x, y: x * y
-        piecewise = _backend_module.piecewise if hasattr(_backend_module, 'piecewise') else lambda x, condlist, funclist, *args, **kwargs: None
+        def piecewise(x, condlist, funclist, *args, **kwargs):
+            if hasattr(_backend_module, 'piecewise'):
+                return _backend_module.piecewise(x, condlist, funclist, *args, **kwargs)
+            else:
+                # Fallback to numpy for backends that don't have piecewise
+                import numpy as np
+                x_np = to_numpy(x)
+                condlist_np = [to_numpy(c) for c in condlist]
+                result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
+                return array(result_np)
         tile = _backend_module.tile if hasattr(_backend_module, 'tile') else lambda A, reps: None
         float_power = _backend_module.float_power if hasattr(_backend_module, 'float_power') else lambda x1, x2: _backend_module.power(x1.astype(_backend_module.float64), x2)
         polynomial = _backend_module.polynomial if hasattr(_backend_module, 'polynomial') else lambda p, x: None
@@ -737,9 +746,15 @@ def _expose_backend_functions():
                 elif isinstance(size, int):
                     size = (size,)
                 return _backend_module.uniform(low, high, size)
+            
+            @staticmethod
+            def default_rng(seed=None):
+                """Default random number generator."""
+                raise NotImplementedError(f"random.default_rng not implemented for backend {_BACKEND_NAME}")
         
         random = TorchRandomModule()
     elif hasattr(_backend_module, 'random'):
+        # For numpy, we can use the random module directly
         random = _backend_module.random
     else:
         # Create a minimal random interface
@@ -784,6 +799,15 @@ def _expose_backend_functions():
                 else:
                     import numpy
                     return numpy.random.randint(low, high, size, dtype)
+            
+            @staticmethod
+            def default_rng(seed=None):
+                """Default random number generator."""
+                if _BACKEND_NAME == "numpy":
+                    import numpy as np
+                    return np.random.default_rng(seed)
+                else:
+                    raise NotImplementedError(f"random.default_rng not implemented for backend {_BACKEND_NAME}")
         
         random = RandomModule()
     
@@ -934,6 +958,21 @@ def _expose_backend_functions():
                 raise NotImplementedError(f"scipy.sparse not implemented for backend {_BACKEND_NAME}")
     
     sparse = SparseModule()
+    
+    # Add polynomial module for mathematical functions
+    class PolynomialModule:
+        """Polynomial mathematical functions module interface."""
+        class legendre:
+            @staticmethod
+            def leggauss(deg):
+                """Gauss-Legendre quadrature."""
+                if _BACKEND_NAME == "numpy":
+                    import numpy as np
+                    return np.polynomial.legendre.leggauss(deg)
+                else:
+                    raise NotImplementedError(f"polynomial.legendre.leggauss not implemented for backend {_BACKEND_NAME}")
+    
+    polynomial = PolynomialModule()
 
 # Initialize backend functions
 _expose_backend_functions()
