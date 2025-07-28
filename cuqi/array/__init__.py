@@ -171,7 +171,29 @@ def _expose_backend_functions():
         linspace = lambda start, end, steps=50, **kwargs: _backend_module.linspace(start, end, steps, **kwargs)
     else:
         linspace = _backend_module.linspace
-    eye = _backend_module.eye
+    def eye(N, M=None, k=0, dtype=None, **kwargs):
+        """Create identity matrix with consistent dtype handling."""
+        if dtype is None:
+            dtype = _backend_module.float64
+        # PyTorch eye doesn't support k parameter, handle it separately
+        if _BACKEND_NAME == "pytorch" or _BACKEND_NAME == "torch":
+            if k != 0:
+                # For non-zero diagonal, create zeros and set diagonal
+                if M is None:
+                    M = N
+                result = _backend_module.zeros(N, M, dtype=dtype, **kwargs)
+                if k > 0:
+                    result[:-k, k:] = _backend_module.eye(min(N, M-k), dtype=dtype)
+                else:
+                    result[-k:, :M+k] = _backend_module.eye(min(N+k, M), dtype=dtype)
+                return result
+            else:
+                if M is None:
+                    return _backend_module.eye(N, dtype=dtype, **kwargs)
+                else:
+                    return _backend_module.eye(N, M, dtype=dtype, **kwargs)
+        else:
+            return _backend_module.eye(N, M, k, dtype=dtype, **kwargs)
     diag = _backend_module.diag
     if hasattr(_backend_module, 'diagonal'):
         diagonal = _backend_module.diagonal
@@ -481,9 +503,17 @@ def _expose_backend_functions():
             _backend_module.power(base, _backend_module.linspace(start, stop, num, endpoint, dtype, axis))
     
     if hasattr(_backend_module, 'identity'):
-        identity = _backend_module.identity
+        def identity(n, dtype=None):
+            """Create identity matrix with consistent dtype handling."""
+            if dtype is None:
+                dtype = _backend_module.float64
+            return _backend_module.identity(n, dtype=dtype)
     else:
-        identity = lambda n, dtype=None: _backend_module.eye(n, dtype=dtype)
+        def identity(n, dtype=None):
+            """Create identity matrix using eye function with consistent dtype handling."""
+            if dtype is None:
+                dtype = _backend_module.float64
+            return _backend_module.eye(n, dtype=dtype)
     
     if hasattr(_backend_module, 'vstack'):
         vstack = _backend_module.vstack

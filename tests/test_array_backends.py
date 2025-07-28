@@ -110,15 +110,69 @@ class TestArrayBackends:
     
     def test_posterior_logpdf_consistency(self):
         """Test that posterior logpdf values are consistent across backends."""
-        # Skip this test for now due to dtype compatibility issues
-        # TODO: Fix dtype handling between Float/Double in PyTorch backend
-        pytest.skip("Posterior logpdf consistency test disabled due to dtype issues")
+        # Test point
+        x_test = np.random.randn(self.n)
+        
+        # NumPy backend
+        xp.set_backend("numpy")
+        A_np = LinearModel(xp.array(self.A_data, dtype=xp.float64))
+        # Use simple Gaussian prior instead of GMRF to avoid scipy sparse matrix issues
+        x = Gaussian(mean=xp.zeros(self.n, dtype=xp.float64), cov=1.0)
+        y = Gaussian(mean=A_np@x, cov=0.01)
+        BP_np = BayesianProblem(y, x)
+        BP_np.set_data(y=xp.array(self.y_data, dtype=xp.float64))
+        
+        logpdf_np = BP_np.posterior.logpdf(xp.array(x_test, dtype=xp.float64))
+        
+        # PyTorch backend
+        try:
+            xp.set_backend("pytorch")
+            A_torch = LinearModel(xp.array(self.A_data, dtype=xp.float64))
+            x = Gaussian(mean=xp.zeros(self.n, dtype=xp.float64), cov=1.0)
+            y = Gaussian(mean=A_torch@x, cov=0.01)
+            BP_torch = BayesianProblem(y, x)
+            BP_torch.set_data(y=xp.array(self.y_data, dtype=xp.float64))
+            
+            logpdf_torch = BP_torch.posterior.logpdf(xp.array(x_test, dtype=xp.float64))
+            logpdf_torch_np = xp.to_numpy(logpdf_torch)
+            
+            # Check consistency (allow for small numerical differences)
+            np.testing.assert_allclose(logpdf_np, logpdf_torch_np, rtol=1e-6, atol=1e-8)
+            
+        except ImportError:
+            pytest.skip("PyTorch not available")
     
     def test_posterior_gradient_pytorch(self):
         """Test that posterior gradients can be computed with PyTorch."""
-        # Skip this test for now due to dtype compatibility issues
-        # TODO: Fix dtype handling between Float/Double in PyTorch backend
-        pytest.skip("Posterior gradient test disabled due to dtype issues")
+        try:
+            xp.set_backend("pytorch")
+        except ImportError:
+            pytest.skip("PyTorch not available")
+        
+        # Set up problem with simple Gaussian prior
+        A_torch = LinearModel(xp.array(self.A_data, dtype=xp.float64))
+        x = Gaussian(mean=xp.zeros(self.n, dtype=xp.float64), cov=1.0)
+        y = Gaussian(mean=A_torch@x, cov=0.01)
+        BP = BayesianProblem(y, x)
+        BP.set_data(y=xp.array(self.y_data, dtype=xp.float64))
+        
+        # Test point with gradient tracking
+        x_test = xp.array(np.random.randn(self.n), requires_grad=True, dtype=xp.float64)
+        
+        # Compute log posterior
+        logpdf = BP.posterior.logpdf(x_test)
+        
+        # Compute gradient
+        logpdf.backward()
+        
+        # Check that gradient was computed
+        assert x_test.grad is not None
+        assert x_test.grad.shape == (self.n,)
+        
+        # Check that gradient has reasonable magnitude
+        grad_norm = xp.linalg.norm(x_test.grad).item()
+        assert grad_norm > 0  # Should be non-zero
+        assert grad_norm < 10000  # Should be reasonable magnitude
     
     def test_array_dtype_consistency(self):
         """Test that dtypes are handled consistently across backends."""
