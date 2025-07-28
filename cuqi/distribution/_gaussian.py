@@ -284,7 +284,12 @@ class Gaussian(Distribution):
     def _logupdf(self, x):
         """ Un-normalized log density """
         dev = x - self.mean
-        mahadist = xp.sum(xp.square(self.sqrtprec @ dev.T), axis=0)
+        # Handle transpose properly for 1D arrays to avoid PyTorch deprecation warning
+        if hasattr(dev, 'dim') and dev.dim() <= 1:
+            dev_T = dev  # 1D arrays don't need transpose
+        else:
+            dev_T = dev.T
+        mahadist = xp.sum(xp.square(self.sqrtprec @ dev_T), axis=0)
         return -0.5*mahadist.flatten()
 
     def logpdf(self, x):
