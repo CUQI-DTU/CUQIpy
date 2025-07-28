@@ -635,7 +635,9 @@ class FISTA(object):
         import scipy as sp
         import cuqi.array as xp
 
-        rng = xp.random.default_rng()
+        # Use numpy random generator as default_rng is not available in all backends
+        import numpy as np
+        rng = np.random.default_rng()
 
         m, n = 10, 5
         A = rng.standard_normal((m, n))
@@ -718,7 +720,9 @@ class ADMM(object):
         from cuqi.solver import ADMM, ProximalL1, ProjectNonnegative
         import cuqi.array as xp
 
-        rng = xp.random.default_rng()
+        # Use numpy random generator as default_rng is not available in all backends
+        import numpy as np
+        rng = np.random.default_rng()
 
         m, n, k = 10, 5, 4
         A = rng.standard_normal((m, n))

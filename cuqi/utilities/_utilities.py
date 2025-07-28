@@ -154,7 +154,7 @@ def sparse_cholesky(A):
     else:
         raise TypeError('The matrix is not positive semi-definite')
 
-def approx_derivative(func, wrt, direction=None, epsilon=xp.sqrt(xp.finfo(float).eps)):
+def approx_derivative(func, wrt, direction=None, epsilon=1e-8):
     """Approximates the derivative of callable (possibly vector-valued) function `func` evaluated at point `wrt`. If `direction` is provided, the direction-Jacobian product will be computed and returned, otherwise, the Jacobian matrix (or the gradient in case of a scalar function `func`) will be returned. The approximation is done using forward differences.
 
     Parameters

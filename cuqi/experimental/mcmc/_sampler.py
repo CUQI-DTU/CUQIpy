@@ -554,7 +554,9 @@ class _BatchHandler:
         # Save the current batch of samples
         batch_samples = xp.array(self.current_batch)
         file_path = f'{self.sample_path}batch_{self.num_batches_dumped:04d}.npz'
-        xp.savez(file_path, samples=batch_samples, batch_id=self.num_batches_dumped)
+        # Use numpy for saving as savez is not available in all backends
+        import numpy as np
+        np.savez(file_path, samples=xp.to_numpy(batch_samples), batch_id=self.num_batches_dumped)
 
         self.num_batches_dumped += 1
         self.current_batch = []  # Clear the batch after saving
