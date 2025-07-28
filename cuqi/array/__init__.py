@@ -893,6 +893,47 @@ def _expose_backend_functions():
                     raise NotImplementedError(f"fft.fftfreq not implemented for backend {_BACKEND_NAME}")
         
         fft = FFTModule()
+    
+    # Add scipy modules for compatibility
+    class OptimizeModule:
+        """Scipy optimize module interface."""
+        @staticmethod
+        def minimize(*args, **kwargs):
+            if _BACKEND_NAME == "numpy":
+                import scipy.optimize
+                return scipy.optimize.minimize(*args, **kwargs)
+            else:
+                raise NotImplementedError(f"scipy.optimize not implemented for backend {_BACKEND_NAME}")
+        
+        @staticmethod
+        def minimize_scalar(*args, **kwargs):
+            if _BACKEND_NAME == "numpy":
+                import scipy.optimize
+                return scipy.optimize.minimize_scalar(*args, **kwargs)
+            else:
+                raise NotImplementedError(f"scipy.optimize not implemented for backend {_BACKEND_NAME}")
+    
+    optimize = OptimizeModule()
+    
+    class SparseModule:
+        """Scipy sparse module interface."""
+        @staticmethod
+        def csr_matrix(*args, **kwargs):
+            if _BACKEND_NAME == "numpy":
+                import scipy.sparse
+                return scipy.sparse.csr_matrix(*args, **kwargs)
+            else:
+                raise NotImplementedError(f"scipy.sparse not implemented for backend {_BACKEND_NAME}")
+        
+        @staticmethod
+        def csc_matrix(*args, **kwargs):
+            if _BACKEND_NAME == "numpy":
+                import scipy.sparse
+                return scipy.sparse.csc_matrix(*args, **kwargs)
+            else:
+                raise NotImplementedError(f"scipy.sparse not implemented for backend {_BACKEND_NAME}")
+    
+    sparse = SparseModule()
 
 # Initialize backend functions
 _expose_backend_functions()
@@ -1080,7 +1121,7 @@ __all__ = [
     'exp', 'exp2', 'log', 'log2', 'log10', 'sqrt', 'square', 'power', 'abs', 'sign',
     'floor', 'ceil', 'round', 'clip', 'where', 'isnan', 'isinf', 'isfinite', 'count_nonzero', 'allclose', 'array_equiv', 'array_equal', 'sinc',
     'real', 'imag', 'conj', 'angle', 'absolute',
-    'random', 'linalg', 'fft',
+    'random', 'linalg', 'fft', 'optimize', 'sparse',
     'ndarray', 'dtype', 'newaxis', 'inf', 'nan', 'pi', 'e',
     'asarray', 'asanyarray', 'ascontiguousarray', 'asfortranarray',
     'copy', 'deepcopy', 'meshgrid', 'broadcast_arrays', 'expand_dims', 'squeeze', 'pad',

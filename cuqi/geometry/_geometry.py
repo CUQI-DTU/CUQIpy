@@ -994,9 +994,7 @@ class KLExpansion_Full(Continuous1D):
         m = len(p)
         freq[:m] = p
         temp = freq*self.coefs
-        # Use numpy conversion for scipy functions as they expect numpy arrays
-        import numpy as np
-        real = idst(np.asarray(temp))/2/xp.pi
+        real = idst(temp)/2/xp.pi
         return self.var*real
     
     def fun2par(self,funvals):
