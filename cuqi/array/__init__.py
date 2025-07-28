@@ -27,6 +27,10 @@ import os
 import warnings
 from ._array import CUQIarray
 
+# Import numpy for numpy backend and fallback operations
+# This is the only place we import numpy directly in the array backend
+import numpy as _np
+
 # Backend selection mechanism
 _BACKEND_NAME = os.getenv("CUQI_ARRAY_BACKEND", "numpy").lower()
 
@@ -233,12 +237,15 @@ def _expose_backend_functions():
             return _backend_module.mul(x, y)
         
         def piecewise(x, condlist, funclist, *args, **kwargs):
-            # PyTorch doesn't have piecewise, use numpy with backend conversion
-            import numpy as np
+            """Apply piecewise function across backends.
+            
+            PyTorch doesn't have native piecewise, so we convert to numpy,
+            apply the operation, and convert back to maintain backend consistency.
+            """
             # Convert to numpy, apply piecewise, convert back to backend
             x_np = to_numpy(x)
             condlist_np = [to_numpy(c) for c in condlist]
-            result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
+            result_np = _np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
             return array(result_np, dtype=x.dtype if hasattr(x, 'dtype') else _backend_module.float64)
         
         def tile(A, reps):
@@ -281,14 +288,14 @@ def _expose_backend_functions():
         median = _backend_module.median if hasattr(_backend_module, 'median') else lambda a, axis=None, keepdims=False: _backend_module.percentile(a, 50, axis=axis, keepdims=keepdims)
         multiply = _backend_module.multiply if hasattr(_backend_module, 'multiply') else lambda x, y: x * y
         def piecewise(x, condlist, funclist, *args, **kwargs):
+            """Apply piecewise function with backend-specific implementation or numpy fallback."""
             if hasattr(_backend_module, 'piecewise'):
                 return _backend_module.piecewise(x, condlist, funclist, *args, **kwargs)
             else:
                 # Fallback to numpy for backends that don't have piecewise
-                import numpy as np
                 x_np = to_numpy(x)
                 condlist_np = [to_numpy(c) for c in condlist]
-                result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
+                result_np = _np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
                 return array(result_np)
         tile = _backend_module.tile if hasattr(_backend_module, 'tile') else lambda A, reps: None
         float_power = _backend_module.float_power if hasattr(_backend_module, 'float_power') else lambda x1, x2: _backend_module.power(x1.astype(_backend_module.float64), x2)
@@ -766,9 +773,8 @@ def _expose_backend_functions():
                     key = jax_random.PRNGKey(0)  # Should be managed better in practice
                     return jax_random.normal(key, shape=size) * scale + loc
                 else:
-                    # Fallback to numpy random
-                    import numpy
-                    return numpy.random.normal(loc, scale, size)
+                    # Fallback to numpy random for non-JAX backends
+                    return _np.random.normal(loc, scale, size)
             
             @staticmethod
             def rand(*args):
@@ -777,8 +783,7 @@ def _expose_backend_functions():
                     key = jax_random.PRNGKey(0)
                     return jax_random.uniform(key, shape=args)
                 else:
-                    import numpy
-                    return numpy.random.rand(*args)
+                    return _np.random.rand(*args)
             
             @staticmethod
             def randn(*args):
@@ -787,8 +792,7 @@ def _expose_backend_functions():
                     key = jax_random.PRNGKey(0)
                     return jax_random.normal(key, shape=args)
                 else:
-                    import numpy
-                    return numpy.random.randn(*args)
+                    return _np.random.randn(*args)
             
             @staticmethod
             def randint(low, high=None, size=None, dtype=int):
@@ -797,15 +801,17 @@ def _expose_backend_functions():
                     key = jax_random.PRNGKey(0)
                     return jax_random.randint(key, shape=size or (), minval=low, maxval=high, dtype=dtype)
                 else:
-                    import numpy
-                    return numpy.random.randint(low, high, size, dtype)
+                    # Fallback to numpy for non-JAX backends
+                    return _np.random.randint(low, high, size, dtype)
             
             @staticmethod
             def default_rng(seed=None):
-                """Default random number generator."""
+                """Default random number generator.
+                
+                Returns numpy's default RNG for numpy backend, raises NotImplementedError for others.
+                """
                 if _BACKEND_NAME == "numpy":
-                    import numpy as np
-                    return np.random.default_rng(seed)
+                    return _np.random.default_rng(seed)
                 else:
                     raise NotImplementedError(f"random.default_rng not implemented for backend {_BACKEND_NAME}")
         
@@ -965,10 +971,13 @@ def _expose_backend_functions():
         class legendre:
             @staticmethod
             def leggauss(deg):
-                """Gauss-Legendre quadrature."""
+                """Gauss-Legendre quadrature.
+                
+                Computes Gauss-Legendre quadrature nodes and weights.
+                Only available for numpy backend.
+                """
                 if _BACKEND_NAME == "numpy":
-                    import numpy as np
-                    return np.polynomial.legendre.leggauss(deg)
+                    return _np.polynomial.legendre.leggauss(deg)
                 else:
                     raise NotImplementedError(f"polynomial.legendre.leggauss not implemented for backend {_BACKEND_NAME}")
     
