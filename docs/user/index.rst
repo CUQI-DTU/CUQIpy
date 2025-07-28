@@ -9,6 +9,9 @@ The main resources for users are structured as follows.
 - :doc:`Getting started <getting_started>`
    Get CUQIpy up and running on your system and learn the basics.
 
+- :doc:`Array Backends <array_backends>`
+   Learn about CUQIpy's array-agnostic framework for NumPy, PyTorch, CuPy, and JAX backends.
+
 - :doc:`Tutorials <_auto_tutorials/index>`
    To learn about the features of CUQIpy. Tutorials are step-by-step guides for learning about CUQIpy and how to use it for uncertainty quantification.
 
@@ -29,6 +32,7 @@ There are also a large number of demos and examples in the ``cuqipy/demos`` dire
    :hidden:
 
    Getting Started <getting_started>
+   Array Backends <array_backends>
    Tutorials <_auto_tutorials/index>
    How-To Guides <_auto_howtos/index>
    Background <background/index>
