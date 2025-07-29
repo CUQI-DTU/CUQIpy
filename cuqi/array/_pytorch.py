@@ -55,16 +55,53 @@ def get_backend_functions(backend_module):
             return None
         if dtype is None:
             dtype = backend_module.float64
+        else:
+            # Convert numpy dtypes to PyTorch dtypes
+            dtype = _convert_dtype_to_torch(dtype)
         return backend_module.tensor(x, dtype=dtype, requires_grad=requires_grad)
+
+    def _convert_dtype_to_torch(dtype):
+        """Convert numpy/python dtypes to PyTorch dtypes."""
+        if dtype is None:
+            return backend_module.float64
+        
+        # If it's already a torch dtype, return as is
+        if hasattr(dtype, 'is_floating_point'):
+            return dtype
+        
+        # Convert numpy dtypes to torch dtypes
+        if dtype == _np.float32 or dtype == float or dtype == 'float32':
+            return backend_module.float32
+        elif dtype == _np.float64 or dtype == 'float64':
+            return backend_module.float64
+        elif dtype == _np.int32 or dtype == 'int32':
+            return backend_module.int32
+        elif dtype == _np.int64 or dtype == int or dtype == 'int64':
+            return backend_module.int64
+        elif dtype == _np.int8 or dtype == 'int8':
+            return backend_module.int8
+        elif dtype == _np.int16 or dtype == 'int16':
+            return backend_module.int16
+        elif dtype == _np.uint8 or dtype == 'uint8':
+            return backend_module.uint8
+        elif dtype == _np.bool_ or dtype == bool or dtype == 'bool':
+            return backend_module.bool
+        else:
+            # Default fallback
+            return backend_module.float64
     
     def zeros(*args, dtype=None, **kwargs):
         if dtype is None:
             dtype = backend_module.float64
+        else:
+            dtype = _convert_dtype_to_torch(dtype)
         return backend_module.zeros(*args, dtype=dtype, **kwargs)
     
     def ones(*args, dtype=None, **kwargs):
         if dtype is None:
             dtype = backend_module.float64
+        else:
+            dtype = _convert_dtype_to_torch(dtype)
         return backend_module.ones(*args, dtype=dtype, **kwargs)
     
     functions['array'] = array
@@ -81,12 +118,40 @@ def get_backend_functions(backend_module):
     
     # Many functions not implemented for PyTorch
     functions['logspace'] = not_implemented('logspace')
-    functions['eye'] = backend_module.eye
+    def eye_pytorch(n, m=None, k=0, dtype=None):
+        """Create eye matrix for PyTorch.""" 
+        if dtype is None:
+            dtype = backend_module.float64
+        else:
+            dtype = _convert_dtype_to_torch(dtype)
+        
+        if m is None:
+            m = n
+        
+        # PyTorch eye doesn't support offset k or different m, so we create manually
+        if k == 0 and m == n:
+            return backend_module.eye(n, dtype=dtype)
+        else:
+            # Create manually for offset or rectangular matrices
+            result = backend_module.zeros((n, m), dtype=dtype)
+            if k >= 0:
+                diag_size = min(n, m - k)
+                if diag_size > 0:
+                    result[range(diag_size), range(k, k + diag_size)] = 1
+            else:
+                diag_size = min(n + k, m)
+                if diag_size > 0:
+                    result[range(-k, -k + diag_size), range(diag_size)] = 1
+            return result
+    
+    functions['eye'] = eye_pytorch
     
     def identity_pytorch(n, dtype=None):
         """Create identity matrix for PyTorch."""
         if dtype is None:
             dtype = backend_module.float64
+        else:
+            dtype = _convert_dtype_to_torch(dtype)
         return backend_module.eye(n, dtype=dtype)
     
     functions['identity'] = identity_pytorch
