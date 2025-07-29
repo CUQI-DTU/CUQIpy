@@ -509,7 +509,12 @@ def get_backend_functions(backend_module):
     functions['pi'] = math.pi
     functions['e'] = math.e
     functions['size'] = lambda x: x.numel() if hasattr(x, 'numel') else backend_module.numel(x)
-    functions['shape'] = lambda x: tuple(backend_module.tensor(x).shape)
+    def shape_pytorch(x):
+        """Get shape, handling sparse matrices properly."""
+        if hasattr(x, 'shape') and hasattr(x, 'nnz'):  # sparse matrix
+            return x.shape
+        return tuple(backend_module.tensor(x).shape)
+    functions['shape'] = shape_pytorch
     
     # Missing functions that need PyTorch implementations
     def squeeze_pytorch(x, axis=None):

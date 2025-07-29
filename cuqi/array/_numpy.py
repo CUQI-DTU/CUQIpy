@@ -183,7 +183,12 @@ def get_backend_functions(backend_module):
     functions['pi'] = backend_module.pi
     functions['e'] = backend_module.e
     functions['size'] = backend_module.size
-    functions['shape'] = lambda x: backend_module.array(x).shape
+    def shape_numpy(x):
+        """Get shape, handling sparse matrices properly."""
+        if hasattr(x, 'shape') and hasattr(x, 'nnz'):  # sparse matrix
+            return x.shape
+        return backend_module.array(x).shape
+    functions['shape'] = shape_numpy
     functions['squeeze'] = lambda x, axis=None: backend_module.squeeze(x, axis=axis)
     functions['expand_dims'] = lambda x, axis: backend_module.expand_dims(x, axis=axis)
     functions['equal'] = lambda x, y: backend_module.equal(x, y)

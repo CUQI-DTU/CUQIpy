@@ -149,7 +149,9 @@ def sparse_cholesky(A):
 
 
     # check the matrix A is positive definite
-    perm_check = (LU.perm_r == xp.arange(A.shape[0])).all()
+    # Use numpy arrays for both sides to ensure consistent comparison
+    import numpy as np
+    perm_check = (LU.perm_r == np.arange(A.shape[0])).all()
     diag_check = (LU.U.diagonal() > 0).all()
     
     # Convert to boolean if they are tensors (for PyTorch backend)
