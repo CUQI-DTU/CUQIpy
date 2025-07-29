@@ -15,8 +15,7 @@ def load_backend():
         return torch
     except ImportError:
         warnings.warn("PyTorch not available, falling back to NumPy")
-        import numpy as np
-        return np
+        raise ImportError("PyTorch not available")
 
 
 def get_backend_functions(backend_module):
@@ -139,7 +138,15 @@ def get_backend_functions(backend_module):
     functions['multiply'] = backend_module.multiply
     functions['tile'] = not_implemented('tile')
     functions['float_power'] = not_implemented('float_power')
-    functions['piecewise'] = not_implemented('piecewise')
+    def piecewise_pytorch(x, condlist, funclist, *args, **kwargs):
+        """Piecewise function for PyTorch - convert to numpy, apply, convert back."""
+        x_np = to_numpy(x)
+        condlist_np = [to_numpy(c) for c in condlist]
+        import numpy as np
+        result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
+        return backend_module.tensor(result_np, dtype=x.dtype if hasattr(x, 'dtype') else backend_module.float64)
+    
+    functions['piecewise'] = piecewise_pytorch
     
     # Linear algebra - basic support
     def dot(a, b):
@@ -158,7 +165,33 @@ def get_backend_functions(backend_module):
     functions['einsum'] = not_implemented('einsum')
     functions['tril'] = backend_module.tril
     functions['triu'] = backend_module.triu
-    functions['linalg'] = not_implemented('linalg')  # PyTorch has different linalg interface
+    # PyTorch linalg module - create a minimal interface
+    class TorchLinalgModule:
+        @staticmethod
+        def norm(x, ord=None, dim=None, keepdim=False):
+            return backend_module.linalg.norm(x, ord=ord, dim=dim, keepdim=keepdim)
+        
+        @staticmethod
+        def det(x):
+            return backend_module.linalg.det(x)
+        
+        @staticmethod
+        def inv(x):
+            return backend_module.linalg.inv(x)
+        
+        @staticmethod
+        def solve(a, b):
+            return backend_module.linalg.solve(a, b)
+        
+        @staticmethod
+        def eig(x):
+            return backend_module.linalg.eig(x)
+        
+        @staticmethod
+        def svd(x, full_matrices=True):
+            return backend_module.linalg.svd(x, full_matrices=full_matrices)
+    
+    functions['linalg'] = TorchLinalgModule()
     
     # Trigonometric functions
     functions['sin'] = backend_module.sin
@@ -217,6 +250,20 @@ def get_backend_functions(backend_module):
     functions['asfortranarray'] = not_implemented('asfortranarray')
     functions['copy'] = lambda x: x.clone()
     
+    # Add astype method to tensors if not present
+    def add_astype_to_tensor():
+        if not hasattr(backend_module.Tensor, 'astype'):
+            def astype(self, dtype):
+                if dtype == float:
+                    return self.float()
+                elif dtype == int:
+                    return self.int()
+                else:
+                    return self.to(dtype)
+            backend_module.Tensor.astype = astype
+    
+    add_astype_to_tensor()
+    
     # Data types and constants
     functions['finfo'] = not_implemented('finfo')  # Use numpy's finfo
     functions['iinfo'] = not_implemented('iinfo')  # Use numpy's iinfo
@@ -248,10 +295,64 @@ def get_backend_functions(backend_module):
     functions['floating'] = not_implemented('floating')
     functions['complexfloating'] = not_implemented('complexfloating')
     
-    # Modules - not implemented for PyTorch
-    functions['random'] = not_implemented('random')
+    # Modules - create minimal interfaces for PyTorch
+    class TorchRandomModule:
+        @staticmethod
+        def normal(loc=0.0, scale=1.0, size=None):
+            if size is None:
+                return backend_module.normal(loc, scale, (1,))
+            elif isinstance(size, int):
+                return backend_module.normal(loc, scale, (size,))
+            else:
+                return backend_module.normal(loc, scale, size)
+        
+        @staticmethod
+        def rand(*args):
+            if len(args) == 0:
+                return backend_module.rand(1)
+            return backend_module.rand(*args)
+        
+        @staticmethod
+        def randn(*args):
+            if len(args) == 0:
+                return backend_module.randn(1)
+            return backend_module.randn(*args)
+        
+        @staticmethod
+        def randint(low, high=None, size=None, dtype=None):
+            if high is None:
+                high = low
+                low = 0
+            if size is None:
+                size = (1,)
+            elif isinstance(size, int):
+                size = (size,)
+            return backend_module.randint(low, high, size, dtype=dtype)
+        
+        @staticmethod
+        def uniform(low=0.0, high=1.0, size=None):
+            if size is None:
+                size = (1,)
+            elif isinstance(size, int):
+                size = (size,)
+            return backend_module.uniform(low, high, size)
+        
+        @staticmethod
+        def default_rng(seed=None):
+            """Default random number generator - not implemented for PyTorch."""
+            raise NotImplementedError("random.default_rng not implemented for PyTorch backend. Use NumPy backend for full functionality.")
+    
+    functions['random'] = TorchRandomModule()
     functions['fft'] = not_implemented('fft')
-    functions['polynomial'] = not_implemented('polynomial')
+    
+    class TorchPolynomialModule:
+        class legendre:
+            @staticmethod
+            def leggauss(deg):
+                """Gauss-Legendre quadrature - not implemented for PyTorch."""
+                raise NotImplementedError("polynomial.legendre.leggauss not implemented for PyTorch backend. Use NumPy backend for full functionality.")
+    
+    functions['polynomial'] = TorchPolynomialModule()
     
     return functions
 

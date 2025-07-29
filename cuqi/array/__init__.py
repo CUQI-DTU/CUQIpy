@@ -40,12 +40,19 @@ def get_backend_name():
 def set_backend(backend_name):
     """Set the array backend programmatically."""
     global _BACKEND_NAME, _backend_module
+    original_backend = _BACKEND_NAME
     _BACKEND_NAME = backend_name.lower()
-    _backend_module = _load_backend()
-    _expose_backend_functions()
+    try:
+        _backend_module = _load_backend()
+        _expose_backend_functions()
+    except ImportError:
+        # Restore original backend name if loading fails
+        _BACKEND_NAME = original_backend
+        raise
 
 def _load_backend():
     """Load the specified backend module."""
+    global _BACKEND_NAME
     if _BACKEND_NAME in ["numpy", "np"]:
         from ._numpy import load_backend
         return load_backend()
@@ -98,8 +105,17 @@ def _expose_backend_functions():
         pass
 
 # Initialize backend on import
-_backend_module = _load_backend()
-_expose_backend_functions()
+try:
+    _backend_module = _load_backend()
+    _expose_backend_functions()
+except ImportError:
+    # Fall back to NumPy if the default backend is not available
+    if _BACKEND_NAME != "numpy":
+        _BACKEND_NAME = "numpy"
+        _backend_module = _load_backend()
+        _expose_backend_functions()
+    else:
+        raise
 
 # Define what gets exported
 __all__ = [

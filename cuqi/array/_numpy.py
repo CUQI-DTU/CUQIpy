@@ -23,9 +23,19 @@ def get_backend_functions(backend_module):
     functions = {}
     
     # Array creation functions
-    functions['array'] = lambda x, dtype=None: backend_module.array(x, dtype=dtype if dtype is not None else backend_module.float64)
-    functions['zeros'] = lambda *args, dtype=None, **kwargs: backend_module.zeros(*args, dtype=dtype if dtype is not None else backend_module.float64, **kwargs)
-    functions['ones'] = lambda *args, dtype=None, **kwargs: backend_module.ones(*args, dtype=dtype if dtype is not None else backend_module.float64, **kwargs)
+    functions['array'] = lambda x, dtype=None: backend_module.array(x, dtype=dtype)
+    def zeros_with_default_dtype(*args, dtype=None, **kwargs):
+        if dtype is None:
+            dtype = backend_module.float64
+        return backend_module.zeros(*args, dtype=dtype, **kwargs)
+    
+    def ones_with_default_dtype(*args, dtype=None, **kwargs):
+        if dtype is None:
+            dtype = backend_module.float64
+        return backend_module.ones(*args, dtype=dtype, **kwargs)
+    
+    functions['zeros'] = zeros_with_default_dtype
+    functions['ones'] = ones_with_default_dtype
     functions['zeros_like'] = backend_module.zeros_like
     functions['ones_like'] = backend_module.ones_like
     functions['empty'] = backend_module.empty
