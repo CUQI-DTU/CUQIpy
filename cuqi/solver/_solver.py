@@ -4,6 +4,13 @@ from scipy.optimize import fmin_l_bfgs_b, least_squares
 import scipy.optimize as opt
 import scipy.sparse as spa
 
+def _copy_array(x):
+    """Backend-agnostic array copying."""
+    if hasattr(x, 'copy'):
+        return x.copy()
+    else:
+        return xp.array(x)
+
 from cuqi.array import CUQIarray
 from cuqi import config
 eps = xp.finfo(float).eps
@@ -304,7 +311,7 @@ class CGLS(object):
             
     def solve(self):
         # initial state
-        x = xp.array(self.x0)
+        x = _copy_array(self.x0)
         if self.explicitA:
             r = self.b - (self.A @ x)
             s = (self.A.T @ r) - self.shift*x
@@ -313,7 +320,7 @@ class CGLS(object):
             s = self.A(r, 2) - self.shift*x
     
         # initialization
-        p = xp.array(s)
+        p = _copy_array(s)
         norms0 = LA.norm(s)
         normx = LA.norm(x)
         gamma, xmax = norms0**2, normx
@@ -341,7 +348,7 @@ class CGLS(object):
             else:
                 s = self.A(r, 2) - self.shift*x
 
-            gamma1 = xp.array(gamma)
+            gamma1 = _copy_array(gamma)
             norms = LA.norm(s)
             gamma = norms**2
             p = s + (gamma/gamma1)*p
@@ -413,10 +420,10 @@ class PCGLS:
 
     def solve(self):
         # initial state
-        x = xp.array(self._x0)
+        x = _copy_array(self._x0)
         r = self._b - self._apply_A(x, 1)
         s = self._apply_Pinv(self._apply_A(r, 2), 2)
-        p = xp.array(s)
+        p = _copy_array(s)
 
         # initial computations        
         norms0 = LA.norm(s)
@@ -443,7 +450,7 @@ class PCGLS:
             s = self._apply_Pinv(self._apply_A(r, 2), 2)
             #
             norms = LA.norm(s)
-            gamma1 = xp.array(gamma)
+            gamma1 = _copy_array(gamma)
             gamma = norms**2
             beta = gamma / gamma1
             p = s + beta*p
@@ -663,13 +670,13 @@ class FISTA(object):
             
     def solve(self):
         # initial state
-        x = xp.array(self.x0)
+        x = _copy_array(self.x0)
         stepsize = self.stepsize
         
         k = 0
         
         while True:
-            x_old = xp.array(x)
+            x_old = _copy_array(x)
             k += 1
         
             if self._explicitA:
@@ -685,7 +692,7 @@ class FISTA(object):
             if self.adaptive:
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
-            x = xp.array(x_new)
+            x = _copy_array(x_new)
 
 class ADMM(object):
     """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
@@ -791,7 +798,7 @@ class ADMM(object):
                 elif res_primal > 1e2*res_dual:
                     self.rho *= 2.0 # More data fidelity
 
-            self.x_cur, self.z_cur, self.u_cur = x_new, xp.array(z_new), u_new
+            self.x_cur, self.z_cur, self.u_cur = x_new, z_new, u_new
             
         return self.x_cur, i
     

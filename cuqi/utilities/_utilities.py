@@ -23,6 +23,16 @@ class BackendSparseMatrix:
         """Transpose of the sparse matrix."""
         return BackendSparseMatrix(self._scipy_matrix.T)
     
+    @property
+    def shape(self):
+        """Shape of the sparse matrix."""
+        return self._scipy_matrix.shape
+    
+    @property
+    def nnz(self):
+        """Number of non-zero elements in the sparse matrix."""
+        return self._scipy_matrix.nnz
+    
     def diagonal(self):
         """Get diagonal elements of the sparse matrix."""
         import cuqi.array as xp
@@ -118,6 +128,10 @@ class BackendSparseMatrix:
             # NumPy backend
             result = other @ self._scipy_matrix
             return result
+    
+    def toarray(self):
+        """Convert sparse matrix to dense array."""
+        return self._scipy_matrix.toarray()
     
     def get_scipy_matrix(self):
         """Get the underlying scipy sparse matrix for operations that require it."""

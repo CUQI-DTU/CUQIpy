@@ -332,11 +332,14 @@ class Gaussian(Distribution):
             e = xp.random.randn(xp.shape(self.sqrtprec)[0], N)
 
         # Compute perturbation
-        if spa.issparse(self.sqrtprec): # do sparse
+        from cuqi.utilities._utilities import BackendSparseMatrix
+        if spa.issparse(self.sqrtprec) or isinstance(self.sqrtprec, BackendSparseMatrix): # do sparse
+            # Get the scipy sparse matrix for spsolve
+            sparse_matrix = self.sqrtprec.get_scipy_matrix() if isinstance(self.sqrtprec, BackendSparseMatrix) else self.sqrtprec
             if (N == 1):
-                perturbation = spa.linalg.spsolve(self.sqrtprec, e)[:, None]
+                perturbation = spa.linalg.spsolve(sparse_matrix, e)[:, None]
             else:
-                perturbation = spa.linalg.spsolve(self.sqrtprec, e)
+                perturbation = spa.linalg.spsolve(sparse_matrix, e)
         else:
             if xp.allclose(self.sqrtprec, xp.tril(self.sqrtprec)): # matrix is triangular
                 perturbation = splinalg.solve_triangular(self.sqrtprec, e)
