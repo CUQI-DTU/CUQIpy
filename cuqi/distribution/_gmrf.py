@@ -227,7 +227,10 @@ class GMRF(Distribution):
     
     @property
     def sqrtprec(self):
-        return xp.sqrt(self.prec)*self._chol.T
+        # Convert sqrt(prec) to numpy for sparse matrix operations
+        import numpy as np
+        sqrt_prec_np = xp.to_numpy(xp.sqrt(self.prec))
+        return sqrt_prec_np * self._chol.T
 
     @property
     def sqrtprecTimesMean(self):
