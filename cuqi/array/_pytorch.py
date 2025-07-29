@@ -580,10 +580,17 @@ def get_backend_functions(backend_module):
     def sparse_eye_pytorch(n, m=None, k=0, dtype=None, format=None):
         """Create sparse identity matrix."""
         if dtype is None:
-            dtype = backend_module.float64
+            dtype = _np.float64
+        else:
+            # Convert to numpy dtype for scipy
+            if hasattr(dtype, '__name__'):
+                dtype = dtype
+            else:
+                dtype = _np.float64
         
         from scipy.sparse import eye
-        return eye(n, m=m, k=k, dtype=_np.float64, format=format)
+        # scipy.sparse.eye has signature (m, n=None, k=0, dtype=float, format=None)
+        return eye(n, n=m, k=k, dtype=dtype, format=format)
     
     def sparse_kron_pytorch(A, B, format=None):
         """Kronecker product of sparse matrices."""

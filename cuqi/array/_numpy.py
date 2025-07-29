@@ -218,7 +218,9 @@ def get_backend_functions(backend_module):
     def sparse_eye_numpy(n, m=None, k=0, dtype=float, format=None):
         """Create sparse identity matrix using scipy.sparse.eye."""
         from scipy.sparse import eye
-        return eye(n, m=m, k=k, dtype=dtype, format=format)
+        # scipy.sparse.eye has signature (m, n=None, k=0, dtype=float, format=None)
+        # so we need to pass n as the first argument (m in scipy) and m as n
+        return eye(n, n=m, k=k, dtype=dtype, format=format)
     
     def sparse_kron_numpy(A, B, format=None):
         """Kronecker product of sparse matrices using scipy.sparse.kron."""
