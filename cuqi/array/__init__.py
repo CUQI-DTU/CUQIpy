@@ -52,7 +52,6 @@ def set_backend(backend_name):
 
 def _load_backend():
     """Load the specified backend module."""
-    global _BACKEND_NAME
     if _BACKEND_NAME in ["numpy", "np"]:
         from ._numpy import load_backend
         return load_backend()
@@ -111,7 +110,8 @@ try:
 except ImportError:
     # Fall back to NumPy if the default backend is not available
     if _BACKEND_NAME != "numpy":
-        _BACKEND_NAME = "numpy"
+        # Modify module-level variable
+        globals()['_BACKEND_NAME'] = "numpy"
         _backend_module = _load_backend()
         _expose_backend_functions()
     else:

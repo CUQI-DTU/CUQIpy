@@ -232,7 +232,12 @@ def get_backend_functions(backend_module):
     functions['allclose'] = backend_module.allclose
     functions['array_equiv'] = not_implemented('array_equiv')
     functions['array_equal'] = not_implemented('array_equal')
-    functions['isscalar'] = not_implemented('isscalar')
+    def isscalar_pytorch(element):
+        """Check if element is a scalar for PyTorch backend."""
+        import numpy as np
+        return np.isscalar(element) or (isinstance(element, backend_module.Tensor) and element.dim() == 0)
+    
+    functions['isscalar'] = isscalar_pytorch
     functions['sinc'] = not_implemented('sinc')
     functions['fix'] = backend_module.trunc  # PyTorch uses trunc for fix
     
