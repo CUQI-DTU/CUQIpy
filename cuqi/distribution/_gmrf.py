@@ -192,9 +192,9 @@ class GMRF(Distribution):
                 xi = xp.random.randn(self.dim, N)   # standard Gaussian
 
             if N == 1:
-                s = self.mean + (1/xp.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
+                s = self.mean + (1/xp.sqrt(self.prec))*splinalg.spsolve(self._chol.T.get_scipy_matrix(), xi)
             else:
-                s = self.mean[:, xp.newaxis] + (1/xp.sqrt(self.prec))*splinalg.spsolve(self._chol.T, xi)
+                s = self.mean[:, xp.newaxis] + (1/xp.sqrt(self.prec))*splinalg.spsolve(self._chol.T.get_scipy_matrix(), xi)
                         
         elif (self._bc_type == 'periodic'):
             
@@ -219,7 +219,7 @@ class GMRF(Distribution):
                 xi = xp.random.randn(self._diff_op.shape[0], N)   # standard Gaussian
 
             s = self.mean[:, xp.newaxis] + (1/xp.sqrt(self.prec))* \
-                splinalg.spsolve(self._chol.T, (splinalg.spsolve(self._chol, (self._diff_op.T @ xi)))) 
+                splinalg.spsolve(self._chol.T.get_scipy_matrix(), (splinalg.spsolve(self._chol.get_scipy_matrix(), (self._diff_op.T @ xi)))) 
         else:
             raise TypeError('Unexpected BC type (choose from zero, periodic, neumann or none)')
 
@@ -227,10 +227,7 @@ class GMRF(Distribution):
     
     @property
     def sqrtprec(self):
-        # Convert sqrt(prec) to numpy for sparse matrix operations
-        import numpy as np
-        sqrt_prec_np = xp.to_numpy(xp.sqrt(self.prec))
-        return sqrt_prec_np * self._chol.T
+        return xp.sqrt(self.prec) * self._chol.T
 
     @property
     def sqrtprecTimesMean(self):

@@ -11,6 +11,119 @@ import copy
 import matplotlib.pyplot as plt
 
 
+class BackendSparseMatrix:
+    """Backend-agnostic wrapper for sparse matrices that provides consistent interface across NumPy and PyTorch backends."""
+    
+    def __init__(self, scipy_sparse_matrix):
+        """Initialize with a scipy sparse matrix."""
+        self._scipy_matrix = scipy_sparse_matrix
+        
+    @property
+    def T(self):
+        """Transpose of the sparse matrix."""
+        return BackendSparseMatrix(self._scipy_matrix.T)
+    
+    def diagonal(self):
+        """Get diagonal elements of the sparse matrix."""
+        import cuqi.array as xp
+        diag_elements = self._scipy_matrix.diagonal()
+        # Convert to current backend
+        return xp.array(diag_elements)
+    
+    def __mul__(self, other):
+        """Multiplication with scalars or arrays."""
+        import cuqi.array as xp
+        import numpy as np
+        
+        if np.isscalar(other):
+            # Scalar multiplication returns another BackendSparseMatrix
+            result = other * self._scipy_matrix
+            return BackendSparseMatrix(result)
+        else:
+            # Array multiplication - return the result as an array
+            if xp.get_backend_name() == "pytorch":
+                # Convert other to numpy for scipy operations
+                if hasattr(other, 'cpu'):  # PyTorch tensor
+                    other_np = xp.to_numpy(other)
+                else:
+                    other_np = other
+                result = self._scipy_matrix @ other_np
+                # Convert back to current backend
+                return xp.array(result)
+            else:
+                # NumPy backend
+                result = self._scipy_matrix @ other
+                return result
+    
+    def __rmul__(self, other):
+        """Right multiplication with scalars or arrays."""
+        import cuqi.array as xp
+        import numpy as np
+        
+        # Check if other is a scalar (including 0-dimensional arrays)
+        if np.isscalar(other) or (hasattr(other, 'ndim') and other.ndim == 0):
+            # Scalar multiplication
+            if hasattr(other, 'item'):  # Extract scalar from 0-dim array/tensor
+                other = other.item()
+            result = other * self._scipy_matrix
+            return BackendSparseMatrix(result)
+        else:
+            # Array multiplication from the left
+            if xp.get_backend_name() == "pytorch":
+                # Convert other to numpy for scipy operations
+                if hasattr(other, 'cpu'):  # PyTorch tensor
+                    other_np = xp.to_numpy(other)
+                else:
+                    other_np = other
+                result = other_np @ self._scipy_matrix
+                # Convert back to current backend
+                return xp.array(result)
+            else:
+                # NumPy backend
+                result = other @ self._scipy_matrix
+                return result
+    
+    def __matmul__(self, other):
+        """Matrix multiplication using @ operator."""
+        import cuqi.array as xp
+        
+        if xp.get_backend_name() == "pytorch":
+            # Convert other to numpy for scipy operations
+            if hasattr(other, 'cpu'):  # PyTorch tensor
+                other_np = xp.to_numpy(other)
+            else:
+                other_np = other
+            result = self._scipy_matrix @ other_np
+            # Convert back to current backend
+            return xp.array(result)
+        else:
+            # NumPy backend
+            result = self._scipy_matrix @ other
+            return result
+    
+    def __rmatmul__(self, other):
+        """Right matrix multiplication using @ operator."""
+        import cuqi.array as xp
+        
+        if xp.get_backend_name() == "pytorch":
+            # Convert other to numpy for scipy operations
+            if hasattr(other, 'cpu'):  # PyTorch tensor
+                other_np = xp.to_numpy(other)
+            else:
+                other_np = other
+            result = other_np @ self._scipy_matrix
+            # Convert back to current backend
+            return xp.array(result)
+        else:
+            # NumPy backend
+            result = other @ self._scipy_matrix
+            return result
+    
+    def get_scipy_matrix(self):
+        """Get the underlying scipy sparse matrix for operations that require it."""
+        return self._scipy_matrix
+
+
 def force_ndarray(value,flatten=False):
     if not isinstance(value, xp.ndarray) and value is not None and not issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:
@@ -144,9 +257,11 @@ class ProblemInfo:
 # work-around to compute sparse Cholesky
 def sparse_cholesky(A):
     """Computes Cholesky factorization for sparse matrix `A` and returns the upper triangular factor `U`, where `A=U^T@U`"""
+    import cuqi.array as xp
+    
+    # Always use scipy for the actual Cholesky computation since it's the most robust
     # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
     LU = spslinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
-
 
     # check the matrix A is positive definite
     # Use numpy arrays for both sides to ensure consistent comparison
@@ -161,7 +276,10 @@ def sparse_cholesky(A):
         diag_check = diag_check.item()
     
     if perm_check and diag_check: 
-        return (LU.L @ (diags(LU.U.diagonal()**0.5))).T
+        chol_factor = (LU.L @ (diags(LU.U.diagonal()**0.5))).T
+        
+        # Return a backend-agnostic sparse matrix wrapper
+        return BackendSparseMatrix(chol_factor)
     else:
         raise TypeError('The matrix is not positive semi-definite')
 
