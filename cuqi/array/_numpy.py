@@ -223,3 +223,24 @@ def pad(array, pad_width, mode='constant', constant_values=0):
         return _np.pad(array, pad_width, mode=mode, constant_values=constant_values)
     else:
         return _np.pad(array, pad_width, mode=mode)
+
+# Sparse matrix functions for NumPy backend
+def sparse_spdiags(data, diags, m, n, format=None):
+    """Create sparse diagonal matrix using scipy.sparse.spdiags."""
+    from scipy.sparse import spdiags
+    return spdiags(data, diags, m, n, format=format)
+
+def sparse_eye(n, m=None, k=0, dtype=float, format=None):
+    """Create sparse identity matrix using scipy.sparse.eye."""
+    from scipy.sparse import eye
+    return eye(n, m=m, k=k, dtype=dtype, format=format)
+
+def sparse_kron(A, B, format=None):
+    """Kronecker product of sparse matrices using scipy.sparse.kron."""
+    from scipy.sparse import kron
+    return kron(A, B, format=format)
+
+def sparse_vstack(blocks, format=None, dtype=None):
+    """Stack sparse matrices vertically using scipy.sparse.vstack."""
+    from scipy.sparse import vstack
+    return vstack(blocks, format=format, dtype=dtype)

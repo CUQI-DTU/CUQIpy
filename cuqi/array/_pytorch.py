@@ -112,8 +112,21 @@ def get_backend_functions(backend_module):
     
     # Implement stack functions to match numpy API
     def vstack_pytorch(tup):
-        """Vertical stack - concatenate along axis 0."""
-        return backend_module.cat(tup, dim=0)
+        """Vertical stack - stack arrays vertically (row-wise)."""
+        # For 1D arrays, add a dimension and stack
+        # For 2D+ arrays, concatenate along axis 0
+        if len(tup) == 0:
+            raise ValueError("Need at least one array to stack")
+        
+        first_arr = tup[0]
+        if first_arr.dim() == 1:
+            # For 1D arrays, we need to stack them to create a 2D array
+            # Convert each 1D array to a row vector and stack
+            expanded = [arr.unsqueeze(0) for arr in tup]
+            return backend_module.cat(expanded, dim=0)
+        else:
+            # For 2D+ arrays, concatenate along axis 0
+            return backend_module.cat(tup, dim=0)
     
     def hstack_pytorch(tup):
         """Horizontal stack - concatenate appropriately based on dimensions."""
