@@ -95,7 +95,10 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = len(self.x0)
-        self.b_tild = xp.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu])
+        # Ensure all elements are in the current backend before hstack
+        b_parts = [xp.array(L@(likelihood.data - model._shift)) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]
+        b_parts.append(xp.array(L2mu))
+        self.b_tild = xp.hstack(b_parts)
 
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
@@ -107,7 +110,9 @@ class LinearRTO(Sampler):
                 if flag == 1:
                     out1 = [L @ likelihood.model._forward_func_no_shift(x) for (L, likelihood) in zip(L1, self.likelihoods)] # Use forward function which excludes shift
                     out2 = L2 @ x
-                    out  = xp.hstack(out1 + [out2])
+                    # Ensure all elements are in the current backend before hstack
+                    out_parts = [xp.array(part) for part in out1] + [xp.array(out2)]
+                    out = xp.hstack(out_parts)
                 elif flag == 2:
                     idx_start = 0
                     idx_end = 0
