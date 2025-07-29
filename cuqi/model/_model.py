@@ -1142,8 +1142,31 @@ class AffineModel(Model):
 
             matrix = linear_operator
 
-            linear_operator = lambda x: matrix@x
-            linear_operator_adjoint = lambda y: matrix.T@y
+            def linear_operator(x):
+                # Ensure dtype compatibility for PyTorch
+                import cuqi.array as xp
+                if xp.get_backend_name() == "pytorch":
+                    # Convert x to PyTorch tensor with same dtype as matrix if needed
+                    if hasattr(matrix, 'dtype') and not hasattr(x, 'to'):
+                        # x is NumPy array, convert to PyTorch tensor
+                        x = xp.array(x, dtype=matrix.dtype)
+                    elif hasattr(matrix, 'dtype') and hasattr(x, 'dtype') and hasattr(x, 'to') and matrix.dtype != x.dtype:
+                        # x is PyTorch tensor with wrong dtype
+                        x = x.to(matrix.dtype)
+                return matrix@x
+            
+            def linear_operator_adjoint(y):
+                # Ensure dtype compatibility for PyTorch
+                import cuqi.array as xp
+                if xp.get_backend_name() == "pytorch":
+                    # Convert y to PyTorch tensor with same dtype as matrix if needed
+                    if hasattr(matrix, 'dtype') and not hasattr(y, 'to'):
+                        # y is NumPy array, convert to PyTorch tensor
+                        y = xp.array(y, dtype=matrix.dtype)
+                    elif hasattr(matrix, 'dtype') and hasattr(y, 'dtype') and hasattr(y, 'to') and matrix.dtype != y.dtype:
+                        # y is PyTorch tensor with wrong dtype
+                        y = y.to(matrix.dtype)
+                return matrix.T@y
 
             if range_geometry is None:
                 if hasattr(matrix, 'shape'):

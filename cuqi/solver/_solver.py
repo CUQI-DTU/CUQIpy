@@ -1,14 +1,18 @@
 import cuqi.array as xp
 LA = xp.linalg  # Linear algebra operations
 
+from cuqi.array import CUQIarray
+from cuqi import config
+eps = xp.finfo(float).eps
+
 def _copy_array(x):
     """Backend-agnostic array copying."""
-    # For NumPy arrays and matrices, use .copy()
-    if hasattr(x, 'copy'):
-        return x.copy()
     # For PyTorch tensors, use .clone()
-    elif hasattr(x, 'clone'):
+    if hasattr(x, 'clone'):
         return x.clone()
+    # For NumPy arrays and matrices, use .copy()
+    elif hasattr(x, 'copy'):
+        return x.copy()
     # For other types, try to create a copy using the array constructor
     else:
         import copy as copy_module
@@ -16,10 +20,6 @@ def _copy_array(x):
             return copy_module.deepcopy(x)
         except:
             return xp.array(x)
-
-from cuqi.array import CUQIarray
-from cuqi import config
-eps = xp.finfo(float).eps
 
 try:
     from sksparse.cholmod import cholesky
@@ -812,7 +812,7 @@ class ADMM(object):
                 elif res_primal > 1e2*res_dual:
                     self.rho *= 2.0 # More data fidelity
 
-            self.x_cur, self.z_cur, self.u_cur = x_new, z_new, u_new
+            self.x_cur, self.z_cur, self.u_cur = x_new, z_new.copy(), u_new
             
         return self.x_cur, i
     
