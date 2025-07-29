@@ -3,8 +3,6 @@ from cuqi.density import Density
 import cuqi.array as xp
 import inspect
 from numbers import Number
-from scipy.sparse import issparse, diags
-from scipy.sparse import linalg as spslinalg
 from dataclasses import dataclass
 from abc import ABCMeta
 import copy
@@ -35,17 +33,13 @@ class BackendSparseMatrix:
     
     def diagonal(self):
         """Get diagonal elements of the sparse matrix."""
-        import cuqi.array as xp
         diag_elements = self._scipy_matrix.diagonal()
         # Convert to current backend
         return xp.array(diag_elements)
     
     def __mul__(self, other):
         """Multiplication with scalars or arrays."""
-        import cuqi.array as xp
-        import numpy as np
-        
-        if np.isscalar(other):
+        if xp.isscalar(other):
             # Scalar multiplication returns another BackendSparseMatrix
             result = other * self._scipy_matrix
             return BackendSparseMatrix(result)
@@ -67,11 +61,8 @@ class BackendSparseMatrix:
     
     def __rmul__(self, other):
         """Right multiplication with scalars or arrays."""
-        import cuqi.array as xp
-        import numpy as np
-        
         # Check if other is a scalar (including 0-dimensional arrays)
-        if np.isscalar(other) or (hasattr(other, 'ndim') and other.ndim == 0):
+        if xp.isscalar(other) or (hasattr(other, 'ndim') and other.ndim == 0):
             # Scalar multiplication
             if hasattr(other, 'item'):  # Extract scalar from 0-dim array/tensor
                 other = other.item()
@@ -95,7 +86,6 @@ class BackendSparseMatrix:
     
     def __matmul__(self, other):
         """Matrix multiplication using @ operator."""
-        import cuqi.array as xp
         
         if xp.get_backend_name() == "pytorch":
             # Convert other to numpy for scipy operations
@@ -113,7 +103,6 @@ class BackendSparseMatrix:
     
     def __rmatmul__(self, other):
         """Right matrix multiplication using @ operator."""
-        import cuqi.array as xp
         
         if xp.get_backend_name() == "pytorch":
             # Convert other to numpy for scipy operations
@@ -139,7 +128,7 @@ class BackendSparseMatrix:
 
 
 def force_ndarray(value,flatten=False):
-    if not isinstance(value, xp.ndarray) and value is not None and not issparse(value) and not callable(value):
+    if not isinstance(value, xp.ndarray) and value is not None and not xp.issparse(value) and not callable(value):
         if hasattr(value,'__len__') and len(value)>1:
             value = xp.array(value)
         else:
@@ -148,11 +137,7 @@ def force_ndarray(value,flatten=False):
         if flatten is True:
             value = value.flatten()
     # Convert numpy matrix to array if needed (matrix acts different on (n,) arrays)
-    if xp.get_backend_name() == "numpy":
-        import numpy as np
-        if isinstance(value, np.matrix):
-            value = value.A
-    elif hasattr(value, 'A') and hasattr(value, 'shape') and callable(getattr(value, 'A', None)):
+    if hasattr(value, 'A') and hasattr(value, 'shape') and callable(getattr(value, 'A', None)):
         value = value.A
     return value
 
@@ -212,6 +197,7 @@ def check_if_conditional_from_attr(value):
     - the given attribute is a callable function and
     - the given attribute is not a LinearOperator.
     """
+    from scipy.sparse import linalg as spslinalg
     if isinstance(value, spslinalg.LinearOperator):
         return False
     elif callable(value):
@@ -271,16 +257,16 @@ class ProblemInfo:
 # work-around to compute sparse Cholesky
 def sparse_cholesky(A):
     """Computes Cholesky factorization for sparse matrix `A` and returns the upper triangular factor `U`, where `A=U^T@U`"""
-    import cuqi.array as xp
-    
     # Always use scipy for the actual Cholesky computation since it's the most robust
     # https://gist.github.com/omitakahiro/c49e5168d04438c5b20c921b928f1f5d
+    # Import scipy functions directly here since they're not in the array API yet
+    from scipy.sparse import linalg as spslinalg, diags
+    
     LU = spslinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
 
     # check the matrix A is positive definite
-    # Use numpy arrays for both sides to ensure consistent comparison
-    import numpy as np
-    perm_check = (LU.perm_r == np.arange(A.shape[0])).all()
+    # Use xp.arange for consistent comparison
+    perm_check = (LU.perm_r == xp.arange(A.shape[0])).all()
     diag_check = (LU.U.diagonal() > 0).all()
     
     # Convert to boolean if they are tensors (for PyTorch backend)

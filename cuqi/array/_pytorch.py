@@ -668,10 +668,17 @@ def get_backend_functions(backend_module):
         from scipy.sparse import vstack
         return vstack(blocks, format=format, dtype=dtype)
     
+    def issparse_pytorch(x):
+        """Check if x is a sparse matrix."""
+        from scipy.sparse import issparse
+        from cuqi.utilities._utilities import BackendSparseMatrix
+        return issparse(x) or isinstance(x, BackendSparseMatrix)
+    
     functions['sparse_spdiags'] = sparse_spdiags_pytorch
     functions['sparse_eye'] = sparse_eye_pytorch
     functions['sparse_kron'] = sparse_kron_pytorch
     functions['sparse_vstack'] = sparse_vstack_pytorch
+    functions['issparse'] = issparse_pytorch
     
     return functions
 

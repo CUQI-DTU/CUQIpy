@@ -1,16 +1,15 @@
 import warnings
 import numbers
 import cuqi.array as xp
-import cuqi.array as xp
 nplinalg = xp.linalg  # Alias for numpy linalg operations
 
-import scipy.stats as sps
+# Temporary scipy imports - to be replaced with array API
 import scipy.sparse as spa
 import scipy.linalg as splinalg
 
 from cuqi import config
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import force_ndarray, sparse_cholesky, check_if_conditional_from_attr
+from cuqi.utilities import force_ndarray, sparse_cholesky, check_if_conditional_from_attr, BackendSparseMatrix
 from cuqi.distribution import Distribution
 
 # We potentially allow the use of sksparse.cholmod for sparse Cholesky
@@ -273,8 +272,10 @@ class Gaussian(Distribution):
         else:
             sqrtprec = self.sqrtprec
             prec = sqrtprec.T@sqrtprec
-            if spa.issparse(prec):
-                computed_cov = spa.linalg.inv(prec).todense()
+            if xp.issparse(prec):
+                # Convert to dense for now - sparse inverse not in array API yet
+                from scipy.sparse import linalg as spa_linalg
+                computed_cov = spa_linalg.inv(prec).todense()
             else:
                 computed_cov = xp.linalg.inv(prec)
         
@@ -301,6 +302,7 @@ class Gaussian(Distribution):
 
     def cdf(self, x1):   # no closed form, we rely on scipy with full covariance
         cov = self.compute_cov() # Ensure that we have the full covariance matrix
+        import scipy.stats as sps
         return sps.multivariate_normal.cdf(x1, self.mean, cov)
 
     def _gradient(self, val, *args, **kwargs):
@@ -333,13 +335,14 @@ class Gaussian(Distribution):
 
         # Compute perturbation
         from cuqi.utilities._utilities import BackendSparseMatrix
-        if spa.issparse(self.sqrtprec) or isinstance(self.sqrtprec, BackendSparseMatrix): # do sparse
+        if xp.issparse(self.sqrtprec) or isinstance(self.sqrtprec, BackendSparseMatrix): # do sparse
             # Get the scipy sparse matrix for spsolve
             sparse_matrix = self.sqrtprec.get_scipy_matrix() if isinstance(self.sqrtprec, BackendSparseMatrix) else self.sqrtprec
+            from scipy.sparse import linalg as spa_linalg
             if (N == 1):
-                perturbation = spa.linalg.spsolve(sparse_matrix, e)[:, None]
+                perturbation = spa_linalg.spsolve(sparse_matrix, e)[:, None]
             else:
-                perturbation = spa.linalg.spsolve(sparse_matrix, e)
+                perturbation = spa_linalg.spsolve(sparse_matrix, e)
         else:
             if xp.allclose(self.sqrtprec, xp.tril(self.sqrtprec)): # matrix is triangular
                 perturbation = splinalg.solve_triangular(self.sqrtprec, e)
@@ -381,7 +384,7 @@ def get_sqrtprec_from_cov(dim, cov, sparse_flag):
             sqrtprec = xp.sqrt(1/var)*xp.identity(dim)
 
     # cov is vector
-    elif not spa.issparse(cov) and cov.shape[0] == xp.size(cov): 
+    elif not xp.issparse(cov) and cov.shape[0] == xp.size(cov): 
         logdet = xp.sum(xp.log(cov))
         rank = dim
         if sparse_flag:

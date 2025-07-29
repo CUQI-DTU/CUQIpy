@@ -243,10 +243,16 @@ def get_backend_functions(backend_module):
         from scipy.sparse import vstack
         return vstack(blocks, format=format, dtype=dtype)
     
+    def issparse_numpy(x):
+        """Check if x is a sparse matrix."""
+        from scipy.sparse import issparse
+        return issparse(x)
+    
     functions['sparse_spdiags'] = sparse_spdiags_numpy
     functions['sparse_eye'] = sparse_eye_numpy
     functions['sparse_kron'] = sparse_kron_numpy
     functions['sparse_vstack'] = sparse_vstack_numpy
+    functions['issparse'] = issparse_numpy
     
     return functions
 
