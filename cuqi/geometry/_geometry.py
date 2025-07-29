@@ -2,8 +2,6 @@ from abc import ABC, abstractmethod
 import cuqi.array as xp
 import matplotlib.pyplot as plt
 import math
-from scipy.fftpack import dst, idst
-import scipy.sparse as sparse
 import operator
 from functools import reduce
 import warnings
@@ -885,6 +883,7 @@ class KLExpansion(Continuous1D):
         modes = xp.pad(modes, ((0, self.fun_dim-self.par_dim), (0, 0)),
                        'constant', constant_values=0)
 
+        from scipy.fftpack import idst
         real = idst(modes.T).T/2
 
         # squeeze to return single function value if only one parameter vector
@@ -925,6 +924,7 @@ class KLExpansion(Continuous1D):
         # then this scaling is not needed.
 
         # Transform (single or multiple functions) to expansion coefficients
+        from scipy.fftpack import dst
         p_temp = dst(funvals.T*2).T[:self.par_dim,:]
         p = self.coefs_inverse@p_temp*self.normalizer/(2*self.fun_dim)
         
@@ -994,6 +994,7 @@ class KLExpansion_Full(Continuous1D):
         m = len(p)
         freq[:m] = p
         temp = freq*self.coefs
+        from scipy.fftpack import idst
         real = idst(temp)/2/xp.pi
         return self.var*real
     
@@ -1091,6 +1092,7 @@ class CustomKL(Continuous1D):
         w_s = a*w
         
         # compute diagonal matrix 
+        import scipy.sparse as sparse
         D = sparse.spdiags(xp.sqrt(w_s), 0, N_GL, N_GL).toarray()
         S1 = xp.tile(xp.sqrt(w_s).reshape(1, N_GL), (N_GL, 1))
         S2 = xp.tile(xp.sqrt(w_s).reshape(N_GL, 1), (1, N_GL))

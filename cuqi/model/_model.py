@@ -1,8 +1,5 @@
 from __future__ import annotations
 import cuqi.array as xp
-from scipy.sparse import csc_matrix
-from scipy.sparse import hstack
-from scipy.linalg import solve
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import Geometry, _DefaultGeometry1D, _DefaultGeometry2D,\
@@ -1406,6 +1403,7 @@ class LinearModel(AffineModel):
             return self._matrix
         else:
             # TODO: Can we compute this faster while still in sparse format?
+            from scipy.sparse import csc_matrix, hstack
             mat = csc_matrix((self.range_dim,0)) #Sparse (m x 1 matrix)
             e = xp.zeros(self.domain_dim)
 

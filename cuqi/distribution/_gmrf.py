@@ -1,7 +1,4 @@
 import cuqi.array as xp
-from scipy.sparse import diags, eye
-from scipy.sparse import linalg as splinalg
-from scipy.linalg import dft
 from cuqi.geometry import _get_identity_geometries
 from cuqi.utilities import sparse_cholesky
 from cuqi import config
@@ -132,10 +129,11 @@ class GMRF(Distribution):
             print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using LinearRTO may not produce fully accurate results.")
             eps = xp.finfo(float).eps
             self._rank = self.dim - 1   #xp.linalg.matrix_rank(self.L.todense())
-            self._chol = sparse_cholesky(self._prec_op + xp.sqrt(eps)*eye(self.dim, dtype=int)).T
+            self._chol = sparse_cholesky(self._prec_op + xp.sqrt(eps)*xp.sparse_eye(self.dim, dtype=int)).T
             if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excessive' time
                 self._logdet = 2*sum(xp.log(self._chol.diagonal()))
             else:
+                from scipy.sparse import linalg as splinalg
                 self._L_eigval = splinalg.eigsh(self._prec_op.get_matrix(), self._rank, which='LM', return_eigenvectors=False)
                 self._logdet = sum(xp.log(self._L_eigval))
         else:
@@ -191,6 +189,7 @@ class GMRF(Distribution):
             else:
                 xi = xp.random.randn(self.dim, N)   # standard Gaussian
 
+            from scipy.sparse import linalg as splinalg
             if N == 1:
                 s = self.mean + (1/xp.sqrt(self.prec))*splinalg.spsolve(self._chol.T.get_scipy_matrix(), xi)
             else:
@@ -206,6 +205,9 @@ class GMRF(Distribution):
             else:
                 xi = xp.random.randn(self.dim, N) + 1j*xp.random.randn(self.dim, N)
             
+            from scipy.linalg import dft
+            from scipy.sparse import diags
+            from scipy.sparse import linalg as splinalg
             F = dft(self.dim, scale='sqrtn')   # unitary DFT matrix
             eigv = xp.hstack([self._L_eigval, self._L_eigval[-1]])  # repeat last eigval to complete dim
             L_sqrt = diags(xp.sqrt(eigv)) 
@@ -218,6 +220,7 @@ class GMRF(Distribution):
             else:
                 xi = xp.random.randn(self._diff_op.shape[0], N)   # standard Gaussian
 
+            from scipy.sparse import linalg as splinalg
             s = self.mean[:, xp.newaxis] + (1/xp.sqrt(self.prec))* \
                 splinalg.spsolve(self._chol.T.get_scipy_matrix(), (splinalg.spsolve(self._chol.get_scipy_matrix(), (self._diff_op.T @ xi)))) 
         else:

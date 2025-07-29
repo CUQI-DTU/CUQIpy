@@ -1,15 +1,21 @@
 import cuqi.array as xp
 LA = xp.linalg  # Linear algebra operations
-from scipy.optimize import fmin_l_bfgs_b, least_squares
-import scipy.optimize as opt
-import scipy.sparse as spa
 
 def _copy_array(x):
     """Backend-agnostic array copying."""
+    # For NumPy arrays and matrices, use .copy()
     if hasattr(x, 'copy'):
         return x.copy()
+    # For PyTorch tensors, use .clone()
+    elif hasattr(x, 'clone'):
+        return x.clone()
+    # For other types, try to create a copy using the array constructor
     else:
-        return xp.array(x)
+        import copy as copy_module
+        try:
+            return copy_module.deepcopy(x)
+        except:
+            return xp.array(x)
 
 from cuqi.array import CUQIarray
 from cuqi import config
@@ -68,6 +74,7 @@ class ScipyLBFGSB(object):
         else:
             approx_grad = 0
         # run solver
+        from scipy.optimize import fmin_l_bfgs_b
         solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad, **self.kwargs)
         if solution[2]['warnflag'] == 0:
             success = 1
@@ -142,6 +149,7 @@ class ScipyMinimizer(object):
             nit: Number of iterations.
             nfev: Number of func evaluations.
         """
+        import scipy.optimize as opt
         solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method, **self.kwargs)
         info = {"success": solution['success'],
                 "message": solution['message'],
@@ -225,6 +233,7 @@ class ScipyLSQ(object):
         solution : Tuple
             Solution found (array_like) and optimization information (dictionary).
         """
+        from scipy.optimize import least_squares
         solution = least_squares(self.func, self.x0, jac=self.jacfun, \
                                 method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit, **self.kwargs)
         info = {"success": solution['success'],
@@ -273,6 +282,7 @@ class ScipyLinearLSQ(object):
         solution : Tuple
             Solution found (array_like) and optimization information (dictionary).
         """
+        import scipy.optimize as opt
         res = opt.lsq_linear(self.A, self.b, bounds=self.bounds, **self.kwargs)
         x = res.pop('x')
         return x, res
@@ -409,6 +419,7 @@ class PCGLS:
         #
         if self._dim < config.MAX_DIM_INV:
             self._explicitPinv = True
+            import scipy.sparse as spa
             Pinv = spa.linalg.inv(P)
         else:
             self._explicitPinv = False
@@ -496,6 +507,7 @@ class PCGLS:
                 elif flag == 2:
                     precond = self._P.solve_At(x, use_LDLt_decomposition=False) 
             else:
+                import scipy.sparse as spa
                 if flag == 1:
                     precond = spa.linalg.spsolve(self._P, x) 
                 elif flag == 2:
@@ -556,6 +568,7 @@ class LM(object):
 
         # solve function depending on sparsity
         if self.sparse:
+            import scipy.sparse as spa
             insolve = lambda A, b: spa.linalg.spsolve(A, b)
             I = spa.identity(self.n)
         else:
@@ -588,6 +601,7 @@ class LM(object):
             else:
                 x, r, f = xp.copy(xtemp), xp.copy(rtemp), xp.copy(ftemp)
                 if self.sparse:
+                    import scipy.sparse as spa
                     J = spa.csr_matrix.copy(Jtemp)
                 else:
                     J = xp.copy(Jtemp)

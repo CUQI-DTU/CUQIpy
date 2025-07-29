@@ -290,8 +290,21 @@ class Gaussian(Distribution):
             dev_T = dev  # 1D arrays don't need transpose
         else:
             dev_T = dev.T
-        mahadist = xp.sum(xp.square(self.sqrtprec @ dev_T), axis=0)
-        return -0.5*mahadist.flatten()
+        
+        # Compute matrix-vector product
+        sqrtprec_dev = self.sqrtprec @ dev_T
+        # Ensure result is always a proper array, not a matrix
+        if hasattr(sqrtprec_dev, 'A'):  # numpy matrix
+            sqrtprec_dev = sqrtprec_dev.A
+        
+        # Compute Mahalanobis distance
+        # For single points (1D dev), sum all elements
+        # For multiple points (2D dev), sum along axis 0 (sum each column)
+        if hasattr(x, 'ndim') and x.ndim > 1:  # Multiple points
+            mahadist = xp.sum(xp.square(sqrtprec_dev), axis=0)
+        else:  # Single point (scalar or 1D array)
+            mahadist = xp.sum(xp.square(sqrtprec_dev.flatten()))
+        return -0.5*mahadist
 
     def logpdf(self, x):
         if self.logdet is None:
