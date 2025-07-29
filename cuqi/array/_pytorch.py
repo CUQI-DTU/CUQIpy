@@ -6,6 +6,7 @@ Many operations raise NotImplementedError to focus on NumPy functionality.
 """
 
 import warnings
+import numpy as _np
 
 
 def load_backend():
@@ -497,6 +498,42 @@ def get_backend_functions(backend_module):
                 raise NotImplementedError("polynomial.legendre.leggauss not implemented for PyTorch backend. Use NumPy backend for full functionality.")
     
     functions['polynomial'] = TorchPolynomialModule()
+    
+    # Sparse matrix functions using PyTorch sparse tensors
+    def sparse_spdiags_pytorch(data, diags, m, n, format=None):
+        """Create sparse diagonal matrix using PyTorch sparse tensors."""
+        # Convert PyTorch tensors to NumPy for scipy, then convert result back if needed
+        data_np = data.detach().cpu().numpy() if isinstance(data, backend_module.Tensor) else data
+        diags_np = diags if isinstance(diags, (list, tuple)) else diags.detach().cpu().numpy()
+        
+        from scipy.sparse import spdiags
+        sparse_matrix = spdiags(data_np, diags_np, m, n, format=format)
+        
+        # For now, return the scipy sparse matrix - PyTorch can work with it
+        return sparse_matrix
+    
+    def sparse_eye_pytorch(n, m=None, k=0, dtype=None, format=None):
+        """Create sparse identity matrix."""
+        if dtype is None:
+            dtype = backend_module.float64
+        
+        from scipy.sparse import eye
+        return eye(n, m=m, k=k, dtype=_np.float64, format=format)
+    
+    def sparse_kron_pytorch(A, B, format=None):
+        """Kronecker product of sparse matrices."""
+        from scipy.sparse import kron
+        return kron(A, B, format=format)
+    
+    def sparse_vstack_pytorch(blocks, format=None, dtype=None):
+        """Stack sparse matrices vertically."""
+        from scipy.sparse import vstack
+        return vstack(blocks, format=format, dtype=dtype)
+    
+    functions['sparse_spdiags'] = sparse_spdiags_pytorch
+    functions['sparse_eye'] = sparse_eye_pytorch
+    functions['sparse_kron'] = sparse_kron_pytorch
+    functions['sparse_vstack'] = sparse_vstack_pytorch
     
     return functions
 
