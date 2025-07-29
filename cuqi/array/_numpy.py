@@ -183,7 +183,13 @@ def get_backend_functions(backend_module):
     functions['pi'] = backend_module.pi
     functions['e'] = backend_module.e
     functions['size'] = backend_module.size
-    functions['shape'] = lambda x: x.shape
+    functions['shape'] = lambda x: backend_module.array(x).shape
+    functions['squeeze'] = lambda x, axis=None: backend_module.squeeze(x, axis=axis)
+    functions['expand_dims'] = lambda x, axis: backend_module.expand_dims(x, axis=axis)
+    functions['equal'] = lambda x, y: backend_module.equal(x, y)
+    functions['greater'] = lambda x, y: backend_module.greater(x, y)
+    functions['less'] = lambda x, y: backend_module.less(x, y)
+    functions['ndim'] = lambda x: backend_module.array(x).ndim
     functions['int8'] = backend_module.int8
     functions['int16'] = backend_module.int16
     functions['int32'] = backend_module.int32

@@ -120,8 +120,9 @@ if xp.get_backend_name() == "pytorch":
     f_val.backward()
     print(f"✅ Gradient computed: df/dx = {x_grad_test.grad.item():.4f} (expected: 4.0)")
 
-# Placeholder for MAP estimate (to be implemented when dtype issues are resolved)
-x_map_pytorch = xp.zeros(n, dtype=xp.float64)
+# Get MAP estimate with PyTorch backend
+x_map_pytorch = BP_torch.MAP()
+print(f"✅ GMRF MAP estimation completed (PyTorch)")
 print(f"✅ PyTorch backend test completed")
 
 # %%

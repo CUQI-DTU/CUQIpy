@@ -198,19 +198,17 @@ class TestArrayAPIConsistency:
         self.assert_results_close(numpy_result, pytorch_result)
 
     @pytest.mark.parametrize("data,axis", [
-        ([[1, 2], [3, 4]], None),
-        ([[1, 2], [3, 4]], 0),
-        ([[1, 2], [3, 4]], 1),
-        ([[[1, 2]], [[3, 4]]], 2),
+        ([[[1, 2], [3, 4]]], None),  # Shape (1,2,2) - can squeeze axis 0
+        ([[[1, 2], [3, 4]]], 0),     # Shape (1,2,2) - can squeeze axis 0
+        ([[1], [2]], 1),             # Shape (2,1) - can squeeze axis 1  
+        ([[[1]], [[2]]], 2),         # Shape (2,1,1) - can squeeze axis 2
     ])
     def test_squeeze(self, data, axis):
         """Test squeeze consistency."""
-        # Add dimensions that can be squeezed
-        data_with_dims = np.array(data)
-        if axis is None:
-            data_with_dims = data_with_dims[..., np.newaxis]
+        # Convert to array - data already has squeezable dimensions
+        data_array = np.array(data)
         
-        numpy_result, pytorch_result = self.compare_backends("squeeze", data_with_dims, axis=axis)
+        numpy_result, pytorch_result = self.compare_backends("squeeze", data_array, axis=axis)
         self.assert_results_close(numpy_result, pytorch_result)
 
     @pytest.mark.parametrize("data,axis", [

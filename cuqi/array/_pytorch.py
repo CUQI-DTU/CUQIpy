@@ -236,8 +236,28 @@ def get_backend_functions(backend_module):
     functions['mean'] = backend_module.mean
     functions['std'] = backend_module.std
     functions['var'] = backend_module.var
-    functions['min'] = backend_module.min
-    functions['max'] = backend_module.max
+    # Custom max/min functions to handle PyTorch's return type
+    def max_pytorch(x, axis=None, keepdims=False):
+        x = backend_module.tensor(x)
+        if axis is None:
+            return backend_module.max(x)
+        else:
+            result = backend_module.max(x, dim=axis, keepdim=keepdims)
+            if isinstance(result, tuple):
+                return result.values  # Return only values, not indices
+            return result
+    functions['max'] = max_pytorch
+    
+    def min_pytorch(x, axis=None, keepdims=False):
+        x = backend_module.tensor(x)
+        if axis is None:
+            return backend_module.min(x)
+        else:
+            result = backend_module.min(x, dim=axis, keepdim=keepdims)
+            if isinstance(result, tuple):
+                return result.values  # Return only values, not indices
+            return result
+    functions['min'] = min_pytorch
     functions['argmin'] = backend_module.argmin
     functions['argmax'] = backend_module.argmax
     functions['sort'] = backend_module.sort
@@ -389,7 +409,7 @@ def get_backend_functions(backend_module):
     functions['allclose'] = backend_module.allclose
     
     def array_equiv_pytorch(a, b):
-        """Check if arrays are equivalent for PyTorch."""
+        """Check if arrays are equivalent for PyTorch (with broadcasting)."""
         if a is None and b is None:
             return True
         elif a is None or b is None:
@@ -397,15 +417,21 @@ def get_backend_functions(backend_module):
         
         # Convert to tensors if needed
         if not isinstance(a, backend_module.Tensor):
-            a = backend_module.tensor(a)
+            a = backend_module.tensor(a, dtype=backend_module.float64)
         if not isinstance(b, backend_module.Tensor):
-            b = backend_module.tensor(b)
+            b = backend_module.tensor(b, dtype=backend_module.float64)
         
-        # Check if shapes are compatible for broadcasting
+        # Check if shapes are compatible for broadcasting and all elements equal
         try:
-            result = backend_module.equal(a, b)
-            return result.all().item()
-        except:
+            # Use torch.eq for element-wise comparison with broadcasting
+            result = backend_module.eq(a, b)
+            if hasattr(result, 'all'):
+                return result.all().item()
+            else:
+                # result is already a scalar boolean
+                return result.item() if hasattr(result, 'item') else bool(result)
+        except RuntimeError:
+            # Broadcasting failed - shapes are incompatible
             return False
     
     def array_equal_pytorch(a, b):
@@ -426,16 +452,19 @@ def get_backend_functions(backend_module):
             return False
         
         result = backend_module.equal(a, b)
-        return result.all().item()
+        if hasattr(result, 'all'):
+            return result.all().item()
+        else:
+            # result is already a scalar boolean
+            return result.item() if hasattr(result, 'item') else bool(result)
     
     functions['array_equiv'] = array_equiv_pytorch
     functions['array_equal'] = array_equal_pytorch
     def isscalar_pytorch(element):
-        """Check if element is a scalar for PyTorch backend."""
+        """Check if element is a scalar for PyTorch backend (consistent with NumPy)."""
         import numpy as np
-        # Check if we have actual PyTorch tensors
-        if hasattr(backend_module, 'Tensor') and isinstance(element, backend_module.Tensor):
-            return element.dim() == 0
+        # Use NumPy's definition of scalar for consistency
+        # Even 0-dimensional tensors are not considered scalars (matching NumPy behavior)
         return np.isscalar(element)
     
     functions['isscalar'] = isscalar_pytorch
@@ -480,7 +509,39 @@ def get_backend_functions(backend_module):
     functions['pi'] = math.pi
     functions['e'] = math.e
     functions['size'] = lambda x: x.numel() if hasattr(x, 'numel') else backend_module.numel(x)
-    functions['shape'] = lambda x: x.shape
+    functions['shape'] = lambda x: tuple(backend_module.tensor(x).shape)
+    
+    # Missing functions that need PyTorch implementations
+    def squeeze_pytorch(x, axis=None):
+        x = backend_module.tensor(x)
+        if axis is None:
+            return backend_module.squeeze(x)
+        else:
+            return backend_module.squeeze(x, dim=axis)
+    functions['squeeze'] = squeeze_pytorch
+    
+    def expand_dims_pytorch(x, axis):
+        x = backend_module.tensor(x)
+        return backend_module.unsqueeze(x, dim=axis)
+    functions['expand_dims'] = expand_dims_pytorch
+    
+    def transpose_pytorch(x, axes=None):
+        x = backend_module.tensor(x)
+        if axes is None:
+            # For 2D: transpose, for others: reverse all dimensions
+            if x.ndim == 2:
+                return x.t()
+            else:
+                dims = list(range(x.ndim))[::-1]
+                return x.permute(*dims)
+        else:
+            return x.permute(*axes)
+    functions['transpose'] = transpose_pytorch
+    
+    functions['equal'] = lambda x, y: backend_module.eq(backend_module.tensor(x), backend_module.tensor(y))
+    functions['greater'] = lambda x, y: backend_module.gt(backend_module.tensor(x), backend_module.tensor(y))
+    functions['less'] = lambda x, y: backend_module.lt(backend_module.tensor(x), backend_module.tensor(y))
+    functions['ndim'] = lambda x: backend_module.tensor(x).ndim
     # Use numpy integer types for better compatibility
     import numpy as np
     functions['int8'] = np.int8

@@ -165,11 +165,15 @@ class GMRF(Distribution):
         self._prec = value
 
     def logpdf(self, x):
+        # Ensure x is in the correct backend format (needed for optimization with scipy)
+        x = xp.array(x)
         mean = self.mean
         const = 0.5*(self._rank*(xp.log(self.prec)-xp.log(2*xp.pi)) + self._logdet)
         return const - 0.5*( self.prec*((x-mean).T @ (self._prec_op @ (x-mean))) )
 
     def _gradient(self, x):
+        # Ensure x is in the correct backend format (needed for optimization with scipy)
+        x = xp.array(x)
         #Avoid complicated geometries that change the gradient.
         if not type(self.geometry) in _get_identity_geometries():
             raise NotImplementedError("Gradient not implemented for distribution {} with geometry {}".format(self,self.geometry))
