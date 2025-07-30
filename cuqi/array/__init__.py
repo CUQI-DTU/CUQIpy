@@ -79,13 +79,9 @@ def _expose_backend_functions():
     globals()['pad'] = pad
     globals()['_backend_module'] = _backend_module
     
-    # Add sparse module (delayed import to avoid circular imports)
-    try:
-        from . import _sparse
-        globals()['sparse'] = _sparse
-    except ImportError:
-        # Handle case where sparse module might not be available
-        pass
+    # Add sparse module
+    from ._sparse import create_sparse_module
+    globals()['sparse'] = create_sparse_module(functions)
 
 # Initialize backend on import
 try:

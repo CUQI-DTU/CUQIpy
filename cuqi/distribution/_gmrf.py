@@ -129,7 +129,7 @@ class GMRF(Distribution):
             print("Warning (GMRF): Periodic and Neumann boundary conditions are experimental. Sampling using LinearRTO may not produce fully accurate results.")
             eps = xp.finfo(float).eps
             self._rank = self.dim - 1   #xp.linalg.matrix_rank(self.L.todense())
-            self._chol = sparse_cholesky(self._prec_op + xp.sqrt(eps)*xp.sparse_eye(self.dim, dtype=int)).T
+            self._chol = sparse_cholesky(self._prec_op + xp.sqrt(eps)*xp.sparse.eye(self.dim, dtype=int)).T
             if (self.dim > config.MAX_DIM_INV):  # approximate to avoid 'excessive' time
                 self._logdet = 2*sum(xp.log(self._chol.diagonal()))
             else:
