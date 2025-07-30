@@ -311,7 +311,8 @@ def isscalar_pytorch(element):
     """Check if element is a scalar."""
     import torch as backend_module
     if backend_module.is_tensor(element):
-        return element.ndim == 0
+        # NumPy considers arrays (even 0-dim) as non-scalar, so match that behavior
+        return False
     else:
         return _np.isscalar(element)
 
@@ -412,6 +413,34 @@ def to_numpy(arr):
         return arr.detach().cpu().numpy()
     else:
         return _np.asarray(arr)
+
+
+def dot_pytorch(a, b):
+    """Dot product for PyTorch tensors, handling both 1D and 2D cases."""
+    import torch as backend_module
+    
+    # Convert to tensors if needed
+    if not isinstance(a, backend_module.Tensor):
+        a = backend_module.tensor(a)
+    if not isinstance(b, backend_module.Tensor):
+        b = backend_module.tensor(b)
+    
+    # Handle different dimensionalities like NumPy
+    if a.dim() == 1 and b.dim() == 1:
+        # 1D dot product
+        return backend_module.dot(a, b)
+    elif a.dim() == 2 and b.dim() == 2:
+        # 2D matrix multiplication
+        return backend_module.matmul(a, b)
+    elif a.dim() == 2 and b.dim() == 1:
+        # Matrix-vector multiplication
+        return backend_module.mv(a, b)
+    elif a.dim() == 1 and b.dim() == 2:
+        # Vector-matrix multiplication
+        return backend_module.matmul(a.unsqueeze(0), b).squeeze(0)
+    else:
+        # For higher dimensions, use matmul
+        return backend_module.matmul(a, b)
 
 
 def copy_pytorch(x):
@@ -569,7 +598,7 @@ def get_backend_functions(backend_module):
     functions['piecewise'] = piecewise_pytorch
     
     # Linear algebra
-    functions['dot'] = backend_module.dot
+    functions['dot'] = dot_pytorch
     functions['matmul'] = backend_module.matmul
     functions['inner'] = _not_implemented('inner')
     functions['outer'] = _not_implemented('outer')
