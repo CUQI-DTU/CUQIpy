@@ -264,6 +264,13 @@ def power_pytorch(x1, x2):
 def array_equiv_pytorch(a, b):
     """Check if arrays are equivalent (same shape and elements)."""
     import torch as backend_module
+    
+    # Handle None values
+    if a is None and b is None:
+        return True
+    elif a is None or b is None:
+        return False
+    
     if not backend_module.is_tensor(a):
         a = backend_module.tensor(a)
     if not backend_module.is_tensor(b):
@@ -280,6 +287,13 @@ def array_equiv_pytorch(a, b):
 def array_equal_pytorch(a, b):
     """Check if arrays are equal (same shape and elements, exact)."""
     import torch as backend_module
+    
+    # Handle None values
+    if a is None and b is None:
+        return True
+    elif a is None or b is None:
+        return False
+    
     if not backend_module.is_tensor(a):
         a = backend_module.tensor(a)
     if not backend_module.is_tensor(b):
