@@ -18,676 +18,394 @@ def load_backend():
         raise ImportError("PyTorch not available. Please install PyTorch to use the PyTorch backend.")
 
 
-def get_backend_functions(backend_module):
-    """Get all array functions for PyTorch backend.
-    
-    Returns a dictionary of function names mapped to their implementations.
-    Many functions raise NotImplementedError to focus on NumPy support.
-    """
-    functions = {}
-    
-    # Ensure we have PyTorch - no fallback
-    try:
-        import torch
-    except ImportError:
-        raise ImportError("PyTorch not available. Please install PyTorch to use the PyTorch backend.")
-    
-    # For PyTorch, implement minimal functionality and raise NotImplementedError for the rest
-    def __not_implemented(name):
-        def func(*args, **kwargs):
-            raise NotImplementedError(f"{name} not implemented for PyTorch backend. Use NumPy backend for full functionality.")
-        return func
-    
-    # Array creation functions - basic implementation
-    def array(x, dtype=None, requires_grad=False):
-        """Create tensor with optional gradient tracking."""
-        if x is None:
-            return None
-        if dtype is None:
-            dtype = backend_module.float64
-        else:
-            # Convert numpy dtypes to PyTorch dtypes
-            dtype = _convert_dtype_to_torch(dtype)
-        return backend_module.tensor(x, dtype=dtype, requires_grad=requires_grad)
+# =============================================================================
+# Method Definitions
+# =============================================================================
 
-    def _convert_dtype_to_torch(dtype):
-        """Convert numpy/python dtypes to PyTorch dtypes."""
-        if dtype is None:
-            return backend_module.float64
-        
-        # If it's already a torch dtype, return as is
-        if hasattr(dtype, 'is_floating_point'):
-            return dtype
-        
-        # Convert numpy dtypes to torch dtypes
-        if dtype == _np.float32 or dtype == float or dtype == 'float32':
-            return backend_module.float32
-        elif dtype == _np.float64 or dtype == 'float64':
-            return backend_module.float64
-        elif dtype == _np.int32 or dtype == 'int32':
-            return backend_module.int32
-        elif dtype == _np.int64 or dtype == int or dtype == 'int64':
-            return backend_module.int64
-        elif dtype == _np.int8 or dtype == 'int8':
-            return backend_module.int8
-        elif dtype == _np.int16 or dtype == 'int16':
-            return backend_module.int16
-        elif dtype == _np.uint8 or dtype == 'uint8':
-            return backend_module.uint8
-        elif dtype == _np.bool_ or dtype == bool or dtype == 'bool':
-            return backend_module.bool
+def _not_implemented(name):
+    """Create a function that raises NotImplementedError for the given name."""
+    def func(*args, **kwargs):
+        raise NotImplementedError(f"{name} not implemented for PyTorch backend. Use NumPy backend for full functionality.")
+    return func
+
+
+def _convert_dtype_to_torch(dtype):
+    """Convert numpy dtype to PyTorch dtype."""
+    import torch as backend_module
+    if dtype == _np.float64 or dtype == 'float64':
+        return backend_module.float64
+    elif dtype == _np.float32 or dtype == 'float32':
+        return backend_module.float32
+    elif dtype == _np.int64 or dtype == 'int64':
+        return backend_module.int64
+    elif dtype == _np.int32 or dtype == 'int32':
+        return backend_module.int32
+    elif dtype == _np.int16 or dtype == 'int16':
+        return backend_module.int16
+    elif dtype == _np.int8 or dtype == 'int8':
+        return backend_module.int8
+    elif dtype == _np.uint8 or dtype == 'uint8':
+        return backend_module.uint8
+    elif dtype == _np.bool_ or dtype == bool or dtype == 'bool':
+        return backend_module.bool
+    else:
+        # Default fallback
+        return backend_module.float64
+
+
+def array_pytorch(x, dtype=None, requires_grad=False):
+    """Create tensor with optional gradient tracking."""
+    import torch as backend_module
+    if x is None:
+        return None
+    if dtype is None:
+        dtype = backend_module.float64
+    else:
+        # Convert numpy dtypes to PyTorch dtypes
+        dtype = _convert_dtype_to_torch(dtype)
+    return backend_module.tensor(x, dtype=dtype, requires_grad=requires_grad)
+
+
+def zeros_pytorch(*args, dtype=None, **kwargs):
+    """Create zeros tensor with default float64 dtype if not specified."""
+    import torch as backend_module
+    if dtype is None:
+        dtype = backend_module.float64
+    else:
+        dtype = _convert_dtype_to_torch(dtype)
+    return backend_module.zeros(*args, dtype=dtype, **kwargs)
+
+
+def ones_pytorch(*args, dtype=None, **kwargs):
+    """Create ones tensor with default float64 dtype if not specified."""
+    import torch as backend_module
+    if dtype is None:
+        dtype = backend_module.float64
+    else:
+        dtype = _convert_dtype_to_torch(dtype)
+    return backend_module.ones(*args, dtype=dtype, **kwargs)
+
+
+def eye_pytorch(n, m=None, k=0, dtype=None):
+    """Create identity matrix with optional offset."""
+    import torch as backend_module
+    if dtype is None:
+        dtype = backend_module.float64
+    else:
+        dtype = _convert_dtype_to_torch(dtype)
+    
+    if m is None:
+        m = n
+    
+    # Create base identity matrix
+    if k == 0:
+        return backend_module.eye(n, m, dtype=dtype)
+    else:
+        # Handle offset diagonal
+        result = backend_module.zeros(n, m, dtype=dtype)
+        if k > 0 and k < m:
+            diag_size = min(n, m - k)
+            result[:diag_size, k:k+diag_size] = backend_module.eye(diag_size, dtype=dtype)
+        elif k < 0 and -k < n:
+            diag_size = min(n + k, m)
+            result[-k:-k+diag_size, :diag_size] = backend_module.eye(diag_size, dtype=dtype)
+        return result
+
+
+def identity_pytorch(n, dtype=None):
+    """Create n x n identity matrix."""
+    import torch as backend_module
+    if dtype is None:
+        dtype = backend_module.float64
+    else:
+        dtype = _convert_dtype_to_torch(dtype)
+    return backend_module.eye(n, dtype=dtype)
+
+
+def vstack_pytorch(tup):
+    """Stack arrays vertically (row wise)."""
+    import torch as backend_module
+    # Convert all inputs to tensors
+    tensors = []
+    for arr in tup:
+        if not isinstance(arr, backend_module.Tensor):
+            arr = backend_module.tensor(arr)
+        tensors.append(arr)
+    return backend_module.vstack(tensors)
+
+
+def hstack_pytorch(tup):
+    """Stack arrays horizontally (column wise)."""
+    import torch as backend_module
+    # Convert all inputs to tensors
+    tensors = []
+    for arr in tup:
+        if not isinstance(arr, backend_module.Tensor):
+            arr = backend_module.tensor(arr)
+        tensors.append(arr)
+    return backend_module.hstack(tensors)
+
+
+def dstack_pytorch(tup):
+    """Stack arrays along the third axis (depth wise)."""
+    import torch as backend_module
+    # Convert all inputs to tensors
+    tensors = []
+    for arr in tup:
+        if not isinstance(arr, backend_module.Tensor):
+            arr = backend_module.tensor(arr)
+        tensors.append(arr)
+    return backend_module.dstack(tensors)
+
+
+def max_pytorch(x, axis=None, keepdims=False):
+    """Compute maximum along specified axis."""
+    import torch as backend_module
+    x = backend_module.tensor(x)
+    if axis is None:
+        return backend_module.max(x)
+    else:
+        result = backend_module.max(x, dim=axis, keepdim=keepdims)
+        return result.values
+
+
+def min_pytorch(x, axis=None, keepdims=False):
+    """Compute minimum along specified axis."""
+    import torch as backend_module
+    x = backend_module.tensor(x)
+    if axis is None:
+        return backend_module.min(x)
+    else:
+        result = backend_module.min(x, dim=axis, keepdim=keepdims)
+        return result.values
+
+
+def piecewise_pytorch(x, condlist, funclist, *args, **kwargs):
+    """Evaluate a piecewise-defined function."""
+    import torch as backend_module
+    x = backend_module.tensor(x)
+    result = backend_module.zeros_like(x)
+    
+    for i, (cond, func) in enumerate(zip(condlist, funclist)):
+        if callable(func):
+            mask = backend_module.tensor(cond, dtype=backend_module.bool)
+            result = backend_module.where(mask, func(x), result)
         else:
-            # Default fallback
-            return backend_module.float64
+            mask = backend_module.tensor(cond, dtype=backend_module.bool)
+            result = backend_module.where(mask, func, result)
     
-    def zeros(*args, dtype=None, **kwargs):
-        if dtype is None:
-            dtype = backend_module.float64
-        else:
-            dtype = _convert_dtype_to_torch(dtype)
-        return backend_module.zeros(*args, dtype=dtype, **kwargs)
-    
-    def ones(*args, dtype=None, **kwargs):
-        if dtype is None:
-            dtype = backend_module.float64
-        else:
-            dtype = _convert_dtype_to_torch(dtype)
-        return backend_module.ones(*args, dtype=dtype, **kwargs)
-    
-    functions['array'] = array
-    functions['zeros'] = zeros
-    functions['ones'] = ones
-    functions['zeros_like'] = backend_module.zeros_like
-    functions['ones_like'] = backend_module.ones_like
-    functions['empty'] = backend_module.empty
-    functions['empty_like'] = backend_module.empty_like
-    functions['full'] = backend_module.full
-    functions['full_like'] = backend_module.full_like
-    functions['arange'] = backend_module.arange
-    functions['linspace'] = backend_module.linspace
-    
-    # Many functions not implemented for PyTorch
-    functions['logspace'] = _not_implemented('logspace')
-    def eye_pytorch(n, m=None, k=0, dtype=None):
-        """Create eye matrix for PyTorch.""" 
-        if dtype is None:
-            dtype = backend_module.float64
-        else:
-            dtype = _convert_dtype_to_torch(dtype)
-        
-        if m is None:
-            m = n
-        
-        # PyTorch eye doesn't support offset k or different m, so we create manually
-        if k == 0 and m == n:
-            return backend_module.eye(n, dtype=dtype)
-        else:
-            # Create manually for offset or rectangular matrices
-            result = backend_module.zeros((n, m), dtype=dtype)
-            if k >= 0:
-                diag_size = min(n, m - k)
-                if diag_size > 0:
-                    result[range(diag_size), range(k, k + diag_size)] = 1
-            else:
-                diag_size = min(n + k, m)
-                if diag_size > 0:
-                    result[range(-k, -k + diag_size), range(diag_size)] = 1
-            return result
-    
-    functions['eye'] = eye_pytorch
-    
-    def identity_pytorch(n, dtype=None):
-        """Create identity matrix for PyTorch."""
-        if dtype is None:
-            dtype = backend_module.float64
-        else:
-            dtype = _convert_dtype_to_torch(dtype)
-        return backend_module.eye(n, dtype=dtype)
-    
-    functions['identity'] = identity_pytorch
-    functions['diag'] = backend_module.diag
-    functions['diagonal'] = _not_implemented('diagonal')
-    functions['meshgrid'] = _not_implemented('meshgrid')
-    
-    # Shape manipulation - basic support
-    functions['reshape'] = backend_module.reshape
-    functions['ravel'] = lambda a: a.flatten()
-    functions['flatten'] = lambda a: a.flatten()
-    functions['transpose'] = backend_module.transpose
-    functions['swapaxes'] = _not_implemented('swapaxes')
-    functions['moveaxis'] = _not_implemented('moveaxis')
-    functions['flip'] = backend_module.flip
-    functions['flipud'] = _not_implemented('flipud')
-    functions['fliplr'] = _not_implemented('fliplr')
-    functions['rot90'] = _not_implemented('rot90')
-    functions['roll'] = backend_module.roll
-    
-    # Array joining and splitting
-    functions['concatenate'] = backend_module.cat  # PyTorch uses cat instead of concatenate
-    functions['stack'] = backend_module.stack
-    
-    # Implement stack functions to match numpy API
-    def vstack_pytorch(tup):
-        """Vertical stack - stack arrays vertically (row-wise)."""
-        # For 1D arrays, add a dimension and stack
-        # For 2D+ arrays, concatenate along axis 0
-        if len(tup) == 0:
-            raise ValueError("Need at least one array to stack")
-        
-        first_arr = tup[0]
-        if first_arr.dim() == 1:
-            # For 1D arrays, we need to stack them to create a 2D array
-            # Convert each 1D array to a row vector and stack
-            expanded = [arr.unsqueeze(0) for arr in tup]
-            return backend_module.cat(expanded, dim=0)
-        else:
-            # For 2D+ arrays, concatenate along axis 0
-            return backend_module.cat(tup, dim=0)
-    
-    def hstack_pytorch(tup):
-        """Horizontal stack - concatenate appropriately based on dimensions."""
-        # For 1D arrays, concatenate along dim 0 (like NumPy)
-        # For 2D+ arrays, concatenate along dim 1
-        if len(tup) == 0:
-            raise ValueError("Need at least one array to concatenate")
-        
-        first_arr = tup[0]
-        if first_arr.dim() == 1:
-            return backend_module.cat(tup, dim=0)
-        else:
-            return backend_module.cat(tup, dim=1)
-    
-    def dstack_pytorch(tup):
-        """Depth stack - concatenate along axis 2."""
-        # Expand dimensions if needed for 1D/2D arrays
-        expanded = []
-        for arr in tup:
-            if arr.dim() == 1:
-                # 1D -> 3D: (n,) -> (1, n, 1)
-                expanded.append(arr.unsqueeze(0).unsqueeze(2))
-            elif arr.dim() == 2:
-                # 2D -> 3D: (m, n) -> (m, n, 1)
-                expanded.append(arr.unsqueeze(2))
-            else:
-                expanded.append(arr)
-        return backend_module.cat(expanded, dim=2)
-    
-    functions['vstack'] = vstack_pytorch
-    functions['hstack'] = hstack_pytorch
-    functions['dstack'] = dstack_pytorch
-    functions['split'] = _not_implemented('split')
-    functions['hsplit'] = _not_implemented('hsplit')
-    functions['vsplit'] = _not_implemented('vsplit')
-    functions['dsplit'] = _not_implemented('dsplit')
-    
-    # Mathematical functions - basic support
-    functions['sum'] = backend_module.sum
-    functions['prod'] = _not_implemented('prod')
-    functions['mean'] = backend_module.mean
-    functions['std'] = backend_module.std
-    functions['var'] = backend_module.var
-    # Custom max/min functions to handle PyTorch's return type
-    def max_pytorch(x, axis=None, keepdims=False):
-        x = backend_module.tensor(x)
-        if axis is None:
-            return backend_module.max(x)
-        else:
-            result = backend_module.max(x, dim=axis, keepdim=keepdims)
-            if isinstance(result, tuple):
-                return result.values  # Return only values, not indices
-            return result
-    functions['max'] = max_pytorch
-    
-    def min_pytorch(x, axis=None, keepdims=False):
-        x = backend_module.tensor(x)
-        if axis is None:
-            return backend_module.min(x)
-        else:
-            result = backend_module.min(x, dim=axis, keepdim=keepdims)
-            if isinstance(result, tuple):
-                return result.values  # Return only values, not indices
-            return result
-    functions['min'] = min_pytorch
-    functions['argmin'] = backend_module.argmin
-    functions['argmax'] = backend_module.argmax
-    functions['sort'] = backend_module.sort
-    functions['argsort'] = backend_module.argsort
-    functions['any'] = backend_module.any
-    functions['all'] = backend_module.all
-    functions['argwhere'] = _not_implemented('argwhere')
-    functions['cumsum'] = backend_module.cumsum
-    functions['cumprod'] = _not_implemented('cumprod')
-    functions['diff'] = _not_implemented('diff')
-    functions['gradient'] = _not_implemented('gradient')
-    functions['maximum'] = backend_module.maximum
-    functions['minimum'] = backend_module.minimum
-    functions['repeat'] = _not_implemented('repeat')
-    functions['isclose'] = backend_module.isclose
-    functions['percentile'] = _not_implemented('percentile')
-    functions['median'] = _not_implemented('median')
-    functions['multiply'] = backend_module.multiply
-    functions['tile'] = _not_implemented('tile')
-    functions['float_power'] = _not_implemented('float_power')
-    def piecewise_pytorch(x, condlist, funclist, *args, **kwargs):
-        """Piecewise function for PyTorch - convert to numpy, apply, convert back."""
-        x_np = to_numpy(x)
-        condlist_np = [to_numpy(c) for c in condlist]
-        import numpy as np
-        result_np = np.piecewise(x_np, condlist_np, funclist, *args, **kwargs)
-        return backend_module.tensor(result_np, dtype=x.dtype if hasattr(x, 'dtype') else backend_module.float64)
-    
-    functions['piecewise'] = piecewise_pytorch
-    
-    # Linear algebra - basic support
-    def dot(a, b):
-        """Dot product - handle 1D and 2D cases."""
-        if a.dim() == 1 and b.dim() == 1:
-            return backend_module.dot(a, b)
-        else:
-            return backend_module.matmul(a, b)
-    
-    functions['dot'] = dot
-    functions['matmul'] = backend_module.matmul
-    functions['inner'] = _not_implemented('inner')
-    functions['outer'] = _not_implemented('outer')
-    functions['cross'] = _not_implemented('cross')
-    functions['tensordot'] = _not_implemented('tensordot')
-    functions['einsum'] = _not_implemented('einsum')
-    functions['tril'] = backend_module.tril
-    functions['triu'] = backend_module.triu
-    # PyTorch linalg module - create a minimal interface
-    class TorchLinalgModule:
-        @staticmethod
-        def norm(x, ord=None, dim=None, keepdim=False):
-            return backend_module.linalg.norm(x, ord=ord, dim=dim, keepdim=keepdim)
-        
-        @staticmethod
-        def det(x):
-            return backend_module.linalg.det(x)
-        
-        @staticmethod
-        def inv(x):
-            return backend_module.linalg.inv(x)
-        
-        @staticmethod
-        def solve(a, b):
-            return backend_module.linalg.solve(a, b)
-        
-        @staticmethod
-        def eig(x):
-            return backend_module.linalg.eig(x)
-        
-        @staticmethod
-        def svd(x, full_matrices=True):
-            return backend_module.linalg.svd(x, full_matrices=full_matrices)
-    
-    functions['linalg'] = TorchLinalgModule()
-    
-    # Trigonometric functions
-    functions['sin'] = backend_module.sin
-    functions['cos'] = backend_module.cos
-    functions['tan'] = backend_module.tan
-    functions['arcsin'] = backend_module.asin  # PyTorch uses asin instead of arcsin
-    functions['arccos'] = backend_module.acos
-    functions['arctan'] = backend_module.atan
-    functions['arctan2'] = backend_module.atan2
-    functions['sinh'] = backend_module.sinh
-    functions['cosh'] = backend_module.cosh
-    functions['tanh'] = backend_module.tanh
-    
-    # Exponential and logarithmic functions
-    def exp_pytorch(x):
-        if not isinstance(x, backend_module.Tensor):
-            x = backend_module.tensor(x)
+    return result
+
+
+def exp_pytorch(x):
+    """Exponential function with scalar handling."""
+    import torch as backend_module
+    if backend_module.is_tensor(x):
         return backend_module.exp(x)
-    
-    def log_pytorch(x):
-        if not isinstance(x, backend_module.Tensor):
-            x = backend_module.tensor(x)
+    else:
+        return backend_module.exp(backend_module.tensor(x))
+
+
+def log_pytorch(x):
+    """Natural logarithm with scalar handling."""
+    import torch as backend_module
+    if backend_module.is_tensor(x):
         return backend_module.log(x)
-    
-    def log2_pytorch(x):
-        if not isinstance(x, backend_module.Tensor):
-            x = backend_module.tensor(x)
+    else:
+        return backend_module.log(backend_module.tensor(x))
+
+
+def log2_pytorch(x):
+    """Base-2 logarithm with scalar handling."""
+    import torch as backend_module
+    if backend_module.is_tensor(x):
         return backend_module.log2(x)
-    
-    def log10_pytorch(x):
-        if not isinstance(x, backend_module.Tensor):
-            x = backend_module.tensor(x)
+    else:
+        return backend_module.log2(backend_module.tensor(x))
+
+
+def log10_pytorch(x):
+    """Base-10 logarithm with scalar handling."""
+    import torch as backend_module
+    if backend_module.is_tensor(x):
         return backend_module.log10(x)
-    
-    functions['exp'] = exp_pytorch
-    functions['exp2'] = _not_implemented('exp2')
-    functions['log'] = log_pytorch
-    functions['log2'] = log2_pytorch
-    functions['log10'] = log10_pytorch
-    def sqrt_pytorch(x):
-        if not isinstance(x, backend_module.Tensor):
-            x = backend_module.tensor(x)
+    else:
+        return backend_module.log10(backend_module.tensor(x))
+
+
+def sqrt_pytorch(x):
+    """Square root with scalar handling."""
+    import torch as backend_module
+    if backend_module.is_tensor(x):
         return backend_module.sqrt(x)
-    
-    def square_pytorch(x):
-        if not isinstance(x, backend_module.Tensor):
-            x = backend_module.tensor(x)
+    else:
+        return backend_module.sqrt(backend_module.tensor(x))
+
+
+def square_pytorch(x):
+    """Square function with scalar handling."""
+    import torch as backend_module
+    if backend_module.is_tensor(x):
         return backend_module.square(x)
+    else:
+        return backend_module.square(backend_module.tensor(x))
+
+
+def power_pytorch(x1, x2):
+    """Power function with scalar handling."""
+    import torch as backend_module
+    if not backend_module.is_tensor(x1):
+        x1 = backend_module.tensor(x1)
+    if not backend_module.is_tensor(x2):
+        x2 = backend_module.tensor(x2)
+    return backend_module.pow(x1, x2)
+
+
+def array_equiv_pytorch(a, b):
+    """Check if arrays are equivalent (same shape and elements)."""
+    import torch as backend_module
+    if not backend_module.is_tensor(a):
+        a = backend_module.tensor(a)
+    if not backend_module.is_tensor(b):
+        b = backend_module.tensor(b)
     
-    def power_pytorch(x1, x2):
-        if not isinstance(x1, backend_module.Tensor):
-            x1 = backend_module.tensor(x1)
-        if not isinstance(x2, backend_module.Tensor):
-            x2 = backend_module.tensor(x2)
-        return backend_module.pow(x1, x2)
+    # Check shapes first
+    if a.shape != b.shape:
+        return False
     
-    functions['sqrt'] = sqrt_pytorch
-    functions['square'] = square_pytorch
-    functions['power'] = power_pytorch  # PyTorch uses pow instead of power
-    functions['abs'] = backend_module.abs
-    functions['sign'] = backend_module.sign
+    # Check if all elements are equal
+    return backend_module.allclose(a, b)
+
+
+def array_equal_pytorch(a, b):
+    """Check if arrays are equal (same shape and elements, exact)."""
+    import torch as backend_module
+    if not backend_module.is_tensor(a):
+        a = backend_module.tensor(a)
+    if not backend_module.is_tensor(b):
+        b = backend_module.tensor(b)
     
-    # Rounding functions
-    functions['floor'] = backend_module.floor
-    functions['ceil'] = backend_module.ceil
-    functions['round'] = backend_module.round
-    functions['clip'] = backend_module.clamp  # PyTorch uses clamp instead of clip
+    # Check shapes first
+    if a.shape != b.shape:
+        return False
     
-    # Logic functions
-    functions['where'] = backend_module.where
-    functions['isnan'] = backend_module.isnan
-    functions['isinf'] = backend_module.isinf
-    functions['isfinite'] = backend_module.isfinite
-    functions['count_nonzero'] = backend_module.count_nonzero
-    functions['allclose'] = backend_module.allclose
+    # Check if all elements are exactly equal
+    return backend_module.all(backend_module.eq(a, b))
+
+
+def isscalar_pytorch(element):
+    """Check if element is a scalar."""
+    import torch as backend_module
+    if backend_module.is_tensor(element):
+        return element.ndim == 0
+    else:
+        return _np.isscalar(element)
+
+
+def shape_pytorch(x):
+    """Get shape, handling sparse matrices properly."""
+    import torch as backend_module
+    if hasattr(x, 'shape') and hasattr(x, 'nnz'):  # sparse matrix
+        return x.shape
+    return tuple(backend_module.tensor(x).shape)
+
+
+def squeeze_pytorch(x, axis=None):
+    """Squeeze array dimensions."""
+    import torch as backend_module
+    x = backend_module.tensor(x)
+    if axis is None:
+        return backend_module.squeeze(x)
+    else:
+        return backend_module.squeeze(x, dim=axis)
+
+
+def expand_dims_pytorch(x, axis):
+    """Expand array dimensions."""
+    import torch as backend_module
+    x = backend_module.tensor(x)
+    return backend_module.unsqueeze(x, dim=axis)
+
+
+def transpose_pytorch(x, axes=None):
+    """Transpose array dimensions."""
+    import torch as backend_module
+    x = backend_module.tensor(x)
+    if axes is None:
+        return x.T
+    else:
+        return x.permute(axes)
+
+
+def sparse_spdiags_pytorch(data, diags, m, n, format=None):
+    """Create sparse diagonal matrix using scipy.sparse.spdiags (fallback to NumPy)."""
+    # Convert PyTorch tensors to NumPy for scipy.sparse operations
+    if hasattr(data, 'cpu'):
+        data = data.cpu().numpy()
+    if hasattr(diags, 'cpu'):
+        diags = diags.cpu().numpy()
     
-    def array_equiv_pytorch(a, b):
-        """Check if arrays are equivalent for PyTorch (with broadcasting)."""
-        if a is None and b is None:
-            return True
-        elif a is None or b is None:
-            return False
-        
-        # Convert to tensors if needed
-        if not isinstance(a, backend_module.Tensor):
-            a = backend_module.tensor(a, dtype=backend_module.float64)
-        if not isinstance(b, backend_module.Tensor):
-            b = backend_module.tensor(b, dtype=backend_module.float64)
-        
-        # Check if shapes are compatible for broadcasting and all elements equal
-        try:
-            # Use torch.eq for element-wise comparison with broadcasting
-            result = backend_module.eq(a, b)
-            if hasattr(result, 'all'):
-                return result.all().item()
+    from scipy.sparse import spdiags
+    return spdiags(data, diags, m, n, format=format)
+
+
+def sparse_eye_pytorch(n, m=None, k=0, dtype=None, format=None):
+    """Create sparse identity matrix using scipy.sparse.eye (fallback to NumPy)."""
+    from scipy.sparse import eye
+    if dtype is not None and hasattr(dtype, 'cpu'):
+        dtype = dtype.cpu().numpy().dtype
+    return eye(n, n=m, k=k, dtype=dtype, format=format)
+
+
+def sparse_kron_pytorch(A, B, format=None):
+    """Kronecker product of sparse matrices using scipy.sparse.kron (fallback to NumPy)."""
+    from scipy.sparse import kron
+    return kron(A, B, format=format)
+
+
+def sparse_vstack_pytorch(blocks, format=None, dtype=None):
+    """Stack sparse matrices vertically using scipy.sparse.vstack (fallback to NumPy)."""
+    from scipy.sparse import vstack
+    return vstack(blocks, format=format, dtype=dtype)
+
+
+def issparse_pytorch(x):
+    """Check if x is a sparse matrix."""
+    from scipy.sparse import issparse
+    from cuqi.utilities._utilities import BackendSparseMatrix
+    return issparse(x) or isinstance(x, BackendSparseMatrix)
+
+
+def _add_astype_to_tensor():
+    """Add astype method to PyTorch tensors if not present."""
+    import torch as backend_module
+    if not hasattr(backend_module.Tensor, 'astype'):
+        def astype(self, dtype):
+            if dtype == float:
+                return self.float()
+            elif dtype == int:
+                return self.int()
             else:
-                # result is already a scalar boolean
-                return result.item() if hasattr(result, 'item') else bool(result)
-        except RuntimeError:
-            # Broadcasting failed - shapes are incompatible
-            return False
-    
-    def array_equal_pytorch(a, b):
-        """Check if arrays are exactly equal for PyTorch."""
-        if a is None and b is None:
-            return True
-        elif a is None or b is None:
-            return False
-        
-        # Convert to tensors if needed
-        if not isinstance(a, backend_module.Tensor):
-            a = backend_module.tensor(a)
-        if not isinstance(b, backend_module.Tensor):
-            b = backend_module.tensor(b)
-        
-        # Check exact equality (same shape and values)
-        if a.shape != b.shape:
-            return False
-        
-        result = backend_module.equal(a, b)
-        if hasattr(result, 'all'):
-            return result.all().item()
-        else:
-            # result is already a scalar boolean
-            return result.item() if hasattr(result, 'item') else bool(result)
-    
-    functions['array_equiv'] = array_equiv_pytorch
-    functions['array_equal'] = array_equal_pytorch
-    def isscalar_pytorch(element):
-        """Check if element is a scalar for PyTorch backend (consistent with NumPy)."""
-        import numpy as np
-        # Use NumPy's definition of scalar for consistency
-        # Even 0-dimensional tensors are not considered scalars (matching NumPy behavior)
-        return np.isscalar(element)
-    
-    functions['isscalar'] = isscalar_pytorch
-    functions['sinc'] = _not_implemented('sinc')
-    functions['fix'] = backend_module.trunc  # PyTorch uses trunc for fix
-    
-    # Complex numbers
-    functions['real'] = backend_module.real
-    functions['imag'] = backend_module.imag
-    functions['conj'] = backend_module.conj
-    functions['angle'] = _not_implemented('angle')
-    functions['absolute'] = backend_module.abs
-    
-    # Array conversion
-    functions['asarray'] = lambda x, dtype=None: backend_module.tensor(x, dtype=dtype) if not isinstance(x, backend_module.Tensor) else x
-    functions['asanyarray'] = lambda x, dtype=None: backend_module.tensor(x, dtype=dtype) if not isinstance(x, backend_module.Tensor) else x
-    functions['ascontiguousarray'] = _not_implemented('ascontiguousarray')
-    functions['asfortranarray'] = _not_implemented('asfortranarray')
-    functions['copy'] = lambda x: x.clone()
-    
-    # Add astype method to tensors if not present
-    def _add_astype_to_tensor():
-        if not hasattr(backend_module.Tensor, 'astype'):
-            def astype(self, dtype):
-                if dtype == float:
-                    return self.float()
-                elif dtype == int:
-                    return self.int()
-                else:
-                    return self.to(dtype)
-            backend_module.Tensor.astype = astype
-    
-    _add_astype_to_tensor()
-    
-    # Data types and constants
-    functions['finfo'] = _not_implemented('finfo')  # Use numpy's finfo
-    functions['iinfo'] = _not_implemented('iinfo')  # Use numpy's iinfo
-    functions['newaxis'] = None  # PyTorch uses None for new axis
-    functions['inf'] = float('inf')
-    functions['nan'] = float('nan')
-    import math
-    functions['pi'] = math.pi
-    functions['e'] = math.e
-    functions['size'] = lambda x: x.numel() if hasattr(x, 'numel') else backend_module.numel(x)
-    def shape_pytorch(x):
-        """Get shape, handling sparse matrices properly."""
-        if hasattr(x, 'shape') and hasattr(x, 'nnz'):  # sparse matrix
-            return x.shape
-        return tuple(backend_module.tensor(x).shape)
-    functions['shape'] = shape_pytorch
-    
-    # Missing functions that need PyTorch implementations
-    def squeeze_pytorch(x, axis=None):
-        x = backend_module.tensor(x)
-        if axis is None:
-            return backend_module.squeeze(x)
-        else:
-            return backend_module.squeeze(x, dim=axis)
-    functions['squeeze'] = squeeze_pytorch
-    
-    def expand_dims_pytorch(x, axis):
-        x = backend_module.tensor(x)
-        return backend_module.unsqueeze(x, dim=axis)
-    functions['expand_dims'] = expand_dims_pytorch
-    
-    def transpose_pytorch(x, axes=None):
-        x = backend_module.tensor(x)
-        if axes is None:
-            # For 2D: transpose, for others: reverse all dimensions
-            if x.ndim == 2:
-                return x.t()
-            else:
-                dims = list(range(x.ndim))[::-1]
-                return x.permute(*dims)
-        else:
-            return x.permute(*axes)
-    functions['transpose'] = transpose_pytorch
-    
-    functions['equal'] = lambda x, y: backend_module.eq(backend_module.tensor(x), backend_module.tensor(y))
-    functions['greater'] = lambda x, y: backend_module.gt(backend_module.tensor(x), backend_module.tensor(y))
-    functions['less'] = lambda x, y: backend_module.lt(backend_module.tensor(x), backend_module.tensor(y))
-    functions['ndim'] = lambda x: backend_module.tensor(x).ndim
-    # Use numpy integer types for better compatibility
-    import numpy as np
-    functions['int8'] = np.int8
-    functions['int16'] = np.int16
-    functions['int32'] = np.int32
-    functions['int64'] = np.int64
-    functions['uint8'] = np.uint8
-    functions['uint16'] = np.uint16
-    functions['uint32'] = np.uint32
-    functions['uint64'] = np.uint64
-    functions['float16'] = backend_module.float16
-    functions['float32'] = backend_module.float32
-    functions['float64'] = backend_module.float64
-    functions['complex64'] = backend_module.complex64
-    functions['complex128'] = backend_module.complex128
-    functions['bool_'] = backend_module.bool
-    functions['ndarray'] = backend_module.Tensor  # PyTorch uses Tensor class
-    functions['dtype'] = lambda x: x  # PyTorch dtypes are already objects
-    # Use numpy type hierarchies for compatibility
-    import numpy as np
-    functions['integer'] = np.integer
-    functions['floating'] = np.floating
-    functions['complexfloating'] = np.complexfloating
-    
-    # Modules - create minimal interfaces for PyTorch
-    class TorchRandomModule:
-        @staticmethod
-        def normal(loc=0.0, scale=1.0, size=None):
-            if size is None:
-                return backend_module.normal(loc, scale, (1,))
-            elif isinstance(size, int):
-                return backend_module.normal(loc, scale, (size,))
-            else:
-                return backend_module.normal(loc, scale, size)
-        
-        @staticmethod
-        def rand(*args):
-            if len(args) == 0:
-                return backend_module.rand(1)
-            return backend_module.rand(*args)
-        
-        @staticmethod
-        def randn(*args):
-            if len(args) == 0:
-                return backend_module.randn(1)
-            return backend_module.randn(*args)
-        
-        @staticmethod
-        def randint(low, high=None, size=None, dtype=None):
-            if high is None:
-                high = low
-                low = 0
-            if size is None:
-                size = (1,)
-            elif isinstance(size, int):
-                size = (size,)
-            return backend_module.randint(low, high, size, dtype=dtype)
-        
-        @staticmethod
-        def uniform(low=0.0, high=1.0, size=None):
-            if size is None:
-                size = (1,)
-            elif isinstance(size, int):
-                size = (size,)
-            return backend_module.uniform(low, high, size)
-        
-        @staticmethod
-        def default_rng(seed=None):
-            """Default random number generator - not implemented for PyTorch."""
-            raise NotImplementedError("random.default_rng not implemented for PyTorch backend. Use NumPy backend for full functionality.")
-    
-    functions['random'] = TorchRandomModule()
-    functions['fft'] = _not_implemented('fft')
-    
-    class TorchPolynomialModule:
-        class legendre:
-            @staticmethod
-            def leggauss(deg):
-                """Gauss-Legendre quadrature - not implemented for PyTorch."""
-                raise NotImplementedError("polynomial.legendre.leggauss not implemented for PyTorch backend. Use NumPy backend for full functionality.")
-    
-    functions['polynomial'] = TorchPolynomialModule()
-    
-    # Sparse matrix functions using PyTorch sparse tensors
-    def sparse_spdiags_pytorch(data, diags, m, n, format=None):
-        """Create sparse diagonal matrix using PyTorch sparse tensors."""
-        # Convert PyTorch tensors to NumPy for scipy, then convert result back if needed
-        data_np = data.detach().cpu().numpy() if isinstance(data, backend_module.Tensor) else data
-        diags_np = diags if isinstance(diags, (list, tuple)) else diags.detach().cpu().numpy()
-        
-        from scipy.sparse import spdiags
-        sparse_matrix = spdiags(data_np, diags_np, m, n, format=format)
-        
-        # For now, return the scipy sparse matrix - PyTorch can work with it
-        return sparse_matrix
-    
-    def sparse_eye_pytorch(n, m=None, k=0, dtype=None, format=None):
-        """Create sparse identity matrix."""
-        if dtype is None:
-            dtype = _np.float64
-        else:
-            # Convert to numpy dtype for scipy
-            if hasattr(dtype, '__name__'):
-                dtype = dtype
-            else:
-                dtype = _np.float64
-        
-        from scipy.sparse import eye
-        # scipy.sparse.eye has signature (m, n=None, k=0, dtype=float, format=None)
-        return eye(n, n=m, k=k, dtype=dtype, format=format)
-    
-    def sparse_kron_pytorch(A, B, format=None):
-        """Kronecker product of sparse matrices."""
-        from scipy.sparse import kron
-        return kron(A, B, format=format)
-    
-    def sparse_vstack_pytorch(blocks, format=None, dtype=None):
-        """Stack sparse matrices vertically."""
-        from scipy.sparse import vstack
-        return vstack(blocks, format=format, dtype=dtype)
-    
-    def issparse_pytorch(x):
-        """Check if x is a sparse matrix."""
-        from scipy.sparse import issparse
-        from cuqi.utilities._utilities import BackendSparseMatrix
-        return issparse(x) or isinstance(x, BackendSparseMatrix)
-    
-    functions['sparse_spdiags'] = sparse_spdiags_pytorch
-    functions['sparse_eye'] = sparse_eye_pytorch
-    functions['sparse_kron'] = sparse_kron_pytorch
-    functions['sparse_vstack'] = sparse_vstack_pytorch
-    functions['issparse'] = issparse_pytorch
-    
-    return functions
+                return self.to(dtype)
+        backend_module.Tensor.astype = astype
 
 
 def to_numpy(arr):
     """Convert PyTorch tensor to NumPy array."""
-    try:
-        import torch
-        if isinstance(arr, torch.Tensor):
-            return arr.detach().cpu().numpy()
-    except ImportError:
-        pass
-    
-    import numpy as np
-    return np.asarray(arr)
+    import torch
+    if isinstance(arr, torch.Tensor):
+        return arr.detach().cpu().numpy()
+    else:
+        return _np.asarray(arr)
 
 
 def pad(array, pad_width, mode='constant', constant_values=0):
-    """Pad a PyTorch tensor - basic implementation."""
+    """Pad a PyTorch tensor - basic implementation.
+    
+    This function is kept separate because it has a different signature
+    and behavior compared to the standard array operations, and needs
+    special handling for different backends.
+    """
     import torch
     import torch.nn.functional as F
     
@@ -712,3 +430,219 @@ def pad(array, pad_width, mode='constant', constant_values=0):
         return F.pad(array, torch_pad, mode='constant', value=constant_values)
     else:
         return F.pad(array, torch_pad, mode=mode)
+
+
+# =============================================================================
+# Backend Functions Dictionary
+# =============================================================================
+
+def get_backend_functions(backend_module):
+    """Get all array functions for PyTorch backend.
+    
+    Returns a dictionary of function names mapped to their implementations.
+    Many functions raise NotImplementedError to focus on NumPy support.
+    """
+    functions = {}
+    
+    # Ensure we have PyTorch - no fallback
+    try:
+        import torch
+    except ImportError:
+        raise ImportError("PyTorch not available. Please install PyTorch to use the PyTorch backend.")
+    
+    # Array creation functions
+    functions['array'] = array_pytorch
+    functions['zeros'] = zeros_pytorch
+    functions['ones'] = ones_pytorch
+    functions['zeros_like'] = backend_module.zeros_like
+    functions['ones_like'] = backend_module.ones_like
+    functions['empty'] = backend_module.empty
+    functions['empty_like'] = backend_module.empty_like
+    functions['full'] = backend_module.full
+    functions['full_like'] = backend_module.full_like
+    functions['arange'] = backend_module.arange
+    functions['linspace'] = backend_module.linspace
+    functions['logspace'] = _not_implemented('logspace')
+    functions['eye'] = eye_pytorch
+    functions['identity'] = identity_pytorch
+    functions['diag'] = backend_module.diag
+    functions['diagonal'] = _not_implemented('diagonal')
+    functions['meshgrid'] = _not_implemented('meshgrid')
+    
+    # Shape manipulation
+    functions['reshape'] = backend_module.reshape
+    functions['ravel'] = backend_module.ravel
+    functions['flatten'] = lambda a: a.flatten()
+    functions['transpose'] = transpose_pytorch
+    functions['swapaxes'] = _not_implemented('swapaxes')
+    functions['moveaxis'] = _not_implemented('moveaxis')
+    functions['flip'] = backend_module.flip
+    functions['flipud'] = _not_implemented('flipud')
+    functions['fliplr'] = _not_implemented('fliplr')
+    functions['rot90'] = _not_implemented('rot90')
+    functions['roll'] = backend_module.roll
+    
+    # Array joining and splitting
+    functions['concatenate'] = backend_module.cat
+    functions['stack'] = backend_module.stack
+    functions['vstack'] = vstack_pytorch
+    functions['hstack'] = hstack_pytorch
+    functions['dstack'] = dstack_pytorch
+    functions['split'] = _not_implemented('split')
+    functions['hsplit'] = _not_implemented('hsplit')
+    functions['vsplit'] = _not_implemented('vsplit')
+    functions['dsplit'] = _not_implemented('dsplit')
+    
+    # Mathematical functions
+    functions['sum'] = backend_module.sum
+    functions['prod'] = _not_implemented('prod')
+    functions['mean'] = backend_module.mean
+    functions['std'] = backend_module.std
+    functions['var'] = backend_module.var
+    functions['min'] = min_pytorch
+    functions['max'] = max_pytorch
+    functions['argmin'] = backend_module.argmin
+    functions['argmax'] = backend_module.argmax
+    functions['sort'] = backend_module.sort
+    functions['argsort'] = backend_module.argsort
+    functions['any'] = backend_module.any
+    functions['all'] = backend_module.all
+    functions['argwhere'] = _not_implemented('argwhere')
+    functions['cumsum'] = backend_module.cumsum
+    functions['cumprod'] = _not_implemented('cumprod')
+    functions['diff'] = _not_implemented('diff')
+    functions['gradient'] = _not_implemented('gradient')
+    functions['maximum'] = backend_module.maximum
+    functions['minimum'] = backend_module.minimum
+    functions['repeat'] = _not_implemented('repeat')
+    functions['isclose'] = backend_module.isclose
+    functions['percentile'] = _not_implemented('percentile')
+    functions['median'] = _not_implemented('median')
+    functions['multiply'] = backend_module.multiply
+    functions['tile'] = _not_implemented('tile')
+    functions['float_power'] = _not_implemented('float_power')
+    functions['piecewise'] = piecewise_pytorch
+    
+    # Linear algebra
+    functions['dot'] = backend_module.dot
+    functions['matmul'] = backend_module.matmul
+    functions['inner'] = _not_implemented('inner')
+    functions['outer'] = _not_implemented('outer')
+    functions['cross'] = _not_implemented('cross')
+    functions['tensordot'] = _not_implemented('tensordot')
+    functions['einsum'] = _not_implemented('einsum')
+    functions['tril'] = backend_module.tril
+    functions['triu'] = backend_module.triu
+    functions['linalg'] = backend_module.linalg
+    
+    # Trigonometric functions
+    functions['sin'] = backend_module.sin
+    functions['cos'] = backend_module.cos
+    functions['tan'] = backend_module.tan
+    functions['arcsin'] = backend_module.asin
+    functions['arccos'] = backend_module.acos
+    functions['arctan'] = backend_module.atan
+    functions['arctan2'] = backend_module.atan2
+    functions['sinh'] = backend_module.sinh
+    functions['cosh'] = backend_module.cosh
+    functions['tanh'] = backend_module.tanh
+    
+    # Exponential and logarithmic functions
+    functions['exp'] = exp_pytorch
+    functions['exp2'] = _not_implemented('exp2')
+    functions['log'] = log_pytorch
+    functions['log2'] = log2_pytorch
+    functions['log10'] = log10_pytorch
+    functions['sqrt'] = sqrt_pytorch
+    functions['square'] = square_pytorch
+    functions['power'] = power_pytorch
+    functions['abs'] = backend_module.abs
+    functions['sign'] = backend_module.sign
+    
+    # Rounding functions
+    functions['floor'] = backend_module.floor
+    functions['ceil'] = backend_module.ceil
+    functions['round'] = backend_module.round
+    functions['clip'] = backend_module.clamp
+    
+    # Logic functions
+    functions['where'] = backend_module.where
+    functions['isnan'] = backend_module.isnan
+    functions['isinf'] = backend_module.isinf
+    functions['isfinite'] = backend_module.isfinite
+    functions['count_nonzero'] = backend_module.count_nonzero
+    functions['allclose'] = backend_module.allclose
+    functions['array_equiv'] = array_equiv_pytorch
+    functions['array_equal'] = array_equal_pytorch
+    functions['sinc'] = _not_implemented('sinc')
+    functions['fix'] = backend_module.trunc
+    
+    # Complex numbers
+    functions['real'] = backend_module.real
+    functions['imag'] = backend_module.imag
+    functions['conj'] = backend_module.conj
+    functions['angle'] = _not_implemented('angle')
+    functions['absolute'] = backend_module.abs
+    
+    # Array conversion
+    functions['asarray'] = backend_module.as_tensor
+    functions['asanyarray'] = backend_module.as_tensor
+    functions['ascontiguousarray'] = _not_implemented('ascontiguousarray')
+    functions['asfortranarray'] = _not_implemented('asfortranarray')
+    functions['copy'] = lambda x: x.clone()
+    
+    # Add astype method to tensors if not present
+    _add_astype_to_tensor()
+    
+    # Data types and constants
+    functions['finfo'] = _not_implemented('finfo')  # Use numpy's finfo
+    functions['iinfo'] = _not_implemented('iinfo')  # Use numpy's iinfo
+    functions['newaxis'] = None
+    functions['inf'] = backend_module.inf
+    functions['nan'] = backend_module.nan
+    functions['pi'] = backend_module.pi
+    functions['e'] = backend_module.e
+    functions['size'] = lambda x: x.numel() if hasattr(x, 'numel') else backend_module.numel(x)
+    functions['shape'] = shape_pytorch
+    functions['squeeze'] = squeeze_pytorch
+    functions['expand_dims'] = expand_dims_pytorch
+    functions['equal'] = lambda x, y: backend_module.eq(backend_module.tensor(x), backend_module.tensor(y))
+    functions['greater'] = lambda x, y: backend_module.gt(backend_module.tensor(x), backend_module.tensor(y))
+    functions['less'] = lambda x, y: backend_module.lt(backend_module.tensor(x), backend_module.tensor(y))
+    functions['ndim'] = lambda x: backend_module.tensor(x).ndim
+    functions['isscalar'] = isscalar_pytorch
+    
+    # Data types
+    functions['int8'] = backend_module.int8
+    functions['int16'] = backend_module.int16
+    functions['int32'] = backend_module.int32
+    functions['int64'] = backend_module.int64
+    functions['uint8'] = backend_module.uint8
+    functions['uint16'] = _not_implemented('uint16')  # PyTorch doesn't have uint16
+    functions['uint32'] = _not_implemented('uint32')  # PyTorch doesn't have uint32
+    functions['uint64'] = _not_implemented('uint64')  # PyTorch doesn't have uint64
+    functions['float16'] = backend_module.float16
+    functions['float32'] = backend_module.float32
+    functions['float64'] = backend_module.float64
+    functions['complex64'] = backend_module.complex64
+    functions['complex128'] = backend_module.complex128
+    functions['bool_'] = backend_module.bool
+    functions['ndarray'] = backend_module.Tensor
+    functions['dtype'] = backend_module.dtype
+    functions['integer'] = backend_module.int64  # Default integer type
+    functions['floating'] = backend_module.float64  # Default floating type
+    functions['complexfloating'] = backend_module.complex128  # Default complex type
+    
+    # Modules
+    functions['random'] = _not_implemented('random')  # PyTorch has different random API
+    functions['fft'] = _not_implemented('fft')
+    functions['polynomial'] = _not_implemented('polynomial')
+    
+    # Sparse matrix functions
+    functions['sparse_spdiags'] = sparse_spdiags_pytorch
+    functions['sparse_eye'] = sparse_eye_pytorch
+    functions['sparse_kron'] = sparse_kron_pytorch
+    functions['sparse_vstack'] = sparse_vstack_pytorch
+    functions['issparse'] = issparse_pytorch
+    
+    return functions
