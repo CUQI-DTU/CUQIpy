@@ -9,7 +9,7 @@ sys.path.append("..")
 import cuqi
 import cuqi.array as xp  # Array-agnostic backend
 
-print("📊 CUQIpy Distributions with Array Backends")
+print(" CUQIpy Distributions with Array Backends")
 print("=" * 45)
 
 # Set default backend (can be changed to "pytorch", "cupy", etc.)

@@ -12,7 +12,7 @@ from cuqi.problem import BayesianProblem
 # CUQIpy now supports multiple array backends for improved performance
 # and automatic differentiation capabilities
 
-print("🚀 CUQIpy Array-Agnostic Framework Demo")
+print(" CUQIpy Array-Agnostic Framework Demo")
 print("=" * 50)
 
 # You can switch between backends:
@@ -43,7 +43,7 @@ y  = Gaussian(A@x, 0.05)                        # y ~ N(Ax,0.05)
 IP = BayesianProblem(y, x).set_data(y=xp.array(y_data))  # Bayesian problem given observed data
 samples_numpy = IP.UQ(exact=x_exact)            # Run UQ analysis with NumPy
 
-print(f"✅ NumPy backend completed: {len(samples_numpy)} samples")
+print(f" NumPy backend completed: {len(samples_numpy)} samples")
 
 # %% Same problem with PyTorch backend (if available)
 try:
@@ -59,13 +59,13 @@ try:
     
     # For demonstration, just compute MAP estimate (faster than full UQ)
     x_map_torch = IP_torch.MAP()
-    print(f"✅ PyTorch backend MAP computed: shape {x_map_torch.shape}")
+    print(f" PyTorch backend MAP computed: shape {x_map_torch.shape}")
     
     # Test gradient computation with PyTorch
     x_test = xp.array(np.random.randn(n), requires_grad=True, dtype=xp.float64)
     logpdf = IP_torch.posterior.logpdf(x_test)
     logpdf.backward()
-    print(f"✅ PyTorch gradients computed: norm = {xp.linalg.norm(x_test.grad).item():.4f}")
+    print(f" PyTorch gradients computed: norm = {xp.linalg.norm(x_test.grad).item():.4f}")
     
 except ImportError:
     print("⚠️  PyTorch not available - install with: pip install torch")

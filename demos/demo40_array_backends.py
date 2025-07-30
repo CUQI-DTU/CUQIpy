@@ -31,7 +31,7 @@ from cuqi.distribution import Gaussian, GMRF
 from cuqi.model import LinearModel
 from cuqi.problem import BayesianProblem
 
-print("🚀 CUQIpy Array Backends - Comprehensive Demo")
+print(" CUQIpy Array Backends - Comprehensive Demo")
 print("=" * 50)
 print("Exploring the power of array-agnostic Bayesian inference\n")
 
@@ -50,9 +50,9 @@ def show_backend_info():
         try:
             xp.set_backend(backend)
             available.append(backend)
-            print(f"  ✅ {backend.title()}: Available")
+            print(f"   {backend.title()}: Available")
         except ImportError:
-            print(f"  ❌ {backend.title()}: Not installed")
+            print(f"   {backend.title()}: Not installed")
         except Exception as e:
             print(f"  ⚠️  {backend.title()}: Error - {e}")
     
@@ -65,7 +65,7 @@ available_backends = show_backend_info()
 # %%
 # ## 2. Problem Setup
 
-print(f"\n🔧 Setting up test problem...")
+print(f"\n Setting up test problem...")
 
 # Create a simple deconvolution problem
 n = 64  # Problem size
@@ -147,7 +147,7 @@ def benchmark_backend(backend_name, problem_size=n):
         return results
         
     except Exception as e:
-        print(f"  ❌ Error: {e}")
+        print(f"   Error: {e}")
         return {'backend': backend_name, 'success': False, 'error': str(e)}
 
 # Run benchmarks
@@ -173,7 +173,7 @@ if len(benchmark_results) >= 2:
         for result in successful_results[1:]:
             diff = abs(result['logpdf_value'] - reference['logpdf_value'])
             consistent = diff < 1e-6
-            status = "✅" if consistent else "❌"
+            status = "" if consistent else "❌"
             print(f"{status} {result['backend'].upper()}: diff = {diff:.2e} ({'OK' if consistent else 'FAIL'})")
     else:
         print("⚠️  Not enough successful backends for comparison")
@@ -184,7 +184,7 @@ else:
 # ## 5. PyTorch Automatic Differentiation Showcase
 
 if "pytorch" in available_backends:
-    print(f"\n🧠 PyTorch Automatic Differentiation:")
+    print(f"\n PyTorch Automatic Differentiation:")
     print("-" * 40)
     
     xp.set_backend("pytorch")
@@ -197,7 +197,7 @@ if "pytorch" in available_backends:
     BP_torch.set_data(y=xp.array(y_data, dtype=xp.float64))
     
     # Demonstrate gradient-based optimization
-    print("  🎯 Gradient-based MAP estimation:")
+    print("   Gradient-based MAP estimation:")
     
     # Initial guess
     x_init = xp.array(np.random.randn(n) * 0.1, requires_grad=True, dtype=xp.float64)
@@ -219,12 +219,12 @@ if "pytorch" in available_backends:
         
         print(f"    Step {i+1}: logpdf = {logpdf.item():.4f}, grad_norm = {xp.linalg.norm(x_init.grad).item():.4f}")
     
-    print("  ✅ Gradient-based optimization completed")
+    print("   Gradient-based optimization completed")
 
 # %%
 # ## 6. Performance Summary and Recommendations
 
-print(f"\n📊 Performance Summary:")
+print(f"\n Performance Summary:")
 print("=" * 25)
 
 if benchmark_results:
@@ -237,10 +237,10 @@ if benchmark_results:
             setup = f"{result['setup_time']*1000:.2f}"
             logpdf = f"{result['logpdf_time']*1000:.2f}"
             grad = f"{result['grad_time']*1000:.2f}" if result['grad_time'] else "N/A"
-            status = "✅"
+            status = ""
         else:
             setup = logpdf = grad = "Failed"
-            status = "❌"
+            status = ""
         
         print(f"{result['backend'].title():<10} {setup:<12} {logpdf:<12} {grad:<12} {status}")
 
@@ -251,7 +251,7 @@ print("🔹 **PyTorch**: Best for gradient-based methods (HMC, NUTS, MALA)")
 print("🔹 **CuPy**: GPU acceleration for large linear algebra operations")
 print("🔹 **JAX**: JIT compilation, functional programming, research applications")
 
-print(f"\n🎯 Backend Selection Guide:")
+print(f"\n Backend Selection Guide:")
 print("-" * 25)
 print("• Small problems (< 1000 params): NumPy")
 print("• Gradient-based sampling: PyTorch")
@@ -309,7 +309,7 @@ if len(benchmark_results) >= 2:
     
     plt.tight_layout()
     plt.savefig('array_backends_benchmark.png', dpi=150, bbox_inches='tight')
-    print(f"\n📈 Benchmark plot saved as 'array_backends_benchmark.png'")
+    print(f"\n Benchmark plot saved as 'array_backends_benchmark.png'")
 
 # Reset to numpy backend
 xp.set_backend("numpy")

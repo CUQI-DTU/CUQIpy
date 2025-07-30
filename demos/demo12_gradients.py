@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import cuqi
 import cuqi.array as xp
 
-print("📈 Gradient Computation with Array Backends")
+print(" Gradient Computation with Array Backends")
 print("=" * 45)
 print("This demo showcases gradient computation capabilities")
 print("across different array backends, especially PyTorch.\n")
@@ -22,7 +22,7 @@ x_true = TP.exactSolution
 # Compare gradient computation across backends
 def test_gradients_with_backend(backend_name):
     """Test gradient computation with specified backend."""
-    print(f"\n🔧 Testing with {backend_name.upper()} backend:")
+    print(f"\n Testing with {backend_name.upper()} backend:")
     
     try:
         xp.set_backend(backend_name)
@@ -67,7 +67,7 @@ def test_gradients_with_backend(backend_name):
     except ImportError:
         print(f"  ⚠️  {backend_name.title()} not available")
     except Exception as e:
-        print(f"  ❌ Error with {backend_name}: {e}")
+        print(f"   Error with {backend_name}: {e}")
 
 # Test gradients with different backends
 test_gradients_with_backend("numpy")
