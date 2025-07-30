@@ -315,8 +315,7 @@ class Gaussian(Distribution):
 
     def cdf(self, x1):   # no closed form, we rely on scipy with full covariance
         cov = self.compute_cov() # Ensure that we have the full covariance matrix
-        import scipy.stats as sps
-        return sps.multivariate_normal.cdf(x1, self.mean, cov)
+        return xp.stats.multivariate_normal.cdf(x1, self.mean, cov)
 
     def _gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.

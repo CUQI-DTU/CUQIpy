@@ -119,6 +119,12 @@ def copy_numpy(x):
         return _np.array(x)
 
 
+def get_scipy_stats():
+    """Get scipy.stats module for NumPy backend."""
+    import scipy.stats
+    return scipy.stats
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad an array using NumPy's pad function.
     
@@ -328,6 +334,7 @@ def get_backend_functions(backend_module):
     functions['random'] = backend_module.random
     functions['fft'] = backend_module.fft
     functions['polynomial'] = backend_module.polynomial
+    functions['stats'] = get_scipy_stats()
     
     # Sparse matrix functions
     functions['sparse_spdiags'] = sparse_spdiags_numpy

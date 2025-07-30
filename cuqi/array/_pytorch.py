@@ -431,6 +431,12 @@ def copy_pytorch(x):
             return backend_module.tensor(x)
 
 
+def get_scipy_stats_pytorch():
+    """Get scipy.stats module for PyTorch backend (same as NumPy)."""
+    import scipy.stats
+    return scipy.stats
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad a PyTorch tensor - basic implementation.
     
@@ -673,6 +679,7 @@ def get_backend_functions(backend_module):
     functions['random'] = _MockModule()  # PyTorch has different random API
     functions['fft'] = _MockModule()
     functions['polynomial'] = _MockModule()
+    functions['stats'] = get_scipy_stats_pytorch()
     
     # Sparse matrix functions
     functions['sparse_spdiags'] = sparse_spdiags_pytorch
