@@ -162,12 +162,21 @@ class GMRF(Distribution):
                 raise ValueError('Precision must be a scalar or a 1D array with a single scalar element.')
         self._prec = value
 
+    def _handle_transpose(self, dev):
+        """Handle transpose properly for different backends to avoid deprecation warnings."""
+        if hasattr(dev, 'dim') and dev.dim() <= 1:
+            return dev  # 1D arrays don't need transpose
+        else:
+            return dev.T
+
     def logpdf(self, x):
         # Ensure x is in the correct backend format (needed for optimization with scipy)
         x = xp.array(x)
         mean = self.mean
         const = 0.5*(self._rank*(xp.log(self.prec)-xp.log(2*xp.pi)) + self._logdet)
-        return const - 0.5*( self.prec*((x-mean).T @ (self._prec_op @ (x-mean))) )
+        dev = x - mean
+        dev_T = self._handle_transpose(dev)
+        return const - 0.5*( self.prec*(dev_T @ (self._prec_op @ dev)) )
 
     def _gradient(self, x):
         # Ensure x is in the correct backend format (needed for optimization with scipy)

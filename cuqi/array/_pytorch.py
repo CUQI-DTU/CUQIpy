@@ -473,6 +473,40 @@ def get_scipy_optimize_pytorch():
     return scipy.optimize
 
 
+class _PytorchRandomModule:
+    """PyTorch random module that mimics NumPy's random interface."""
+    
+    def randn(self, *shape):
+        """Generate random numbers from standard normal distribution."""
+        import torch as backend_module
+        if len(shape) == 1 and hasattr(shape[0], '__len__'):
+            # Handle case where shape is passed as a single argument (e.g., len(array))
+            size = shape[0]
+        else:
+            size = shape
+        return backend_module.randn(size, dtype=backend_module.float64)
+    
+    def rand(self, *shape):
+        """Generate random numbers from uniform distribution [0,1)."""
+        import torch as backend_module
+        if len(shape) == 1 and hasattr(shape[0], '__len__'):
+            size = shape[0]
+        else:
+            size = shape
+        return backend_module.rand(size, dtype=backend_module.float64)
+    
+    def normal(self, loc=0.0, scale=1.0, size=None):
+        """Generate random numbers from normal distribution."""
+        import torch as backend_module
+        if size is None:
+            return backend_module.normal(loc, scale, (1,), dtype=backend_module.float64).item()
+        return backend_module.normal(loc, scale, size, dtype=backend_module.float64)
+    
+    def __getattr__(self, name):
+        """For other random functions, raise NotImplementedError with helpful message."""
+        raise NotImplementedError(f"random.{name} not implemented for PyTorch backend. Available: randn, rand, normal")
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad a PyTorch tensor - basic implementation.
     
@@ -712,7 +746,7 @@ def get_backend_functions(backend_module):
         def __getattr__(self, name):
             raise NotImplementedError(f"{name} not implemented for PyTorch backend. Use NumPy backend for full functionality.")
     
-    functions['random'] = _MockModule()  # PyTorch has different random API
+    functions['random'] = _PytorchRandomModule()  # PyTorch random implementation
     functions['fft'] = _MockModule()
     functions['polynomial'] = _MockModule()
     functions['stats'] = get_scipy_stats_pytorch()
