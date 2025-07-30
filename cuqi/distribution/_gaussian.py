@@ -9,7 +9,7 @@ import scipy.linalg as splinalg
 
 from cuqi import config
 from cuqi.geometry import _get_identity_geometries
-from cuqi.utilities import force_ndarray, sparse_cholesky, check_if_conditional_from_attr, BackendSparseMatrix
+from cuqi.utilities import force_ndarray, sparse_cholesky, check_if_conditional_from_attr
 from cuqi.distribution import Distribution
 
 # We potentially allow the use of sksparse.cholmod for sparse Cholesky
@@ -346,10 +346,9 @@ class Gaussian(Distribution):
             e = xp.random.randn(xp.shape(self.sqrtprec)[0], N)
 
         # Compute perturbation
-        from cuqi.utilities._utilities import BackendSparseMatrix
-        if xp.issparse(self.sqrtprec) or isinstance(self.sqrtprec, BackendSparseMatrix): # do sparse
+        if xp.issparse(self.sqrtprec) or isinstance(self.sqrtprec, xp.sparse.BackendSparseMatrix): # do sparse
             # Get the scipy sparse matrix for spsolve
-            sparse_matrix = self.sqrtprec.get_scipy_matrix() if isinstance(self.sqrtprec, BackendSparseMatrix) else self.sqrtprec
+            sparse_matrix = self.sqrtprec.get_scipy_matrix() if isinstance(self.sqrtprec, xp.sparse.BackendSparseMatrix) else self.sqrtprec
             from scipy.sparse import linalg as spa_linalg
             if (N == 1):
                 perturbation = spa_linalg.spsolve(sparse_matrix, e)[:, None]

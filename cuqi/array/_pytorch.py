@@ -386,7 +386,6 @@ def sparse_vstack_pytorch(blocks, format=None, dtype=None):
 def issparse_pytorch(x):
     """Check if x is a sparse matrix."""
     from scipy.sparse import issparse
-    from cuqi.utilities._utilities import BackendSparseMatrix
     return issparse(x) or isinstance(x, BackendSparseMatrix)
 
 
