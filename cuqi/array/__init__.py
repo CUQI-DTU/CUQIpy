@@ -153,7 +153,7 @@ __all__ = [
     'ndarray', 'dtype', 'integer', 'floating', 'complexfloating',
     
     # Modules
-    'random', 'fft', 'polynomial', 'sparse', 'stats',
+    'random', 'fft', 'polynomial', 'sparse', 'stats', 'optimize',
     
     # CUQIarray class
     'CUQIarray',

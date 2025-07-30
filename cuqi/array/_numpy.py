@@ -125,6 +125,12 @@ def get_scipy_stats():
     return scipy.stats
 
 
+def get_scipy_optimize():
+    """Get scipy.optimize module for NumPy backend."""
+    import scipy.optimize
+    return scipy.optimize
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad an array using NumPy's pad function.
     
@@ -335,6 +341,7 @@ def get_backend_functions(backend_module):
     functions['fft'] = backend_module.fft
     functions['polynomial'] = backend_module.polynomial
     functions['stats'] = get_scipy_stats()
+    functions['optimize'] = get_scipy_optimize()
     
     # Sparse matrix functions
     functions['sparse_spdiags'] = sparse_spdiags_numpy

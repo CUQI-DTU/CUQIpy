@@ -437,6 +437,12 @@ def get_scipy_stats_pytorch():
     return scipy.stats
 
 
+def get_scipy_optimize_pytorch():
+    """Get scipy.optimize module for PyTorch backend (same as NumPy)."""
+    import scipy.optimize
+    return scipy.optimize
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad a PyTorch tensor - basic implementation.
     
@@ -680,6 +686,7 @@ def get_backend_functions(backend_module):
     functions['fft'] = _MockModule()
     functions['polynomial'] = _MockModule()
     functions['stats'] = get_scipy_stats_pytorch()
+    functions['optimize'] = get_scipy_optimize_pytorch()
     
     # Sparse matrix functions
     functions['sparse_spdiags'] = sparse_spdiags_pytorch

@@ -60,7 +60,7 @@ class ScipyLBFGSB(object):
         else:
             approx_grad = 0
         # run solver
-        from scipy.optimize import fmin_l_bfgs_b
+        fmin_l_bfgs_b = xp.optimize.fmin_l_bfgs_b
         solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad, **self.kwargs)
         if solution[2]['warnflag'] == 0:
             success = 1
@@ -135,7 +135,7 @@ class ScipyMinimizer(object):
             nit: Number of iterations.
             nfev: Number of func evaluations.
         """
-        import scipy.optimize as opt
+        opt = xp.optimize
         solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method, **self.kwargs)
         info = {"success": solution['success'],
                 "message": solution['message'],
@@ -219,7 +219,7 @@ class ScipyLSQ(object):
         solution : Tuple
             Solution found (array_like) and optimization information (dictionary).
         """
-        from scipy.optimize import least_squares
+        least_squares = xp.optimize.least_squares
         solution = least_squares(self.func, self.x0, jac=self.jacfun, \
                                 method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit, **self.kwargs)
         info = {"success": solution['success'],
@@ -268,7 +268,7 @@ class ScipyLinearLSQ(object):
         solution : Tuple
             Solution found (array_like) and optimization information (dictionary).
         """
-        import scipy.optimize as opt
+        opt = xp.optimize
         res = opt.lsq_linear(self.A, self.b, bounds=self.bounds, **self.kwargs)
         x = res.pop('x')
         return x, res
