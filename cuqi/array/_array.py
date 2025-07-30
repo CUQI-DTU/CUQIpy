@@ -5,16 +5,6 @@ import os
 _backend_name = os.getenv("CUQI_ARRAY_BACKEND", "numpy").lower()
 if _backend_name == "numpy":
     import numpy as _backend_module
-elif _backend_name == "cupy":
-    try:
-        import cupy as _backend_module
-    except ImportError:
-        import numpy as _backend_module
-elif _backend_name == "jax":
-    try:
-        import jax.numpy as _backend_module
-    except ImportError:
-        import numpy as _backend_module
 elif _backend_name == "pytorch" or _backend_name == "torch":
     try:
         import torch as _backend_module
@@ -240,16 +230,6 @@ else:
             """
             try:
                 # Convert to numpy regardless of backend
-                if _backend_name == "cupy":
-                    import cupy
-                    if isinstance(self, cupy.ndarray):
-                        return cupy.asnumpy(self.view(_backend_module.ndarray))
-                elif _backend_name == "jax":
-                    import jax.numpy as jnp
-                    if isinstance(self, jnp.ndarray):
-                        return jnp.asarray(self.view(_backend_module.ndarray)).__array__()
-                
-                # For numpy or fallback
                 import numpy
                 return numpy.asarray(self.view(_backend_module.ndarray))
             except:

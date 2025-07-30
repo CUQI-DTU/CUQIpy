@@ -2,7 +2,7 @@
 CUQIpy Array Backend Module
 
 This module provides a backend-agnostic interface for array operations.
-It allows switching between different array backends like NumPy, PyTorch, CuPy, JAX
+It allows switching between different array backends like NumPy and PyTorch
 through environment variables or programmatic configuration.
 
 Usage:
@@ -17,8 +17,6 @@ Backend Selection:
     Set the CUQI_ARRAY_BACKEND environment variable or use set_backend():
     - "numpy" (default): Use NumPy backend
     - "pytorch"/"torch": Use PyTorch backend (GPU + gradients)
-    - "cupy": Use CuPy backend (GPU acceleration)
-    - "jax": Use JAX backend (JIT compilation)
     
     Example:
         export CUQI_ARRAY_BACKEND=pytorch
@@ -58,16 +56,8 @@ def _load_backend():
     elif _BACKEND_NAME in ["pytorch", "torch"]:
         from ._pytorch import load_backend
         return load_backend()
-    elif _BACKEND_NAME in ["cupy", "cp"]:
-        # For now, fall back to numpy for cupy
-        from ._numpy import load_backend
-        return load_backend()
-    elif _BACKEND_NAME in ["jax", "jnp"]:
-        # For now, fall back to numpy for jax
-        from ._numpy import load_backend
-        return load_backend()
     else:
-        raise ValueError(f"Unsupported backend: {_BACKEND_NAME}")
+        raise ValueError(f"Unsupported backend: {_BACKEND_NAME}. Supported backends: 'numpy', 'pytorch'")
 
 def _expose_backend_functions():
     """Expose backend functions at module level."""
@@ -75,14 +65,8 @@ def _expose_backend_functions():
         from ._numpy import get_backend_functions, to_numpy, pad
     elif _BACKEND_NAME in ["pytorch", "torch"]:
         from ._pytorch import get_backend_functions, to_numpy, pad
-    elif _BACKEND_NAME in ["cupy", "cp"]:
-        # For now, use numpy functions
-        from ._numpy import get_backend_functions, to_numpy, pad
-    elif _BACKEND_NAME in ["jax", "jnp"]:
-        # For now, use numpy functions
-        from ._numpy import get_backend_functions, to_numpy, pad
     else:
-        raise ValueError(f"Unsupported backend: {_BACKEND_NAME}")
+        raise ValueError(f"Unsupported backend: {_BACKEND_NAME}. Supported backends: 'numpy', 'pytorch'")
     
     # Get functions from backend
     functions = get_backend_functions(_backend_module)
