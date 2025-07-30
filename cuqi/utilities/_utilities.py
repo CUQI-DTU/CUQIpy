@@ -148,15 +148,10 @@ def sparse_cholesky(A):
     LU = spslinalg.splu(A, diag_pivot_thresh=0, permc_spec='natural') # sparse LU decomposition
 
     # check the matrix A is positive definite
-    # Use xp.arange for consistent comparison
-    perm_check = (LU.perm_r == xp.arange(A.shape[0])).all()
+    # Use NumPy arrays for scipy sparse matrix comparisons
+    import numpy as np
+    perm_check = (LU.perm_r == np.arange(A.shape[0])).all()
     diag_check = (LU.U.diagonal() > 0).all()
-    
-    # Convert to boolean if they are tensors (for PyTorch backend)
-    if hasattr(perm_check, 'item'):
-        perm_check = perm_check.item()
-    if hasattr(diag_check, 'item'):
-        diag_check = diag_check.item()
     
     if perm_check and diag_check: 
         chol_factor = (LU.L @ (diags(LU.U.diagonal()**0.5))).T
