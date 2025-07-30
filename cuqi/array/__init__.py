@@ -150,14 +150,14 @@ __all__ = [
     # Array conversion
     'asarray', 'asanyarray', 'ascontiguousarray', 'asfortranarray', 'copy',
     
-         # Data types and constants
-     'finfo', 'iinfo', 'newaxis', 'inf', 'nan', 'pi', 'e', 'size', 'shape',
-     'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64',
-     'float16', 'float32', 'float64', 'complex64', 'complex128', 'bool_',
-     'ndarray', 'dtype', 'integer', 'floating', 'complexfloating',
+    # Data types and constants
+    'finfo', 'iinfo', 'newaxis', 'inf', 'nan', 'pi', 'e', 'size', 'shape',
+    'int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64',
+    'float16', 'float32', 'float64', 'complex64', 'complex128', 'bool_',
+    'ndarray', 'dtype', 'integer', 'floating', 'complexfloating',
     
-         # Modules
-     'random', 'fft', 'polynomial', 'sparse',
+    # Modules
+    'random', 'fft', 'polynomial', 'sparse',
     
     # CUQIarray class
     'CUQIarray',
