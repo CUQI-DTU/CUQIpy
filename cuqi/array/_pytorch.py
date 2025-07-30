@@ -33,7 +33,7 @@ def get_backend_functions(backend_module):
         raise ImportError("PyTorch not available. Please install PyTorch to use the PyTorch backend.")
     
     # For PyTorch, implement minimal functionality and raise NotImplementedError for the rest
-    def not_implemented(name):
+    def __not_implemented(name):
         def func(*args, **kwargs):
             raise NotImplementedError(f"{name} not implemented for PyTorch backend. Use NumPy backend for full functionality.")
         return func
@@ -107,7 +107,7 @@ def get_backend_functions(backend_module):
     functions['linspace'] = backend_module.linspace
     
     # Many functions not implemented for PyTorch
-    functions['logspace'] = not_implemented('logspace')
+    functions['logspace'] = _not_implemented('logspace')
     def eye_pytorch(n, m=None, k=0, dtype=None):
         """Create eye matrix for PyTorch.""" 
         if dtype is None:
@@ -146,20 +146,20 @@ def get_backend_functions(backend_module):
     
     functions['identity'] = identity_pytorch
     functions['diag'] = backend_module.diag
-    functions['diagonal'] = not_implemented('diagonal')
-    functions['meshgrid'] = not_implemented('meshgrid')
+    functions['diagonal'] = _not_implemented('diagonal')
+    functions['meshgrid'] = _not_implemented('meshgrid')
     
     # Shape manipulation - basic support
     functions['reshape'] = backend_module.reshape
     functions['ravel'] = lambda a: a.flatten()
     functions['flatten'] = lambda a: a.flatten()
     functions['transpose'] = backend_module.transpose
-    functions['swapaxes'] = not_implemented('swapaxes')
-    functions['moveaxis'] = not_implemented('moveaxis')
+    functions['swapaxes'] = _not_implemented('swapaxes')
+    functions['moveaxis'] = _not_implemented('moveaxis')
     functions['flip'] = backend_module.flip
-    functions['flipud'] = not_implemented('flipud')
-    functions['fliplr'] = not_implemented('fliplr')
-    functions['rot90'] = not_implemented('rot90')
+    functions['flipud'] = _not_implemented('flipud')
+    functions['fliplr'] = _not_implemented('fliplr')
+    functions['rot90'] = _not_implemented('rot90')
     functions['roll'] = backend_module.roll
     
     # Array joining and splitting
@@ -215,14 +215,14 @@ def get_backend_functions(backend_module):
     functions['vstack'] = vstack_pytorch
     functions['hstack'] = hstack_pytorch
     functions['dstack'] = dstack_pytorch
-    functions['split'] = not_implemented('split')
-    functions['hsplit'] = not_implemented('hsplit')
-    functions['vsplit'] = not_implemented('vsplit')
-    functions['dsplit'] = not_implemented('dsplit')
+    functions['split'] = _not_implemented('split')
+    functions['hsplit'] = _not_implemented('hsplit')
+    functions['vsplit'] = _not_implemented('vsplit')
+    functions['dsplit'] = _not_implemented('dsplit')
     
     # Mathematical functions - basic support
     functions['sum'] = backend_module.sum
-    functions['prod'] = not_implemented('prod')
+    functions['prod'] = _not_implemented('prod')
     functions['mean'] = backend_module.mean
     functions['std'] = backend_module.std
     functions['var'] = backend_module.var
@@ -254,20 +254,20 @@ def get_backend_functions(backend_module):
     functions['argsort'] = backend_module.argsort
     functions['any'] = backend_module.any
     functions['all'] = backend_module.all
-    functions['argwhere'] = not_implemented('argwhere')
+    functions['argwhere'] = _not_implemented('argwhere')
     functions['cumsum'] = backend_module.cumsum
-    functions['cumprod'] = not_implemented('cumprod')
-    functions['diff'] = not_implemented('diff')
-    functions['gradient'] = not_implemented('gradient')
+    functions['cumprod'] = _not_implemented('cumprod')
+    functions['diff'] = _not_implemented('diff')
+    functions['gradient'] = _not_implemented('gradient')
     functions['maximum'] = backend_module.maximum
     functions['minimum'] = backend_module.minimum
-    functions['repeat'] = not_implemented('repeat')
+    functions['repeat'] = _not_implemented('repeat')
     functions['isclose'] = backend_module.isclose
-    functions['percentile'] = not_implemented('percentile')
-    functions['median'] = not_implemented('median')
+    functions['percentile'] = _not_implemented('percentile')
+    functions['median'] = _not_implemented('median')
     functions['multiply'] = backend_module.multiply
-    functions['tile'] = not_implemented('tile')
-    functions['float_power'] = not_implemented('float_power')
+    functions['tile'] = _not_implemented('tile')
+    functions['float_power'] = _not_implemented('float_power')
     def piecewise_pytorch(x, condlist, funclist, *args, **kwargs):
         """Piecewise function for PyTorch - convert to numpy, apply, convert back."""
         x_np = to_numpy(x)
@@ -288,11 +288,11 @@ def get_backend_functions(backend_module):
     
     functions['dot'] = dot
     functions['matmul'] = backend_module.matmul
-    functions['inner'] = not_implemented('inner')
-    functions['outer'] = not_implemented('outer')
-    functions['cross'] = not_implemented('cross')
-    functions['tensordot'] = not_implemented('tensordot')
-    functions['einsum'] = not_implemented('einsum')
+    functions['inner'] = _not_implemented('inner')
+    functions['outer'] = _not_implemented('outer')
+    functions['cross'] = _not_implemented('cross')
+    functions['tensordot'] = _not_implemented('tensordot')
+    functions['einsum'] = _not_implemented('einsum')
     functions['tril'] = backend_module.tril
     functions['triu'] = backend_module.triu
     # PyTorch linalg module - create a minimal interface
@@ -357,7 +357,7 @@ def get_backend_functions(backend_module):
         return backend_module.log10(x)
     
     functions['exp'] = exp_pytorch
-    functions['exp2'] = not_implemented('exp2')
+    functions['exp2'] = _not_implemented('exp2')
     functions['log'] = log_pytorch
     functions['log2'] = log2_pytorch
     functions['log10'] = log10_pytorch
@@ -458,25 +458,25 @@ def get_backend_functions(backend_module):
         return np.isscalar(element)
     
     functions['isscalar'] = isscalar_pytorch
-    functions['sinc'] = not_implemented('sinc')
+    functions['sinc'] = _not_implemented('sinc')
     functions['fix'] = backend_module.trunc  # PyTorch uses trunc for fix
     
     # Complex numbers
     functions['real'] = backend_module.real
     functions['imag'] = backend_module.imag
     functions['conj'] = backend_module.conj
-    functions['angle'] = not_implemented('angle')
+    functions['angle'] = _not_implemented('angle')
     functions['absolute'] = backend_module.abs
     
     # Array conversion
     functions['asarray'] = lambda x, dtype=None: backend_module.tensor(x, dtype=dtype) if not isinstance(x, backend_module.Tensor) else x
     functions['asanyarray'] = lambda x, dtype=None: backend_module.tensor(x, dtype=dtype) if not isinstance(x, backend_module.Tensor) else x
-    functions['ascontiguousarray'] = not_implemented('ascontiguousarray')
-    functions['asfortranarray'] = not_implemented('asfortranarray')
+    functions['ascontiguousarray'] = _not_implemented('ascontiguousarray')
+    functions['asfortranarray'] = _not_implemented('asfortranarray')
     functions['copy'] = lambda x: x.clone()
     
     # Add astype method to tensors if not present
-    def add_astype_to_tensor():
+    def _add_astype_to_tensor():
         if not hasattr(backend_module.Tensor, 'astype'):
             def astype(self, dtype):
                 if dtype == float:
@@ -487,11 +487,11 @@ def get_backend_functions(backend_module):
                     return self.to(dtype)
             backend_module.Tensor.astype = astype
     
-    add_astype_to_tensor()
+    _add_astype_to_tensor()
     
     # Data types and constants
-    functions['finfo'] = not_implemented('finfo')  # Use numpy's finfo
-    functions['iinfo'] = not_implemented('iinfo')  # Use numpy's iinfo
+    functions['finfo'] = _not_implemented('finfo')  # Use numpy's finfo
+    functions['iinfo'] = _not_implemented('iinfo')  # Use numpy's iinfo
     functions['newaxis'] = None  # PyTorch uses None for new axis
     functions['inf'] = float('inf')
     functions['nan'] = float('nan')
@@ -609,7 +609,7 @@ def get_backend_functions(backend_module):
             raise NotImplementedError("random.default_rng not implemented for PyTorch backend. Use NumPy backend for full functionality.")
     
     functions['random'] = TorchRandomModule()
-    functions['fft'] = not_implemented('fft')
+    functions['fft'] = _not_implemented('fft')
     
     class TorchPolynomialModule:
         class legendre:
