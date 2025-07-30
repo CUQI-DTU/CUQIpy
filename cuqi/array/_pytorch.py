@@ -15,8 +15,7 @@ def load_backend():
         import torch
         return torch
     except ImportError:
-        warnings.warn("PyTorch not available, falling back to NumPy")
-        raise ImportError("PyTorch not available")
+        raise ImportError("PyTorch not available. Please install PyTorch to use the PyTorch backend.")
 
 
 def get_backend_functions(backend_module):
@@ -27,20 +26,11 @@ def get_backend_functions(backend_module):
     """
     functions = {}
     
-    # Check if we actually have PyTorch
+    # Ensure we have PyTorch - no fallback
     try:
         import torch
-        is_torch = True
     except ImportError:
-        is_torch = False
-        # Fall back to numpy functions
-        import numpy as np
-        backend_module = np
-    
-    if not is_torch:
-        # If PyTorch is not available, delegate to numpy backend
-        from ._numpy import get_backend_functions as numpy_get_backend_functions
-        return numpy_get_backend_functions(backend_module)
+        raise ImportError("PyTorch not available. Please install PyTorch to use the PyTorch backend.")
     
     # For PyTorch, implement minimal functionality and raise NotImplementedError for the rest
     def not_implemented(name):
@@ -698,36 +688,27 @@ def to_numpy(arr):
 
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad a PyTorch tensor - basic implementation."""
-    try:
-        import torch
-        import torch.nn.functional as F
-        
-        if not isinstance(array, torch.Tensor):
-            array = torch.tensor(array)
-        
-        # Convert numpy-style pad_width to PyTorch format
-        if isinstance(pad_width, int):
-            pad_width = [(pad_width, pad_width)]
-        elif isinstance(pad_width, tuple) and len(pad_width) == 2 and isinstance(pad_width[0], int):
-            pad_width = [pad_width]
-        
-        # PyTorch expects padding in reverse order and flattened
-        torch_pad = []
-        for pw in reversed(pad_width):
-            if isinstance(pw, int):
-                torch_pad.extend([pw, pw])
-            else:
-                torch_pad.extend([pw[0], pw[1]])
-        
-        if mode == 'constant':
-            return F.pad(array, torch_pad, mode='constant', value=constant_values)
+    import torch
+    import torch.nn.functional as F
+    
+    if not isinstance(array, torch.Tensor):
+        array = torch.tensor(array)
+    
+    # Convert numpy-style pad_width to PyTorch format
+    if isinstance(pad_width, int):
+        pad_width = [(pad_width, pad_width)]
+    elif isinstance(pad_width, tuple) and len(pad_width) == 2 and isinstance(pad_width[0], int):
+        pad_width = [pad_width]
+    
+    # PyTorch expects padding in reverse order and flattened
+    torch_pad = []
+    for pw in reversed(pad_width):
+        if isinstance(pw, int):
+            torch_pad.extend([pw, pw])
         else:
-            return F.pad(array, torch_pad, mode=mode)
-    except ImportError:
-        # Fall back to numpy
-        import numpy as np
-        arr_np = to_numpy(array)
-        if mode == 'constant':
-            return np.pad(arr_np, pad_width, mode=mode, constant_values=constant_values)
-        else:
-            return np.pad(arr_np, pad_width, mode=mode)
+            torch_pad.extend([pw[0], pw[1]])
+    
+    if mode == 'constant':
+        return F.pad(array, torch_pad, mode='constant', value=constant_values)
+    else:
+        return F.pad(array, torch_pad, mode=mode)
