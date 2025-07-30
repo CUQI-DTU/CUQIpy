@@ -629,14 +629,18 @@ def get_backend_functions(backend_module):
     functions['bool_'] = backend_module.bool
     functions['ndarray'] = backend_module.Tensor
     functions['dtype'] = backend_module.dtype
-    functions['integer'] = backend_module.int64  # Default integer type
-    functions['floating'] = backend_module.float64  # Default floating type
-    functions['complexfloating'] = backend_module.complex128  # Default complex type
+    functions['integer'] = int  # Default integer type (use Python int)
+    functions['floating'] = float  # Default floating type (use Python float)
+    functions['complexfloating'] = complex  # Default complex type (use Python complex)
     
-    # Modules
-    functions['random'] = _not_implemented('random')  # PyTorch has different random API
-    functions['fft'] = _not_implemented('fft')
-    functions['polynomial'] = _not_implemented('polynomial')
+    # Modules - create mock modules for compatibility
+    class _MockModule:
+        def __getattr__(self, name):
+            raise NotImplementedError(f"{name} not implemented for PyTorch backend. Use NumPy backend for full functionality.")
+    
+    functions['random'] = _MockModule()  # PyTorch has different random API
+    functions['fft'] = _MockModule()
+    functions['polynomial'] = _MockModule()
     
     # Sparse matrix functions
     functions['sparse_spdiags'] = sparse_spdiags_pytorch
