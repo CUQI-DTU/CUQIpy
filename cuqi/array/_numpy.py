@@ -14,6 +14,120 @@ def load_backend():
     return _np
 
 
+# =============================================================================
+# Method Definitions
+# =============================================================================
+
+def zeros_with_default_dtype(*args, dtype=None, **kwargs):
+    """Create zeros array with default float64 dtype if not specified."""
+    if dtype is None:
+        dtype = _np.float64
+    return _np.zeros(*args, dtype=dtype, **kwargs)
+
+
+def ones_with_default_dtype(*args, dtype=None, **kwargs):
+    """Create ones array with default float64 dtype if not specified."""
+    if dtype is None:
+        dtype = _np.float64
+    return _np.ones(*args, dtype=dtype, **kwargs)
+
+
+def shape_numpy(x):
+    """Get shape, handling sparse matrices properly."""
+    if hasattr(x, 'shape') and hasattr(x, 'nnz'):  # sparse matrix
+        return x.shape
+    return _np.array(x).shape
+
+
+def squeeze_numpy(x, axis=None):
+    """Squeeze array dimensions."""
+    return _np.squeeze(x, axis=axis)
+
+
+def expand_dims_numpy(x, axis):
+    """Expand array dimensions."""
+    return _np.expand_dims(x, axis=axis)
+
+
+def equal_numpy(x, y):
+    """Element-wise equality comparison."""
+    return _np.equal(x, y)
+
+
+def greater_numpy(x, y):
+    """Element-wise greater-than comparison."""
+    return _np.greater(x, y)
+
+
+def less_numpy(x, y):
+    """Element-wise less-than comparison."""
+    return _np.less(x, y)
+
+
+def ndim_numpy(x):
+    """Get number of dimensions."""
+    return _np.ndim(x)
+
+
+def isscalar_numpy(x):
+    """Check if x is a scalar."""
+    return _np.isscalar(x)
+
+
+def sparse_spdiags_numpy(data, diags, m, n, format=None):
+    """Create sparse diagonal matrix using scipy.sparse.spdiags."""
+    from scipy.sparse import spdiags
+    return spdiags(data, diags, m, n, format=format)
+
+
+def sparse_eye_numpy(n, m=None, k=0, dtype=float, format=None):
+    """Create sparse identity matrix using scipy.sparse.eye."""
+    from scipy.sparse import eye
+    # scipy.sparse.eye has signature (m, n=None, k=0, dtype=float, format=None)
+    # so we need to pass n as the first argument (m in scipy) and m as n
+    return eye(n, n=m, k=k, dtype=dtype, format=format)
+
+
+def sparse_kron_numpy(A, B, format=None):
+    """Kronecker product of sparse matrices using scipy.sparse.kron."""
+    from scipy.sparse import kron
+    return kron(A, B, format=format)
+
+
+def sparse_vstack_numpy(blocks, format=None, dtype=None):
+    """Stack sparse matrices vertically using scipy.sparse.vstack."""
+    from scipy.sparse import vstack
+    return vstack(blocks, format=format, dtype=dtype)
+
+
+def issparse_numpy(x):
+    """Check if x is a sparse matrix."""
+    from scipy.sparse import issparse
+    return issparse(x)
+
+
+def to_numpy(arr):
+    """Convert array to NumPy array (no-op for NumPy backend)."""
+    return _np.asarray(arr)
+
+
+def pad(array, pad_width, mode='constant', constant_values=0):
+    """Pad an array using NumPy's pad function.
+    
+    This function is kept separate because it has a different signature
+    and behavior compared to the standard array operations, and needs
+    special handling for different backends.
+    """
+    if mode == 'constant':
+        return _np.pad(array, pad_width, mode=mode, constant_values=constant_values)
+    else:
+        return _np.pad(array, pad_width, mode=mode)
+
+
+# =============================================================================
+# Backend Functions Dictionary
+# =============================================================================
+
 def get_backend_functions(backend_module):
     """Get all array functions for NumPy backend.
     
@@ -24,16 +138,6 @@ def get_backend_functions(backend_module):
     
     # Array creation functions
     functions['array'] = lambda x, dtype=None: backend_module.array(x, dtype=dtype)
-    def zeros_with_default_dtype(*args, dtype=None, **kwargs):
-        if dtype is None:
-            dtype = backend_module.float64
-        return backend_module.zeros(*args, dtype=dtype, **kwargs)
-    
-    def ones_with_default_dtype(*args, dtype=None, **kwargs):
-        if dtype is None:
-            dtype = backend_module.float64
-        return backend_module.ones(*args, dtype=dtype, **kwargs)
-    
     functions['zeros'] = zeros_with_default_dtype
     functions['ones'] = ones_with_default_dtype
     functions['zeros_like'] = backend_module.zeros_like
@@ -156,7 +260,6 @@ def get_backend_functions(backend_module):
     functions['allclose'] = backend_module.allclose
     functions['array_equiv'] = backend_module.array_equiv
     functions['array_equal'] = backend_module.array_equal
-    functions['isscalar'] = backend_module.isscalar
     functions['sinc'] = backend_module.sinc
     functions['fix'] = backend_module.fix
     
@@ -183,18 +286,16 @@ def get_backend_functions(backend_module):
     functions['pi'] = backend_module.pi
     functions['e'] = backend_module.e
     functions['size'] = backend_module.size
-    def shape_numpy(x):
-        """Get shape, handling sparse matrices properly."""
-        if hasattr(x, 'shape') and hasattr(x, 'nnz'):  # sparse matrix
-            return x.shape
-        return backend_module.array(x).shape
     functions['shape'] = shape_numpy
-    functions['squeeze'] = lambda x, axis=None: backend_module.squeeze(x, axis=axis)
-    functions['expand_dims'] = lambda x, axis: backend_module.expand_dims(x, axis=axis)
-    functions['equal'] = lambda x, y: backend_module.equal(x, y)
-    functions['greater'] = lambda x, y: backend_module.greater(x, y)
-    functions['less'] = lambda x, y: backend_module.less(x, y)
-    functions['ndim'] = lambda x: backend_module.array(x).ndim
+    functions['squeeze'] = squeeze_numpy
+    functions['expand_dims'] = expand_dims_numpy
+    functions['equal'] = equal_numpy
+    functions['greater'] = greater_numpy
+    functions['less'] = less_numpy
+    functions['ndim'] = ndim_numpy
+    functions['isscalar'] = isscalar_numpy
+    
+    # Data types
     functions['int8'] = backend_module.int8
     functions['int16'] = backend_module.int16
     functions['int32'] = backend_module.int32
@@ -220,34 +321,7 @@ def get_backend_functions(backend_module):
     functions['fft'] = backend_module.fft
     functions['polynomial'] = backend_module.polynomial
     
-    # Sparse matrix functions using scipy.sparse
-    def sparse_spdiags_numpy(data, diags, m, n, format=None):
-        """Create sparse diagonal matrix using scipy.sparse.spdiags."""
-        from scipy.sparse import spdiags
-        return spdiags(data, diags, m, n, format=format)
-    
-    def sparse_eye_numpy(n, m=None, k=0, dtype=float, format=None):
-        """Create sparse identity matrix using scipy.sparse.eye."""
-        from scipy.sparse import eye
-        # scipy.sparse.eye has signature (m, n=None, k=0, dtype=float, format=None)
-        # so we need to pass n as the first argument (m in scipy) and m as n
-        return eye(n, n=m, k=k, dtype=dtype, format=format)
-    
-    def sparse_kron_numpy(A, B, format=None):
-        """Kronecker product of sparse matrices using scipy.sparse.kron."""
-        from scipy.sparse import kron
-        return kron(A, B, format=format)
-    
-    def sparse_vstack_numpy(blocks, format=None, dtype=None):
-        """Stack sparse matrices vertically using scipy.sparse.vstack."""
-        from scipy.sparse import vstack
-        return vstack(blocks, format=format, dtype=dtype)
-    
-    def issparse_numpy(x):
-        """Check if x is a sparse matrix."""
-        from scipy.sparse import issparse
-        return issparse(x)
-    
+    # Sparse matrix functions
     functions['sparse_spdiags'] = sparse_spdiags_numpy
     functions['sparse_eye'] = sparse_eye_numpy
     functions['sparse_kron'] = sparse_kron_numpy
@@ -255,16 +329,3 @@ def get_backend_functions(backend_module):
     functions['issparse'] = issparse_numpy
     
     return functions
-
-
-def to_numpy(arr):
-    """Convert array to NumPy array (no-op for NumPy backend)."""
-    return _np.asarray(arr)
-
-
-def pad(array, pad_width, mode='constant', constant_values=0):
-    """Pad an array using NumPy's pad function."""
-    if mode == 'constant':
-        return _np.pad(array, pad_width, mode=mode, constant_values=constant_values)
-    else:
-        return _np.pad(array, pad_width, mode=mode)
