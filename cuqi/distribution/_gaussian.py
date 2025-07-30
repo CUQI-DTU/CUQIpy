@@ -282,28 +282,37 @@ class Gaussian(Distribution):
         self._cov = computed_cov
         return computed_cov
 
+    def _handle_transpose(self, dev):
+        """Handle transpose properly for different backends to avoid deprecation warnings."""
+        if hasattr(dev, 'dim') and dev.dim() <= 1:
+            return dev  # 1D arrays don't need transpose
+        else:
+            return dev.T
+    
+    def _ensure_proper_array(self, array):
+        """Ensure result is always a proper array, not a matrix."""
+        if hasattr(array, 'A'):  # numpy matrix
+            return array.A
+        return array
+    
+    def _compute_mahalanobis_distance(self, sqrtprec_dev, x):
+        """Compute Mahalanobis distance handling single and multiple points."""
+        if hasattr(x, 'ndim') and x.ndim > 1:  # Multiple points
+            return xp.sum(xp.square(sqrtprec_dev), axis=0)
+        else:  # Single point (scalar or 1D array)
+            return xp.sum(xp.square(sqrtprec_dev.flatten()))
+
     def _logupdf(self, x):
         """ Un-normalized log density """
         dev = x - self.mean
-        # Handle transpose properly for 1D arrays to avoid PyTorch deprecation warning
-        if hasattr(dev, 'dim') and dev.dim() <= 1:
-            dev_T = dev  # 1D arrays don't need transpose
-        else:
-            dev_T = dev.T
+        dev_T = self._handle_transpose(dev)
         
         # Compute matrix-vector product
         sqrtprec_dev = self.sqrtprec @ dev_T
-        # Ensure result is always a proper array, not a matrix
-        if hasattr(sqrtprec_dev, 'A'):  # numpy matrix
-            sqrtprec_dev = sqrtprec_dev.A
+        sqrtprec_dev = self._ensure_proper_array(sqrtprec_dev)
         
         # Compute Mahalanobis distance
-        # For single points (1D dev), sum all elements
-        # For multiple points (2D dev), sum along axis 0 (sum each column)
-        if hasattr(x, 'ndim') and x.ndim > 1:  # Multiple points
-            mahadist = xp.sum(xp.square(sqrtprec_dev), axis=0)
-        else:  # Single point (scalar or 1D array)
-            mahadist = xp.sum(xp.square(sqrtprec_dev.flatten()))
+        mahadist = self._compute_mahalanobis_distance(sqrtprec_dev, x)
         return -0.5*mahadist
 
     def logpdf(self, x):
