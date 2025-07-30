@@ -5,21 +5,7 @@ from cuqi.array import CUQIarray
 from cuqi import config
 eps = xp.finfo(float).eps
 
-def _copy_array(x):
-    """Backend-agnostic array copying."""
-    # For PyTorch tensors, use .clone()
-    if hasattr(x, 'clone'):
-        return x.clone()
-    # For NumPy arrays and matrices, use .copy()
-    elif hasattr(x, 'copy'):
-        return x.copy()
-    # For other types, try to create a copy using the array constructor
-    else:
-        import copy as copy_module
-        try:
-            return copy_module.deepcopy(x)
-        except:
-            return xp.array(x)
+# Backend-agnostic array copying is now available as xp.copy
 
 try:
     from sksparse.cholmod import cholesky
@@ -321,7 +307,7 @@ class CGLS(object):
             
     def solve(self):
         # initial state
-        x = _copy_array(self.x0)
+        x = xp.copy(self.x0)
         if self.explicitA:
             r = self.b - (self.A @ x)
             s = (self.A.T @ r) - self.shift*x
@@ -330,7 +316,7 @@ class CGLS(object):
             s = self.A(r, 2) - self.shift*x
     
         # initialization
-        p = _copy_array(s)
+        p = xp.copy(s)
         norms0 = LA.norm(s)
         normx = LA.norm(x)
         gamma, xmax = norms0**2, normx
@@ -358,7 +344,7 @@ class CGLS(object):
             else:
                 s = self.A(r, 2) - self.shift*x
 
-            gamma1 = _copy_array(gamma)
+            gamma1 = xp.copy(gamma)
             norms = LA.norm(s)
             gamma = norms**2
             p = s + (gamma/gamma1)*p
@@ -431,10 +417,10 @@ class PCGLS:
 
     def solve(self):
         # initial state
-        x = _copy_array(self._x0)
+        x = xp.copy(self._x0)
         r = self._b - self._apply_A(x, 1)
         s = self._apply_Pinv(self._apply_A(r, 2), 2)
-        p = _copy_array(s)
+        p = xp.copy(s)
 
         # initial computations        
         norms0 = LA.norm(s)
@@ -461,7 +447,7 @@ class PCGLS:
             s = self._apply_Pinv(self._apply_A(r, 2), 2)
             #
             norms = LA.norm(s)
-            gamma1 = _copy_array(gamma)
+            gamma1 = xp.copy(gamma)
             gamma = norms**2
             beta = gamma / gamma1
             p = s + beta*p
@@ -684,13 +670,13 @@ class FISTA(object):
             
     def solve(self):
         # initial state
-        x = _copy_array(self.x0)
+        x = xp.copy(self.x0)
         stepsize = self.stepsize
         
         k = 0
         
         while True:
-            x_old = _copy_array(x)
+            x_old = xp.copy(x)
             k += 1
         
             if self._explicitA:
@@ -706,7 +692,7 @@ class FISTA(object):
             if self.adaptive:
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
-            x = _copy_array(x_new)
+            x = xp.copy(x_new)
 
 class ADMM(object):
     """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:

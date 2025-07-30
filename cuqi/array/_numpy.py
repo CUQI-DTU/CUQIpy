@@ -111,6 +111,14 @@ def to_numpy(arr):
     return _np.asarray(arr)
 
 
+def copy_numpy(x):
+    """Backend-agnostic array copying for NumPy."""
+    if hasattr(x, 'copy'):
+        return x.copy()
+    else:
+        return _np.array(x)
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad an array using NumPy's pad function.
     
@@ -275,7 +283,7 @@ def get_backend_functions(backend_module):
     functions['asanyarray'] = backend_module.asanyarray
     functions['ascontiguousarray'] = backend_module.ascontiguousarray
     functions['asfortranarray'] = backend_module.asfortranarray
-    functions['copy'] = backend_module.copy
+    functions['copy'] = copy_numpy
     
     # Data types and constants
     functions['finfo'] = backend_module.finfo

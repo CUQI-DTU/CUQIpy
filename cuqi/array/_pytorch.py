@@ -413,6 +413,24 @@ def to_numpy(arr):
         return _np.asarray(arr)
 
 
+def copy_pytorch(x):
+    """Backend-agnostic array copying for PyTorch."""
+    # For PyTorch tensors, use .clone()
+    if hasattr(x, 'clone'):
+        return x.clone()
+    # For NumPy arrays and matrices, use .copy()
+    elif hasattr(x, 'copy'):
+        return x.copy()
+    # For other types, try to create a copy using the array constructor
+    else:
+        import copy as copy_module
+        try:
+            return copy_module.deepcopy(x)
+        except:
+            import torch as backend_module
+            return backend_module.tensor(x)
+
+
 def pad(array, pad_width, mode='constant', constant_values=0):
     """Pad a PyTorch tensor - basic implementation.
     
@@ -603,7 +621,7 @@ def get_backend_functions(backend_module):
     functions['asanyarray'] = backend_module.as_tensor
     functions['ascontiguousarray'] = _not_implemented('ascontiguousarray')
     functions['asfortranarray'] = _not_implemented('asfortranarray')
-    functions['copy'] = lambda x: x.clone()
+    functions['copy'] = copy_pytorch
     
     # Add astype method to tensors if not present
     _add_astype_to_tensor()
