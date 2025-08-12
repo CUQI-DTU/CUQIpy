@@ -1,6 +1,7 @@
 
 #%% Bathtub demo
 
+# Import libraries
 import cuqi
 import numpy as np
 
