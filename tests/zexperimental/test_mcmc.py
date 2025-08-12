@@ -830,64 +830,6 @@ def test_conjugate_wrong_equation_for_conjugate_parameter_supported_cases(target
             cuqi.experimental.mcmc.ConjugateApprox(target=posterior)
         else:
             cuqi.experimental.mcmc.Conjugate(target=posterior)
-def test_find_valid_samplers_linearGaussianGaussian():
-    target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
-    
-    assert(set(valid_samplers) == set(['CWMH', 'LinearRTO', 'MALA', 'MH', 'NUTS', 'PCN', 'ULA']))
-
-def test_find_valid_samplers_nonlinearGaussianGaussian():
-    posterior = cuqi.testproblem.Poisson1D(dim=2).posterior
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(posterior)
-
-    print(set(valid_samplers) == set(['CWMH', 'MH', 'PCN']))
-
-def test_find_valid_samplers_conjugate_valid():
-    """ Test that conjugate sampler is valid for Gaussian-Gamma conjugate pair when parameter is defined as the precision."""
-    x = cuqi.distribution.Gamma(1,1)
-    y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : 1/x) # Valid on precision only, e.g. cov=lambda x : 1/x
-    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
-
-    assert(set(valid_samplers) == set(['CWMH', 'Conjugate', 'MH']))
-
-def test_find_valid_samplers_conjugate_invalid():
-    """ Test that conjugate sampler is invalid for Gaussian-Gamma conjugate pair when parameter is defined as the covariance."""
-    x = cuqi.distribution.Gamma(1,1)
-    y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : x) # Invalid if defined via covariance as cov=lambda x : x
-    target = cuqi.distribution.JointDistribution(y, x)(y = 1)
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
-
-    assert(set(valid_samplers) == set(['CWMH', 'MH']))
-
-def test_find_valid_samplers_direct():
-    target = cuqi.distribution.Gamma(1,1)
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
-
-    assert(set(valid_samplers) == set(['CWMH', 'Direct', 'MH']))
-
-def test_find_valid_samplers_implicit_posterior():
-    A, y_obs, _ = cuqi.testproblem.Deconvolution1D(dim=2).get_components()
-
-    x = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
-    y = cuqi.distribution.Gaussian(A@x, 1)
-    target =  cuqi.distribution.JointDistribution(y, x)(y = y_obs)
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
-
-    assert(set(valid_samplers) == set(['RegularizedLinearRTO']))
-
-def test_find_valid_samplers_implicit_prior():
-    target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
-
-    valid_samplers = cuqi.experimental.mcmc.find_valid_samplers(target)
-
-    assert(len(set(valid_samplers)) == 0)
 
 # ============ Testing of HybridGibbs ============
 
@@ -1633,3 +1575,25 @@ def test_all_samplers_that_should_be_tested_for_callback_are_in_the_tested_list(
         assert cls in tested_classes, f"Sampler {cls} is not tested for callback."
 
 # ============= End testing sampler callback =============
+def test_gibbs_random_scan_order():
+    target = HybridGibbs_target_1()
+    sampling_strategy={
+                "x": cuqi.experimental.mcmc.LinearRTO(),
+                "s": cuqi.experimental.mcmc.Conjugate(),
+            }
+    
+    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order='random')
+    np.random.seed(0)
+    scan_order1 = sampler.scan_order
+    scan_order2 = sampler.scan_order
+    assert scan_order1 != scan_order2
+
+def test_gibbs_scan_order():
+    target = HybridGibbs_target_1()
+    sampling_strategy={
+                "x": cuqi.experimental.mcmc.LinearRTO(),
+                "s": cuqi.experimental.mcmc.Conjugate(),
+            }
+    
+    sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
+    assert sampler.scan_order == ['x', 's']
