@@ -680,12 +680,13 @@ class FISTA(object):
             x_new = self.proximal(x_old-stepsize*grad, stepsize)
                         
             if LA.norm(x_new-x_old) <= self.abstol or (k >= self.maxit):
-                return x_new, k
+                break
             
             if self.adaptive:
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
             x = x_new.copy()
+        return x, k
 
 class ADMM(object):
     """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
