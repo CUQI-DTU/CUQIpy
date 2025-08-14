@@ -762,7 +762,11 @@ class ADMM(object):
         u_new = self.p*[0]
 
         # Iterating
-        for i in range(self.maxit):
+        i = 0
+        while i < self.maxit:
+
+            i += 1
+
             self._iteration_pre_processing()
 
             # Main update (Least Squares)
