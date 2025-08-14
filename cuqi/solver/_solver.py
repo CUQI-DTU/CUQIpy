@@ -668,7 +668,7 @@ class FISTA(object):
         
         k = 0
         
-        while True:
+        while k < self.maxit:
             x_old = x.copy()
             k += 1
         
