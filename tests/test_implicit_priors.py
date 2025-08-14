@@ -211,7 +211,7 @@ def test_regression_increasing():
    
     sampling_strategy = {
         'd': cuqi.experimental.mcmc.Conjugate(),
-        'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False),
+        'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=51, penalty_parameter=20, adaptive = False),
                         }
     sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
 
