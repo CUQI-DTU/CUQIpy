@@ -629,14 +629,15 @@ class Model(object):
             appending_error_message = ""
             # Check if the input is for multiple input case and is stacked,
             # then split it
-            if len(args)==1 and len(non_default_args)>1:
-                # If the argument is a Sample object, splitting is not supported
-                if isinstance(args[0], Samples):
-                    raise ValueError(
-                        "The "
-                        + map_name.lower()
-                        + f" input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args {non_default_args}."
-                    )
+            if len(args) < len(non_default_args):
+                # If the argument is a Sample object, splitting or partial 
+                # evaluation of the model is not supported
+                if any(isinstance(arg, Samples) for arg in args):
+                    raise ValueError(("When using Samples objects as input, the"
+                                    +" user should provide a Samples object for"
+                                    +" each non_default_args {non_default_args}"
+                                    +" of the model."))
+
                 arg_format, args = self._detect_args_format(*args, is_par=is_par)
                 if arg_format == "unknown":
                     appending_error_message = (

@@ -1320,7 +1320,7 @@ def test_forward_of_multiple_input_model_is_correct_when_input_is_stacked(
     elif isinstance(test_data.expected_fwd_output, Samples):
         with pytest.raises(
             ValueError,
-            match=r"The model input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args",
+            match=r"When using Samples objects as input, the user should provide a Samples object for each non_default_args"
         ):
             test_model.forward(test_data.forward_input_stacked)
     else:
