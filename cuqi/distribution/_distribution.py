@@ -105,7 +105,7 @@ class Distribution(Density, ABC):
                 f"Inconsistent distribution geometry attribute {self._geometry} and inferred "
                 f"dimension from distribution variables {inferred_dim}."
             )
-        
+
         # If Geometry dimension is None, update it with the inferred dimension
         if inferred_dim and self._geometry.par_dim is None: 
             self.geometry = inferred_dim
@@ -117,7 +117,7 @@ class Distribution(Density, ABC):
         # We do not use self.name to potentially infer it from python stack.
         if self._name: 
             self._geometry._variable_name = self._name
-            
+
         return self._geometry
 
     @geometry.setter
@@ -160,7 +160,7 @@ class Distribution(Density, ABC):
                     f"{self.logd.__qualname__}: To evaluate the log density all conditioning variables and main"
                     f" parameter must be specified. Conditioning variables are: {cond_vars}"
                 )
-            
+
             # Check if all conditioning variables are specified
             all_cond_vars_specified = all([key in kwargs for key in cond_vars])
             if not all_cond_vars_specified:
@@ -168,7 +168,7 @@ class Distribution(Density, ABC):
                     f"{self.logd.__qualname__}: To evaluate the log density all conditioning variables must be"
                     f" specified. Conditioning variables are: {cond_vars}"
                 )
-            
+
             # Extract exactly the conditioning variables from kwargs
             cond_kwargs = {key: kwargs[key] for key in cond_vars}
 
@@ -186,7 +186,7 @@ class Distribution(Density, ABC):
         # Not conditional distribution, simply evaluate log density directly
         else:
             return super().logd(*args, **kwargs)
-        
+
     def _logd(self, *args):
         return self.logpdf(*args) # Currently all distributions implement logpdf so we simply call this method.
 
@@ -216,7 +216,7 @@ class Distribution(Density, ABC):
         # Get samples from the distribution sample method
         s = self._sample(N,*args,**kwargs)
 
-        #Store samples in cuqi samples object if more than 1 sample
+        # Store samples in cuqi samples object if more than 1 sample
         if N==1:
             if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
@@ -264,7 +264,7 @@ class Distribution(Density, ABC):
         # Go through every mutable variable and assign value from kwargs if present
         for var_key in mutable_vars:
 
-            #If keyword directly specifies new value of variable we simply reassign
+            # If keyword directly specifies new value of variable we simply reassign
             if var_key in kwargs:
                 setattr(new_dist, var_key, kwargs.get(var_key))
                 processed_kwargs.add(var_key)
@@ -291,12 +291,18 @@ class Distribution(Density, ABC):
 
                 elif len(var_args)>0:                      #Some keywords found
                     # Define new partial function with partially defined args
-                    try:
+                    if (
+                        hasattr(var_val, "__supports_partial_eval__")
+                        and var_val.__supports_partial_eval__
+                    ):
                         func = var_val(**var_args)
-                    except:
+                    else:
+                        # If the callable does not support partial evaluation,
+                        # we use the partial function to set the variable
                         func = partial(var_val, **var_args)
+
                     setattr(new_dist, var_key, func)
-                
+
                 # Store processed keywords
                 processed_kwargs.update(var_args.keys())
 
@@ -332,7 +338,7 @@ class Distribution(Density, ABC):
 
     def get_conditioning_variables(self):
         """Return the conditioning variables of this distribution (if any)."""
-        
+
         # Get all mutable variables
         mutable_vars = self.get_mutable_variables()
 
@@ -341,7 +347,7 @@ class Distribution(Density, ABC):
 
         # Add any variables defined through callable functions
         cond_vars += get_indirect_variables(self)
-        
+
         return cond_vars
 
     def get_mutable_variables(self):
@@ -350,10 +356,10 @@ class Distribution(Density, ABC):
         # If mutable variables are already cached, return them
         if hasattr(self, '_mutable_vars'):
             return self._mutable_vars
-        
+
         # Define list of ignored attributes and properties
         ignore_vars = ['name', 'is_symmetric', 'geometry', 'dim']
-        
+
         # Get public attributes
         attributes = get_writeable_attributes(self)
 
@@ -399,7 +405,7 @@ class Distribution(Density, ABC):
                         raise ValueError(f"{self._condition.__qualname__}: {ordered_keys[index]} passed as both argument and keyword argument.\nArguments follow the listed conditioning variable order: {self.get_conditioning_variables()}")
                     kwargs[ordered_keys[index]] = arg
         return kwargs
-    
+
     def _check_geometry_consistency(self):
         """ Checks that the geometry of the distribution is consistent by calling the geometry property. Should be called at the end of __init__ of subclasses. """
         self.geometry
