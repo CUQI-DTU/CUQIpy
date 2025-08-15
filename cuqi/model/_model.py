@@ -132,6 +132,10 @@ class Model(object):
         print(model(1, 1))
         print(model.gradient(np.array([1]), 1, 1))
     """
+
+    __supports_partial_eval__ = True
+    """Flag indicating that partial evaluation of Model objects is supported, i.e., calling the model object with only some of the inputs specified returns a model that can be called with the remaining inputs."""
+
     def __init__(self, forward, range_geometry, domain_geometry, gradient=None, jacobian=None):
 
         # Check if input is callable
