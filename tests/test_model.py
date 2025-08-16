@@ -1328,11 +1328,18 @@ def test_forward_of_multiple_input_model_is_correct_when_input_is_stacked(
 
     # Assert evaluating forward on stacked input with wrong dimension raises error
     if isinstance(test_data.expected_fwd_output, np.ndarray):
-        with pytest.raises(
-            ValueError,
-            match=r"The number of positional arguments does not match the number of non-default arguments of the model. Additionally, the model input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
-        ):
-            test_model.forward(test_data.forward_input_stacked[:-1])
+        if not isinstance(test_model._gradient_func, tuple):
+              # Splitting is not possible here and this is interpreted as a
+              # partial evaluation of the forward model which is not supported
+              # when the gradient function is not a tuple of callable functions
+            with pytest.raises(
+                NotImplementedError,
+                match=r"Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions"
+            ):
+                test_model.forward(test_data.forward_input_stacked[:-1])
+        else: # No error expected (splitting is not performed but this is
+              # interpreted as a partial evaluation of the forward model)
+                test_model.forward(test_data.forward_input_stacked[:-1])
 
 
 @pytest.mark.parametrize(
@@ -1465,10 +1472,12 @@ def test_gradient_of_multiple_input_model_accepts_stacked_input(test_model, test
                 grad_output_stacked_inputs[k], test_data.expected_grad_output_value[i]
             )
 
-    # Assert evaluating gradient on stacked input with wrong dimension raises error
+    # Assert evaluating gradient on stacked input with wrong dimension raises 
+    # error (it will be treated as a partial evaluation attempt of the gradient
+    # method which is not supported)
     with pytest.raises(
-        ValueError,
-        match=r"The number of positional arguments does not match the number of non-default arguments of the gradient. Additionally, the gradient input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
+        TypeError,
+        match=r"missing (1|2) required positional argument(|s)",
     ):
         test_model.gradient(test_data.direction, test_data.forward_input_stacked[:-1])
 
