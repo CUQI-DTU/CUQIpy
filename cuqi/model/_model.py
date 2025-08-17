@@ -803,7 +803,7 @@ class Model(object):
             reduced_original_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] not in kwargs.keys()]
             substituted_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] in kwargs.keys()]
             # Replace the keys in kwargs with the substituted_non_default_args
-            # so that the kwargs match the signature of the forward function
+            # so that the kwargs match the signature of the _forward_func
             kwargs = {k:v for k,v in zip(substituted_non_default_args, args)}
 
         # Create a partial domain geometry with the geometries corresponding
