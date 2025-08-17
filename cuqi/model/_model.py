@@ -760,10 +760,12 @@ class Model(object):
                 )
                 if len(partial_gradient) == 1:
                     partial_gradient = partial_gradient[0]
-            else:
+            elif callable(self._gradient_func):
                 raise NotImplementedError(
                     "Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions."
                 )
+            else:
+                partial_gradient = None
 
             partial_model = Model(
                 forward=partial_forward,
