@@ -734,7 +734,7 @@ class Model(object):
 
         if len(kwargs) < len(self._non_default_args):
             # Build a partial model with the given kwargs
-            partial_model = self._build_partial_model(args, kwargs)
+            partial_model = self._build_partial_model(kwargs)
 
         # If input is a distribution, we simply change the parameter name of
         # model to match the distribution name
@@ -782,25 +782,44 @@ class Model(object):
         else:
             return False
 
-    def _build_partial_model(self, args, kwargs):
+    def _build_partial_model(self, kwargs):
         """Private function that builds a partial model substituting the given
         keyword arguments with their values. The created partial model will have
         as inputs the non-default arguments that are not in the kwargs."""
 
+        # Extract args from kwargs
+        args = list(kwargs.values())
+        
+        # Define original_non_default_args which represents the complete list of
+        # non-default arguments of the forward function.
         original_non_default_args = self._original_non_default_args if hasattr(self, '_original_non_default_args') else self._non_default_args
+
         if hasattr(self, '_original_non_default_args'):
+            # Split the _original_non_default_args into two lists:
+            # 1. reduced_original_non_default_args: the _original_non_default_args
+            # corresponding to the _non_default_args that are not in kwargs
+            # 2. substituted_non_default_args: the _original_non_default_args
+            # corresponding to the _non_default_args that are in kwargs
             reduced_original_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] not in kwargs.keys()]
             substituted_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] in kwargs.keys()]
+            # Replace the keys in kwargs with the substituted_non_default_args
+            # so that the kwargs match the signature of the forward function
             kwargs = {k:v for k,v in zip(substituted_non_default_args, args)}
+
         # Create a partial domain geometry with the geometries corresponding
-        # to the non-default arguments that are not in kwargs
+        # to the non-default arguments that are not in kwargs (remaining 
+        # unspecified inputs)
         partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
             *[self.domain_geometry.geometries[i] for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()]
         )
         if len(partial_domain_geometry.geometries) == 1:
             partial_domain_geometry = partial_domain_geometry.geometries[0]
-        # create new model with partial input
+        
+        # Create new model with partial input
+        # First, we create a partial function for the forward operator
         partial_forward = partial(self._forward_func, **kwargs)
+        
+        # Second, if applicable, we create a partial function for the gradient
         if isinstance(self._gradient_func, tuple):
             # If gradient is a tuple, we create a partial function for each
             # gradient function in the tuple
@@ -811,24 +830,32 @@ class Model(object):
             )
             if len(partial_gradient) == 1:
                 partial_gradient = partial_gradient[0]
+
         elif callable(self._gradient_func):
             raise NotImplementedError(
                 "Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions."
             )
+
         else:
             partial_gradient = None
+        
+        # Lastly, we create the partial model with the partial forward
+        # operator (we set the gradient function later)
         partial_model = Model(
             forward=partial_forward,
             range_geometry=self.range_geometry,
             domain_geometry=partial_domain_geometry
         )
+
+        # Set the _original_non_default_args (if applicable) and
+        # _stored_non_default_args of the partial model
         if hasattr(self, '_original_non_default_args'):
             partial_model._original_non_default_args = reduced_original_non_default_args
         partial_model._stored_non_default_args = [self._non_default_args[i] for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()]
+        
         # Set the gradient function of the partial model
         partial_model._check_correct_gradient_jacobian_form(partial_gradient, "gradient")
         partial_model._gradient_func = partial_gradient
-        #TODO: partial is only supported when passing actual parameters, not distributions or random variables
 
         return partial_model
 
