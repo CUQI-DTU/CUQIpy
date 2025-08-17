@@ -1,4 +1,3 @@
-
 from cuqi.array import CUQIarray
 from cuqi.samples import Samples
 from cuqi.geometry import Continuous1D, Discrete
@@ -1326,20 +1325,24 @@ def test_forward_of_multiple_input_model_is_correct_when_input_is_stacked(
     else:
         raise NotImplementedError
 
-    # Assert evaluating forward on stacked input with wrong dimension raises error
+    # Assert evaluating forward on stacked input with wrong dimension is treated
+    # as a partial evaluation of the forward model
     if isinstance(test_data.expected_fwd_output, np.ndarray):
-        if not isinstance(test_model._gradient_func, tuple):
-              # Splitting is not possible here and this is interpreted as a
-              # partial evaluation of the forward model which is not supported
-              # when the gradient function is not a tuple of callable functions
+        if (
+            not isinstance(test_model._gradient_func, tuple)
+            and test_model._gradient_func is not None
+        ):
+            # Splitting is not possible here and this is interpreted as a
+            # partial evaluation of the forward model which is not supported
+            # when the gradient function is not a tuple of callable functions
             with pytest.raises(
                 NotImplementedError,
                 match=r"Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions"
             ):
                 test_model.forward(test_data.forward_input_stacked[:-1])
         else: # No error expected (splitting is not performed but this is
-              # interpreted as a partial evaluation of the forward model)
-                test_model.forward(test_data.forward_input_stacked[:-1])
+            # interpreted as a partial evaluation of the forward model)
+            test_model.forward(test_data.forward_input_stacked[:-1])
 
 
 @pytest.mark.parametrize(
