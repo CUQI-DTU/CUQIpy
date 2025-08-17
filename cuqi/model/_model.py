@@ -655,7 +655,7 @@ class Model(object):
                     + map_name
                     + f" {non_default_args}."
                 )
-        
+
             raise ValueError(error_msg)
 
         # Make sure order of kwargs is the same as non_default_args
@@ -669,7 +669,7 @@ class Model(object):
         the domain geometry of the model. Otherwise, it returns the input args
         unchanged."""
 
-        # Conditions for splitting:
+        # Check conditions for splitting and split if all conditions are met
         is_CUQIarray = isinstance(args[0], CUQIarray)
         is_numpy_array = isinstance(args[0], np.ndarray)
 
