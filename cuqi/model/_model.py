@@ -629,7 +629,7 @@ class Model(object):
             # Check if the input is for multiple input case and is stacked,
             # then split it
             if len(args) < len(non_default_args):
-                # If the argument is a Sample object, splitting or partial 
+                # If the argument is a Sample object, splitting or partial
                 # evaluation of the model is not supported
                 if any(isinstance(arg, Samples) for arg in args):
                     raise ValueError(("When using Samples objects as input, the"
@@ -691,8 +691,6 @@ class Model(object):
         else:
             return args
 
-
-
     def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
         
@@ -753,7 +751,7 @@ class Model(object):
         # the operation may be delegated to the Node class.
         elif any(isinstance(args_i, cuqi.experimental.algebra.Node) for args_i in args):
             return NotImplemented
-        
+
         # if input is partial, we create a new model with the partial input
         if len(args) < len(self._non_default_args):
             return partial_model
@@ -789,44 +787,64 @@ class Model(object):
 
         # Extract args from kwargs
         args = list(kwargs.values())
-        
+
         # Define original_non_default_args which represents the complete list of
         # non-default arguments of the forward function.
-        original_non_default_args = self._original_non_default_args if hasattr(self, '_original_non_default_args') else self._non_default_args
+        original_non_default_args = (
+            self._original_non_default_args
+            if hasattr(self, "_original_non_default_args")
+            else self._non_default_args
+        )
 
-        if hasattr(self, '_original_non_default_args'):
+        if hasattr(self, "_original_non_default_args"):
             # Split the _original_non_default_args into two lists:
             # 1. reduced_original_non_default_args: the _original_non_default_args
             # corresponding to the _non_default_args that are not in kwargs
             # 2. substituted_non_default_args: the _original_non_default_args
             # corresponding to the _non_default_args that are in kwargs
-            reduced_original_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] not in kwargs.keys()]
-            substituted_non_default_args = [original_non_default_args[i] for i in range(self.number_of_inputs) if self._non_default_args[i] in kwargs.keys()]
+            reduced_original_non_default_args = [
+                original_non_default_args[i]
+                for i in range(self.number_of_inputs)
+                if self._non_default_args[i] not in kwargs.keys()
+            ]
+            substituted_non_default_args = [
+                original_non_default_args[i]
+                for i in range(self.number_of_inputs)
+                if self._non_default_args[i] in kwargs.keys()
+            ]
             # Replace the keys in kwargs with the substituted_non_default_args
             # so that the kwargs match the signature of the _forward_func
-            kwargs = {k:v for k,v in zip(substituted_non_default_args, args)}
+            kwargs = {k: v for k, v in zip(substituted_non_default_args, args)}
 
         # Create a partial domain geometry with the geometries corresponding
-        # to the non-default arguments that are not in kwargs (remaining 
+        # to the non-default arguments that are not in kwargs (remaining
         # unspecified inputs)
         partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
-            *[self.domain_geometry.geometries[i] for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()]
+            *[
+                self.domain_geometry.geometries[i]
+                for i in range(self.number_of_inputs)
+                if original_non_default_args[i] not in kwargs.keys()
+            ]
         )
         if len(partial_domain_geometry.geometries) == 1:
             partial_domain_geometry = partial_domain_geometry.geometries[0]
-        
+
         # Create new model with partial input
         # First, we create a partial function for the forward operator
         partial_forward = partial(self._forward_func, **kwargs)
-        
+
         # Second, if applicable, we create a partial function for the gradient
         if isinstance(self._gradient_func, tuple):
             # If gradient is a tuple, we create a partial function for each
             # gradient function in the tuple
             partial_gradient = tuple(
-                (partial(self._gradient_func[i], **kwargs) if self._gradient_func[i] is not None else None)
-                
-                for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()
+                (
+                    partial(self._gradient_func[i], **kwargs)
+                    if self._gradient_func[i] is not None
+                    else None
+                )
+                for i in range(self.number_of_inputs)
+                if original_non_default_args[i] not in kwargs.keys()
             )
             if len(partial_gradient) == 1:
                 partial_gradient = partial_gradient[0]
@@ -838,23 +856,29 @@ class Model(object):
 
         else:
             partial_gradient = None
-        
+
         # Lastly, we create the partial model with the partial forward
         # operator (we set the gradient function later)
         partial_model = Model(
             forward=partial_forward,
             range_geometry=self.range_geometry,
-            domain_geometry=partial_domain_geometry
+            domain_geometry=partial_domain_geometry,
         )
 
         # Set the _original_non_default_args (if applicable) and
         # _stored_non_default_args of the partial model
-        if hasattr(self, '_original_non_default_args'):
+        if hasattr(self, "_original_non_default_args"):
             partial_model._original_non_default_args = reduced_original_non_default_args
-        partial_model._stored_non_default_args = [self._non_default_args[i] for i in range(self.number_of_inputs) if original_non_default_args[i] not in kwargs.keys()]
-        
+        partial_model._stored_non_default_args = [
+            self._non_default_args[i]
+            for i in range(self.number_of_inputs)
+            if original_non_default_args[i] not in kwargs.keys()
+        ]
+
         # Set the gradient function of the partial model
-        partial_model._check_correct_gradient_jacobian_form(partial_gradient, "gradient")
+        partial_model._check_correct_gradient_jacobian_form(
+            partial_gradient, "gradient"
+        )
         partial_model._gradient_func = partial_gradient
 
         return partial_model
