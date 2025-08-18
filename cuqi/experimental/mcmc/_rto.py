@@ -52,21 +52,23 @@ class LinearRTO(Sampler):
         # Other parameters
         self.maxit = maxit
         self.tol = tol
-        self.inner_initial_point = inner_initial_point
+        self.specified_inner_initial_point = inner_initial_point
 
     def _initialize(self):
         self._precompute()
+        self._set_inner_initial_point()
+
+    def _set_inner_initial_point(self):
+        if self.specified_inner_initial_point == "previous_sample":
+            self._inner_initial_point = self.current_point
+        elif self.specified_inner_initial_point == "MAP":
+            self._inner_initial_point = self._map
+        else:
+            raise ValueError("inner_initial_point must be either 'previous_sample' or 'MAP'.")
 
     @property
     def inner_initial_point(self):
         return self._inner_initial_point
-    
-    @inner_initial_point.setter
-    def inner_initial_point(self, value):
-        if value == "previous_sample" or value == "MAP":
-            self._inner_initial_point = value
-        else:
-            raise ValueError("inner_initial_point must be either 'previous_sample' or 'MAP'.")
 
     @property
     def prior(self):
@@ -134,13 +136,7 @@ class LinearRTO(Sampler):
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        if self.inner_initial_point == "MAP":
-            sim = CGLS(self.M, y, self.map, self.maxit, self.tol)
-        elif self.inner_initial_point == "previous_sample":
-            sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)
-        else:
-            # This should never happen, as we check the value of inner_initial_point in the setter.
-            raise ValueError("inner_initial_point must be either 'previous_sample' or 'MAP'.")
+        sim = CGLS(self.M, y, self.inner_initial_point, self.maxit, self.tol)
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
@@ -334,14 +330,11 @@ class RegularizedLinearRTO(LinearRTO):
         return sol
 
     def _compute_map_regularized(self):
-        self._map_regularized = self._customized_step(self.b_tild, self.initial_point)
+        self._map = self._customized_step(self.b_tild, self.initial_point)
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        
-        x0 = self.current_point if self.inner_initial_point == "previous_sample" else self._map_regularized
-
-        self.current_point = self._customized_step(y, x0)
+        self.current_point = self._customized_step(y, self.inner_initial_point)
 
         acc = 1
         return acc
