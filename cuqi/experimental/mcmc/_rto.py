@@ -203,12 +203,15 @@ class RegularizedLinearRTO(LinearRTO):
     solver : string
         Options are "FISTA" (default for a single constraint or regularization), "ADMM" (default and the only option for multiple constraints or regularizations), "ScipyLinearLSQ" and "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of a single `box` or `nonnegativity` constraint. *Optional*.
 
+    inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray
+        Initial point for the inner optimization problem. Can be "previous_sample", "MAP", or a specific numpy or cuqi array.
+
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=100, inner_max_it=10, stepsize="automatic", penalty_parameter=10, abstol=1e-10, adaptive=True, solver=None, inner_abstol=None, inner_initial_point="previous_sample", **kwargs):
         
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
@@ -221,6 +224,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
         self.solver = solver
+        self.specified_inner_initial_point = inner_initial_point
 
     def _initialize(self):
         super()._initialize()
@@ -228,6 +232,18 @@ class RegularizedLinearRTO(LinearRTO):
             self.solver = "FISTA" if callable(self.proximal) else "ADMM"
         if self.solver == "FISTA":
             self._stepsize = self._choose_stepsize()
+        self._compute_map_regularized()
+
+    @property
+    def inner_initial_point(self):
+        if self.specified_inner_initial_point == "previous_sample":
+            return self.current_point
+        elif self.specified_inner_initial_point == "MAP":
+            return self._map_regularized
+        elif isinstance(self.specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIArray)):
+            return self.specified_inner_initial_point
+        else:
+            raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
 
     @property
     def solver(self):
@@ -272,15 +288,16 @@ class RegularizedLinearRTO(LinearRTO):
     def prior(self):
         return self.target.prior.gaussian
 
-    def step(self):
-        y = self.b_tild + np.random.randn(len(self.b_tild))
+    def _compute_map_regularized(self):
+        self._map_regularized = self._customized_step(self.b_tild, self.initial_point)
 
+    def _customized_step(self, y, x0):
         if self.solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
-                        self.current_point, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
+                        x0, maxit = self.maxit, stepsize = self._stepsize, abstol = self.abstol, adaptive = self.adaptive)         
         elif self.solver == "ADMM":
             sim = ADMM(self.M, y, self.proximal,
-                        self.current_point, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
+                        x0, self.penalty_parameter, maxit = self.maxit, inner_max_it = self.inner_max_it, adaptive = self.adaptive)
         elif self.solver == "ScipyLinearLSQ":
             A_op = sp.sparse.linalg.LinearOperator((sum([llh.distribution.dim for llh in self.likelihoods])+self.target.prior.dim, self.target.prior.dim),
                                     matvec=lambda x: self.M(x, 1),
@@ -297,10 +314,17 @@ class RegularizedLinearRTO(LinearRTO):
             bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
             # Note that the objective function is defined as 0.5*||Mx-y||^2, 
             # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), x0, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
+        
+        sol, _ = sim.solve()
+        return sol
 
-        self.current_point, _ = sim.solve()
+    def step(self):
+        y = self.b_tild + np.random.randn(len(self.b_tild))
+
+        self.current_point = self._customized_step(y, self.inner_initial_point)
+
         acc = 1
         return acc
