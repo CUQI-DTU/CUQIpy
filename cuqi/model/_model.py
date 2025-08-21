@@ -693,7 +693,7 @@ class Model(object):
 
     def forward(self, *args, is_par=True, **kwargs):
         """ Forward function of the model.
-        
+
         Forward converts the input to function values (if needed) using the domain geometry of the model. Then it applies the forward operator to the function values and converts the output to parameters using the range geometry of the model.
 
         Parameters
@@ -707,7 +707,7 @@ class Model(object):
             If True, the inputs in `args` or `kwargs` are assumed to be parameters.
             If False, the inputs in `args` or `kwargs` are assumed to be function values.
             If `is_par` is a tuple of bools, the inputs are assumed to be parameters or function values based on the corresponding boolean value in the tuple.
-        
+
         **kwargs : keyword arguments
             keyword arguments for the forward operator. The forward operator input can be specified as either positional arguments or keyword arguments but not both.
 
@@ -730,19 +730,25 @@ class Model(object):
         if len(kwargs) == 0:
             return self
 
-        if len(kwargs) < len(self._non_default_args):
-            # Build a partial model with the given kwargs
-            partial_model = self._build_partial_model(kwargs)
+        partial_arguments = len(kwargs) < len(self._non_default_args)
 
         # If input is a distribution, we simply change the parameter name of
         # model to match the distribution name
         if all(isinstance(x, cuqi.distribution.Distribution)
                for x in kwargs.values()):
+            if partial_arguments:
+                raise ValueError(
+                    "Partial evaluation of the model is not supported for distributions."
+                )
             return self._handle_case_when_model_input_is_distributions(kwargs)
 
         # If input is a random variable, we handle it separately
         elif all(isinstance(x, cuqi.experimental.algebra.RandomVariable)
                for x in kwargs.values()):
+            if partial_arguments:
+                raise ValueError(
+                    "Partial evaluation of the model is not supported for random variables."
+                )
             return self._handle_case_when_model_input_is_random_variables(kwargs)
 
         # If input is a Node from internal abstract syntax tree, we let the Node handle the operation
@@ -753,8 +759,11 @@ class Model(object):
             return NotImplemented
 
         # if input is partial, we create a new model with the partial input
-        if len(args) < len(self._non_default_args):
+        if partial_arguments:
+            # Build a partial model with the given kwargs
+            partial_model = self._build_partial_model(kwargs)
             return partial_model
+
         # Else we apply the forward operator
         # if model has _original_non_default_args, we use it to replace the
         # kwargs keys so that it matches self._forward_func signature
