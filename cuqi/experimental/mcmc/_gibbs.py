@@ -133,6 +133,9 @@ class HybridGibbs:
         # Initialize the samplers
         self._initialize_samplers() 
 
+        self._allocate_acc()
+        self.current_acc = self._get_initial_acc()
+
         # Run over pre-sample methods for samplers that have it
         # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
         # This is not ideal and should be fixed in the future
@@ -156,11 +159,15 @@ class HybridGibbs:
             self.step()
             self._store_samples()
 
-    def warmup(self, Nb) -> 'HybridGibbs':
+    def warmup(self, Nb, tune_freq=0.1) -> 'HybridGibbs':
         """ Warmup (tune) the Gibbs sampler """
+
+        tune_interval = max(int(tune_freq * Nb), 1)
+
         for idx in progressbar(range(Nb)):
             self.step()
-            self.tune(idx)
+            if (idx + 1) % tune_interval == 0:
+                self.tune(tune_interval, idx // tune_interval)
             self._store_samples()
 
     def get_samples(self) -> Dict[str, Samples]:
@@ -194,21 +201,23 @@ class HybridGibbs:
             # This is only OK because we set the initial values above from the previous state
             sampler.reinitialize()
 
+            sampler._acc = self.acc[par_name]
+
             # Run pre_warmup and pre_sample methods for sampler
             # TODO. Some samplers (NUTS) seem to require to run _pre_warmup before _pre_sample
             self._pre_warmup_and_pre_sample_sampler(sampler)
 
             # Take MCMC steps
             for _ in range(self.num_sampling_steps[par_name]):
-                sampler.step()
+                self.current_acc[par_name] = sampler.step()
 
             # Extract samples (Ensure even 1-dimensional samples are 1D arrays)
             self.current_samples[par_name] = sampler.current_point.reshape(-1)
 
-    def tune(self, idx):
+    def tune(self, skip_len, update_count):
         """ Tune each of the samplers """
         for par_name in self.par_names:
-            self.samplers[par_name].tune(skip_len=1, update_count=idx)
+            self.samplers[par_name].tune(skip_len=skip_len, update_count=update_count)
 
     # ------------ Private methods ------------
     def _initialize_samplers(self):
@@ -251,6 +260,24 @@ class HybridGibbs:
             samples[par_name] = []
         self.samples = samples
 
+    def _allocate_acc(self):
+        """ Allocate memory for acceptance rates """
+        acc = {}
+        for par_name in self.par_names:
+            acc[par_name] = []
+        self.acc = acc
+
+    def _get_initial_acc(self):
+        """ Get initial acceptance for each parameter """
+        current_acc = {}
+        for par_name in self.par_names:
+            sampler = self.samplers[par_name]
+            if sampler._acc is None:
+                sampler._acc = [np.ones((self.target.get_density(par_name).dim))]
+            current_acc[par_name] = sampler._acc
+            
+        return current_acc
+
     def _get_initial_points(self):
         """ Get initial points for each parameter """
         initial_points = {}
@@ -266,3 +293,5 @@ class HybridGibbs:
         """ Store current samples at index i of samples dict """
         for par_name in self.par_names:
             self.samples[par_name].append(self.current_samples[par_name])
+            self.acc[par_name].append(self.current_acc[par_name])
+            

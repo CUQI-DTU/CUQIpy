@@ -764,7 +764,7 @@ class Samples(object):
 
         return datadict
         
-    def compute_ess(self, **kwargs):
+    def compute_ess(self, variable_indices=None, **kwargs):
         """ Compute effective sample size (ESS) of samples.
         
         Any remaining keyword arguments will be passed to the arviz computing tool.
@@ -775,7 +775,13 @@ class Samples(object):
         Numpy array with effective sample size for each variable.
         """
         _check_for_arviz()
-        ESS_xarray = arviz.ess(self.to_arviz_inferencedata(), **kwargs)
+        
+        # If no variables are given use all parameters
+        if variable_indices is None:
+            print("Computing ESS for all variable indices")
+            variable_indices = range(self._geometry_dim)
+
+        ESS_xarray = arviz.ess(self.to_arviz_inferencedata(variable_indices), **kwargs)
         ESS_items = ESS_xarray.items()
         ESS = np.empty(len(ESS_items))
         for i, (key, value) in enumerate(ESS_items):
