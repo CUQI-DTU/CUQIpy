@@ -55,6 +55,7 @@ class LinearRTO(Sampler):
 
     def _initialize(self):
         self._precompute()
+        self._compute_map()
 
     @property
     def inner_initial_point(self):
@@ -93,6 +94,10 @@ class LinearRTO(Sampler):
         elif isinstance(self.target, cuqi.distribution.MultipleLikelihoodPosterior):
             return self.target.models    
 
+    def _compute_map(self):
+        sim = CGLS(self.M, self.b_tild, self.current_point, self.maxit, self.tol)            
+        self._map, _ = sim.solve()
+
     def _precompute(self):
         L1 = [likelihood.distribution.sqrtprec for likelihood in self.likelihoods]
         L2 = self.prior.sqrtprec
@@ -126,10 +131,6 @@ class LinearRTO(Sampler):
             self.M = M  
         else:
             raise TypeError("All likelihoods need to be callable or none need to be callable.")
-        
-        # compute the map, i.e., solution of the "unperturbed" linear least squares problem
-        sim = CGLS(self.M, self.b_tild, self.current_point, self.maxit, self.tol)            
-        self._map, _ = sim.solve()
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
@@ -254,17 +255,6 @@ class RegularizedLinearRTO(LinearRTO):
         self._compute_map_regularized()
 
     @property
-    def inner_initial_point(self):
-        if self.specified_inner_initial_point == "previous_sample":
-            return self.current_point
-        elif self.specified_inner_initial_point == "MAP":
-            return self._map_regularized
-        elif isinstance(self.specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIArray)):
-            return self.specified_inner_initial_point
-        else:
-            raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
-
-    @property
     def solver(self):
         return self._solver
 
@@ -308,7 +298,7 @@ class RegularizedLinearRTO(LinearRTO):
         return self.target.prior.gaussian
 
     def _compute_map_regularized(self):
-        self._map_regularized = self._customized_step(self.b_tild, self.initial_point)
+        self._map = self._customized_step(self.b_tild, self.initial_point)
 
     def _customized_step(self, y, x0):
         if self.solver == "FISTA":
