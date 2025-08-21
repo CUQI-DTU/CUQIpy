@@ -37,7 +37,7 @@ class LinearRTO(Sampler):
         Tolerance of the inner CGLS solver. *Optional*.
 
     inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray
-        Initial point for the inner optimization problem. Can be "previous_sample", "MAP", or a specific numpy or cuqi array.
+        Initial point for the inner optimization problem. Can be "previous_sample" (default), "MAP", or a specific numpy or cuqi array. *Optional*.
         
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
@@ -227,7 +227,7 @@ class RegularizedLinearRTO(LinearRTO):
         Options are "FISTA" (default for a single constraint or regularization), "ADMM" (default and the only option for multiple constraints or regularizations), "ScipyLinearLSQ" and "ScipyMinimizer". Note "ScipyLinearLSQ" and "ScipyMinimizer" can only be used with `RegularizedGaussian` of a single `box` or `nonnegativity` constraint. *Optional*.
 
     inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray
-        Initial point for the inner optimization problem. Can be "previous_sample", "MAP", or a specific numpy or cuqi array.
+        Initial point for the inner optimization problem. Can be "previous_sample" (default), "MAP", or a specific numpy or cuqi array. *Optional*.
 
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
