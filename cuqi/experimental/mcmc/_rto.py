@@ -36,21 +36,36 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
+    inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray
+        Initial point for the inner optimization problem. Can be "previous_sample", "MAP", or a specific numpy or cuqi array.
+        
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
         
     """
-    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, **kwargs):
+    def __init__(self, target=None, initial_point=None, maxit=10, tol=1e-6, inner_initial_point="previous_sample", **kwargs):
 
         super().__init__(target=target, initial_point=initial_point, **kwargs)
 
         # Other parameters
         self.maxit = maxit
         self.tol = tol
+        self.specified_inner_initial_point = inner_initial_point
 
     def _initialize(self):
         self._precompute()
+
+    @property
+    def inner_initial_point(self):
+        if self.specified_inner_initial_point == "previous_sample":
+            return self.current_point
+        elif self.specified_inner_initial_point == "MAP":
+            return self._map
+        elif isinstance(self.specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIArray)):
+            return self.specified_inner_initial_point
+        else:
+            raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
 
     @property
     def prior(self):
@@ -111,10 +126,14 @@ class LinearRTO(Sampler):
             self.M = M  
         else:
             raise TypeError("All likelihoods need to be callable or none need to be callable.")
+        
+        # compute the map, i.e., solution of the "unperturbed" linear least squares problem
+        sim = CGLS(self.M, self.b_tild, self.current_point, self.maxit, self.tol)            
+        self._map, _ = sim.solve()
 
     def step(self):
         y = self.b_tild + np.random.randn(len(self.b_tild))
-        sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
+        sim = CGLS(self.M, y, self.inner_initial_point, self.maxit, self.tol)            
         self.current_point, _ = sim.solve()
         acc = 1
         return acc
