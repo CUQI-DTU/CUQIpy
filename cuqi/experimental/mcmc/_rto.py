@@ -59,11 +59,14 @@ class LinearRTO(Sampler):
 
     @property
     def inner_initial_point(self):
-        if self.specified_inner_initial_point == "previous_sample":
-            return self.current_point
-        elif self.specified_inner_initial_point == "MAP":
-            return self._map
-        elif isinstance(self.specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIArray)):
+        if isinstance(self.specified_inner_initial_point, str):
+            if self.specified_inner_initial_point == "previous_sample":
+                return self.current_point
+            elif self.specified_inner_initial_point == "MAP":
+                return self._map
+            else:
+                raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
+        elif isinstance(self.specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIarray)):
             return self.specified_inner_initial_point
         else:
             raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
