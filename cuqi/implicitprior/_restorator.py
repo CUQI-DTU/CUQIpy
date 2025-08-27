@@ -234,7 +234,6 @@ class MoreauYoshidaPrior(Distribution):
         # distributions.
         return []
 
-
 class TweediePrior(MoreauYoshidaPrior):
     """
     Alias for MoreauYoshidaPrior following Tweedie's formula framework.
