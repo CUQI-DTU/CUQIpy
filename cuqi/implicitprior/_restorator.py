@@ -253,7 +253,10 @@ class TweediePrior(MoreauYoshidaPrior):
     This enables us to use MMSE denoisers for gradient approximation in sampling 
     algorithms like ULA.
 
-    At implementation level, TweediePrior shares identical functionality with MoreauYoshidaPrior. Thus, it is implemented as an alias of MoreauYoshidaPrior, meaning all methods, properties, and behavior are identical. The separate name provides clarity when working specifically with Tweedie's formula-based approaches.
+    At implementation level, TweediePrior shares identical functionality with MoreauYoshidaPrior. 
+    Thus, it is implemented as an alias of MoreauYoshidaPrior, meaning all methods, 
+    properties, and behavior are identical. The separate name provides clarity when 
+    working specifically with Tweedie's formula-based approaches.
 
     Parameters
     ----------
@@ -262,6 +265,29 @@ class TweediePrior(MoreauYoshidaPrior):
         
     smoothing_strength : float, default=0.1
         Corresponds to the noise level σ² in Tweedie's formula context.
+
+    See MoreauYoshidaPrior for the underlying implementation with complete documentation.
+    """
+    pass
+
+class ScorePrior(MoreauYoshidaPrior):
+    """
+    Alias for MoreauYoshidaPrior following the score-based framework.
+
+    ScorePrior defines (implicit) smoothed priors where gradients are approximated
+    using score-based methods.
+
+    At implementation level, ScorePrior shares identical functionality with 
+    MoreauYoshidaPrior, and it is implemented as an alias of MoreauYoshidaPrior. The separate
+    name provides clarity when working specifically with score-based approaches.
+
+    Parameters
+    ----------
+    prior : RestorationPrior
+        Prior of the RestorationPrior type containing a denoiser/restorator.
+
+    smoothing_strength : float, default=0.1
+        Smoothing strength for the score-based prior.
 
     See MoreauYoshidaPrior for the underlying implementation with complete documentation.
     """
