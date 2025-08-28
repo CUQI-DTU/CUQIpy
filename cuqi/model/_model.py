@@ -760,8 +760,17 @@ class Model(object):
 
         # if input is partial, we create a new model with the partial input
         if partial_arguments:
+            # Create is_par_partial from the is_par to contain only the relevant parts
+            if isinstance(is_par, (list, tuple)):
+                is_par_partial = tuple(
+                    is_par[i]
+                    for i in range(self.number_of_inputs)
+                    if self._non_default_args[i] in kwargs.keys()
+                )
+            else:
+                is_par_partial = is_par
             # Build a partial model with the given kwargs
-            partial_model = self._build_partial_model(kwargs)
+            partial_model = self._build_partial_model(kwargs, is_par_partial)
             return partial_model
 
         # Else we apply the forward operator
@@ -789,7 +798,7 @@ class Model(object):
         else:
             return False
 
-    def _build_partial_model(self, kwargs):
+    def _build_partial_model(self, kwargs, is_par):
         """Private function that builds a partial model substituting the given
         keyword arguments with their values. The created partial model will have
         as inputs the non-default arguments that are not in the kwargs."""
@@ -835,14 +844,31 @@ class Model(object):
                 if original_non_default_args[i] not in kwargs.keys()
             ]
         )
+
         if len(partial_domain_geometry.geometries) == 1:
             partial_domain_geometry = partial_domain_geometry.geometries[0]
 
+        # Create a domain geometry with the geometries corresponding to the
+        # non-default arguments that are specified
+        substituted_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
+            *[
+                self.domain_geometry.geometries[i]
+                for i in range(self.number_of_inputs)
+                if original_non_default_args[i] in kwargs.keys()
+            ]
+        )
+
+        if len(substituted_domain_geometry.geometries) == 1:
+            substituted_domain_geometry = substituted_domain_geometry.geometries[0]
+
         # Create new model with partial input
-        # First, we create a partial function for the forward operator
+        # First, we convert the input to function values
+        kwargs = self._2fun(geometry=substituted_domain_geometry, is_par=is_par, **kwargs)
+
+        # Second, we create a partial function for the forward operator
         partial_forward = partial(self._forward_func, **kwargs)
 
-        # Second, if applicable, we create a partial function for the gradient
+        # Third, if applicable, we create a partial function for the gradient
         if isinstance(self._gradient_func, tuple):
             # If gradient is a tuple, we create a partial function for each
             # gradient function in the tuple
