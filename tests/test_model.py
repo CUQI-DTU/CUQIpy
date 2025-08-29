@@ -1296,6 +1296,63 @@ model_test_case_combinations_no_forward_error = [
 ]
 
 
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_forward_error)
+@pytest.mark.parametrize("funvals", [True, False])
+def test_partial_forward_of_multiple_input_model_is_correct(test_model, test_data, funvals):
+    """Test partial model evaluation for both parameter value and function value input"""
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    # Input kwargs
+    kwargs =  test_data.forward_input
+    # keys and values
+    keys = list(kwargs.keys())
+    values = list(kwargs.values())
+
+    if funvals:
+        # Convert all inputs to funvals
+        values = [value.funvals if isinstance(value, CUQIarray)  else value for value in values]
+
+    # Exclude case where expected output is Samples because it is not supported
+    # in partial evaluation
+    # Also exclude cases where the model gradient is not a tuple (will be tested
+    # separately)
+    if not isinstance(
+        test_data.expected_fwd_output, (cuqi.samples.Samples)
+    ) and isinstance(test_model._gradient_func, tuple):
+        fwd_output_list = []
+
+        # Evaluate all possible partial evaluations of the model
+        if len(test_data.forward_input) == 2:
+            fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[0]: values[0]}))
+
+        elif len(test_data.forward_input) == 3:
+            fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[1]: values[1]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[0]: values[0]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2]})(**{keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[2]: values[2]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[2]: values[2]})(**{keys[0]: values[0]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2]})(**{keys[1]: values[1]})(**{keys[0]: values[0]}))
+
+            fwd_output_list.append(test_model(**{keys[0]: values[0], keys[1]: values[1]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1], keys[0]: values[0]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2], keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[0]: values[0], keys[2]: values[2]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1], keys[2]: values[2]})(**{keys[0]: values[0]}))
+            fwd_output_list.append(test_model(**{keys[0]: values[0], keys[1]: values[1]})(**{keys[2]: values[2]}))
+
+        assert all(np.allclose(fwd_output_list[i], test_data.expected_fwd_output) for i in range(len(fwd_output_list)))
+
+    # Case where the model gradient is not a tuple (should raise NotImplementedError)
+    elif not isinstance(test_model._gradient_func, tuple) and test_model._gradient_func is not None and not isinstance(test_data.expected_fwd_output, cuqi.samples.Samples):
+        with pytest.raises(
+            NotImplementedError,
+            match=r"Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions"
+        ):
+            test_model(**{keys[0]: values[0]})
+
+
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_forward_error
 )
