@@ -1356,6 +1356,61 @@ def test_partial_forward_of_multiple_input_model_is_correct(test_model, test_dat
             test_model(**{keys[0]: values[0]})
 
 
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_forward_error)
+def test_cannot_do_partial_forward_evaluation_with_samples_input(test_model, test_data):
+    """Test attempting to partial evaluation of a model with Samples input
+    creates a ValueError
+    """
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    # Input kwargs
+    kwargs =  test_data.forward_input
+    # keys and values
+    keys = list(kwargs.keys())
+    values = list(kwargs.values())
+
+    # Test only cases where expected output is Samples 
+    # Also exclude cases where the model gradient is not a tuple (this case does
+    # not support partial evaluation)
+    if isinstance(
+        test_data.expected_fwd_output, (cuqi.samples.Samples)
+    ) and isinstance(test_model._gradient_func, tuple):
+
+        if len(test_data.forward_input) == 2:
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(**{keys[0]: values[0]})
+
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ): 
+                test_model(values[0])
+            pass
+
+        elif len(test_data.forward_input) == 3:
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(**{keys[0]: values[0]})
+
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(**{keys[0]: values[0], keys[1]: values[1]})
+
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(values[0], values[1])
+
+
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_forward_error
 )
