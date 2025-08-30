@@ -20,7 +20,7 @@ import numpy as np
 # --------------------------
 #
 # `h_v` is the volume of hot water, `h_t` is the temperature of hot water,
-# `c_v` is the volume of cold water, `c_t` is the temperature of cold water.
+# `c_v` is the volume of cold water, and `c_t` is the temperature of cold water.
 
 def forward_map(h_v, h_t, c_v, c_t): 
     # volume
@@ -176,8 +176,8 @@ hybridGibbs.sample(2000)
 samples = hybridGibbs.get_samples()
 
 # %%
-# Plot some results
-# ------------------
+# Show results (mean and trace plots)
+# -----------------------------------
 
 # Compute mean values
 mean_h_v = samples['h_v_dist'].mean()
