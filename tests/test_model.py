@@ -2416,6 +2416,56 @@ def test_setting_domain_and_range_geometry(domain_geometry, range_geometry, num_
     assert model.domain_geometry == expected_domain_geometry
     assert model.range_geometry == expected_range_geometry
 
+def test_partial_model_evaluation_with_distributions_not_supported():
+    """ Test that partial evaluation of a model with multiple inputs is not
+    supported when inputs are distributions."""
+    # Create a model with multiple inputs
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Input values for the model
+    x_dist = cuqi.distribution.Gaussian(np.array([1, 2, 3]), 1)
+    y_dist = cuqi.distribution.Gaussian(np.array([4, 5]), 1)
+    z_dist = cuqi.distribution.Gaussian(np.array([6, 7, 8]), 1)
+
+    # This should work
+    model_dist = model(x_dist, y_dist, z_dist)
+
+    # This should not work
+    with pytest.raises(ValueError,
+                       match="Partial evaluation of the model is not supported for distributions"):
+        model(x_dist)
+
+def test_partial_model_evaluation_with_random_variables_not_supported():
+    """ Test that partial evaluation of a model with multiple inputs is not
+    supported when inputs are random variables."""
+    # Create a model with multiple inputs
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Input values for the model
+    x_rv = cuqi.distribution.Gaussian(np.array([1, 2, 3]), 1).rv
+    y_rv = cuqi.distribution.Gaussian(np.array([4, 5]), 1).rv
+    z_rv = cuqi.distribution.Gaussian(np.array([6, 7, 8]), 1).rv
+
+    # This should work
+    model_rv = model(x_rv, y_rv, z_rv)
+
+    # This should not work
+    with pytest.raises(ValueError,
+                       match="Partial evaluation of the model is not supported for random variables"):
+        model(x_rv)
+
 def test_reduction_of_number_of_model_inputs_by_partial_specification():
     # Create a model with multiple inputs
     test_model = MultipleInputTestModel.helper_build_three_input_test_model()
