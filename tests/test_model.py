@@ -1325,10 +1325,12 @@ def test_partial_forward_of_multiple_input_model_is_correct(test_model, test_dat
         # Evaluate all possible partial evaluations of the model
         if len(test_data.forward_input) == 2:
             fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(values[0])(values[1])) # args instead of kwargs
             fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[0]: values[0]}))
 
         elif len(test_data.forward_input) == 3:
             fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[1]: values[1]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(values[0])(values[1])(values[2])) # args instead of kwargs
             fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[0]: values[0]})(**{keys[2]: values[2]}))
             fwd_output_list.append(test_model(**{keys[2]: values[2]})(**{keys[0]: values[0]})(**{keys[1]: values[1]}))
             fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[2]: values[2]})(**{keys[1]: values[1]}))
@@ -1336,6 +1338,7 @@ def test_partial_forward_of_multiple_input_model_is_correct(test_model, test_dat
             fwd_output_list.append(test_model(**{keys[2]: values[2]})(**{keys[1]: values[1]})(**{keys[0]: values[0]}))
 
             fwd_output_list.append(test_model(**{keys[0]: values[0], keys[1]: values[1]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(values[0], values[1])(values[2])) # args instead of kwargs
             fwd_output_list.append(test_model(**{keys[1]: values[1], keys[0]: values[0]})(**{keys[2]: values[2]}))
             fwd_output_list.append(test_model(**{keys[2]: values[2], keys[0]: values[0]})(**{keys[1]: values[1]}))
             fwd_output_list.append(test_model(**{keys[0]: values[0], keys[2]: values[2]})(**{keys[1]: values[1]}))
@@ -1344,7 +1347,7 @@ def test_partial_forward_of_multiple_input_model_is_correct(test_model, test_dat
 
         assert all(np.allclose(fwd_output_list[i], test_data.expected_fwd_output) for i in range(len(fwd_output_list)))
 
-    # Case where the model gradient is not a tuple (should raise NotImplementedError)
+    # Case where the model gradient is not a tuple (attempting partial evaluation should raise NotImplementedError)
     elif not isinstance(test_model._gradient_func, tuple) and test_model._gradient_func is not None and not isinstance(test_data.expected_fwd_output, cuqi.samples.Samples):
         with pytest.raises(
             NotImplementedError,
@@ -1483,7 +1486,7 @@ def test_gradient_of_partial_forward_of_multiple_input_model_is_correct(
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[0])
 
-    # Case where the model gradient is not a tuple (should raise NotImplementedError)
+    # Case where the model gradient is not a tuple (attempting partial evaluation should raise NotImplementedError)
     elif (
         not isinstance(test_model._gradient_func, tuple)
         and test_model._gradient_func is not None
