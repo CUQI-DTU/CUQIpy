@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 import scipy.sparse as sps
 from pytest import approx
+from .test_model import MultipleInputTestModel
 
 def test_likelihood_log_and_grad():
     #Create likelihood
@@ -141,37 +142,13 @@ def test_enable_FD_gradient(y, x_i):
 
 
 def test_conditioning_likelihood_of_multiple_inputs_model():
-    forward_map = lambda x, y, z: x * y[0] + z * y[1]
-    
-    # gradient with respect to x
-    def gradient_x(direction, x, y, z):
-        return direction * y[0]
-    
-    # gradient with respect to y
-    def gradient_y(direction, x, y, z):
-        return np.array([direction @ x, direction @ z])
-    
-    # gradient with respect to z
-    def gradient_z(direction, x, y, z):
-        return direction * y[1]
-    
-    # gradient with respect to all inputs (form 2, callable)
-    gradient_form2 = (gradient_x, gradient_y, gradient_z)
-
-    domain_geometry = (
-        cuqi.geometry.Continuous1D(3),
-        cuqi.geometry.Continuous1D(2),
-        cuqi.geometry.Continuous1D(3),
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
     )
-    range_geometry = cuqi.geometry.Continuous1D(3)
-    
-    model_class = cuqi.model.Model
-    
-    model = model_class(
-        forward=forward_map,
-        gradient=gradient_form2,
-        domain_geometry=domain_geometry,
-        range_geometry=range_geometry)
     
     # Input values for the model
     x_val = np.array([1, 2, 3])
