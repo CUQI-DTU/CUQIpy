@@ -142,6 +142,9 @@ def test_enable_FD_gradient(y, x_i):
 
 
 def test_conditioning_likelihood_of_multiple_inputs_model():
+    """Test that conditioning on parameters of a likelihood with a multiple
+    input model works as expected."""
+
     test_model = MultipleInputTestModel.helper_build_three_input_test_model()
     model = cuqi.model.Model(
         test_model.forward_map,
