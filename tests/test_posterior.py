@@ -3,7 +3,7 @@
 import pytest
 import numpy as np
 import cuqi
-from tests.test_model import MultipleInputTestModel
+from .test_model import MultipleInputTestModel
 
 def test_posterior_should_give_Model_priority_for_geometry():
     A = cuqi.model.Model(lambda x: x.ravel(), range_geometry=10**2, domain_geometry=cuqi.geometry.Image2D((10, 10)))
