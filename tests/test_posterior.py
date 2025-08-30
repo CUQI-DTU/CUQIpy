@@ -50,6 +50,7 @@ def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
         range_geometry=test_model.range_geometry,
     )
 
+    # Create priors
     x_dist = cuqi.distribution.Gaussian(
         mean=np.zeros(3),
         cov=np.eye(3))
@@ -58,12 +59,16 @@ def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
         cov=np.eye(2))
     z_dist = cuqi.distribution.Gaussian(
         mean=np.zeros(3),
-        cov=np.eye(3)) 
-    
+        cov=np.eye(3))
+
+    # Create data distribution
     data_dist = cuqi.distribution.Gaussian(
-        mean=model(x_dist, y_dist, z_dist), cov = 1.0)#, cov=lambda x:x)
+        mean=model(x_dist, y_dist, z_dist), cov = 1.0)
+
+    # Create likelihood
     likelihood = data_dist(data_dist = np.array([2,2,3]))
 
+    # Create joint distribution
     posterior = cuqi.distribution.JointDistribution(
         likelihood,
         x_dist,
@@ -73,6 +78,7 @@ def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
 
     assert isinstance(posterior, cuqi.distribution.JointDistribution)
 
+    # This should reduce to a posterior object
     post_x_y = posterior(x_dist=np.array([1, 1, 1]), y_dist=np.array([0, 1]))
 
     assert isinstance(post_x_y, cuqi.distribution.Posterior)
