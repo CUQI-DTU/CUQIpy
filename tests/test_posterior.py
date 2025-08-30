@@ -38,6 +38,9 @@ def test_posterior_should_not_allow_prior_wrong_shape_if_model_has_geometry():
 
 
 def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
+    """Test that a joint distribution based on a model with multiple inputs
+    reduces to a posterior when data is observed and all inputs (except 1) are
+    specified."""
 
     test_model = MultipleInputTestModel.helper_build_three_input_test_model()
     model = cuqi.model.Model(
@@ -47,28 +50,29 @@ def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
         range_geometry=test_model.range_geometry,
     )
 
-    data_dist = cuqi.distribution.Gaussian(
-        mean=model, cov = 1.0)#, cov=lambda x:x)
-    likelihood = data_dist(data_dist = np.array([2,2,3]))
-
-    x = cuqi.distribution.Gaussian(
+    x_dist = cuqi.distribution.Gaussian(
         mean=np.zeros(3),
         cov=np.eye(3))
-    y = cuqi.distribution.Gaussian(
+    y_dist = cuqi.distribution.Gaussian(
         mean=np.zeros(2),
         cov=np.eye(2))
-    z = cuqi.distribution.Gaussian(
+    z_dist = cuqi.distribution.Gaussian(
         mean=np.zeros(3),
         cov=np.eye(3)) 
+    
+    data_dist = cuqi.distribution.Gaussian(
+        mean=model(x_dist, y_dist, z_dist), cov = 1.0)#, cov=lambda x:x)
+    likelihood = data_dist(data_dist = np.array([2,2,3]))
 
     posterior = cuqi.distribution.JointDistribution(
         likelihood,
-        x,
-        y,
-        z)
+        x_dist,
+        y_dist,
+        z_dist
+    )
 
     assert isinstance(posterior, cuqi.distribution.JointDistribution)
 
-    post_x_y = posterior(x=np.array([1, 1, 1]), y=np.array([0, 1]))
+    post_x_y = posterior(x_dist=np.array([1, 1, 1]), y_dist=np.array([0, 1]))
 
     assert isinstance(post_x_y, cuqi.distribution.Posterior)
