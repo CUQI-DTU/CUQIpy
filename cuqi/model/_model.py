@@ -315,7 +315,12 @@ class Model(object):
                 "Gradient needs to be callable function or tuple of callable functions."
             )
 
-        expected_func_non_default_args = self._non_default_args
+        expected_func_non_default_args = (
+            self._non_default_args
+            if not hasattr(self, "_original_non_default_args")
+            else self._original_non_default_args
+        )
+
         if func_type.lower() == "gradient":
             # prepend 'direction' to the expected gradient non default args
             expected_func_non_default_args = [
