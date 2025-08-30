@@ -3,6 +3,7 @@
 import pytest
 import numpy as np
 import cuqi
+from .test_model import MultipleInputTestModel
 
 def test_posterior_should_give_Model_priority_for_geometry():
     A = cuqi.model.Model(lambda x: x.ravel(), range_geometry=10**2, domain_geometry=cuqi.geometry.Image2D((10, 10)))
@@ -37,38 +38,14 @@ def test_posterior_should_not_allow_prior_wrong_shape_if_model_has_geometry():
 
 
 def test_joint_distribution_with_multiple_inputs_model_reduce_to_posterior():
-    forward_map = lambda x, y, z: x * y[0] + z * y[1]
 
-    # gradient with respect to x
-    def gradient_x(direction, x, y, z):
-        return direction * y[0]
-
-    # gradient with respect to y
-    def gradient_y(direction, x, y, z):
-        return np.array([direction @ x, direction @ z])
-
-    # gradient with respect to z
-    def gradient_z(direction, x, y, z):
-        return direction * y[1]
-
-    # gradient with respect to all inputs (form 2, callable)
-    gradient_form2 = (gradient_x, gradient_y, gradient_z)
-
-    # Assign the gradient functions to the test model
-    domain_geometry = (
-        cuqi.geometry.Continuous1D(3),
-        cuqi.geometry.Continuous1D(2),
-        cuqi.geometry.Continuous1D(3),
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
     )
-    range_geometry = cuqi.geometry.Continuous1D(3)
-
-    model_class = cuqi.model.Model
-
-    model = model_class(
-        forward=forward_map,
-        gradient=gradient_form2,
-        domain_geometry=domain_geometry,
-        range_geometry=range_geometry)
 
     data_dist = cuqi.distribution.Gaussian(
         mean=model, cov = 1.0)#, cov=lambda x:x)
