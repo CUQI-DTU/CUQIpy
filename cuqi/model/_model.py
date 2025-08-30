@@ -617,32 +617,41 @@ class Model(object):
         if non_default_args is None:
             non_default_args = self._non_default_args
 
-        # If any args are given, add them to kwargs
+        # Either args or kwargs can be provided but not both
+        if len(args) > 0 and len(kwargs) > 0:
+            raise ValueError(
+                "The "
+                + map_name.lower()
+                + " input is specified both as positional and keyword arguments. This is not supported."
+            )
+
+        len_input = len(args) + len(kwargs)
+
+        # If partial evaluation, make sure input is not of type Samples
+        if len_input < len(non_default_args):
+            # If the argument is a Sample object, splitting or partial
+            # evaluation of the model is not supported
+            temp_args = args if len(args) > 0 else list(kwargs.values())
+            if any(isinstance(arg, Samples) for arg in temp_args):
+                raise ValueError(("When using Samples objects as input, the"
+                                +" user should provide a Samples object for"
+                                +f" each non_default_args {non_default_args}"
+                                +" of the model. That is, partial evaluation"
+                                +" or splitting is not supported for input"
+                                +" of type Samples."))
+
+        # If args are given, add them to kwargs
         if len(args) > 0:
-            if len(kwargs) > 0:
-                raise ValueError(
-                    "The "
-                    + map_name.lower()
-                    + " input is specified both as positional and keyword arguments. This is not supported."
-                )
 
             # Check if the input is for multiple input case and is stacked,
             # then split it
             if len(args) < len(non_default_args):
-                # If the argument is a Sample object, splitting or partial
-                # evaluation of the model is not supported
-                if any(isinstance(arg, Samples) for arg in args):
-                    raise ValueError(("When using Samples objects as input, the"
-                                    +" user should provide a Samples object for"
-                                    +" each non_default_args {non_default_args}"
-                                    +" of the model."))
-
                 args = self._split_in_case_of_stacked_args(*args, is_par=is_par)
 
             # Add args to kwargs following the order of non_default_args
             for idx, arg in enumerate(args):
                 kwargs[non_default_args[idx]] = arg
-
+    
         # Check kwargs matches non_default_args
         if not (set(list(kwargs.keys())) <= set(non_default_args)):
             if map_name == "gradient":
