@@ -1394,6 +1394,10 @@ def test_gradient_of_partial_forward_of_multiple_input_model_is_correct(
                     direction, **{keys[1]: values[1]}
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[1])
+                # pass args (in expected order) instead of kwargs
+                grad = test_model(values[0]).gradient(direction, values[1])
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
             if test_model._gradient_func[0] is not None:
                 grad = test_model(**{keys[1]: values[1]}).gradient(
                     direction, **{keys[0]: values[0]}
@@ -1406,26 +1410,34 @@ def test_gradient_of_partial_forward_of_multiple_input_model_is_correct(
                     **{keys[1]: values[1]}
                 ).gradient(direction, **{keys[2]: values[2]})
                 assert np.allclose(grad, test_data.expected_grad_output_value[2])
+                # pass args (in expected order) instead of kwargs
+                grad = test_model(values[0])(values[1]).gradient(direction, values[2])
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
             if test_model._gradient_func[2] is not None:
                 grad = test_model(**{keys[1]: values[1]})(
                     **{keys[0]: values[0]}
                 ).gradient(direction, **{keys[2]: values[2]})
                 assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
             if test_model._gradient_func[1] is not None:
                 grad = test_model(**{keys[2]: values[2]})(
                     **{keys[0]: values[0]}
                 ).gradient(direction, **{keys[1]: values[1]})
                 assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
             if test_model._gradient_func[1] is not None:
                 grad = test_model(**{keys[0]: values[0]})(
                     **{keys[2]: values[2]}
                 ).gradient(direction, **{keys[1]: values[1]})
                 assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
             if test_model._gradient_func[0] is not None:
                 grad = test_model(**{keys[1]: values[1]})(
                     **{keys[2]: values[2]}
                 ).gradient(direction, **{keys[0]: values[0]})
                 assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
             if test_model._gradient_func[0] is not None:
                 grad = test_model(**{keys[2]: values[2]})(
                     **{keys[1]: values[1]}
@@ -1437,26 +1449,34 @@ def test_gradient_of_partial_forward_of_multiple_input_model_is_correct(
                     direction, **{keys[2]: values[2]}
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[2])
+                # pass args (in expected order) instead of kwargs
+                grad = test_model(values[0], values[1]).gradient(direction, values[2])
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
             if test_model._gradient_func[2] is not None:
                 grad = test_model(**{keys[1]: values[1], keys[0]: values[0]}).gradient(
                     direction, **{keys[2]: values[2]}
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
             if test_model._gradient_func[1] is not None:
                 grad = test_model(**{keys[2]: values[2], keys[0]: values[0]}).gradient(
                     direction, **{keys[1]: values[1]}
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
             if test_model._gradient_func[1] is not None:
                 grad = test_model(**{keys[0]: values[0], keys[2]: values[2]}).gradient(
                     direction, **{keys[1]: values[1]}
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
             if test_model._gradient_func[0] is not None:
                 grad = test_model(**{keys[1]: values[1], keys[2]: values[2]}).gradient(
                     direction, **{keys[0]: values[0]}
                 )
                 assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
             if test_model._gradient_func[0] is not None:
                 grad = test_model(**{keys[2]: values[2], keys[1]: values[1]}).gradient(
                     direction, **{keys[0]: values[0]}
