@@ -1,3 +1,10 @@
+---
+name: Task
+about: Template for a general task with DoD definition
+title: ''
+assignees: ''
+---
+
 **General description of task**
 
 <Insert description of change. Preferably with reason for change and a small (pseudo-)code example of the user interface>
@@ -12,5 +19,5 @@
 - [ ] Code reviewed and approved by 2 CUQI-maintainers
 - [ ] Online documentation is rendered correctly (esp. math) 
 
-**Defintion of Done (Optional)**
+**Definition of Done (Optional)**
 - [ ] HowTo/tutorial added
