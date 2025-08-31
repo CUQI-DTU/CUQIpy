@@ -1,12 +1,12 @@
 # %%
 """
-Bathtub demo
-==============
+Multiple input model: bathtub demo
+===================================
 
-This is a demo for a bathtub temperature and volume model using CUQIpy. 
+This is a demo for bathtub water temperature and volume model using CUQIpy. 
 We have measurements of the temperature and volume of the water in the bathtub
-and want to infer the temperature and volume of hot water and cold water that
-were used to fill in the bathtub"""
+and want to infer the temperature and volume of the hot water and the cold water
+that were used to fill in the bathtub"""
 
 # %%
 # Import libraries
@@ -31,8 +31,8 @@ def forward_map(h_v, h_t, c_v, c_t):
     return np.array([volume, temp]).reshape(2,)
 
 # %%
-# Define the gradients
-# --------------------------
+# Define gradient functions with respect to the unknown parameters
+# -----------------------------------------------------------------
 
 
 # Define the gradient with respect to h_v
@@ -133,6 +133,8 @@ joint_dist = cuqi.distribution.JointDistribution(
 # Define the posterior distribution by setting the observed data
 # ------------------------------------------------------------------
 
+# Assume measured volume is 60 gallons and measured temperature is 38 degrees
+# celsius
 posterior = joint_dist(data_dist=np.array([60, 38]))
 
 # %%
@@ -140,15 +142,15 @@ posterior = joint_dist(data_dist=np.array([60, 38]))
 # ------------------------------------------------------------
 
 print("posterior", posterior)
-print("\nposterior(h_v = 50)\n", posterior(h_v_dist=50))
-print("\nposterior(h_v = 50, h_t = 60)\n", posterior(h_v_dist=50, h_t_dist=60))
+print("\nposterior(h_v_dist = 50)\n", posterior(h_v_dist=50))
+print("\nposterior(h_v_dist = 50, h_t_dist = 60)\n", posterior(h_v_dist=50, h_t_dist=60))
 print(
-    "\nposterior(h_v = 50, h_t = 60, c_v = 30)\n",
+    "\nposterior(h_v_dist = 50, h_t_dist = 60, c_v_dist = 30)\n",
     posterior(h_v_dist=50, h_t_dist=60, c_v_dist=30),
 )
 
 # %%
-# Sample from the joint distribution
+# Sample from the joint (posterior) distribution
 # ------------------------------------------------------------
 #
 # First define sampling strategy for Gibbs sampling
@@ -165,7 +167,7 @@ sampling_strategy = {
 }
 
 # %%
-# Then create the sampler and sample
+# Then create the sampler and sample the posterior distribution
 
 hybridGibbs = cuqi.experimental.mcmc.HybridGibbs(
     posterior,
@@ -194,7 +196,7 @@ print("Measured temperature:", 38)
 print("Mean predicted temperature:", (mean_h_v * mean_h_t + mean_c_v * mean_c_t) / (mean_h_v + mean_c_v))
 
 # Plot trace of samples
-samples['h_v_dist'].plot_trace()
-samples['h_t_dist'].plot_trace()
-samples['c_v_dist'].plot_trace()
-samples['c_t_dist'].plot_trace()
+samples['h_v_dist'].plot_trace();
+samples['h_t_dist'].plot_trace();
+samples['c_v_dist'].plot_trace();
+samples['c_t_dist'].plot_trace();
