@@ -283,7 +283,7 @@ class JointDistribution:
             msg += f"\t{density.name} ~ {density}\n"
 
         # Wrap up
-        msg += ")"
+        msg += " )"
 
         return msg
 

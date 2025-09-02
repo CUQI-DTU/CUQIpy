@@ -338,11 +338,11 @@ class HybridGibbs:
         """ Return a string representation of the sampler. """
         msg = f"Sampler: {self.__class__.__name__} \n"
         if self.target is None:
-            msg += f"Target: None \n"
+            msg += f" Target: None \n"
         else:
-            msg += f"Target: \n \t {self.target} \n\n"
+            msg += f" Target: \n \t {self.target} \n\n"
             
         for key, value in zip(self.samplers.keys(), self.samplers.values()):
-            msg += f"Variable '{key}' with {value} \n"
+            msg += f" Variable '{key}' with {value} \n"
 
         return msg
