@@ -152,7 +152,7 @@ class GMRF(Distribution):
     
     @mean.setter
     def mean(self, value):
-        # Force the mean to be an array of proper length to be used in RegularizedLinearRTO sampler.
+        # Force the mean to be an array of proper length.
         if isinstance(value, collections.abc.Iterable) or callable(value):
             self._mean = force_ndarray(value, flatten=True)
         else:
