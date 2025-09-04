@@ -93,10 +93,6 @@ class CWMH(ProposalBasedSampler):
         self._scale = value
 
     def validate_target(self):
-        if not isinstance(self.target, cuqi.density.Density):
-            raise ValueError(
-                "Target should be an instance of "+\
-                f"{cuqi.density.Density.__class__.__name__}")
         # Fail when there is no log density, which is currently assumed to be the case in case NaN is returned.
         if np.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
             raise ValueError("Target does not have valid logd")

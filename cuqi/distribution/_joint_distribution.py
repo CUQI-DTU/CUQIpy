@@ -5,6 +5,7 @@ from cuqi.density import Density, EvaluatedDensity
 from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
 from cuqi.geometry import Geometry, _DefaultGeometry1D
+from cuqi.samples import Samples, JointSamples
 import cuqi
 import numpy as np # for splitting array. Can avoid.
 
@@ -311,16 +312,7 @@ class _StackedJointDistribution(JointDistribution, Distribution):
 
     def logd(self, stacked_input):
         """ Return the un-normalized log density function stacked joint density. """
-
-        # Split the stacked input into individual inputs and call superclass
-        split_indices = np.cumsum(super().dim)  # list(accumulate(super().dim))
-        inputs = np.split(stacked_input, split_indices[:-1])
-        names = self.get_parameter_names()
-
-        # Create keyword arguments
-        kwargs = dict(zip(names, inputs))
-
-        return super().logd(**kwargs)
+        return super().logd(**self._unstack_input(stacked_input))
 
     def logpdf(self, stacked_input):
         return self.logd(stacked_input)
@@ -330,6 +322,24 @@ class _StackedJointDistribution(JointDistribution, Distribution):
 
     def __repr__(self):
         return "_Stacked"+super().__repr__()
+    
+    def _unstack_input(self, stacked_input):
+        # Split the stacked input into individual inputs and call superclass
+        split_indices = np.cumsum(super().dim)  # list(accumulate(super().dim))
+        inputs = np.split(stacked_input, split_indices[:-1])
+        names = self.get_parameter_names()
+
+        # Create keyword arguments
+        return dict(zip(names, inputs))
+    
+    def _unstack_samples(self, stacked_samples):
+        split_indices = np.cumsum(super().dim)
+        split_samples = np.split(stacked_samples.samples, split_indices[:-1], axis = 0)
+        names = self.get_parameter_names()
+        geometries = [dist.geometry for dist in self._distributions]
+
+        unstacked_samples = [Samples(samples, geometry) for samples, geometry in zip(split_samples, geometries)]
+        return JointSamples(zip(names, unstacked_samples))
 
 
 class MultipleLikelihoodPosterior(JointDistribution, Distribution):
