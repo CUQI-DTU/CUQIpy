@@ -1453,6 +1453,32 @@ def test_RegularizedLinearRTO_ScipyLinearLSQ_option_invalid():
     with pytest.raises(ValueError, match="ScipyLinearLSQ"):
         sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver = "ScipyLinearLSQ")
 
+def test_RegularizedLinearRTO_inner_initial_point_setting():
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Bayesian Problem
+    x = cuqi.implicitprior.NonnegativeGMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up RegularizedLinearRTO with three solvers
+    sampler1 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, maxit=10, inner_initial_point="previous_sample", tol=1e-8)
+    sampler2 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, maxit=10, inner_initial_point="MAP", tol=1e-8)
+    sampler3 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, maxit=10, inner_initial_point=np.ones(A.domain_dim), tol=1e-8)
+
+    # Sample with fixed seed
+    np.random.seed(0)
+    sampler1.sample(5)
+    np.random.seed(0)
+    sampler2.sample(5)
+    np.random.seed(0)
+    sampler3.sample(5)
+
+    assert np.allclose(sampler1.inner_initial_point, sampler1.current_point, rtol=1e-5)
+    assert np.allclose(sampler2.inner_initial_point, sampler2._map, rtol=1e-5)
+    assert np.allclose(sampler3.inner_initial_point, np.ones(A.domain_dim), rtol=1e-5)
+
 def test_RegularizedLinearRTO_ScipyLinearLSQ_against_ScipyMinimizer_and_against_FISTA():
     # Define LinearModel and data
     A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
