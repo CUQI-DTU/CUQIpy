@@ -1,6 +1,7 @@
 import cuqi
 import numpy as np
 import pytest
+from .test_model import MultipleInputTestModel
 
 def test_joint_dist_dim_geometry():
     """ Test the dimension and geometry properties of a joint distribution """
@@ -393,3 +394,94 @@ def test_logd_consistency_when_conditioning(joint, variables):
 
         # Add current variable to the variables that need to be conditioned
         cond_vars[key] = value
+
+def test_joint_distribution_with_multiple_inputs_model_has_correct_parameter_names():
+    """Test that the joint distribution based on model with multiple inputs has
+    correct parameter names."""
+
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Create priors
+    x_dist = cuqi.distribution.Gaussian(
+        mean=np.zeros(3),
+        cov=np.eye(3))
+    y_dist = cuqi.distribution.Gaussian(
+        mean=np.zeros(2),
+        cov=np.eye(2))
+    z_dist = cuqi.distribution.Gaussian(
+        mean=np.zeros(3),
+        cov=np.eye(3))
+
+    # Create data distribution
+    data_dist = cuqi.distribution.Gaussian(
+        mean=model(x_dist, y_dist, z_dist), cov = 1.0)
+
+    # Create likelihood
+    likelihood = data_dist(data_dist = np.array([2,2,3]))
+
+    x_val = np.array([1, 2, 3])
+    y_val = np.array([4, 5])
+    z_val = np.array([6, 7, 8])
+
+    posterior = cuqi.distribution.JointDistribution(
+        likelihood,
+        x_dist,
+        y_dist,
+        z_dist
+    )
+
+    # Ensure correct parameter names are returned for joint distribution with likelihood
+    assert posterior.get_parameter_names() == ['x_dist', 'y_dist', 'z_dist']
+
+    assert posterior(x_dist=x_val).get_parameter_names() == ['y_dist', 'z_dist']
+    assert posterior(y_dist=y_val).get_parameter_names() == ['x_dist', 'z_dist']
+    assert posterior(z_dist=z_val).get_parameter_names() == ['x_dist', 'y_dist']
+
+    assert posterior(y_dist=y_val, z_dist=z_val).get_parameter_names() == ['x_dist']
+    assert posterior(x_dist=x_val, z_dist=z_val).get_parameter_names() == ['y_dist']
+    assert posterior(x_dist=x_val, y_dist=y_val).get_parameter_names() == ['z_dist']
+
+    assert posterior(x_dist=x_val, y_dist=y_val, z_dist=z_val).get_parameter_names() == []
+
+    joint_dist =  cuqi.distribution.JointDistribution(
+        data_dist,
+        x_dist,
+        y_dist,
+        z_dist
+    )
+
+    # Ensure correct parameter names are returned for joint distribution with data distribution
+    assert joint_dist.get_parameter_names() == ['data_dist', 'x_dist', 'y_dist', 'z_dist']
+    assert joint_dist(x_dist=x_val).get_parameter_names() == ['data_dist', 'y_dist', 'z_dist']
+    assert joint_dist(y_dist=y_val).get_parameter_names() == ['data_dist', 'x_dist', 'z_dist']
+    assert joint_dist(z_dist=z_val).get_parameter_names() == ['data_dist', 'x_dist', 'y_dist']
+    assert joint_dist(data_dist=np.array([2,2,3])).get_parameter_names() == ['x_dist', 'y_dist', 'z_dist']
+
+    assert joint_dist(x_dist=x_val, data_dist=np.array([2,2,3])).get_parameter_names() == ['y_dist', 'z_dist']
+    assert joint_dist(y_dist=y_val, data_dist=np.array([2,2,3])).get_parameter_names() == ['x_dist', 'z_dist']
+    assert joint_dist(z_dist=z_val, data_dist=np.array([2,2,3])).get_parameter_names() == ['x_dist', 'y_dist']
+    assert joint_dist(x_dist=x_val, y_dist=y_val).get_parameter_names() == ['data_dist', 'z_dist']
+    assert joint_dist(x_dist=x_val, z_dist=z_val).get_parameter_names() == ['data_dist', 'y_dist']
+    assert joint_dist(y_dist=y_val, z_dist=z_val).get_parameter_names() == ['data_dist', 'x_dist']
+
+    assert joint_dist(x_dist=x_val, y_dist=y_val, z_dist=z_val).get_parameter_names() == ['data_dist']
+    assert joint_dist(x_dist=x_val, y_dist=y_val, data_dist=np.array([2,2,3])).get_parameter_names() == ['z_dist']
+    assert joint_dist(x_dist=x_val, z_dist=z_val, data_dist=np.array([2,2,3])).get_parameter_names() == ['y_dist']
+    assert joint_dist(y_dist=y_val, z_dist=z_val, data_dist=np.array([2,2,3])).get_parameter_names() == ['x_dist']
+
+    # Ensure correct parameter names are returned for underlying likelihood
+    assert joint_dist(data_dist=np.array([2,2,3]))._likelihoods[0].get_parameter_names() == ['x_dist', 'y_dist', 'z_dist']
+
+    assert joint_dist(x_dist=x_val, data_dist=np.array([2,2,3]))._likelihoods[0].get_parameter_names() == ['y_dist', 'z_dist']
+    assert joint_dist(y_dist=y_val, data_dist=np.array([2,2,3]))._likelihoods[0].get_parameter_names() == ['x_dist', 'z_dist']
+    assert joint_dist(z_dist=z_val, data_dist=np.array([2,2,3]))._likelihoods[0].get_parameter_names() == ['x_dist', 'y_dist']
+
+    assert joint_dist(x_dist=x_val, y_dist=y_val, data_dist=np.array([2,2,3])).likelihood.get_parameter_names() == ['z_dist']
+    assert joint_dist(x_dist=x_val, z_dist=z_val, data_dist=np.array([2,2,3])).likelihood.get_parameter_names() == ['y_dist']
+    assert joint_dist(y_dist=y_val, z_dist=z_val, data_dist=np.array([2,2,3])).likelihood.get_parameter_names() == ['x_dist']

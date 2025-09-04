@@ -1296,6 +1296,264 @@ model_test_case_combinations_no_forward_error = [
 ]
 
 
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_forward_error)
+@pytest.mark.parametrize("funvals", [True, False])
+def test_partial_forward_of_multiple_input_model_is_correct(test_model, test_data, funvals):
+    """Test partial model evaluation for both parameter value and function value input"""
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    # Input kwargs
+    kwargs =  test_data.forward_input
+    # keys and values
+    keys = list(kwargs.keys())
+    values = list(kwargs.values())
+
+    if funvals:
+        # Convert all inputs to funvals
+        values = [value.funvals if isinstance(value, CUQIarray)  else value for value in values]
+
+    # Exclude case where expected output is Samples because it is not supported
+    # in partial evaluation
+    # Also exclude cases where the model gradient is not a tuple (will be tested
+    # separately)
+    if not isinstance(
+        test_data.expected_fwd_output, (cuqi.samples.Samples)
+    ) and isinstance(test_model._gradient_func, tuple):
+        fwd_output_list = []
+
+        # Evaluate all possible partial evaluations of the model
+        if len(test_data.forward_input) == 2:
+            fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(values[0])(values[1])) # args instead of kwargs
+            fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[0]: values[0]}))
+
+        elif len(test_data.forward_input) == 3:
+            fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[1]: values[1]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(values[0])(values[1])(values[2])) # args instead of kwargs
+            fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[0]: values[0]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2]})(**{keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[0]: values[0]})(**{keys[2]: values[2]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1]})(**{keys[2]: values[2]})(**{keys[0]: values[0]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2]})(**{keys[1]: values[1]})(**{keys[0]: values[0]}))
+
+            fwd_output_list.append(test_model(**{keys[0]: values[0], keys[1]: values[1]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(values[0], values[1])(values[2])) # args instead of kwargs
+            fwd_output_list.append(test_model(**{keys[1]: values[1], keys[0]: values[0]})(**{keys[2]: values[2]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2], keys[0]: values[0]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[0]: values[0], keys[2]: values[2]})(**{keys[1]: values[1]}))
+            fwd_output_list.append(test_model(**{keys[1]: values[1], keys[2]: values[2]})(**{keys[0]: values[0]}))
+            fwd_output_list.append(test_model(**{keys[2]: values[2], keys[1]: values[1]})(**{keys[0]: values[0]}))
+
+        assert all(np.allclose(fwd_output_list[i], test_data.expected_fwd_output) for i in range(len(fwd_output_list)))
+
+    # Case where the model gradient is not a tuple (attempting partial evaluation should raise NotImplementedError)
+    elif not isinstance(test_model._gradient_func, tuple) and test_model._gradient_func is not None and not isinstance(test_data.expected_fwd_output, cuqi.samples.Samples):
+        with pytest.raises(
+            NotImplementedError,
+            match=r"Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions"
+        ):
+            test_model(**{keys[0]: values[0]})
+
+
+@pytest.mark.parametrize("test_model, test_data", model_test_case_combinations_no_forward_error)
+def test_cannot_do_partial_forward_evaluation_with_samples_input(test_model, test_data):
+    """Test attempting to partial evaluation of a model with Samples input
+    creates a ValueError
+    """
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    # Input kwargs
+    kwargs =  test_data.forward_input
+    # keys and values
+    keys = list(kwargs.keys())
+    values = list(kwargs.values())
+
+    # Test only cases where expected output is Samples 
+    # Also exclude cases where the model gradient is not a tuple (this case does
+    # not support partial evaluation)
+    if isinstance(
+        test_data.expected_fwd_output, (cuqi.samples.Samples)
+    ) and isinstance(test_model._gradient_func, tuple):
+
+        if len(test_data.forward_input) == 2:
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(**{keys[0]: values[0]})
+
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ): 
+                test_model(values[0])
+            pass
+
+        elif len(test_data.forward_input) == 3:
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(**{keys[0]: values[0]})
+
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(**{keys[0]: values[0], keys[1]: values[1]})
+
+            with pytest.raises(
+                ValueError,
+                match=r"That is, partial evaluation or splitting is not supported for input of type Samples"
+            ):
+                test_model(values[0], values[1])
+
+
+@pytest.mark.parametrize(
+    "test_model, test_data", model_test_case_combinations_no_forward_error
+)
+@pytest.mark.parametrize("funvals", [True, False])
+def test_gradient_of_partial_forward_of_multiple_input_model_is_correct(
+    test_model, test_data, funvals
+):
+    """Test gradient of partial model evaluation for both parameter value and function value input"""
+    assert isinstance(test_model, cuqi.model.Model)
+    assert isinstance(test_data, TestCase)
+
+    # Input kwargs
+    kwargs = test_data.forward_input
+    # keys and values
+    keys = list(kwargs.keys())
+    values = list(kwargs.values())
+
+    if funvals:
+        # Convert all inputs to funvals
+        values = [
+            value.funvals if isinstance(value, CUQIarray) else value for value in values
+        ]
+
+    # Exclude case where expected output is Samples because it is not supported
+    # in partial evaluation
+    # Also exclude cases where the model gradient is not a tuple (will be tested
+    # separately)
+    if not isinstance(
+        test_data.expected_fwd_output, (cuqi.samples.Samples)
+    ) and isinstance(test_model._gradient_func, tuple):
+
+        # Direction at which the gradient is evaluated
+        direction = test_data.direction
+
+        # Evaluate all possible partial evaluations of the model
+        if len(test_data.forward_input) == 2:
+            if test_model._gradient_func[1] is not None:
+                grad = test_model(**{keys[0]: values[0]}).gradient(
+                    direction, **{keys[1]: values[1]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+                # pass args (in expected order) instead of kwargs
+                grad = test_model(values[0]).gradient(direction, values[1])
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
+            if test_model._gradient_func[0] is not None:
+                grad = test_model(**{keys[1]: values[1]}).gradient(
+                    direction, **{keys[0]: values[0]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
+        elif len(test_data.forward_input) == 3:
+            if test_model._gradient_func[2] is not None:
+                grad = test_model(**{keys[0]: values[0]})(
+                    **{keys[1]: values[1]}
+                ).gradient(direction, **{keys[2]: values[2]})
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+                # pass args (in expected order) instead of kwargs
+                grad = test_model(values[0])(values[1]).gradient(direction, values[2])
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
+            if test_model._gradient_func[2] is not None:
+                grad = test_model(**{keys[1]: values[1]})(
+                    **{keys[0]: values[0]}
+                ).gradient(direction, **{keys[2]: values[2]})
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
+            if test_model._gradient_func[1] is not None:
+                grad = test_model(**{keys[2]: values[2]})(
+                    **{keys[0]: values[0]}
+                ).gradient(direction, **{keys[1]: values[1]})
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
+            if test_model._gradient_func[1] is not None:
+                grad = test_model(**{keys[0]: values[0]})(
+                    **{keys[2]: values[2]}
+                ).gradient(direction, **{keys[1]: values[1]})
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
+            if test_model._gradient_func[0] is not None:
+                grad = test_model(**{keys[1]: values[1]})(
+                    **{keys[2]: values[2]}
+                ).gradient(direction, **{keys[0]: values[0]})
+                assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
+            if test_model._gradient_func[0] is not None:
+                grad = test_model(**{keys[2]: values[2]})(
+                    **{keys[1]: values[1]}
+                ).gradient(direction, **{keys[0]: values[0]})
+                assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
+            if test_model._gradient_func[2] is not None:
+                grad = test_model(**{keys[0]: values[0], keys[1]: values[1]}).gradient(
+                    direction, **{keys[2]: values[2]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+                # pass args (in expected order) instead of kwargs
+                grad = test_model(values[0], values[1]).gradient(direction, values[2])
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
+            if test_model._gradient_func[2] is not None:
+                grad = test_model(**{keys[1]: values[1], keys[0]: values[0]}).gradient(
+                    direction, **{keys[2]: values[2]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[2])
+
+            if test_model._gradient_func[1] is not None:
+                grad = test_model(**{keys[2]: values[2], keys[0]: values[0]}).gradient(
+                    direction, **{keys[1]: values[1]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
+            if test_model._gradient_func[1] is not None:
+                grad = test_model(**{keys[0]: values[0], keys[2]: values[2]}).gradient(
+                    direction, **{keys[1]: values[1]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[1])
+
+            if test_model._gradient_func[0] is not None:
+                grad = test_model(**{keys[1]: values[1], keys[2]: values[2]}).gradient(
+                    direction, **{keys[0]: values[0]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
+            if test_model._gradient_func[0] is not None:
+                grad = test_model(**{keys[2]: values[2], keys[1]: values[1]}).gradient(
+                    direction, **{keys[0]: values[0]}
+                )
+                assert np.allclose(grad, test_data.expected_grad_output_value[0])
+
+    # Case where the model gradient is not a tuple (attempting partial evaluation should raise NotImplementedError)
+    elif (
+        not isinstance(test_model._gradient_func, tuple)
+        and test_model._gradient_func is not None
+        and not isinstance(test_data.expected_fwd_output, cuqi.samples.Samples)
+    ):
+        with pytest.raises(
+            NotImplementedError,
+            match=r"Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions",
+        ):
+            test_model(**{keys[0]: values[0]})
+
+
 @pytest.mark.parametrize(
     "test_model, test_data", model_test_case_combinations_no_forward_error
 )
@@ -1319,18 +1577,29 @@ def test_forward_of_multiple_input_model_is_correct_when_input_is_stacked(
     elif isinstance(test_data.expected_fwd_output, Samples):
         with pytest.raises(
             ValueError,
-            match=r"The model input is specified by a Samples object that cannot be split into multiple arguments corresponding to the non_default_args",
+            match=r"When using Samples objects as input, the user should provide a Samples object for each non_default_args"
         ):
             test_model.forward(test_data.forward_input_stacked)
     else:
         raise NotImplementedError
 
-    # Assert evaluating forward on stacked input with wrong dimension raises error
+    # Assert evaluating forward on stacked input with wrong dimension is treated
+    # as a partial evaluation of the forward model
     if isinstance(test_data.expected_fwd_output, np.ndarray):
-        with pytest.raises(
-            ValueError,
-            match=r"The number of positional arguments does not match the number of non-default arguments of the model. Additionally, the model input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
+        if (
+            not isinstance(test_model._gradient_func, tuple)
+            and test_model._gradient_func is not None
         ):
+            # Splitting is not possible here and this is interpreted as a
+            # partial evaluation of the forward model which is not supported
+            # when the gradient function is not a tuple of callable functions
+            with pytest.raises(
+                NotImplementedError,
+                match=r"Partial forward model is only supported for gradient/jacobian functions that are tuples of callable functions"
+            ):
+                test_model.forward(test_data.forward_input_stacked[:-1])
+        else: # No error expected (splitting is not performed but this is
+            # interpreted as a partial evaluation of the forward model)
             test_model.forward(test_data.forward_input_stacked[:-1])
 
 
@@ -1464,10 +1733,12 @@ def test_gradient_of_multiple_input_model_accepts_stacked_input(test_model, test
                 grad_output_stacked_inputs[k], test_data.expected_grad_output_value[i]
             )
 
-    # Assert evaluating gradient on stacked input with wrong dimension raises error
+    # Assert evaluating gradient on stacked input with wrong dimension raises 
+    # error (it will be treated as a partial evaluation attempt of the gradient
+    # method which is not supported)
     with pytest.raises(
-        ValueError,
-        match=r"The number of positional arguments does not match the number of non-default arguments of the gradient. Additionally, the gradient input is specified by a single argument that cannot be split into multiple arguments matching the expected non_default_args",
+        TypeError,
+        match=r"missing (1|2) required positional argument(|s)",
     ):
         test_model.gradient(test_data.direction, test_data.forward_input_stacked[:-1])
 
@@ -2144,3 +2415,99 @@ def test_setting_domain_and_range_geometry(domain_geometry, range_geometry, num_
     # Check the model domain and range geometries are of the expected type
     assert model.domain_geometry == expected_domain_geometry
     assert model.range_geometry == expected_range_geometry
+
+def test_partial_model_evaluation_with_distributions_not_supported():
+    """ Test that partial evaluation of a model with multiple inputs is not
+    supported when inputs are distributions."""
+    # Create a model with multiple inputs
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Input values for the model
+    x_dist = cuqi.distribution.Gaussian(np.array([1, 2, 3]), 1)
+    y_dist = cuqi.distribution.Gaussian(np.array([4, 5]), 1)
+    z_dist = cuqi.distribution.Gaussian(np.array([6, 7, 8]), 1)
+
+    # This should work
+    model_dist = model(x_dist, y_dist, z_dist)
+
+    # This should not work
+    with pytest.raises(ValueError,
+                       match="Partial evaluation of the model is not supported for distributions"):
+        model(x_dist)
+
+def test_partial_model_evaluation_with_random_variables_not_supported():
+    """ Test that partial evaluation of a model with multiple inputs is not
+    supported when inputs are random variables."""
+    # Create a model with multiple inputs
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Input values for the model
+    x_rv = cuqi.distribution.Gaussian(np.array([1, 2, 3]), 1).rv
+    y_rv = cuqi.distribution.Gaussian(np.array([4, 5]), 1).rv
+    z_rv = cuqi.distribution.Gaussian(np.array([6, 7, 8]), 1).rv
+
+    # This should work
+    model_rv = model(x_rv, y_rv, z_rv)
+
+    # This should not work
+    with pytest.raises(ValueError,
+                       match="Partial evaluation of the model is not supported for random variables"):
+        model(x_rv)
+
+def test_reduction_of_number_of_model_inputs_by_partial_specification():
+    # Create a model with multiple inputs
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+
+    # Input values for the model
+    x_val = np.array([1, 2, 3])
+    y_val = np.array([4, 5])
+    z_val = np.array([6, 7, 8])
+
+    # Check partial specification of model inputs generates a model with
+    # reduced inputs
+    model_given_x = model(x=x_val)
+    assert list(model_given_x._non_default_args)==['y', 'z']
+    model_given_y = model(y=y_val)
+    assert list(model_given_y._non_default_args)==['x', 'z']
+    model_given_z = model(z=z_val)
+    assert list(model_given_z._non_default_args)==['x', 'y']
+    model_given_xy = model(x=x_val, y=y_val)
+    assert list(model_given_xy._non_default_args)==['z']
+    model_given_yz = model(y=y_val, z=z_val)
+    assert list(model_given_yz._non_default_args)==['x']
+    model_given_xz = model(x=x_val, z=z_val)
+    assert list(model_given_xz._non_default_args)==['y']
+
+    # Check all ways of specifying inputs generate the same output
+    output = model(x=x_val, y=y_val, z=z_val)
+    assert(np.allclose(model(x=x_val)(y=y_val, z=z_val), output))
+    assert(np.allclose(model(x=x_val)(z=z_val, y=y_val), output))
+    assert(np.allclose(model(y=y_val)(x=x_val, z=z_val), output))
+    assert(np.allclose(model(y=y_val)(z=z_val, x=x_val), output))
+    assert(np.allclose(model(z=z_val)(x=x_val, y=y_val), output))
+    assert(np.allclose(model(z=z_val)(y=y_val, x=x_val), output))
+    assert(np.allclose(model(x=x_val, y=y_val)(z=z_val), output))
+    assert(np.allclose(model(y=y_val, x=x_val)(z=z_val), output))
+    assert(np.allclose(model(x=x_val, z=z_val)(y=y_val), output))
+    assert(np.allclose(model(z=z_val, x=x_val)(y=y_val), output))
+    assert(np.allclose(model(y=y_val, z=z_val)(x=x_val), output))
+    assert(np.allclose(model(z=z_val, y=y_val)(x=x_val), output))
+    assert(np.allclose(model(x=x_val)(y=y_val)(z=z_val), output))
