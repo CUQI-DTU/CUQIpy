@@ -8,3 +8,4 @@ sphinx-copybutton
 sphinx-gallery
 versioneer==0.26
 scikit-image
+torch>=1.9.0  # For array backend testing

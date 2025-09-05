@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.experimental.mcmc import ProposalBasedSampler
 
@@ -33,7 +33,7 @@ class MH(ProposalBasedSampler):
 
     def validate_target(self):
         # Fail only when there is no log density, which is currently assumed to be the case in case NaN is returned.
-        if np.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
+        if xp.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
             raise ValueError("Target does not have valid logd")
 
     def validate_proposal(self):
@@ -55,11 +55,11 @@ class MH(ProposalBasedSampler):
         alpha = min(0, ratio)
 
         # accept/reject
-        u_theta = np.log(np.random.rand())
+        u_theta = xp.log(xp.random.rand())
         acc = 0
         if (u_theta <= alpha) and \
-           (not np.isnan(target_eval_star)) and \
-           (not np.isinf(target_eval_star)):
+           (not xp.isnan(target_eval_star)) and \
+           (not xp.isinf(target_eval_star)):
             self.current_point = x_star
             self.current_target_logd = target_eval_star
             acc = 1
@@ -67,14 +67,14 @@ class MH(ProposalBasedSampler):
         return acc
 
     def tune(self, skip_len, update_count):
-        hat_acc = np.mean(self._acc[-skip_len:])
+        hat_acc = xp.mean(self._acc[-skip_len:])
 
         # d. compute new scaling parameter
-        zeta = 1/np.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
+        zeta = 1/xp.sqrt(update_count+1)   # ensures that the variation of lambda(i) vanishes
 
         # We use self._scale_temp here instead of self.scale in update. This might be a bug,
         # but is equivalent to old MH
-        self._scale_temp = np.exp(np.log(self._scale_temp) + zeta*(hat_acc-0.234))
+        self._scale_temp = xp.exp(xp.log(self._scale_temp) + zeta*(hat_acc-0.234))
 
         # update parameters
         self.scale = min(self._scale_temp, 1)

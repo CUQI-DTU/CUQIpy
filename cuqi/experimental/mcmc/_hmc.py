@@ -1,5 +1,5 @@
-import numpy as np
-import numpy as np
+import cuqi.array as xp
+import cuqi.array as xp
 from cuqi.experimental.mcmc import Sampler
 from cuqi.array import CUQIarray
 from numbers import Number
@@ -105,8 +105,8 @@ class NUTS(Sampler):
 
     def _initialize(self):
 
-        self._current_alpha_ratio = np.nan # Current alpha ratio will be set to some
-                                           # value (other than np.nan) before 
+        self._current_alpha_ratio = xp.nan # Current alpha ratio will be set to some
+                                           # value (other than xp.nan) before 
                                            # being used
 
         self.current_target_logd, self.current_target_grad = self._nuts_target(self.current_point)
@@ -123,7 +123,7 @@ class NUTS(Sampler):
         self._epsilon_bar = "unset"
 
         # Parameter mu, does not change during the run
-        self._mu = np.log(10*self._epsilon)
+        self._mu = xp.log(10*self._epsilon)
 
         self._H_bar = 0
 
@@ -184,7 +184,7 @@ class NUTS(Sampler):
         # Check if the target has logd and gradient methods
         try:
             current_target_logd, current_target_grad =\
-            self._nuts_target(np.ones(self.dim))
+            self._nuts_target(xp.ones(self.dim))
         except:
             raise ValueError('Target must have logd and gradient methods.')
 
@@ -220,7 +220,7 @@ class NUTS(Sampler):
         Ham = logd_k - self._Kfun(r_k, 'eval') # Hamiltonian
 
         # slice variable
-        log_u = Ham - np.random.exponential(1, size=1)
+        log_u = Ham - xp.random.exponential(1, size=1)
 
         # initialization
         j, s, n = 0, 1, 1
@@ -232,7 +232,7 @@ class NUTS(Sampler):
         acc = 0
         while (s == 1) and (j <= self.max_depth):
             # sample a direction
-            v = int(2*(np.random.rand() < 0.5)-1)
+            v = int(2*(xp.random.rand() < 0.5)-1)
 
             # build tree: doubling procedure
             if (v == -1):
@@ -249,16 +249,16 @@ class NUTS(Sampler):
                                             Ham, log_u, v, j, self._epsilon)
 
             # Metropolis step
-            alpha2 = min(1, (n_prime/n)) #min(0, np.log(n_p) - np.log(n))
+            alpha2 = min(1, (n_prime/n)) #min(0, xp.log(n_p) - xp.log(n))
             if (s_prime == 1) and \
-                (np.random.rand() <= alpha2) and \
-                (not np.isnan(logd_prime)) and \
-                (not np.isinf(logd_prime)):
+                (xp.random.rand() <= alpha2) and \
+                (not xp.isnan(logd_prime)) and \
+                (not xp.isinf(logd_prime)):
                 self.current_point = point_prime.copy()
                 # copy if array, else assign if scalar
                 self.current_target_logd = (
                         logd_prime.copy()
-                        if isinstance(logd_prime, np.ndarray)
+                        if isinstance(logd_prime, xp.ndarray)
                         else logd_prime
                     )
                 self.current_target_grad = grad_prime.copy()
@@ -278,7 +278,7 @@ class NUTS(Sampler):
             self._num_tree_node, self._epsilon, self._epsilon_bar)
         
         self._epsilon = self._epsilon_bar 
-        if np.isnan(self.current_target_logd):
+        if xp.isnan(self.current_target_logd):
             raise NameError('NaN potential func')
 
         return acc
@@ -296,10 +296,10 @@ class NUTS(Sampler):
         eta1 = 1/(k + t_0)
         self._H_bar = (1-eta1)*self._H_bar +\
             eta1*(self.opt_acc_rate - (self._current_alpha_ratio))
-        self._epsilon = np.exp(self._mu - (np.sqrt(k)/gamma)*self._H_bar)
+        self._epsilon = xp.exp(self._mu - (xp.sqrt(k)/gamma)*self._H_bar)
         eta = k**(-kappa)
         self._epsilon_bar =\
-            np.exp(eta*np.log(self._epsilon) +(1-eta)*np.log(self._epsilon_bar))
+            xp.exp(eta*xp.log(self._epsilon) +(1-eta)*xp.log(self._epsilon_bar))
 
     #=========================================================================
     def _nuts_target(self, x): # returns logposterior tuple evaluation-gradient
@@ -307,12 +307,12 @@ class NUTS(Sampler):
 
     #=========================================================================
     # auxiliary standard Gaussian PDF: kinetic energy function
-    # d_log_2pi = d*np.log(2*np.pi)
+    # d_log_2pi = d*xp.log(2*xp.pi)
     def _Kfun(self, r, flag):
         if flag == 'eval': # evaluate
             return 0.5*(r.T @ r) #+ d_log_2pi 
         if flag == 'sample': # sample
-            return np.random.standard_normal(size=self.dim)
+            return xp.random.standard_normal(size=self.dim)
 
     #=========================================================================
     def _FindGoodEpsilon(self, epsilon=1):
@@ -330,7 +330,7 @@ class NUTS(Sampler):
         # trick to make sure the step is not huge, leading to infinite values of
         # the likelihood
         k = 1
-        while np.isinf(logd_prime) or np.isinf(grad_prime).any():
+        while xp.isinf(logd_prime) or xp.isinf(grad_prime).any():
             k *= 0.5
             _, r_prime, logd_prime, grad_prime = self._Leapfrog(
                 point_k, r, grad, epsilon*k)
@@ -340,8 +340,8 @@ class NUTS(Sampler):
         # proposal crosses 0.5
         Ham_prime = logd_prime - self._Kfun(r_prime, 'eval')
         log_ratio = Ham_prime - Ham
-        a = 1 if log_ratio > np.log(0.5) else -1
-        while (a*log_ratio > -a*np.log(2)):
+        a = 1 if log_ratio > xp.log(0.5) else -1
+        while (a*log_ratio > -a*xp.log(2)):
             epsilon = (2**a)*epsilon
             _, r_prime, logd_prime, _ = self._Leapfrog(
                 point_k, r, grad, epsilon)
@@ -376,10 +376,10 @@ class NUTS(Sampler):
             diff_Ham = Ham_prime - Ham
 
             # Compute the acceptance probability
-            # alpha_prime = min(1, np.exp(diff_Ham))
+            # alpha_prime = min(1, xp.exp(diff_Ham))
             # written in a stable way to avoid overflow when computing
             # exp(diff_Ham) for large values of diff_Ham
-            alpha_prime = 1 if diff_Ham > 0 else np.exp(diff_Ham)
+            alpha_prime = 1 if diff_Ham > 0 else xp.exp(diff_Ham)
             n_alpha_prime = 1
             #
             point_minus, point_plus = point_prime, point_prime
@@ -409,12 +409,12 @@ class NUTS(Sampler):
 
                 # Metropolis step
                 alpha2 = n_2prime / max(1, (n_prime + n_2prime))
-                if (np.random.rand() <= alpha2):
+                if (xp.random.rand() <= alpha2):
                     point_prime = point_2prime.copy()
                     # copy if array, else assign if scalar
                     logd_prime = (
                         logd_2prime.copy()
-                        if isinstance(logd_2prime, np.ndarray)
+                        if isinstance(logd_2prime, xp.ndarray)
                         else logd_2prime
                     )
                     grad_prime = grad_2prime.copy()

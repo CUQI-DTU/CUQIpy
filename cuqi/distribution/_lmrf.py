@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.geometry import _DefaultGeometry1D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference
 from cuqi.distribution import Distribution
@@ -62,7 +62,7 @@ class LMRF(Distribution):
         self._physical_dim = physical_dim
 
         if self._physical_dim == 2:
-            N = int(np.sqrt(self.dim))
+            N = int(xp.sqrt(self.dim))
             num_nodes = (N, N)
         else: 
             num_nodes = self.dim
@@ -78,19 +78,19 @@ class LMRF(Distribution):
         self._location = force_ndarray(value, flatten=True)
 
     def pdf(self, x):
-        Dx = self._diff_op @ (x-self.location)  # np.diff(X)
-        return (1/(2*self.scale))**(len(Dx)) * np.exp(-np.linalg.norm(Dx, ord=1, axis=0)/self.scale)
+        Dx = self._diff_op @ (x-self.location)  # xp.diff(X)
+        return (1/(2*self.scale))**(len(Dx)) * xp.exp(-xp.linalg.norm(Dx, ord=1, axis=0)/self.scale)
 
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)
-        return len(Dx)*(-(np.log(2)+np.log(self.scale))) - np.linalg.norm(Dx, ord=1, axis=0)/self.scale
+        return len(Dx)*(-(xp.log(2)+xp.log(self.scale))) - xp.linalg.norm(Dx, ord=1, axis=0)/self.scale
 
     def _sample(self,N=1,rng=None):
         raise NotImplementedError("'LMRF.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
-    #     return 1/2 + 1/2*np.sign(x-self.loc)*(1-np.exp(-np.linalg.norm(x, ord=1, axis=0)/self.scale))
+    #     return 1/2 + 1/2*xp.sign(x-self.loc)*(1-xp.exp(-xp.linalg.norm(x, ord=1, axis=0)/self.scale))
 
     # def sample(self):   # TODO
-    #     p = np.random.rand(self.dim)
-    #     return self.loc - self.scale*np.sign(p-1/2)*np.log(1-2*abs(p-1/2))
+    #     p = xp.random.rand(self.dim)
+    #     return self.loc - self.scale*xp.sign(p-1/2)*xp.log(1-2*abs(p-1/2))

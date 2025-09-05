@@ -1,5 +1,5 @@
 from __future__ import annotations
-import numpy as np
+import cuqi.array as xp
 import time
 from typing import Tuple
 
@@ -87,14 +87,14 @@ class BayesianProblem(object):
 
         # Import modules
         import cuqi
-        import numpy as np
+        import cuqi.array as xp
         import matplotlib.pyplot as plt
 
         # Deterministic forward model and data (1D convolution)
         A, y_data, probInfo = cuqi.testproblem.Deconvolution1D().get_components()
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(A.domain_dim), 0.1)
+        x = cuqi.distribution.Gaussian(xp.zeros(A.domain_dim), 0.1)
         y = cuqi.distribution.Gaussian(A@x, 0.05)
 
         # Define Bayesian problem and set data
@@ -145,7 +145,7 @@ class BayesianProblem(object):
 
         return self.model, self.data, problem_info
 
-    def __init__(self, *densities: Density, **data: np.ndarray):
+    def __init__(self, *densities: Density, **data: xp.ndarray):
         self._target = JointDistribution(*densities)(**data)
 
     def set_data(self, **kwargs) -> BayesianProblem:
@@ -269,15 +269,15 @@ class BayesianProblem(object):
             Cx = self.prior.cov
 
             # If Ce and Cx are scalar, make them into matrices
-            if np.size(Ce)==1:
-                Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
-            if np.size(Cx)==1:
-                Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
+            if xp.size(Ce)==1:
+                Ce = Ce.ravel()[0]*xp.eye(self.model.range_dim)
+            if xp.size(Cx)==1:
+                Cx = Cx.ravel()[0]*xp.eye(self.model.domain_dim)
 
             #Basic MAP estimate using closed-form expression Tarantola 2005 (3.37-3.38)
             rhs = b-A@x0
             sysm = A@Cx@A.T+Ce
-            x_MAP = x0 + Cx@(A.T@np.linalg.solve(sysm,rhs))
+            x_MAP = x0 + Cx@(A.T@xp.linalg.solve(sysm,rhs))
             solver_info = {"solver": "direct"}
 
         else: # If no specific implementation exists, use numerical optimization.
@@ -385,7 +385,7 @@ class BayesianProblem(object):
 
         # Set likelihood to constant
         model = cuqi.model.LinearModel(lambda x: 0*x, lambda y: 0*y, self.model.range_geometry, self.model.domain_geometry)
-        likelihood = cuqi.distribution.Gaussian(model, 1).to_likelihood(np.zeros(self.model.range_dim)) # p(y|x)=constant
+        likelihood = cuqi.distribution.Gaussian(model, 1).to_likelihood(xp.zeros(self.model.range_dim)) # p(y|x)=constant
         prior_problem.likelihood = likelihood
         
         # Set up burn-in
@@ -536,20 +536,20 @@ class BayesianProblem(object):
         Cx = self.prior.cov
 
         # If Ce and Cx are scalar, make them into matrices
-        if np.size(Ce)==1:
-            Ce = Ce.ravel()[0]*np.eye(self.model.range_dim)
-        if np.size(Cx)==1:
-            Cx = Cx.ravel()[0]*np.eye(self.model.domain_dim)
+        if xp.size(Ce)==1:
+            Ce = Ce.ravel()[0]*xp.eye(self.model.range_dim)
+        if xp.size(Cx)==1:
+            Cx = Cx.ravel()[0]*xp.eye(self.model.domain_dim)
 
         # Preallocate samples
         n = self.prior.dim 
-        x_s = np.zeros((n,Ns))
+        x_s = xp.zeros((n,Ns))
 
         x_map = self.MAP(disp=False) #Compute MAP estimate
-        C = np.linalg.inv(A.T@(np.linalg.inv(Ce)@A)+np.linalg.inv(Cx))
-        L = np.linalg.cholesky(C)
+        C = xp.linalg.inv(A.T@(xp.linalg.inv(Ce)@A)+xp.linalg.inv(Cx))
+        L = xp.linalg.cholesky(C)
         for s in range(Ns):
-            x_s[:,s] = x_map.parameters + L@np.random.randn(n)
+            x_s[:,s] = x_map.parameters + L@xp.random.randn(n)
             # display iterations 
             if (s % 5e2) == 0:
                 print("\r",'Sample', s, '/', Ns, end="")
@@ -570,8 +570,8 @@ class BayesianProblem(object):
             print("Using cuqi.experimental.mcmc Component-wise Metropolis-Hastings (CWMH) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
-            scale = 0.05*np.ones(self.prior.dim)
-            x0 = 0.5*np.ones(self.prior.dim)
+            scale = 0.05*xp.ones(self.prior.dim)
+            x0 = 0.5*xp.ones(self.prior.dim)
 
             sampler = cuqi.experimental.mcmc.CWMH(self.posterior, scale, x0, callback=callback)
 
@@ -592,11 +592,11 @@ class BayesianProblem(object):
             n = self.prior.dim
             
             # Set up target and proposal
-            def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
+            def proposal(x_t, sigma): return xp.random.normal(x_t, sigma)
 
             # Set up sampler
-            scale = 0.05*np.ones(n)
-            x0 = 0.5*np.ones(n)
+            scale = 0.05*xp.ones(n)
+            x0 = 0.5*xp.ones(n)
             MCMC = cuqi.sampler.CWMH(self.posterior, proposal, scale, x0, callback=callback)
             
             # Run sampler
@@ -757,7 +757,7 @@ class BayesianProblem(object):
 
         # Initial value if not given
         if x0 is None:
-            x0 = np.ones(self.model.domain_dim)
+            x0 = xp.ones(self.model.domain_dim)
 
         # Get the gradient (if available)
         try: 
@@ -831,7 +831,7 @@ class BayesianProblem(object):
         # Require gradient?
         if must_have_gradient:
             try: 
-                posterior.posterior.gradient(np.zeros(posterior.posterior.dim))
+                posterior.posterior.gradient(xp.zeros(posterior.posterior.dim))
                 G = True
             except (NotImplementedError, AttributeError):
                 G = False
@@ -913,7 +913,7 @@ class BayesianProblem(object):
         for par_name in par_names:
 
             # Dict of all other parameters to condition on with ones vector as initial value
-            other_params = {par_name_: np.ones(joint.get_density(par_name_).dim) for par_name_ in par_names if par_name_ != par_name}
+            other_params = {par_name_: xp.ones(joint.get_density(par_name_).dim) for par_name_ in par_names if par_name_ != par_name}
 
             # Condition on all other parameters to get target conditional distribution
             cond_target = joint(**other_params)

@@ -69,7 +69,7 @@ Main changes for users
    .. code-block:: python
 
       import cuqi
-      import numpy as np
+      import cuqi.array as xp
       from cuqi.distribution import Gamma, Gaussian, GMRF, JointDistribution
       from cuqi.experimental.mcmc import NUTS, HybridGibbs, Conjugate
       from cuqi.testproblem import Deconvolution1D
@@ -79,7 +79,7 @@ Main changes for users
 
       # Bayesian Inverse Problem
       s = Gamma(1, 1e-4)
-      x = GMRF(np.zeros(A.domain_dim), 50)
+      x = GMRF(xp.zeros(A.domain_dim), 50)
       y = Gaussian(A @ x, lambda s: 1 / s)
 
       # Posterior
@@ -87,7 +87,7 @@ Main changes for users
 
       # Gibbs sampling strategy. Note we can define initial_points and various parameters for each sampler
       sampling_strategy = {
-          "x": NUTS(max_depth=10, initial_point=np.zeros(A.domain_dim)),
+          "x": NUTS(max_depth=10, initial_point=xp.zeros(A.domain_dim)),
           "s": Conjugate()
       }
 

@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from scipy.linalg import toeplitz
 from scipy.sparse import csc_matrix
 from scipy.integrate import quad_vec
@@ -79,14 +79,14 @@ class _Deblur(BayesianProblem):
         warnings.warn("DEPRECATED: Use Deconvolution1D instead.")
         
         # mesh
-        mesh = np.linspace(bounds[0], bounds[1], dim)
+        mesh = xp.linspace(bounds[0], bounds[1], dim)
         meshsize = mesh[1] - mesh[0]
 
         # set-up computational model kernel
-        kernel = lambda x, y, blur_size: blur_size / 2*np.exp(-blur_size*abs((x-y)))   # blurring kernel
+        kernel = lambda x, y, blur_size: blur_size / 2*xp.exp(-blur_size*abs((x-y)))   # blurring kernel
 
         # convolution matrix
-        T1, T2 = np.meshgrid(mesh, mesh)
+        T1, T2 = xp.meshgrid(mesh, mesh)
         A = meshsize*kernel(T1, T2, blur_size)
         maxval = A.max()
         A[A < 5e-3*maxval] = 0
@@ -97,7 +97,7 @@ class _Deblur(BayesianProblem):
         
         # Prior
         if prior is None:
-            prior = Gaussian(np.zeros(dim), 1, name="x")
+            prior = Gaussian(xp.zeros(dim), 1, name="x")
 
         # Store data distribution
         data_dist = Gaussian(model(prior), noise_std**2, name="y")
@@ -121,22 +121,22 @@ class _Deblur(BayesianProblem):
 
         # f is piecewise constant
         x_min, x_max = mesh[0], mesh[-1]
-        vals = np.array([0, 2, 3, 2, 0, 1, 0])
+        vals = xp.array([0, 2, 3, 2, 0, 1, 0])
         conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
                 (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
                 (0.6 <= x) & (x <= x_max)]
-        f_signal = lambda x: np.piecewise(x, conds(x), vals)
+        f_signal = lambda x: xp.piecewise(x, conds(x), vals)
 
         # numerically integrate the convolution
         g_conv = lambda x: quad_vec(lambda y: f_signal(y)*kernel(x, y, blur_size), x_min, x_max)
-        # se also np.convolve(kernel(...), f_true, mode='same')
+        # se also xp.convolve(kernel(...), f_true, mode='same')
 
         # true values
         f_true = f_signal(mesh)
         g_true = g_conv(mesh)[0]
 
         # noisy data
-        data = g_true + data_dist(np.zeros(len(mesh))).sample() #np.squeeze(noise.sample(1)) #np.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
+        data = g_true + data_dist(xp.zeros(len(mesh))).sample() #xp.squeeze(noise.sample(1)) #xp.random.normal(loc=0, scale=self.sigma_obs, size=(self.dim))
 
         return data, f_true, g_true
 
@@ -265,14 +265,14 @@ class Deconvolution1D(BayesianProblem):
             # For efficiency, we create a sparse matrix representation of the forward model,
             # instead of using the matrix-free representation. For 1D problems, there is
             # no need to use the matrix-free representation, since the matrix is small.
-            Id = np.eye(dim)
-            A = np.array([Afun(Id[:, i]) for i in range(dim)])
+            Id = xp.eye(dim)
+            A = xp.array([Afun(Id[:, i]) for i in range(dim)])
             A = csc_matrix(A) # make it sparse
 
             model = cuqi.model.LinearModel(A, range_geometry=Continuous1D(dim), domain_geometry=Continuous1D(dim))  
 
         # Set up exact solution
-        if isinstance(phantom, np.ndarray):
+        if isinstance(phantom, xp.ndarray):
             if phantom.ndim != 1 or phantom.shape[0] != dim:
                 raise ValueError("phantom must be a 1D array of length dim")
             if phantom_param is not None:
@@ -290,7 +290,7 @@ class Deconvolution1D(BayesianProblem):
 
         # Set up prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.zeros(dim), 1, name="x")
+            prior = cuqi.distribution.Gaussian(xp.zeros(dim), 1, name="x")
 
         # Define and add noise #TODO: Add Poisson and logpoisson
         if noise_type.lower() == "gaussian":
@@ -334,7 +334,7 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
         PSF_size = dim
    
     # PSF setup
-    if isinstance(PSF, np.ndarray):
+    if isinstance(PSF, xp.ndarray):
         if PSF.ndim != 1:
             raise ValueError("PSF must be a 1D array")
         P = PSF
@@ -355,7 +355,7 @@ def _getConvolutionOperator(dim, PSF, PSF_param, PSF_size, BC):
 def _createPSF_1D(PSF_size, PSF_func):
     """ Create a 1D normalized PSF of size PSF_size using the function PSF_func. """
     # Set up grid points
-    x = np.arange(-np.fix(PSF_size/2), np.ceil(PSF_size/2))
+    x = xp.arange(-xp.fix(PSF_size/2), xp.ceil(PSF_size/2))
 
     # Compute the PSF
     PSF = PSF_func(x)
@@ -364,7 +364,7 @@ def _createPSF_1D(PSF_size, PSF_func):
     PSF /= PSF.sum()
 
     # find the center
-    center = np.where(PSF == PSF.max())[0][0]
+    center = xp.where(PSF == PSF.max())[0][0]
     return PSF, center.astype(int)
 
 def _GaussPSF_1D(PSF_size, PSF_param):
@@ -375,7 +375,7 @@ def _GaussPSF_1D(PSF_size, PSF_param):
         PSF_param = 10
 
     # Set up Gaussian function
-    PSF_func = lambda x: np.exp( -0.5*((x**2)/(PSF_param**2)) )
+    PSF_func = lambda x: xp.exp( -0.5*((x**2)/(PSF_param**2)) )
 
     return _createPSF_1D(PSF_size, PSF_func)
 
@@ -398,16 +398,16 @@ def _DefocusPSF_1D(PSF_size, PSF_param):
     if PSF_param is None:
         PSF_param = 10
 
-    center = np.fix(int(PSF_size/2))
+    center = xp.fix(int(PSF_size/2))
     if (PSF_param == 0):    
         # the PSF is a delta function and so the blurring matrix is I
-        PSF = np.zeros(PSF_size)
+        PSF = xp.zeros(PSF_size)
         PSF[center] = 1
     else:
-        PSF = np.ones(PSF_size) / (np.pi * PSF_param**2)
-        k = np.arange(1, PSF_size+1)
+        PSF = xp.ones(PSF_size) / (xp.pi * PSF_param**2)
+        k = xp.arange(1, PSF_size+1)
         aa = (k-center)**2
-        idx = np.array((aa > (PSF_param**2)))
+        idx = xp.array((aa > (PSF_param**2)))
         PSF[idx] = 0
     PSF = PSF / PSF.sum()
 
@@ -437,38 +437,38 @@ def _getCirculantMatrix(dim, PSF, PSF_param):
     if not (dim % 2) == 0:
         raise NotImplementedError("Circulant matrix not implemented for odd numbers")
 
-    if isinstance(PSF, np.ndarray):
+    if isinstance(PSF, xp.ndarray):
         if PSF_param is not None: warnings.warn("PSF_param is ignored when PSF is a ndarray")
         if PSF.ndim != 1 or PSF.shape[0] != dim:
             raise ValueError("kernel must be a 1D array of length dim")
-        h = np.roll(PSF, -int(dim/2))
-        #h = h/np.linalg.norm(h)**2 # TODO: Normalize
-        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        h = xp.roll(PSF, -int(dim/2))
+        #h = h/xp.linalg.norm(h)**2 # TODO: Normalize
+        hflip = xp.concatenate((h[0:1], xp.flipud(h[1:])))
         return toeplitz(hflip,h) 
 
     dim_half = dim/2
-    grid = np.arange(dim_half+1)/dim
+    grid = xp.arange(dim_half+1)/dim
 
     if PSF.lower() == "gauss":
         if PSF_param is None: PSF_param = 10
-        h = np.exp(-(PSF_param*grid)**2)
-        h = np.concatenate((h,np.flipud(h[1:-1])))
-        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        h = xp.exp(-(PSF_param*grid)**2)
+        h = xp.concatenate((h,xp.flipud(h[1:-1])))
+        hflip = xp.concatenate((h[0:1], xp.flipud(h[1:])))
         return toeplitz(hflip,h)    
 
     elif PSF.lower() == "sinc" or PSF.lower() == "prolate":
         if PSF_param is None: PSF_param = 15
-        h = np.sinc(PSF_param*grid)
-        h = np.concatenate((h,np.flipud(h[1:-1])))
-        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        h = xp.sinc(PSF_param*grid)
+        h = xp.concatenate((h,xp.flipud(h[1:-1])))
+        hflip = xp.concatenate((h[0:1], xp.flipud(h[1:])))
         return toeplitz(hflip,h)
 
     elif PSF.lower() == "vonmises":
         if PSF_param is None: PSF_param = 5
-        h = np.exp(np.cos(2*np.pi*grid))
+        h = xp.exp(xp.cos(2*xp.pi*grid))
         h = (h/h[0])**PSF_param
-        h = np.concatenate((h,np.flipud(h[1:-1])))
-        hflip = np.concatenate((h[0:1], np.flipud(h[1:])))
+        h = xp.concatenate((h,xp.flipud(h[1:-1])))
+        hflip = xp.concatenate((h[0:1], xp.flipud(h[1:])))
         return toeplitz(hflip,h)
 
     else:
@@ -500,59 +500,59 @@ def _getExactSolution(dim, phantom, phantom_param):
 
     if phantom.lower() == "gauss":
         if phantom_param is None: phantom_param = 5
-        return np.exp(-(phantom_param*np.linspace(-1,1,dim))**2)
+        return xp.exp(-(phantom_param*xp.linspace(-1,1,dim))**2)
 
     elif phantom.lower() == "sinc":
         if phantom_param is None: phantom_param = 5
-        return np.sinc(phantom_param*np.linspace(-1,1,dim))        
+        return xp.sinc(phantom_param*xp.linspace(-1,1,dim))        
 
     elif phantom.lower() == "vonmises":
         if phantom_param is None: phantom_param = 5
-        x = np.exp(np.cos(np.pi*np.linspace(-1,1,dim)))
-        return (x/np.max(x))**phantom_param
+        x = xp.exp(xp.cos(xp.pi*xp.linspace(-1,1,dim)))
+        return (x/xp.max(x))**phantom_param
 
     elif phantom.lower() == "square":
         if phantom_param is None: phantom_param = 15
         if phantom_param < 3: raise ValueError("The 'square' phantom_param must be larger than or equal to 3")
-        x = np.zeros(dim)
-        dimh = int(np.round(dim/2))
-        w = int(np.round(dim/phantom_param))
+        x = xp.zeros(dim)
+        dimh = int(xp.round(dim/2))
+        w = int(xp.round(dim/phantom_param))
         x[(dimh-w):(dimh+w)] = 1
         return x
 
     elif phantom.lower() == "hat":
         if phantom_param is None: phantom_param = 15
         if phantom_param < 3: raise ValueError("The 'hat' phantom_param must be larger than or equal to 3")
-        x = np.zeros(dim)
-        dimh = int(np.round(dim/2))
-        w = int(np.round(dim/phantom_param))
-        x[(dimh-w-1):(dimh)] = np.arange(w+1)/w
-        x[(dimh-1):(dimh+w)] = np.flipud(np.arange(w+1))/w
+        x = xp.zeros(dim)
+        dimh = int(xp.round(dim/2))
+        w = int(xp.round(dim/phantom_param))
+        x[(dimh-w-1):(dimh)] = xp.arange(w+1)/w
+        x[(dimh-1):(dimh+w)] = xp.flipud(xp.arange(w+1))/w
         return x
 
     elif phantom.lower() == "bumps":
         if phantom_param is not None: warnings.warn("phantom_param is not used for phantom = 'bumps'")
-        h = np.pi/dim
+        h = xp.pi/dim
         a1 =   1; c1 = 12; t1 =  0.8
         a2 = 0.5; c2 =  5; t2 = -0.5
-        grid = np.linspace(0.5,dim-0.5,dim)
-        x = a1*np.exp(-c1*(-np.pi/2 + grid*h - t1)**2)+a2*np.exp(-c2*(-np.pi/2 + grid*h - t2)**2)
+        grid = xp.linspace(0.5,dim-0.5,dim)
+        x = a1*xp.exp(-c1*(-xp.pi/2 + grid*h - t1)**2)+a2*xp.exp(-c2*(-xp.pi/2 + grid*h - t2)**2)
         return x
 
     elif phantom.lower() == "derivgauss":
         if phantom_param is None: phantom_param = 5
-        x = np.diff(_getExactSolution(dim+1,'gauss',phantom_param))
-        return x/np.max(x)
+        x = xp.diff(_getExactSolution(dim+1,'gauss',phantom_param))
+        return x/xp.max(x)
     
     elif phantom.lower() == 'pc':
         if phantom_param is not None: warnings.warn("phantom_param is not used for phantom = 'pc'")
-        mesh = np.linspace(0,1,dim)
+        mesh = xp.linspace(0,1,dim)
         x_min, x_max = mesh[0], mesh[-1]
-        vals = np.array([0, 2, 3, 2, 0, 1, 0])
+        vals = xp.array([0, 2, 3, 2, 0, 1, 0])
         conds = lambda x: [(x_min <= x) & (x < 0.1), (0.1 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.2),  \
                 (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.3), (0.3 <= x) & (x < 0.6), \
                 (0.6 <= x) & (x <= x_max)]
-        f_signal = lambda x: np.piecewise(x, conds(x), vals)
+        f_signal = lambda x: xp.piecewise(x, conds(x), vals)
         x = f_signal(mesh)
         return x
 
@@ -560,13 +560,13 @@ def _getExactSolution(dim, phantom, phantom_param):
         if phantom_param is not None: warnings.warn("phantom_param is not used for phantom = 'skyscraper'")
         x_min = 0 
         x_max = 1
-        vals = np.array([0, 1.5, 0, 1.3, 0, 0.75, 0, 0.25, 0, 1, 0])
+        vals = xp.array([0, 1.5, 0, 1.3, 0, 0.75, 0, 0.25, 0, 1, 0])
         conds = lambda x: [(x_min <= x) & (x < 0.10), (0.10 <= x) & (x < 0.15), (0.15 <= x) & (x < 0.20),  \
                         (0.20  <= x) & (x < 0.25), (0.25 <= x) & (x < 0.35), (0.35 <= x) & (x < 0.38),\
                         (0.38  <= x) & (x < 0.45), (0.45 <= x) & (x < 0.55), \
                         (0.55  <= x) & (x < 0.75), (0.75 <= x) & (x < 0.8), (0.8 <= x) & (x <= x_max)]
-        f_fun = lambda x: np.piecewise(x, conds(x), vals)
-        mesh = np.linspace(x_min, x_max, dim)
+        f_fun = lambda x: xp.piecewise(x, conds(x), vals)
+        mesh = xp.linspace(x_min, x_max, dim)
         x = f_fun(mesh)
         return x
 
@@ -613,7 +613,7 @@ class Poisson1D(BayesianProblem):
 
 
     observation_grid_map : lambda function
-        | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[np.where(x>5.0)]`. 
+        | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[xp.where(x>5.0)]`. 
 
     Attributes
     ----------
@@ -646,28 +646,28 @@ class Poisson1D(BayesianProblem):
         NB: Requires prior to be defined.
 
     """
-    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*np.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, observation_grid_map=None, exactSolution=None):
+    def __init__(self, dim=128, endpoint=1, source=lambda xs: 10*xp.exp( -( (xs - 0.5)**2 ) / 0.02), field_type=None, field_params=None, map=None, imap=None, SNR=200, observation_grid_map=None, exactSolution=None):
 
         # Prepare PDE form
         N = dim-1   # Number of solution nodes
         dx = endpoint/N   # step size
-        grid = np.linspace(dx, endpoint, N, endpoint=False)
-        Dx = - np.diag(np.ones(N), 0) + np.diag(np.ones(N-1), 1) #Dx
-        vec = np.zeros(N)
+        grid = xp.linspace(dx, endpoint, N, endpoint=False)
+        Dx = - xp.diag(xp.ones(N), 0) + xp.diag(xp.ones(N-1), 1) #Dx
+        vec = xp.zeros(N)
         vec[0] = 1
-        Dx = np.concatenate([vec.reshape([1, -1]), Dx], axis=0)
+        Dx = xp.concatenate([vec.reshape([1, -1]), Dx], axis=0)
         Dx /= dx # FD derivative matrix
         rhs = source(grid)
         
         # Grids for model
-        grid_domain = np.linspace(0, endpoint, dim, endpoint=True)
-        grid_range  = np.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
+        grid_domain = xp.linspace(0, endpoint, dim, endpoint=True)
+        grid_range  = xp.linspace(1./(dim-1), endpoint, dim-1, endpoint=False)
 
         # PDE form: LHS(x)u=rhs(x)
         grid_obs = grid_range
         if observation_grid_map is not None:
             grid_obs = observation_grid_map(grid_range)
-        PDE_form = lambda x: (Dx.T @ np.diag(x) @ Dx, rhs)
+        PDE_form = lambda x: (Dx.T @ xp.diag(x) @ Dx, rhs)
         PDE = cuqi.pde.SteadyStateLinearPDE(PDE_form, grid_sol=grid_range,  grid_obs=grid_obs)
 
         # Set up geometries for model
@@ -696,7 +696,7 @@ class Poisson1D(BayesianProblem):
 
         # Set up exact solution
         if exactSolution is None:
-            x_exact = np.exp( 5*grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain) ) 
+            x_exact = xp.exp( 5*grid_domain*xp.exp(-2*grid_domain)*xp.sin(endpoint-grid_domain) ) 
         else: 
             x_exact = exactSolution 
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
@@ -705,12 +705,12 @@ class Poisson1D(BayesianProblem):
         y_exact = model.forward(x_exact,is_par=False)
 
         # Add noise to data
-        sigma = np.linalg.norm(y_exact)/SNR
+        sigma = xp.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
+        data = y_exact + xp.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        x = cuqi.distribution.Gaussian(xp.zeros(model.domain_dim), 1)
         y = cuqi.distribution.Gaussian(model, sigma2)
 
         # Initialize Deconvolution as BayesianProblem problem
@@ -748,7 +748,7 @@ class Heat1D(BayesianProblem):
         | A dictionary of key word arguments that the underlying geometry accepts. (Passed to the underlying geometry when field type is `KL`, `KL_Full`, `CustomKL`, `Step`). For example, for `Step` field type, the dictionary can be `{"n_steps": 3}`.
 
     map : lambda function
-        | If given, an underlying `MappedGeometry` geometry object is created which applies the mapping on the field, e.g. for log parameterization: `map = lambda x:np.exp(x)`.
+        | If given, an underlying `MappedGeometry` geometry object is created which applies the mapping on the field, e.g. for log parameterization: `map = lambda x:xp.exp(x)`.
 
     imap : lambda function
         | The inverse of the provided map. 
@@ -761,7 +761,7 @@ class Heat1D(BayesianProblem):
 
 
     observation_grid_map : lambda function
-       | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[np.where(x>5.0)]`. 
+       | Function that takes the grid as input and returns a sub-grid of the nodes where observations are available, e.g. `observation_grid_map = lambda x: x[xp.where(x>5.0)]`. 
  
     Attributes
     ----------
@@ -803,19 +803,19 @@ class Heat1D(BayesianProblem):
         cfl = 5/11 # the cfl condition to have a stable solution
         dt_approx = cfl*dx**2 # defining approximate time step size
         max_iter = int(max_time/dt_approx) # number of time steps
-        Dxx = (np.diag( -2*np.ones(N) ) + np.diag(np.ones(N-1),-1) + np.diag(np.ones(N-1),1))/dx**2 # FD diffusion operator
+        Dxx = (xp.diag( -2*xp.ones(N) ) + xp.diag(xp.ones(N-1),-1) + xp.diag(xp.ones(N-1),1))/dx**2 # FD diffusion operator
         
         # Grids for model
-        grid_domain = np.linspace(dx, endpoint, N, endpoint=False)
-        grid_range = np.linspace(dx, endpoint, N, endpoint=False) 
-        time_steps = np.linspace(0,max_time,max_iter+1,endpoint=True)
+        grid_domain = xp.linspace(dx, endpoint, N, endpoint=False)
+        grid_range = xp.linspace(dx, endpoint, N, endpoint=False) 
+        time_steps = xp.linspace(0,max_time,max_iter+1,endpoint=True)
 
         # PDE form (diff_op, IC, time_steps)
         grid_obs = grid_range
         if observation_grid_map is not None:
             grid_obs = observation_grid_map(grid_obs)
 
-        def PDE_form(IC, t): return (Dxx, np.zeros(N), IC)
+        def PDE_form(IC, t): return (Dxx, xp.zeros(N), IC)
         PDE = cuqi.pde.TimeDependentLinearPDE(
             PDE_form, time_steps, grid_sol=grid_domain, grid_obs=grid_obs)
 
@@ -847,21 +847,21 @@ class Heat1D(BayesianProblem):
         else:
             if field_type=="Step":
                 n_steps = domain_geometry.n_steps
-                x_exact = CUQIarray(domain_geometry.par2fun(np.array(range(n_steps))), is_par=False, geometry=domain_geometry)
+                x_exact = CUQIarray(domain_geometry.par2fun(xp.array(range(n_steps))), is_par=False, geometry=domain_geometry)
             else:
                 grid_domain = model.domain_geometry.grid
-                x_exact = grid_domain*np.exp(-2*grid_domain)*np.sin(endpoint-grid_domain)
+                x_exact = grid_domain*xp.exp(-2*grid_domain)*xp.sin(endpoint-grid_domain)
                 x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
-        #x_exact = 100*grid_domain*np.exp(-5*grid_domain)*np.sin(endpoint-grid_domain)
+        #x_exact = 100*grid_domain*xp.exp(-5*grid_domain)*xp.sin(endpoint-grid_domain)
         # Generate exact data
         y_exact = model.forward(x_exact, is_par=False)
         # Add noise to data
-        sigma = np.linalg.norm(y_exact)/SNR
+        sigma = xp.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
+        data = y_exact + xp.random.normal(0, sigma, y_exact.shape)
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        x = cuqi.distribution.Gaussian(xp.zeros(model.domain_dim), 1)
         y = cuqi.distribution.Gaussian(model(x), sigma2)
 
         # Initialize Heat1D as BayesianProblem problem
@@ -931,17 +931,17 @@ class Abel1D(BayesianProblem):
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
 
-        tvec = np.linspace(h/2, endpoint-h/2, N).reshape(1, -1) 
+        tvec = xp.linspace(h/2, endpoint-h/2, N).reshape(1, -1) 
         svec = tvec.reshape(-1, 1) + h/2
-        tmat = np.tile( tvec, [N, 1] )
-        smat = np.tile( svec, [1, N] )
+        tmat = xp.tile( tvec, [N, 1] )
+        smat = xp.tile( svec, [1, N] )
         
-        idx = np.where(tmat<smat) # only applying the quadrature on 0<x<1
-        A = np.zeros([N,N]) # Abel integral operator
-        A[idx[0], idx[1]] = h/np.sqrt( np.abs( smat[idx[0], idx[1]] - tmat[idx[0], idx[1]] ) )
+        idx = xp.where(tmat<smat) # only applying the quadrature on 0<x<1
+        A = xp.zeros([N,N]) # Abel integral operator
+        A[idx[0], idx[1]] = h/xp.sqrt( xp.abs( smat[idx[0], idx[1]] - tmat[idx[0], idx[1]] ) )
 
         # discretization
-        grid = np.linspace(0, endpoint, N)
+        grid = xp.linspace(0, endpoint, N)
 
         # Geometry
         if field_params is None:
@@ -966,7 +966,7 @@ class Abel1D(BayesianProblem):
         model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
     
         # Set up exact solution
-        x_exact = np.sin(tvec*np.pi)*np.exp(-2*tvec)
+        x_exact = xp.sin(tvec*xp.pi)*xp.exp(-2*tvec)
         x_exact.shape = (dim,)
         x_exact = CUQIarray(x_exact, is_par=False, geometry=domain_geometry)
 
@@ -974,12 +974,12 @@ class Abel1D(BayesianProblem):
         y_exact = model.forward(x_exact,is_par=False)
 
         # Add noise to data
-        sigma = np.linalg.norm(y_exact)/SNR
+        sigma = xp.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal(0, sigma, y_exact.shape )
+        data = y_exact + xp.random.normal(0, sigma, y_exact.shape )
 
         # Bayesian model
-        x = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1)
+        x = cuqi.distribution.Gaussian(xp.zeros(model.domain_dim), 1)
         y = cuqi.distribution.Gaussian(model(x), sigma2)
         
         # Initialize Deconvolution as BayesianProblem problem
@@ -1051,13 +1051,13 @@ class _Deconv_1D(BayesianProblem):
         
         N = dim # number of quadrature points
         h = endpoint/N # quadrature weight
-        grid = np.linspace(0, endpoint, N)
+        grid = xp.linspace(0, endpoint, N)
 
         if kernel is None:
-            kernel = lambda x, y, blur_size_var: blur_size_var / 2*np.exp(-blur_size*abs((x-y)))   # blurring kernel
+            kernel = lambda x, y, blur_size_var: blur_size_var / 2*xp.exp(-blur_size*abs((x-y)))   # blurring kernel
         
         # convolution matrix
-        T1, T2 = np.meshgrid(grid, grid)
+        T1, T2 = xp.meshgrid(grid, grid)
         A = h*kernel(T1, T2, blur_size)
         maxval = A.max()
         A[A < 5e-3*maxval] = 0
@@ -1084,7 +1084,7 @@ class _Deconv_1D(BayesianProblem):
         model = LinearModel(A,range_geometry=range_geometry, domain_geometry=domain_geometry)
     
         # Prior
-        prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=model.domain_geometry, name="x")
+        prior = cuqi.distribution.Gaussian(xp.zeros(model.domain_dim), 1, geometry=model.domain_geometry, name="x")
 
         # Set up exact solution
         x_exact = prior.sample()
@@ -1093,9 +1093,9 @@ class _Deconv_1D(BayesianProblem):
         y_exact = model.forward(x_exact)
 
         # Add noise to data
-        sigma = np.linalg.norm(y_exact)/SNR
+        sigma = xp.linalg.norm(y_exact)/SNR
         sigma2 = sigma*sigma # variance of the observation Gaussian noise
-        data = y_exact + np.random.normal(0, sigma, y_exact.shape)
+        data = y_exact + xp.random.normal(0, sigma, y_exact.shape)
 
         likelihood = cuqi.distribution.Gaussian(model(prior), sigma2, name="y").to_likelihood(data)
         
@@ -1243,15 +1243,15 @@ class Deconvolution2D(BayesianProblem):
             raise TypeError("Unknown BC type")
 
         # Set up PSF.
-        if isinstance(PSF, np.ndarray):
+        if isinstance(PSF, xp.ndarray):
             P = PSF
         elif isinstance(PSF, str):
             if PSF.lower() == "gauss":
-                P, _ = _GaussPSF(np.array([PSF_size, PSF_size]), PSF_param)
+                P, _ = _GaussPSF(xp.array([PSF_size, PSF_size]), PSF_param)
             elif PSF.lower() == "moffat":
-                P, _ = _MoffatPSF(np.array([PSF_size, PSF_size]), PSF_param, 1)
+                P, _ = _MoffatPSF(xp.array([PSF_size, PSF_size]), PSF_param, 1)
             elif PSF.lower() == "defocus":
-                P, _ = _DefocusPSF(np.array([PSF_size, PSF_size]), PSF_param)
+                P, _ = _DefocusPSF(xp.array([PSF_size, PSF_size]), PSF_param)
         else:
             raise TypeError(f"Unknown PSF: {PSF}.")
 
@@ -1262,11 +1262,11 @@ class Deconvolution2D(BayesianProblem):
                                        domain_geometry)
 
         # User provided phantom as ndarray
-        if isinstance(phantom, np.ndarray):
+        if isinstance(phantom, xp.ndarray):
             if phantom.ndim > 2:
                 raise ValueError("Input phantom image must be an image (matrix) or vector")
             if phantom.ndim == 1:
-                N = int(round(np.sqrt(len(phantom))))
+                N = int(round(xp.sqrt(len(phantom))))
                 phantom = phantom.reshape(N,N)
             phantom = cuqi.data.imresize(phantom, dim) # Resize phantom (if wrong size)
             x_exact2D = phantom
@@ -1289,7 +1289,7 @@ class Deconvolution2D(BayesianProblem):
 
         # Create prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.zeros(model.domain_dim), 1, geometry=domain_geometry, name="x")
+            prior = cuqi.distribution.Gaussian(xp.zeros(model.domain_dim), 1, geometry=domain_geometry, name="x")
 
         # Data distribution
         if noise_type.lower() == "gaussian":
@@ -1316,7 +1316,7 @@ class Deconvolution2D(BayesianProblem):
 #=========================================================================
 def _proj_forward_2D(X, P, BC):
     PSF_size = max(P.shape)
-    X_padded = np.pad(X, PSF_size//2, mode=BC)
+    X_padded = xp.pad(X, PSF_size//2, mode=BC)
     Ax = fftconvolve(X_padded, P, mode='valid')
     if not PSF_size & 0x1: # If PSF_size is even
         Ax = Ax[1:, 1:] # Remove first row and column to fit convolve math
@@ -1324,7 +1324,7 @@ def _proj_forward_2D(X, P, BC):
 
 #=========================================================================
 def _proj_backward_2D(B, P, BC):
-    P = np.flipud(np.fliplr(P)) # Flip PSF
+    P = xp.flipud(xp.fliplr(P)) # Flip PSF
     return _proj_forward_2D(B, P, BC)
 
 # ===================================================================
@@ -1338,17 +1338,17 @@ def _GaussPSF(dim, s):
     s1, s2 = s, s
     
     # Set up grid points to evaluate the Gaussian function
-    x = np.arange(-np.fix(n/2), np.ceil(n/2))
-    y = np.arange(-np.fix(m/2), np.ceil(m/2))
-    X, Y = np.meshgrid(x, y)
+    x = xp.arange(-xp.fix(n/2), xp.ceil(n/2))
+    y = xp.arange(-xp.fix(m/2), xp.ceil(m/2))
+    X, Y = xp.meshgrid(x, y)
 
     # Compute the Gaussian, and normalize the PSF.
-    PSF = np.exp( -0.5* ((X**2)/(s1**2) + (Y**2)/(s2**2)) )
+    PSF = xp.exp( -0.5* ((X**2)/(s1**2) + (Y**2)/(s2**2)) )
     PSF /= PSF.sum()
 
     # find the center
-    mm, nn = np.where(PSF == PSF.max())
-    center = np.array([mm[0], nn[0]])
+    mm, nn = xp.where(PSF == PSF.max())
+    center = xp.array([mm[0], nn[0]])
 
     return PSF, center.astype(int)
 # ===================================================================
@@ -1362,17 +1362,17 @@ def _MoffatPSF(dim, s, beta):
     s1, s2 = s, s
     
     # Set up grid points to evaluate the Gaussian function
-    x = np.arange(-np.fix(n/2), np.ceil(n/2))
-    y = np.arange(-np.fix(m/2), np.ceil(m/2))
-    X, Y = np.meshgrid(x, y)
+    x = xp.arange(-xp.fix(n/2), xp.ceil(n/2))
+    y = xp.arange(-xp.fix(m/2), xp.ceil(m/2))
+    X, Y = xp.meshgrid(x, y)
 
     # Compute the Gaussian, and normalize the PSF.
     PSF = ( 1 + (X**2)/(s1**2) + (Y**2)/(s2**2) )**(-beta)
     PSF = PSF / PSF.sum()
 
     # find the center
-    mm, nn = np.where(PSF == PSF.max())
-    center = np.array([mm[0], nn[0]])
+    mm, nn = xp.where(PSF == PSF.max())
+    center = xp.array([mm[0], nn[0]])
 
     return PSF, center.astype(int)
 # ===================================================================
@@ -1384,17 +1384,17 @@ def _DefocusPSF(dim, R):
     else:
         m, n = dim, dim
     
-    center = np.fix((np.array([m, n]))/2)
+    center = xp.fix((xp.array([m, n]))/2)
     if (R == 0):    
         # the PSF is a delta function and so the blurring matrix is I
-        PSF = np.zeros((m, n))
+        PSF = xp.zeros((m, n))
         PSF[center[0], center[1]] = 1
     else:
-        PSF = np.ones((m, n)) / (np.pi * R**2)
-        k = np.arange(1, max(m, n)+1)
+        PSF = xp.ones((m, n)) / (xp.pi * R**2)
+        k = xp.arange(1, max(m, n)+1)
         aa, bb = (k-center[0])**2, (k-center[1])**2
-        A, B = np.meshgrid(aa, aa), np.meshgrid(bb, bb)
-        idx = np.array(((A[0].T + B[0]) > (R**2)))
+        A, B = xp.meshgrid(aa, aa), xp.meshgrid(bb, bb)
+        idx = xp.array(((A[0].T + B[0]) > (R**2)))
         PSF[idx] = 0
     PSF = PSF / PSF.sum()
 
@@ -1428,12 +1428,12 @@ class WangCubic(BayesianProblem):
         def forward(x):
             return 10*x[1] - 10*x[0]**3 + 5*x[0]**2 + 6*x[0]
         def jacobian(x):
-            return np.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
+            return xp.array([[-30*x[0]**2 + 10*x[0] + 6, 10]])
         model = cuqi.model.Model(forward, range_geometry=1, domain_geometry=2, jacobian=jacobian)
 
         # define prior
         if prior is None:
-            prior = cuqi.distribution.Gaussian(np.array([1, 0]), 1, name="x")
+            prior = cuqi.distribution.Gaussian(xp.array([1, 0]), 1, name="x")
 
         # data
         if data is None:

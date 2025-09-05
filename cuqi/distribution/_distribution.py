@@ -9,7 +9,7 @@ from cuqi.samples import Samples
 from cuqi.array import CUQIarray
 from cuqi.geometry import _DefaultGeometry1D, _DefaultGeometry2D, Geometry
 from cuqi.utilities import infer_len, get_writeable_attributes, get_writeable_properties, get_non_default_args, get_indirect_variables
-import numpy as np # To be replaced by cuqi.array_api
+import cuqi.array as xp
 
 # ========== Abstract distribution class ===========
 class Distribution(Density, ABC):
@@ -124,7 +124,7 @@ class Distribution(Density, ABC):
     def geometry(self,value):
         if isinstance(value, tuple) and len(value) == 2:
             self._geometry = _DefaultGeometry2D(value)           
-        elif isinstance(value, (int,np.integer)) or value is None:
+        elif isinstance(value, (int,xp.integer)) or value is None:
             self._geometry = _DefaultGeometry1D(grid=value)
         elif isinstance(value, Geometry):
             self._geometry = value
@@ -218,7 +218,7 @@ class Distribution(Density, ABC):
 
         #Store samples in cuqi samples object if more than 1 sample
         if N==1:
-            if len(s) == 1 and isinstance(s,np.ndarray): #Extract single value from numpy array
+            if len(s) == 1 and isinstance(s,xp.ndarray): #Extract single value from numpy array
                 s = s.ravel()[0]
             else:
                 s = s.flatten()
@@ -234,7 +234,7 @@ class Distribution(Density, ABC):
 
     def pdf(self,x):
         """ Evaluate the log probability density function of the distribution. """
-        return np.exp(self.logpdf(x))
+        return xp.exp(self.logpdf(x))
 
     def _condition(self, *args, **kwargs):
         """ Generate new distribution conditioned on the input arguments.

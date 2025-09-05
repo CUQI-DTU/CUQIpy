@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import warnings
 from cuqi.geometry import _DefaultGeometry1D, Image2D, _get_identity_geometries
 from cuqi.distribution import Distribution
@@ -39,8 +39,8 @@ class CMRF(Distribution):
     .. code-block:: python
 
         import cuqi
-        import numpy as np
-        prior = cuqi.distribution.CMRF(location=np.zeros(128), scale=0.1)
+        import cuqi.array as xp
+        prior = cuqi.distribution.CMRF(location=xp.zeros(128), scale=0.1)
  
     """
    
@@ -66,7 +66,7 @@ class CMRF(Distribution):
         self._physical_dim = physical_dim
 
         if self._physical_dim == 2:
-            N = int(np.sqrt(self.dim))
+            N = int(xp.sqrt(self.dim))
             num_nodes = (N, N)
         else: 
             num_nodes = self.dim
@@ -85,7 +85,7 @@ class CMRF(Distribution):
     def logpdf(self, x):
         Dx = self._diff_op @ (x-self.location)
         # g_logpr = (-2*Dx/(Dx**2 + gamma**2)) @ D
-        return -len(Dx)*np.log(np.pi) + sum(np.log(self.scale) - np.log(Dx**2 + self.scale**2))
+        return -len(Dx)*xp.log(xp.pi) + sum(xp.log(self.scale) - xp.log(Dx**2 + self.scale**2))
     
     def _gradient(self, val, **kwargs):
         #Avoid complicated geometries that change the gradient.
@@ -102,7 +102,7 @@ class CMRF(Distribution):
         raise NotImplementedError("'CMRF.sample' is not implemented. Sampling can be performed with the 'sampler' module.")
 
     # def cdf(self, x):   # TODO
-    #     return 1/np.pi * np.atan((x-self.loc)/self.scale)
+    #     return 1/xp.pi * xp.atan((x-self.loc)/self.scale)
 
     # def sample(self):   # TODO
-    #     return self.loc + self.scale*np.tan(np.pi*(np.random.rand(self.dim)-1/2))
+    #     return self.loc + self.scale*xp.tan(xp.pi*(xp.random.rand(self.dim)-1/2))

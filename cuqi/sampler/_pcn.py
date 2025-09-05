@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.sampler import Sampler
 
@@ -16,7 +16,7 @@ class pCN(Sampler):
 
     scale : int
 
-    x0 : `np.ndarray` 
+    x0 : `xp.ndarray` 
       Initial point for the sampler
 
     callback : callable, *Optional*
@@ -34,14 +34,14 @@ class pCN(Sampler):
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function of likelihood
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
 
         # sample function of prior N(0,I)
-        sample_func = lambda : 0 + 1*np.random.randn(dim,1)
+        sample_func = lambda : 0 + 1*xp.random.randn(dim,1)
 
         # Define as UserDefinedDistributions
         likelihood = cuqi.likelihood.UserDefinedLikelihood(dim=dim, logpdf_func=logpdf_func)
@@ -62,13 +62,13 @@ class pCN(Sampler):
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Define as UserDefinedDistributions
         model = cuqi.model.Model(lambda x: x, range_geometry=dim, domain_geometry=dim)
-        likelihood = cuqi.distribution.Gaussian(mean=model, cov=np.ones(dim)).to_likelihood(mu)
-        prior = cuqi.distribution.Gaussian(mean=np.zeros(dim), cov=1)
+        likelihood = cuqi.distribution.Gaussian(mean=model, cov=xp.ones(dim)).to_likelihood(mu)
+        prior = cuqi.distribution.Gaussian(mean=xp.zeros(dim), cov=1)
 
         target = cuqi.distribution.Posterior(likelihood, prior)
 
@@ -130,9 +130,9 @@ class pCN(Sampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.dim, Ns))
-        loglike_eval = np.empty(Ns)
-        acc = np.zeros(Ns, dtype=int)
+        samples = xp.empty((self.dim, Ns))
+        loglike_eval = xp.empty(Ns)
+        acc = xp.zeros(Ns, dtype=int)
 
         # initial state    
         samples[:, 0] = self.x0
@@ -163,9 +163,9 @@ class pCN(Sampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.dim, Ns))
-        loglike_eval = np.empty(Ns)
-        acc = np.zeros(Ns)
+        samples = xp.empty((self.dim, Ns))
+        loglike_eval = xp.empty(Ns)
+        acc = xp.zeros(Ns)
 
         # initial state    
         samples[:, 0] = self.x0
@@ -174,7 +174,7 @@ class pCN(Sampler):
 
         # initial adaptation params 
         Na = int(0.1*N)                              # iterations to adapt
-        hat_acc = np.empty(int(np.floor(Ns/Na)))     # average acceptance rate of the chains
+        hat_acc = xp.empty(int(xp.floor(Ns/Na)))     # average acceptance rate of the chains
         lambd = self.scale
         star_acc = 0.44    # target acceptance rate RW
         i, idx = 0, 0
@@ -187,11 +187,11 @@ class pCN(Sampler):
             # adapt prop spread using acc of past samples
             if ((s+1) % Na == 0):
                 # evaluate average acceptance rate
-                hat_acc[i] = np.mean(acc[idx:idx+Na])
+                hat_acc[i] = xp.mean(acc[idx:idx+Na])
 
                 # d. compute new scaling parameter
-                zeta = 1/np.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
-                lambd = np.exp(np.log(lambd) + zeta*(hat_acc[i]-star_acc))
+                zeta = 1/xp.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
+                lambd = xp.exp(xp.log(lambd) + zeta*(hat_acc[i]-star_acc))
 
                 # update parameters
                 self.scale = min(lambd, 1)
@@ -219,7 +219,7 @@ class pCN(Sampler):
     def single_update(self, x_t, loglike_eval_t):
         # propose state
         xi = self.prior.sample(1).flatten()   # sample from the prior
-        x_star = np.sqrt(1-self.scale**2)*x_t + self.scale*xi   # pCN proposal
+        x_star = xp.sqrt(1-self.scale**2)*x_t + self.scale*xi   # pCN proposal
 
         # evaluate target
         loglike_eval_star =  self._loglikelihood(x_star) 
@@ -229,7 +229,7 @@ class pCN(Sampler):
         alpha = min(0, ratio)
 
         # accept/reject
-        u_theta = np.log(np.random.rand())
+        u_theta = xp.log(xp.random.rand())
         if (u_theta <= alpha):
             x_next = x_star
             loglike_eval_next = loglike_eval_star

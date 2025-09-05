@@ -4,7 +4,7 @@ from cuqi.solver import ProjectNonnegative, ProjectBox, ProximalL1
 from cuqi.geometry import Continuous1D, Continuous2D, Image2D
 from cuqi.operator import FirstOrderFiniteDifference, SecondOrderFiniteDifference, Operator
 
-import numpy as np
+import cuqi.array as xp
 import scipy.sparse as sparse
 import scipy.optimize as spoptimize
 
@@ -52,7 +52,7 @@ class RegularizedGaussian(Distribution):
         If list of tuples (callable proximal operator of f_i, linear operator L_i):
             Each callable proximal operator of f_i accepts two arguments (x, p) and should return the minimizer of p/2||x-z||^2 + f(x) over z for some f.
             Each linear operator needs to have the '__matmul__', 'T' and 'shape' attributes;
-            this includes numpy.ndarray, scipy.sparse.sparray, scipy.sparse.linalg.LinearOperator and cuqi.operator.Operator.
+            this includes xp.ndarray, scipy.sparse.sparray, scipy.sparse.linalg.LinearOperator and cuqi.operator.Operator.
             The corresponding regularization takes the form
                 sum_i f_i(L_i x),
             where the sum ranges from 1 to an arbitrary n.
@@ -178,13 +178,13 @@ class RegularizedGaussian(Distribution):
             c_lower = constraint.lower()
             if c_lower == "nonnegativity":
                 self._constraint_prox = lambda z, gamma: ProjectNonnegative(z)
-                self._box_bounds = (np.ones(self.dim)*0, np.ones(self.dim)*np.inf)
+                self._box_bounds = (xp.ones(self.dim)*0, xp.ones(self.dim)*xp.inf)
                 self._preset["constraint"] = "nonnegativity"
             elif c_lower == "box":
                 _box_lower = optional_regularization_parameters["lower_bound"]
                 _box_upper = optional_regularization_parameters["upper_bound"]
                 self._proximal = lambda z, _: ProjectBox(z, _box_lower, _box_upper)
-                self._box_bounds = (np.ones(self.dim)*_box_lower, np.ones(self.dim)*_box_upper)
+                self._box_bounds = (xp.ones(self.dim)*_box_lower, xp.ones(self.dim)*_box_upper)
                 self._preset["constraint"] = "box"
             elif c_lower == "increasing":
                 if not isinstance(self.geometry, Continuous1D):
@@ -315,7 +315,7 @@ class RegularizedGaussian(Distribution):
         return self._preset
 
     def logpdf(self, x):
-        return np.nan
+        return xp.nan
         #raise ValueError(
         #    f"The logpdf of a implicit regularized Gaussian is not be defined.")
         

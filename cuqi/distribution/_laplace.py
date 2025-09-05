@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.distribution import Distribution
 
 class Laplace(Distribution):
@@ -36,12 +36,12 @@ class Laplace(Distribution):
   
     def logpdf(self, x):
         if isinstance(x, (float,int)):
-            x = np.array([x])
-        return self.dim*(np.log(0.5/self.scale)) - np.linalg.norm(x-self.location,1)/self.scale
+            x = xp.array([x])
+        return self.dim*(xp.log(0.5/self.scale)) - xp.linalg.norm(x-self.location,1)/self.scale
 
     def _sample(self,N=1,rng=None):
         if rng is not None:
             s =  rng.laplace(self.location, self.scale, (N,self.dim)).T
         else:
-            s = np.random.laplace(self.location, self.scale, (N,self.dim)).T
+            s = xp.random.laplace(self.location, self.scale, (N,self.dim)).T
         return s

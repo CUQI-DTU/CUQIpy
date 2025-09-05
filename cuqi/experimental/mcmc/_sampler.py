@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import os
-import numpy as np
+import cuqi.array as xp
 import pickle as pkl
 import warnings
 import cuqi
@@ -151,7 +151,7 @@ class Sampler(ABC):
     # ------------ Public methods ------------
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
-        return Samples(np.array(self._samples).T, self.target.geometry)
+        return Samples(xp.array(self._samples).T, self.target.geometry)
     
     def reinitialize(self):
         """ Re-initialize the sampler. This clears the state and history and initializes the sampler again by setting state and history to their original values. """
@@ -226,7 +226,7 @@ class Sampler(ABC):
             self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
+            pbar.set_postfix_str(f"acc rate: {xp.mean(self._acc[-1-idx:]):.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -271,7 +271,7 @@ class Sampler(ABC):
             self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
+            pbar.set_postfix_str(f"acc rate: {xp.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
             self._call_callback(idx, Nb)
@@ -294,7 +294,7 @@ class Sampler(ABC):
                 'sampler_type': 'MH'
             },
             'state': {
-                'current_point': np.array([...]),
+                'current_point': xp.array([...]),
                 'current_target_logd': -123.45,
                 'scale': 1.0,
                 ...
@@ -325,7 +325,7 @@ class Sampler(ABC):
                 'sampler_type': 'MH'
             },
             'state': {
-                'current_point': np.array([...]),
+                'current_point': xp.array([...]),
                 'current_target_logd': -123.45,
                 'scale': 1.0,
                 ...
@@ -388,7 +388,7 @@ class Sampler(ABC):
             
     def _get_default_initial_point(self, dim):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
-        return np.ones(dim)
+        return xp.ones(dim)
     
     def __repr__(self):
         """ Return a string representation of the sampler. """
@@ -483,7 +483,7 @@ class ProposalBasedSampler(Sampler, ABC):
     @property
     def _default_proposal(self):
         """ Return the default proposal distribution. Defaults to a Gaussian distribution with zero mean and unit variance. """
-        return cuqi.distribution.Gaussian(np.zeros(self.dim), 1)
+        return cuqi.distribution.Gaussian(xp.zeros(self.dim), 1)
 
     @property
     def proposal(self):
@@ -552,9 +552,11 @@ class _BatchHandler:
             return  # No samples to flush
 
         # Save the current batch of samples
-        batch_samples = np.array(self.current_batch)
+        batch_samples = xp.array(self.current_batch)
         file_path = f'{self.sample_path}batch_{self.num_batches_dumped:04d}.npz'
-        np.savez(file_path, samples=batch_samples, batch_id=self.num_batches_dumped)
+        # Use numpy for saving as savez is not available in all backends
+        import numpy as np
+        np.savez(file_path, samples=xp.to_numpy(batch_samples), batch_id=self.num_batches_dumped)
 
         self.num_batches_dumped += 1
         self.current_batch = []  # Clear the batch after saving

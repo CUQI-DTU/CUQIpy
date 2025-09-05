@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from cuqi.distribution import Distribution
-import numpy as np
+import cuqi.array as xp
     
 class RestorationPrior(Distribution):
     """    
@@ -75,7 +75,7 @@ class RestorationPrior(Distribution):
         """The logpdf function. It returns nan because we don't know the 
         logpdf of the implicit prior."""
         if self.potential is None:
-            return np.nan
+            return xp.nan
         else:
             return -self.potential(x)
     
@@ -212,7 +212,7 @@ class MoreauYoshidaPrior(Distribution):
         """The logpdf function. It returns nan because we don't know the 
         logpdf of the implicit prior."""
         if self.prior.potential == None:
-            return np.nan
+            return xp.nan
         else:
             return -(self.prior.potential(self.prior.restore(x, self.smoothing_strength))*self.smoothing_strength +
                      0.5*((x-self.prior.restore(x, self.smoothing_strength))**2).sum())

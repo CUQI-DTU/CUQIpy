@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.sampler import ProposalBasedSampler
 
@@ -38,11 +38,11 @@ class CWMH(ProposalBasedSampler):
 
         # Parameters
         dim = 5 # Dimension of distribution
-        mu = np.arange(dim) # Mean of Gaussian
+        mu = xp.arange(dim) # Mean of Gaussian
         std = 1 # standard deviation of Gaussian
 
         # Logpdf function
-        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
+        logpdf_func = lambda x: -1/(std**2)*xp.sum((x-mu)**2)
 
         # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported as inputs to UserDefinedDistribution)
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
@@ -81,14 +81,14 @@ class CWMH(ProposalBasedSampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        acc = np.zeros((self.dim, Ns), dtype=int)
+        samples = xp.empty((self.dim, Ns))
+        target_eval = xp.empty(Ns)
+        acc = xp.zeros((self.dim, Ns), dtype=int)
 
         # initial state    
         samples[:, 0] = self.x0
         target_eval[0] = self.target.logd(self.x0)
-        acc[:, 0] = np.ones(self.dim)
+        acc[:, 0] = xp.ones(self.dim)
 
         # run MCMC
         for s in range(Ns-1):
@@ -112,19 +112,19 @@ class CWMH(ProposalBasedSampler):
         Ns = N+Nb   # number of simulations
 
         # allocation
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        acc = np.zeros((self.dim, Ns), dtype=int)
+        samples = xp.empty((self.dim, Ns))
+        target_eval = xp.empty(Ns)
+        acc = xp.zeros((self.dim, Ns), dtype=int)
 
         # initial state
         samples[:, 0] = self.x0
         target_eval[0] = self.target.logd(self.x0)
-        acc[:, 0] = np.ones(self.dim)
+        acc[:, 0] = xp.ones(self.dim)
 
         # initial adaptation params 
         Na = int(0.1*N)                                        # iterations to adapt
-        hat_acc = np.empty((self.dim, int(np.floor(Ns/Na))))     # average acceptance rate of the chains
-        lambd = np.empty((self.dim, int(np.floor(Ns/Na)+1)))     # scaling parameter \in (0,1)
+        hat_acc = xp.empty((self.dim, int(xp.floor(Ns/Na))))     # average acceptance rate of the chains
+        lambd = xp.empty((self.dim, int(xp.floor(Ns/Na)+1)))     # scaling parameter \in (0,1)
         lambd[:, 0] = self.scale
         star_acc = 0.21/self.dim + 0.23    # target acceptance rate RW
         i, idx = 0, 0
@@ -137,14 +137,14 @@ class CWMH(ProposalBasedSampler):
             # adapt prop spread of each component using acc of past samples
             if ((s+1) % Na == 0):
                 # evaluate average acceptance rate
-                hat_acc[:, i] = np.mean(acc[:, idx:idx+Na], axis=1)
+                hat_acc[:, i] = xp.mean(acc[:, idx:idx+Na], axis=1)
 
                 # compute new scaling parameter
-                zeta = 1/np.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
-                lambd[:, i+1] = np.exp(np.log(lambd[:, i]) + zeta*(hat_acc[:, i]-star_acc))  
+                zeta = 1/xp.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
+                lambd[:, i+1] = xp.exp(xp.log(lambd[:, i]) + zeta*(hat_acc[:, i]-star_acc))  
 
                 # update parameters
-                self.scale = np.minimum(lambd[:, i+1], np.ones(self.dim))
+                self.scale = xp.minimum(lambd[:, i+1], xp.ones(self.dim))
 
                 # update counters
                 i += 1
@@ -168,7 +168,7 @@ class CWMH(ProposalBasedSampler):
         else:
             x_i_star = self.proposal(x_t, self.scale) 
         x_star = x_t.copy()
-        acc = np.zeros(self.dim)
+        acc = xp.zeros(self.dim)
 
         for j in range(self.dim):
             # propose state
@@ -182,7 +182,7 @@ class CWMH(ProposalBasedSampler):
             alpha = min(0, ratio)
 
             # accept/reject
-            u_theta = np.log(np.random.rand())
+            u_theta = xp.log(xp.random.rand())
             if (u_theta <= alpha):
                 x_t[j] = x_i_star[j]
                 target_eval_t = target_eval_star

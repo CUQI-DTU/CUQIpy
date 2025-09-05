@@ -1,12 +1,11 @@
-import numpy as np
-from numpy import linalg as LA
-from scipy.optimize import fmin_l_bfgs_b, least_squares
-import scipy.optimize as opt
-import scipy.sparse as spa
+import cuqi.array as xp
+LA = xp.linalg  # Linear algebra operations
 
 from cuqi.array import CUQIarray
 from cuqi import config
-eps = np.finfo(float).eps
+eps = xp.finfo(float).eps
+
+# Backend-agnostic array copying is now available as xp.copy
 
 try:
     from sksparse.cholmod import cholesky
@@ -61,6 +60,7 @@ class ScipyLBFGSB(object):
         else:
             approx_grad = 0
         # run solver
+        fmin_l_bfgs_b = xp.optimize.fmin_l_bfgs_b
         solution = fmin_l_bfgs_b(self.func,self.x0, fprime = self.gradfunc, approx_grad = approx_grad, **self.kwargs)
         if solution[2]['warnflag'] == 0:
             success = 1
@@ -135,6 +135,7 @@ class ScipyMinimizer(object):
             nit: Number of iterations.
             nfev: Number of func evaluations.
         """
+        opt = xp.optimize
         solution = opt.minimize(self.func, self.x0, jac = self.gradfunc, method = self.method, **self.kwargs)
         info = {"success": solution['success'],
                 "message": solution['message'],
@@ -218,6 +219,7 @@ class ScipyLSQ(object):
         solution : Tuple
             Solution found (array_like) and optimization information (dictionary).
         """
+        least_squares = xp.optimize.least_squares
         solution = least_squares(self.func, self.x0, jac=self.jacfun, \
                                 method=self.method, loss=self.loss, xtol=self.tol, max_nfev=self.maxit, **self.kwargs)
         info = {"success": solution['success'],
@@ -252,7 +254,7 @@ class ScipyLinearLSQ(object):
         Bounds for variables. 
     kwargs : Other keyword arguments passed to Scipy's `lsq_linear`. See documentation of `scipy.optimize.lsq_linear` for details.
     """
-    def __init__(self, A, b, bounds=(-np.inf, np.inf), **kwargs):
+    def __init__(self, A, b, bounds=(-xp.inf, xp.inf), **kwargs):
         self.A = A
         self.b = b
         self.bounds = bounds
@@ -266,6 +268,7 @@ class ScipyLinearLSQ(object):
         solution : Tuple
             Solution found (array_like) and optimization information (dictionary).
         """
+        opt = xp.optimize
         res = opt.lsq_linear(self.A, self.b, bounds=self.bounds, **self.kwargs)
         x = res.pop('x')
         return x, res
@@ -304,7 +307,7 @@ class CGLS(object):
             
     def solve(self):
         # initial state
-        x = self.x0.copy()
+        x = xp.copy(self.x0)
         if self.explicitA:
             r = self.b - (self.A @ x)
             s = (self.A.T @ r) - self.shift*x
@@ -313,7 +316,7 @@ class CGLS(object):
             s = self.A(r, 2) - self.shift*x
     
         # initialization
-        p = s.copy()
+        p = xp.copy(s)
         norms0 = LA.norm(s)
         normx = LA.norm(x)
         gamma, xmax = norms0**2, normx
@@ -341,7 +344,7 @@ class CGLS(object):
             else:
                 s = self.A(r, 2) - self.shift*x
 
-            gamma1 = gamma.copy()
+            gamma1 = xp.copy(gamma)
             norms = LA.norm(s)
             gamma = norms**2
             p = s + (gamma/gamma1)*p
@@ -359,7 +362,7 @@ class CGLS(object):
         if indefinite:          
             flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
             ValueError('\n Negative curvature detected !')  
-        if shrink <= np.sqrt(self.tol):
+        if shrink <= xp.sqrt(self.tol):
             flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
             ValueError('\n Instability likely !') 
     
@@ -402,6 +405,7 @@ class PCGLS:
         #
         if self._dim < config.MAX_DIM_INV:
             self._explicitPinv = True
+            import scipy.sparse as spa
             Pinv = spa.linalg.inv(P)
         else:
             self._explicitPinv = False
@@ -413,10 +417,10 @@ class PCGLS:
 
     def solve(self):
         # initial state
-        x = self._x0.copy()
+        x = xp.copy(self._x0)
         r = self._b - self._apply_A(x, 1)
         s = self._apply_Pinv(self._apply_A(r, 2), 2)
-        p = s.copy()
+        p = xp.copy(s)
 
         # initial computations        
         norms0 = LA.norm(s)
@@ -443,7 +447,7 @@ class PCGLS:
             s = self._apply_Pinv(self._apply_A(r, 2), 2)
             #
             norms = LA.norm(s)
-            gamma1 = gamma.copy()
+            gamma1 = xp.copy(gamma)
             gamma = norms**2
             beta = gamma / gamma1
             p = s + beta*p
@@ -458,7 +462,7 @@ class PCGLS:
         if indefinite:          
             flag = 3   # Matrix (A'*A + delta*L) seems to be singular or indefinite
             ValueError('\n Negative curvature detected !')  
-        if shrink <= np.sqrt(self._tol):
+        if shrink <= xp.sqrt(self._tol):
             flag = 4   # Instability likely: (A'*A + delta*L) indefinite and NORM(X) decreased
             ValueError('\n Instability likely !') 
 
@@ -489,6 +493,7 @@ class PCGLS:
                 elif flag == 2:
                     precond = self._P.solve_At(x, use_LDLt_decomposition=False) 
             else:
+                import scipy.sparse as spa
                 if flag == 1:
                     precond = spa.linalg.spsolve(self._P, x) 
                 elif flag == 2:
@@ -543,17 +548,18 @@ class LM(object):
             J = self.jacfun(x)
         g = J.T @ r
         ng = LA.norm(g)
-        ng0, nu = np.copy(ng), np.copy(ng)
+        ng0, nu = xp.copy(ng), xp.copy(ng)
         f = 0.5*(r.T @ r)
         i = 0
 
         # solve function depending on sparsity
         if self.sparse:
+            import scipy.sparse as spa
             insolve = lambda A, b: spa.linalg.spsolve(A, b)
             I = spa.identity(self.n)
         else:
             insolve = lambda A, b: LA.solve(A, b)
-            I = np.identity(self.n)
+            I = xp.identity(self.n)
 
         # parameters required for the LM parameter update
         mu0, mulow, muhigh = 0, 0.25, 0.75
@@ -579,11 +585,12 @@ class LM(object):
             if (ratio < mu0):
                 nu = max(omup*nu, self.nu0)
             else:
-                x, r, f = np.copy(xtemp), np.copy(rtemp), np.copy(ftemp)
+                x, r, f = xp.copy(xtemp), xp.copy(rtemp), xp.copy(ftemp)
                 if self.sparse:
+                    import scipy.sparse as spa
                     J = spa.csr_matrix.copy(Jtemp)
                 else:
-                    J = np.copy(Jtemp)
+                    J = xp.copy(Jtemp)
                 if (ratio < mulow):
                     nu = max(omup*nu, self.nu0)
                 elif (ratio > muhigh):
@@ -633,15 +640,15 @@ class FISTA(object):
     
         from cuqi.solver import FISTA,  ProximalL1
         import scipy as sp
-        import numpy as np
+        import cuqi.array as xp
 
-        rng = np.random.default_rng()
+        rng = xp.random.default_rng()
 
         m, n = 10, 5
         A = rng.standard_normal((m, n))
         b = rng.standard_normal(m)
         stepsize = 0.99/(sp.linalg.interpolative.estimate_spectral_norm(A)**2)
-        x0 = np.zeros(n)
+        x0 = xp.zeros(n)
         fista = FISTA(A, b, proximal = ProximalL1, x0, stepsize = stepsize, maxit = 100, abstol=1e-12, adaptive = True)
         sol, _ = fista.solve()
 
@@ -663,13 +670,13 @@ class FISTA(object):
             
     def solve(self):
         # initial state
-        x = self.x0.copy()
+        x = xp.copy(self.x0)
         stepsize = self.stepsize
         
         k = 0
         
         while True:
-            x_old = x.copy()
+            x_old = xp.copy(x)
             k += 1
         
             if self._explicitA:
@@ -685,7 +692,7 @@ class FISTA(object):
             if self.adaptive:
                 x_new = x_new + ((k-1)/(k+2))*(x_new - x_old)
               
-            x = x_new.copy()
+            x = xp.copy(x_new)
 
 class ADMM(object):
     """Alternating Direction Method of Multipliers for solving regularized linear least squares problems of the form:
@@ -716,17 +723,17 @@ class ADMM(object):
     .. code-block:: python
     
         from cuqi.solver import ADMM, ProximalL1, ProjectNonnegative
-        import numpy as np
+        import cuqi.array as xp
 
-        rng = np.random.default_rng()
+        rng = xp.random.default_rng()
 
         m, n, k = 10, 5, 4
         A = rng.standard_normal((m, n))
         b = rng.standard_normal(m)
         L = rng.standard_normal((k, n))
 
-        x0 = np.zeros(n)
-        admm = ADMM(A, b, x0, penalty_terms = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), np.eye(n))], tradeoff = 10)
+        x0 = xp.zeros(n)
+        admm = ADMM(A, b, x0, penalty_terms = [(ProximalL1, L), (lambda z, _ : ProjectNonnegative(z), xp.eye(n))], tradeoff = 10)
         sol, _ = admm.solve()
 
     """  
@@ -738,8 +745,8 @@ class ADMM(object):
         self.x_cur = x0
 
         dual_len = [penalty[1].shape[0] for penalty in penalty_terms]
-        self.z_cur = [np.zeros(l) for l in dual_len]
-        self.u_cur = [np.zeros(l) for l in dual_len]
+        self.z_cur = [xp.zeros(l) for l in dual_len]
+        self.u_cur = [xp.zeros(l) for l in dual_len]
         self.n = penalty_terms[0][1].shape[1]
         
         self.rho = penalty_parameter
@@ -806,7 +813,7 @@ class ADMM(object):
             The data vector needs to be updated every iteration.
             """
 
-            self._big_vector = np.hstack([np.sqrt(1/self.rho)*self.b] + [self.z_cur[i] - self.u_cur[i] for i in range(self.p)])
+            self._big_vector = xp.hstack([xp.sqrt(1/self.rho)*self.b] + [self.z_cur[i] - self.u_cur[i] for i in range(self.p)])
 
             # Check whether matrix needs to be updated
             if self._big_matrix is not None and not self.adaptive:
@@ -816,23 +823,23 @@ class ADMM(object):
             if callable(self.A):
                 def matrix_eval(x, flag):
                     if flag == 1:
-                        out1 = np.sqrt(1/self.rho)*self.A(x, 1)
+                        out1 = xp.sqrt(1/self.rho)*self.A(x, 1)
                         out2 = [penalty[1]@x for penalty in self.penalty_terms]
-                        out  = np.hstack([out1] + out2)
+                        out  = xp.hstack([out1] + out2)
                     elif flag == 2:
                         idx_start = len(x)
                         idx_end = len(x)
-                        out1 = np.zeros(self.n)
+                        out1 = xp.zeros(self.n)
                         for _, t in reversed(self.penalty_terms):
                             idx_start -= t.shape[0]
                             out1 += t.T@x[idx_start:idx_end]
                             idx_end = idx_start
-                        out2 = np.sqrt(1/self.rho)*self.A(x[:idx_end], 2)
+                        out2 = xp.sqrt(1/self.rho)*self.A(x[:idx_end], 2)
                         out  = out1 + out2     
                     return out
                 self._big_matrix = matrix_eval
             else:
-                self._big_matrix = np.vstack([np.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalty_terms])
+                self._big_matrix = xp.vstack([xp.sqrt(1/self.rho)*self.A] + [penalty[1] for penalty in self.penalty_terms])
 
 
 
@@ -844,7 +851,7 @@ def ProjectNonnegative(x):
     ----------
     x : array_like.
     """  
-    return np.maximum(x, 0)
+    return xp.maximum(x, 0)
 
 def ProjectBox(x, lower = None, upper = None):
     """(Euclidean) projection onto a box.
@@ -856,12 +863,12 @@ def ProjectBox(x, lower = None, upper = None):
     upper : array_like. Upper bound of box. One if None.
     """  
     if lower is None:
-        lower = np.zeros_like(x)
+        lower = xp.zeros_like(x)
     
     if upper is None:
-        upper = np.ones_like(x)
+        upper = xp.ones_like(x)
     
-    return np.minimum(np.maximum(x, lower), upper)
+    return xp.minimum(xp.maximum(x, lower), upper)
 
 def ProjectHalfspace(x, a, b):
     """(Euclidean) projection onto the halfspace defined {z|<a,z> <= b}.
@@ -873,11 +880,11 @@ def ProjectHalfspace(x, a, b):
     b : array_like.
     """  
 
-    ax_b = np.inner(a,x) - b
+    ax_b = xp.inner(a,x) - b
     if ax_b <= 0:
         return x
     else:
-        return x - (ax_b/np.inner(a,a))*a
+        return x - (ax_b/xp.inner(a,a))*a
 
 def ProximalL1(x, gamma):
     """(Euclidean) proximal operator of the \|x\|_1 norm.
@@ -888,4 +895,4 @@ def ProximalL1(x, gamma):
     x : array_like.
     gamma : scale parameter.
     """
-    return np.multiply(np.sign(x), np.maximum(np.abs(x)-gamma, 0))
+    return xp.multiply(xp.sign(x), xp.maximum(xp.abs(x)-gamma, 0))

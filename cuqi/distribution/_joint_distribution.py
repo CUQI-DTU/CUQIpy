@@ -6,7 +6,7 @@ from cuqi.distribution import Distribution, Posterior
 from cuqi.likelihood import Likelihood
 from cuqi.geometry import Geometry, _DefaultGeometry1D
 import cuqi
-import numpy as np # for splitting array. Can avoid.
+import cuqi.array as xp  # for splitting array
 
 class JointDistribution:
     """ 
@@ -45,14 +45,14 @@ class JointDistribution:
     .. code-block:: python
 
         import cuqi
-        import numpy as np
+        import cuqi.array as xp
 
-        y_obs = np.random.randn(10)
-        A = np.random.randn(10,3)
+        y_obs = xp.random.randn(10)
+        A = xp.random.randn(10,3)
 
         # Define distributions for Bayesian model
-        y = cuqi.distribution.Normal(lambda x: A@x, np.ones(10))
-        x = cuqi.distribution.Normal(np.zeros(3), lambda z:z)
+        y = cuqi.distribution.Normal(lambda x: A@x, xp.ones(10))
+        x = cuqi.distribution.Normal(xp.zeros(3), lambda z:z)
         z = cuqi.distribution.Gamma(1, 1)
 
         # Joint distribution p(y,x,z)
@@ -313,8 +313,8 @@ class _StackedJointDistribution(JointDistribution, Distribution):
         """ Return the un-normalized log density function stacked joint density. """
 
         # Split the stacked input into individual inputs and call superclass
-        split_indices = np.cumsum(super().dim)  # list(accumulate(super().dim))
-        inputs = np.split(stacked_input, split_indices[:-1])
+        split_indices = xp.cumsum(super().dim)  # list(accumulate(super().dim))
+        inputs = xp.split(stacked_input, split_indices[:-1])
         names = self.get_parameter_names()
 
         # Create keyword arguments

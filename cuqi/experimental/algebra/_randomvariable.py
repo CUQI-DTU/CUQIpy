@@ -6,7 +6,7 @@ import operator
 import cuqi
 from cuqi.distribution import Distribution
 from copy import copy, deepcopy
-import numpy as np
+import cuqi.array as xp
 
 
 class RandomVariable:
@@ -61,13 +61,13 @@ class RandomVariable:
         from cuqi.experimental.algebra import RandomVariable
         from cuqi.problem import BayesianProblem
 
-        import numpy as np
+        import cuqi.array as xp
         A, y_obs, info = Deconvolution1D().get_components()
 
         # Bayesian problem
         d = RandomVariable(Gamma(1, 1e-4))
         s = RandomVariable(Gamma(1, 1e-4))
-        x = RandomVariable(GMRF(np.zeros(A.domain_dim), d))
+        x = RandomVariable(GMRF(xp.zeros(A.domain_dim), d))
         y = RandomVariable(Gaussian(A @ x, 1/s))
 
         BP = BayesianProblem(y, x, s, d)
@@ -185,7 +185,7 @@ class RandomVariable:
 
         if N == 1: return self(**{dist.name: dist.sample() for dist in self.distributions})
             
-        samples = np.array([
+        samples = xp.array([
             self(**{dist.name: dist.sample() for dist in self.distributions})
             for _ in range(N)
         ]).reshape(-1, N)  # Ensure correct shape (dim, N)

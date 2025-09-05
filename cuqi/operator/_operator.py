@@ -1,5 +1,4 @@
-import numpy as np
-from scipy.sparse import spdiags, eye, kron, vstack
+import cuqi.array as xp
 
 # ========== Operator class ===========
 class Operator(object):
@@ -61,11 +60,11 @@ class FirstOrderFiniteDifference(Operator):
 
     def __init__(self, num_nodes, bc_type= 'periodic', dx=None):	
 
-        if isinstance(num_nodes, (int,np.integer)):
+        if isinstance(num_nodes, (int,xp.integer)):
             self._num_nodes = (num_nodes,)
 
         elif isinstance(num_nodes, tuple) and len(num_nodes) in [1,2] and\
-            np.all([isinstance(num,(int,np.integer)) for num in num_nodes]):
+            xp.all([isinstance(num,(int,xp.integer)) for num in num_nodes]):
             
             if len(num_nodes)==2 and (num_nodes[0] != num_nodes[1]):
                 raise NotImplementedError("The case in which the number of nodes in the x direction is not equal to the number of nodes in the y direction is not implemented.")
@@ -98,7 +97,7 @@ class FirstOrderFiniteDifference(Operator):
 
     @property
     def dim(self):
-        return np.prod(self.num_nodes)
+        return xp.prod(self.num_nodes)
 
 
     def _create_diff_matrix(self):
@@ -111,25 +110,25 @@ class FirstOrderFiniteDifference(Operator):
             raise Exception("Cannot define N")
 
         # finite difference matrix
-        one_vec = np.ones(N)
-        diags = np.vstack([-one_vec, one_vec])
+        one_vec = xp.ones(N)
+        diags = xp.vstack([-one_vec, one_vec])
         if (self.bc_type == 'zero'):
             locs = [-1, 0]
-            Dmat = spdiags(diags, locs, N+1, N)
+            Dmat = xp.sparse.spdiags(diags, locs, N+1, N)
         elif (self.bc_type == 'periodic'):
             locs = [-1, 0]
-            Dmat = spdiags(diags, locs, N+1, N).tocsr()
+            Dmat = xp.sparse.spdiags(diags, locs, N+1, N).tocsr()
             Dmat[-1, 0] = 1
             Dmat[0, -1] = -1
         elif (self.bc_type == 'neumann'):
             locs = [0, 1]
-            Dmat = spdiags(diags, locs, N-1, N)
+            Dmat = xp.sparse.spdiags(diags, locs, N-1, N)
         elif (self.bc_type == 'backward'):
             locs = [0, -1]
-            Dmat = spdiags(diags, locs, N, N).tocsr()
+            Dmat = xp.sparse.spdiags(diags, locs, N, N).tocsr()
             Dmat[0, 0] = 1
         elif (self.bc_type == 'none'):
-            Dmat = eye(N)
+            Dmat = xp.sparse.eye(N)
         else:
             raise ValueError(f"Unknown boundary type {self.bc_type}")
 
@@ -138,10 +137,10 @@ class FirstOrderFiniteDifference(Operator):
             self._matrix = Dmat/self._dx
 
         elif (self.physical_dim == 2):            
-            I = eye(N, dtype=int)
-            Ds = kron(I, Dmat)
-            Dt = kron(Dmat, I)
-            self._matrix = vstack([Ds, Dt])
+            I = xp.sparse.eye(N, dtype=int)
+            Ds = xp.sparse.kron(I, Dmat)
+            Dt = xp.sparse.kron(Dmat, I)
+            self._matrix = xp.sparse.vstack([Ds, Dt])
         
 class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
     """
@@ -175,21 +174,21 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
             raise Exception("Cannot define N")
 
         # finite difference matrix
-        one_vec = np.ones(N)
-        diags = np.vstack([-one_vec, 2*one_vec, -one_vec])
+        one_vec = xp.ones(N)
+        diags = xp.vstack([-one_vec, 2*one_vec, -one_vec])
         if (self.bc_type == 'zero'):
             locs = [-2, -1, 0]
-            Dmat = spdiags(diags, locs, N+2, N)
+            Dmat = xp.sparse.spdiags(diags, locs, N+2, N)
         elif (self.bc_type == 'periodic'):
             locs = [-2, -1, 0]
-            Dmat = spdiags(diags, locs, N+2, N).tocsr()
+            Dmat = xp.sparse.spdiags(diags, locs, N+2, N).tocsr()
             Dmat[0, -2] = -1
             Dmat[0:2, -1] = [2, -1]
             Dmat[-2, 0] = -1
             Dmat[-1, 0:2] = [2, -1]
         elif (self.bc_type == 'neumann'):
             locs = [0, 1, 2]
-            Dmat = spdiags(diags, locs, N-2, N).tocsr()
+            Dmat = xp.sparse.spdiags(diags, locs, N-2, N).tocsr()
         else:
             raise ValueError(f"Unknown boundary type {self.bc_type}")
 
@@ -198,10 +197,10 @@ class SecondOrderFiniteDifference(FirstOrderFiniteDifference):
             self._matrix = Dmat/self._dx**2
 
         elif (self.physical_dim == 2):            
-            I = eye(N, dtype=int)
-            Ds = kron(I, Dmat)
-            Dt = kron(Dmat, I)
-            self._matrix = vstack([Ds, Dt])
+            I = xp.sparse.eye(N, dtype=int)
+            Ds = xp.sparse.kron(I, Dmat)
+            Dt = xp.sparse.kron(Dmat, I)
+            self._matrix = xp.sparse.vstack([Ds, Dt])
 
 
 class PrecisionFiniteDifference(Operator):

@@ -1,7 +1,7 @@
 import scipy as sp
 from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ, ScipyMinimizer
 from cuqi.experimental.mcmc import Sampler
@@ -27,7 +27,7 @@ class LinearRTO(Sampler):
         P_mean: is the prior mean.
         P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
 
-    initial_point : `np.ndarray` 
+    initial_point : `xp.ndarray` 
         Initial point for the sampler. *Optional*.
 
     maxit : int
@@ -85,7 +85,7 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = self.prior.dim
-        self.b_tild = np.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu]) # With shift from AffineModel
+        self.b_tild = xp.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu]) # With shift from AffineModel
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
         if all(notcallability):
@@ -96,11 +96,11 @@ class LinearRTO(Sampler):
                 if flag == 1:
                     out1 = [L @ likelihood.model._forward_func_no_shift(x) for (L, likelihood) in zip(L1, self.likelihoods)] # Use forward function which excludes shift
                     out2 = L2 @ x
-                    out  = np.hstack(out1 + [out2])
+                    out  = xp.hstack(out1 + [out2])
                 elif flag == 2:
                     idx_start = 0
                     idx_end = 0
-                    out1 = np.zeros(self.n)
+                    out1 = xp.zeros(self.n)
                     for likelihood in self.likelihoods:
                         idx_end += len(likelihood.data)
                         out1 += likelihood.model._adjoint_func_no_shift(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end])
@@ -113,7 +113,7 @@ class LinearRTO(Sampler):
             raise TypeError("All likelihoods need to be callable or none need to be callable.")
 
     def step(self):
-        y = self.b_tild + np.random.randn(len(self.b_tild))
+        y = self.b_tild + xp.random.randn(len(self.b_tild))
         sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)            
         self.current_point, _ = sim.solve()
         acc = 1
@@ -152,7 +152,7 @@ class LinearRTO(Sampler):
     
     def _get_default_initial_point(self, dim):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
-        return np.zeros(dim)
+        return xp.zeros(dim)
 
 class RegularizedLinearRTO(LinearRTO):
     """
@@ -174,7 +174,7 @@ class RegularizedLinearRTO(LinearRTO):
     target : `cuqi.distribution.Posterior`
         See `cuqi.sampler.LinearRTO`
 
-    initial_point : `np.ndarray` 
+    initial_point : `xp.ndarray` 
         Initial point for the sampler. *Optional*.
 
     maxit : int
@@ -273,7 +273,7 @@ class RegularizedLinearRTO(LinearRTO):
         return self.target.prior.gaussian
 
     def step(self):
-        y = self.b_tild + np.random.randn(len(self.b_tild))
+        y = self.b_tild + xp.random.randn(len(self.b_tild))
 
         if self.solver == "FISTA":
             sim = FISTA(self.M, y, self.proximal,
@@ -297,7 +297,7 @@ class RegularizedLinearRTO(LinearRTO):
             bounds = [(self.target.prior._box_bounds[0][i], self.target.prior._box_bounds[1][i]) for i in range(self.target.prior.dim)]
             # Note that the objective function is defined as 0.5*||Mx-y||^2, 
             # and the corresponding gradient (gradfunc) is given by M^T(Mx-y).
-            sim = ScipyMinimizer(lambda x: 0.5*np.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
+            sim = ScipyMinimizer(lambda x: 0.5*xp.sum((self.M(x, 1)-y)**2), self.current_point, gradfunc=lambda x: self.M(self.M(x, 1) - y, 2), bounds=bounds, tol=self.abstol, options={"maxiter": self.maxit})
         else:
             raise ValueError("Choice of solver not supported.")
 

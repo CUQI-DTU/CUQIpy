@@ -1,7 +1,7 @@
 import scipy as sp
 from scipy.linalg.interpolative import estimate_spectral_norm
 from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.solver import CGLS, FISTA
 from cuqi.sampler import Sampler
@@ -27,7 +27,7 @@ class LinearRTO(Sampler):
         P_mean: is the prior mean.
         P_sqrtprec: is the squareroot of the precision matrix of the Gaussian mean.
 
-    x0 : `np.ndarray` 
+    x0 : `xp.ndarray` 
         Initial point for the sampler. *Optional*.
 
     maxit : int
@@ -55,7 +55,7 @@ class LinearRTO(Sampler):
             P_sqrtprec = target[4]
 
             # If numpy matrix convert to CUQI model
-            if isinstance(model, np.ndarray) and len(model.shape) == 2:
+            if isinstance(model, xp.ndarray) and len(model.shape) == 2:
                 model = cuqi.model.LinearModel(model)
 
             # Check model input
@@ -82,7 +82,7 @@ class LinearRTO(Sampler):
         if x0 is not None:
             self.x0 = x0
         else:
-            self.x0 = np.zeros(self.prior.dim)
+            self.x0 = xp.zeros(self.prior.dim)
 
         # Other parameters
         self.maxit = maxit
@@ -95,7 +95,10 @@ class LinearRTO(Sampler):
 
         # pre-computations
         self.n = len(self.x0)
-        self.b_tild = np.hstack([L@(likelihood.data - model._shift) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]+ [L2mu])
+        # Ensure all elements are in the current backend before hstack
+        b_parts = [xp.array(L@(likelihood.data - model._shift)) for (L, likelihood, model) in zip(L1, self.likelihoods, self.models)]
+        b_parts.append(xp.array(L2mu))
+        self.b_tild = xp.hstack(b_parts)
 
         callability = [callable(likelihood.model) for likelihood in self.likelihoods]
         notcallability = [not c for c in callability]
@@ -107,11 +110,13 @@ class LinearRTO(Sampler):
                 if flag == 1:
                     out1 = [L @ likelihood.model._forward_func_no_shift(x) for (L, likelihood) in zip(L1, self.likelihoods)] # Use forward function which excludes shift
                     out2 = L2 @ x
-                    out  = np.hstack(out1 + [out2])
+                    # Ensure all elements are in the current backend before hstack
+                    out_parts = [xp.array(part) for part in out1] + [xp.array(out2)]
+                    out = xp.hstack(out_parts)
                 elif flag == 2:
                     idx_start = 0
                     idx_end = 0
-                    out1 = np.zeros(self.n)
+                    out1 = xp.zeros(self.n)
                     for likelihood in self.likelihoods:
                         idx_end += len(likelihood.data)
                         out1 += likelihood.model._adjoint_func_no_shift(likelihood.distribution.sqrtprec.T@x[idx_start:idx_end]) # Use adjoint function which excludes shift
@@ -151,12 +156,12 @@ class LinearRTO(Sampler):
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
-        samples = np.empty((self.n, Ns))
+        samples = xp.empty((self.n, Ns))
                      
         # initial state   
         samples[:, 0] = self.x0
         for s in range(Ns-1):
-            y = self.b_tild + np.random.randn(len(self.b_tild))
+            y = self.b_tild + xp.random.randn(len(self.b_tild))
             sim = CGLS(self.M, y, samples[:, s], self.maxit, self.tol, self.shift)            
             samples[:, s+1], _ = sim.solve()
 
@@ -211,7 +216,7 @@ class RegularizedLinearRTO(LinearRTO):
     target : `cuqi.distribution.Posterior`
         See `cuqi.sampler.LinearRTO`
 
-    x0 : `np.ndarray` 
+    x0 : `xp.ndarray` 
         Initial point for the sampler. *Optional*.
 
     maxit : int
@@ -250,7 +255,7 @@ class RegularizedLinearRTO(LinearRTO):
 
     def _sample(self, N, Nb):   
         Ns = N+Nb   # number of simulations        
-        samples = np.empty((self.n, Ns))
+        samples = xp.empty((self.n, Ns))
                    
         if isinstance(self.stepsize, str):
             if self.stepsize in ["automatic"]:
@@ -269,7 +274,7 @@ class RegularizedLinearRTO(LinearRTO):
         # initial state   
         samples[:, 0] = self.x0
         for s in range(Ns-1):
-            y = self.b_tild + np.random.randn(len(self.b_tild))
+            y = self.b_tild + xp.random.randn(len(self.b_tild))
             sim = FISTA(self.M, y, self.proximal,
                         samples[:, s], maxit = self.maxit, stepsize = _stepsize, abstol = self.abstol, adaptive = self.adaptive)         
             samples[:, s+1], _ = sim.solve()

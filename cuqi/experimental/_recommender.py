@@ -1,6 +1,6 @@
 import cuqi
 import inspect
-import numpy as np
+import cuqi.array as xp
 
 # This import makes suggest_sampler easier to read
 import cuqi.experimental.mcmc as samplers 
@@ -21,12 +21,12 @@ class SamplerRecommender(object):
     Example
     -------
     .. code-block:: python
-        import numpy as np
+        import cuqi.array as xp
         from cuqi.distribution import Gamma, Gaussian, JointDistribution
         from cuqi.experimental import SamplerRecommender
 
         x = Gamma(1, 1)
-        y = Gaussian(np.zeros(2), cov=lambda x: 1 / x)
+        y = Gaussian(xp.zeros(2), cov=lambda x: 1 / x)
         target = JointDistribution(y, x)(y=1)
 
         recommender = SamplerRecommender(target)
@@ -63,7 +63,7 @@ class SamplerRecommender(object):
             parameters: additional parameters to be passed to the sampler once initialized
         )
         """
-        number_of_components = np.sum(self._target.dim)
+        number_of_components = xp.sum(self._target.dim)
 
         self._ordering = [
             # Direct and Conjugate samplers
@@ -80,8 +80,8 @@ class SamplerRecommender(object):
             (samplers.ULA, True, {}),
             # Gibbs and Componentwise samplers
             (samplers.HybridGibbs, True, {"sampling_strategy" : self.recommend_HybridGibbs_sampling_strategy(as_string = False)}),
-            (samplers.CWMH, number_of_components <= 100, {"scale" : 0.05*np.ones(number_of_components),
-                            "initial_point" : 0.5*np.ones(number_of_components)}),
+            (samplers.CWMH, number_of_components <= 100, {"scale" : 0.05*xp.ones(number_of_components),
+                            "initial_point" : 0.5*xp.ones(number_of_components)}),
             # Proposal based samplers
             (samplers.PCN, True, {"scale" : 0.02}),
             (samplers.MH, number_of_components <= 1000, {}),
@@ -141,7 +141,7 @@ class SamplerRecommender(object):
 
         valid_samplers = dict()
         for par_name in par_names:
-            conditional_params = {par_name_: np.ones(self.target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
+            conditional_params = {par_name_: xp.ones(self.target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
             conditional = self.target(**conditional_params)
 
             recommender = SamplerRecommender(conditional)
@@ -202,7 +202,7 @@ class SamplerRecommender(object):
 
         suggested_samplers = dict()
         for par_name in par_names:
-            conditional_params = {par_name_: np.ones(self.target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
+            conditional_params = {par_name_: xp.ones(self.target.dim[i]) for i, par_name_ in enumerate(par_names) if par_name_ != par_name}
             conditional = self.target(**conditional_params)
 
             recommender = SamplerRecommender(conditional, exceptions = self._exceptions.copy())

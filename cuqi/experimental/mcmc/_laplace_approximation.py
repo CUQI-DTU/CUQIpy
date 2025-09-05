@@ -1,5 +1,5 @@
 import scipy as sp
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.solver import CGLS
 from cuqi.experimental.mcmc import Sampler
@@ -82,7 +82,7 @@ class UGLA(Sampler):
 
         # Gaussian approximation of LMRF prior as function of x_k
         def Lk_fun(x_k):
-            dd =  1/np.sqrt((D @ x_k)**2 + self.beta*np.ones(n))
+            dd =  1/xp.sqrt((D @ x_k)**2 + self.beta*xp.ones(n))
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
         self.Lk_fun = Lk_fun
@@ -92,25 +92,25 @@ class UGLA(Sampler):
 
         # If prior location is scalar, repeat it to match dimensions
         if len(self.prior.location) == 1:
-            self._priorloc = np.repeat(self.prior.location, self.dim)
+            self._priorloc = xp.repeat(self.prior.location, self.dim)
         else:
             self._priorloc = self.prior.location
 
         # Initial Laplace approx
         self._L2 = Lk_fun(self.initial_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
+        self._b_tild = xp.hstack([self._L1@self._data, self._L2mu]) 
         
         # Least squares form
         def M(x, flag):
             if flag == 1:
                 out1 = self._L1 @ self.model._forward_func_no_shift(x) # Use forward function which excludes shift
-                out2 = np.sqrt(1/self.prior.scale)*(self._L2 @ x)
-                out  = np.hstack([out1, out2])
+                out2 = xp.sqrt(1/self.prior.scale)*(self._L2 @ x)
+                out  = xp.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
                 out1 = self.model._adjoint_func_no_shift(self._L1.T@x[:idx])
-                out2 = np.sqrt(1/self.prior.scale)*(self._L2.T @ x[idx:])
+                out2 = xp.sqrt(1/self.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out
         self.M = M
@@ -119,10 +119,10 @@ class UGLA(Sampler):
         # Update Laplace approximation
         self._L2 = self.Lk_fun(self.current_point)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
+        self._b_tild = xp.hstack([self._L1@self._data, self._L2mu]) 
     
         # Sample from approximate posterior
-        e = np.random.randn(len(self._b_tild))
+        e = xp.random.randn(len(self._b_tild))
         y = self._b_tild + e # Perturb data
         sim = CGLS(self.M, y, self.current_point, self.maxit, self.tol)                     
         self.current_point, _ = sim.solve()
@@ -151,4 +151,4 @@ class UGLA(Sampler):
         
     def _get_default_initial_point(self, dim):
         """ Get the default initial point for the sampler. Defaults to an array of zeros. """
-        return np.zeros(dim)
+        return xp.zeros(dim)

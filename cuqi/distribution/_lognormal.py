@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.geometry import _get_identity_geometries
 from cuqi.distribution import Distribution
 from cuqi.distribution import Gaussian
@@ -10,10 +10,10 @@ class Lognormal(Distribution):
 
     Parameters
     ------------
-    mean: np.ndarray
+    mean: xp.ndarray
         Mean of the normal distribution used to define the lognormal distribution 
 
-    cov: np.ndarray
+    cov: xp.ndarray
         Covariance matrix of the normal distribution used to define the lognormal distribution 
     
     Example
@@ -21,8 +21,8 @@ class Lognormal(Distribution):
     .. code-block:: python
     
         # Generate a lognormal distribution
-        mean = np.array([1.5,1])
-        cov = np.array([[3, 0],[0, 1]])
+        mean = xp.array([1.5,1])
+        cov = xp.array([[3, 0],[0, 1]])
         x = cuqi.distribution.Lognormal(mean, cov)
         samples = x.sample(10000)
         samples.hist_chain(1, bins=70)
@@ -36,9 +36,9 @@ class Lognormal(Distribution):
 
     @property
     def _normal(self):
-        if not np.all(self._Gaussian.mean == self.mean):
+        if not xp.all(self._Gaussian.mean == self.mean):
             self._Gaussian.mean = self.mean
-        if not np.all(self._Gaussian.cov == self.cov):
+        if not xp.all(self._Gaussian.cov == self.cov):
             self._Gaussian.cov = self.cov 
         return self._Gaussian
 
@@ -51,13 +51,13 @@ class Lognormal(Distribution):
         return self._normal.dim
 
     def pdf(self, x):
-        if np.any(x<=0):
+        if xp.any(x<=0):
             return 0
         else:
-            return self._normal.pdf(np.log(x))*np.prod(1/x)
+            return self._normal.pdf(xp.log(x))*xp.prod(1/x)
 
     def logpdf(self, x):
-        return np.log(self.pdf(x))
+        return xp.log(self.pdf(x))
 
     def _gradient(self, val, *args, **kwargs):
         #Avoid complicated geometries that change the gradient.
@@ -66,13 +66,13 @@ class Lognormal(Distribution):
                                       "with geometry {}".format(self,self.geometry))
 
         elif not callable(self._normal.mean): # for prior
-            return np.diag(1/val)@(-1+self._normal.gradient(np.log(val)))
+            return xp.diag(1/val)@(-1+self._normal.gradient(xp.log(val)))
         elif hasattr(self.mean,"gradient"): # for likelihood
             model = self._normal.mean
-            dev = np.log(val) - model.forward(*args, **kwargs)
+            dev = xp.log(val) - model.forward(*args, **kwargs)
             return  model.gradient(self._normal.prec@dev, *args, **kwargs) # Jac(x).T@(self._normal.prec@dev)
         else:
             warnings.warn('Gradient not implemented for {}'.format(type(self._normal.mean)))
 
     def _sample(self, N=1, rng=None):
-        return np.exp(self._normal._sample(N,rng))
+        return xp.exp(self._normal._sample(N,rng))

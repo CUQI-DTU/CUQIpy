@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 from cuqi.experimental.mcmc import Conjugate
 from cuqi.experimental.mcmc._conjugate import _ConjugatePair, _get_conjugate_parameter, _check_conjugate_parameter_is_scalar_reciprocal
 from cuqi.distribution import LMRF, Gamma
@@ -36,7 +36,7 @@ class _LMRFGammaPair(_ConjugatePair):
         if not self.target.prior.dim == 1:
             raise ValueError("Approximate conjugate sampler only works with univariate Gamma prior")
         
-        if np.sum(self.target.likelihood.distribution.location) != 0:
+        if xp.sum(self.target.likelihood.distribution.location) != 0:
             raise ValueError("Approximate conjugate sampler only works with zero mean LMRF likelihood")
         
         key_value_pairs = _get_conjugate_parameter(self.target)
@@ -62,7 +62,7 @@ class _LMRFGammaPair(_ConjugatePair):
         # Current has a zero mean assumption on likelihood! TODO
         beta=1e-5
         def Lk_fun(x_k):
-            dd =  1/np.sqrt((D @ x_k)**2 + beta*np.ones(n))
+            dd =  1/xp.sqrt((D @ x_k)**2 + beta*xp.ones(n))
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
 
@@ -73,4 +73,4 @@ class _LMRFGammaPair(_ConjugatePair):
         beta = self.target.prior.rate                   #beta
 
         # Create Gamma distribution and sample
-        return Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
+        return Gamma(shape=d+alpha, rate=xp.linalg.norm(Lx)**2+beta)

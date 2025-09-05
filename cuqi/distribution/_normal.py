@@ -1,4 +1,4 @@
-import numpy as np
+import cuqi.array as xp
 import numbers
 from scipy.special import erf
 from cuqi.geometry import _get_identity_geometries
@@ -49,13 +49,13 @@ class Normal(Distribution):
         self._std = force_ndarray(value, flatten=True)
 
     def pdf(self, x):
-        return np.prod(1/(self.std*np.sqrt(2*np.pi))*np.exp(-0.5*((x-self.mean)/self.std)**2))
+        return xp.prod(1/(self.std*xp.sqrt(2*xp.pi))*xp.exp(-0.5*((x-self.mean)/self.std)**2))
 
     def logpdf(self, x):
-        return np.sum(-np.log(self.std*np.sqrt(2*np.pi))-0.5*((x-self.mean)/self.std)**2)
+        return xp.sum(-xp.log(self.std*xp.sqrt(2*xp.pi))-0.5*((x-self.mean)/self.std)**2)
 
     def cdf(self, x):
-        return np.prod(0.5*(1 + erf((x-self.mean)/(self.std*np.sqrt(2)))))
+        return xp.prod(0.5*(1 + erf((x-self.mean)/(self.std*xp.sqrt(2)))))
 
     def _gradient(self, val, *args, **kwargs):
         if not type(self.geometry) in _get_identity_geometries():
@@ -66,7 +66,7 @@ class Normal(Distribution):
             model = self.mean
             dev = val - model.forward(*args, **kwargs)
             print(dev)
-            return model.gradient(1.0/(np.array(self.std)) @ dev, *args, **kwargs)
+            return model.gradient(1.0/(xp.array(self.std)) @ dev, *args, **kwargs)
         else:
             raise NotImplementedError("Gradient not implemented for distribution {} with location {}".format(self,self.mean))
 
@@ -90,5 +90,5 @@ class Normal(Distribution):
         if rng is not None:
             s =  rng.normal(self.mean, self.std, (N,self.dim)).T
         else:
-            s = np.random.normal(self.mean, self.std, (N,self.dim)).T
+            s = xp.random.normal(self.mean, self.std, (N,self.dim)).T
         return s

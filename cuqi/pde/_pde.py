@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import scipy
 from inspect import getsource
 from scipy.interpolate import interp1d
-import numpy as np
+import cuqi.array as xp
 from cuqi.utilities import get_non_default_args
 
 
@@ -18,10 +18,10 @@ class PDE(ABC):
     observation_map: a function handle
         A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
 
-    grid_sol: np.ndarray
+    grid_sol: xp.ndarray
         The grid on which solution is defined
 
-    grid_obs: np.ndarray
+    grid_obs: xp.ndarray
         The grid on which the observed solution should be interpolated (currently only supported for 1D problems).  
     """
 
@@ -156,7 +156,7 @@ class LinearPDE(PDE):
         Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) 
 
     linalg_solve: lambda function or function handle
-        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `numpy.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
+        linear system solver function to solve the arising linear system with the signature :meth:`x, val1, val2, ...=linalg_solve(A,b,**linalg_solve_kwargs)` where A is the linear operator and b is the right hand side. `linalg_solve_kwargs` is any keywords arguments that the function :meth:`linalg_solve` can take. x is the solution of A*x=b of type `xp.ndarray`. val1, val2, etc. are optional and can be a one or more values the solver return, e.g. information and number of iterations (for iterative solvers). If linalg_solve is None, :meth:`scipy.linalg.solve` will be used. 
 
     linalg_solve_kwargs: a dictionary 
         A dictionary of the keywords arguments that linalg_solve can take.
@@ -316,7 +316,7 @@ class TimeDependentLinearPDE(LinearPDE):
         """Solve PDE by time-stepping"""
         # initialize time-dependent solution
         self.assemble_step(self.time_steps[0])
-        u = np.empty((len(self.initial_condition), len(self.time_steps)))
+        u = xp.empty((len(self.initial_condition), len(self.time_steps)))
         u[:, 0] = self.initial_condition
 
         if self.method == 'forward_euler':
@@ -324,7 +324,7 @@ class TimeDependentLinearPDE(LinearPDE):
                 dt = self.time_steps[idx+1] - t
                 self.assemble_step(t)
                 u_pre = u[:, idx]
-                u[:, idx+1] = (dt*self.diff_op + np.eye(len(u_pre)))@u_pre + dt*self.rhs  # from u at time t, gives u at t+dt
+                u[:, idx+1] = (dt*self.diff_op + xp.eye(len(u_pre)))@u_pre + dt*self.rhs  # from u at time t, gives u at t+dt
             info = None
 
         if self.method == 'backward_euler':
@@ -332,7 +332,7 @@ class TimeDependentLinearPDE(LinearPDE):
                 dt = t - self.time_steps[idx]
                 self.assemble_step(t)
                 u_pre = u[:, idx]
-                A = np.eye(len(u_pre)) - dt*self.diff_op
+                A = xp.eye(len(u_pre)) - dt*self.diff_op
                 # from u at time t-dt, gives u at t
                 u[:, idx+1], info = self._solve_linear_system(
                     A, u_pre + dt*self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
@@ -343,7 +343,7 @@ class TimeDependentLinearPDE(LinearPDE):
 
         # If observation grid is the same as solution grid and observation time
         # is the final time step then no need to interpolate
-        if self.grids_equal and np.all(self.time_steps[-1:] == self._time_obs):
+        if self.grids_equal and xp.all(self.time_steps[-1:] == self._time_obs):
             solution_obs = solution[..., -1]
 
         # Interpolate solution in time and space to the observation

@@ -1,6 +1,6 @@
 from cuqi.distribution import Posterior, Gaussian, Gamma, GMRF
 from cuqi.implicitprior import RegularizedGaussian, RegularizedGMRF
-import numpy as np
+import cuqi.array as xp
 
 class Conjugate: # TODO: Subclass from Sampler once updated
     """ Conjugate sampler
@@ -38,12 +38,12 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         b = self.target.likelihood.data                                 #mu
         m = self._calc_m_for_Gaussians(b)                               #n
         Ax = self.target.likelihood.distribution.mean                   #x_i
-        L = self.target.likelihood.distribution(np.array([1])).sqrtprec #L
+        L = self.target.likelihood.distribution(xp.array([1])).sqrtprec #L
         alpha = self.target.prior.shape                                 #alpha
         beta = self.target.prior.rate                                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=m/2+alpha,rate=.5*np.linalg.norm(L@(Ax-b))**2+beta)
+        dist = Gamma(shape=m/2+alpha,rate=.5*xp.linalg.norm(L@(Ax-b))**2+beta)
 
         return dist.sample()
 
@@ -52,4 +52,4 @@ class Conjugate: # TODO: Subclass from Sampler once updated
         if isinstance(self.target.likelihood.distribution, (Gaussian, GMRF)):
             return len(b)
         elif isinstance(self.target.likelihood.distribution, (RegularizedGaussian, RegularizedGMRF)):
-            return np.count_nonzero(b) # See 
+            return xp.count_nonzero(b) # See 

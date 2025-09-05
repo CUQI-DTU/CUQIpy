@@ -1,5 +1,5 @@
 import scipy as sp
-import numpy as np
+import cuqi.array as xp
 import cuqi
 from cuqi.distribution import Normal
 from cuqi.solver import CGLS
@@ -36,7 +36,7 @@ class UGLA(Sampler):
     beta : float
         Smoothing parameter for the Gaussian approximation of the Laplace distribution. Larger beta is easier to sample but is a worse approximation.
 
-    rng : np.random.RandomState
+    rng : xp.random.RandomState
         Random number generator used for sampling. *Optional*
 
     callback : callable, *Optional*
@@ -76,7 +76,7 @@ class UGLA(Sampler):
         if x0 is not None:
             self.x0 = x0
         else:
-            self.x0 = np.zeros(self.target.prior.dim)
+            self.x0 = xp.zeros(self.target.prior.dim)
         
         # Store internal parameters
         self.maxit = maxit
@@ -117,7 +117,7 @@ class UGLA(Sampler):
 
         # Gaussian approximation of LMRF prior as function of x_k
         def Lk_fun(x_k):
-            dd =  1/np.sqrt((D @ x_k)**2 + self.beta*np.ones(n))
+            dd =  1/xp.sqrt((D @ x_k)**2 + self.beta*xp.ones(n))
             W = sp.sparse.diags(dd)
             return W.sqrt() @ D
 
@@ -132,14 +132,14 @@ class UGLA(Sampler):
 
         # If prior location is scalar, repeat it to match dimensions
         if len(self.target.prior.location) == 1:
-            self._priorloc = np.repeat(self.target.prior.location, self.dim)
+            self._priorloc = xp.repeat(self.target.prior.location, self.dim)
         else:
             self._priorloc = self.target.prior.location
 
         # Initial Laplace approx
         self._L2 = Lk_fun(self.x0)
         self._L2mu = self._L2@self._priorloc
-        self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
+        self._b_tild = xp.hstack([self._L1@self._data, self._L2mu]) 
         
         #self.n = len(self.x0)
         
@@ -147,18 +147,18 @@ class UGLA(Sampler):
         def M(x, flag):
             if flag == 1:
                 out1 = self._L1 @ self._model._forward_func_no_shift(x) # Use forward function which excludes shift
-                out2 = np.sqrt(1/self.target.prior.scale)*(self._L2 @ x)
-                out  = np.hstack([out1, out2])
+                out2 = xp.sqrt(1/self.target.prior.scale)*(self._L2 @ x)
+                out  = xp.hstack([out1, out2])
             elif flag == 2:
                 idx = int(self._m)
                 out1 = self._model._adjoint_func_no_shift(self._L1.T@x[:idx])
-                out2 = np.sqrt(1/self.target.prior.scale)*(self._L2.T @ x[idx:])
+                out2 = xp.sqrt(1/self.target.prior.scale)*(self._L2.T @ x[idx:])
                 out  = out1 + out2                
             return out 
         
         # Initialize samples
         N = Ns+Nb   # number of simulations        
-        samples = np.empty((self.target.dim, N))
+        samples = xp.empty((self.target.dim, N))
                      
         # initial state   
         samples[:, 0] = self.x0
@@ -167,10 +167,10 @@ class UGLA(Sampler):
             # Update Laplace approximation
             self._L2 = Lk_fun(samples[:, s])
             self._L2mu = self._L2@self._priorloc
-            self._b_tild = np.hstack([self._L1@self._data, self._L2mu]) 
+            self._b_tild = xp.hstack([self._L1@self._data, self._L2mu]) 
         
             # Sample from approximate posterior
-            e = Normal(mean=np.zeros(len(self._b_tild)), std=1).sample(rng=self.rng)
+            e = Normal(mean=xp.zeros(len(self._b_tild)), std=1).sample(rng=self.rng)
             y = self._b_tild + e # Perturb data
             sim = CGLS(M, y, samples[:, s], self.maxit, self.tol, self._shift)            
             samples[:, s+1], _ = sim.solve()

@@ -2,7 +2,7 @@ from cuqi.distribution import JointDistribution
 from cuqi.sampler import Sampler
 from cuqi.samples import Samples
 from typing import Dict, Union
-import numpy as np
+import cuqi.array as xp
 import sys
 
 
@@ -34,7 +34,7 @@ class Gibbs:
     .. code-block:: python
 
         import cuqi
-        import numpy as np
+        import cuqi.array as xp
 
         # Model and data
         A, y_obs, probinfo = cuqi.testproblem.Deconvolution1D(phantom='square').get_components()
@@ -43,7 +43,7 @@ class Gibbs:
         # Define distributions
         d = cuqi.distribution.Gamma(1, 1e-4)
         l = cuqi.distribution.Gamma(1, 1e-4)
-        x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d)
+        x = cuqi.distribution.GMRF(xp.zeros(n), lambda d: d)
         y = cuqi.distribution.Gaussian(A, lambda l: 1/l)
 
         # Combine into a joint distribution and create posterior
@@ -150,13 +150,13 @@ class Gibbs:
         # Allocate memory for samples
         samples = {}
         for par_name in self.par_names:
-            samples[par_name] = np.zeros((self.target.get_density(par_name).dim, Ns))
+            samples[par_name] = xp.zeros((self.target.get_density(par_name).dim, Ns))
         
         # Store samples in self
         if hasattr(self, 'samples'):
             # Append to existing samples (This makes a copy)
             for par_name in self.par_names:
-                samples[par_name] = np.hstack((self.samples[par_name], samples[par_name]))
+                samples[par_name] = xp.hstack((self.samples[par_name], samples[par_name]))
         self.samples = samples
 
     def _allocate_samples_warmup(self, Nb):
@@ -169,7 +169,7 @@ class Gibbs:
         # Allocate memory for samples
         samples = {}
         for par_name in self.par_names:
-            samples[par_name] = np.zeros((self.target.get_density(par_name).dim, Nb))
+            samples[par_name] = xp.zeros((self.target.get_density(par_name).dim, Nb))
         self.samples_warmup = samples
 
     def _get_initial_points(self):
@@ -183,7 +183,7 @@ class Gibbs:
             elif hasattr(self.target.get_density(par_name), 'init_point'):
                 initial_points[par_name] = self.target.get_density(par_name).init_point
             else:
-                initial_points[par_name] = np.ones(self.target.get_density(par_name).dim)
+                initial_points[par_name] = xp.ones(self.target.get_density(par_name).dim)
         return initial_points
 
     def _store_samples(self, samples, current_samples, i):

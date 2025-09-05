@@ -14,6 +14,8 @@ It's a robust Python package designed for modeling and solving inverse problems 
 Here's what it brings to the table:
 
 - A straightforward high-level interface for UQ analysis.
+- **Array-agnostic framework** supporting NumPy, PyTorch, CuPy, and JAX backends.
+- **Automatic differentiation** capabilities with PyTorch for gradient-based inference.
 - Complete control over the models and methods.
 - An array of predefined distributions, samplers, models, and test problems.
 - Easy extendability for your unique needs.
@@ -28,6 +30,7 @@ Foundation. <https://veluxfoundations.dk/en/forskning/teknisk-og-naturvidenskabe
 
 **Quick Links**:
 :ref:`Installation <install>` |
+:doc:`Array Backends <user/array_backends>` |
 :doc:`Tutorials <user/_auto_tutorials/index>` |
 :doc:`How-To Guides <user/_auto_howtos/index>` |
 `Source Repository <https://github.com/CUQI-DTU/CUQIpy>`_ |
