@@ -1,0 +1,37 @@
+UGLA
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: UGLA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UGLA.__init__
+      ~UGLA.sample
+      ~UGLA.sample_adapt
+      ~UGLA.step
+      ~UGLA.step_tune
+      ~UGLA.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~UGLA.dim
+      ~UGLA.geometry
+      ~UGLA.target
+   
+   

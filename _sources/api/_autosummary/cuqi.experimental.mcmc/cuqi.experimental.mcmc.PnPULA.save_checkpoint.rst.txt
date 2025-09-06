@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.PnPULA.save\_checkpoint
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. automethod:: PnPULA.save_checkpoint

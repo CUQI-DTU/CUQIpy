@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedUnboundedUniform.dim
+==================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: RegularizedUnboundedUniform.dim

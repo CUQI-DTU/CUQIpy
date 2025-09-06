@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat1D.UQ
+==========================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Heat1D.UQ

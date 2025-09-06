@@ -1,0 +1,38 @@
+ProposalBasedSampler
+====================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: ProposalBasedSampler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ProposalBasedSampler.__init__
+      ~ProposalBasedSampler.sample
+      ~ProposalBasedSampler.sample_adapt
+      ~ProposalBasedSampler.step
+      ~ProposalBasedSampler.step_tune
+      ~ProposalBasedSampler.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~ProposalBasedSampler.dim
+      ~ProposalBasedSampler.geometry
+      ~ProposalBasedSampler.proposal
+      ~ProposalBasedSampler.target
+   
+   

@@ -1,0 +1,53 @@
+mcmc
+====
+
+Module path: cuqi.experimental.mcmc
+
+.. currentmodule:: cuqi.experimental
+
+.. automodule:: cuqi.experimental.mcmc
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.experimental.mcmc
+    :nosignatures:
+    :recursive:
+
+   
+      CWMH
+      Conjugate
+      ConjugateApprox
+      Direct
+      HybridGibbs
+      LinearRTO
+      MALA
+      MH
+      MYULA
+      NUTS
+      PCN
+      PnPULA
+      ProposalBasedSampler
+      RegularizedLinearRTO
+      Sampler
+      UGLA
+      ULA
+   
+   
+
+   
+   
+   
+
+
+

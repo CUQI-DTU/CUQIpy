@@ -1,0 +1,35 @@
+PDE
+===
+
+.. currentmodule:: cuqi.pde
+
+.. autoclass:: PDE
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PDE.__init__
+      ~PDE.assemble
+      ~PDE.observe
+      ~PDE.solve
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~PDE.grid_obs
+      ~PDE.grid_sol
+      ~PDE.grids_equal
+   
+   

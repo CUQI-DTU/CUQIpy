@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.sample\_adapt
+===============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.sample_adapt

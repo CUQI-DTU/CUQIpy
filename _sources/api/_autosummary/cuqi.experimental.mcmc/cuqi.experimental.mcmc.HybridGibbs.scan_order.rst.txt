@@ -1,0 +1,6 @@
+cuqi.experimental.mcmc.HybridGibbs.scan\_order
+==============================================
+
+.. currentmodule:: cuqi.experimental.mcmc
+
+.. autoproperty:: HybridGibbs.scan_order

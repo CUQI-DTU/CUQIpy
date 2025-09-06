@@ -1,0 +1,41 @@
+Poisson1D
+=========
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoclass:: Poisson1D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Poisson1D.MAP
+      ~Poisson1D.ML
+      ~Poisson1D.UQ
+      ~Poisson1D.__init__
+      ~Poisson1D.get_components
+      ~Poisson1D.sample_posterior
+      ~Poisson1D.sample_prior
+      ~Poisson1D.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Poisson1D.data
+      ~Poisson1D.likelihood
+      ~Poisson1D.model
+      ~Poisson1D.posterior
+      ~Poisson1D.prior
+   
+   

@@ -1,0 +1,6 @@
+cuqi.solver.ADMM.\_\_init\_\_
+=============================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: ADMM.__init__

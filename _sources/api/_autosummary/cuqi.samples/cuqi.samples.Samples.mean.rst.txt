@@ -1,0 +1,6 @@
+cuqi.samples.Samples.mean
+=========================
+
+.. currentmodule:: cuqi.samples
+
+.. automethod:: Samples.mean

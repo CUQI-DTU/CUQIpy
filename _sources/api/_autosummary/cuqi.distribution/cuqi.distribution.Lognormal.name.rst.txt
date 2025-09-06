@@ -1,0 +1,6 @@
+cuqi.distribution.Lognormal.name
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Lognormal.name

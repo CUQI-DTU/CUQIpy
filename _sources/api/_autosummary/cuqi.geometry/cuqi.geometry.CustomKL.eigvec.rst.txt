@@ -1,0 +1,6 @@
+cuqi.geometry.CustomKL.eigvec
+=============================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: CustomKL.eigvec
