@@ -292,8 +292,8 @@ class Distribution(Density, ABC):
                 elif len(var_args)>0:                      #Some keywords found
                     # Define new partial function with partially defined args
                     if (
-                        hasattr(var_val, "__supports_partial_eval__")
-                        and var_val.__supports_partial_eval__
+                        hasattr(var_val, "_supports_partial_eval")
+                        and var_val._supports_partial_eval
                     ):
                         func = var_val(**var_args)
                     else:
