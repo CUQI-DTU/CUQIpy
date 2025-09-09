@@ -36,7 +36,7 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
-    inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray
+    inner_initial_point : string or np.ndarray or cuqi.array.CUQIarray
         Initial point for the inner optimization problem. Can be "previous_sample" (default), "MAP", or a specific numpy or cuqi array. *Optional*.
         
     callback : callable, optional
