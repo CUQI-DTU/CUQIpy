@@ -101,6 +101,10 @@ class NUTS(Sampler):
         self.max_depth = max_depth
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
+        self._epsilon = None
+        self._epsilon_bar = None
+        self._H_bar = None
+
 
 
     def _initialize(self):
@@ -118,16 +122,19 @@ class NUTS(Sampler):
         # to epsilon_bar for the remaining sampling steps.
         if self.step_size is None:
             self._epsilon = self._FindGoodEpsilon()
-        else:
+            self.step_size = self._epsilon
+        elif self._epsilon is None:
             self._epsilon = self.step_size
+
         self._epsilon_bar = "unset"
 
         # Parameter mu, does not change during the run
         self._mu = np.log(10*self._epsilon)
+        
+        if self._H_bar is None:
+            self._H_bar = 0
 
-        self._H_bar = 0
-
-        # NUTS run diagnostic:
+        # NUTS run diagnostics
         # number of tree nodes created each NUTS iteration
         self._num_tree_node = 0
 
