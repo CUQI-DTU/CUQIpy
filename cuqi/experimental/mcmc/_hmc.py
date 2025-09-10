@@ -94,15 +94,13 @@ class NUTS(Sampler):
                                                     'epsilon_bar_list'})
 
     def __init__(self, target=None, initial_point=None, max_depth=None,
-                 step_size=None, opt_acc_rate=0.6, enable_FD=False, **kwargs):
-        self._enable_FD = enable_FD
+                 step_size=None, opt_acc_rate=0.6, **kwargs):
         super().__init__(target, initial_point=initial_point, **kwargs)
 
         # Assign parameters as attributes
         self.max_depth = max_depth
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
-
 
 
     def _initialize(self):
@@ -185,8 +183,6 @@ class NUTS(Sampler):
     def validate_target(self):
         # Check if the target has logd and gradient methods
         try:
-            if self._enable_FD:
-                self._target.enable_FD()
             current_target_logd, current_target_grad =\
             self._nuts_target(np.ones(self.dim))
         except:
