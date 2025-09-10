@@ -1,3 +1,4 @@
+
 import cuqi
 import pytest
 import numpy as np
@@ -1597,3 +1598,52 @@ def test_gibbs_scan_order():
     
     sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
     assert sampler.scan_order == ['x', 's']
+
+@pytest.mark.parametrize("step_size", [None, 0.1])
+@pytest.mark.parametrize("num_sampling_steps_x", [1, 2])
+def test_gibbs_nuts(step_size, num_sampling_steps_x):
+   
+    nb = 5
+    ns = 5
+    
+    np.random.seed(0)
+    # Forward problem
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(dim=5, phantom='sinc', noise_std=0.001).get_components()
+    
+    # Bayesian Inverse Problem
+    x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 50)
+    y = cuqi.distribution.Gaussian(A@x, 0.001**2)
+    
+    # Posterior
+    target = cuqi.distribution.JointDistribution(y, x)(y=y_data)
+
+    np.random.seed(0)
+    sampling_strategy = {
+        "x" : cuqi.experimental.mcmc.NUTS(max_depth=10, step_size=step_size)
+    }
+
+    num_sampling_steps = {
+    "x" : num_sampling_steps_x
+    }
+
+    sampler_gibbs = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, num_sampling_steps)
+    sampler_gibbs.warmup(nb)
+    sampler_gibbs.sample(ns)
+    samples_gibbs = sampler_gibbs.get_samples()
+    
+
+    
+    np.random.seed(0)
+    sampler_nuts = cuqi.experimental.mcmc.NUTS(target, max_depth=10, step_size=step_size)
+    sampler_nuts.warmup(nb)
+    sampler_nuts.sample(ns*num_sampling_steps_x)
+    samples_nuts = sampler_nuts.get_samples()
+    print("samples_gibbs['x'].samples")
+    print(samples_gibbs['x'].samples)
+    print("samples_nuts.samples")
+    print(samples_nuts.samples)
+    # assert tune samples are correct:
+    assert np.allclose(samples_gibbs['x'].samples[:,:nb], samples_nuts.samples[:,:nb], rtol=1e-5)    
+    # assert samples are correct:
+    assert np.allclose(samples_gibbs['x'].samples[:,nb:], samples_nuts.samples[:,nb+num_sampling_steps_x-1::num_sampling_steps_x], rtol=1e-5)
+
