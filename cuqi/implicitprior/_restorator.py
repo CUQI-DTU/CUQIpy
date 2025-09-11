@@ -237,17 +237,19 @@ class MoreauYoshidaPrior(Distribution):
 class TweediePrior(MoreauYoshidaPrior):
     """
     Alias for MoreauYoshidaPrior following Tweedie's formula framework. TweediePrior 
-    defines priors where gradients are computed using MMSE (Minimum Mean Square Error) denoisers.
+    defines priors where gradients are computed based on Tweedie's identity that links 
+    MMSE (Minimum Mean Square Error) denoisers with the underlying smoothed prior, see:
+        - Laumont et al. https://arxiv.org/abs/2103.04715 or https://doi.org/10.1137/21M1406349
 
     Tweedie's Formula
     -------------------------
-    In the context of denoising, Tweedie's formula states that for a signal x
+    In the context of denoising, Tweedie's identity states that for a signal x
     corrupted by Gaussian noise:
 
         ∇_x log p_e(x) = (D_e(x) - x) / e
 
     where D_e(x) is the MMSE denoiser output and e is the noise variance.
-    This enables us to compute gradient with MMSE denoisers in sampling algorithms like ULA.
+    This enables us to perform gradient-based sampling with algorithms like ULA.
 
     At implementation level, TweediePrior shares identical functionality with MoreauYoshidaPrior. 
     Thus, it is implemented as an alias of MoreauYoshidaPrior, meaning all methods, 
