@@ -36,7 +36,7 @@ class LinearRTO(Sampler):
     tol : float
         Tolerance of the inner CGLS solver. *Optional*.
 
-    inner_initial_point : string or np.ndarray or cuqi.array.CUQIarray
+    inner_initial_point : string or np.ndarray or cuqi.array.CUQIArray
         Initial point for the inner optimization problem. Can be "previous_sample" (default), "MAP", or a specific numpy or cuqi array. *Optional*.
         
     callback : callable, optional
@@ -51,7 +51,7 @@ class LinearRTO(Sampler):
         # Other parameters
         self.maxit = maxit
         self.tol = tol
-        self.specified_inner_initial_point = inner_initial_point
+        self._specified_inner_initial_point = inner_initial_point
 
     def _initialize(self):
         self._precompute()
@@ -59,15 +59,15 @@ class LinearRTO(Sampler):
 
     @property
     def inner_initial_point(self):
-        if isinstance(self.specified_inner_initial_point, str):
-            if self.specified_inner_initial_point == "previous_sample":
+        if isinstance(self._specified_inner_initial_point, str):
+            if self._specified_inner_initial_point == "previous_sample":
                 return self.current_point
-            elif self.specified_inner_initial_point == "MAP":
+            elif self._specified_inner_initial_point == "MAP":
                 return self._map
             else:
                 raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
-        elif isinstance(self.specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIarray)):
-            return self.specified_inner_initial_point
+        elif isinstance(self._specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIarray)):
+            return self._specified_inner_initial_point
         else:
             raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
 
@@ -247,7 +247,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
         self.solver = solver
-        self.specified_inner_initial_point = inner_initial_point
+        self._specified_inner_initial_point = inner_initial_point
 
     def _initialize(self):
         super()._initialize()
