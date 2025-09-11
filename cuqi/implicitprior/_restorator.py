@@ -249,8 +249,7 @@ class TweediePrior(MoreauYoshidaPrior):
         ∇_x log p_e(x) = (D_e(x) - x) / e
 
     where D_e(x) is the MMSE denoiser output and e is the noise variance.
-    This enables us to use MMSE denoisers for gradient approximation in sampling
-    algorithms like ULA.
+    This enables us to compute gradient with MMSE denoisers in sampling algorithms like ULA.
 
     At implementation level, TweediePrior shares identical functionality with MoreauYoshidaPrior. 
     Thus, it is implemented as an alias of MoreauYoshidaPrior, meaning all methods, 
