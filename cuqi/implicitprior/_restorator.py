@@ -245,11 +245,11 @@ class TweediePrior(MoreauYoshidaPrior):
     -------------------------
     In the context of denoising, Tweedie's formula states that for a signal x
     corrupted by Gaussian noise:
-    
-        ∇_x log p_ε(x) = (D_ε(x) - x) / ε
-    
-    where D_ε(x) is the MMSE denoiser output and ε is the noise variance.
-    This enables us to use MMSE denoisers for gradient approximation in sampling 
+
+        ∇_x log p_e(x) = (D_e(x) - x) / e
+
+    where D_e(x) is the MMSE denoiser output and e is the noise variance.
+    This enables us to use MMSE denoisers for gradient approximation in sampling
     algorithms like ULA.
 
     At implementation level, TweediePrior shares identical functionality with MoreauYoshidaPrior. 
@@ -263,30 +263,7 @@ class TweediePrior(MoreauYoshidaPrior):
         Prior of the RestorationPrior type containing a denoiser/restorator.
         
     smoothing_strength : float, default=0.1
-        Corresponds to the noise level ε in Tweedie's formula context.
-
-    See MoreauYoshidaPrior for the underlying implementation with complete documentation.
-    """
-    pass
-
-class ScorePrior(MoreauYoshidaPrior):
-    """
-    Alias for MoreauYoshidaPrior following the score-based framework.
-
-    ScorePrior defines (implicit) smoothed priors where gradients are approximated
-    using score-based methods.
-
-    At implementation level, ScorePrior shares identical functionality with 
-    MoreauYoshidaPrior, and it is implemented as an alias of MoreauYoshidaPrior. The separate
-    name provides clarity when working specifically with score-based approaches.
-
-    Parameters
-    ----------
-    prior : RestorationPrior
-        Prior of the RestorationPrior type containing a denoiser/restorator.
-
-    smoothing_strength : float, default=0.1
-        Smoothing strength for the score-based prior.
+        Corresponds to the noise variance e in Tweedie's formula context.
 
     See MoreauYoshidaPrior for the underlying implementation with complete documentation.
     """
