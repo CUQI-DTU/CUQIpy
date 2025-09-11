@@ -263,7 +263,7 @@ class TweediePrior(MoreauYoshidaPrior):
         Prior of the RestorationPrior type containing a denoiser/restorator.
         
     smoothing_strength : float, default=0.1
-        Corresponds to the noise level σ² in Tweedie's formula context.
+        Corresponds to the noise level ε in Tweedie's formula context.
 
     See MoreauYoshidaPrior for the underlying implementation with complete documentation.
     """
