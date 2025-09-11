@@ -246,7 +246,7 @@ class TweediePrior(MoreauYoshidaPrior):
     In the context of denoising, Tweedie's formula states that for a signal x
     corrupted by Gaussian noise:
     
-        ∇_x log p(x) = (E[clean_signal | x] - x) / σ²
+        ∇_x log p_ε(x) = (D_ε(x) - x) / ε
     
     where E[clean_signal | x] is the MMSE denoiser output and σ² is the noise variance.
     This enables us to use MMSE denoisers for gradient approximation in sampling 
