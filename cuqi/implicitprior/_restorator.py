@@ -236,10 +236,8 @@ class MoreauYoshidaPrior(Distribution):
 
 class TweediePrior(MoreauYoshidaPrior):
     """
-    Alias for MoreauYoshidaPrior following Tweedie's formula framework.
-    
-    TweediePrior defines (implicit) smoothed priors where gradients are approximated
-    using MMSE (Minimum Mean Square Error) denoisers.
+    Alias for MoreauYoshidaPrior following Tweedie's formula framework. TweediePrior 
+    defines priors where gradients are computed using MMSE (Minimum Mean Square Error) denoisers.
 
     Tweedie's Formula
     -------------------------
