@@ -148,6 +148,16 @@ class Sampler(ABC):
         if self._target is not None:
             self.validate_target()
 
+    @property
+    def current_point(self):
+        """ The current point of the sampler. """
+        return self._current_point
+
+    @current_point.setter
+    def current_point(self, value):
+        """ Set the current point of the sampler. """
+        self._current_point = value
+
     # ------------ Public methods ------------
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
