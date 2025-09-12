@@ -233,3 +233,37 @@ class MoreauYoshidaPrior(Distribution):
         # Currently conditioning variables are not supported for user-defined
         # distributions.
         return []
+
+class TweediePrior(MoreauYoshidaPrior):
+    """
+    Alias for MoreauYoshidaPrior following Tweedie's formula framework. TweediePrior 
+    defines priors where gradients are computed based on Tweedie's identity that links 
+    MMSE (Minimum Mean Square Error) denoisers with the underlying smoothed prior, see:
+        - Laumont et al. https://arxiv.org/abs/2103.04715 or https://doi.org/10.1137/21M1406349
+
+    Tweedie's Formula
+    -------------------------
+    In the context of denoising, Tweedie's identity states that for a signal x
+    corrupted by Gaussian noise:
+
+        ∇_x log p_e(x) = (D_e(x) - x) / e
+
+    where D_e(x) is the MMSE denoiser output and e is the noise variance.
+    This enables us to perform gradient-based sampling with algorithms like ULA.
+
+    At implementation level, TweediePrior shares identical functionality with MoreauYoshidaPrior. 
+    Thus, it is implemented as an alias of MoreauYoshidaPrior, meaning all methods, 
+    properties, and behavior are identical. The separate name provides clarity when 
+    working specifically with Tweedie's formula-based approaches.
+
+    Parameters
+    ----------
+    prior : RestorationPrior
+        Prior of the RestorationPrior type containing a denoiser/restorator.
+        
+    smoothing_strength : float, default=0.1
+        Corresponds to the noise variance e in Tweedie's formula context.
+
+    See MoreauYoshidaPrior for the underlying implementation with complete documentation.
+    """
+    pass
