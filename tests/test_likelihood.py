@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 import scipy.sparse as sps
 from pytest import approx
+from .test_model import MultipleInputTestModel
 
 def test_likelihood_log_and_grad():
     #Create likelihood
@@ -138,3 +139,62 @@ def test_enable_FD_gradient(y, x_i):
     # Assert that the exact and FD gradient are close,
     # but not exactly equal (since we use a different method)
     assert np.allclose(g_exact, g_FD) and np.all(g_exact != g_FD)
+
+
+def test_conditioning_likelihood_of_multiple_inputs_model():
+    """Test that conditioning on parameters of a likelihood with a multiple
+    input model works as expected."""
+
+    test_model = MultipleInputTestModel.helper_build_three_input_test_model()
+    model = cuqi.model.Model(
+        test_model.forward_map,
+        gradient=test_model.gradient_form2,
+        domain_geometry=test_model.domain_geometry,
+        range_geometry=test_model.range_geometry,
+    )
+    
+    # Input values for the model
+    x_val = np.array([1, 2, 3])
+    y_val = np.array([4, 5])
+    z_val = np.array([6, 7, 8])
+
+    data_dist = cuqi.distribution.Gaussian(
+        mean=model, cov = 1.0)#, cov=lambda x:x)
+    likelihood = data_dist(data_dist = np.array([2,2,3]))
+
+    likelihood_given_x = likelihood(x=x_val)
+    likelihood_given_y = likelihood(y=y_val)
+    likelihood_given_z = likelihood(z=z_val)
+    likelihood_given_xy = likelihood(x=x_val, y=y_val)
+    likelihood_given_xz = likelihood(x=x_val, z=z_val)
+    likelihood_given_yz = likelihood(y=y_val, z=z_val)
+    likelihood_given_xyz = likelihood(x=x_val, y=y_val, z=z_val)
+
+    assert(likelihood_given_x.get_parameter_names() == ['y', 'z'])
+    assert(likelihood_given_y.get_parameter_names() == ['x', 'z'])
+    assert(likelihood_given_z.get_parameter_names() == ['x', 'y'])
+    assert(likelihood_given_xy.get_parameter_names() == ['z'])
+    assert(likelihood_given_xz.get_parameter_names() == ['y'])
+    assert(likelihood_given_yz.get_parameter_names() == ['x'])
+    assert(likelihood_given_xyz.get_parameter_names() == [])
+
+    data_dist2 = cuqi.distribution.Gaussian(
+        mean=model,  cov=lambda x:x)
+    likelihood2 = data_dist2(data_dist2 = np.array([2, 2, 3]))
+    likelihood2_given_x = likelihood2(x = x_val)
+    likelihood2_given_y = likelihood2(y = y_val)
+    likelihood2_given_z = likelihood2(z = z_val)
+    likelihood2_given_xy = likelihood2(x = x_val, y = y_val)
+    likelihood2_given_xz = likelihood2(x = x_val, z = z_val)
+    likelihood2_given_yz = likelihood2(y = y_val, z = z_val)
+    likelihood2_given_xyz = likelihood2(x = x_val, y = y_val, z = z_val)
+
+    assert(likelihood2_given_x.get_parameter_names() == ['y', 'z'])
+    assert(likelihood2_given_y.get_parameter_names() == ['x', 'z'])
+    assert(likelihood2_given_z.get_parameter_names() == ['x', 'y'])
+    assert(likelihood2_given_xy.get_parameter_names() == ['z'])
+    assert(likelihood2_given_xz.get_parameter_names() == ['y'])
+    assert(likelihood2_given_yz.get_parameter_names() == ['x'])
+    assert(likelihood2_given_xyz.get_parameter_names() == [])
+
+    assert np.allclose(likelihood2_given_xy.distribution.cov, x_val)
