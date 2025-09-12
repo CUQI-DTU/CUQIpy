@@ -51,7 +51,7 @@ class LinearRTO(Sampler):
         # Other parameters
         self.maxit = maxit
         self.tol = tol
-        self._specified_inner_initial_point = inner_initial_point
+        self.inner_initial_point = inner_initial_point
 
     def _initialize(self):
         self._precompute()
@@ -59,15 +59,23 @@ class LinearRTO(Sampler):
 
     @property
     def inner_initial_point(self):
-        if isinstance(self._specified_inner_initial_point, str):
-            if self._specified_inner_initial_point == "previous_sample":
+        if isinstance(self._inner_initial_point, str):
+            if self._inner_initial_point == "previous_sample":
                 return self.current_point
-            elif self._specified_inner_initial_point == "MAP":
+            elif self._inner_initial_point == "map":
                 return self._map
-            else:
-                raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
-        elif isinstance(self._specified_inner_initial_point, (np.ndarray, cuqi.array.CUQIarray)):
-            return self._specified_inner_initial_point
+        else:
+            return self._inner_initial_point
+
+    @inner_initial_point.setter
+    def inner_initial_point(self, value):
+        is_correct_string = (isinstance(value, str) and
+                             (value.lower() == "previous_sample" or
+                              value.lower() == "map"))
+        if is_correct_string:
+            self._inner_initial_point = value.lower()
+        elif isinstance(value, (np.ndarray, cuqi.array.CUQIarray)):
+            self._inner_initial_point = value
         else:
             raise ValueError("Invalid value for inner_initial_point. Choose either 'previous_sample', 'MAP', or provide a numpy array/cuqi array.")
 
@@ -247,7 +255,7 @@ class RegularizedLinearRTO(LinearRTO):
         self.inner_max_it = inner_max_it
         self.penalty_parameter = penalty_parameter
         self.solver = solver
-        self._specified_inner_initial_point = inner_initial_point
+        self.inner_initial_point = inner_initial_point
 
     def _initialize(self):
         super()._initialize()
