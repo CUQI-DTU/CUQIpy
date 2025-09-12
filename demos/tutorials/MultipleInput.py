@@ -156,14 +156,14 @@ print(
 # First define sampling strategy for Gibbs sampling
 
 sampling_strategy = {
-    "h_v_dist": cuqi.experimental.mcmc.MALA(
+    "h_v_dist": cuqi.experimental.mcmc.MH(
         scale=0.2, initial_point=np.array([30])),
     "h_t_dist": cuqi.experimental.mcmc.MALA(
-        scale=0.2, initial_point=np.array([50])),
+        scale=0.6, initial_point=np.array([50])),
     "c_v_dist": cuqi.experimental.mcmc.MALA(
-        scale=0.2, initial_point=np.array([30])),
+        scale=0.6, initial_point=np.array([30])),
     "c_t_dist": cuqi.experimental.mcmc.MALA(
-        scale=0.2, initial_point=np.array([10])),
+        scale=0.6, initial_point=np.array([10])),
 }
 
 # %%
