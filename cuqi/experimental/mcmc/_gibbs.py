@@ -1,7 +1,6 @@
 from cuqi.distribution import JointDistribution, Posterior
 from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples, JointSamples
-from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
@@ -36,11 +35,10 @@ class HybridGibbs:
     Gelman et al. "Bayesian Data Analysis" (2014), Third Edition
     for more details.
 
-    In each Gibbs step, the corresponding sampler has the initial_point 
-    and initial_scale (if applicable) set to the value of the previous step
-    and the sampler is reinitialized. This means that the sampling is not 
-    fully stateful at this point. This means samplers like NUTS will lose
-    their internal state between Gibbs steps.
+    In each Gibbs step, the corresponding sampler state and history are stored, 
+    then the sampler is reinitialized. After reinitialization, the sampler state
+    and history are set back to the stored values. This ensures preserving the 
+    statefulness of the samplers.
 
     The order in which the conditionals are sampled is the order of the
     variables in the sampling strategy, unless a different sampling order
@@ -305,8 +303,6 @@ class HybridGibbs:
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():
-            if isinstance(sampler, NUTS):
-                print(f'Warning: NUTS sampler is not fully stateful in HybridGibbs. Sampler will be reinitialized in each Gibbs step.')
             sampler.initialize()
 
     def _initialize_num_sampling_steps(self):
