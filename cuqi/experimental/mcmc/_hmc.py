@@ -106,7 +106,6 @@ class NUTS(Sampler):
         self._H_bar = None
 
 
-
     def _initialize(self):
 
         self._current_alpha_ratio = np.nan # Current alpha ratio will be set to some
@@ -123,16 +122,15 @@ class NUTS(Sampler):
         if self.step_size is None:
             self._epsilon = self._FindGoodEpsilon()
             self.step_size = self._epsilon
-        elif self._epsilon is None:
+        else:
             self._epsilon = self.step_size
 
         self._epsilon_bar = "unset"
 
         # Parameter mu, does not change during the run
         self._mu = np.log(10*self._epsilon)
-        
-        if self._H_bar is None:
-            self._H_bar = 0
+
+        self._H_bar = 0
 
         # NUTS run diagnostics
         # number of tree nodes created each NUTS iteration
