@@ -966,8 +966,6 @@ def HybridGibbs_target_1():
 def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
     """ Test that using NUTS sampler within HybridGibbs sampler works as
     expected."""
-    #TODO: This test might break in the future if the NUTS within HybridGibbs
-    # is changed to be fully stateful.
 
     Nb=10
     Ns=10
@@ -981,7 +979,7 @@ def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
 
     # Here we do 1 internal steps with NUTS for each Gibbs step
     num_sampling_steps = {
-        "x" : 1,
+        "x" : 2,
         "s" : 1
     }
 
