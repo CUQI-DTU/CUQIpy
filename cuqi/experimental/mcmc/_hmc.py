@@ -101,9 +101,6 @@ class NUTS(Sampler):
         self.max_depth = max_depth
         self.step_size = step_size
         self.opt_acc_rate = opt_acc_rate
-        self._epsilon = None
-        self._epsilon_bar = None
-        self._H_bar = None
 
 
     def _initialize(self):
