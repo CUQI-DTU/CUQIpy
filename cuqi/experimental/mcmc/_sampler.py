@@ -203,13 +203,16 @@ class Sampler(ABC):
 
         self.set_state(state)
 
-    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/', Nt=1) -> 'Sampler':
+    def sample(self, Ns, Nt=1, batch_size=0, sample_path='./CUQI_samples/') -> 'Sampler':
         """ Sample Ns samples from the target density.
 
         Parameters
         ----------
         Ns : int
             The number of samples to draw.
+        
+        Nt : int, optional, default=1
+            The thinning interval. If Nt >= 1, every Nt'th sample is stored. The larger Nt, the fewer samples are stored.
 
         batch_size : int, optional
             The batch size for saving samples to disk. If 0, no batching is used. If positive, samples are saved to disk in batches of the specified size.
@@ -249,7 +252,7 @@ class Sampler(ABC):
         return self
     
 
-    def warmup(self, Nb, tune_freq=0.1, Nt=1) -> 'Sampler':
+    def warmup(self, Nb, Nt=1, tune_freq=0.1) -> 'Sampler':
         """ Warmup the sampler by drawing Nb samples.
 
         Parameters
@@ -257,6 +260,9 @@ class Sampler(ABC):
         Nb : int
             The number of samples to draw during warmup.
 
+        Nt : int, optional, default=1
+            The thinning interval. If Nt >= 1, every Nt'th sample is stored. The larger Nt, the fewer samples are stored.
+            
         tune_freq : float, optional
             The frequency of tuning. Tuning is performed every tune_freq*Nb samples.
 
