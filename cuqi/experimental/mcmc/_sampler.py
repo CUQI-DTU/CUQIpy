@@ -203,7 +203,7 @@ class Sampler(ABC):
 
         self.set_state(state)
 
-    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/') -> 'Sampler':
+    def sample(self, Ns, batch_size=0, sample_path='./CUQI_samples/', Nt=1) -> 'Sampler':
         """ Sample Ns samples from the target density.
 
         Parameters
@@ -233,7 +233,8 @@ class Sampler(ABC):
 
             # Store samples
             self._acc.append(acc)
-            self._samples.append(self.current_point)
+            if (Nt > 0) and ((idx + 1) % Nt == 0):
+                self._samples.append(self.current_point)
 
             # display acc rate at progress bar
             pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
@@ -248,7 +249,7 @@ class Sampler(ABC):
         return self
     
 
-    def warmup(self, Nb, tune_freq=0.1) -> 'Sampler':
+    def warmup(self, Nb, tune_freq=0.1, Nt=1) -> 'Sampler':
         """ Warmup the sampler by drawing Nb samples.
 
         Parameters
@@ -278,7 +279,8 @@ class Sampler(ABC):
 
             # Store samples
             self._acc.append(acc)
-            self._samples.append(self.current_point)
+            if (Nt > 0) and ((idx + 1) % Nt == 0):
+                self._samples.append(self.current_point)
 
             # display acc rate at progress bar
             pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
