@@ -1645,3 +1645,5 @@ def test_online_thinning():
     samples2 = sampler2.sample(100,Nt=1).get_samples()
 
     assert np.allclose(samples1.samples[:,0], samples2.samples[:,4], rtol=1e-5)
+    assert np.allclose(samples1.samples[:,1], samples2.samples[:,9], rtol=1e-5)
+    assert np.allclose(samples1.samples[:,2], samples2.samples[:,14], rtol=1e-5)
