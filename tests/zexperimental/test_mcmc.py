@@ -1641,14 +1641,18 @@ def test_NUTS_within_Gibbs_consistant_with_NUTS(step_size, num_sampling_steps_x,
     sampler_nuts = cuqi.experimental.mcmc.NUTS(target,
                                                max_depth=4,
                                                step_size=step_size)
-    # Warm up (not using built-in warmup to control number of steps
-    #          between tuning steps to match Gibbs sampling)
-    tune_interval = max(int(tune_freq * nb), 1)
-    for count in range(nb):
-        for _ in range(num_sampling_steps_x):
-            sampler_nuts.sample(1)
-        if (count+1) % tune_interval == 0:
-            sampler_nuts.tune(None, count//tune_interval)
+    # Warm up (when num_sampling_steps_x>0, we do not using built-in warmup
+    #          in order to control number of steps between tuning steps to
+    #          match Gibbs sampling behavior)
+    if num_sampling_steps_x == 1:
+        sampler_nuts.warmup(nb, tune_freq=tune_freq)
+    else:
+        tune_interval = max(int(tune_freq * nb), 1)
+        for count in range(nb):
+            for _ in range(num_sampling_steps_x):
+                sampler_nuts.sample(1)
+            if (count+1) % tune_interval == 0:
+                sampler_nuts.tune(None, count//tune_interval)
     # Sample
     sampler_nuts.sample(ns * num_sampling_steps_x)
     samples_nuts = sampler_nuts.get_samples().samples
