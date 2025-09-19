@@ -252,7 +252,6 @@ def create_lmrf_prior_target(dim=16):
     return cuqi.distribution.JointDistribution(x, y)(y=y_data)
 
 
-
 @pytest.mark.parametrize("target_dim", [16, 128])
 def test_UGLA_regression_sample(target_dim):
     """Test the UGLA sampler regression."""
@@ -324,7 +323,7 @@ def test_NUTS_regression_warmup(target: cuqi.density.Density):
                                         Ns=Ns,
                                         Nb=Nb,
                                         strategy="NUTS")
-    
+
 # ============= MYULA ==============
 def create_myula_target(dim=16):
     """Create a target for MYULA."""
@@ -419,7 +418,7 @@ checkpoint_targets = [
     cuqi.experimental.mcmc.ConjugateApprox(create_conjugate_target("LMRF-Gamma")),
     cuqi.experimental.mcmc.NUTS(cuqi.testproblem.Deconvolution1D(dim=10).posterior, max_depth=4)
 ]
-    
+
 # List of samplers from cuqi.experimental.mcmc that should be skipped for checkpoint testing
 skip_checkpoint = [
     cuqi.experimental.mcmc.Sampler,
@@ -967,8 +966,6 @@ def HybridGibbs_target_1():
 def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
     """ Test that using NUTS sampler within HybridGibbs sampler works as
     expected."""
-    #TODO: This test might break in the future if the NUTS within HybridGibbs
-    # is changed to be fully stateful.
 
     Nb=10
     Ns=10
@@ -982,7 +979,7 @@ def test_NUTS_within_HybridGibbs_regression_sample_and_warmup(copy_reference):
 
     # Here we do 1 internal steps with NUTS for each Gibbs step
     num_sampling_steps = {
-        "x" : 1,
+        "x" : 2,
         "s" : 1
     }
 
@@ -1080,7 +1077,7 @@ def test_nuts_acceptance_rate(sampler: cuqi.experimental.mcmc.Sampler):
     acc_rate_sum = sum(sampler._acc[2:])
 
     assert np.isclose(counter, acc_rate_sum), "NUTS sampler does not update acceptance rate correctly: "+str(counter)+" != "+str(acc_rate_sum)
-    
+
 # ============ Testing of AffineModel with RTO-type samplers ============
 
 def test_LinearRTO_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
@@ -1623,3 +1620,81 @@ def test_gibbs_scan_order():
     
     sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
     assert sampler.scan_order == ['x', 's']
+
+@pytest.mark.parametrize("step_size", [None, 0.1])
+@pytest.mark.parametrize("num_sampling_steps_x", [1, 5])
+@pytest.mark.parametrize("nb", [5, 20])
+def test_NUTS_within_Gibbs_consistant_with_NUTS(step_size, num_sampling_steps_x, nb):
+    """ Test that using NUTS sampler within HybridGibbs sampler is consistant
+    with using NUTS sampler alone for sampling and tuning. This test ensures 
+    NUTS within HybridGibbs statefulness.
+    """
+
+    ns = 15 # number of sampling steps
+    tune_freq = 0.1
+
+    np.random.seed(0)
+    # Forward problem
+    A, y_data, info = cuqi.testproblem.Deconvolution1D(
+        dim=5, phantom='sinc', noise_std=0.001).get_components()
+
+    # Bayesian Inverse Problem
+    x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 50)
+    y = cuqi.distribution.Gaussian(A@x, 0.001**2)
+
+    # Posterior
+    target = cuqi.distribution.JointDistribution(y, x)(y=y_data)
+    
+    # Sample with NUTS within HybridGibbs
+    np.random.seed(0)
+    sampling_strategy = {
+        "x" : cuqi.experimental.mcmc.NUTS(max_depth=4, step_size=step_size)
+    }
+
+    num_sampling_steps = {
+    "x" : num_sampling_steps_x
+    }
+
+    sampler_gibbs = cuqi.experimental.mcmc.HybridGibbs(target,
+                                                       sampling_strategy,
+                                                       num_sampling_steps)
+    sampler_gibbs.warmup(nb, tune_freq=tune_freq)
+    sampler_gibbs.sample(ns)
+    samples_gibbs = sampler_gibbs.get_samples()["x"].samples
+
+    # Sample with NUTS alone
+    np.random.seed(0)
+    sampler_nuts = cuqi.experimental.mcmc.NUTS(target,
+                                               max_depth=4,
+                                               step_size=step_size)
+    # Warm up (when num_sampling_steps_x>0, we do not using built-in warmup
+    #          in order to control number of steps between tuning steps to
+    #          match Gibbs sampling behavior)
+    if num_sampling_steps_x == 1:
+        sampler_nuts.warmup(nb, tune_freq=tune_freq)
+    else:
+        tune_interval = max(int(tune_freq * nb), 1)
+        for count in range(nb):
+            for _ in range(num_sampling_steps_x):
+                sampler_nuts.sample(1)
+            if (count+1) % tune_interval == 0:
+                sampler_nuts.tune(None, count//tune_interval)
+    # Sample
+    sampler_nuts.sample(ns * num_sampling_steps_x)
+    samples_nuts = sampler_nuts.get_samples().samples
+    # skip every num_sampling_steps_x samples to match Gibbs samples
+    samples_nuts_skip = samples_nuts[:, num_sampling_steps_x - 1::num_sampling_steps_x]
+
+    # assert warmup samples are correct:
+    assert np.allclose(
+        samples_gibbs[:, :nb],
+        samples_nuts_skip[:, :nb],
+        rtol=1e-5,
+    )
+
+    # assert samples are correct:
+    assert np.allclose(
+        samples_gibbs[:, nb:],
+        samples_nuts_skip[:, nb:],
+        rtol=1e-5,
+    )

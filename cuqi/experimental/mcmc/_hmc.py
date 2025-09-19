@@ -118,8 +118,10 @@ class NUTS(Sampler):
         # to epsilon_bar for the remaining sampling steps.
         if self.step_size is None:
             self._epsilon = self._FindGoodEpsilon()
+            self.step_size = self._epsilon
         else:
             self._epsilon = self.step_size
+
         self._epsilon_bar = "unset"
 
         # Parameter mu, does not change during the run
@@ -127,7 +129,7 @@ class NUTS(Sampler):
 
         self._H_bar = 0
 
-        # NUTS run diagnostic:
+        # NUTS run diagnostics
         # number of tree nodes created each NUTS iteration
         self._num_tree_node = 0
 
