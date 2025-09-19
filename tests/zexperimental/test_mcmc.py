@@ -1623,3 +1623,25 @@ def test_gibbs_scan_order():
     
     sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
     assert sampler.scan_order == ['x', 's']
+
+def test_online_thinning():
+
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Bayesian Problem
+    x = cuqi.implicitprior.NonnegativeGMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up RegularizedLinearRTO with three solvers
+    sampler1 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="ScipyMinimizer", maxit=1000, tol=1e-8)
+    sampler2 = cuqi.experimental.mcmc.RegularizedLinearRTO(posterior, solver="ScipyMinimizer", maxit=1000, tol=1e-8)
+
+    # Sample with fixed seed
+    np.random.seed(0)
+    samples1 = sampler1.sample(100,Nt=5).get_samples()
+    np.random.seed(0)
+    samples2 = sampler2.sample(100,Nt=1).get_samples()
+
+    assert np.allclose(samples1.samples[:,0], samples2.samples[:,4], rtol=1e-5)
