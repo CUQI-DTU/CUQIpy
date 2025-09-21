@@ -1,5 +1,6 @@
 from cuqi.geometry import _DefaultGeometry, _get_identity_geometries
 from cuqi.distribution import Distribution
+from cuqi.density import Density
 
 # ========================================================================
 class Posterior(Distribution):
@@ -24,6 +25,14 @@ class Posterior(Distribution):
         self.likelihood = likelihood
         self.prior = prior 
         super().__init__(**kwargs)
+
+    def get_density(self, name) -> Density:
+        """ Return a density with the given name. """
+        if name == self.likelihood.name:
+            return self.likelihood
+        if name == self.prior.name:
+            return self.prior
+        raise ValueError(f"No density with name {name}.")
 
     @property
     def data(self):

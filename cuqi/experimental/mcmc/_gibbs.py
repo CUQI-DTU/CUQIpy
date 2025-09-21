@@ -1,7 +1,6 @@
-from cuqi.distribution import JointDistribution
+from cuqi.distribution import JointDistribution, Posterior
 from cuqi.experimental.mcmc import Sampler
 from cuqi.samples import Samples, JointSamples
-from cuqi.experimental.mcmc import NUTS
 from typing import Dict
 import numpy as np
 import warnings
@@ -36,11 +35,10 @@ class HybridGibbs:
     Gelman et al. "Bayesian Data Analysis" (2014), Third Edition
     for more details.
 
-    In each Gibbs step, the corresponding sampler has the initial_point 
-    and initial_scale (if applicable) set to the value of the previous step
-    and the sampler is reinitialized. This means that the sampling is not 
-    fully stateful at this point. This means samplers like NUTS will lose
-    their internal state between Gibbs steps.
+    In each Gibbs step, the corresponding sampler state and history are stored, 
+    then the sampler is reinitialized. After reinitialization, the sampler state
+    and history are set back to the stored values. This ensures preserving the 
+    statefulness of the samplers.
 
     The order in which the conditionals are sampled is the order of the
     variables in the sampling strategy, unless a different sampling order
@@ -177,8 +175,8 @@ class HybridGibbs:
     # ------------ Public methods ------------
     def validate_targets(self):
         """ Validate each of the conditional targets used in the Gibbs steps """
-        if not isinstance(self.target, JointDistribution):
-            raise ValueError('Target distribution must be a JointDistribution.')
+        if not isinstance(self.target, (JointDistribution, Posterior)):
+            raise ValueError('Target distribution must be a JointDistribution or Posterior.')
         for sampler in self.samplers.values():
             sampler.validate_target()
 
@@ -257,19 +255,15 @@ class HybridGibbs:
             # before reinitializing the sampler and then set the state and history back to the sampler
 
             # Extract state and history from sampler
-            if isinstance(sampler, NUTS): # Special case for NUTS as it is not playing nice with get_state and get_history
-                sampler.initial_point = sampler.current_point
-            else:
-                sampler_state = sampler.get_state()
-                sampler_history = sampler.get_history()
+            sampler_state = sampler.get_state()
+            sampler_history = sampler.get_history()
 
             # Reinitialize sampler
             sampler.reinitialize()
 
             # Set state and history back to sampler
-            if not isinstance(sampler, NUTS): # Again, special case for NUTS.
-                sampler.set_state(sampler_state)
-                sampler.set_history(sampler_history)
+            sampler.set_state(sampler_state)
+            sampler.set_history(sampler_history)
 
             # Allow for multiple sampling steps in each Gibbs step
             for _ in range(self.num_sampling_steps[par_name]):
@@ -309,8 +303,6 @@ class HybridGibbs:
     def _initialize_samplers(self):
         """ Initialize samplers """
         for sampler in self.samplers.values():
-            if isinstance(sampler, NUTS):
-                print(f'Warning: NUTS sampler is not fully stateful in HybridGibbs. Sampler will be reinitialized in each Gibbs step.')
             sampler.initialize()
 
     def _initialize_num_sampling_steps(self):
