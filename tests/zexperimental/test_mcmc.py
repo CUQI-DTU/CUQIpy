@@ -1621,6 +1621,41 @@ def test_gibbs_scan_order():
     sampler = cuqi.experimental.mcmc.HybridGibbs(target, sampling_strategy, scan_order=['x', 's'])
     assert sampler.scan_order == ['x', 's']
 
+def test_online_thinning_with_mala_and_rto():
+
+    # Define LinearModel and data
+    A, y_obs, _ = cuqi.testproblem.Deconvolution1D().get_components()
+
+    # Define Bayesian Problem
+    x = cuqi.distribution.GMRF(np.zeros(A.domain_dim), 100)
+    y = cuqi.distribution.Gaussian(A@x, 0.01**2)
+    posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
+
+    # Set up MALA and RTO samplers
+    sampler_mala_1 = cuqi.experimental.mcmc.MALA(posterior, scale=0.01)
+    sampler_mala_2 = cuqi.experimental.mcmc.MALA(posterior, scale=0.01)
+    sampler_rto_1 = cuqi.experimental.mcmc.LinearRTO(posterior, maxit=1000, tol=1e-8)
+    sampler_rto_2 = cuqi.experimental.mcmc.LinearRTO(posterior, maxit=1000, tol=1e-8)
+
+    # Sample MALA and RTO with fixed seed, but different online thinning Nt
+    np.random.seed(0)
+    samples_mala_1 = sampler_mala_1.sample(100,Nt=5).get_samples()
+    np.random.seed(0)
+    samples_mala_2 = sampler_mala_2.sample(100,Nt=1).get_samples()
+    np.random.seed(0)
+    samples_rto_1 = sampler_rto_1.sample(100,Nt=5).get_samples()
+    np.random.seed(0)
+    samples_rto_2 = sampler_rto_2.sample(100,Nt=1).get_samples()
+
+    # Check that the samples are the same for MALA
+    assert np.allclose(samples_mala_1.samples[:,0], samples_mala_2.samples[:,4], rtol=1e-8)
+    assert np.allclose(samples_mala_1.samples[:,1], samples_mala_2.samples[:,9], rtol=1e-8)
+    assert np.allclose(samples_mala_1.samples[:,2], samples_mala_2.samples[:,14], rtol=1e-8)
+    # Check that the samples are the same for RTO
+    assert np.allclose(samples_rto_1.samples[:,0], samples_rto_2.samples[:,4], rtol=1e-8)
+    assert np.allclose(samples_rto_1.samples[:,1], samples_rto_2.samples[:,9], rtol=1e-8)
+    assert np.allclose(samples_rto_1.samples[:,2], samples_rto_2.samples[:,14], rtol=1e-8)
+
 @pytest.mark.parametrize("step_size", [None, 0.1])
 @pytest.mark.parametrize("num_sampling_steps_x", [1, 5])
 @pytest.mark.parametrize("nb", [5, 20])
