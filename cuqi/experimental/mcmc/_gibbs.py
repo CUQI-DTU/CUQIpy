@@ -65,6 +65,14 @@ class HybridGibbs:
         If set to "random", use a random ordering at each step.
         If not specified, it will be the order in the sampling_strategy.
 
+    FD_enabled : dict, *optional*
+        Dictionary indicating whether to enable finite difference gradient
+        approximation for each variable.
+        Keys are variable names.
+        Values are either None to disable FD or a float to enable FD with
+        the given value as the FD step size.
+        Default is None for all variables.
+
     callback : callable, optional
         A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
         The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
@@ -114,7 +122,15 @@ class HybridGibbs:
             
     """
 
-    def __init__(self, target: JointDistribution, sampling_strategy: Dict[str, Sampler], num_sampling_steps: Dict[str, int] = None, scan_order = None, callback=None):
+    def __init__(
+        self,
+        target: JointDistribution,
+        sampling_strategy: Dict[str, Sampler],
+        num_sampling_steps: Dict[str, int] = None,
+        scan_order=None,
+        FD_enabled=None,
+        callback=None,
+    ):
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
@@ -134,6 +150,9 @@ class HybridGibbs:
         # Check that the parameters of the target align with the sampling_strategy and scan_order
         if set(self.par_names) != set(self.scan_order):
             raise ValueError("Parameter names in JointDistribution do not equal the names in the scan order.")
+
+        # Store FD_enabled settings
+        self.FD_enabled = FD_enabled
 
         # Initialize sampler (after target is set)
         self._initialize()
@@ -171,6 +190,19 @@ class HybridGibbs:
             np.random.shuffle(arr) # Shuffle works in-place
             return arr
         return self._scan_order
+
+    @property
+    def FD_enabled(self):
+        return self._FD_enabled
+
+    @FD_enabled.setter
+    def FD_enabled(self, value):
+        if value is None:
+            self._FD_enabled = {par_name: None for par_name in self.par_names}
+        else:
+            if set(value.keys()) != set(self.par_names):
+                raise ValueError("Keys of FD_enabled must match the parameter names of the target distribution "+f" {self.par_names}")
+            self._FD_enabled = value
 
     # ------------ Public methods ------------
     def validate_targets(self):
@@ -222,7 +254,7 @@ class HybridGibbs:
             # Tune the sampler at tuning intervals (matching behavior of Sampler class)
             if (idx + 1) % tune_interval == 0:
                 self.tune(tune_interval, idx // tune_interval) 
-                
+
             self._store_samples()
 
             # Call callback function if specified
@@ -236,7 +268,7 @@ class HybridGibbs:
             samples_array = np.array(self.samples[par_name]).T
             samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)
         return samples_object
-    
+
     def step(self):
         """ Sequentially go through all parameters and sample them conditionally on each other """
 
@@ -315,7 +347,6 @@ class HybridGibbs:
             if par_name not in self.num_sampling_steps:
                 self.num_sampling_steps[par_name] = 1
 
-
     def _set_targets(self):
         """ Set targets for all samplers using the current samples """
         par_names = self.par_names
@@ -328,6 +359,9 @@ class HybridGibbs:
         # This defines - from a joint p(x,y,z) - the conditional distribution p(x|y,z) or p(y|x,z) or p(z|x,y)
         conditional_params = {par_name_: self.current_samples[par_name_] for par_name_ in self.par_names if par_name_ != par_name}
         self.samplers[par_name].target = self.target(**conditional_params)
+        # Enable FD as specified
+        if self.FD_enabled[par_name] is not None:
+            self.samplers[par_name].target.enable_FD(self.FD_enabled[par_name])
 
     def _allocate_samples(self):
         """ Allocate memory for samples """
@@ -344,7 +378,7 @@ class HybridGibbs:
             if sampler.initial_point is None:
                 sampler.initial_point = sampler._get_default_initial_point(self.target.get_density(par_name).dim)
             initial_points[par_name] = sampler.initial_point
-            
+
         return initial_points
 
     def _store_samples(self):
@@ -359,7 +393,7 @@ class HybridGibbs:
             msg += f" Target: None \n"
         else:
             msg += f" Target: \n \t {self.target} \n\n"
-            
+
         for key, value in zip(self.samplers.keys(), self.samplers.values()):
             msg += f" Variable '{key}' with {value} \n"
 
