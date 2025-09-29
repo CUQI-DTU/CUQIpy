@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.experimental.mcmc import Sampler
+from cuqi.sampler import Sampler
 from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
 from cuqi.array import CUQIarray
 from copy import copy
@@ -55,7 +55,7 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.ULA(target, scale=1/dim**2)
+        sampler = cuqi.sampler.ULA(target, scale=1/dim**2)
 
         # Sample
         sampler.sample(2000)
@@ -185,7 +185,7 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.experimental.mcmc.MALA(target, scale=1/5**2)
+        sampler = cuqi.sampler.MALA(target, scale=1/5**2)
 
         # Sample
         sampler.sample(2000)

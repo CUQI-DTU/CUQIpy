@@ -4,7 +4,7 @@ from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS, FISTA, ADMM, ScipyLinearLSQ, ScipyMinimizer
-from cuqi.experimental.mcmc import Sampler
+from cuqi.sampler import Sampler
 
 
 class LinearRTO(Sampler):

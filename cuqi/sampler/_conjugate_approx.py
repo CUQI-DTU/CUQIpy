@@ -1,6 +1,6 @@
 import numpy as np
-from cuqi.experimental.mcmc import Conjugate
-from cuqi.experimental.mcmc._conjugate import _ConjugatePair, _get_conjugate_parameter, _check_conjugate_parameter_is_scalar_reciprocal
+from cuqi.sampler import Conjugate
+from cuqi.sampler._conjugate import _ConjugatePair, _get_conjugate_parameter, _check_conjugate_parameter_is_scalar_reciprocal
 from cuqi.distribution import LMRF, Gamma
 import scipy as sp
 

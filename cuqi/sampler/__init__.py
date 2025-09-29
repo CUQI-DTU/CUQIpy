@@ -29,7 +29,7 @@ Main changes for users
 
    .. code-block:: python
 
-      from cuqi.experimental.mcmc import MH
+      from cuqi.sampler import MH
       from cuqi.distribution import DistributionGallery
 
       # Target distribution
@@ -62,7 +62,7 @@ Main changes for users
 
    There are now more options for Gibbs sampling. Previously it was only possible to sample with Gibbs for samplers  :py:class:`cuqi.legacy.sampler.LinearRTO`, :py:class:`cuqi.legacy.sampler.RegularizedLinearRTO`, :py:class:`cuqi.legacy.sampler.Conjugate`, and :py:class:`cuqi.legacy.sampler.ConjugateApprox`.
 
-   Now, it is possible to define a Gibbs sampling scheme using any sampler from the :py:mod:`cuqi.experimental.mcmc` module.
+   Now, it is possible to define a Gibbs sampling scheme using any sampler from the :py:mod:`cuqi.sampler` module.
 
    **Example using a NUTS-within-Gibbs scheme for a 1D deconvolution problem:**
 
@@ -71,7 +71,7 @@ Main changes for users
       import cuqi
       import numpy as np
       from cuqi.distribution import Gamma, Gaussian, GMRF, JointDistribution
-      from cuqi.experimental.mcmc import NUTS, HybridGibbs, Conjugate
+      from cuqi.sampler import NUTS, HybridGibbs, Conjugate
       from cuqi.testproblem import Deconvolution1D
 
       # Forward problem

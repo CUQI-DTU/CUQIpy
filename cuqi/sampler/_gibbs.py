@@ -1,5 +1,5 @@
 from cuqi.distribution import JointDistribution, Posterior
-from cuqi.experimental.mcmc import Sampler
+from cuqi.sampler import Sampler
 from cuqi.samples import Samples, JointSamples
 from typing import Dict
 import numpy as np
@@ -92,13 +92,13 @@ class HybridGibbs:
 
         # Define sampling strategy
         sampling_strategy = {
-            'x': cuqi.experimental.mcmc.LinearRTO(maxit=15),
-            'd': cuqi.experimental.mcmc.Conjugate(),
-            'l': cuqi.experimental.mcmc.Conjugate(),
+            'x': cuqi.sampler.LinearRTO(maxit=15),
+            'd': cuqi.sampler.Conjugate(),
+            'l': cuqi.sampler.Conjugate(),
         }
 
         # Define Gibbs sampler
-        sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+        sampler = cuqi.sampler.HybridGibbs(posterior, sampling_strategy)
 
         # Run sampler
         sampler.warmup(200)
