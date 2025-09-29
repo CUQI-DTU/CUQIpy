@@ -4,7 +4,7 @@ from cuqi.samples import Samples
 from typing import Dict, Union
 import numpy as np
 import sys
-
+import warnings
 
 class Gibbs:
     """
@@ -70,6 +70,8 @@ class Gibbs:
     """
 
     def __init__(self, target: JointDistribution, sampling_strategy: Dict[Union[str,tuple], Sampler]):
+
+        warnings.warn(f"\nYou are using the legacy sampler '{self.__class__.__name__}'.\nThis will be removed in a future release of CUQIpy.\nPlease consider using the new samplers in the 'cuqi.sampler' module.\n", UserWarning, stacklevel=2)
 
         # Store target and allow conditioning to reduce to a single density
         self.target = target() # Create a copy of target distribution (to avoid modifying the original)
