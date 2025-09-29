@@ -514,7 +514,7 @@ all_subclassing_sampler_classes= [
                    cuqi.sampler.HybridGibbs,
                    cuqi.sampler.Conjugate,
                    cuqi.sampler.ConjugateApprox,
-                   cuqi.sampler.Direct]
+                   cuqi.sampler.Direct] and cls.__name__ != 'SamplerRecommender' # don't include SamplerRecommender
 ]
 # Make sure that all samplers are tested for state history
 @pytest.mark.parametrize("sampler_class", all_subclassing_sampler_classes)
