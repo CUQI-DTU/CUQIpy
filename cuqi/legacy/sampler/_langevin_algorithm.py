@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import Sampler
+from cuqi.legacy.sampler import Sampler
 
 class ULA(Sampler):
     """Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)
@@ -55,7 +55,7 @@ class ULA(Sampler):
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.ULA(target, scale=1/dim**2)
+        sampler = cuqi.legacy.sampler.ULA(target, scale=1/dim**2)
 
         # Sample
         samples = sampler.sample(2000)
@@ -162,7 +162,7 @@ class MALA(ULA):
             gradient_func=gradient_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.MALA(target, scale=1/5**2)
+        sampler = cuqi.legacy.sampler.MALA(target, scale=1/5**2)
 
         # Sample
         samples = sampler.sample(2000)

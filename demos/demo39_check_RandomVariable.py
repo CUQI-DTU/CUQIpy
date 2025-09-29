@@ -11,7 +11,7 @@ from cuqi.distribution import Gaussian, Gamma, GMRF
 from cuqi.problem import BayesianProblem
 from cuqi.distribution import JointDistribution
 from cuqi.implicitprior import NonnegativeGMRF
-from cuqi.experimental.mcmc import HybridGibbs, Conjugate, MALA, NUTS, RegularizedLinearRTO
+from cuqi.sampler import HybridGibbs, Conjugate, MALA, NUTS, RegularizedLinearRTO
 import numpy as np
 import matplotlib.pyplot as plt
 

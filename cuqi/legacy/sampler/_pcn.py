@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import Sampler
+from cuqi.legacy.sampler import Sampler
 
 class pCN(Sampler):   
     #Samples target*proposal
@@ -48,7 +48,7 @@ class pCN(Sampler):
         prior = cuqi.distribution.UserDefinedDistribution(dim=dim, sample_func=sample_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.pCN((likelihood,prior), scale = 0.1)
+        sampler = cuqi.legacy.sampler.pCN((likelihood,prior), scale = 0.1)
 
         # Sample
         samples = sampler.sample(5000)
@@ -73,7 +73,7 @@ class pCN(Sampler):
         target = cuqi.distribution.Posterior(likelihood, prior)
 
         # Set up sampler
-        sampler = cuqi.sampler.pCN(target, scale = 0.1)
+        sampler = cuqi.legacy.sampler.pCN(target, scale = 0.1)
 
         # Sample
         samples = sampler.sample(5000)

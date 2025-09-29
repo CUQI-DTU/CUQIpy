@@ -69,7 +69,7 @@ def test_recommend_direct():
     recommender = cuqi.experimental.SamplerRecommender(x)
     sampler = recommender.recommend()
 
-    assert(isinstance(sampler, cuqi.experimental.mcmc.Direct))
+    assert(isinstance(sampler, cuqi.sampler.Direct))
 
 def test_recommend_posterior():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
@@ -82,7 +82,7 @@ def test_recommend_posterior():
     recommender = cuqi.experimental.SamplerRecommender(target)
     sampler = recommender.recommend()
 
-    assert(isinstance(sampler, cuqi.experimental.mcmc.LinearRTO))
+    assert(isinstance(sampler, cuqi.sampler.LinearRTO))
 
 def test_recommend_hierarchical():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
@@ -97,10 +97,10 @@ def test_recommend_hierarchical():
     recommender = cuqi.experimental.SamplerRecommender(target)
     sampler = recommender.recommend()
 
-    assert(isinstance(sampler, cuqi.experimental.mcmc.HybridGibbs))
-    assert(isinstance(sampler.samplers['x'], cuqi.experimental.mcmc.UGLA))
-    assert(isinstance(sampler.samplers['s'], cuqi.experimental.mcmc.Conjugate))
-    assert(isinstance(sampler.samplers['d'], cuqi.experimental.mcmc.ConjugateApprox))
+    assert(isinstance(sampler, cuqi.sampler.HybridGibbs))
+    assert(isinstance(sampler.samplers['x'], cuqi.sampler.UGLA))
+    assert(isinstance(sampler.samplers['s'], cuqi.sampler.Conjugate))
+    assert(isinstance(sampler.samplers['d'], cuqi.sampler.ConjugateApprox))
 
 def test_recommend_exceptions_1():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
@@ -111,12 +111,12 @@ def test_recommend_exceptions_1():
 
     target = cuqi.distribution.JointDistribution(y,x,s)(y = y_data)
 
-    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.experimental.mcmc.Conjugate])
+    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.sampler.Conjugate])
     sampler = recommender.recommend()
 
-    assert(isinstance(sampler, cuqi.experimental.mcmc.HybridGibbs))
-    assert(isinstance(sampler.samplers['x'], cuqi.experimental.mcmc.UGLA))
-    assert(isinstance(sampler.samplers['s'], cuqi.experimental.mcmc.CWMH))
+    assert(isinstance(sampler, cuqi.sampler.HybridGibbs))
+    assert(isinstance(sampler.samplers['x'], cuqi.sampler.UGLA))
+    assert(isinstance(sampler.samplers['s'], cuqi.sampler.CWMH))
 
 def test_recommend_exceptions_2():
     A, y_data, _ = cuqi.testproblem.Deconvolution2D(dim=2, phantom="cookie").get_components()
@@ -126,7 +126,7 @@ def test_recommend_exceptions_2():
 
     target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
 
-    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.experimental.mcmc.LinearRTO])
+    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.sampler.LinearRTO])
     sampler = recommender.recommend()
 
-    assert(isinstance(sampler, cuqi.experimental.mcmc.NUTS))
+    assert(isinstance(sampler, cuqi.sampler.NUTS))

@@ -1,5 +1,5 @@
 import numpy as np
-from cuqi.sampler import Sampler
+from cuqi.legacy.sampler import Sampler
 
 
 # another implementation is in https://github.com/mfouesneau/NUTS
@@ -50,7 +50,7 @@ class NUTS(Sampler):
         target = tp.posterior
 
         # Set up sampler
-        sampler = cuqi.sampler.NUTS(target)
+        sampler = cuqi.legacy.sampler.NUTS(target)
 
         # Sample
         samples = sampler.sample(10000, 5000)

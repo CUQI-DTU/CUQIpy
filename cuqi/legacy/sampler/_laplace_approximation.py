@@ -3,7 +3,7 @@ import numpy as np
 import cuqi
 from cuqi.distribution import Normal
 from cuqi.solver import CGLS
-from cuqi.sampler import Sampler
+from cuqi.legacy.sampler import Sampler
 
 
 class UGLA(Sampler):

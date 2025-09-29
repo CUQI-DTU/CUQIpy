@@ -307,7 +307,7 @@ class BayesianProblem(object):
             Note: if the parameter `experimental` is set to True, the callback function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature in the case is: `callback(sampler, sample_index, num_of_samples)`.
 
         experimental : bool, *Optional*
-            If set to True, the sampler selection will use the samplers from the :mod:`cuqi.experimental.mcmc` module.
+            If set to True, the sampler selection will use the samplers from the :mod:`cuqi.sampler` module.
 
         Returns
         -------
@@ -325,7 +325,7 @@ class BayesianProblem(object):
 
         if experimental:
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print("!!!  Using samplers from cuqi.experimental.mcmc  !!!")
+            print("!!!  Using samplers from cuqi.sampler  !!!")
             print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             print("")
 
@@ -413,7 +413,7 @@ class BayesianProblem(object):
             The credible interval to plot. Defaults to 95%.
 
         experimental : bool, *Optional*
-            If set to True, the sampler selection will use the samplers from the :mod:`cuqi.experimental.mcmc` module.
+            If set to True, the sampler selection will use the samplers from the :mod:`cuqi.sampler` module.
 
         Returns
         -------
@@ -492,10 +492,10 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc LinearRTO sampler.")
+            print("Using cuqi.sampler LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
-            sampler = cuqi.experimental.mcmc.LinearRTO(self.posterior, callback=callback)
+            sampler = cuqi.sampler.LinearRTO(self.posterior, callback=callback)
 
             ti = time.time()
 
@@ -567,13 +567,13 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc Component-wise Metropolis-Hastings (CWMH) sampler.")
+            print("Using cuqi.sampler Component-wise Metropolis-Hastings (CWMH) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
             scale = 0.05*np.ones(self.prior.dim)
             x0 = 0.5*np.ones(self.prior.dim)
 
-            sampler = cuqi.experimental.mcmc.CWMH(self.posterior, scale, x0, callback=callback)
+            sampler = cuqi.sampler.CWMH(self.posterior, scale, x0, callback=callback)
 
             ti = time.time()
 
@@ -610,12 +610,12 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc preconditioned Crank-Nicolson (pCN) sampler.")
+            print("Using cuqi.sampler preconditioned Crank-Nicolson (pCN) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.02")
 
             scale = 0.02
 
-            sampler = cuqi.experimental.mcmc.PCN(self.posterior, scale, callback=callback)
+            sampler = cuqi.sampler.PCN(self.posterior, scale, callback=callback)
 
             ti = time.time()
 
@@ -645,10 +645,10 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc No-U-Turn (NUTS) sampler.")
+            print("Using cuqi.sampler No-U-Turn (NUTS) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
-            sampler = cuqi.experimental.mcmc.NUTS(self.posterior, callback=callback)
+            sampler = cuqi.sampler.NUTS(self.posterior, callback=callback)
 
             ti = time.time()
 
@@ -676,10 +676,10 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc Unadjusted Gaussian Laplace Approximation (UGLA) sampler.")
+            print("Using cuqi.sampler Unadjusted Gaussian Laplace Approximation (UGLA) sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
-            sampler = cuqi.experimental.mcmc.UGLA(self.posterior, callback=callback)
+            sampler = cuqi.sampler.UGLA(self.posterior, callback=callback)
 
             ti = time.time()
 
@@ -710,10 +710,10 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc Regularized LinearRTO sampler.")
+            print("Using cuqi.sampler Regularized LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
-            sampler = cuqi.experimental.mcmc.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
+            sampler = cuqi.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
 
             ti = time.time()
 
@@ -845,7 +845,7 @@ class BayesianProblem(object):
 
         if experimental:
 
-            print("Using cuqi.experimental.mcmc HybridGibbs sampler")
+            print("Using cuqi.sampler HybridGibbs sampler")
             print(f"burn-in: {Nb/Ns*100:g}%")
             print("")
 
@@ -855,7 +855,7 @@ class BayesianProblem(object):
             # Sampling strategy
             sampling_strategy = self._determine_sampling_strategy(experimental=True)
 
-            sampler = cuqi.experimental.mcmc.HybridGibbs(
+            sampler = cuqi.sampler.HybridGibbs(
                 self._target, sampling_strategy, callback=callback)
             sampler.warmup(Nb)
             sampler.sample(Ns)
@@ -925,35 +925,35 @@ class BayesianProblem(object):
             # Gamma or ModifiedHalfNormal prior, Gaussian or RegularizedGaussian likelihood -> Conjugate
             if self._check_posterior(cond_target, (Gamma, ModifiedHalfNormal), (Gaussian, GMRF, RegularizedGaussian, RegularizedGMRF)):
                 if experimental:
-                    sampling_strategy[par_name] = cuqi.experimental.mcmc.Conjugate()
+                    sampling_strategy[par_name] = cuqi.sampler.Conjugate()
                 else:
                     sampling_strategy[par_name] = cuqi.legacy.sampler.Conjugate
 
             # Gamma prior, LMRF likelihood -> ConjugateApprox
             elif self._check_posterior(cond_target, Gamma, LMRF):
                 if experimental:
-                    sampling_strategy[par_name] = cuqi.experimental.mcmc.ConjugateApprox()
+                    sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox()
                 else:
                     sampling_strategy[par_name] = cuqi.legacy.sampler.ConjugateApprox
 
             # Gaussian prior, Gaussian likelihood, Linear model -> LinearRTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 if experimental:
-                    sampling_strategy[par_name] = cuqi.experimental.mcmc.LinearRTO()
+                    sampling_strategy[par_name] = cuqi.sampler.LinearRTO()
                 else:
                     sampling_strategy[par_name] = cuqi.legacy.sampler.LinearRTO
 
             # Implicit Regularized Gaussian prior, Gaussian likelihood, linear model -> RegularizedLinearRTO
             elif self._check_posterior(cond_target, (RegularizedGaussian, RegularizedGMRF), Gaussian, LinearModel):
                 if experimental:
-                    sampling_strategy[par_name] = cuqi.experimental.mcmc.RegularizedLinearRTO()
+                    sampling_strategy[par_name] = cuqi.sampler.RegularizedLinearRTO()
                 else:
                     sampling_strategy[par_name] = cuqi.legacy.sampler.RegularizedLinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):
                 if experimental:
-                    sampling_strategy[par_name] = cuqi.experimental.mcmc.UGLA()
+                    sampling_strategy[par_name] = cuqi.sampler.UGLA()
                 else:
                     sampling_strategy[par_name] = cuqi.legacy.sampler.UGLA
 

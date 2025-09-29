@@ -67,7 +67,7 @@ from cuqi.distribution import Gaussian, Gamma, GMRF
 from cuqi.experimental.algebra import RandomVariable
 from cuqi.problem import BayesianProblem
 from cuqi.distribution import JointDistribution
-from cuqi.experimental.mcmc import HybridGibbs, LinearRTO, Conjugate, ConjugateApprox
+from cuqi.sampler import HybridGibbs, LinearRTO, Conjugate, ConjugateApprox
 import numpy as np
 import matplotlib.pyplot as plt
 

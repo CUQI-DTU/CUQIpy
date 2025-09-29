@@ -12,7 +12,7 @@ data to obtain the posterior distribution as shown in the examples below.
 import cuqi
 import numpy as np
 from cuqi.implicitprior import RestorationPrior, MoreauYoshidaPrior
-from cuqi.experimental.mcmc import ULA, MYULA
+from cuqi.sampler import ULA, MYULA
 from cuqi.distribution import Posterior
 import matplotlib.pyplot as plt
 

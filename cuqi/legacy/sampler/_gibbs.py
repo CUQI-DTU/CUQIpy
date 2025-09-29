@@ -1,5 +1,5 @@
 from cuqi.distribution import JointDistribution
-from cuqi.sampler import Sampler
+from cuqi.legacy.sampler import Sampler
 from cuqi.samples import Samples
 from typing import Dict, Union
 import numpy as np
@@ -52,12 +52,12 @@ class Gibbs:
 
         # Define sampling strategy
         sampling_strategy = {
-            'x': cuqi.sampler.LinearRTO,
-            ('d', 'l'): cuqi.sampler.Conjugate,
+            'x': cuqi.legacy.sampler.LinearRTO,
+            ('d', 'l'): cuqi.legacy.sampler.Conjugate,
         }
 
         # Define Gibbs sampler
-        sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+        sampler = cuqi.legacy.sampler.Gibbs(posterior, sampling_strategy)
 
         # Run sampler
         samples = sampler.sample(Ns=1000, Nb=200)

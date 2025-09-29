@@ -4,7 +4,7 @@ from scipy.sparse.linalg import LinearOperator as scipyLinearOperator
 import numpy as np
 import cuqi
 from cuqi.solver import CGLS, FISTA
-from cuqi.sampler import Sampler
+from cuqi.legacy.sampler import Sampler
 
 
 class LinearRTO(Sampler):
@@ -209,7 +209,7 @@ class RegularizedLinearRTO(LinearRTO):
     Parameters
     ------------
     target : `cuqi.distribution.Posterior`
-        See `cuqi.sampler.LinearRTO`
+        See `cuqi.legacy.sampler.LinearRTO`
 
     x0 : `np.ndarray` 
         Initial point for the sampler. *Optional*.

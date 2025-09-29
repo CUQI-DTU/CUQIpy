@@ -1,6 +1,6 @@
 import numpy as np
 import cuqi
-from cuqi.sampler import ProposalBasedSampler
+from cuqi.legacy.sampler import ProposalBasedSampler
 
 
 class MH(ProposalBasedSampler):
@@ -48,7 +48,7 @@ class MH(ProposalBasedSampler):
         target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
-        sampler = cuqi.sampler.MH(target, scale=1)
+        sampler = cuqi.legacy.sampler.MH(target, scale=1)
 
         # Sample
         samples = sampler.sample(2000)
