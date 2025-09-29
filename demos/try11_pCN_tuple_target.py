@@ -8,7 +8,7 @@ import cuqi
 import numpy as np
 
 from cuqi.distribution import Gaussian
-from cuqi.sampler import pCN
+from cuqi.legacy.sampler import pCN
 
 #%%
 np.random.seed(0)

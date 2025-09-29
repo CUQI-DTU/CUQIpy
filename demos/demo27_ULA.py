@@ -24,7 +24,7 @@ prior = cuqi.distribution.CMRF(loc, scale, 'neumann')
 
 # %% Create the posterior and the sampler
 posterior = cuqi.distribution.Posterior(likelihood, prior)
-MCMC = cuqi.sampler.ULA(posterior, scale=1/n**2)
+MCMC = cuqi.legacy.sampler.ULA(posterior, scale=1/n**2)
 
 # %% Sample
 samples  = MCMC.sample(1000, 500)

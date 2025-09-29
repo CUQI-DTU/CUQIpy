@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 # myfuns
 import cuqi
-from cuqi.sampler import pCN, MH
+from cuqi.legacy.sampler import pCN, MH
 from cuqi.distribution import Gaussian, Posterior, DistributionGallery
 from cuqi.samples import Samples
 #

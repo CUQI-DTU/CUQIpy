@@ -7,11 +7,11 @@ Main changes for users
 1. Sampling API
    ^^^^^^^^^^^^
 
-   Previously one would call the `.sample` or `sample_adapt` methods of a sampler instance at :py:mod:`cuqi.sampler` to sample from a target distribution and store the samples as the output as follows:
+   Previously one would call the `.sample` or `sample_adapt` methods of a sampler instance at :py:mod:`cuqi.legacy.sampler` to sample from a target distribution and store the samples as the output as follows:
 
    .. code-block:: python
 
-      from cuqi.sampler import MH
+      from cuqi.legacy.sampler import MH
       from cuqi.distribution import DistributionGallery
 
       # Target distribution
@@ -60,7 +60,7 @@ Main changes for users
 3. More options for Gibbs sampling
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   There are now more options for Gibbs sampling. Previously it was only possible to sample with Gibbs for samplers  :py:class:`cuqi.sampler.LinearRTO`, :py:class:`cuqi.sampler.RegularizedLinearRTO`, :py:class:`cuqi.sampler.Conjugate`, and :py:class:`cuqi.sampler.ConjugateApprox`.
+   There are now more options for Gibbs sampling. Previously it was only possible to sample with Gibbs for samplers  :py:class:`cuqi.legacy.sampler.LinearRTO`, :py:class:`cuqi.legacy.sampler.RegularizedLinearRTO`, :py:class:`cuqi.legacy.sampler.Conjugate`, and :py:class:`cuqi.legacy.sampler.ConjugateApprox`.
 
    Now, it is possible to define a Gibbs sampling scheme using any sampler from the :py:mod:`cuqi.experimental.mcmc` module.
 

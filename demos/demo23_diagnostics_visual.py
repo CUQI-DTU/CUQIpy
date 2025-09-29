@@ -4,7 +4,7 @@ sys.path.append("..")
 import cuqi
 # %% 2-dimensional distribution with circular shape
 dist = cuqi.distribution.DistributionGallery("CalSom91")
-sampler = cuqi.sampler.MH(dist)
+sampler = cuqi.legacy.sampler.MH(dist)
 samples = sampler.sample_adapt(50000)
 
 # Switch to discrete geometry (easiest for "variable" names)
@@ -26,7 +26,7 @@ samples_bt.plot_pair(marginals=True)
 import numpy as np
 #dist4 = cuqi.distribution.Gaussian(np.array([1,2,3,4]),1)
 dist4 = cuqi.distribution.LMRF(0, 1, 'zero', geometry=6)
-sampler4 = cuqi.sampler.MH(dist4)
+sampler4 = cuqi.legacy.sampler.MH(dist4)
 samples4 = sampler4.sample_adapt(50000)
 samples4.geometry = cuqi.geometry.Discrete(["a","b","c","d","e","f"])
 # %%

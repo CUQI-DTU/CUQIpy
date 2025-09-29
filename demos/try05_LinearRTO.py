@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 # myfuns
 import cuqi
-from cuqi.sampler import LinearRTO
+from cuqi.legacy.sampler import LinearRTO
 
 # =============================================================================
 # set-up the discrete convolution model

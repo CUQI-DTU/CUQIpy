@@ -203,7 +203,7 @@ class RegularizedLinearRTO(LinearRTO):
     Parameters
     ------------
     target : `cuqi.distribution.Posterior`
-        See `cuqi.sampler.LinearRTO`
+        See `cuqi.legacy.sampler.LinearRTO`
 
     initial_point : `np.ndarray` 
         Initial point for the sampler. *Optional*.

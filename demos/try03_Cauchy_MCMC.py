@@ -49,7 +49,7 @@ def target(x): return likelihood_logpdf(x) + prior_logpdf(x)
 def proposal(x_t, sigma): return np.random.normal(x_t, sigma)
 scale = 0.05*np.ones(n)
 x0 = 0.5*np.ones(n)
-MCMC = cuqi.sampler.CWMH(target, proposal, scale, x0)
+MCMC = cuqi.legacy.sampler.CWMH(target, proposal, scale, x0)
 
 # run sampler
 Ns = int(5e3)      # number of samples

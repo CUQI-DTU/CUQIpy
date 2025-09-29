@@ -15,7 +15,7 @@ import cuqi
 from cuqi.testproblem import Deconvolution1D
 from cuqi.model import LinearModel
 from cuqi.distribution import Gaussian, LMRF, CMRF
-from cuqi.sampler import CWMH
+from cuqi.legacy.sampler import CWMH
 from cuqi.problem import BayesianProblem
 from cuqi.samples import Samples
 from cuqi.array import CUQIarray

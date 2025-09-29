@@ -186,7 +186,7 @@ print(z1)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
-sampler = cuqi.sampler.MH(z1)
+sampler = cuqi.legacy.sampler.MH(z1)
 samples = sampler.sample_adapt(8000)
 
 # Plot the credible interval and compute the ESS
@@ -219,7 +219,7 @@ print(z2)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
-sampler = cuqi.sampler.MH(z2)
+sampler = cuqi.legacy.sampler.MH(z2)
 samples = sampler.sample_adapt(8000)
 
 # Plot the credible interval and compute the ESS
@@ -253,7 +253,7 @@ print(z_joint)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
-sampler = cuqi.sampler.MH(z_joint)
+sampler = cuqi.legacy.sampler.MH(z_joint)
 samples = sampler.sample_adapt(8000)
 
 # Plot the credible interval and compute the ESS

@@ -507,14 +507,14 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using cuqi.sampler LinearRTO sampler.")
+            print("Using cuqi.legacy.sampler LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             # Start timing
             ti = time.time()
 
             # Sample
-            sampler = cuqi.sampler.LinearRTO(self.posterior, callback=callback)
+            sampler = cuqi.legacy.sampler.LinearRTO(self.posterior, callback=callback)
             samples = sampler.sample(Ns, Nb)
 
             # Print timing
@@ -585,7 +585,7 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using cuqi.sampler Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
+            print("Using cuqi.legacy.sampler Component-wise Metropolis-Hastings (CWMH) sampler (sample_adapt)")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.05, x0: 0.5 (vector)")
 
             # Dimension
@@ -597,7 +597,7 @@ class BayesianProblem(object):
             # Set up sampler
             scale = 0.05*np.ones(n)
             x0 = 0.5*np.ones(n)
-            MCMC = cuqi.sampler.CWMH(self.posterior, proposal, scale, x0, callback=callback)
+            MCMC = cuqi.legacy.sampler.CWMH(self.posterior, proposal, scale, x0, callback=callback)
             
             # Run sampler
             ti = time.time()
@@ -627,12 +627,12 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using cuqi.sampler preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
+            print("Using cuqi.legacy.sampler preconditioned Crank-Nicolson (pCN) sampler (sample_adapt)")
             print(f"burn-in: {Nb/Ns*100:g}%, scale: 0.02")
 
             scale = 0.02
             
-            MCMC = cuqi.sampler.pCN(self.posterior, scale, callback=callback)      
+            MCMC = cuqi.legacy.sampler.pCN(self.posterior, scale, callback=callback)      
             
             #Run sampler
             ti = time.time()
@@ -660,10 +660,10 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using cuqi.sampler No-U-Turn (NUTS) sampler")
+            print("Using cuqi.legacy.sampler No-U-Turn (NUTS) sampler")
             print(f"burn-in: {Nb/Ns*100:g}%")
             
-            MCMC = cuqi.sampler.NUTS(self.posterior, callback=callback)
+            MCMC = cuqi.legacy.sampler.NUTS(self.posterior, callback=callback)
             
             # Run sampler
             ti = time.time()
@@ -691,14 +691,14 @@ class BayesianProblem(object):
 
         else:
 
-            print("Using cuqi.sampler UGLA sampler")
+            print("Using cuqi.legacy.sampler UGLA sampler")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             # Start timing
             ti = time.time()
 
             # Sample
-            sampler = cuqi.sampler.UGLA(self.posterior, callback=callback)
+            sampler = cuqi.legacy.sampler.UGLA(self.posterior, callback=callback)
             samples = sampler.sample(Ns, Nb)
 
             # Print timing
@@ -725,14 +725,14 @@ class BayesianProblem(object):
         
         else:
 
-            print("Using cuqi.sampler Regularized LinearRTO sampler.")
+            print("Using cuqi.legacy.sampler Regularized LinearRTO sampler.")
             print(f"burn-in: {Nb/Ns*100:g}%")
 
             # Start timing
             ti = time.time()
 
             # Sample
-            sampler = cuqi.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
+            sampler = cuqi.legacy.sampler.RegularizedLinearRTO(self.posterior, maxit=100, stepsize = "automatic", abstol=1e-10, callback=callback)
             samples = sampler.sample(Ns, Nb)
 
             # Print timing
@@ -883,7 +883,7 @@ class BayesianProblem(object):
             # Sampling strategy
             sampling_strategy = self._determine_sampling_strategy()
 
-            sampler = cuqi.sampler.Gibbs(self._target, sampling_strategy)
+            sampler = cuqi.legacy.sampler.Gibbs(self._target, sampling_strategy)
             samples = sampler.sample(Ns, Nb)
 
             # Print timing
@@ -927,35 +927,35 @@ class BayesianProblem(object):
                 if experimental:
                     sampling_strategy[par_name] = cuqi.experimental.mcmc.Conjugate()
                 else:
-                    sampling_strategy[par_name] = cuqi.sampler.Conjugate
+                    sampling_strategy[par_name] = cuqi.legacy.sampler.Conjugate
 
             # Gamma prior, LMRF likelihood -> ConjugateApprox
             elif self._check_posterior(cond_target, Gamma, LMRF):
                 if experimental:
                     sampling_strategy[par_name] = cuqi.experimental.mcmc.ConjugateApprox()
                 else:
-                    sampling_strategy[par_name] = cuqi.sampler.ConjugateApprox
+                    sampling_strategy[par_name] = cuqi.legacy.sampler.ConjugateApprox
 
             # Gaussian prior, Gaussian likelihood, Linear model -> LinearRTO
             elif self._check_posterior(cond_target, (Gaussian, GMRF), Gaussian, LinearModel):
                 if experimental:
                     sampling_strategy[par_name] = cuqi.experimental.mcmc.LinearRTO()
                 else:
-                    sampling_strategy[par_name] = cuqi.sampler.LinearRTO
+                    sampling_strategy[par_name] = cuqi.legacy.sampler.LinearRTO
 
             # Implicit Regularized Gaussian prior, Gaussian likelihood, linear model -> RegularizedLinearRTO
             elif self._check_posterior(cond_target, (RegularizedGaussian, RegularizedGMRF), Gaussian, LinearModel):
                 if experimental:
                     sampling_strategy[par_name] = cuqi.experimental.mcmc.RegularizedLinearRTO()
                 else:
-                    sampling_strategy[par_name] = cuqi.sampler.RegularizedLinearRTO
+                    sampling_strategy[par_name] = cuqi.legacy.sampler.RegularizedLinearRTO
 
             # LMRF prior, Gaussian likelihood, Linear model -> UGLA
             elif self._check_posterior(cond_target, LMRF, Gaussian, LinearModel):
                 if experimental:
                     sampling_strategy[par_name] = cuqi.experimental.mcmc.UGLA()
                 else:
-                    sampling_strategy[par_name] = cuqi.sampler.UGLA
+                    sampling_strategy[par_name] = cuqi.legacy.sampler.UGLA
 
             else:
                 raise NotImplementedError(f"Unable to determine sampling strategy for {par_name} with target {cond_target}")
