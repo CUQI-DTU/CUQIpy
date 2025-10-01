@@ -288,7 +288,7 @@ class BayesianProblem(object):
         x_MAP.info = solver_info
         return x_MAP
 
-    def sample_posterior(self, Ns, Nb=None, callback=None, legacy=True) -> cuqi.samples.Samples:
+    def sample_posterior(self, Ns, Nb=None, callback=None, legacy=False) -> cuqi.samples.Samples:
         """Sample the posterior. Sampler choice and tuning is handled automatically.
         
         Parameters
@@ -394,7 +394,7 @@ class BayesianProblem(object):
         # Now sample prior problem
         return prior_problem.sample_posterior(Ns, Nb, callback)
 
-    def UQ(self, Ns=1000, Nb=None, percent=95, exact=None, legacy=True) -> cuqi.samples.Samples:
+    def UQ(self, Ns=1000, Nb=None, percent=95, exact=None, legacy=False) -> cuqi.samples.Samples:
         """ Run an Uncertainty Quantification (UQ) analysis on the Bayesian problem and provide a summary of the results.
         
         Parameters
@@ -488,7 +488,7 @@ class BayesianProblem(object):
         samples.funvals.vector.plot_variance()
         plt.title("Sample variance of function representation")
 
-    def _sampleLinearRTO(self, Ns, Nb, callback=None, legacy=True):
+    def _sampleLinearRTO(self, Ns, Nb, callback=None, legacy=False):
 
         if not legacy:
 
@@ -563,7 +563,7 @@ class BayesianProblem(object):
         
         return cuqi.samples.Samples(x_s,self.model.domain_geometry)
     
-    def _sampleCWMH(self, Ns, Nb, callback=None, legacy=True):
+    def _sampleCWMH(self, Ns, Nb, callback=None, legacy=False):
 
         if not legacy:
 
@@ -606,7 +606,7 @@ class BayesianProblem(object):
         
         return x_s
 
-    def _samplepCN(self, Ns, Nb, callback=None, legacy=True):
+    def _samplepCN(self, Ns, Nb, callback=None, legacy=False):
 
         if not legacy:
 
@@ -641,7 +641,7 @@ class BayesianProblem(object):
        
         return x_s
 
-    def _sampleNUTS(self, Ns, Nb, callback=None, legacy=True):
+    def _sampleNUTS(self, Ns, Nb, callback=None, legacy=False):
 
         if not legacy:
 
@@ -672,7 +672,7 @@ class BayesianProblem(object):
         
         return x_s
 
-    def _sampleUGLA(self, Ns, Nb, callback=None, legacy=True):
+    def _sampleUGLA(self, Ns, Nb, callback=None, legacy=False):
 
         if not legacy:
 
@@ -706,7 +706,7 @@ class BayesianProblem(object):
 
         return samples
     
-    def _sampleRegularizedLinearRTO(self, Ns, Nb, callback=None, legacy=True):
+    def _sampleRegularizedLinearRTO(self, Ns, Nb, callback=None, legacy=False):
 
         if not legacy:
 
@@ -840,7 +840,7 @@ class BayesianProblem(object):
 
         return L and P and M and D and G
 
-    def _sampleGibbs(self, Ns, Nb, callback=None, legacy=True):
+    def _sampleGibbs(self, Ns, Nb, callback=None, legacy=False):
         """ This is a helper function for sampling from the posterior using Gibbs sampler. """
 
         if not legacy:
