@@ -9,7 +9,9 @@ class Sampler(ABC):
 
     def __init__(self, target, x0=None, dim=None, callback=None):
 
-        warnings.warn(f"\nYou are using the legacy sampler '{self.__class__.__name__}'.\nThis will be removed in a future release of CUQIpy.\nPlease consider using the new samplers in the 'cuqi.sampler' module.\n", UserWarning, stacklevel=2)
+        warnings.warn(f"\nYou are using the legacy sampler '{self.__class__.__name__}'.\n"
+                      f"This will be removed in a future release of CUQIpy.\n"
+                      f"Please consider using the new samplers in the 'cuqi.sampler' module.\n", UserWarning, stacklevel=2)
 
         self._dim = dim
         if hasattr(target,'dim'): 
