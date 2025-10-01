@@ -404,7 +404,7 @@ def test_TP_callback(prior, sample_method, expected):
     if sample_method == "_sampleMapCholesky":
         sample_method_handle(10, callback=callback)
     else:
-        sample_method_handle(10, Nb=2, callback=callback)
+        sample_method_handle(10, Nb=2, legacy=True, callback=callback)
 
     assert np.array_equal(Ns_list, expected)
 
