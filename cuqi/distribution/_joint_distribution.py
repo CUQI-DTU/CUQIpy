@@ -103,7 +103,7 @@ class JointDistribution:
         """ Returns a dictionary indicating for each parameter name if finite
         difference approximation of the logd gradient is enabled. """
         par_names = self.get_parameter_names()
-        FD_enabled = {par_name: par_name is not None for par_name in par_names}
+        FD_enabled = {par_name: self.FD_epsilon[par_name] is not None for par_name in par_names}
         return FD_enabled
 
     @property
