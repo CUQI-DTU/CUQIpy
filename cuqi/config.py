@@ -12,3 +12,6 @@ MAX_STACK_SEARCH_DEPTH = 1000
 
 MIN_DIM_SPARSE = 75
 """ Minimum dimension to start storing Nd-arrays as sparse for N>2. The minimum dimension is defined as MIN_DIM_SPARSE^N. """
+
+DISABLE_PROGRESS_BAR = False
+""" Whether to disable progress bar during sampling. This is useful, for example, when building the pdf version of the gitbook (CUQI-Book) when bar printing spans many lines/pages."""
