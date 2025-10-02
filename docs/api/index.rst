@@ -6,7 +6,7 @@ CUQIpy is a large library of sub modules. The following is an overview of the ov
 The main modules are:
    - :doc:`cuqi.distribution <_autosummary/cuqi.distribution>` for defining probability distributions.
    - :doc:`cuqi.model <_autosummary/cuqi.model>` for defining deterministic models.
-   - :doc:`cuqi.legacy.sampler <_autosummary/cuqi.legacy.sampler>` for sampling from probability distributions.
+   - :doc:`cuqi.sampler <_autosummary/cuqi.sampler>` for sampling from probability distributions.
 
 The following modules provide higher-level interfaces:
    - :doc:`cuqi.testproblem <_autosummary/cuqi.testproblem>` for defining specific test problems.
@@ -18,6 +18,9 @@ Some useful auxiliary helper modules:
    - :doc:`cuqi.geometry <_autosummary/cuqi.geometry>` for defining the geometry of objects like distributions or models.
    - :doc:`cuqi.samples <_autosummary/cuqi.samples>` contains tools for storing and manipulating MCMC samples.
    - :doc:`cuqi.solver <_autosummary/cuqi.solver>` contains tools point estimation of posteriors.
+
+Legacy modules:
+   - :doc:`cuqi.legacy <_autosummary/cuqi.legacy>` contains legacy modules that are not recommended for new development.
 
 Experimental modules:
    - :doc:`cuqi.experimental <_autosummary/cuqi.experimental>` contains experimental modules that are not yet stable.

@@ -50,9 +50,9 @@ Main changes for users
 
    :py:class:`cuqi.problem.BayesianProblem` continues to have the same API for `sample_posterior` and the `UQ` method.
 
-   There is now a flag `experimental` that can be set to `True` to use the new MCMC samplers.
-   
-   By default, the flag is set to `False` and the old samplers are used.
+   There is now a flag `legacy` that can be set to `True` to use the legacy MCMC samplers.
+
+   By default, the flag is set to `False` and the samplers in `cuqi.sampler` are used.
 
    For this more high-level interface, burn-in is automatically removed from the samples as was the case before.
 
