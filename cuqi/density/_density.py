@@ -143,7 +143,15 @@ class Density(ABC):
     def enable_FD(self, epsilon=1e-8):
         """ Enable finite difference approximation for logd gradient. Note
         that if enabled, the FD approximation will be used even if the 
-        _gradient method is implemented. """
+        _gradient method is implemented. 
+        
+        Parameters
+        ----------
+        epsilon : float
+
+        Spacing (step size) to use for finite difference approximation for logd
+        gradient for each variable. Default is 1e-8.
+        """
         self._FD_enabled = True
         self._FD_epsilon = epsilon
 

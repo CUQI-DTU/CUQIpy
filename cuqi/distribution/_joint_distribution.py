@@ -100,8 +100,9 @@ class JointDistribution:
 
     @property
     def FD_enabled(self):
-        """ Returns a dictionary indicating for each parameter name if finite
-        difference approximation of the logd gradient is enabled. """
+        """ Returns a dictionary of keys and booleans indicating for each
+        parameter name (key) if finite difference approximation of the logd
+        gradient is enabled. """
         par_names = self.get_parameter_names()
         FD_enabled = {
             par_name: self.FD_epsilon[par_name] is not None for par_name in par_names
@@ -117,7 +118,7 @@ class JointDistribution:
     @FD_epsilon.setter
     def FD_epsilon(self, value):
         """ Set the spacing for the finite difference approximation of the
-        logd gradient which is a dictionary. The keys are the parameter names.
+        logd gradient as a dictionary. The keys are the parameter names.
         The value for each key is either None (no FD approximation) or a float
         representing the FD step size.
         """
@@ -179,8 +180,8 @@ class JointDistribution:
         ----------
         epsilon : dict, *optional*
 
-        Dictionary indicating the step size to use for finite difference
-        approximation for logd gradient for each variable.
+        Dictionary indicating the spacing (step size) to use for finite
+        difference approximation for logd gradient for each variable.
 
         Keys are variable names.
         Values are either a float to enable FD with the given value as the FD
@@ -282,7 +283,6 @@ class JointDistribution:
         # If exactly one distribution and multiple likelihoods reduce
         if n_dist == 1 and n_likelihood > 1:
             reduced_distribution = MultipleLikelihoodPosterior(*self._densities)
-            # TODO: should we use _add_constants_to_density here?
 
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
@@ -294,8 +294,8 @@ class JointDistribution:
 
         # If exactly one distribution and no likelihoods its a Distribution
         if n_dist == 1 and n_likelihood == 0:
-            # intentionally skip enabling FD here. If the user wants FD they
-            # should enable it for this particular distribution before forming
+            # Intentionally skip enabling FD here. If the user wants FD, they
+            # can enable it for this particular distribution before forming
             # the joint distribution.
             return self._add_constants_to_density(self._distributions[0])
 
