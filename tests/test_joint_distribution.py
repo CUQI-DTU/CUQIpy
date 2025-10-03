@@ -485,3 +485,55 @@ def test_joint_distribution_with_multiple_inputs_model_has_correct_parameter_nam
     assert joint_dist(x_dist=x_val, y_dist=y_val, data_dist=np.array([2,2,3])).likelihood.get_parameter_names() == ['z_dist']
     assert joint_dist(x_dist=x_val, z_dist=z_val, data_dist=np.array([2,2,3])).likelihood.get_parameter_names() == ['y_dist']
     assert joint_dist(y_dist=y_val, z_dist=z_val, data_dist=np.array([2,2,3])).likelihood.get_parameter_names() == ['x_dist']
+
+
+def test_FD_enabled_is_set_correctly():
+    """ Test that FD_enabled property is set correctly in JointDistribution """
+
+    # Create a joint distribution with two distributions
+    d1 = cuqi.distribution.Normal(0, 1, name="x")
+    d2 = cuqi.distribution.Gamma(lambda x: x**2, 1, name="y")
+    J = cuqi.distribution.JointDistribution(d1, d2)
+
+    # Initially FD should be disabled for both
+    assert J.FD_enabled == {"x": False, "y": False}
+
+    # Enable FD for x
+    J.enable_FD(epsilon={"x": 1e-6, "y": None})
+    assert J.FD_enabled == {"x": True, "y": False}
+    assert J.FD_epsilon == {"x": 1e-6, "y": None}
+
+    # Enable FD for y as well
+    J.enable_FD(epsilon={"x": 1e-6, "y": 1e-5})
+    assert J.FD_enabled == {"x": True, "y": True}
+    assert J.FD_epsilon == {"x": 1e-6, "y": 1e-5}
+
+    # Disable FD for x
+    J.enable_FD(epsilon={"x": None, "y": 1e-5})
+    assert J.FD_enabled == {"x": False, "y": True}
+    assert J.FD_epsilon == {"x": None, "y": 1e-5}
+
+    # Disable FD for all
+    J.disable_FD()
+    assert J.FD_enabled == {"x": False, "y": False}
+    assert J.FD_epsilon == {"x": None, "y": None}
+
+    # Enable FD and reduce to single density
+    J.enable_FD() # Enable FD for all
+    J_given_x = J(x=0)
+    J_given_y = J(y=1)
+
+    # Check types and FD_enabled status of J_given_x
+    assert isinstance(J_given_x, cuqi.distribution.Gamma)
+    assert not J_given_x.FD_enabled # intentionally disabled for single remaining
+                                    # distribution
+    assert J_given_x.FD_epsilon == None
+
+    # Check types and FD_enabled status of J_given_y
+    assert isinstance(J_given_y, cuqi.distribution.Posterior)
+    assert J_given_y.FD_enabled
+    assert J_given_y.FD_epsilon == 1e-8 # Default epsilon for remaining density
+
+    # Catch error if epsilon keys do not match parameter names
+    with pytest.raises(ValueError, match=r"Keys of FD_epsilon must match"):
+        J.enable_FD(epsilon={"x": 1e-6}) # Missing "y" key
