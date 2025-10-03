@@ -97,13 +97,15 @@ class JointDistribution:
     def geometry(self) -> List[Geometry]:
         """ Returns the geometries of the joint distribution. """
         return [dist.geometry for dist in self._distributions]
-    
+
     @property
     def FD_enabled(self):
         """ Returns a dictionary indicating for each parameter name if finite
         difference approximation of the logd gradient is enabled. """
         par_names = self.get_parameter_names()
-        FD_enabled = {par_name: self.FD_epsilon[par_name] is not None for par_name in par_names}
+        FD_enabled = {
+            par_name: self.FD_epsilon[par_name] is not None for par_name in par_names
+        }
         return FD_enabled
 
     @property
@@ -111,7 +113,7 @@ class JointDistribution:
         """ Returns a dictionary indicating for each parameter name the
         spacing for the finite difference approximation of the logd gradient."""
         return self._FD_epsilon
-    
+
     @FD_epsilon.setter
     def FD_epsilon(self, value):
         """ Set the spacing for the finite difference approximation of the
@@ -166,7 +168,7 @@ class JointDistribution:
         # This happens if there is only a single parameter left.
         # Can reduce to Posterior, Likelihood or Distribution.
         return new_joint._reduce_to_single_density()
-    
+
     def enable_FD(self, epsilon=None):
         """ Enable finite difference approximation for logd gradient. Note
         that if enabled, the FD approximation will be used even if the 
@@ -265,33 +267,47 @@ class JointDistribution:
         if n_dist > 1:
             return self
 
+        # If only evaluated densities left return joint to ensure logd method is available
+        if n_dist == 0 and n_likelihood == 0:
+            return self
+
+        # Extract the parameter name of the distribution
+        if n_dist == 1:
+            par_name = self._distributions[0].name
+        elif n_likelihood == 1:
+            par_name = self._likelihoods[0].name
+        else:
+            par_name = None
+
         # If exactly one distribution and multiple likelihoods reduce
         if n_dist == 1 and n_likelihood > 1:
-            return MultipleLikelihoodPosterior(*self._densities)
-        
+            reduced_distribution = MultipleLikelihoodPosterior(*self._densities)
+            # TODO: should we use _add_constants_to_density here?
+
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
             # Ensure parameter names match, otherwise return the joint distribution
             if set(self._likelihoods[0].get_parameter_names()) != set(self._distributions[0].get_parameter_names()):
                 return self
-            posterior = Posterior(self._likelihoods[0], self._distributions[0])
-            par_name = posterior.prior.name
-            if self.FD_enabled[par_name]:
-                posterior.enable_FD(epsilon=self.FD_epsilon[par_name])
-            return self._add_constants_to_density(posterior)
+            reduced_distribution = Posterior(self._likelihoods[0], self._distributions[0])
+            reduced_distribution = self._add_constants_to_density(reduced_distribution)
 
         # If exactly one distribution and no likelihoods its a Distribution
         if n_dist == 1 and n_likelihood == 0:
-            return self._add_constants_to_density(self._distributions[0])        
-        
+            # intentionally skip enabling FD here. If the user wants FD they
+            # should enable it for this particular distribution before forming
+            # the joint distribution.
+            return self._add_constants_to_density(self._distributions[0])
+
         # If no distributions and exactly one likelihood its a Likelihood
         if n_likelihood == 1 and n_dist == 0:
-            return self._likelihoods[0]
+            reduced_distribution = self._likelihoods[0]
 
-        # If only evaluated densities left return joint to ensure logd method is available
-        if n_dist == 0 and n_likelihood == 0:
-            return self
-        
+        if self.FD_enabled[par_name]:
+            reduced_distribution.enable_FD(epsilon=self.FD_epsilon[par_name])
+
+        return reduced_distribution
+
     def _add_constants_to_density(self, density: Density):
         """ Add the constants (evaluated densities) to a single density. Used when reducing to single density. """
 
@@ -336,7 +352,7 @@ class JointDistribution:
                     if len(cond_vars) > 0:
                         msg += f"|{cond_vars}"
                     msg += ")"
-        
+
         msg += "\n"
         msg += "    Densities: \n"
 
