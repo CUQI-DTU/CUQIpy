@@ -538,6 +538,33 @@ def test_FD_enabled_is_set_correctly():
     with pytest.raises(ValueError, match=r"Keys of FD_epsilon must match"):
         J.enable_FD(epsilon={"x": 1e-6}) # Missing "y" key
 
+def test_FD_enabled_is_set_correctly_for_stacked_joint_distribution():
+    """ Test that FD_enabled property is set correctly in JointDistribution """
+
+    # Create a joint distribution with two distributions
+    x = cuqi.distribution.Normal(0, 1, name="x")
+    y = cuqi.distribution.Uniform(1, 2, name="y")
+    J = cuqi.distribution._StackedJointDistribution(x, y)
+    J.enable_FD(epsilon={"x": 1e-6, "y": None})
+
+    assert J.FD_enabled == {"x": True, "y": False}
+    assert J.FD_epsilon == {"x": 1e-6, "y": None}
+
+    # Reduce to single density (substitute y)
+    J_given_y = J(y=1.5)
+    assert isinstance(J_given_y, cuqi.distribution.Normal)
+    assert J_given_y.FD_enabled == False # Intentionally disabled for
+                                         # single remaining
+                                         # distribution
+    assert J_given_y.FD_epsilon is None
+
+    # Reduce to single density (substitute x)
+    J_given_x = J(x=0)
+    assert isinstance(J_given_x, cuqi.distribution.Uniform)
+    assert J_given_x.FD_enabled == False
+    assert J_given_x.FD_epsilon is None
+
+
 
 @pytest.mark.parametrize(
     "densities,kwargs,fd_epsilon,expected_type,expected_fd_enabled",
