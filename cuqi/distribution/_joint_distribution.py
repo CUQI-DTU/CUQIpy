@@ -263,16 +263,15 @@ class JointDistribution:
         # Count number of distributions and likelihoods
         n_dist = len(self._distributions)
         n_likelihood = len(self._likelihoods)
+        reduced_FD_epsilon = {par_name:self.FD_epsilon[par_name] for par_name in self.get_parameter_names()}
+        self.enable_FD(epsilon=reduced_FD_epsilon)
 
         # Cant reduce if there are multiple distributions or likelihoods
         if n_dist > 1:
-            reduced_FD_epsilon = {par_name:self.FD_epsilon[par_name] for par_name in self.get_parameter_names()}
-            self.enable_FD(epsilon=reduced_FD_epsilon)
             return self
 
         # If only evaluated densities left return joint to ensure logd method is available
         if n_dist == 0 and n_likelihood == 0:
-            self.enable_FD({})
             return self
 
         # Extract the parameter name of the distribution
