@@ -266,10 +266,13 @@ class JointDistribution:
 
         # Cant reduce if there are multiple distributions or likelihoods
         if n_dist > 1:
+            reduced_FD_epsilon = {par_name:self.FD_epsilon[par_name] for par_name in self.get_parameter_names()}
+            self.enable_FD(epsilon=reduced_FD_epsilon)
             return self
 
         # If only evaluated densities left return joint to ensure logd method is available
         if n_dist == 0 and n_likelihood == 0:
+            self.enable_FD({})
             return self
 
         # Extract the parameter name of the distribution
@@ -283,6 +286,7 @@ class JointDistribution:
         # If exactly one distribution and multiple likelihoods reduce
         if n_dist == 1 and n_likelihood > 1:
             reduced_distribution = MultipleLikelihoodPosterior(*self._densities)
+            reduced_FD_epsilon = {par_name:self.FD_epsilon[par_name]}
 
         # If exactly one distribution and one likelihood its a Posterior
         if n_dist == 1 and n_likelihood == 1:
@@ -291,6 +295,7 @@ class JointDistribution:
                 return self
             reduced_distribution = Posterior(self._likelihoods[0], self._distributions[0])
             reduced_distribution = self._add_constants_to_density(reduced_distribution)
+            reduced_FD_epsilon = self.FD_epsilon[par_name]
 
         # If exactly one distribution and no likelihoods its a Distribution
         if n_dist == 1 and n_likelihood == 0:
@@ -301,10 +306,13 @@ class JointDistribution:
 
         # If no distributions and exactly one likelihood its a Likelihood
         if n_likelihood == 1 and n_dist == 0:
+            # This case seems to not happen in practice, but we include it for
+            # completeness.
             reduced_distribution = self._likelihoods[0]
+            reduced_FD_epsilon = self.FD_epsilon[par_name] 
 
         if self.FD_enabled[par_name]:
-            reduced_distribution.enable_FD(epsilon=self.FD_epsilon[par_name])
+            reduced_distribution.enable_FD(epsilon=reduced_FD_epsilon)
 
         return reduced_distribution
 
