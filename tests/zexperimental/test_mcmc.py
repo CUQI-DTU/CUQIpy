@@ -1733,3 +1733,5 @@ def test_NUTS_within_Gibbs_consistant_with_NUTS(step_size, num_sampling_steps_x,
         samples_nuts_skip[:, nb:],
         rtol=1e-5,
     )
+
+def test_enabling_FD_gradient_in_HybridGibbs_target():
