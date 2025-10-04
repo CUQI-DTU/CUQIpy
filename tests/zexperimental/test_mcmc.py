@@ -1679,7 +1679,7 @@ def test_NUTS_within_Gibbs_consistant_with_NUTS(step_size, num_sampling_steps_x,
 
     # Posterior
     target = cuqi.distribution.JointDistribution(y, x)(y=y_data)
-    
+
     # Sample with NUTS within HybridGibbs
     np.random.seed(0)
     sampling_strategy = {
@@ -1735,4 +1735,46 @@ def test_NUTS_within_Gibbs_consistant_with_NUTS(step_size, num_sampling_steps_x,
     )
 
 def test_enabling_FD_gradient_in_HybridGibbs_target():
-    pass
+    """Test enabling FD gradient in HybridGibbs target."""
+    # Fix seed
+    np.random.seed(0)
+    # Multiple input model
+    model = cuqi.model.Model(
+        lambda a, b: a * b,
+        domain_geometry=cuqi.experimental.geometry._ProductGeometry(
+            cuqi.geometry.Discrete(["a"]), cuqi.geometry.Discrete(["b"])
+        ),
+        range_geometry=cuqi.geometry.Discrete(["c"]),
+    )
+    
+    # Define Bayesian model and posterior distribution
+    a = cuqi.distribution.Gaussian(mean=0, cov=1)
+    b = cuqi.distribution.Gaussian(mean=0, cov=1)
+    c = cuqi.distribution.Gaussian(mean=model(a, b), cov=0.1)
+    J = cuqi.distribution.JointDistribution(a, b, c)
+
+    posterior = J(c=4)
+    
+    # Gibbs sampling strategy with NUTS for both a and b
+    sampling_strategy = {
+        "a": cuqi.experimental.mcmc.NUTS(),
+        "b": cuqi.experimental.mcmc.NUTS(),
+    }
+
+    # Attempt creating HybridGibbs sampler to warmup without gradient
+    # implemented for the posterior should raise an error
+    with pytest.raises(ValueError, match="Target must have logd and gradient methods"):
+        sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+
+    # Now enable FD gradient for both a and b in the posterior and create the
+    # HybridGibbs sampler and run sampling 
+    epsilon = {"a": 1e-8, "b": 1e-8}
+    posterior.enable_FD(epsilon=epsilon)
+    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+    sampler.warmup(20)
+    sampler.sample(40)
+
+    # Check that the samples gives the expected mean values for the given
+    # seed
+    assert sampler.get_samples()["a"].mean() == pytest.approx(2.099, rel=1e-2)
+    assert sampler.get_samples()["b"].mean() == pytest.approx(1.859, rel=1e-2)
