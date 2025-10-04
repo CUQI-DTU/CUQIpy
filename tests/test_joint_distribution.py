@@ -537,3 +537,96 @@ def test_FD_enabled_is_set_correctly():
     # Catch error if epsilon keys do not match parameter names
     with pytest.raises(ValueError, match=r"Keys of FD_epsilon must match"):
         J.enable_FD(epsilon={"x": 1e-6}) # Missing "y" key
+
+
+@pytest.mark.parametrize(
+    "densities,kwargs,fd_epsilon,expected_type,expected_fd_enabled",
+    [
+        # Case 0: Single Distribution, FD enabled
+        (
+            [cuqi.distribution.Normal(np.zeros(3), 1, name="x")],
+            {},
+            {"x": 1e-5},
+            cuqi.distribution.Normal,
+            False,  # Intentionally disabled for single remaining distribution
+        ),
+        # Case 1: Single Distribution, FD disabled
+        (
+            [cuqi.distribution.Normal(np.zeros(3), 1, name="x")],
+            {},
+            {"x": None},
+            cuqi.distribution.Normal,
+            False,
+        ),
+        # Case 2: Distribution + Data distribution, substitute y
+        (
+            [
+                cuqi.distribution.Normal(np.zeros(3), 1, name="x"),
+                cuqi.distribution.Gaussian(lambda x: x**2, np.ones(3), name="y"),
+            ],
+            {"y": np.ones(3)},
+            {"x": 1e-6, "y": 1e-7},
+            cuqi.distribution.Posterior,
+            True,
+        ),
+        # Case 3: Distribution + data distribution, substitute x
+        (
+            [
+                cuqi.distribution.Normal(np.zeros(3), 1, name="x"),
+                cuqi.distribution.Gaussian(lambda x: x**2, np.ones(3), name="y"),
+            ],
+            {"x": np.ones(3)},
+            {"x": 1e-5, "y": 1e-6},
+            cuqi.distribution.Distribution,
+            False,  # Intentionally disabled for single remaining distribution
+        ),
+        # Case 4: Multiple data distributions + prior (MultipleLikelihoodPosterior)
+        (
+            [
+                cuqi.distribution.Normal(np.zeros(3), 1, name="x"),
+                cuqi.distribution.Gaussian(lambda x: x, np.ones(3), name="y1"),
+                cuqi.distribution.Gaussian(lambda x: x + 1, np.ones(3), name="y2"),
+            ],
+            {"y1": np.ones(3), "y2": np.ones(3)},
+            {"x": 1e-5, "y1": 1e-6, "y2": 1e-7},
+            cuqi.distribution.MultipleLikelihoodPosterior,
+            {"x": True},
+        ),
+        # Case 5: Distribution, substitute x
+        (
+            [cuqi.distribution.Normal(np.zeros(3), 1, name="x")],
+            {"x": np.ones(3)},
+            {"x": 1e-8},
+            cuqi.distribution.JointDistribution,
+            {},
+        ),
+    ],
+)
+def test_fd_enabled_of_joint_distribution_after_substitution_is_correct(
+    densities, kwargs, fd_epsilon, expected_type, expected_fd_enabled
+):
+    """ Test that FD_enabled and FD_epsilon properties are set correctly in JointDistribution even after substitution."""
+    joint = cuqi.distribution.JointDistribution(*densities)
+    joint.enable_FD(epsilon=fd_epsilon)
+
+    # Assert FD_epsilon is set correctly
+    assert joint.FD_epsilon == fd_epsilon
+
+    # Substitute parameters (if any), which reduces the joint distribution
+    reduced = joint(**kwargs)
+
+    # Assert the type and FD_enabled status of the reduced distribution
+    assert isinstance(reduced, expected_type)
+    assert reduced.FD_enabled == expected_fd_enabled
+
+    # Assert FD_epsilon is set correctly in the reduced distribution
+    if expected_fd_enabled is not False:
+        fd_epsilon_reduced = {
+            k: v for k, v in fd_epsilon.items() if k not in kwargs.keys()
+        }
+        if len(fd_epsilon_reduced) == 1 and not isinstance(
+            reduced, cuqi.distribution.MultipleLikelihoodPosterior
+        ):
+            # Single value instead of dict in this case
+            fd_epsilon_reduced = list(fd_epsilon_reduced.values())[0]
+        assert reduced.FD_epsilon == fd_epsilon_reduced
