@@ -1,8 +1,9 @@
 """
-Re-implementation of sampler module in a more object-oriented way.
+The sampler module of CUQIpy. It has been re-implemented to improve design, flexibility, 
+and extensibility. The old sampler module can be found in :py:mod:`cuqi.legacy.sampler`.
 
-Main changes for users
-----------------------
+Main changes for users in this implementation
+---------------------------------------------
 
 1. Sampling API
    ^^^^^^^^^^^^
