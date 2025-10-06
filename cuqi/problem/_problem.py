@@ -313,7 +313,8 @@ class BayesianProblem(object):
             An example is shown in demos/demo31_callback.py.
 
         legacy : bool, *Optional*
-            If set to False, the sampler selection will use the samplers from the :mod:`cuqi.sampler` module.
+            Default is False. If set to True, the sampler selection will use the samplers from the legacy sampler module, :mod:`cuqi.legacy.sampler` module.
+           
 
         Returns
         -------
