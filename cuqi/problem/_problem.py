@@ -297,14 +297,20 @@ class BayesianProblem(object):
             Number of samples to draw.
 
         Nb : int or None, *Optional*
-            Number of burn-in samples. If not provided, 20% of the samples will be used for burn-in.
+            Number of burn-in samples. If not provided, 20% of the samples will be used 
+            for burn-in.
 
         callback : callable, *Optional*
             If set this function will be called after every sample.
-            The signature of the callback function is `callback(sample, sample_index)`,
-            where `sample` is the current sample and `sample_index` is the index of the sample.
+            If the parameter `legacy` is set to False, which is the default, the callback 
+            function should take three arguments: the sampler object, the index of the 
+            current sampling step, the total number of requested samples. The last two 
+            arguments are integers. An example of the callback function signature in the 
+            case is: `callback(sampler, sample_index, num_of_samples)`.
+            If the parameter `legacy` is set to True, the signature of the callback 
+            function is `callback(sample, sample_index)`, where `sample` is the current 
+            sample and `sample_index` is the index of the sample.
             An example is shown in demos/demo31_callback.py.
-            Note: if the parameter `legacy` is set to False, the callback function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature in the case is: `callback(sampler, sample_index, num_of_samples)`.
 
         legacy : bool, *Optional*
             If set to False, the sampler selection will use the samplers from the :mod:`cuqi.sampler` module.
