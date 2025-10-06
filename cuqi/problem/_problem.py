@@ -882,7 +882,7 @@ class BayesianProblem(object):
             print("")
 
             if callback is not None:
-                raise NotImplementedError("Callback not implemented for Gibbs sampler. It is only implemented for cuqi.sampler Gibbs sampler.")
+                raise NotImplementedError("Callback not implemented for the legacy Gibbs sampler. It is only implemented for cuqi.sampler Gibbs (cuqi.sampler.HybridGibbs) sampler.")
 
             # Start timing
             ti = time.time()
