@@ -170,7 +170,7 @@ def test_observe():
     FOFD_operator = cuqi.operator.FirstOrderFiniteDifference(dim-1, bc_type='zero', dx=dx).get_matrix().todense()
     diff_operator = FOFD_operator.T @ np.diag(kappa) @ FOFD_operator
     poisson_form = lambda x: (diff_operator, source(x[0]))
-    CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u:u**2)
+    CUQI_pde = cuqi.pde.SteadyStateLinearPDE(poisson_form, grid_sol=grid_sol, grid_obs=grid_obs, observation_map=lambda u, grid:u**2)
     x_exact = np.array([2]) # [2] is the source term parameter [mag]
     CUQI_pde.assemble(x_exact)
     sol, info = CUQI_pde.solve()
@@ -192,11 +192,11 @@ def test_observe():
 @pytest.mark.parametrize(
     "grid_obs, time_obs, observation_map, expected_obs",
     [(None, 'final', None, 'obs1'),
-     (None, 'final', lambda x: x**2, 'obs2'),
+     (None, 'final', lambda x, grid, times: x**2, 'obs2'),
      ('half_grid', 'FINAL', None, 'obs3'),
      ('half_grid', 'every_5', None, 'obs4'),
-     (None, 'every_5', lambda x: x**2, 'obs5'),
-     (np.array([3, 4.9]), np.array([0.9, 1]), lambda x: x**2, 'obs6')])
+     (None, 'every_5', lambda x, grid, times: x**2, 'obs5'),
+     (np.array([3, 4.9]), np.array([0.9, 1]), lambda x, grid, times: x**2, 'obs6')])
 def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
                                        parametrization, expected_sol,
                                        grid_obs, time_obs, observation_map,
@@ -293,7 +293,8 @@ def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
         expected_observed_sol = sol[idx_x, :][:, idx_t]
 
     if observation_map is not None:
-        expected_observed_sol = observation_map(expected_observed_sol)
+        expected_observed_sol = observation_map(
+            expected_observed_sol, grid_obs, time_obs)
 
     if len(PDE._time_obs) == 1:
         expected_observed_sol = expected_observed_sol.squeeze()
