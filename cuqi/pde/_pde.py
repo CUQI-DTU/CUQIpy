@@ -4,6 +4,7 @@ from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
 from cuqi.utilities import get_non_default_args
+from cuqi.pde import _extract_spatial_temporal_obs
 
 
 class PDE(ABC):
@@ -260,12 +261,11 @@ class TimeDependentLinearPDE(LinearPDE):
     """
 
     def __init__(self, PDE_form, time_steps, time_obs='final',
-                 method='forward_euler', data_grad=False, **kwargs):
+                 method='forward_euler', **kwargs):
         super().__init__(PDE_form, **kwargs)
 
         self.time_steps = time_steps
         self.method = method
-        self.data_grad = data_grad
 
         # Set time_obs
         if time_obs is None:
@@ -362,19 +362,16 @@ class TimeDependentLinearPDE(LinearPDE):
 
             # Interpolate solution in space and time to the observation
             # time and space
-            solution_obs = scipy.interpolate.RectBivariateSpline(
-                self.grid_sol, self.time_steps, solution)(self.grid_obs,
-                                                          self._time_obs)
-            self._solution_obs = solution_obs.copy()
-            if self.data_grad:
-                solution_obs_temp = np.zeros((len(self.grid_obs)-1, len(self._time_obs)))
-                for i in range(solution_obs_temp.shape[0]):
-                    solution_obs_temp[i, :] = ((solution_obs[i, :] - solution_obs[i+1, :])/
-                                               (self.grid_obs[i] - self.grid_obs[i+1]))
-                solution_obs = solution_obs_temp
+            solution_obs = _extract_spatial_temporal_obs(self, solution, 
+                                                        self.grid_sol, 
+                                                        self.time_steps, 
+                                                        self.grid_obs, 
+                                                        self._time_obs)
+
         # Apply observation map
         if self.observation_map is not None:
-            solution_obs = self.observation_map(solution_obs)
+            solution_obs = self.observation_map(solution_obs, self.grid_obs, 
+                                                self._time_obs)
 
         # squeeze if only one time observation
         if len(self._time_obs) == 1:
