@@ -4,3 +4,6 @@ from ._pde import (
     SteadyStateLinearPDE,
     TimeDependentLinearPDE
 )
+
+from ._observation_map import (_extract_spatial_temporal_obs,
+                               spatial_gradient)
