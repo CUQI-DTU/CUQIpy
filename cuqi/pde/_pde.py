@@ -17,7 +17,7 @@ class PDE(ABC):
         Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) 
 
     observation_map: a function handle
-        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2` or `observation_map=lambda u: u[0]`
+        A function that takes the PDE solution as input and the returns the observed solution. e.g. `observation_map=lambda u: u**2`.
 
     grid_sol: np.ndarray
         The grid on which solution is defined
@@ -195,7 +195,10 @@ class SteadyStateLinearPDE(LinearPDE):
     Parameters
     -----------   
     PDE_form : callable function
-        Callable function with signature `PDE_form(parameter1, parameter2, ...)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.). The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively. 
+        Callable function with signature `PDE_form(parameter1, parameter2, ...)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.). The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively.
+
+    observation_map: a function handle
+        A function that takes the PDE solution and spatial grid as input and the returns the observed solution. e.g. `observation_map=lambda u, grid: u**2`.
 
     kwargs: 
         See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments. 
@@ -205,8 +208,8 @@ class SteadyStateLinearPDE(LinearPDE):
     See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2D.py also illustrates how to observe on a specific boundary, for example.
     """
 
-    def __init__(self, PDE_form, **kwargs):
-        super().__init__(PDE_form, **kwargs)
+    def __init__(self, PDE_form, observation_map=None, **kwargs):
+        super().__init__(PDE_form, observation_map=observation_map, **kwargs)
 
     def assemble(self, *args, **kwargs):
         """Assembles differential operator and rhs according to PDE_form"""
@@ -231,8 +234,8 @@ class SteadyStateLinearPDE(LinearPDE):
             solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
 
         if self.observation_map is not None:
-            solution_obs = self.observation_map(solution_obs)
-                
+            solution_obs = self.observation_map(solution_obs, self.grid_obs)
+
         return solution_obs
 
 class TimeDependentLinearPDE(LinearPDE):
@@ -252,6 +255,8 @@ class TimeDependentLinearPDE(LinearPDE):
     method: str
         Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`.
 
+    observation_map: a function handle
+        A function that takes the PDE solution, the spatial grid, and the time steps as input and the returns the observed solution. e.g. `observation_map=lambda u, grid, times: u**2`.
     kwargs: 
         See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments 
  
@@ -261,8 +266,8 @@ class TimeDependentLinearPDE(LinearPDE):
     """
 
     def __init__(self, PDE_form, time_steps, time_obs='final',
-                 method='forward_euler', **kwargs):
-        super().__init__(PDE_form, **kwargs)
+                 method='forward_euler', observation_map=None, **kwargs):
+        super().__init__(PDE_form, observation_map=observation_map, **kwargs)
 
         self.time_steps = time_steps
         self.method = method
