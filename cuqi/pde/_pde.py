@@ -4,7 +4,7 @@ from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
 from cuqi.utilities import get_non_default_args
-from cuqi.pde import _extract_spatial_temporal_obs
+from ._observation_map import _extract_spatial_temporal_obs
 
 
 class PDE(ABC):
@@ -362,7 +362,7 @@ class TimeDependentLinearPDE(LinearPDE):
 
             # Interpolate solution in space and time to the observation
             # time and space
-            solution_obs = _extract_spatial_temporal_obs(self, solution, 
+            solution_obs = _extract_spatial_temporal_obs(solution,
                                                         self.grid_sol, 
                                                         self.time_steps, 
                                                         self.grid_obs, 
