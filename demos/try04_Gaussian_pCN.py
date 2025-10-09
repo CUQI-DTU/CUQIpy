@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import pCN, RWMH
+from cuqi.legacy.sampler import pCN, RWMH
 from cuqi.distribution import Gaussian
 
 # ==========================================================================

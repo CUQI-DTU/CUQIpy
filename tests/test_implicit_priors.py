@@ -210,10 +210,10 @@ def test_regression_increasing():
     posterior = joint(y=y_obs)
    
     sampling_strategy = {
-        'd': cuqi.experimental.mcmc.Conjugate(),
-        'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False),
+        'd': cuqi.sampler.Conjugate(),
+        'x': cuqi.sampler.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False),
                         }
-    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+    sampler = cuqi.sampler.HybridGibbs(posterior, sampling_strategy)
 
     sampler.sample(10)
     samples = sampler.get_samples()
@@ -241,10 +241,10 @@ def test_regression_convex():
     posterior = joint(y=y_obs)
    
     sampling_strategy = {
-        'd': cuqi.experimental.mcmc.Conjugate(),
-        'x': cuqi.experimental.mcmc.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False)
+        'd': cuqi.sampler.Conjugate(),
+        'x': cuqi.sampler.RegularizedLinearRTO(maxit=50, penalty_parameter=20, adaptive = False)
                         }
-    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+    sampler = cuqi.sampler.HybridGibbs(posterior, sampling_strategy)
 
     sampler.sample(10)
     samples = sampler.get_samples()

@@ -22,8 +22,8 @@ from cuqi.density import Density
                              (Deconvolution1D, "square", RegularizedGaussian(np.zeros(128), 0.1, constraint="nonnegativity"), 100, False),
                              (Deconvolution1D, "square", RegularizedGMRF(np.zeros(128), 50, constraint="nonnegativity"), 100, False),
                          ])
-@pytest.mark.parametrize("experimental", [False, True])
-def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy, experimental):
+@pytest.mark.parametrize("legacy", [True, False])
+def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, use_legacy, legacy):
     # SKIP NUTS test if not windows (for now)
     if isinstance(prior, CMRF) and not sys.platform.startswith('win'):
         pytest.skip("NUTS(CMRF) regression test is not implemented for this platform")
@@ -46,7 +46,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     TP.prior = prior
 
     # Sample posterior
-    samples = TP.sample_posterior(Ns=Ns, experimental=experimental)
+    samples = TP.sample_posterior(Ns=Ns, legacy=legacy)
 
     # Extract samples and compute properties
     res = samples.samples    
@@ -55,7 +55,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     lo95, up95 = np.percentile(res, [2.5, 97.5], axis=1)
 
     # Load reference file into temp folder and load
-    if experimental:
+    if not legacy:
         ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}_experimental"
     else:
         ref_fname = f"{TP_type.__name__}_{phantom}_{prior.__class__.__name__}_{Ns}"
@@ -72,7 +72,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
     assert lo95 == pytest.approx(ref["lo95"], rel=1e-3, abs=1e-6)
     assert up95 == pytest.approx(ref["up95"], rel=1e-3, abs=1e-6)
 
-@pytest.mark.parametrize("experimental", [False, True])
+@pytest.mark.parametrize("legacy", [True, False])
 @pytest.mark.parametrize("TP_type, phantom, priors, Ns",
     [
         # Case: Gaussian prior (no hyperparameters)
@@ -140,7 +140,7 @@ def test_TP_BayesianProblem_sample(copy_reference, TP_type, phantom, prior, Ns, 
         ),
     ]
 )
-def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str, priors: Dict[str, Density], Ns: int, experimental: bool):
+def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str, priors: Dict[str, Density], Ns: int, legacy: bool):
     """ This tests Bayesian inversion for Bayesian Problem using a hierarchical model.
     
     It is an end-to-end test that checks that the posterior samples are consistent with the expected shape.
@@ -161,9 +161,9 @@ def test_Bayesian_inversion_hierarchical(TP_type: BayesianProblem, phantom: str,
 
     # Sample posterior using UQ method
     if len(priors) == 1: # No hyperparameters
-        samples = BP.UQ(Ns=Ns, exact=probInfo.exactSolution, experimental=experimental)
+        samples = BP.UQ(Ns=Ns, exact=probInfo.exactSolution, legacy=legacy)
     else:
-        samples = BP.UQ(Ns=Ns, exact={priors[0].name: probInfo.exactSolution}, experimental=experimental)
+        samples = BP.UQ(Ns=Ns, exact={priors[0].name: probInfo.exactSolution}, legacy=legacy)
 
     # No regression test yet, just check that the samples are the right shape
     if isinstance(samples, dict): # Gibbs case

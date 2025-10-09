@@ -106,7 +106,7 @@ plt.subplot(122); plt.plot(1/ds); plt.title("delta chain")
 # %%
 burn_in = 1000
 thin = 1
-xsamples = cuqi.sampler.Samples(xs[:,burn_in:thin:-1])
+xsamples = cuqi.legacy.sampler.Samples(xs[:,burn_in:thin:-1])
 xsamples.plot_ci(95,exact=tp.exactSolution)
 
 # %%

@@ -1,41 +1,49 @@
 import numpy as np
 import cuqi
 from cuqi.sampler import ProposalBasedSampler
-
+from cuqi.array import CUQIarray
+from numbers import Number
 
 class CWMH(ProposalBasedSampler):
     """Component-wise Metropolis Hastings sampler.
 
-    Allows sampling of a target distribution by a component-wise random-walk sampling of a proposal distribution along with an accept/reject step.
+    Allows sampling of a target distribution by a component-wise random-walk
+    sampling of a proposal distribution along with an accept/reject step.
 
     Parameters
     ----------
 
     target : `cuqi.distribution.Distribution` or lambda function
-        The target distribution to sample. Custom logpdfs are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.
+        The target distribution to sample. Custom logpdfs are supported by using
+        a :class:`cuqi.distribution.UserDefinedDistribution`.
     
     proposal : `cuqi.distribution.Distribution` or callable method
-        The proposal to sample from. If a callable method it should provide a single independent sample from proposal distribution. Defaults to a Gaussian proposal.  *Optional*.
+        The proposal to sample from. If a callable method it should provide a
+        single independent sample from proposal distribution. Defaults to a
+        Gaussian proposal.  *Optional*.
 
-    scale : float
-        Scale parameter used to define correlation between previous and proposed sample in random-walk.  *Optional*.
+    scale : float or ndarray
+        Scale parameter used to define correlation between previous and proposed
+        sample in random-walk.  *Optional*. If float, the same scale is used for
+        all dimensions. If ndarray, a (possibly) different scale is used for
+        each dimension.
 
-    x0 : ndarray
+    initial_point : ndarray
         Initial parameters. *Optional*
 
-    dim : int
-        Dimension of parameter space. Required if target and proposal are callable functions. *Optional*.
+    callback : callable, optional
+        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.
+        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.
 
-    callback : callable, *Optional*
-        If set this function will be called after every sample.
-        The signature of the callback function is `callback(sample, sample_index)`,
-        where `sample` is the current sample and `sample_index` is the index of the sample.
-        An example is shown in demos/demo31_callback.py.
+    kwargs : dict
+        Additional keyword arguments to be passed to the base class 
+        :class:`ProposalBasedSampler`.
 
     Example
     -------
     .. code-block:: python
-
+        import numpy as np
+        import cuqi
         # Parameters
         dim = 5 # Dimension of distribution
         mu = np.arange(dim) # Mean of Gaussian
@@ -44,153 +52,139 @@ class CWMH(ProposalBasedSampler):
         # Logpdf function
         logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)
 
-        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported as inputs to UserDefinedDistribution)
-        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func)
+        # Define distribution from logpdf as UserDefinedDistribution (sample
+        # and gradients also supported as inputs to UserDefinedDistribution)
+        target = cuqi.distribution.UserDefinedDistribution(
+            dim=dim, logpdf_func=logpdf_func)
 
         # Set up sampler
         sampler = cuqi.sampler.CWMH(target, scale=1)
 
         # Sample
-        samples = sampler.sample(2000)
+        samples = sampler.sample(2000).get_samples()
 
     """
-    def __init__(self, target,  proposal=None, scale=1, x0=None, dim = None, **kwargs):
-        super().__init__(target, proposal=proposal, scale=scale,  x0=x0, dim=dim, **kwargs)
+
+    _STATE_KEYS = ProposalBasedSampler._STATE_KEYS.union(['_scale_temp'])
+
+    def __init__(self, target:cuqi.density.Density=None, proposal=None, scale=1,
+                 initial_point=None, **kwargs):
+        super().__init__(target, proposal=proposal, scale=scale,
+                         initial_point=initial_point, **kwargs)
         
-    @ProposalBasedSampler.proposal.setter 
+    def _initialize(self):
+        if isinstance(self.scale, Number):
+            self.scale = np.ones(self.dim)*self.scale
+        self._acc = [np.ones((self.dim))] # Overwrite acc from ProposalBasedSampler with list of arrays
+
+        # Handling of temporary scale parameter due to possible bug in old CWMH
+        self._scale_temp = self.scale.copy()
+
+    @property
+    def scale(self):
+        """ Get the scale parameter. """
+        return self._scale
+
+    @scale.setter
+    def scale(self, value):
+        """ Set the scale parameter. """
+        if self._is_initialized and isinstance(value, Number):
+            value = np.ones(self.dim)*value
+        self._scale = value
+
+    def validate_target(self):
+        if not isinstance(self.target, cuqi.density.Density):
+            raise ValueError(
+                "Target should be an instance of "+\
+                f"{cuqi.density.Density.__class__.__name__}")
+        # Fail when there is no log density, which is currently assumed to be the case in case NaN is returned.
+        if np.isnan(self.target.logd(self._get_default_initial_point(self.dim))):
+            raise ValueError("Target does not have valid logd")
+        
+    def validate_proposal(self):
+        if not isinstance(self.proposal, cuqi.distribution.Distribution):
+            raise ValueError("Proposal must be a cuqi.distribution.Distribution object")
+        if not self.proposal.is_symmetric:
+            raise ValueError("Proposal must be symmetric")
+        
+    @property
+    def proposal(self):
+        if self._proposal is None:
+            self._proposal = cuqi.distribution.Normal(
+                mean=lambda location: location,
+                std=lambda scale: scale,
+                geometry=self.dim,
+            )
+        return self._proposal
+    
+    @proposal.setter
     def proposal(self, value):
-        fail_msg = "Proposal should be either None, cuqi.distribution.Distribution conditioned only on 'location' and 'scale', lambda function, or cuqi.distribution.Normal conditioned only on 'mean' and 'std'"
+        self._proposal = value
 
-        if value is None:
-            self._proposal = cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=self.dim)
+    def step(self):
+        # Initialize x_t which is used to store the current CWMH sample
+        x_t = self.current_point.copy()
 
-        elif isinstance(value, cuqi.distribution.Distribution) and sorted(value.get_conditioning_variables())==['location','scale']:
-            self._proposal = value
+        # Initialize x_star which is used to store the proposed sample by
+        # updating the current sample component-by-component
+        x_star = self.current_point.copy()
 
-        elif isinstance(value, cuqi.distribution.Normal) and sorted(value.get_conditioning_variables())==['mean','std']:
-            self._proposal = value(mean = lambda location:location, std = lambda scale:scale)
-
-        elif not isinstance(value, cuqi.distribution.Distribution) and callable(value):
-            self._proposal = value
-
-        else:
-            raise ValueError(fail_msg)
-
-
-    def _sample(self, N, Nb):
-        Ns = N+Nb   # number of simulations
-
-        # allocation
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        acc = np.zeros((self.dim, Ns), dtype=int)
-
-        # initial state    
-        samples[:, 0] = self.x0
-        target_eval[0] = self.target.logd(self.x0)
-        acc[:, 0] = np.ones(self.dim)
-
-        # run MCMC
-        for s in range(Ns-1):
-            # run component by component
-            samples[:, s+1], target_eval[s+1], acc[:, s+1] = self.single_update(samples[:, s], target_eval[s])
-
-            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+1)
-
-        # remove burn-in
-        samples = samples[:, Nb:]
-        target_eval = target_eval[Nb:]
-        acccomp = acc[:, Nb:].mean(axis=1)   
-        print('\nAverage acceptance rate all components:', acccomp.mean(), '\n')
-        
-        return samples, target_eval, acccomp
-
-    def _sample_adapt(self, N, Nb):
-        # this follows the vanishing adaptation Algorithm 4 in:
-        # Andrieu and Thoms (2008) - A tutorial on adaptive MCMC
-        Ns = N+Nb   # number of simulations
-
-        # allocation
-        samples = np.empty((self.dim, Ns))
-        target_eval = np.empty(Ns)
-        acc = np.zeros((self.dim, Ns), dtype=int)
-
-        # initial state
-        samples[:, 0] = self.x0
-        target_eval[0] = self.target.logd(self.x0)
-        acc[:, 0] = np.ones(self.dim)
-
-        # initial adaptation params 
-        Na = int(0.1*N)                                        # iterations to adapt
-        hat_acc = np.empty((self.dim, int(np.floor(Ns/Na))))     # average acceptance rate of the chains
-        lambd = np.empty((self.dim, int(np.floor(Ns/Na)+1)))     # scaling parameter \in (0,1)
-        lambd[:, 0] = self.scale
-        star_acc = 0.21/self.dim + 0.23    # target acceptance rate RW
-        i, idx = 0, 0
-
-        # run MCMC
-        for s in range(Ns-1):
-            # run component by component
-            samples[:, s+1], target_eval[s+1], acc[:, s+1] = self.single_update(samples[:, s], target_eval[s])
-            
-            # adapt prop spread of each component using acc of past samples
-            if ((s+1) % Na == 0):
-                # evaluate average acceptance rate
-                hat_acc[:, i] = np.mean(acc[:, idx:idx+Na], axis=1)
-
-                # compute new scaling parameter
-                zeta = 1/np.sqrt(i+1)   # ensures that the variation of lambda(i) vanishes
-                lambd[:, i+1] = np.exp(np.log(lambd[:, i]) + zeta*(hat_acc[:, i]-star_acc))  
-
-                # update parameters
-                self.scale = np.minimum(lambd[:, i+1], np.ones(self.dim))
-
-                # update counters
-                i += 1
-                idx += Na
-
-            # display iterations 
-            self._print_progress(s+2,Ns) #s+2 is the sample number, s+1 is index assuming x0 is the first sample
-            self._call_callback(samples[:, s+1], s+1)
-            
-        # remove burn-in
-        samples = samples[:, Nb:]
-        target_eval = target_eval[Nb:]
-        acccomp = acc[:, Nb:].mean(axis=1)
-        print('\nAverage acceptance rate all components:', acccomp.mean(), '\n')
-        
-        return samples, target_eval, acccomp
-
-    def single_update(self, x_t, target_eval_t):
+        # Propose a sample x_all_components from the proposal distribution
+        # for all the components
+        target_eval_t = self.current_target_logd
         if isinstance(self.proposal,cuqi.distribution.Distribution):
-            x_i_star = self.proposal(location= x_t, scale = self.scale).sample()
+            x_all_components = self.proposal(
+                location= self.current_point, scale=self.scale).sample()
         else:
-            x_i_star = self.proposal(x_t, self.scale) 
-        x_star = x_t.copy()
+            x_all_components = self.proposal(self.current_point, self.scale)
+
+        # Initialize acceptance rate
         acc = np.zeros(self.dim)
 
+        # Loop over all the components of the sample and accept/reject
+        # each component update.
         for j in range(self.dim):
-            # propose state
-            x_star[j] = x_i_star[j]
+            # propose state x_star by updating the j-th component
+            x_star[j] = x_all_components[j]
 
             # evaluate target
             target_eval_star = self.target.logd(x_star)
 
-            # ratio and acceptance probability
-            ratio = target_eval_star - target_eval_t  # proposal is symmetric
-            alpha = min(0, ratio)
+            # compute Metropolis acceptance ratio
+            alpha = min(0, target_eval_star - target_eval_t)
 
             # accept/reject
             u_theta = np.log(np.random.rand())
-            if (u_theta <= alpha):
-                x_t[j] = x_i_star[j]
+            if (u_theta <= alpha) and \
+               (not np.isnan(target_eval_star)) and \
+               (not np.isinf(target_eval_star)):
+                x_t[j] = x_all_components[j]
                 target_eval_t = target_eval_star
                 acc[j] = 1
-            else:
-                pass
-                # x_t[j]       = x_t[j]
-                # target_eval_t = target_eval_t
+
             x_star = x_t.copy()
-        #
-        return x_t, target_eval_t, acc
+
+        self.current_target_logd = target_eval_t
+        self.current_point = x_t
+
+        return acc
+
+    def tune(self, skip_len, update_count):
+        # Store update_count in variable i for readability
+        i = update_count
+
+        # Optimal acceptance rate for CWMH
+        star_acc = 0.21/self.dim + 0.23
+
+        # Mean of acceptance rate over the last skip_len samples
+        hat_acc = np.mean(self._acc[i*skip_len:(i+1)*skip_len], axis=0)
+
+        # Compute new intermediate scaling parameter scale_temp
+        # Factor zeta ensures that the variation of the scale update vanishes
+        zeta = 1/np.sqrt(update_count+1)  
+        scale_temp = np.exp(
+            np.log(self._scale_temp) + zeta*(hat_acc-star_acc))
+
+        # Update the scale parameter
+        self.scale = np.minimum(scale_temp, np.ones(self.dim))
+        self._scale_temp = scale_temp

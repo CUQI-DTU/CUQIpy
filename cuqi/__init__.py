@@ -11,6 +11,7 @@ from . import operator
 from . import pde
 from . import problem
 from . import sampler
+from . import legacy
 from . import array
 from . import samples
 from . import solver

@@ -4,7 +4,7 @@ import numpy as np
 import sys
 
 from cuqi.distribution import Gaussian, CMRF, Gaussian, LMRF, GMRF
-from cuqi.sampler import pCN
+from cuqi.legacy.sampler import pCN
 
 import pytest
 
@@ -30,8 +30,8 @@ def test_CWMH_modify_proposal():
 
 
     # Set up sampler
-    MCMC1 = cuqi.sampler.CWMH(target, proposal1, scale, x0)
-    MCMC2 = cuqi.sampler.CWMH(target, proposal2, scale, x0)
+    MCMC1 = cuqi.legacy.sampler.CWMH(target, proposal1, scale, x0)
+    MCMC2 = cuqi.legacy.sampler.CWMH(target, proposal2, scale, x0)
 
     # Switch proposal
     MCMC1.proposal = proposal2
@@ -64,7 +64,7 @@ def test_CWMH_sample_regression():
     proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=2)
 
     # Set up sampler
-    MCMC = cuqi.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
+    MCMC = cuqi.legacy.sampler.CWMH(target, proposal, 0.05, np.array([0,0]))
 
     # Compare with previously computed results
     np.allclose(MCMC.sample(5,1).samples,np.array([[ 0.18158052,  0.17641957,  0.21447146,  0.23666462,  0.23666462],[-0.02885603, -0.00832611, -0.00224236,  0.01444136,  0.01444136]]))
@@ -85,7 +85,7 @@ def test_RWMH_sample_regression():
 
     scale = 0.1
     x0 = 0.5*np.ones(d)
-    MCMC2 = cuqi.sampler.MH( dist,proposal = ref,scale =scale, x0=x0)
+    MCMC2 = cuqi.legacy.sampler.MH( dist,proposal = ref,scale =scale, x0=x0)
 
     # run sampler
     Ns = int(1e1)      # number of samples
@@ -147,7 +147,7 @@ def test_sampler_geometry_assignment():
     proposal =cuqi.distribution.Normal(mean = lambda location:location,std = lambda scale:scale, geometry=n)
 
     # Set up sampler
-    MCMC_sampler = cuqi.sampler.CWMH(target, proposal, scale, x0)
+    MCMC_sampler = cuqi.legacy.sampler.CWMH(target, proposal, scale, x0)
     samples = MCMC_sampler.sample(10,2)
 
     assert(MCMC_sampler.geometry == target.geometry and\
@@ -166,9 +166,9 @@ def test_sampler_UserDefined_basic():
     Ns = 500   # number of samples
     Nb = 100   # burn-in
 
-    s_MH = cuqi.sampler.MH(distX).sample_adapt(Ns,Nb)
-    s_CWMH = cuqi.sampler.CWMH(distX).sample_adapt(Ns,Nb)
-    s_NUTS = cuqi.sampler.NUTS(distX).sample_adapt(Ns,Nb)
+    s_MH = cuqi.legacy.sampler.MH(distX).sample_adapt(Ns,Nb)
+    s_CWMH = cuqi.legacy.sampler.CWMH(distX).sample_adapt(Ns,Nb)
+    s_NUTS = cuqi.legacy.sampler.NUTS(distX).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_MH.shape,(X.dim,Ns))
     assert np.allclose(s_CWMH.shape,(X.dim,Ns))
@@ -196,7 +196,7 @@ def test_sampler_UserDefined_tuple():
     Nb = 200   # burn-in
 
     # Run samplers
-    s_pCN = cuqi.sampler.pCN((userL,userP)).sample_adapt(Ns)
+    s_pCN = cuqi.legacy.sampler.pCN((userL,userP)).sample_adapt(Ns)
 
     assert np.allclose(s_pCN.shape,(P.dim,Ns))
 
@@ -226,7 +226,7 @@ def test_sampler_CustomInput_LinearRTO():
     Nb = 200   # burn-in
 
     # Sampling
-    s_RTO = cuqi.sampler.LinearRTO(target).sample_adapt(Ns,Nb)
+    s_RTO = cuqi.legacy.sampler.LinearRTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
 
@@ -248,7 +248,7 @@ def test_sampler_scalar_mean_Gaussian_LinearRTO():
     Nb = 20   # burn-in
 
     # Sampling
-    s_RTO = cuqi.sampler.LinearRTO(target).sample_adapt(Ns,Nb)
+    s_RTO = cuqi.legacy.sampler.LinearRTO(target).sample_adapt(Ns,Nb)
 
     assert np.allclose(s_RTO.shape,(P.dim,Ns))
 
@@ -271,7 +271,7 @@ def test_ULA_UserDefinedDistribution():
     target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
 
     # Set up sampler
-    sampler = cuqi.sampler.ULA(target, scale=.0001, x0=np.array([.1, 1.1]))
+    sampler = cuqi.legacy.sampler.ULA(target, scale=.0001, x0=np.array([.1, 1.1]))
 
     # Sample
     samples = sampler.sample(3)
@@ -305,7 +305,7 @@ def test_ULA_regression(copy_reference):
     
     # %% Create the posterior and the sampler
     posterior = cuqi.distribution.Posterior(likelihood, prior)
-    MCMC = cuqi.sampler.ULA(posterior, scale=0.0001)
+    MCMC = cuqi.legacy.sampler.ULA(posterior, scale=0.0001)
 
     # %% Sample
     samples  = MCMC.sample(5)
@@ -335,7 +335,7 @@ def test_MALA_UserDefinedDistribution():
         dim=dim, logpdf_func=logpdf_func, gradient_func=gradient_func)
 
     # Set up sampler
-    sampler = cuqi.sampler.MALA(target, scale=.0001, x0=np.array([.1, 1.1]))
+    sampler = cuqi.legacy.sampler.MALA(target, scale=.0001, x0=np.array([.1, 1.1]))
 
     # Sample
     samples = sampler.sample(3)
@@ -364,7 +364,7 @@ def test_MALA_regression(copy_reference):
     # Set up sampler
     x0 = np.zeros(dim)
     np.random.seed(0)
-    sampler = cuqi.sampler.MALA(target, scale=eps**2, x0=x0)
+    sampler = cuqi.legacy.sampler.MALA(target, scale=eps**2, x0=x0)
     # Sample
     samples = sampler.sample(N, Nb)
 
@@ -404,7 +404,7 @@ def test_TP_callback(prior, sample_method, expected):
     if sample_method == "_sampleMapCholesky":
         sample_method_handle(10, callback=callback)
     else:
-        sample_method_handle(10, Nb=2, callback=callback)
+        sample_method_handle(10, Nb=2, legacy=True, callback=callback)
 
     assert np.array_equal(Ns_list, expected)
 
@@ -419,7 +419,7 @@ def test_NUTS_regression(copy_reference):
     x0 = np.ones(tp.model.domain_dim)
     Ns = int(1e3)
     Nb = int(0.5*Ns)
-    MCMC = cuqi.sampler.NUTS(tp.posterior, x0, max_depth = 12)
+    MCMC = cuqi.legacy.sampler.NUTS(tp.posterior, x0, max_depth = 12)
     samples = MCMC.sample(Ns, Nb)
 
     if sys.platform.startswith('win'):
@@ -453,12 +453,12 @@ def _Gibbs_joint_hier_model(use_legacy=False, noise_std=0.01):
 
     # Define sampling strategy
     sampling_strategy = {
-        'x': cuqi.sampler.LinearRTO,
-        ('d', 'l'): cuqi.sampler.Conjugate,
+        'x': cuqi.legacy.sampler.LinearRTO,
+        ('d', 'l'): cuqi.legacy.sampler.Conjugate,
     }
 
     # Define Gibbs sampler
-    sampler = cuqi.sampler.Gibbs(posterior, sampling_strategy)
+    sampler = cuqi.legacy.sampler.Gibbs(posterior, sampling_strategy)
 
     return sampler
 
@@ -524,7 +524,7 @@ def test_RTO_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs-shift)
 
     # Set up LinearRTO with both models
-    sampler_linear = cuqi.sampler.LinearRTO(posterior)
+    sampler_linear = cuqi.legacy.sampler.LinearRTO(posterior)
 
     # Sample with fixes seed
     np.random.seed(0)
@@ -538,7 +538,7 @@ def test_RTO_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     posterior_affine = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
 
     # Set up LinearRTO with AffineModel
-    sampler_affine = cuqi.sampler.LinearRTO(posterior_affine)
+    sampler_affine = cuqi.legacy.sampler.LinearRTO(posterior_affine)
 
     # Sample with fixes seed
     np.random.seed(0)
@@ -562,7 +562,7 @@ def test_RegularizedRTO_with_AffieModel_is_equivalent_to_LinearModel_and_shifted
     posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs-shift)
 
     # Set up RegularizedRTO with both models
-    sampler_linear = cuqi.sampler.RegularizedLinearRTO(posterior)
+    sampler_linear = cuqi.legacy.sampler.RegularizedLinearRTO(posterior)
 
     # Sample with fixes seed
     np.random.seed(0)
@@ -576,7 +576,7 @@ def test_RegularizedRTO_with_AffieModel_is_equivalent_to_LinearModel_and_shifted
     posterior_affine = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
 
     # Set up RegularizedRTO with AffineModel
-    sampler_affine = cuqi.sampler.RegularizedLinearRTO(posterior_affine)
+    sampler_affine = cuqi.legacy.sampler.RegularizedLinearRTO(posterior_affine)
 
     # Sample with fixes seed
     np.random.seed(0)
@@ -600,7 +600,7 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs-shift)
 
     # Set up UGLA with both models
-    sampler_linear = cuqi.sampler.UGLA(posterior)
+    sampler_linear = cuqi.legacy.sampler.UGLA(posterior)
 
     # Sample with fixes seed
     np.random.seed(0)
@@ -614,7 +614,7 @@ def test_UGLA_with_AffineModel_is_equivalent_to_LinearModel_and_shifted_data():
     posterior_affine = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
 
     # Set up UGLA with AffineModel
-    sampler_affine = cuqi.sampler.UGLA(posterior_affine)
+    sampler_affine = cuqi.legacy.sampler.UGLA(posterior_affine)
 
     # Sample with fixes seed
     np.random.seed(0)

@@ -1,31 +1,57 @@
-from cuqi.distribution import Posterior, LMRF, Gamma
 import numpy as np
+from cuqi.sampler import Conjugate
+from cuqi.sampler._conjugate import _ConjugatePair, _get_conjugate_parameter, _check_conjugate_parameter_is_scalar_reciprocal
+from cuqi.distribution import LMRF, Gamma
 import scipy as sp
 
-class ConjugateApprox: # TODO: Subclass from Sampler once updated
+class ConjugateApprox(Conjugate):
     """ Approximate Conjugate sampler
 
     Sampler for sampling a posterior distribution where the likelihood and prior can be approximated
     by a conjugate pair.
 
     Currently supported pairs are:
-    - (LMRF, Gamma): Approximated by (Gaussian, Gamma)
+    - (LMRF, Gamma): Approximated by (Gaussian, Gamma) where Gamma is defined on the inverse of the scale parameter of the LMRF distribution.
 
-    For more information on conjugate pairs, see https://en.wikipedia.org/wiki/Conjugate_prior.
+    Gamma distribution must be univariate.
+
+    LMRF likelihood must have zero mean.
+
+    For more details on conjugacy see :class:`Conjugate`.
 
     """
 
-    
-    def __init__(self, target: Posterior):
-        if not isinstance(target.likelihood.distribution, LMRF):
-            raise ValueError("Conjugate sampler only works with Laplace diff likelihood function")
-        if not isinstance(target.prior, Gamma):
-            raise ValueError("Conjugate sampler only works with Gamma prior")
-        self.target = target
+    def _set_conjugatepair(self):
+        """ Set the conjugate pair based on the likelihood and prior. This requires target to be set. """
+        if isinstance(self.target.likelihood.distribution, LMRF) and isinstance(self.target.prior, Gamma):
+            self._conjugatepair = _LMRFGammaPair(self.target)
+        else:
+            raise ValueError(f"Conjugacy is not defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
 
-    def step(self, x=None):
+
+class _LMRFGammaPair(_ConjugatePair):
+    """ Implementation of the conjugate pair (LMRF, Gamma) """
+
+    def validate_target(self):
+        if not self.target.prior.dim == 1:
+            raise ValueError("Approximate conjugate sampler only works with univariate Gamma prior")
+        
+        if np.sum(self.target.likelihood.distribution.location) != 0:
+            raise ValueError("Approximate conjugate sampler only works with zero mean LMRF likelihood")
+        
+        key_value_pairs = _get_conjugate_parameter(self.target)
+        if len(key_value_pairs) != 1:
+            raise ValueError(f"Multiple references to conjugate parameter {self.target.prior.name} found in likelihood. Only one occurance is supported.")
+        for key, value in key_value_pairs:
+            if key == "scale":
+                if not _check_conjugate_parameter_is_scalar_reciprocal(value):
+                    raise ValueError("Approximate conjugate sampler only works with Gamma prior on the inverse of the scale parameter of the LMRF likelihood")
+            else:
+                raise ValueError(f"No approximate conjugacy defined for likelihood {type(self.target.likelihood.distribution)} and prior {type(self.target.prior)}, in CUQIpy")
+        
+    def conjugate_distribution(self):
         # Extract variables
-        # Here we approximate the Laplace diff with a Gaussian
+        # Here we approximate the LMRF with a Gaussian
 
         # Extract diff_op from target likelihood
         D = self.target.likelihood.distribution._diff_op
@@ -47,6 +73,4 @@ class ConjugateApprox: # TODO: Subclass from Sampler once updated
         beta = self.target.prior.rate                   #beta
 
         # Create Gamma distribution and sample
-        dist = Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)
-
-        return dist.sample()
+        return Gamma(shape=d+alpha, rate=np.linalg.norm(Lx)**2+beta)

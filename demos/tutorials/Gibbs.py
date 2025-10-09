@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, LMRF
-from cuqi.sampler import Gibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
+from cuqi.legacy.sampler import Gibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
 

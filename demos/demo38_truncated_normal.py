@@ -19,7 +19,7 @@ plt.figure()
 plot_2D_density(p, -5, 5, -5, 5)
 plt.title("Exact PDF")
 
-sampler = cuqi.experimental.mcmc.MALA(p, scale=0.1, initial_point= np.array([1,-1]))
+sampler = cuqi.sampler.MALA(p, scale=0.1, initial_point= np.array([1,-1]))
 sampler.sample(10000)
 samples = sampler.get_samples()
 
@@ -56,7 +56,7 @@ joint = cuqi.distribution.JointDistribution(x, b)
 post = joint(b=b_obs)
 
 # MALA sampler
-sampler = cuqi.experimental.mcmc.MALA(post, initial_point=np.array([2.5, -2.5]), scale=0.03)
+sampler = cuqi.sampler.MALA(post, initial_point=np.array([2.5, -2.5]), scale=0.03)
 
 sampler.warmup(1000)
 sampler.sample(1000)

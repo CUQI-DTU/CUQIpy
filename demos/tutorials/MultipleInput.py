@@ -156,20 +156,20 @@ print(
 # First define sampling strategy for Gibbs sampling
 
 sampling_strategy = {
-    "h_v_dist": cuqi.experimental.mcmc.MH(
+    "h_v_dist": cuqi.sampler.MH(
         scale=0.2, initial_point=np.array([30])),
-    "h_t_dist": cuqi.experimental.mcmc.MALA(
+    "h_t_dist": cuqi.sampler.MALA(
         scale=0.6, initial_point=np.array([50])),
-    "c_v_dist": cuqi.experimental.mcmc.MALA(
+    "c_v_dist": cuqi.sampler.MALA(
         scale=0.6, initial_point=np.array([30])),
-    "c_t_dist": cuqi.experimental.mcmc.MALA(
+    "c_t_dist": cuqi.sampler.MALA(
         scale=0.6, initial_point=np.array([10])),
 }
 
 # %%
 # Then create the sampler and sample the posterior distribution
 
-hybridGibbs = cuqi.experimental.mcmc.HybridGibbs(
+hybridGibbs = cuqi.sampler.HybridGibbs(
     posterior,
     sampling_strategy=sampling_strategy)
 

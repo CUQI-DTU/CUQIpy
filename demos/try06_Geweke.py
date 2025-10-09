@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.sampler import CWMH
+from cuqi.legacy.sampler import CWMH
 from cuqi.distribution import Gaussian, Normal
 from cuqi.diagnostics import Geweke
 

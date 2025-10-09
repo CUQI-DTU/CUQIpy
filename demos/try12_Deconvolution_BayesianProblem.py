@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 from cuqi.distribution import Gaussian, CMRF, LMRF
 from cuqi.distribution import GMRF, LMRF, Laplace, Beta, InverseGamma, Lognormal
-from cuqi.sampler import NUTS, CWMH
+from cuqi.legacy.sampler import NUTS, CWMH
 
 # %% Deconvolution 1D problem
 dim = 128

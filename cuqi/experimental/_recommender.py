@@ -3,7 +3,7 @@ import inspect
 import numpy as np
 
 # This import makes suggest_sampler easier to read
-import cuqi.experimental.mcmc as samplers 
+import cuqi.sampler as samplers 
 
 
 class SamplerRecommender(object):
@@ -15,7 +15,7 @@ class SamplerRecommender(object):
     target: Density or JointDistribution
         Distribution to get sampler recommendations for.
 
-    exceptions: list[cuqi.experimental.mcmc.Sampler], *optional*
+    exceptions: list[cuqi.sampler.Sampler], *optional*
         Samplers not to be recommended.
     
     Example
@@ -104,7 +104,7 @@ class SamplerRecommender(object):
 
         """
 
-        all_samplers = [(name, cls) for name, cls in inspect.getmembers(cuqi.experimental.mcmc, inspect.isclass) if issubclass(cls, cuqi.experimental.mcmc.Sampler)]
+        all_samplers = [(name, cls) for name, cls in inspect.getmembers(cuqi.sampler, inspect.isclass) if issubclass(cls, cuqi.sampler.Sampler)]
         valid_samplers = []
 
         for name, sampler in all_samplers:
@@ -116,7 +116,7 @@ class SamplerRecommender(object):
 
         # Need a separate case for HybridGibbs
         if self.valid_HybridGibbs_sampling_strategy() is not None:
-            valid_samplers += [cuqi.experimental.mcmc.HybridGibbs.__name__ if as_string else cuqi.experimental.mcmc.HybridGibbs]
+            valid_samplers += [cuqi.sampler.HybridGibbs.__name__ if as_string else cuqi.sampler.HybridGibbs]
 
         return valid_samplers
 

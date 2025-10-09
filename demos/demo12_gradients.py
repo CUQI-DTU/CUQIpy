@@ -39,7 +39,7 @@ print('relative error MAP:', np.linalg.norm(x_MAP-x_true)/np.linalg.norm(x_true)
 
 # %%
 # sampling using NUTS
-MCMC = cuqi.sampler.NUTS(TP.posterior)
+MCMC = cuqi.legacy.sampler.NUTS(TP.posterior)
 Ns = int(200)      # number of samples
 Nb = int(0.2*Ns)   # burn-in
 samples = MCMC.sample(Ns, Nb)
