@@ -406,6 +406,8 @@ class Sampler(ABC):
             
     def _get_default_initial_point(self, dim):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
+        if isinstance(dim, list):
+            return [np.ones(d) for d in dim]
         return np.ones(dim)
     
     def __repr__(self):
@@ -492,6 +494,26 @@ class ProposalBasedSampler(Sampler, ABC):
         self._validate_initialization()
 
         self._is_initialized = True
+
+    @Sampler.target.setter
+    def target(self, value):
+        """ Set the target density. Runs validation of the target. """
+        self._target = value
+
+        if isinstance(self._target, cuqi.distribution.JointDistribution):
+            self._target = self._target._as_stacked()
+
+        if self._target is not None:
+            self.validate_target()
+
+    def get_samples(self) -> Samples:
+        """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
+        
+        samples = Samples(np.array(self._samples).T, self.target.geometry)
+        if isinstance(self.target, cuqi.distribution.JointDistribution):
+            return self.target._unstack_samples(samples)
+        return samples
+
 
     @abstractmethod
     def validate_proposal(self):
