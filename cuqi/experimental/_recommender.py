@@ -23,7 +23,7 @@ class SamplerRecommender(object):
     .. code-block:: python
         import numpy as np
         from cuqi.distribution import Gamma, Gaussian, JointDistribution
-        from cuqi.sampler import SamplerRecommender
+        from cuqi.experimental import SamplerRecommender
 
         x = Gamma(1, 1)
         y = Gaussian(np.zeros(2), cov=lambda x: 1 / x)
