@@ -1757,20 +1757,20 @@ def test_enabling_FD_gradient_in_HybridGibbs_target():
     
     # Gibbs sampling strategy with NUTS for both a and b
     sampling_strategy = {
-        "a": cuqi.experimental.mcmc.NUTS(),
-        "b": cuqi.experimental.mcmc.NUTS(),
+        "a": cuqi.sampler.NUTS(),
+        "b": cuqi.sampler.NUTS(),
     }
 
     # Attempt creating HybridGibbs sampler to warmup without gradient
     # implemented for the posterior should raise an error
     with pytest.raises(ValueError, match="Target must have logd and gradient methods"):
-        sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+        sampler = cuqi.sampler.HybridGibbs(posterior, sampling_strategy)
 
     # Now enable FD gradient for both a and b in the posterior and create the
     # HybridGibbs sampler and run sampling 
     epsilon = {"a": 1e-8, "b": 1e-8}
     posterior.enable_FD(epsilon=epsilon)
-    sampler = cuqi.experimental.mcmc.HybridGibbs(posterior, sampling_strategy)
+    sampler = cuqi.sampler.HybridGibbs(posterior, sampling_strategy)
     sampler.warmup(20)
     sampler.sample(40)
 
