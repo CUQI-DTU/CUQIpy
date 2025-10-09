@@ -4,11 +4,12 @@ from cuqi.samples import Samples, JointSamples
 from typing import Dict
 import numpy as np
 import warnings
+from cuqi import config
 
 try:
     from tqdm import tqdm
 except ImportError:
-    def tqdm(iterable, **kwargs):
+    def tqdm(iterable, dummy, **kwargs):
         warnings.warn("Module mcmc: tqdm not found. Install tqdm to get sampling progress.")
         return iterable
 
@@ -189,7 +190,7 @@ class HybridGibbs:
             The number of samples to draw.
 
         """
-        for idx in tqdm(range(Ns), "Sample: "):
+        for idx in tqdm(range(Ns), "Sample: ", disable=config.DISABLE_PROGRESS_BAR):
 
             self.step()
 
@@ -215,7 +216,7 @@ class HybridGibbs:
 
         tune_interval = max(int(tune_freq * Nb), 1)
 
-        for idx in tqdm(range(Nb), "Warmup: "):
+        for idx in tqdm(range(Nb), "Warmup: ", disable=config.DISABLE_PROGRESS_BAR):
 
             self.step()
 

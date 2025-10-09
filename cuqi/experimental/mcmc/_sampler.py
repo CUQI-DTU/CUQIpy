@@ -5,11 +5,14 @@ import pickle as pkl
 import warnings
 import cuqi
 from cuqi.samples import Samples
+from cuqi import config
 
+tqdm_imported = False
 try:
     from tqdm import tqdm
+    tqdm_imported = True
 except ImportError:
-    def tqdm(iterable, **kwargs):
+    def tqdm(iterable, dummy, **kwargs):
         warnings.warn("Module mcmc: tqdm not found. Install tqdm to get sampling progress.")
         return iterable
 
@@ -228,7 +231,7 @@ class Sampler(ABC):
             batch_handler = _BatchHandler(batch_size, sample_path)
 
         # Draw samples
-        pbar = tqdm(range(Ns), "Sample: ")
+        pbar = tqdm(range(Ns), "Sample: ", disable=config.DISABLE_PROGRESS_BAR)
         for idx in pbar:
             
             # Perform one step of the sampler
@@ -240,7 +243,9 @@ class Sampler(ABC):
                 self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
+            if tqdm_imported:
+                pbar.set_postfix_str(
+                    f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -273,7 +278,7 @@ class Sampler(ABC):
         tune_interval = max(int(tune_freq * Nb), 1)
 
         # Draw warmup samples with tuning
-        pbar = tqdm(range(Nb), "Warmup: ")
+        pbar = tqdm(range(Nb), "Warmup: ", disable=config.DISABLE_PROGRESS_BAR)
         for idx in pbar:
 
             # Perform one step of the sampler
@@ -289,7 +294,9 @@ class Sampler(ABC):
                 self._samples.append(self.current_point)
 
             # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
+            if tqdm_imported:
+                pbar.set_postfix_str(
+                    f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
 
             # Call callback function if specified
             self._call_callback(idx, Nb)
