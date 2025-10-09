@@ -8,14 +8,14 @@ from numbers import Number
 def test_find_valid_samplers_linearGaussianGaussian():
     target = cuqi.testproblem.Deconvolution1D(dim=2).posterior
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(set(valid_samplers) == set(['CWMH', 'LinearRTO', 'MALA', 'MH', 'NUTS', 'PCN', 'ULA']))
 
 def test_find_valid_samplers_nonlinearGaussianGaussian():
     target = cuqi.testproblem.Poisson1D(dim=2).posterior
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     print(set(valid_samplers) == set(['CWMH', 'MH', 'PCN']))
 
@@ -25,7 +25,7 @@ def test_find_valid_samplers_conjugate_valid():
     y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : 1/x) # Valid on precision only, e.g. cov=lambda x : 1/x
     target = cuqi.distribution.JointDistribution(y, x)(y = 1)
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(set(valid_samplers) == set(['CWMH', 'Conjugate', 'MH']))
 
@@ -35,14 +35,14 @@ def test_find_valid_samplers_conjugate_invalid():
     y = cuqi.distribution.Gaussian(np.zeros(2), cov=lambda x : x) # Invalid if defined via covariance as cov=lambda x : x
     target = cuqi.distribution.JointDistribution(y, x)(y = 1)
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(set(valid_samplers) == set(['CWMH', 'MH']))
 
 def test_find_valid_samplers_direct():
     target = cuqi.distribution.Gamma(1,1)
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(set(valid_samplers) == set(['CWMH', 'Direct', 'MH']))
 
@@ -53,20 +53,20 @@ def test_find_valid_samplers_implicit_posterior():
     y = cuqi.distribution.Gaussian(A@x, 1)
     target =  cuqi.distribution.JointDistribution(y, x)(y = y_obs)
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(set(valid_samplers) == set(['RegularizedLinearRTO']))
 
 def test_find_valid_samplers_implicit_prior():
     target = cuqi.implicitprior.RegularizedGaussian(np.zeros(2), 1, constraint="nonnegativity")
 
-    valid_samplers = cuqi.sampler.SamplerRecommender(target).valid_samplers()
+    valid_samplers = cuqi.experimental.SamplerRecommender(target).valid_samplers()
 
     assert(len(set(valid_samplers)) == 0)
 
 def test_recommend_direct():
     x = cuqi.distribution.Gamma(1, 1e-4)
-    recommender = cuqi.sampler.SamplerRecommender(x)
+    recommender = cuqi.experimental.SamplerRecommender(x)
     sampler = recommender.recommend()
 
     assert(isinstance(sampler, cuqi.sampler.Direct))
@@ -79,7 +79,7 @@ def test_recommend_posterior():
 
     target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
 
-    recommender = cuqi.sampler.SamplerRecommender(target)
+    recommender = cuqi.experimental.SamplerRecommender(target)
     sampler = recommender.recommend()
 
     assert(isinstance(sampler, cuqi.sampler.LinearRTO))
@@ -94,7 +94,7 @@ def test_recommend_hierarchical():
 
     target = cuqi.distribution.JointDistribution(y,x,s,d)(y = y_data)
 
-    recommender = cuqi.sampler.SamplerRecommender(target)
+    recommender = cuqi.experimental.SamplerRecommender(target)
     sampler = recommender.recommend()
 
     assert(isinstance(sampler, cuqi.sampler.HybridGibbs))
@@ -111,7 +111,7 @@ def test_recommend_exceptions_1():
 
     target = cuqi.distribution.JointDistribution(y,x,s)(y = y_data)
 
-    recommender = cuqi.sampler.SamplerRecommender(target, exceptions = [cuqi.sampler.Conjugate])
+    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.sampler.Conjugate])
     sampler = recommender.recommend()
 
     assert(isinstance(sampler, cuqi.sampler.HybridGibbs))
@@ -126,7 +126,7 @@ def test_recommend_exceptions_2():
 
     target = cuqi.distribution.JointDistribution(y,x)(y = y_data)
 
-    recommender = cuqi.sampler.SamplerRecommender(target, exceptions = [cuqi.sampler.LinearRTO])
+    recommender = cuqi.experimental.SamplerRecommender(target, exceptions = [cuqi.sampler.LinearRTO])
     sampler = recommender.recommend()
 
     assert(isinstance(sampler, cuqi.sampler.NUTS))

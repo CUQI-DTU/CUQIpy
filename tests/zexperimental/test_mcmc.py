@@ -439,7 +439,7 @@ def test_ensure_all_not_skipped_samplers_are_tested_for_checkpointing():
     samplers = [
         cls
         for _, cls in inspect.getmembers(cuqi.sampler, inspect.isclass)
-        if cls not in skip_checkpoint and cls.__name__ != 'SamplerRecommender' # use cls here, not name; don't include SamplerRecommender
+        if cls not in skip_checkpoint # use cls here, not name
     ]
 
     # Convert instances in checkpoint_targets to their classes
@@ -514,7 +514,7 @@ all_subclassing_sampler_classes= [
                    cuqi.sampler.HybridGibbs,
                    cuqi.sampler.Conjugate,
                    cuqi.sampler.ConjugateApprox,
-                   cuqi.sampler.Direct] and cls.__name__ != 'SamplerRecommender' # don't include SamplerRecommender
+                   cuqi.sampler.Direct]
 ]
 # Make sure that all samplers are tested for state history
 @pytest.mark.parametrize("sampler_class", all_subclassing_sampler_classes)
@@ -628,7 +628,7 @@ def test_state_is_fully_updated_after_warmup_step(sampler: cuqi.sampler.Sampler)
 initialize_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.sampler, inspect.isclass)
-    if cls not in [cuqi.sampler.Sampler, cuqi.sampler.ProposalBasedSampler, cuqi.sampler.HybridGibbs] and cls.__name__ != 'SamplerRecommender' # don't include SamplerRecommender
+    if cls not in [cuqi.sampler.Sampler, cuqi.sampler.ProposalBasedSampler, cuqi.sampler.HybridGibbs]
 ]
 
 # Instances of samplers that should be tested for target=None initialization consistency
@@ -1506,7 +1506,7 @@ def test_RegularizedLinearRTO_ScipyLinearLSQ_against_ScipyMinimizer_and_against_
 callback_testing_sampler_classes = [
     cls
     for _, cls in inspect.getmembers(cuqi.sampler, inspect.isclass)
-    if cls not in [cuqi.sampler.Sampler, cuqi.sampler.ProposalBasedSampler] and cls.__name__ != 'SamplerRecommender'
+    if cls not in [cuqi.sampler.Sampler, cuqi.sampler.ProposalBasedSampler]
 ]
 
 # Instances of samplers that should be tested for callback
