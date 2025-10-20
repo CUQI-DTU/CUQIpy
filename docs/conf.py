@@ -36,6 +36,7 @@ extensions = [
     'sphinx_copybutton',
     'sphinx_gallery.gen_gallery',
     'sphinx.ext.autosummary',
+    'sphinx.ext.viewcode',
     ]
 
 # Options for extensions
