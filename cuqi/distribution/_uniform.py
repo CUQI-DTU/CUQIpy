@@ -67,7 +67,6 @@ class UnboundedUniform(Distribution):
     -inf and inf, respectively. This distribution is not normalizable,
     and therefore cannot be sampled from. It is mainly used for
     initializing non-informative priors.
-    
     Parameters
     ----------
     geometry : int or Geometry
