@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.get\_mutable\_variables
+=======================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.get_mutable_variables

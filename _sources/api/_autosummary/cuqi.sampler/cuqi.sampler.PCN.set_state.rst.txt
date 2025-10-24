@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.set\_state
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.set_state

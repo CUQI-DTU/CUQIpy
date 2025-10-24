@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.par\_dim
+====================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.par_dim

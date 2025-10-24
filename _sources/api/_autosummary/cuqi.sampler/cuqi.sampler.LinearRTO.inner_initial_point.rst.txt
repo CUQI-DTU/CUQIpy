@@ -1,0 +1,6 @@
+cuqi.sampler.LinearRTO.inner\_initial\_point
+============================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: LinearRTO.inner_initial_point

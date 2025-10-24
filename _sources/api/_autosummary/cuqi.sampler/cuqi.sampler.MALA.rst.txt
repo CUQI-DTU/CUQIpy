@@ -1,0 +1,47 @@
+MALA
+====
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: MALA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MALA.__init__
+      ~MALA.get_history
+      ~MALA.get_samples
+      ~MALA.get_state
+      ~MALA.initialize
+      ~MALA.load_checkpoint
+      ~MALA.reinitialize
+      ~MALA.sample
+      ~MALA.save_checkpoint
+      ~MALA.set_history
+      ~MALA.set_state
+      ~MALA.step
+      ~MALA.tune
+      ~MALA.validate_target
+      ~MALA.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~MALA.current_point
+      ~MALA.dim
+      ~MALA.geometry
+      ~MALA.target
+   
+   

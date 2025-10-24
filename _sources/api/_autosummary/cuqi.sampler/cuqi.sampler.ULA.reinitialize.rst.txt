@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.reinitialize
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.reinitialize

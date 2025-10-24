@@ -1,0 +1,6 @@
+cuqi.sampler.ConjugateApprox.tune
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ConjugateApprox.tune

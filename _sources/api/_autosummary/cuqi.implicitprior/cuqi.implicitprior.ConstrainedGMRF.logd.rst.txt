@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGMRF.logd
+=======================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: ConstrainedGMRF.logd

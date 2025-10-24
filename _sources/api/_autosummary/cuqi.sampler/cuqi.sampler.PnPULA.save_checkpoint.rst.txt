@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.save\_checkpoint
+====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.save_checkpoint

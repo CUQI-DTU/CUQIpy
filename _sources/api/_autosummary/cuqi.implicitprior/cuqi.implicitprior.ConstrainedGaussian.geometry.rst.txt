@@ -1,0 +1,6 @@
+cuqi.implicitprior.ConstrainedGaussian.geometry
+===============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: ConstrainedGaussian.geometry

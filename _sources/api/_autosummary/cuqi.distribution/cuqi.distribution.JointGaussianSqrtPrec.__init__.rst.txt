@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.\_\_init\_\_
+====================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.__init__

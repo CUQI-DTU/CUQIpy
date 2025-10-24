@@ -1,0 +1,6 @@
+sparse\_cholesky
+================
+
+.. currentmodule:: cuqi.utilities
+
+.. autofunction:: sparse_cholesky

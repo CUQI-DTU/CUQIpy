@@ -1,0 +1,6 @@
+cuqi.distribution.ModifiedHalfNormal.enable\_FD
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: ModifiedHalfNormal.enable_FD

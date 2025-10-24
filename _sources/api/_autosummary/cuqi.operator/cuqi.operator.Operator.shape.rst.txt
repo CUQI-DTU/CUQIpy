@@ -1,0 +1,6 @@
+cuqi.operator.Operator.shape
+============================
+
+.. currentmodule:: cuqi.operator
+
+.. autoproperty:: Operator.shape

@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.grids\_equal
+============================================
+
+.. currentmodule:: cuqi.pde
+
+.. autoproperty:: TimeDependentLinearPDE.grids_equal

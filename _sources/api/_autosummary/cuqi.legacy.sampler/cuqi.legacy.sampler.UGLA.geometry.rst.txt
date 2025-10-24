@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.UGLA.geometry
+=================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoproperty:: UGLA.geometry

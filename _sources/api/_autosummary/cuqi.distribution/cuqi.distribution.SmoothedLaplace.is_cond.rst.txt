@@ -1,0 +1,6 @@
+cuqi.distribution.SmoothedLaplace.is\_cond
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: SmoothedLaplace.is_cond

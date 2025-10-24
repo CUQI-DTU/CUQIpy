@@ -1,0 +1,40 @@
+pde
+===
+
+Module path: cuqi.pde
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.pde
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+    :toctree: cuqi.pde
+    :nosignatures:
+    :recursive:
+
+   
+      LinearPDE
+      PDE
+      SteadyStateLinearPDE
+      TimeDependentLinearPDE
+   
+   
+
+   
+   
+   
+
+
+

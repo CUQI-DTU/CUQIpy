@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution2D.sample\_prior
+==============================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: Deconvolution2D.sample_prior

@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.tune
+======================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: NUTS.tune

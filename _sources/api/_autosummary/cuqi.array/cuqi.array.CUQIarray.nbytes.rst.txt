@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.nbytes
+===========================
+
+.. currentmodule:: cuqi.array
+
+.. autoattribute:: CUQIarray.nbytes

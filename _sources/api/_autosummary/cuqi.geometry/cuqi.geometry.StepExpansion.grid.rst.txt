@@ -1,0 +1,6 @@
+cuqi.geometry.StepExpansion.grid
+================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: StepExpansion.grid

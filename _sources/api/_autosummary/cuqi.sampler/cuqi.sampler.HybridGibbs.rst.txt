@@ -1,0 +1,36 @@
+HybridGibbs
+===========
+
+.. currentmodule:: cuqi.sampler
+
+.. autoclass:: HybridGibbs
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~HybridGibbs.__init__
+      ~HybridGibbs.get_samples
+      ~HybridGibbs.sample
+      ~HybridGibbs.step
+      ~HybridGibbs.tune
+      ~HybridGibbs.validate_targets
+      ~HybridGibbs.warmup
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~HybridGibbs.scan_order
+   
+   

@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.to\_likelihood
+=====================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.to_likelihood
