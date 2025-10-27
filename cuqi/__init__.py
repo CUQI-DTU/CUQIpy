@@ -1,6 +1,7 @@
 from . import data
 from . import density
 from . import diagnostics
+from . import algebra
 from . import distribution
 from . import experimental
 from . import geometry
@@ -17,7 +18,6 @@ from . import samples
 from . import solver
 from . import testproblem
 from . import utilities
-from . import algebra
 
 from . import _version
 __version__ = _version.get_versions()['version']
