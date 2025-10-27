@@ -18,7 +18,7 @@ operations on them, and finally use them in Bayesian Problems.
 # The distribution object can be any distribution from the `cuqi.distribution` module.
 
 from cuqi.distribution import Normal
-from cuqi.experimental.algebra import RandomVariable
+from cuqi.algebra import RandomVariable
 
 x = RandomVariable(Normal(0, 1))
 y = Normal(0, 1).rv
@@ -64,7 +64,7 @@ print(f"z={z.expression} evaluated at x=1, y=2 yields: {z(x=1, y=2)}")
 
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, GMRF
-from cuqi.experimental.algebra import RandomVariable
+from cuqi.algebra import RandomVariable
 from cuqi.problem import BayesianProblem
 from cuqi.distribution import JointDistribution
 from cuqi.sampler import HybridGibbs, LinearRTO, Conjugate, ConjugateApprox
@@ -128,7 +128,7 @@ z.condition(s=1)
 # Conditioning on random variables (example 2)
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, GMRF
-from cuqi.experimental.algebra import RandomVariable
+from cuqi.algebra import RandomVariable
 from cuqi.problem import BayesianProblem
 import numpy as np
 
