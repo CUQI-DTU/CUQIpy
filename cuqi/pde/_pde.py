@@ -4,7 +4,6 @@ from inspect import getsource
 from scipy.interpolate import interp1d
 import numpy as np
 from cuqi.utilities import get_non_default_args
-from ._observation_map import _extract_spatial_temporal_obs
 
 
 class PDE(ABC):
@@ -16,14 +15,15 @@ class PDE(ABC):
     PDE_form : callable function
         Callable function which returns a tuple of the needed PDE components (expected components are explained in the subclasses) 
 
-    observation_map: a function handle
-        A function that takes the PDE solution as input and returns the observed solution. e.g. `observation_map=lambda u: u**2`.
-
     grid_sol: np.ndarray
         The grid on which solution is defined
 
     grid_obs: np.ndarray
-        The grid on which the observed solution should be interpolated (currently only supported for 1D problems).  
+        The grid on which the observed solution should be interpolated (currently only supported for 1D problems).
+
+    observation_map: a function handle
+        A function that takes the PDE solution, interpolated on `grid_obs`, as input and returns the observed solution. e.g., `observation_map=lambda u, grid_obs: u**2`.
+
     """
 
     def __init__(self, PDE_form, grid_sol=None, grid_obs=None, observation_map=None):
@@ -188,6 +188,10 @@ class LinearPDE(PDE):
             info = None
 
         return solution, info
+    
+    def interpolate_on_observed_domain(self, solution):
+        """Interpolate solution on observed space domain."""
+        raise NotImplementedError("interpolate_on_observed_domain method is not implemented for LinearPDE base class.")
 
 class SteadyStateLinearPDE(LinearPDE):
     """Linear steady state PDE.
@@ -198,7 +202,7 @@ class SteadyStateLinearPDE(LinearPDE):
         Callable function with signature `PDE_form(parameter1, parameter2, ...)` where `parameter1`, `parameter2`, etc. are the Bayesian unknown parameters (the user can choose any names for these parameters, e.g. `a`, `b`, etc.). The function returns a tuple with the discretized differential operator A and right-hand-side b. The types of A and b are determined by what the method :meth:`linalg_solve` accepts as first and second parameters, respectively.
 
     observation_map: a function handle
-        A function that takes the PDE solution and spatial grid as input and returns the observed solution. e.g. `observation_map=lambda u, grid: u**2`.
+        A function that takes the PDE solution, interpolated on `grid_obs`, as input and returns the observed solution. e.g. `observation_map=lambda u, grid_obs: u**2`.
 
     kwargs: 
         See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments. 
@@ -225,13 +229,21 @@ class SteadyStateLinearPDE(LinearPDE):
 
         return self._solve_linear_system(self.diff_op, self.rhs, self._linalg_solve, self._linalg_solve_kwargs)
 
-
-    def observe(self, solution):
-            
+    def interpolate_on_observed_domain(self, solution):
+        """Interpolate solution on observed space grid."""
         if self.grids_equal:
             solution_obs = solution
         else:
             solution_obs = interp1d(self.grid_sol, solution, kind='quadratic')(self.grid_obs)
+        return solution_obs
+
+    def observe(self, solution):
+        """Apply observation operator to the solution. This include
+        interpolation to observation points (if different from the
+        solution grid) then applying the observation map (if provided)."""
+ 
+        # Interpolate solution on observed domain
+        solution_obs = self.interpolate_on_observed_domain(solution)
 
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs, self.grid_obs)
@@ -256,13 +268,14 @@ class TimeDependentLinearPDE(LinearPDE):
         Time stepping method. Currently two options are available `forward_euler` and  `backward_euler`.
 
     observation_map: a function handle
-        A function that takes the PDE solution, the spatial grid, and the time steps as input and returns the observed solution. e.g. `observation_map=lambda u, grid, times: u**2`.
+        A function that takes the PDE solution, interpolated on `grid_obs` and `time_obs`, as input and returns the observed solution. e.g. `observation_map=lambda u, grid_obs, time_obs: u**2`.
+
     kwargs: 
         See :class:`~cuqi.pde.LinearPDE` for the remaining keyword arguments 
  
     Example
     -----------  
-    See demos/demo34_TimeDependentLinearPDE.py for 1D heat and 1D wave equations.
+    See demos/howtos/TimeDependentLinearPDE.py for 1D heat and 1D wave equations examples. It demonstrates setting up `TimeDependentLinearPDE` objects, including the choice of time stepping methods, observation domain, and observation map.
     """
 
     def __init__(self, PDE_form, time_steps, time_obs='final',
@@ -346,8 +359,8 @@ class TimeDependentLinearPDE(LinearPDE):
 
         return u, info
 
-    def observe(self, solution):
-
+    def interpolate_on_observed_domain(self, solution):
+        """Interpolate solution on observed time and space points."""
         # If observation grid is the same as solution grid and observation time
         # is the final time step then no need to interpolate
         if self.grids_equal and np.all(self.time_steps[-1:] == self._time_obs):
@@ -367,12 +380,20 @@ class TimeDependentLinearPDE(LinearPDE):
 
             # Interpolate solution in space and time to the observation
             # time and space
-            solution_obs = _extract_spatial_temporal_obs(solution,
-                                                        self.grid_sol, 
-                                                        self.time_steps, 
-                                                        self.grid_obs, 
-                                                        self._time_obs)
+            solution_obs = scipy.interpolate.RectBivariateSpline(
+                self.grid_sol, self.time_steps, solution
+            )(self.grid_obs, self._time_obs)
 
+        return solution_obs
+
+    def observe(self, solution):
+        """Apply observation operator to the solution. This include
+        interpolation to observation points (if different from the
+        solution grid) then applying the observation map (if provided)."""
+
+        # Interpolate solution on observed domain
+        solution_obs = self.interpolate_on_observed_domain(solution)
+        
         # Apply observation map
         if self.observation_map is not None:
             solution_obs = self.observation_map(solution_obs, self.grid_obs, 

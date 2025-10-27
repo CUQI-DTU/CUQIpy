@@ -5,5 +5,6 @@ from ._pde import (
     TimeDependentLinearPDE
 )
 
-from ._observation_map import (_extract_spatial_temporal_obs,
-                               spatial_gradient)
+from ._observation_map import (
+    FD_spatial_gradient
+)
