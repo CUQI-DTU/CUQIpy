@@ -1,6 +1,7 @@
 from . import data
 from . import density
 from . import diagnostics
+from . import algebra
 from . import distribution
 from . import experimental
 from . import geometry

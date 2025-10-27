@@ -1,8 +1,8 @@
 import pytest
 import cuqi
 import numpy as np
-from cuqi.experimental.algebra._ast import VariableNode
-from cuqi.experimental.algebra import RandomVariable
+from cuqi.algebra._ast import VariableNode
+from cuqi.algebra import RandomVariable
 
 def test_randomvariable_name_consistency():
 

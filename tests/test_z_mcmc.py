@@ -1741,7 +1741,7 @@ def test_enabling_FD_gradient_in_HybridGibbs_target():
     # Multiple input model
     model = cuqi.model.Model(
         lambda a, b: a * b,
-        domain_geometry=cuqi.experimental.geometry._ProductGeometry(
+        domain_geometry=cuqi.geometry._ProductGeometry(
             cuqi.geometry.Discrete(["a"]), cuqi.geometry.Discrete(["b"])
         ),
         range_geometry=cuqi.geometry.Discrete(["c"]),

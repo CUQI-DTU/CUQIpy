@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from cuqi.experimental.algebra import VariableNode
+from cuqi.algebra import VariableNode
 
 
 @pytest.mark.parametrize("operations", [

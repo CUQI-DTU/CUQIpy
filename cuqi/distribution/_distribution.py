@@ -419,5 +419,5 @@ class Distribution(Density, ABC):
     @property
     def rv(self):
         """ Return a random variable object representing the distribution. """
-        from cuqi.experimental.algebra import RandomVariable
+        from cuqi.algebra import RandomVariable
         return RandomVariable(self)
