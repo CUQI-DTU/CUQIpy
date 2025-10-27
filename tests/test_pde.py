@@ -197,7 +197,7 @@ def test_observe():
      ('half_grid', 'every_5', None, 'obs4'),
      (None, 'every_5', lambda x, grid, times: x**2, 'obs5'),
      (np.array([3, 4.9]), np.array([0.9, 1]), lambda x, grid, times: x**2, 'obs6'),
-     ('half_grid', 'every_5', cuqi.pde.spatial_gradient, 'obs7')])
+     ('half_grid', 'every_5', cuqi.pde.FD_spatial_gradient, 'obs7')])
 def test_TimeDependentLinearPDE_heat1D(copy_reference, method, time_steps,
                                        parametrization, expected_sol,
                                        grid_obs, time_obs, observation_map,
