@@ -17,7 +17,7 @@ class _ProductGeometry(Geometry):
     .. code-block:: python
         import numpy as np
         from cuqi.geometry import Continuous1D, Discrete
-        from cuqi.experimental.geometry import _ProductGeometry
+        from cuqi.geometry import _ProductGeometry
         geometry1 = Continuous1D(np.linspace(0, 1, 100))
         geometry2 = Discrete(["sound_speed"])
         product_geometry = _ProductGeometry(geometry1, geometry2)
