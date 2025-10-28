@@ -180,33 +180,39 @@ class HybridGibbs:
         for sampler in self.samplers.values():
             sampler.validate_target()
 
-    def sample(self, Ns) -> 'HybridGibbs':
+    def sample(self, Ns, Nt=1) -> 'HybridGibbs':
         """ Sample from the joint distribution using Gibbs sampling
 
         Parameters
         ----------
         Ns : int
             The number of samples to draw.
-
+        Nt : int, optional, default=1
+            The thinning interval. If Nt >= 1, every Nt'th sample is stored. The larger Nt, the fewer samples are stored.
+            
         """
         for idx in tqdm(range(Ns), "Sample: "):
 
             self.step()
 
-            self._store_samples()
+            if (Nt > 0) and ((idx + 1) % Nt == 0):
+                self._store_samples()
 
             # Call callback function if specified
             self._call_callback(idx, Ns)
 
         return self
 
-    def warmup(self, Nb, tune_freq=0.1) -> 'HybridGibbs':
+    def warmup(self, Nb, Nt=1, tune_freq=0.1) -> 'HybridGibbs':
         """ Warmup (tune) the samplers in the Gibbs sampling scheme
 
         Parameters
         ----------
         Nb : int
             The number of samples to draw during warmup.
+        
+        Nt : int, optional, default=1
+            The thinning interval. If Nt >= 1, every Nt'th sample is stored. The larger Nt, the fewer samples are stored.
 
         tune_freq : float, optional
             Frequency of tuning the samplers. Tuning is performed every tune_freq*Nb steps.
@@ -221,9 +227,10 @@ class HybridGibbs:
 
             # Tune the sampler at tuning intervals (matching behavior of Sampler class)
             if (idx + 1) % tune_interval == 0:
-                self.tune(tune_interval, idx // tune_interval) 
-                
-            self._store_samples()
+                self.tune(tune_interval, idx // tune_interval)
+
+            if (Nt > 0) and ((idx + 1) % Nt == 0):
+                self._store_samples()
 
             # Call callback function if specified
             self._call_callback(idx, Nb)
