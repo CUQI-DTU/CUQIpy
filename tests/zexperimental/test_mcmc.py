@@ -4,8 +4,6 @@ import numpy as np
 import inspect
 from numbers import Number
 
-from demos.dev import JointDistribution
-
 def assert_true_if_sampling_is_equivalent(
         sampler_old: cuqi.legacy.sampler.Sampler,
         sampler_new: cuqi.sampler.Sampler,
