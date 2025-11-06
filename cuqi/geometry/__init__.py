@@ -16,7 +16,7 @@ from ._geometry import (
     StepExpansion
 )
 
-from ._productgeometry import _ProductGeometry
+from ._product_geometry import _ProductGeometry
 
 
 # TODO: We will remove the use of identity geometries in the future
