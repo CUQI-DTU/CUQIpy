@@ -387,7 +387,7 @@ class TimeDependentLinearPDE(LinearPDE):
         return solution_obs
 
     def observe(self, solution):
-        """Apply observation operator to the solution. This include
+        """Apply observation operator to the solution. This includes
         interpolation to observation points (if different from the
         solution grid) then applying the observation map (if provided)."""
 
