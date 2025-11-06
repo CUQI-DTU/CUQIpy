@@ -4,3 +4,7 @@ from ._pde import (
     SteadyStateLinearPDE,
     TimeDependentLinearPDE
 )
+
+from ._observation_map import (
+    FD_spatial_gradient
+)

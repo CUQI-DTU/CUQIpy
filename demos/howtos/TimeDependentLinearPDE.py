@@ -12,7 +12,7 @@ sys.path.append("..")
 import matplotlib.pyplot as plt
 from cuqi.array import CUQIarray
 from cuqi.model import PDEModel
-from cuqi.geometry import Continuous1D
+from cuqi.geometry import Continuous1D, Continuous2D
 from cuqi.pde import TimeDependentLinearPDE
 import numpy as np
 
@@ -33,21 +33,22 @@ time_steps = np.linspace(0, max_time, max_iter+1,
 
 Dxx = (np.diag(-2*np.ones(dim)) + np.diag(np.ones(dim-1), -1) +
        np.diag(np.ones(dim-1), 1))/dx**2  # Finite difference diffusion operator
+grid = np.linspace(dx, L, dim, endpoint=False)
 
 # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
 def PDE_form(initial_condition, t): return (
     Dxx, np.zeros(dim), initial_condition)
 
 # 1.2 Create a PDE object
-
-
 PDE = TimeDependentLinearPDE(
-    PDE_form, time_steps, method="forward_euler")
+    PDE_form,
+    grid_sol=grid,
+    time_steps=time_steps,
+    method="forward_euler")
 
 # 1.3 Create the PDE model
 
 # Set up geometries for the model
-grid = np.linspace(dx, L, dim, endpoint=False)
 domain_geometry = Continuous1D(grid)
 range_geometry = Continuous1D(grid)
 
@@ -68,7 +69,7 @@ plt.legend()
 # Model 2: Same as Model 1 but using Backward Euler method for time stepping
 # --------------------------------------------------------------------------
 
-# 1.1 Create a PDE object
+# 2.1 Create a PDE object
 
 dt_approx = 0.006  # Approximate time step
 max_iter = int(max_time/dt_approx)  # Number of time steps
@@ -76,13 +77,16 @@ time_steps = np.linspace(0, max_time, max_iter+1,
                          endpoint=True)  # Time steps array
 
 PDE = TimeDependentLinearPDE(
-    PDE_form, time_steps, method="backward_euler")
+    PDE_form,
+    grid_sol=grid,
+    time_steps=time_steps,
+    method="backward_euler")
 
-# 1.2 Create the PDE model
+# 2.2 Create the PDE model
 
 model = PDEModel(PDE, range_geometry, domain_geometry)
 
-# 1.3 Look at the solution for the same initial condition as in `Model 1`
+# 2.3 Look at the solution for the same initial condition as in `Model 1`
 
 parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case2 = model.forward(parameters)
@@ -91,7 +95,7 @@ parameters.plot(label="Initial Condition (t=0)")
 solution_case2.plot(label=f"Final Solution (t={max_time})")
 plt.legend()
 
-# 1.4 Print the relative error between the two solutions
+# 2.4 Print the relative error between the two solutions
 
 print("Relative error between the forward and backward Euler solution:"),
 print(np.linalg.norm(solution_case2-solution_case1) /
@@ -102,7 +106,7 @@ print(np.linalg.norm(solution_case2-solution_case1) /
 # Model 3: Same as Model 2, but using varying time step size
 # ----------------------------------------------------------
 
-# 1.1 Create a PDE object
+# 3.1 Create a PDE object
 
 # Time steps array
 time_steps1 = np.linspace(0, max_time/2, max_iter+1, endpoint=True)
@@ -111,13 +115,16 @@ time_steps2 = np.linspace(max_time/2, max_time,
 time_steps = np.hstack((time_steps1[:-1], time_steps2))
 
 PDE = TimeDependentLinearPDE(
-    PDE_form, time_steps, method="backward_euler")
+    PDE_form,
+    grid_sol=grid,
+    time_steps=time_steps,
+    method="backward_euler")
 
-# 1.2 Create the PDE model
+# 3.2 Create the PDE model
 
 model = PDEModel(PDE, range_geometry, domain_geometry)
 
-# 1.3 Look at the solution for the same initial condition as in Model 2 & 1
+# 3.3 Look at the solution for the same initial condition as in Model 2 & 1
 
 parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case3 = model.forward(parameters)
@@ -126,7 +133,7 @@ parameters.plot(label="Initial Condition (t=0)")
 solution_case3.plot(label=f"Final Solution (t={max_time})")
 plt.legend()
 
-# 1.4 Print the relative error between this solution and the forward Euler solution
+# 3.4 Print the relative error between this solution and the forward Euler solution
 
 print("Relative error between the forward and the time-step-varying backward Euler solution:"),
 print(np.linalg.norm(solution_case3-solution_case1) /
@@ -136,7 +143,7 @@ print(np.linalg.norm(solution_case3-solution_case1) /
 # Model 4: Same as model 2 but the source term is the Bayesian parameter
 # ----------------------------------------------------------------------
 
-# 1.1 Prepare PDE form
+# 4.1 Prepare PDE form
 time_steps = np.linspace(0, max_time, max_iter+1, endpoint=True)
 
 # PDE form function, returns a tuple of (differential operator, source_term, initial_condition)
@@ -144,15 +151,18 @@ initial_condition = np.ones(dim)
 def PDE_form(source_term, t): return (Dxx, source_term, initial_condition)
 
 
-# 1.2 Create a PDE object
+# 4.2 Create a PDE object
 PDE = TimeDependentLinearPDE(
-    PDE_form, time_steps, method="backward_euler")
+    PDE_form,
+    grid_sol=grid,
+    time_steps=time_steps,
+    method="backward_euler")
 
-# 1.3 Create the PDE model
+# 4.3 Create the PDE model
 
 model = PDEModel(PDE, range_geometry, domain_geometry)
 
-# 1.4 Look at the solution for zero source term
+# 4.4 Look at the solution for zero source term
 
 parameters = CUQIarray(np.zeros(model.domain_dim), geometry=domain_geometry)
 solution_case4_a = model.forward(parameters)
@@ -165,13 +175,13 @@ initial_condition.plot(label="Initial Condition (t=0)",
                        linestyle='--', color='black')
 plt.legend()
 
-# 1.5 Print the relative error between this solution and the solution from Model 2
+# 4.5 Print the relative error between this solution and the solution from Model 2
 
 print("Relative error between Model 2 and Model 4 solutions:"),
 print(np.linalg.norm(solution_case4_a-solution_case2) /
       np.linalg.norm(solution_case2))
 
-# 1.6 Set the source term to a non-zero value
+# 4.6 Set the source term to a non-zero value
 
 parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
 solution_case4_b = model.forward(parameters)
@@ -184,13 +194,56 @@ initial_condition.plot(label="Initial Condition (t=0)",
 plt.legend()
 
 # %%
-# Model 5: First order wave equation with initial condition as the Bayesian parameter
+# Model 5: Same as model 2 but with non-trivial observation operator
+# -------------------------------------------------------------------
+
+# 5.1 Create a PDE form and object
+# PDE form
+def PDE_form(initial_condition, t): return (
+    Dxx, np.zeros(dim), initial_condition)
+
+# PDE object with observation operator
+time_steps = np.linspace(0, max_time, max_iter+1,
+                         endpoint=True)  # Time steps array
+grid_obs = grid[:int(dim/2)]  # Observe at half of the spatial grid points
+time_obs = time_steps[::10]  # Observe every 10 time steps
+PDE = TimeDependentLinearPDE(
+    PDE_form,
+    grid_sol=grid,
+    time_steps=time_steps,
+    method="backward_euler",
+    grid_obs=grid_obs,
+    time_obs=time_obs,
+    observation_map=lambda u, grid, times: u+4)  # A simple observation map
+                                                 # adding 4 to the solution
+
+# 5.2 Create the PDE model
+# Updated range geometry to match the observation points
+range_geometry = Continuous2D((time_obs, grid_obs))
+model = PDEModel(PDE, range_geometry, domain_geometry)
+
+# 5.3 Compute the solution for the same initial condition as in `Model 1`
+
+parameters = CUQIarray(np.ones(model.domain_dim), geometry=domain_geometry)
+solution_case5 = model.forward(parameters)
+
+parameters.plot()
+plt.title("Initial Condition (t=0)")
+plt.figure()
+im = solution_case5.plot()
+plt.title("Observed solution at observation points");
+plt.ylabel("x")
+plt.xlabel("t")
+plt.colorbar(im[0])
+
+# %%
+# Model 6: First order wave equation with initial condition as the Bayesian parameter
 # -----------------------------------------------------------------------------------
 #
 # The model set up is similar to the one presented in https://aquaulb.github.io/book_solving_pde_mooc/solving_pde_mooc/notebooks/04_PartialDifferentialEquations/04_01_Advection.html
 
 
-# 1.1 Prepare PDE form
+# 6.1 Prepare PDE form
 
 dim = 100   # Number of solution nodes
 L = 1  # 1D domain length
@@ -208,13 +261,16 @@ time_steps = np.linspace(0, max_time, max_iter+1,
 def PDE_form(initial_condition, t): return (
     Dx, np.zeros(dim), initial_condition)
 
-# 1.2 Create a PDE object
+# 6.2 Create a PDE object
 
 
 PDE = TimeDependentLinearPDE(
-    PDE_form, time_steps, method="forward_euler")
+    PDE_form,
+    grid_sol=grid,
+    time_steps=time_steps,
+    method="forward_euler")
 
-# 1.3 Create the PDE model
+# 6.3 Create the PDE model
 
 # Set up geometries for the model
 grid = np.linspace(dx, L, dim, endpoint=True)
@@ -224,14 +280,14 @@ range_geometry = Continuous1D(grid)
 # Create the model
 model = PDEModel(PDE, range_geometry, domain_geometry)
 
-# 1.4 Look at the solution for some initial condition
+# 6.4 Look at the solution for some initial condition
 
 def initial_condition_func(x): return np.exp(-200*(x-L/4)**2)
 
 initial_condition = initial_condition_func(grid)
 parameters = CUQIarray(initial_condition, geometry=domain_geometry)
-solution_case5 = model.forward(parameters)
+solution_case6 = model.forward(parameters)
 
 parameters.plot(label="Initial Condition (t=0)")
-solution_case5.plot(label=f"Final Solution (t={max_time})")
+solution_case6.plot(label=f"Final Solution (t={max_time})")
 plt.legend()
