@@ -671,7 +671,7 @@ class MultipleInputTestModel:
             poisson_form,
             grid_sol=grid_sol,
             grid_obs=grid_obs,
-            observation_map=lambda u: u**2,
+            observation_map=lambda u, grid_obs: u**2,
         )
 
         # Build the test model
