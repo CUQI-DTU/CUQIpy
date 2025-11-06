@@ -1656,6 +1656,61 @@ def test_online_thinning_with_mala_and_rto():
     assert np.allclose(samples_rto_1.samples[:,1], samples_rto_2.samples[:,9], rtol=1e-8)
     assert np.allclose(samples_rto_1.samples[:,2], samples_rto_2.samples[:,14], rtol=1e-8)
 
+def test_online_thinning_with_hybrid_gibbs():
+
+    # example adapted from https://cuqi-dtu.github.io/CUQI-Book/chapter04/gibbs.html
+
+    # Model and data
+    A, y_data, _ = cuqi.testproblem.Deconvolution1D(phantom='sinc', noise_std=0.005, PSF_param=6).get_components()
+
+    # Get dimension of signal
+    n = A.domain_dim
+
+    d = cuqi.distribution.Gamma(1, 1e-4)
+    s = cuqi.distribution.Gamma(1, 1e-4)
+    x = cuqi.distribution.GMRF(np.zeros(n), lambda d: d)
+    y = cuqi.distribution.Gaussian(A@x, cov=lambda s: 1/s)
+
+    # Create joint distribution
+    joint = cuqi.distribution.JointDistribution(y, x, d, s)
+
+    # Define posterior by conditioning on the data
+    posterior = joint(y=y_data)
+
+    # Define sampling strategies
+    sampling_strategy_1 = {
+        'x': cuqi.sampler.LinearRTO(),
+        'd': cuqi.sampler.Conjugate(),
+        's': cuqi.sampler.Conjugate()
+    }
+    sampling_strategy_2 = {
+        'x': cuqi.sampler.LinearRTO(),
+        'd': cuqi.sampler.Conjugate(),
+        's': cuqi.sampler.Conjugate()
+    }
+
+    # Define Gibbs samplers
+    sampler_1 = cuqi.sampler.HybridGibbs(posterior, sampling_strategy_1)
+    sampler_2 = cuqi.sampler.HybridGibbs(posterior, sampling_strategy_2)
+
+    # Run sampler with different online thinnning Nt
+    np.random.seed(0)
+    samples_1 = sampler_1.sample(20, Nt=5).get_samples()
+    np.random.seed(0)
+    samples_2 = sampler_2.sample(20).get_samples() # by default Nt=1
+
+    # Compare samples
+    assert np.allclose(samples_1['d'].samples[:, 0], samples_2['d'].samples[:, 4], rtol=1e-5)
+    assert np.allclose(samples_1['d'].samples[:, 1], samples_2['d'].samples[:, 9], rtol=1e-5)
+    assert np.allclose(samples_1['d'].samples[:, 2], samples_2['d'].samples[:, 14], rtol=1e-5)
+    assert np.allclose(samples_1['s'].samples[:, 0], samples_2['s'].samples[:, 4], rtol=1e-5)
+    assert np.allclose(samples_1['s'].samples[:, 1], samples_2['s'].samples[:, 9], rtol=1e-5)
+    assert np.allclose(samples_1['s'].samples[:, 2], samples_2['s'].samples[:, 14], rtol=1e-5)
+    assert np.allclose(samples_1['x'].samples[:, 0], samples_2['x'].samples[:, 4], rtol=1e-5)
+    assert np.allclose(samples_1['x'].samples[:, 1], samples_2['x'].samples[:, 9], rtol=1e-5)
+    assert np.allclose(samples_1['x'].samples[:, 2], samples_2['x'].samples[:, 14], rtol=1e-5)
+
+
 @pytest.mark.parametrize("step_size", [None, 0.1])
 @pytest.mark.parametrize("num_sampling_steps_x", [1, 5])
 @pytest.mark.parametrize("nb", [5, 20])
