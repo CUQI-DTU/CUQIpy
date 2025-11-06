@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Any, Union
-from ._ast import VariableNode, Node
-from ._orderedset import _OrderedSet
+from ._abstract_syntax_tree import VariableNode, Node
+from ._ordered_set import _OrderedSet
 import operator
 import cuqi
 from cuqi.distribution import Distribution
