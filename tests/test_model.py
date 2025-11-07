@@ -9,7 +9,7 @@ from scipy import optimize
 from copy import copy, deepcopy
 from cuqi.geometry import _identity_geometries, _DefaultGeometry1D, _DefaultGeometry2D, Geometry, Discrete, Image2D, KLExpansion
 from cuqi.utilities import force_ndarray
-from cuqi.experimental.geometry import _ProductGeometry
+from cuqi.geometry import _ProductGeometry
 
 def test_steady_state_PDE_model_multiple_input():
     """ Test that the steady state PDE model and gradient can accept multiple inputs specified as positional arguments or keyword arguments """
@@ -331,7 +331,7 @@ def test_evaluating_model_at_random_variables_with_non_unique_names_raises_error
             np.array([1, 3]),
             3,
             lambda x, y, z: x * y[0] + z * y[1],
-            cuqi.experimental.geometry._ProductGeometry(
+            cuqi.geometry._ProductGeometry(
                 cuqi.geometry.Continuous1D(3),
                 cuqi.geometry.Continuous1D(2),
                 cuqi.geometry.Continuous1D(3),

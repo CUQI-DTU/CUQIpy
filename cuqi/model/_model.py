@@ -229,7 +229,7 @@ class Model(object):
             self._domain_geometry = self._create_default_geometry(value)
         elif isinstance(value, tuple) and self.number_of_inputs > 1:
             geometries = [item if isinstance(item, Geometry) else self._create_default_geometry(item) for item in value]
-            self._domain_geometry = cuqi.experimental.geometry._ProductGeometry(*geometries)
+            self._domain_geometry = cuqi.geometry._ProductGeometry(*geometries)
         elif value is None:
             raise AttributeError(
                 "The parameter 'domain_geometry' is not specified by the user and it cannot be inferred from the attribute 'forward'."
@@ -273,7 +273,7 @@ class Model(object):
         consistent with the forward operator."""
         if (
             not isinstance(
-                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+                self.domain_geometry, cuqi.geometry._ProductGeometry
             )
             and self.number_of_inputs > 1
         ):
@@ -448,13 +448,13 @@ class Model(object):
         # If len of kwargs is larger than 1, the geometry needs to be of type
         # _ProductGeometry
         if (
-            not isinstance(geometry, cuqi.experimental.geometry._ProductGeometry)
+            not isinstance(geometry, cuqi.geometry._ProductGeometry)
             and len(kwargs) > 1
         ):
             raise ValueError(
                 "The input is specified by more than one argument. This is only "
                 + "supported for domain geometry of type "
-                + f"{cuqi.experimental.geometry._ProductGeometry.__name__}."
+                + f"{cuqi.geometry._ProductGeometry.__name__}."
             )
 
         # If is_par is bool, make it a tuple of bools of the same length as
@@ -464,7 +464,7 @@ class Model(object):
         # Set up geometries list
         geometries = (
             geometry.geometries
-            if isinstance(geometry, cuqi.experimental.geometry._ProductGeometry)
+            if isinstance(geometry, cuqi.geometry._ProductGeometry)
             else [geometry]
         )
 
@@ -691,7 +691,7 @@ class Model(object):
            is_par and
            len(args) == 1 and
            args[0].shape == (self.domain_dim,) and
-           isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)):
+           isinstance(self.domain_geometry, cuqi.geometry._ProductGeometry)):
             # Split the stacked input
             split_args = np.split(args[0], self.domain_geometry.stacked_par_split_indices)
             # Convert split args to CUQIarray if input is CUQIarray
@@ -757,7 +757,7 @@ class Model(object):
             return self._handle_case_when_model_input_is_distributions(kwargs)
 
         # If input is a random variable, we handle it separately
-        elif all(isinstance(x, cuqi.experimental.algebra.RandomVariable)
+        elif all(isinstance(x, cuqi.algebra.RandomVariable)
                for x in kwargs.values()):
             if partial_arguments:
                 raise ValueError(
@@ -769,7 +769,7 @@ class Model(object):
         # We use NotImplemented to indicate that the operation is not supported from the Model class
         # in case of operations such as "@" that can be interpreted as both __matmul__ and __rmatmul__
         # the operation may be delegated to the Node class.
-        elif any(isinstance(args_i, cuqi.experimental.algebra.Node) for args_i in args):
+        elif any(isinstance(args_i, cuqi.algebra.Node) for args_i in args):
             return NotImplemented
 
         # if input is partial, we create a new model with the partial input
@@ -803,7 +803,7 @@ class Model(object):
         if len(distributions) == 1:
             return list(distributions)[0].dim == self.domain_dim
         elif len(distributions) > 1 and isinstance(
-            self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+            self.domain_geometry, cuqi.geometry._ProductGeometry
         ):
             return all(
                 d.dim == self.domain_geometry.par_dim_list[i]
@@ -851,7 +851,7 @@ class Model(object):
         # Create a partial domain geometry with the geometries corresponding
         # to the non-default arguments that are not in kwargs (remaining
         # unspecified inputs)
-        partial_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
+        partial_domain_geometry = cuqi.geometry._ProductGeometry(
             *[
                 self.domain_geometry.geometries[i]
                 for i in range(self.number_of_inputs)
@@ -864,7 +864,7 @@ class Model(object):
 
         # Create a domain geometry with the geometries corresponding to the
         # non-default arguments that are specified
-        substituted_domain_geometry = cuqi.experimental.geometry._ProductGeometry(
+        substituted_domain_geometry = cuqi.geometry._ProductGeometry(
             *[
                 self.domain_geometry.geometries[i]
                 for i in range(self.number_of_inputs)
@@ -967,7 +967,7 @@ class Model(object):
     def _handle_case_when_model_input_is_random_variables(self, kwargs):
         """ Private function that handles the case of the input being a random variable. """
         # If random variable is not a leaf-type node (e.g. internal node) we return NotImplemented
-        if any(not isinstance(x.tree, cuqi.experimental.algebra.VariableNode) for x in kwargs.values()):
+        if any(not isinstance(x.tree, cuqi.algebra.VariableNode) for x in kwargs.values()):
             return NotImplemented        
 
         # Extract the random variable distributions and check dimensions consistency with domain geometry
@@ -1157,7 +1157,7 @@ class Model(object):
         domain_geometries = (
             self.domain_geometry.geometries
             if isinstance(
-                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+                self.domain_geometry, cuqi.geometry._ProductGeometry
             )
             else [self.domain_geometry]
         )
@@ -1185,7 +1185,7 @@ class Model(object):
         # Create list of domain geometries
         geometries = (
             self.domain_geometry.geometries
-            if isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry)
+            if isinstance(self.domain_geometry, cuqi.geometry._ProductGeometry)
             else [self.domain_geometry]
         )
 
@@ -1197,7 +1197,7 @@ class Model(object):
         # stacked, split it
         if (
             isinstance(
-                self.domain_geometry, cuqi.experimental.geometry._ProductGeometry
+                self.domain_geometry, cuqi.geometry._ProductGeometry
             )
             and not isinstance(grad, (list, tuple))
             and isinstance(grad, np.ndarray)
@@ -1206,7 +1206,7 @@ class Model(object):
 
         # If the domain geometry is not a _ProductGeometry, turn grad into a
         # list of length 1, so that we can iterate over it
-        if not isinstance(self.domain_geometry, cuqi.experimental.geometry._ProductGeometry):
+        if not isinstance(self.domain_geometry, cuqi.geometry._ProductGeometry):
             grad = [grad]
 
         # apply the gradient of each geometry component

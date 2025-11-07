@@ -16,6 +16,8 @@ from ._geometry import (
     StepExpansion
 )
 
+from ._product_geometry import _ProductGeometry
+
 
 # TODO: We will remove the use of identity geometries in the future
 _identity_geometries = [_DefaultGeometry1D, _DefaultGeometry2D, Continuous1D, Continuous2D, Discrete, Image2D]

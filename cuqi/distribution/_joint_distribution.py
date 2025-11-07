@@ -62,16 +62,16 @@ class JointDistribution:
         posterior = joint(y=y_obs)
         
     """
-    def __init__(self, *densities: [Density, cuqi.experimental.algebra.RandomVariable]):
+    def __init__(self, *densities: [Density, cuqi.algebra.RandomVariable]):
         """ Create a joint distribution from the given densities. """
 
         # Check if all RandomVariables are simple (not-transformed)
         for density in densities:
-            if isinstance(density, cuqi.experimental.algebra.RandomVariable) and density.is_transformed:
+            if isinstance(density, cuqi.algebra.RandomVariable) and density.is_transformed:
                 raise ValueError(f"To be used in {self.__class__.__name__}, all RandomVariables must be untransformed.")
 
         # Convert potential random variables to their underlying distribution
-        densities = [density.distribution if isinstance(density, cuqi.experimental.algebra.RandomVariable) else density for density in densities]
+        densities = [density.distribution if isinstance(density, cuqi.algebra.RandomVariable) else density for density in densities]
 
         # Ensure all densities have unique names
         names = [density.name for density in densities]

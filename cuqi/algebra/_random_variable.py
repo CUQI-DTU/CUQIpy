@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Any, Union
-from ._ast import VariableNode, Node
-from ._orderedset import _OrderedSet
+from ._abstract_syntax_tree import VariableNode, Node
+from ._ordered_set import _OrderedSet
 import operator
 import cuqi
 from cuqi.distribution import Distribution
@@ -58,7 +58,7 @@ class RandomVariable:
 
         from cuqi.testproblem import Deconvolution1D
         from cuqi.distribution import Gaussian, Gamma, GMRF
-        from cuqi.experimental.algebra import RandomVariable
+        from cuqi.algebra import RandomVariable
         from cuqi.problem import BayesianProblem
 
         import numpy as np
@@ -79,7 +79,7 @@ class RandomVariable:
     .. code-block:: python
 
         from cuqi.distribution import Gaussian, Gamma
-        from cuqi.experimental.algebra import RandomVariable, VariableNode
+        from cuqi.algebra import RandomVariable, VariableNode
 
         # Define the variables
         x = VariableNode('x')

@@ -3,7 +3,7 @@ import cuqi
 import pytest
 import numpy as np
 from cuqi.geometry import Continuous1D, Discrete, MappedGeometry, Continuous2D
-from cuqi.experimental.geometry import _ProductGeometry
+from cuqi.geometry import _ProductGeometry
 
 @pytest.fixture
 def product_geometry():
