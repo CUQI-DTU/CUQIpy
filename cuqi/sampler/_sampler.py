@@ -236,7 +236,7 @@ class Sampler(ABC):
 
             # Store samples
             self._acc.append(acc)
-            if (Nt > 0) and ((idx + 1) % Nt == 0):
+            if (Nt > 0) and (idx % Nt == 0):
                 self._samples.append(self.current_point)
 
             # display acc rate at progress bar
@@ -285,7 +285,7 @@ class Sampler(ABC):
 
             # Store samples
             self._acc.append(acc)
-            if (Nt > 0) and ((idx + 1) % Nt == 0):
+            if (Nt > 0) and (idx % Nt == 0):
                 self._samples.append(self.current_point)
 
             # display acc rate at progress bar

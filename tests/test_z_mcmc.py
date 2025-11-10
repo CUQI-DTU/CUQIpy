@@ -1632,8 +1632,8 @@ def test_online_thinning_with_mala_and_rto():
     posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
 
     # Set up MALA and RTO samplers
-    sampler_mala_1 = cuqi.sampler.MALA(posterior, scale=0.01)
-    sampler_mala_2 = cuqi.sampler.MALA(posterior, scale=0.01)
+    sampler_mala_1 = cuqi.sampler.MALA(posterior, scale=0.0001)
+    sampler_mala_2 = cuqi.sampler.MALA(posterior, scale=0.0001)
     sampler_rto_1 = cuqi.sampler.LinearRTO(posterior, maxit=1000, tol=1e-8)
     sampler_rto_2 = cuqi.sampler.LinearRTO(posterior, maxit=1000, tol=1e-8)
 
@@ -1648,13 +1648,13 @@ def test_online_thinning_with_mala_and_rto():
     samples_rto_2 = sampler_rto_2.sample(100,Nt=1).get_samples()
 
     # Check that the samples are the same for MALA
-    assert np.allclose(samples_mala_1.samples[:,0], samples_mala_2.samples[:,4], rtol=1e-8)
-    assert np.allclose(samples_mala_1.samples[:,1], samples_mala_2.samples[:,9], rtol=1e-8)
-    assert np.allclose(samples_mala_1.samples[:,2], samples_mala_2.samples[:,14], rtol=1e-8)
+    assert np.allclose(samples_mala_1.samples[:,0], samples_mala_2.samples[:,0], rtol=1e-8)
+    assert np.allclose(samples_mala_1.samples[:,1], samples_mala_2.samples[:,5], rtol=1e-8)
+    assert np.allclose(samples_mala_1.samples[:,2], samples_mala_2.samples[:,10], rtol=1e-8)
     # Check that the samples are the same for RTO
-    assert np.allclose(samples_rto_1.samples[:,0], samples_rto_2.samples[:,4], rtol=1e-8)
-    assert np.allclose(samples_rto_1.samples[:,1], samples_rto_2.samples[:,9], rtol=1e-8)
-    assert np.allclose(samples_rto_1.samples[:,2], samples_rto_2.samples[:,14], rtol=1e-8)
+    assert np.allclose(samples_rto_1.samples[:,0], samples_rto_2.samples[:,0], rtol=1e-8)
+    assert np.allclose(samples_rto_1.samples[:,1], samples_rto_2.samples[:,5], rtol=1e-8)
+    assert np.allclose(samples_rto_1.samples[:,2], samples_rto_2.samples[:,10], rtol=1e-8)
 
 def test_online_thinning_with_hybrid_gibbs():
 
@@ -1700,15 +1700,15 @@ def test_online_thinning_with_hybrid_gibbs():
     samples_2 = sampler_2.sample(20).get_samples() # by default Nt=1
 
     # Compare samples
-    assert np.allclose(samples_1['d'].samples[:, 0], samples_2['d'].samples[:, 4], rtol=1e-5)
-    assert np.allclose(samples_1['d'].samples[:, 1], samples_2['d'].samples[:, 9], rtol=1e-5)
-    assert np.allclose(samples_1['d'].samples[:, 2], samples_2['d'].samples[:, 14], rtol=1e-5)
-    assert np.allclose(samples_1['s'].samples[:, 0], samples_2['s'].samples[:, 4], rtol=1e-5)
-    assert np.allclose(samples_1['s'].samples[:, 1], samples_2['s'].samples[:, 9], rtol=1e-5)
-    assert np.allclose(samples_1['s'].samples[:, 2], samples_2['s'].samples[:, 14], rtol=1e-5)
-    assert np.allclose(samples_1['x'].samples[:, 0], samples_2['x'].samples[:, 4], rtol=1e-5)
-    assert np.allclose(samples_1['x'].samples[:, 1], samples_2['x'].samples[:, 9], rtol=1e-5)
-    assert np.allclose(samples_1['x'].samples[:, 2], samples_2['x'].samples[:, 14], rtol=1e-5)
+    assert np.allclose(samples_1['d'].samples[:, 0], samples_2['d'].samples[:, 0], rtol=1e-5)
+    assert np.allclose(samples_1['d'].samples[:, 1], samples_2['d'].samples[:, 5], rtol=1e-5)
+    assert np.allclose(samples_1['d'].samples[:, 2], samples_2['d'].samples[:, 10], rtol=1e-5)
+    assert np.allclose(samples_1['s'].samples[:, 0], samples_2['s'].samples[:, 0], rtol=1e-5)
+    assert np.allclose(samples_1['s'].samples[:, 1], samples_2['s'].samples[:, 5], rtol=1e-5)
+    assert np.allclose(samples_1['s'].samples[:, 2], samples_2['s'].samples[:, 10], rtol=1e-5)
+    assert np.allclose(samples_1['x'].samples[:, 0], samples_2['x'].samples[:, 0], rtol=1e-5)
+    assert np.allclose(samples_1['x'].samples[:, 1], samples_2['x'].samples[:, 5], rtol=1e-5)
+    assert np.allclose(samples_1['x'].samples[:, 2], samples_2['x'].samples[:, 10], rtol=1e-5)
 
 
 @pytest.mark.parametrize("step_size", [None, 0.1])
