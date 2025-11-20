@@ -1632,8 +1632,8 @@ def test_online_thinning_with_mala_and_rto():
     posterior = cuqi.distribution.JointDistribution(x, y)(y=y_obs)
 
     # Set up MALA and RTO samplers
-    sampler_mala_1 = cuqi.sampler.MALA(posterior, scale=0.0001)
-    sampler_mala_2 = cuqi.sampler.MALA(posterior, scale=0.0001)
+    sampler_mala_1 = cuqi.sampler.MALA(posterior, scale=0.01)
+    sampler_mala_2 = cuqi.sampler.MALA(posterior, scale=0.01)
     sampler_rto_1 = cuqi.sampler.LinearRTO(posterior, maxit=1000, tol=1e-8)
     sampler_rto_2 = cuqi.sampler.LinearRTO(posterior, maxit=1000, tol=1e-8)
 
