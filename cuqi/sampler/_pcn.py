@@ -24,7 +24,14 @@ class PCN(Sampler):  # Refactor to Proposal-based sampler?
     def validate_target(self):
         if not isinstance(self.target, cuqi.distribution.Posterior):
             raise ValueError(f"To initialize an object of type {self.__class__}, 'target' need to be of type 'cuqi.distribution.Posterior'.")
-        if not isinstance(self.prior, (cuqi.distribution.Gaussian, cuqi.distribution.Normal)):
+        if not isinstance(
+            self.prior,
+            (
+                cuqi.distribution.Gaussian,
+                cuqi.distribution.Normal,
+                cuqi.distribution.GMRF,
+            ),
+        ):
             raise ValueError("The prior distribution of the target need to be Gaussian")
 
     def step(self):
@@ -46,7 +53,7 @@ class PCN(Sampler):  # Refactor to Proposal-based sampler?
             self.current_point = x_star
             self.current_likelihood_logd = loglike_eval_star
             acc = 1
-        
+
         return acc
 
     @property
@@ -56,7 +63,7 @@ class PCN(Sampler):  # Refactor to Proposal-based sampler?
     @property
     def likelihood(self):
         return self.target.likelihood
-        
+
     def _loglikelihood(self, x):
         return self.likelihood.logd(x)
 
