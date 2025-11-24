@@ -195,7 +195,7 @@ class HybridGibbs:
 
             self.step()
 
-            if (Nt > 0) and ((idx + 1) % Nt == 0):
+            if (Nt > 0) and (idx % Nt == 0):
                 self._store_samples()
 
             # Call callback function if specified
@@ -229,7 +229,7 @@ class HybridGibbs:
             if (idx + 1) % tune_interval == 0:
                 self.tune(tune_interval, idx // tune_interval)
 
-            if (Nt > 0) and ((idx + 1) % Nt == 0):
+            if (Nt > 0) and (idx % Nt == 0):
                 self._store_samples()
 
             # Call callback function if specified
