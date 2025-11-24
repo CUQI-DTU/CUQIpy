@@ -5,6 +5,7 @@ import pickle as pkl
 import warnings
 import cuqi
 from cuqi.samples import Samples
+from cuqi import config
 
 try:
     from tqdm import tqdm
@@ -228,6 +229,7 @@ class Sampler(ABC):
             batch_handler = _BatchHandler(batch_size, sample_path)
 
         # Draw samples
+        acc_rate = 0.0
         pbar = tqdm(range(Ns), "Sample: ")
         for idx in pbar:
             
@@ -239,8 +241,10 @@ class Sampler(ABC):
             if (Nt > 0) and ((idx + 1) % Nt == 0):
                 self._samples.append(self.current_point)
 
-            # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
+            # Display acc rate at progress bar
+            acc_rate = np.mean(self._acc[-1-idx:])
+            if config.PROGRESS_BAR_UPDATE_FREQUENTLY:
+                pbar.set_postfix_str(f"acc rate: {acc_rate:.2%}")
 
             # Add sample to batch
             if batch_size > 0:
@@ -248,6 +252,10 @@ class Sampler(ABC):
 
             # Call callback function if specified            
             self._call_callback(idx, Ns)
+
+        # Finalize progress bar printing
+        if not config.PROGRESS_BAR_UPDATE_FREQUENTLY:
+            print(f"Acceptance rate: {acc_rate:.2%}")
                 
         return self
     
@@ -273,6 +281,7 @@ class Sampler(ABC):
         tune_interval = max(int(tune_freq * Nb), 1)
 
         # Draw warmup samples with tuning
+        acc_rate = 0.0
         pbar = tqdm(range(Nb), "Warmup: ")
         for idx in pbar:
 
@@ -288,11 +297,17 @@ class Sampler(ABC):
             if (Nt > 0) and ((idx + 1) % Nt == 0):
                 self._samples.append(self.current_point)
 
-            # display acc rate at progress bar
-            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}")
+            # Display acc rate at progress bar
+            acc_rate = np.mean(self._acc[-1-idx:])
+            if config.PROGRESS_BAR_UPDATE_FREQUENTLY:
+                pbar.set_postfix_str(f"acc rate: {acc_rate:.2%}")
 
             # Call callback function if specified
             self._call_callback(idx, Nb)
+
+        # Finalize progress bar printing
+        if not config.PROGRESS_BAR_UPDATE_FREQUENTLY:
+            print(f"Acceptance rate: {acc_rate:.2%}")
 
         return self
     
