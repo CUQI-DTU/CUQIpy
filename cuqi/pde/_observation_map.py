@@ -5,7 +5,7 @@ This module contains observation map examples for PDE problems. The map can
 be passed to the `PDE` object initializer via the `observation_map` argument.
 
 For example on how to use set observation maps in time dependent PDEs, see
-`demos/howtos/TimeDependentLinearPDE.py`.
+`demos/howtos/time_dependent_linear_pde.py`.
 """
 
 # 1. Steady State Observation Maps

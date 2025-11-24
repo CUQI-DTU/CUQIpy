@@ -60,7 +60,7 @@ class ULA(Sampler):
         # Sample
         samples = sampler.sample(2000)
 
-    A Deblur example can be found in demos/demo27_ULA.py
+    A Deblur example can be found in demos/demo27_ula.py
     """
     def __init__(self, target, scale, x0=None, dim=None, rng=None, **kwargs):
         super().__init__(target, x0=x0, dim=dim, **kwargs)
@@ -167,7 +167,7 @@ class MALA(ULA):
         # Sample
         samples = sampler.sample(2000)
 
-    A Deblur example can be found in demos/demo28_MALA.py
+    A Deblur example can be found in demos/demo28_mala.py
     """
     def __init__(self, target, scale, x0=None, dim=None, rng=None, **kwargs):
         super().__init__(target, scale, x0=x0, dim=dim, rng=rng, **kwargs)
