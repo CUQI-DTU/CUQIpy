@@ -3,7 +3,7 @@ from ._beta import Beta
 from ._cauchy import Cauchy
 from ._cmrf import CMRF
 from ._gamma import Gamma
-from ._modifiedhalfnormal import ModifiedHalfNormal
+from ._modified_half_normal import ModifiedHalfNormal
 from ._gaussian import Gaussian, JointGaussianSqrtPrec
 from ._gmrf import GMRF
 from ._inverse_gamma import InverseGamma
