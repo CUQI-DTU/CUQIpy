@@ -209,7 +209,7 @@ class SteadyStateLinearPDE(LinearPDE):
 
     Example
     -------- 
-    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2D.py and demos/demo26_fwd_poisson_mixedBC.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2D.py also illustrates how to observe on a specific boundary, for example.
+    See demo demos/demo24_fwd_poisson.py for an illustration on how to use SteadyStateLinearPDE with varying solver choices. And demos demos/demo25_fwd_poisson_2d.py and demos/demo26_fwd_poisson_mixed_bc.py for examples with mixed (Dirichlet and Neumann) boundary conditions problems. demos/demo25_fwd_poisson_2d.py also illustrates how to observe on a specific boundary, for example.
     """
 
     def __init__(self, PDE_form, observation_map=None, **kwargs):
@@ -275,7 +275,7 @@ class TimeDependentLinearPDE(LinearPDE):
  
     Example
     -----------  
-    See demos/howtos/TimeDependentLinearPDE.py for 1D heat and 1D wave equations examples. It demonstrates setting up `TimeDependentLinearPDE` objects, including the choice of time stepping methods, observation domain, and observation map.
+    See demos/howtos/time_dependent_linear_pde.py for 1D heat and 1D wave equations examples. It demonstrates setting up `TimeDependentLinearPDE` objects, including the choice of time stepping methods, observation domain, and observation map.
     """
 
     def __init__(self, PDE_form, time_steps, time_obs='final',

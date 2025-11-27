@@ -60,7 +60,7 @@ class ULA(Sampler): # Refactor to Proposal-based sampler?
         # Sample
         sampler.sample(2000)
 
-    A Deblur example can be found in demos/demo27_ULA.py
+    A Deblur example can be found in demos/demo27_ula.py
     # TODO: update demo once sampler merged
     """
 
@@ -190,7 +190,7 @@ class MALA(ULA): # Refactor to Proposal-based sampler?
         # Sample
         sampler.sample(2000)
 
-    A Deblur example can be found in demos/demo28_MALA.py
+    A Deblur example can be found in demos/demo28_mala.py
     # TODO: update demo once sampler merged
     """
 
