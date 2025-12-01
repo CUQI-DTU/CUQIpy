@@ -4,8 +4,9 @@ sys.path.append("..")
 import cuqi
 # %% 2-dimensional distribution with circular shape
 dist = cuqi.distribution.DistributionGallery("CalSom91")
-sampler = cuqi.legacy.sampler.MH(dist)
-samples = sampler.sample_adapt(50000)
+sampler = cuqi.sampler.MH(dist)
+sampler.warmup(50000)
+samples = sampler.get_samples()
 
 # Switch to discrete geometry (easiest for "variable" names)
 samples.geometry = cuqi.geometry.Discrete(["alpha","beta"])

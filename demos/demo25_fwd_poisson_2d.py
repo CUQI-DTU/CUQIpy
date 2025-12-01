@@ -53,7 +53,7 @@ def PDE_form(x, shape=shape):
     #--- 5. return the operator L_op and the rhs f 
     return (L_op_matrix,f)
 
-def observation_map(x):
+def observation_map(x, grid):
     return x.reshape(shape)[0] # return solution u where x=0
 #%% Poisson equation
 

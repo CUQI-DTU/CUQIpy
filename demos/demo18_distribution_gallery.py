@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # myfuns
-from cuqi.legacy.sampler import pCN, MH, NUTS
+from cuqi.sampler import MH, NUTS
 from cuqi.distribution import DistributionGallery
 
 #%%
@@ -83,7 +83,9 @@ Nb = int(0.5*Ns)   # burn-in
 # MH
 MCMC = MH(dist)
 ti = time.time()
-x_s_MH = MCMC.sample_adapt(Ns, Nb)
+MCMC.warmup(Nb)
+MCMC.sample(Ns)
+x_s_MH = MCMC.get_samples()
 print('Elapsed time MH:', time.time() - ti, '\n')
 
 # plots MH
@@ -105,7 +107,9 @@ plt.title('MH chains')
 if dist.gradient_func is not None:
     MCMC = NUTS(dist, opt_acc_rate=0.8)    
     ti = time.time()
-    x_s_NUTS = MCMC.sample_adapt(Ns, Nb)
+    MCMC.warmup(Nb)
+    MCMC.sample(Ns)
+    x_s_NUTS = MCMC.get_samples()
     print('Elapsed time NUTS:', time.time() - ti, '\n')
 
     # plot NUTS

@@ -29,10 +29,12 @@ np.random.seed(1)
 x0 = np.ones(tp.model.domain_dim)
 Ns = int(1e4)
 Nb = int(0.5*Ns)
-MCMC = cuqi.legacy.sampler.NUTS(tp.posterior, x0, max_depth = 12)
-solution = MCMC.sample(Ns, Nb)
+MCMC = cuqi.sampler.NUTS(tp.posterior, initial_point=x0, max_depth = 12)
+MCMC.warmup(Nb)
+MCMC.sample(Ns)
+solution = MCMC.get_samples()
 x_chain = solution.samples.T
-steps = solution.acc_rate
+steps = MCMC._acc
 mu = np.mean(x_chain, axis=0)
 print(mu)
 

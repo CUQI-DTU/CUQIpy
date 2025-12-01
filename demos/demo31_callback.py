@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Interactive plot in popup window (tk, qt4, qt5, etc.)
-%matplotlib qt # noqa: E999
+%matplotlib qt
 
 # %% Use a callback function to plot the current sample every n'th sample
 
@@ -25,13 +25,16 @@ fig, ax = plt.subplots()
 fig.canvas.draw()
 fig.canvas.flush_events()
 
-# Define callback function with structure (sample, n)
-def callback(sample, sample_index):
+# Define callback function with NEW signature
+def callback(sampler, sample_index, num_of_samples):
 
     if sample_index % 10 == 0: #Only plot every n'th sample
         # Clear axis
         ax.cla() 
 
+        # Get current sample from sampler
+        sample = sampler.current_point
+        
         # Plot samples
         ax.imshow(sample.reshape(TP.model.domain_geometry.fun_shape), cmap="gray")
         ax.set_title(f'Sample index {sample_index}')
@@ -74,29 +77,25 @@ def make_callback_function(fig, TP, Ns):
     # TODO: In future versions of CUQIpy we can access the samples object directly in the callback function
     samples = np.zeros((TP.model.domain_dim, Ns))
 
-    # Create callback method that we want CUQIpy to call. It must have structure (sample, n).
-    def callback(sample, sample_index):
+    # Create callback function with signature (sampler, sample_index, num_of_samples)
+    def callback(sampler, sample_index, num_of_samples):
 
-        # Store current sample in array
-        samples[:, sample_index] = sample
+        if sample_index % 10 == 0:
+            # Clear axis
+            ax.cla() 
 
-        sample_number = sample_index + 1
-
-        # Plot ci every x samples
-        if sample_number % 25 == 0:
-
-            fig.clear()
-
-            # Create samples object with samples 0:n and plot ci
-            cuqi.samples.Samples(samples[:,:sample_number]).plot_ci(exact=TP.exactSolution)
-            plt.ylim([-0.5,1.5])
-            plt.title(f"Samples [0:{sample_number})")
+            # Get current sample from sampler
+            sample = sampler.current_point
             
+            # Plot samples - use plot() for 1D data
+            ax.plot(sample)
+            ax.set_title(f'Sample index {sample_index}')
+
             # Update figure
             fig.canvas.draw() 
             fig.canvas.flush_events()
 
-    return callback #We return the callback function so we can feed it to CUQIpy
+    return callback
 
 # Prepare figure
 fig, ax = plt.subplots()
