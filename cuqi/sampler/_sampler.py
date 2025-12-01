@@ -307,7 +307,7 @@ class Sampler(ABC):
 
         # Finalize progress bar printing
         if not config.PROGRESS_BAR_UPDATE_FREQUENTLY:
-            print(f"Warm-up acceptance rate: {acc_rate:.2%}\n")
+            print(f"Warmup acceptance rate: {acc_rate:.2%}\n")
 
         return self
     
