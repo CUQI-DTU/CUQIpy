@@ -5,7 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #Interactive plot in popup window (tk, qt4, qt5, etc.)
-%matplotlib qt
+try:
+    get_ipython().run_line_magic('matplotlib', 'qt')
+except Exception:
+    pass
+
 
 # %% Use a callback function to plot the current sample every n'th sample
 
