@@ -13,7 +13,7 @@ MAX_STACK_SEARCH_DEPTH = 1000
 MIN_DIM_SPARSE = 75
 """ Minimum dimension to start storing Nd-arrays as sparse for N>2. The minimum dimension is defined as MIN_DIM_SPARSE^N. """
 
-PROGRESS_BAR_UPDATE_FREQUENTLY = True
+PROGRESS_BAR_DYNAMIC_UPDATE = True
 """ If True, progress bars are updated frequently (dynamic updates).
 If False, progress bars are minimal/static (only shown at start and end), 
 which is useful, for example, when building documentation or the Jupyter book (CUQI-Book)
