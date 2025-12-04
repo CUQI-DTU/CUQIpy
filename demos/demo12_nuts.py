@@ -25,10 +25,12 @@ prior = cuqi.distribution.CMRF(loc, scale, 'neumann')
 # %%
 x0 = cuqi.distribution.Gaussian(np.zeros(n),1).sample()
 posterior = cuqi.distribution.Posterior(likelihood, prior)
-MCMC = cuqi.legacy.sampler.NUTS(posterior,x0, max_depth = 12)
+MCMC = cuqi.sampler.NUTS(posterior, x0, max_depth = 12)
 
 # %%
-samples = MCMC.sample(1000,500)
+MCMC.warmup(500)
+MCMC.sample(1000)
+samples = MCMC.get_samples()
 
 # %%
 x_mean = np.mean(samples.samples,axis=1)

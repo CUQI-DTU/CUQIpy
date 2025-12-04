@@ -25,7 +25,7 @@ NU = cuqi.distribution.UserDefinedDistribution(dim=dim1, logpdf_func=logpdf_func
 
 #%% Plot PDF
 grid = np.linspace(-10.0, 10.0, 101)
-plt.plot(grid, N.logpdf(grid), LineWidth=3)
+plt.plot(grid, [N.logpdf(g) for g in grid], linewidth=3)
 plt.plot(grid, NU.logpdf(grid), '--')
 
 #%% Compare samples

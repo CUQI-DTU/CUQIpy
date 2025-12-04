@@ -21,10 +21,12 @@ prior = cuqi.distribution.CMRF(loc, .2, 'neumann')
 
 # %% Create the posterior and the sampler
 posterior = cuqi.distribution.Posterior(likelihood, prior)
-MCMC = cuqi.legacy.sampler.MALA(posterior, scale=.007, x0=np.ones(n))
+MCMC = cuqi.sampler.MALA(posterior, scale=.007, initial_point=np.ones(n))
 
 # %% Sample
-samples = MCMC.sample(3000, 500)
+MCMC.warmup(500)
+MCMC.sample(3000)
+samples = MCMC.get_samples()
 
 # %% Compute mean
 x_mean = np.mean(samples.samples, axis=1)
