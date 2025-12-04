@@ -67,7 +67,7 @@ def logpi_like(x, grad=False):
     misfit = y_data - forward_eval
     if grad:
         direction = np.array([prec_obs * misfit])
-        grad_eval = gradient(direction=direction, x=x)  # Use x=x instead of wrt=x
+        grad_eval = gradient(direction=direction, x=x) 
         return -0.5*(prec_obs * misfit**2 + np.log(2*np.pi) + np.log(sigma_obs)), grad_eval
     else:
         return -0.5*(prec_obs * misfit**2 + np.log(2*np.pi) + np.log(sigma_obs))
