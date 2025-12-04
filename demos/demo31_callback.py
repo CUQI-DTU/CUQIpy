@@ -25,7 +25,7 @@ fig, ax = plt.subplots()
 fig.canvas.draw()
 fig.canvas.flush_events()
 
-# Define callback function with NEW signature
+# Define callback function with signature (sampler, sample_index, num_of_samples)
 def callback(sampler, sample_index, num_of_samples):
 
     if sample_index % 10 == 0: #Only plot every n'th sample
