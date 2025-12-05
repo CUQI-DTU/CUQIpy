@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.load\_checkpoint
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.load_checkpoint

@@ -1,0 +1,6 @@
+cuqi.density.Density.enable\_FD
+===============================
+
+.. currentmodule:: cuqi.density
+
+.. automethod:: Density.enable_FD

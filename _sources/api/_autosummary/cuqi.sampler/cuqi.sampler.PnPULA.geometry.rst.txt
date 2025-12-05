@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.geometry
+============================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PnPULA.geometry

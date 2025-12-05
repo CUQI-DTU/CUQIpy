@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.geometry
+================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gamma.geometry

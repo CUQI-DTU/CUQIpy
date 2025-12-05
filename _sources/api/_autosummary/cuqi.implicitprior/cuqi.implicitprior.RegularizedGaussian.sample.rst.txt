@@ -1,0 +1,6 @@
+cuqi.implicitprior.RegularizedGaussian.sample
+=============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: RegularizedGaussian.sample

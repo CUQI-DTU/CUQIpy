@@ -1,0 +1,35 @@
+legacy
+======
+
+Module path: cuqi.legacy
+
+.. currentmodule:: cuqi
+
+.. automodule:: cuqi.legacy
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   sampler
+

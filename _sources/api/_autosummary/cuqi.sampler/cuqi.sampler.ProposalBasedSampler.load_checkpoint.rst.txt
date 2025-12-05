@@ -1,0 +1,6 @@
+cuqi.sampler.ProposalBasedSampler.load\_checkpoint
+==================================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ProposalBasedSampler.load_checkpoint

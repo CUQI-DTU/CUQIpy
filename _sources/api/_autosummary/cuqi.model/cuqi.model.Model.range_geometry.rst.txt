@@ -1,0 +1,6 @@
+cuqi.model.Model.range\_geometry
+================================
+
+.. currentmodule:: cuqi.model
+
+.. autoproperty:: Model.range_geometry

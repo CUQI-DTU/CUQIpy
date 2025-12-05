@@ -1,0 +1,42 @@
+RegularizedLinearRTO
+====================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. autoclass:: RegularizedLinearRTO
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedLinearRTO.__init__
+      ~RegularizedLinearRTO.sample
+      ~RegularizedLinearRTO.sample_adapt
+      ~RegularizedLinearRTO.step
+      ~RegularizedLinearRTO.step_tune
+      ~RegularizedLinearRTO.tune
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~RegularizedLinearRTO.dim
+      ~RegularizedLinearRTO.geometry
+      ~RegularizedLinearRTO.likelihood
+      ~RegularizedLinearRTO.likelihoods
+      ~RegularizedLinearRTO.model
+      ~RegularizedLinearRTO.models
+      ~RegularizedLinearRTO.prior
+      ~RegularizedLinearRTO.target
+   
+   

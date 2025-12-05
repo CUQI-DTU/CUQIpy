@@ -1,0 +1,6 @@
+cuqi.distribution.Uniform.get\_parameter\_names
+===============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Uniform.get_parameter_names

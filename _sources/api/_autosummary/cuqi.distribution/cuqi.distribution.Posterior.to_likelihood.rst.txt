@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.to\_likelihood
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.to_likelihood

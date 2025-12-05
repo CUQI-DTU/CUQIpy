@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.is\_cond
+========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: TweediePrior.is_cond

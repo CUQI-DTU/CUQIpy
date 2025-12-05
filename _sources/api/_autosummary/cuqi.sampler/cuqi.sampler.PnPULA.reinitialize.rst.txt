@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.reinitialize
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.reinitialize

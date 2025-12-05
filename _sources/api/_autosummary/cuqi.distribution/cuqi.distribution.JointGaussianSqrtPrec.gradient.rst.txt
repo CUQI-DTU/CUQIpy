@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.gradient
+================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.gradient

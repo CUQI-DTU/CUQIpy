@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.set\_data
+====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: WangCubic.set_data

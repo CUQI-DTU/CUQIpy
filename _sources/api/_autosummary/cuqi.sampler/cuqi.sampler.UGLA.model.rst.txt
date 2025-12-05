@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.model
+=======================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: UGLA.model

@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.get\_conditioning\_variables
+==================================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.get_conditioning_variables

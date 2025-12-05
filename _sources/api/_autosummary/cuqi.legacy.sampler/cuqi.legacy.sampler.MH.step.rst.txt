@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.MH.step
+===========================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: MH.step

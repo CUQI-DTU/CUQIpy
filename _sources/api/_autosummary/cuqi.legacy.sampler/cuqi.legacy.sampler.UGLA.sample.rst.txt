@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.UGLA.sample
+===============================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: UGLA.sample

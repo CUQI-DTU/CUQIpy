@@ -1,0 +1,6 @@
+cuqi.geometry.MappedGeometry.grid
+=================================
+
+.. currentmodule:: cuqi.geometry
+
+.. autoproperty:: MappedGeometry.grid

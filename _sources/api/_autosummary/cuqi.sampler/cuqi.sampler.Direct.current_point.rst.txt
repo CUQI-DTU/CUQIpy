@@ -1,0 +1,6 @@
+cuqi.sampler.Direct.current\_point
+==================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: Direct.current_point

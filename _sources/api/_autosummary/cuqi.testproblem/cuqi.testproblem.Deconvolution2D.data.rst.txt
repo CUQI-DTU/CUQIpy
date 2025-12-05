@@ -1,0 +1,6 @@
+cuqi.testproblem.Deconvolution2D.data
+=====================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Deconvolution2D.data

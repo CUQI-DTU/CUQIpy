@@ -1,0 +1,6 @@
+cuqi.testproblem.Heat1D.data
+============================
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoproperty:: Heat1D.data
