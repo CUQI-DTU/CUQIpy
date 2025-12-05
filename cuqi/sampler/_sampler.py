@@ -243,7 +243,7 @@ class Sampler(ABC):
 
             # Display acc rate at progress bar
             acc_rate = np.mean(self._acc[-1-idx:])
-            if config.PROGRESS_BAR_DYNAMIC_UPDATE:
+            if config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
                 pbar.set_postfix_str(f"acc rate: {acc_rate:.2%}")
 
             # Add sample to batch
@@ -254,7 +254,7 @@ class Sampler(ABC):
             self._call_callback(idx, Ns)
 
         # Finalize progress bar printing
-        if not config.PROGRESS_BAR_DYNAMIC_UPDATE:
+        if not config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
             print(f"Sampling acceptance rate: {acc_rate:.2%}\n")
                 
         return self
@@ -299,14 +299,14 @@ class Sampler(ABC):
 
             # Display acc rate at progress bar
             acc_rate = np.mean(self._acc[-1-idx:])
-            if config.PROGRESS_BAR_DYNAMIC_UPDATE:
+            if config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
                 pbar.set_postfix_str(f"acc rate: {acc_rate:.2%}")
 
             # Call callback function if specified
             self._call_callback(idx, Nb)
 
         # Finalize progress bar printing
-        if not config.PROGRESS_BAR_DYNAMIC_UPDATE:
+        if not config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
             print(f"Warmup acceptance rate: {acc_rate:.2%}\n")
 
         return self
