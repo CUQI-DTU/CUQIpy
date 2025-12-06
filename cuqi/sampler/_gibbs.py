@@ -4,6 +4,7 @@ from cuqi.samples import Samples, JointSamples
 from typing import Dict
 import numpy as np
 import warnings
+from cuqi import config
 
 try:
     from tqdm import tqdm
@@ -191,7 +192,13 @@ class HybridGibbs:
             The thinning interval. If Nt >= 1, every Nt'th sample is stored. The larger Nt, the fewer samples are stored.
             
         """
-        for idx in tqdm(range(Ns), "Sample: "):
+        # Progress bar printing settings:
+        miniters = None if config.PROGRESS_BAR_DYNAMIC_UPDATE else Ns + 1
+        maxinterval = 10.0 if config.PROGRESS_BAR_DYNAMIC_UPDATE else float("inf")
+
+        for idx in tqdm(
+            range(Ns), "Sample: ", miniters=miniters, maxinterval=maxinterval
+        ):
 
             self.step()
 
@@ -219,9 +226,15 @@ class HybridGibbs:
 
         """
 
+        # Progress bar printing settings:
+        miniters = None if config.PROGRESS_BAR_DYNAMIC_UPDATE else Nb + 1
+        maxinterval = 10.0 if config.PROGRESS_BAR_DYNAMIC_UPDATE else float("inf")
+
         tune_interval = max(int(tune_freq * Nb), 1)
 
-        for idx in tqdm(range(Nb), "Warmup: "):
+        for idx in tqdm(
+            range(Nb), "Warmup: ", miniters=miniters, maxinterval=maxinterval
+        ):
 
             self.step()
 
@@ -243,7 +256,7 @@ class HybridGibbs:
             samples_array = np.array(self.samples[par_name]).T
             samples_object[par_name] = Samples(samples_array, self.target.get_density(par_name).geometry)
         return samples_object
-    
+
     def step(self):
         """ Sequentially go through all parameters and sample them conditionally on each other """
 
@@ -322,7 +335,6 @@ class HybridGibbs:
             if par_name not in self.num_sampling_steps:
                 self.num_sampling_steps[par_name] = 1
 
-
     def _set_targets(self):
         """ Set targets for all samplers using the current samples """
         par_names = self.par_names
@@ -351,7 +363,7 @@ class HybridGibbs:
             if sampler.initial_point is None:
                 sampler.initial_point = sampler._get_default_initial_point(self.target.get_density(par_name).dim)
             initial_points[par_name] = sampler.initial_point
-            
+
         return initial_points
 
     def _store_samples(self):
@@ -366,7 +378,7 @@ class HybridGibbs:
             msg += f" Target: None \n"
         else:
             msg += f" Target: \n \t {self.target} \n\n"
-            
+
         for key, value in zip(self.samplers.keys(), self.samplers.values()):
             msg += f" Variable '{key}' with {value} \n"
 
