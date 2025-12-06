@@ -74,10 +74,10 @@ class Sampler(ABC):
 
         if self._is_initialized:
             raise ValueError("Sampler is already initialized.")
-        
+
         if self.target is None:
             raise ValueError("Cannot initialize sampler without a target density.")
-        
+
         # Default values
         if self.initial_point is None:
             self.initial_point = self._get_default_initial_point(self.dim)
@@ -136,12 +136,12 @@ class Sampler(ABC):
     def geometry(self) -> cuqi.geometry.Geometry:
         """ Geometry of the target density. """
         return self.target.geometry
-    
+
     @property
     def target(self) -> cuqi.density.Density:
         """ Return the target density. """
         return self._target
-    
+
     @target.setter
     def target(self, value):
         """ Set the target density. Runs validation of the target. """
@@ -163,7 +163,7 @@ class Sampler(ABC):
     def get_samples(self) -> Samples:
         """ Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. """
         return Samples(np.array(self._samples).T, self.target.geometry)
-    
+
     def reinitialize(self):
         """ Re-initialize the sampler. This clears the state and history and initializes the sampler again by setting state and history to their original values. """
 
@@ -178,7 +178,7 @@ class Sampler(ABC):
         self._is_initialized = False
 
         self.initialize()
-    
+
     def save_checkpoint(self, path):
         """ Save the state of the sampler to a file. """
 
@@ -228,11 +228,15 @@ class Sampler(ABC):
         if batch_size > 0:
             batch_handler = _BatchHandler(batch_size, sample_path)
 
+        # Progress bar printing settings:
+        refresh = True if config.PROGRESS_BAR_DYNAMIC_UPDATE else False
+        miniters = None if config.PROGRESS_BAR_DYNAMIC_UPDATE else Ns+1
+        maxinterval = 10.0 if config.PROGRESS_BAR_DYNAMIC_UPDATE else float("inf")
+
         # Draw samples
-        acc_rate = 0.0
-        pbar = tqdm(range(Ns), "Sample: ")
+        pbar = tqdm(range(Ns), "Sample: ", miniters=miniters, maxinterval=maxinterval)
         for idx in pbar:
-            
+
             # Perform one step of the sampler
             acc = self.step()
 
@@ -242,23 +246,17 @@ class Sampler(ABC):
                 self._samples.append(self.current_point)
 
             # Display acc rate at progress bar
-            acc_rate = np.mean(self._acc[-1-idx:])
-            if config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
-                pbar.set_postfix_str(f"acc rate: {acc_rate:.2%}")
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}",
+                                 refresh=refresh)
 
             # Add sample to batch
             if batch_size > 0:
                 batch_handler.add_sample(self.current_point)
 
-            # Call callback function if specified            
+            # Call callback function if specified
             self._call_callback(idx, Ns)
 
-        # Finalize progress bar printing
-        if not config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
-            print(f"Sampling acceptance rate: {acc_rate:.2%}\n")
-                
         return self
-    
 
     def warmup(self, Nb, Nt=1, tune_freq=0.1) -> 'Sampler':
         """ Warmup the sampler by drawing Nb samples.
@@ -280,9 +278,13 @@ class Sampler(ABC):
 
         tune_interval = max(int(tune_freq * Nb), 1)
 
+        # Progress bar printing settings:
+        refresh = True if config.PROGRESS_BAR_DYNAMIC_UPDATE else False
+        miniters = None if config.PROGRESS_BAR_DYNAMIC_UPDATE else Nb+1
+        maxinterval = 10.0 if config.PROGRESS_BAR_DYNAMIC_UPDATE else float("inf")
+
         # Draw warmup samples with tuning
-        acc_rate = 0.0
-        pbar = tqdm(range(Nb), "Warmup: ")
+        pbar = tqdm(range(Nb), "Warmup: ", miniters=miniters, maxinterval=maxinterval)
         for idx in pbar:
 
             # Perform one step of the sampler
@@ -298,19 +300,14 @@ class Sampler(ABC):
                 self._samples.append(self.current_point)
 
             # Display acc rate at progress bar
-            acc_rate = np.mean(self._acc[-1-idx:])
-            if config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
-                pbar.set_postfix_str(f"acc rate: {acc_rate:.2%}")
+            pbar.set_postfix_str(f"acc rate: {np.mean(self._acc[-1-idx:]):.2%}",
+                                 refresh=refresh)
 
             # Call callback function if specified
             self._call_callback(idx, Nb)
 
-        # Finalize progress bar printing
-        if not config.PROGRESS_BAR_STATS_DYNAMIC_UPDATE:
-            print(f"Warmup acceptance rate: {acc_rate:.2%}\n")
-
         return self
-    
+
     def get_state(self) -> dict:
         """ Return the state of the sampler. 
 
@@ -367,13 +364,13 @@ class Sampler(ABC):
         """
         if state['metadata']['sampler_type'] != self.__class__.__name__:
             raise ValueError(f"Sampler type in state dictionary ({state['metadata']['sampler_type']}) does not match the type of the sampler ({self.__class__.__name__}).")
-        
+
         for key, value in state['state'].items():
             if key in self._STATE_KEYS:
                 setattr(self, key, value)
             else:
                 raise ValueError(f"Key {key} not recognized in state dictionary of sampler {self.__class__.__name__}.")
-            
+
     def get_history(self) -> dict:
         """ Return the history of the sampler. """
         history = {
@@ -385,12 +382,12 @@ class Sampler(ABC):
             }
         }
         return history
-    
+
     def set_history(self, history: dict):
         """ Set the history of the sampler. """
         if history['metadata']['sampler_type'] != self.__class__.__name__:
             raise ValueError(f"Sampler type in history dictionary ({history['metadata']['sampler_type']}) does not match the type of the sampler ({self.__class__.__name__}).")
-        
+
         for key, value in history['history'].items():
             if key in self._HISTORY_KEYS:
                 setattr(self, key, value)
@@ -413,23 +410,23 @@ class Sampler(ABC):
         for key in self._HISTORY_KEYS:
             if getattr(self, key) is None:
                 raise ValueError(f"Sampler history key {key} is not set after initialization.")
-            
+
     def _ensure_initialized(self):
         """ Ensure the sampler is initialized. If not initialize it. """
         if not self._is_initialized:
             self.initialize()
-            
+
     def _get_default_initial_point(self, dim):
         """ Return the default initial point for the sampler. Defaults to an array of ones. """
         return np.ones(dim)
-    
+
     def __repr__(self):
         """ Return a string representation of the sampler. """
         if self.target is None:
             return f"Sampler: {self.__class__.__name__} \n Target: None"
         else:
             msg = f"Sampler: {self.__class__.__name__} \n Target: \n \t {self.target} "
-            
+
         if self._is_initialized:
             state = self.get_state()
             msg += f"\n Current state: \n"
