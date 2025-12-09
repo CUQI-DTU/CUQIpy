@@ -1,0 +1,6 @@
+cuqi.distribution.DistributionGallery.sample
+============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: DistributionGallery.sample

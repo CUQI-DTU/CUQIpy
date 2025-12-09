@@ -1,0 +1,6 @@
+cuqi.sampler.CWMH.reinitialize
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: CWMH.reinitialize

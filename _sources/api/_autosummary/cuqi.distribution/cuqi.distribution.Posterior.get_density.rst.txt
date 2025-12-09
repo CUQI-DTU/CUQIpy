@@ -1,0 +1,6 @@
+cuqi.distribution.Posterior.get\_density
+========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Posterior.get_density

@@ -1,0 +1,6 @@
+cuqi.distribution.Gaussian.cov
+==============================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: Gaussian.cov

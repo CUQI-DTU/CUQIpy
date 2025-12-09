@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.get\_state
+===========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.get_state

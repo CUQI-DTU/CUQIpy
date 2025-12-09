@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.FD\_epsilon
+===========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: TweediePrior.FD_epsilon

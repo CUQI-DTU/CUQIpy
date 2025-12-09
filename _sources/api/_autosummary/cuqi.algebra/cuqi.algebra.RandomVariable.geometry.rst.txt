@@ -1,0 +1,6 @@
+cuqi.algebra.RandomVariable.geometry
+====================================
+
+.. currentmodule:: cuqi.algebra
+
+.. autoproperty:: RandomVariable.geometry

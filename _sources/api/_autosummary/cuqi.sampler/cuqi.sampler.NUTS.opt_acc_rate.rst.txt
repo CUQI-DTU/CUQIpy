@@ -1,0 +1,6 @@
+cuqi.sampler.NUTS.opt\_acc\_rate
+================================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: NUTS.opt_acc_rate

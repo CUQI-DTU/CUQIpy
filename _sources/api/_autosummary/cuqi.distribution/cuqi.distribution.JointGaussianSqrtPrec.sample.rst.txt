@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.sample
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: JointGaussianSqrtPrec.sample

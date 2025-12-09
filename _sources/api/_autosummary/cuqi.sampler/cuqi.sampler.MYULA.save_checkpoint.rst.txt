@@ -1,0 +1,6 @@
+cuqi.sampler.MYULA.save\_checkpoint
+===================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: MYULA.save_checkpoint

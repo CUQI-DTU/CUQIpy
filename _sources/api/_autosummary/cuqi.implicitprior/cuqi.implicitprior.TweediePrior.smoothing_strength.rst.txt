@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.smoothing\_strength
+===================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. autoproperty:: TweediePrior.smoothing_strength

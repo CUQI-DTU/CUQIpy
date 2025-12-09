@@ -1,0 +1,6 @@
+cuqi.sampler.ULA.validate\_target
+=================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: ULA.validate_target

@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.set\_state
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.set_state

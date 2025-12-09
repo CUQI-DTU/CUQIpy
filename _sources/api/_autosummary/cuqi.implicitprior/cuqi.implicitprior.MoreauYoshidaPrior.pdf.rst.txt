@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.pdf
+=========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.pdf

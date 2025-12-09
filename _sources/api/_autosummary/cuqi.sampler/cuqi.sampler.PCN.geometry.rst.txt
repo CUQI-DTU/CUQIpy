@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.geometry
+=========================
+
+.. currentmodule:: cuqi.sampler
+
+.. autoproperty:: PCN.geometry

@@ -1,0 +1,6 @@
+cuqi.legacy.sampler.pCN.sample\_adapt
+=====================================
+
+.. currentmodule:: cuqi.legacy.sampler
+
+.. automethod:: pCN.sample_adapt

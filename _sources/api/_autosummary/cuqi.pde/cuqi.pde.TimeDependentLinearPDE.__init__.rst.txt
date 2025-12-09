@@ -1,0 +1,6 @@
+cuqi.pde.TimeDependentLinearPDE.\_\_init\_\_
+============================================
+
+.. currentmodule:: cuqi.pde
+
+.. automethod:: TimeDependentLinearPDE.__init__

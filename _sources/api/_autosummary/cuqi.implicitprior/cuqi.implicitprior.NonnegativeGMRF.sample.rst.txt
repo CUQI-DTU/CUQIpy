@@ -1,0 +1,6 @@
+cuqi.implicitprior.NonnegativeGMRF.sample
+=========================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: NonnegativeGMRF.sample
