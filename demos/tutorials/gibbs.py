@@ -150,7 +150,7 @@ print(posterior)
 # efficiently sample from :math:`\mathbf{x}` conditional on the other
 # variables using the ``LinearRTO`` sampler.
 # 
-# Taking these two facts into account, we can define a Gibbs sampler
+# Taking these two facts into account, we can define a HybridGibbs sampler
 # that uses the ``Conjugate`` sampler for :math:`d` and :math:`l` and
 # the ``LinearRTO`` sampler for :math:`\mathbf{x}`.
 #
@@ -163,7 +163,7 @@ sampling_strategy = {
     'l': Conjugate()
 }
 
-# Define Gibbs sampler
+# Define HybridGibbs sampler
 sampler = HybridGibbs(posterior, sampling_strategy)
 
 # Run sampler
@@ -230,10 +230,10 @@ print(posterior_Ld)
 
 
 # %%
-# Gibbs Sampler (with Laplace prior)
+# HybridGibbs Sampler (with Laplace prior)
 # ----------------------------------
 #
-# Using the same approach as earlier we can define a Gibbs sampler
+# Using the same approach as earlier we can define a HybridGibbs sampler
 # for this new hierarchical model. The only difference is that we
 # now need to use a different sampler for :math:`\mathbf{x}` because
 # the ``LinearRTO`` sampler only works for Gaussian distributions.
