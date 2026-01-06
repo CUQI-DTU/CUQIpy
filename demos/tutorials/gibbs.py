@@ -247,16 +247,18 @@ print(posterior_Ld)
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': UGLA,
-    'd': ConjugateApprox,
-    'l': Conjugate
+    'x': UGLA(),
+    'd': ConjugateApprox(),
+    'l': Conjugate()
 }
 
 # Define Gibbs sampler
-sampler_Ld = Gibbs(posterior_Ld, sampling_strategy)
+sampler_Ld = HybridGibbs(posterior_Ld, sampling_strategy)
 
 # Run sampler
-samples_Ld = sampler_Ld.sample(Ns=1000, Nb=200)
+sampler_Ld.warmup(200)
+sampler_Ld.sample(1000)
+samples_Ld = sampler_Ld.get_samples()
 
 # %%
 # Analyze results
