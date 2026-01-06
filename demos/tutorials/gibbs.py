@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, LMRF
-from cuqi.legacy.sampler import Gibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
+from cuqi.sampler import HybridGibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
 
@@ -158,16 +158,18 @@ print(posterior)
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': LinearRTO,
-    'd': Conjugate,
-    'l': Conjugate
+    'x': LinearRTO(),
+    'd': Conjugate(),
+    'l': Conjugate()
 }
 
 # Define Gibbs sampler
-sampler = Gibbs(posterior, sampling_strategy)
+sampler = HybridGibbs(posterior, sampling_strategy)
 
 # Run sampler
-samples = sampler.sample(Ns=1000, Nb=200)
+sampler.warmup(200)
+sampler.sample(1000)
+samples = sampler.get_samples()
 
 # %%
 # Analyze results
