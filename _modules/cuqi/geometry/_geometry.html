@@ -1,0 +1,1809 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.geometry._geometry &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/geometry/_geometry';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.geometry._geometry</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.geometry._geometry</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.matlib</span> <span class="k">as</span> <span class="nn">matlib</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">scipy.fftpack</span> <span class="kn">import</span> <span class="n">dst</span><span class="p">,</span> <span class="n">idst</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sparse</span>
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">cuqi._messages</span> <span class="kn">import</span> <span class="n">_disable_warning_msg</span>
+
+<div class="viewcode-block" id="Geometry">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.html#cuqi.geometry.Geometry">[docs]</a>
+<span class="k">class</span> <span class="nc">Geometry</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class that represents the geometry of the range, domain, observation, or other sets.</span>
+
+<span class="sd">    It specifies a mapping from the parameter space to the function space (:meth:`par2fun`) and the inverse map if possible (:meth:`fun2par`). The parameters can be for example, the center and width of a hat function, and the function is the resulting hat function evaluated at grid points of a given grid. The geometry keeps track of the dimension and shape of the parameter space (:meth:`par_dim` and :meth:`par_shape`) and the dimension and shape of the function space (:meth:`fun_dim` and :meth:`fun_shape`).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the parameter space.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimension of the geometry (parameter space).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="p">)</span> <span class="c1"># math.prod(self.par_shape) for Python 3.8+</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the geometry (function space). &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;_fun_shape&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Attempt to infer dimension</span>
+            <span class="n">funvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">funvals</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span> <span class="o">=</span> <span class="n">funvals</span><span class="o">.</span><span class="n">shape</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimension of the geometry (function space). &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span> <span class="c1"># math.prod(self.fun_shape) for Python 3.8+</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">funvec_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the geometry (shape of the vector representation of the</span>
+<span class="sd">        function value).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s1">&#39;_funvec_shape&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_funvec_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Attempt to infer dimension</span>
+            <span class="n">funvecvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun2vec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">funvecvals</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_funvec_shape</span> <span class="o">=</span> <span class="n">funvecvals</span><span class="o">.</span><span class="n">shape</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_funvec_shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;funvec_shape must be a 1D tuple.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Could not infer function space shape.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_funvec_shape</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_funvec_shape</span>        
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">funvec_dim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The dimension of the geometry (dimension of the vector representation</span>
+<span class="sd">        of the function value). &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">funvec_shape</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">funvec_shape</span><span class="p">)</span> 
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">#No variable names set, generate variable names from dim</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;_variables&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span>
+
+    <span class="nd">@variables</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set variable names with a list of strings. Generic variable names can also be generated by passing an integer. &quot;&quot;&quot;</span>
+        <span class="n">variables_value_err_msg</span> <span class="o">=</span> <span class="s2">&quot;variables should be int, or list of strings&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,(</span><span class="nb">int</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+            <span class="c1"># Find name of variable if set, else set it to a default</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_variable_name&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_variable_name</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;v&quot;</span>
+            <span class="c1"># If more than one variable we index, else we dont</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span> <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span> 
+            <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span> 
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="p">,</span><span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">variables_value_err_msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">variables_value_err_msg</span><span class="p">)</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_variables</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ids</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_is_array</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Flag to indicate whether the function value is an array. This can be</span>
+<span class="sd">        useful to query when converting samples to function values.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> \
+           <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    
+<div class="viewcode-block" id="Geometry.plot">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.plot.html#cuqi.geometry.Geometry.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">is_par</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_par</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots a function over the set defined by the geometry object.</span>
+<span class="sd">            </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        values : ndarray</span>
+<span class="sd">            1D array that contains the values of the function degrees of freedom.</span>
+
+<span class="sd">        is_par : Boolean, default True</span>
+<span class="sd">            Flag to indicate whether the values are parameters or function values.</span>
+<span class="sd">            True:  values are passed through the :meth:`par2fun` method.</span>
+<span class="sd">            False: values are plotted directly.</span>
+<span class="sd">        </span>
+<span class="sd">        plot_par : Boolean, default False</span>
+<span class="sd">            If true this method plots the parameters as a :class:`Discrete` geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#Error check</span>
+        <span class="k">if</span> <span class="n">plot_par</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_par</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Plot par is true, but is_par is false (parameters were not given)&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">plot_par</span><span class="p">:</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">Discrete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span> <span class="c1">#par_dim is size of the parameter space.</span>
+            <span class="k">return</span> <span class="n">geom</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_par</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.plot_envelope">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.plot_envelope.html#cuqi.geometry.Geometry.plot_envelope">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_envelope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo_values</span><span class="p">,</span> <span class="n">hi_values</span><span class="p">,</span> <span class="n">is_par</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_par</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plots an envelope from lower and upper bounds over the set defined by the geometry object.</span>
+<span class="sd">            </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lo_values : ndarray</span>
+<span class="sd">            1D array that contains a lower bound of the function degrees of freedom.</span>
+
+<span class="sd">        hi_values : ndarray</span>
+<span class="sd">            1D array that contains an upper bound of the function degrees of freedom.</span>
+
+<span class="sd">        is_par : Boolean, default True</span>
+<span class="sd">            Flag to indicate whether the values are parameters or function values.</span>
+<span class="sd">            True:  values are passed through the :meth:`par2fun` method.</span>
+<span class="sd">            False: values are plotted directly.</span>
+<span class="sd">        </span>
+<span class="sd">        plot_par : Boolean, default False</span>
+<span class="sd">            If true this method plots the parameters as a :class:`Discrete` geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#Error check</span>
+        <span class="k">if</span> <span class="n">plot_par</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_par</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Plot par is true, but is_par is false (parameters were not given)&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">plot_par</span><span class="p">:</span>
+            <span class="n">geom</span> <span class="o">=</span> <span class="n">Discrete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span> <span class="c1">#par_dim is size of the parameter space.</span>
+            <span class="k">return</span> <span class="n">geom</span><span class="o">.</span><span class="n">plot_envelope</span><span class="p">(</span><span class="n">lo_values</span><span class="p">,</span> <span class="n">hi_values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_par</span><span class="p">:</span>
+            <span class="n">lo_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">lo_values</span><span class="p">)</span>
+            <span class="n">hi_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">hi_values</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot_envelope</span><span class="p">(</span><span class="n">lo_values</span><span class="p">,</span><span class="n">hi_values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.par2fun.html#cuqi.geometry.Geometry.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">par</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The parameter to function map used to map parameters to function values in e.g. plotting.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">par</span></div>
+
+
+<div class="viewcode-block" id="Geometry.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.fun2par.html#cuqi.geometry.Geometry.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The function to parameter map used to map function values back to parameters, if available.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;fun2par is not implemented. Must be implemented specifically for each geometry.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Geometry.fun2vec">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.fun2vec.html#cuqi.geometry.Geometry.fun2vec">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maps function values to a vector representation of the function values, if available.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_is_array</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">funvals</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;fun2vec is not implemented. Must be implemented specifically for each geometry.&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="Geometry.vec2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Geometry.vec2fun.html#cuqi.geometry.Geometry.vec2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">vec2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvec</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maps function vector representation, if available, to function values.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_is_array</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">funvec</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;vec2fun is not implemented. Must be implemented specifically for each geometry.&quot;</span><span class="p">)</span></div>
+
+    
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_plot_envelope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Plot envelope not implemented for </span><span class="si">{}</span><span class="s2">. Use flag plot_par to plot envelope of parameters instead.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
+            
+    <span class="k">def</span> <span class="nf">_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        A method that implements any default configuration for the plots. This method is to be called inside any &#39;plot_&#39; method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_create_subplot_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">Ns</span><span class="p">,</span><span class="n">subplots</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">Nx</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Ns</span><span class="p">))</span>
+        <span class="n">Ny</span> <span class="o">=</span> <span class="n">Nx</span>
+        <span class="n">subplot_ids</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">subplots</span><span class="p">:</span> <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">bbox_inches</span><span class="o">.</span><span class="n">corners</span><span class="p">()[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">Nx</span><span class="p">,</span> <span class="n">fig</span><span class="o">.</span><span class="n">bbox_inches</span><span class="o">.</span><span class="n">corners</span><span class="p">()[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">Ny</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Ny</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">Nx</span><span class="p">):</span>
+                <span class="n">subplot_id</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="n">Nx</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="n">subplot_id</span> <span class="o">&gt;</span> <span class="n">Ns</span><span class="p">:</span> 
+                    <span class="k">continue</span> 
+                <span class="n">subplot_ids</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">Ny</span><span class="p">,</span><span class="n">Nx</span><span class="p">,</span><span class="n">subplot_id</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">subplot_ids</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_values_equal</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">[</span><span class="si">{}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">[</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span>
+                <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_all_values_equal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns true of all values of the object and self are equal&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># If _variables exist ensure it exists in both objects (by calling generator)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;_variables&quot;</span><span class="p">:</span> <span class="n">obj</span><span class="o">.</span><span class="n">variables</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;_variable_name&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;_variable_name&quot;</span><span class="p">):</span> <span class="n">obj</span><span class="o">.</span><span class="n">_variable_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Store value to compare</span>
+            <span class="n">obj_value</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">obj</span><span class="p">)[</span><span class="n">key</span><span class="p">]</span>
+
+            <span class="c1"># If list/tuple we compare each element</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">list</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj_value</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span><span class="nb">list</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">),</span><span class="nb">len</span><span class="p">(</span><span class="n">obj_value</span><span class="p">))):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equiv</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">obj_value</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+            <span class="c1"># Else we check single element</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equiv</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">obj_value</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">False</span> 
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">_WrappedGeometry</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class that wraps a given geometry (emulates dynamic</span>
+<span class="sd">    inheritance from the given geometry).</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    geometry : cuqi.geometry.Geometry</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">geometry</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">geometry</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par_shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">grid</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">axis_labels</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">axis_labels</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">variables</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mesh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">mesh</span>
+
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun2par</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calls the underlying geometry plotting method.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_envelope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo_values</span><span class="p">,</span> <span class="n">hi_values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calls the underlying geometry plotting of envelope method.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">_plot_envelope</span><span class="p">(</span><span class="n">lo_values</span><span class="p">,</span> <span class="n">hi_values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_process_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">_process_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> 
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> wraps </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="Continuous">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous.html#cuqi.geometry.Continuous">[docs]</a>
+<span class="k">class</span> <span class="nc">Continuous</span><span class="p">(</span><span class="n">Geometry</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Continuous.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous.__init__.html#cuqi.geometry.Continuous.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis_labels</span> <span class="o">=</span> <span class="n">axis_labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_create_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim_grid</span><span class="p">):</span>
+        <span class="n">dim_grid_value_err_msg</span> <span class="o">=</span> <span class="s2">&quot;dim_grid should be int, tuple with one int element, list of numbers, 1D numpy.ndarray, or None&quot;</span>
+        <span class="k">if</span> <span class="n">dim_grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim_grid</span><span class="p">,</span><span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim_grid</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">dim_grid</span> <span class="o">=</span> <span class="n">dim_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim_grid</span><span class="p">,(</span><span class="nb">int</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">)):</span>
+            <span class="n">dim_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">dim_grid</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dim_grid</span><span class="p">,(</span><span class="nb">list</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">dim_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dim_grid</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim_grid</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">!=</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">dim_grid_value_err_msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">dim_grid_value_err_msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dim_grid</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span>
+    
+<div class="viewcode-block" id="Continuous.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous.fun2par.html#cuqi.geometry.Continuous.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">funvals</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">funvals</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_reshape_par2fun_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pars</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure that the parameter last dimension reflects the number of</span>
+<span class="sd">        parameter vectors: 1 for a single parameter vector and n for n parameter</span>
+<span class="sd">        vectors.&quot;&quot;&quot;</span>
+        <span class="c1"># Ensure pars shape is correct (either squeezed single vector or </span>
+        <span class="c1"># multiple vectors with the correct shape).</span>
+        <span class="k">if</span> <span class="n">pars</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="ow">and</span>\
+                <span class="n">pars</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;pars must have shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;+(n,) where n is the number of parameter vectors&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add dim to pars if pars is a single parameter vector.</span>
+        <span class="k">return</span> <span class="n">pars</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>
+
+    <span class="k">def</span> <span class="nf">_reshape_fun2par_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Make sure that the function value last dimension reflects the number</span>
+<span class="sd">        of functions: 1 for a single function and n for n functions.&quot;&quot;&quot;</span>
+        <span class="c1"># Ensure funvals shape is correct (either squeezed single function or </span>
+        <span class="c1"># multiple functions with the correct shape).</span>
+        <span class="k">if</span> <span class="n">funvals</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="ow">and</span>\
+                <span class="n">funvals</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;funvals must have shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;+(n,) where n is the number of functions&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Add dim to funvals if funvals is a single function.</span>
+        <span class="k">return</span> <span class="n">funvals</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">+</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span></div>
+
+
+
+<div class="viewcode-block" id="Continuous1D">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous1D.html#cuqi.geometry.Continuous1D">[docs]</a>
+<span class="k">class</span> <span class="nc">Continuous1D</span><span class="p">(</span><span class="n">Continuous</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class that represents a continuous 1D geometry.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    grid : int, tuple, list or numpy.ndarray</span>
+<span class="sd">        1D array of node coordinates in a 1D grid (list or numpy.ndarray), or number of nodes (int or tuple with one int element) in the grid. In the latter case, a default grid with unit spacing and coordinates 0,1,2,... will be created.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    -----------</span>
+<span class="sd">    grid : numpy.ndarray</span>
+<span class="sd">        1D array of node coordinates in a 1D grid</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Continuous1D.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous1D.__init__.html#cuqi.geometry.Continuous1D.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis_labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the parameter space&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">),</span> <span class="p">)</span>
+
+    <span class="nd">@Continuous</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dimension</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="o">==</span><span class="mi">1</span> <span class="ow">and</span> <span class="s2">&quot;marker&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;marker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="k">def</span> <span class="nf">_plot_envelope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo_values</span><span class="p">,</span> <span class="n">up_values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">default</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;dodgerblue&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span><span class="mf">0.25</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="o">=</span> <span class="n">default</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span><span class="n">up_values</span><span class="p">,</span> <span class="n">lo_values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axis_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="Continuous2D">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.html#cuqi.geometry.Continuous2D">[docs]</a>
+<span class="k">class</span> <span class="nc">Continuous2D</span><span class="p">(</span><span class="n">Continuous</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Continuous2D.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.__init__.html#cuqi.geometry.Continuous2D.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis_labels</span><span class="p">)</span></div>
+
+            
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the parameter space&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">)</span> 
+
+    <span class="nd">@Continuous</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">!=</span><span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;grid must be a 2D tuple of int values or arrays (list, tuple or numpy.ndarray) or combination of both&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_dimension</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dimension</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;pcolor&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overrides :meth:`cuqi.geometry.Geometry.plot`. See :meth:`cuqi.geometry.Geometry.plot` for description  and definition of the parameter `values`.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        plot_type : str</span>
+<span class="sd">            type of the plot. If plot_type = &#39;pcolor&#39;, :meth:`matplotlib.pyplot.pcolor` is called, if plot_type = &#39;contour&#39;, :meth:`matplotlib.pyplot.contour` is called, and if `plot_type` = &#39;contourf&#39;, :meth:`matplotlib.pyplot.contourf` is called, </span>
+
+<span class="sd">        kwargs : keyword arguments</span>
+<span class="sd">            keyword arguments which the methods :meth:`matplotlib.pyplot.pcolor`, :meth:`matplotlib.pyplot.contour`, or :meth:`matplotlib.pyplot.contourf`  normally take, depending on the value of the parameter `plot_type`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;pcolor&#39;</span><span class="p">:</span> 
+            <span class="n">plot_method</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">pcolor</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;contour&#39;</span><span class="p">:</span>
+            <span class="n">plot_method</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contour</span>
+        <span class="k">elif</span> <span class="n">plot_type</span> <span class="o">==</span> <span class="s1">&#39;contourf&#39;</span><span class="p">:</span>
+            <span class="n">plot_method</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">contourf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown value: </span><span class="si">{</span><span class="n">plot_type</span><span class="si">}</span><span class="s2"> of the parameter &#39;plot_type&#39;&quot;</span><span class="p">)</span>
+        
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">subplot_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_subplot_list</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">rows</span><span class="p">,</span><span class="n">cols</span><span class="p">,</span><span class="n">subplot_id</span> <span class="ow">in</span> <span class="n">subplot_ids</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span><span class="n">cols</span><span class="p">,</span><span class="n">subplot_id</span><span class="p">);</span> 
+            <span class="n">ims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plot_method</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">subplot_id</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+                                   <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ims</span>
+
+<div class="viewcode-block" id="Continuous2D.plot_pcolor">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.plot_pcolor.html#cuqi.geometry.Continuous2D.plot_pcolor">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_pcolor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;pcolor&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Continuous2D.plot_contour">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.plot_contour.html#cuqi.geometry.Continuous2D.plot_contour">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_contour</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;contour&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Continuous2D.plot_contourf">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.plot_contourf.html#cuqi.geometry.Continuous2D.plot_contourf">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot_contourf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+       <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">plot_type</span><span class="o">=</span><span class="s1">&#39;contourf&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_process_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span>\
+             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">):</span>  
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">values</span>
+
+    <span class="k">def</span> <span class="nf">_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">axis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span><span class="o">.</span><span class="n">axes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis_labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axis_labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">axis_labels</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">axis</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Continuous2D.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.par2fun.html#cuqi.geometry.Continuous2D.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pars</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts a parameter vector or multiple parameter vectors into a 2D</span>
+<span class="sd">         function value or multiple 2D function values.&quot;&quot;&quot;</span>
+        <span class="c1"># Reshape to 2D domain (also for multiple parameter vectors, e.g.</span>
+        <span class="c1"># Samples.samples).</span>
+        <span class="n">funvals</span> <span class="o">=</span> <span class="n">pars</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span><span class="o">+</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="c1"># Squeeze to return single evaluated function if only one parameter</span>
+        <span class="c1"># vector was given</span>
+        <span class="k">return</span> <span class="n">funvals</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Continuous2D.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Continuous2D.fun2par.html#cuqi.geometry.Continuous2D.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts a 2D function value or multiple 2D function values into a</span>
+<span class="sd">        parameter vector or multiple parameter vectors.&quot;&quot;&quot;</span>
+        <span class="c1"># Reshape to parameter vector (also for multiple function values,</span>
+        <span class="c1"># e.g. Samples.funvals.samples).</span>
+        <span class="n">pars</span> <span class="o">=</span> <span class="n">funvals</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">,)</span><span class="o">+</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,))</span>
+        <span class="c1"># Squeeze to return single parameter vector if only one 2D function</span>
+        <span class="c1"># value was given</span>
+        <span class="k">return</span> <span class="n">pars</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="Image2D">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Image2D.html#cuqi.geometry.Image2D">[docs]</a>
+<span class="k">class</span> <span class="nc">Image2D</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; A class that represents a 2D image.</span>
+
+<span class="sd">    The par2fun method converts the parameter vector into an image (matrix).</span>
+<span class="sd">    The fun2par method converts the image (matrix) into a parameter vector.</span>
+
+<span class="sd">    Plotting is handled via matplotlib.pyplot.imshow.</span>
+<span class="sd">    Colormap is defaulted to grayscale.</span>
+
+<span class="sd">    A How-To guide on the use of Image2D as the domain/range geometry of a CUQI </span>
+<span class="sd">    :class:`Model` is available `here &lt;https://cuqi-dtu.github.io/CUQIpy/user/_auto_howtos/Image2D.html&gt;`_.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    im_shape : tuple</span>
+<span class="sd">        shape of the image (rows, columns)</span>
+
+<span class="sd">    order : str</span>
+<span class="sd">        If order = &#39;C&#39;, the image is represented in row-major order.</span>
+<span class="sd">        if order = &#39;F&#39;, the image is represented column-major order.</span>
+
+<span class="sd">    visual_only : bool, Default: False</span>
+<span class="sd">        If visual_only = True, par2fun and fun2par will not convert parameter vector into image and vice versa.</span>
+<span class="sd">        But visualization will still be in 2D image format.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Image2D.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Image2D.__init__.html#cuqi.geometry.Image2D.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im_shape</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="n">visual_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_im_shape</span> <span class="o">=</span> <span class="n">im_shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_par_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">mul</span><span class="p">,</span> <span class="n">im_shape</span><span class="p">),</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="n">order</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visual_only</span> <span class="o">=</span> <span class="n">visual_only</span>
+
+        <span class="c1"># If visual only, we have same fun_shape as par_shape</span>
+        <span class="k">if</span> <span class="n">visual_only</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par_shape</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># else we have image shape</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_im_shape</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fun_shape</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_par_shape</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">funvec_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span>
+
+<div class="viewcode-block" id="Image2D.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Image2D.par2fun.html#cuqi.geometry.Image2D.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pars</span><span class="p">):</span>
+        <span class="c1"># If geometry is only used for visualization, do nothing</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual_only</span><span class="p">:</span> <span class="k">return</span> <span class="n">pars</span>
+        <span class="c1"># Else, convert parameter vector into image</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector_to_image</span><span class="p">(</span><span class="n">pars</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Image2D.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Image2D.fun2par.html#cuqi.geometry.Image2D.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+        <span class="c1"># If geometry is only used for visualization, do nothing</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual_only</span><span class="p">:</span> <span class="k">return</span> <span class="n">funvals</span>
+        <span class="c1"># Else, convert image into parameter vector</span>
+        <span class="k">return</span> <span class="n">funvals</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">)</span> <span class="c1">#Maybe use reshape((self.dim,), order=self.order)</span></div>
+
+
+<div class="viewcode-block" id="Image2D.vec2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Image2D.vec2fun.html#cuqi.geometry.Image2D.vec2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">vec2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvec</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maps function vector representation, if available, to function values.&quot;&quot;&quot;</span>    
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">funvec</span><span class="p">)</span></div>
+
+        
+<div class="viewcode-block" id="Image2D.fun2vec">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Image2D.fun2vec.html#cuqi.geometry.Image2D.fun2vec">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maps function values to a vector representation of the function values, if available.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun2par</span><span class="p">(</span><span class="n">funvals</span><span class="p">)</span></div>
+
+    
+    <span class="k">def</span> <span class="nf">_vector_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectors</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Converts a vector or multiple vectors into an image. &quot;&quot;&quot;</span>
+        <span class="c1"># Reshape to image (also for multiple parameter vectors). TODO: #327</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">vectors</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_im_shape</span><span class="o">+</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,),</span> <span class="n">order</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">)</span> 
+        <span class="c1">#Squeeze to return single image if only one parameter vector was given</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">if</span> <span class="n">image</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">image</span>
+        <span class="k">return</span> <span class="n">image</span>
+    
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># If only visual, we must convert value to image ourselves</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual_only</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vector_to_image</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cmap&#39;</span><span class="p">,</span> <span class="s2">&quot;gray&quot;</span><span class="p">))</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_values</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">subplot_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_subplot_list</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">ims</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">subplot_id</span> <span class="ow">in</span> <span class="n">subplot_ids</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">subplot_id</span><span class="p">)</span>
+            <span class="n">ims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span><span class="n">subplot_id</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ims</span>
+
+    <span class="k">def</span> <span class="nf">_process_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">values</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">or</span>\
+             <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">):</span>  
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="Discrete">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Discrete.html#cuqi.geometry.Discrete">[docs]</a>
+<span class="k">class</span> <span class="nc">Discrete</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Discrete geometry defined by a list of variables.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    variables : list of strings or integer</span>
+<span class="sd">        If variables is a list, it contains the discrete variables names.</span>
+<span class="sd">        If variables is an integer, it is the number of discrete variables.</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Discrete.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Discrete.__init__.html#cuqi.geometry.Discrete.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">variables</span><span class="p">):</span>       
+        <span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">variables</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fun_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the function space.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">),)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the parameter space.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">),</span> <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;linestyle&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">&#39;ls&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;linestyle&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;marker&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;marker&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="s1">&#39;o&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config</span><span class="p">()</span> 
+        <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_envelope</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lo_values</span><span class="p">,</span> <span class="n">up_values</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_plot_config</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;fmt&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Argument &#39;fmt&#39; cannot be passed by the user&quot;</span><span class="p">)</span>
+
+        <span class="n">default</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;dodgerblue&#39;</span><span class="p">,</span> <span class="s1">&#39;fmt&#39;</span><span class="p">:</span><span class="s1">&#39;none&#39;</span> <span class="p">,</span><span class="s1">&#39;capsize&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;capthick&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">default</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>  <span class="o">=</span> <span class="n">default</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="c1">#Convert to 1d numpy array to handle subtraction</span>
+        <span class="n">lo_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">lo_values</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">up_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">up_values</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        
+        <span class="k">return</span> <span class="n">plt</span><span class="o">.</span><span class="n">errorbar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ids</span><span class="p">,</span> <span class="n">lo_values</span><span class="p">,</span>
+                            <span class="n">yerr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span>
+                                <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lo_values</span><span class="p">)),</span> <span class="n">up_values</span><span class="o">-</span><span class="n">lo_values</span><span class="p">)),</span>
+                            <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Add at most 10 ticks including the first and last</span>
+        <span class="n">n_ticks</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">))</span>
+        <span class="n">tick_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_ticks</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">tick_ids</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tick_ids</span><span class="p">])</span>
+
+<div class="viewcode-block" id="Discrete.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.Discrete.fun2par.html#cuqi.geometry.Discrete.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">funvals</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">funvals</span></div>
+</div>
+
+
+<div class="viewcode-block" id="MappedGeometry">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.MappedGeometry.html#cuqi.geometry.MappedGeometry">[docs]</a>
+<span class="k">class</span> <span class="nc">MappedGeometry</span><span class="p">(</span><span class="n">_WrappedGeometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class that represents a mapped geometry.</span>
+<span class="sd">    </span>
+<span class="sd">    This applies a map (callable function) to any cuqi geometry. This will change the par2fun map.</span>
+<span class="sd">    Additionally an inverse map (imap) can also be defined to allow inverting the function values to parameters redefining the fun2par map.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    geometry : cuqi.geometry.Geometry</span>
+
+<span class="sd">    map : callable function</span>
+<span class="sd">        Any callable function representing the map which should be applied after the par2fun of the geometry.</span>
+
+<span class="sd">    imap : callable function, Default None</span>
+<span class="sd">        Any callable function representing the inverse of map.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MappedGeometry.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.MappedGeometry.__init__.html#cuqi.geometry.MappedGeometry.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">geometry</span><span class="p">,</span><span class="nb">map</span><span class="p">,</span><span class="n">imap</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="nb">map</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imap</span> <span class="o">=</span> <span class="n">imap</span></div>
+
+
+<div class="viewcode-block" id="MappedGeometry.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.MappedGeometry.par2fun.html#cuqi.geometry.MappedGeometry.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">p</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="MappedGeometry.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.MappedGeometry.fun2par.html#cuqi.geometry.MappedGeometry.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">imap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;imap is not defined. This is needed for fun2par.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imap</span><span class="p">(</span><span class="n">f</span><span class="p">))</span></div>
+
+    
+<div class="viewcode-block" id="MappedGeometry.fun2vec">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.MappedGeometry.fun2vec.html#cuqi.geometry.MappedGeometry.fun2vec">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2vec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fun</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">fun2vec</span><span class="p">(</span><span class="n">fun</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="MappedGeometry.vec2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.MappedGeometry.vec2fun.html#cuqi.geometry.MappedGeometry.vec2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">vec2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvec</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">vec2fun</span><span class="p">(</span><span class="n">funvec</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">(</span><span class="si">{}</span><span class="s2">)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">())</span></div>
+
+
+<span class="k">class</span> <span class="nc">_DefaultGeometry</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Default geometry base class. &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">_DefaultGeometry1D</span><span class="p">(</span><span class="n">Continuous1D</span><span class="p">,</span> <span class="n">_DefaultGeometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Default 1D geometry based on Continuous1D. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis_labels</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span><span class="n">Continuous1D</span><span class="p">)):</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_values_equal</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">_DefaultGeometry2D</span><span class="p">(</span><span class="n">Image2D</span><span class="p">,</span> <span class="n">_DefaultGeometry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Default 2D geometry based on Image2D. &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">im_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">visual_only</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">im_shape</span><span class="p">,</span> <span class="n">visual_only</span><span class="o">=</span><span class="n">visual_only</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span><span class="n">Image2D</span><span class="p">)):</span> <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_values_equal</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+<span class="c1"># class DiscreteField(Discrete):</span>
+<span class="c1">#     def __init__(self, grid, cov_func, mean, std, trunc_term=100, axis_labels=[&#39;x&#39;]):</span>
+<span class="c1">#         super().__init__(grid, axis_labels)</span>
+
+<span class="c1">#         self.N = len(self.grid)</span>
+<span class="c1">#         self.mean = mean</span>
+<span class="c1">#         self.std = std</span>
+<span class="c1">#         XX, YY = np.meshgrid(self.grid, self.grid, indexing=&#39;ij&#39;)</span>
+<span class="c1">#         self.Sigma = cov_func(XX, YY)</span>
+<span class="c1">#         self.L = np.linalg.chol(self.Sigma)</span>
+
+<span class="c1">#     def par2fun(self, p):</span>
+<span class="c1">#         return self.mean + self.L.T@p</span>
+    
+
+<div class="viewcode-block" id="KLExpansion">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion.html#cuqi.geometry.KLExpansion">[docs]</a>
+<span class="k">class</span> <span class="nc">KLExpansion</span><span class="p">(</span><span class="n">Continuous1D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class representation of the random field in the sine basis</span>
+
+
+<span class="sd">    .. math::</span>
+<span class="sd">        f = \sum_{i=0}^{N-2} \\left(\\frac{1}{(i+1)^\\gamma\\tau}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) </span>
+<span class="sd">        </span>
+<span class="sd">        + \\frac{(-1)^K}{2}\\left(\\frac{1}{N^\\gamma\\tau}\\right)  p_{N-1}</span>
+
+<span class="sd">    where:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\gamma = \\text{decay_rate},</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\tau = \\text{normalizer},</span>
+
+<span class="sd">    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}`, :math:`N` is the number of nodes in the grid, and :math:`p_i` are the expansion coefficients. </span>
+
+<span class="sd">    The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    grid : array-like or None</span>
+<span class="sd">        One dimensional regular grid on which the random field is defined. If</span>
+<span class="sd">        grid is None, the user will need to set the grid attribute after</span>
+<span class="sd">        initialization to be able to fully use the KLExpansion functionalities.</span>
+
+<span class="sd">    decay_rate : float, default 2.5</span>
+<span class="sd">        The decay rate of the basis functions.</span>
+
+<span class="sd">    normalizer : float, default 1.0</span>
+<span class="sd">        A factor of the basis functions shown in the formula above.</span>
+
+<span class="sd">    num_modes : int, default None</span>
+<span class="sd">        Number of expansion modes to use in the KL expansion. If `num_modes` is </span>
+<span class="sd">        None or larger than the number of grid points, all modes will be used.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># init function defining parameters for the KL expansion</span>
+<div class="viewcode-block" id="KLExpansion.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion.__init__.html#cuqi.geometry.KLExpansion.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">decay_rate</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">normalizer</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span> <span class="n">num_modes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis_labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decay_rate</span> <span class="o">=</span> <span class="n">decay_rate</span>  <span class="c1"># decay rate of KL</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_normalizer</span> <span class="o">=</span> <span class="n">normalizer</span>  <span class="c1"># normalizer factor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_modes</span> <span class="o">=</span> <span class="n">num_modes</span> <span class="c1"># number of modes </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coefs_inverse</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The shape of the parameter space&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_modes</span><span class="p">,</span> <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">decay_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decay_rate</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">normalizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalizer</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coefs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the deterministic part of the expansion coefficients.</span>
+<span class="sd">        Returns None if self.num_modes is 0.&quot;&quot;&quot;</span>
+        <span class="c1"># Return None if self.num_modes is 0,</span>
+        <span class="c1"># that is when num_modes is not provided and</span>
+        <span class="c1"># the grid is None (fun_dim is None).</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_modes</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># If the coefficients are not computed, compute them.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_modes</span><span class="p">:</span>
+            <span class="n">eigvals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>  <span class="c1"># KL eigvals</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">float_power</span><span class="p">(</span><span class="n">eigvals</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">decay_rate</span><span class="p">))</span>
+
+        <span class="c1"># Return the coefficients.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coefs_inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes the inverse of the coefficients diagonal matrix.&quot;&quot;&quot;</span>
+        
+        <span class="c1"># If the matrix is not computed, compute it.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coefs_inverse</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span>\
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_coefs_inverse</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_modes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_coefs_inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float_power</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1"># Return the inverse coefficients matrix.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coefs_inverse</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">num_modes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of expansion modes to use in the KL expansion.&quot;&quot;&quot;</span>
+        <span class="c1"># If grid is not set, interpret grid dimension as 0.</span>
+        <span class="n">grid_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_dim</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_dim</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+
+        <span class="c1"># If num_modes is not provided or larger than the number of grid points,</span>
+        <span class="c1"># all modes will be used.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_modes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_modes</span> <span class="o">&gt;</span> <span class="n">grid_dim</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">grid_dim</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_modes</span>
+
+    <span class="c1"># computes the real function out of expansion coefs</span>
+<div class="viewcode-block" id="KLExpansion.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion.par2fun.html#cuqi.geometry.KLExpansion.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+
+        <span class="c1"># Reshape the parameter vector</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape_par2fun_input</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="n">modes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefs</span><span class="nd">@p</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span>
+
+        <span class="c1"># pad the remaining modes with zeros (for single or multiple parameter</span>
+        <span class="c1"># parameter vectors)</span>
+        <span class="n">modes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">modes</span><span class="p">,</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_dim</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                       <span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">constant_values</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">real</span> <span class="o">=</span> <span class="n">idst</span><span class="p">(</span><span class="n">modes</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">/</span><span class="mi">2</span>
+
+        <span class="c1"># squeeze to return single function value if only one parameter vector</span>
+        <span class="c1"># was given</span>
+        <span class="k">return</span> <span class="n">real</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="KLExpansion.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion.fun2par.html#cuqi.geometry.KLExpansion.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The function to parameter map used to map function values back to</span>
+<span class="sd">        parameters. In this class (the `KLExpansion`), `fun2par` projects the</span>
+<span class="sd">        function on the KL expansion coefficient space. Hence this is not</span>
+<span class="sd">        always the inverse of `par2fun` but it is the closest estimation of the</span>
+<span class="sd">        function on the KL expansion coefficient space.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Reshape the function values</span>
+        <span class="n">funvals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape_fun2par_input</span><span class="p">(</span><span class="n">funvals</span><span class="p">)</span>
+
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;fun2par for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="si">}</span><span class="s2"> is a projection on &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;the KL expansion coefficients space where only &quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;the first self.num_modes=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_modes</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;coefficients are returned. &quot;</span>
+            <span class="o">+</span> <span class="n">_disable_warning_msg</span><span class="p">(</span><span class="s2">&quot;cuqi.geometry&quot;</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="c1"># par2fun scales the input parameters then applies the inverse</span>
+        <span class="c1"># discrete sine transform of type 2 (IDST-II). Here we apply the</span>
+        <span class="c1"># inverse of the par2fun map and truncate the expansion</span>
+        <span class="c1"># coefficients to the number of modes.</span>
+        <span class="c1"># This includes applying the discrete sine transform of type 2 (DST-II)</span>
+        <span class="c1"># to the function values to obtain the expansion coefficients.</span>
+        <span class="c1"># https://docs.scipy.org/doc/scipy/reference/generated/scipy.fftpack.dst.html</span>
+
+        <span class="c1"># Note that here we have a scaling by 2*self.fun_dim that does</span>
+        <span class="c1"># not correspond to the scaling in par2fun. This is needed</span>
+        <span class="c1"># because it is not accounted for in the scipy.fftpack implementation.</span>
+        <span class="c1"># However, if we use, for example, scipy.fft instead of scipy.fftpack,</span>
+        <span class="c1"># then this scaling is not needed.</span>
+
+        <span class="c1"># Transform (single or multiple functions) to expansion coefficients</span>
+        <span class="n">p_temp</span> <span class="o">=</span> <span class="n">dst</span><span class="p">(</span><span class="n">funvals</span><span class="o">.</span><span class="n">T</span><span class="o">*</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">,:]</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefs_inverse</span><span class="nd">@p_temp</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">normalizer</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fun_dim</span><span class="p">)</span>
+        
+        <span class="c1"># squeeze to return single parameter vector if only one function value</span>
+        <span class="c1"># was given</span>
+        <span class="k">return</span> <span class="n">p</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="KLExpansion_Full">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion_Full.html#cuqi.geometry.KLExpansion_Full">[docs]</a>
+<span class="k">class</span> <span class="nc">KLExpansion_Full</span><span class="p">(</span><span class="n">Continuous1D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class representation of the random field in the sine basis</span>
+
+
+
+<span class="sd">    .. math::</span>
+<span class="sd">        f = \\frac{\\text{std}^2}{\\pi}\sum_{i=0}^{N-2} \\left(\\frac{\\tau^\\gamma}{(\\tau+i^2)^\\gamma}\\right)  p_i \\, \\text{sin}\\left(\\frac{\\pi}{N}(i+1)(K+\\frac{1}{2})\\right) </span>
+<span class="sd">        </span>
+<span class="sd">        + \\frac{\\text{std}^2}{\\pi}\\frac{(-1)^K}{2}\\left(\\frac{\\tau^\\gamma}{\\left(\\tau+(N-1)^2\\right)^\\gamma}\\right) p_{N-1}</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        \\tau = \\frac{1}{\\text{cor_len}^2},</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \\gamma = \\text{nu}+1,</span>
+
+<span class="sd">    :math:`K=\\{0, 1, 2, 3, ..., N-1\\}`, :math:`N` is the number of nodes in the grid, and :math:`p_i` are the expansion coefficients. </span>
+
+<span class="sd">    The above transformation is the inverse of DST-II (see https://en.wikipedia.org/wiki/Discrete_sine_transform)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    grid : array-like</span>
+<span class="sd">        One dimensional regular grid on which the random field is defined.</span>
+
+<span class="sd">    cor_len : float, default 1.0</span>
+<span class="sd">        The correlation length of the random field.</span>
+
+<span class="sd">    nu : float, default 2.5</span>
+<span class="sd">        Smoothness parameter of the random field.</span>
+
+<span class="sd">    std : float, default 1.0</span>
+<span class="sd">        Standard deviation of the random field.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="c1"># init function defining parameters for the KL expansion</span>
+<div class="viewcode-block" id="KLExpansion_Full.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion_Full.__init__.html#cuqi.geometry.KLExpansion_Full.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cor_len</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis_labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+ 
+        <span class="n">tau2</span> <span class="o">=</span> <span class="mf">1.</span><span class="o">/</span><span class="n">cor_len</span><span class="o">/</span><span class="n">cor_len</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">nu</span><span class="o">+</span><span class="mf">1.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="n">std</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="n">modes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">float_power</span><span class="p">(</span> <span class="n">tau2</span><span class="p">,</span><span class="n">gamma</span> <span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">float_power</span><span class="p">(</span><span class="n">tau2</span><span class="o">+</span><span class="n">modes</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span><span class="o">-</span><span class="n">gamma</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coefs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coefs</span>
+
+    <span class="c1"># computes the real function out of expansion coefs</span>
+<div class="viewcode-block" id="KLExpansion_Full.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion_Full.par2fun.html#cuqi.geometry.KLExpansion_Full.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">p</span><span class="p">):</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">freq</span><span class="p">[:</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">freq</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">coefs</span>
+        <span class="n">real</span> <span class="o">=</span> <span class="n">idst</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">var</span><span class="o">*</span><span class="n">real</span></div>
+
+    
+<div class="viewcode-block" id="KLExpansion_Full.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.KLExpansion_Full.fun2par.html#cuqi.geometry.KLExpansion_Full.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The function to parameter map used to map function values back to parameters, if available.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;fun2par not implemented. &quot;</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CustomKL">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.CustomKL.html#cuqi.geometry.CustomKL">[docs]</a>
+<span class="k">class</span> <span class="nc">CustomKL</span><span class="p">(</span><span class="n">Continuous1D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class representation of a random field in which a truncated KL expansion is computed from a given covariance function.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    grid : array-like</span>
+<span class="sd">        One dimensional grid on which the random field is defined.</span>
+<span class="sd">    </span>
+<span class="sd">    cov_func : callable</span>
+<span class="sd">        A covariance function that takes two variables and returns the covariance between them.</span>
+
+<span class="sd">    mean : float, default 0.0</span>
+<span class="sd">        The mean of the random field.</span>
+
+<span class="sd">    std : float, default 1.0</span>
+<span class="sd">        The standard deviation of the random field.</span>
+<span class="sd">        </span>
+<span class="sd">    trunc_term : int, default 20% of the number of grid points</span>
+<span class="sd">        The number of terms to truncate the KL expansion at.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CustomKL.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.CustomKL.__init__.html#cuqi.geometry.CustomKL.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">mean</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">cov_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trunc_term</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">axis_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">axis_labels</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">trunc_term</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">trunc_term</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="o">*</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trunc_term</span> <span class="o">=</span> <span class="n">trunc_term</span> 
+        <span class="k">if</span> <span class="n">cov_func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Identity covariance function</span>
+            <span class="n">cov_func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">:</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="n">rtol</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span>
+        
+        <span class="c1">#self.N = len(self.grid)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span> <span class="o">=</span> <span class="n">mean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_std</span> <span class="o">=</span> <span class="n">std</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_eigpairs</span><span class="p">(</span> <span class="n">grid</span><span class="p">,</span> <span class="n">cov_func</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">trunc_term</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">par_dim</span><span class="p">)</span> <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mean</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_std</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">trunc_term</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trunc_term</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eigval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigval</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">eigvec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigvec</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trunc_term</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="CustomKL.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.CustomKL.par2fun.html#cuqi.geometry.CustomKL.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">+</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">eigvec</span><span class="nd">@np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigval</span><span class="p">)))</span> <span class="o">@</span> <span class="n">p</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="CustomKL.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.CustomKL.fun2par.html#cuqi.geometry.CustomKL.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">funvals</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The function to parameter map used to map function values back to parameters, if available.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;fun2par not implemented. &quot;</span><span class="p">)</span></div>
+
+    
+
+    <span class="k">def</span> <span class="nf">_compute_eigpairs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xnod</span><span class="p">,</span> <span class="n">C_nu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">):</span>
+        <span class="c1"># xnod: points at which the field is realized (from geometry PDE)</span>
+        <span class="c1"># C_nu: lambda function with the covariance kernel (no variance multiplied)</span>
+        <span class="c1"># sigma: standard deviation of the field</span>
+        <span class="c1"># M: dimension of the field (KL truncation)</span>
+        <span class="c1"># N_GL: gauss-legendre points for the integration</span>
+        <span class="c1">### return eigenpairs of an arbitrary 1D correlation kernel</span>
+
+        <span class="c1"># domain data    </span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">xnod</span><span class="o">.</span><span class="n">size</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">xnod</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xnod</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="mi">2</span>     <span class="c1"># scale</span>
+        
+        <span class="c1"># compute the Gauss-Legendre abscissas and weights</span>
+        <span class="c1">#xi, w   = quad.Gauss_Legendre(N_GL) </span>
+        <span class="n">xi</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">legendre</span><span class="o">.</span><span class="n">leggauss</span><span class="p">(</span><span class="n">N_GL</span><span class="p">)</span>
+
+        <span class="c1"># transform nodes and weights to [0, L]</span>
+        <span class="n">xi_s</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">xi</span> <span class="o">+</span> <span class="n">a</span>
+        <span class="n">w_s</span> <span class="o">=</span> <span class="n">a</span><span class="o">*</span><span class="n">w</span>
+        
+        <span class="c1"># compute diagonal matrix </span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">spdiags</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w_s</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">)</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+        <span class="n">S1</span> <span class="o">=</span> <span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w_s</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">),</span> <span class="n">N_GL</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">S2</span> <span class="o">=</span> <span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">w_s</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N_GL</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">)</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="n">S1</span> <span class="o">*</span> <span class="n">S2</span>
+        
+        <span class="c1"># compute covariance matrix </span>
+        <span class="n">Sigma_nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">N_GL</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_GL</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_GL</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">j</span><span class="p">:</span>
+                    <span class="n">Sigma_nu</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_nu</span><span class="p">(</span><span class="n">xi_s</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">xi_s</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">Sigma_nu</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma</span><span class="o">**</span><span class="mi">2</span>   <span class="c1"># correct the diagonal term</span>
+                      
+        <span class="c1"># solve the eigenvalue problem</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">Sigma_nu</span> <span class="o">*</span> <span class="n">S</span>                             <span class="c1"># D_sqrt*Sigma_nu*D_sqrt</span>
+        <span class="n">L</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>                         <span class="c1"># solve eigenvalue problem</span>
+        <span class="c1"># L, h = sp.sparse.linalg.eigsh(A, M, which=&#39;LM&#39;)   # np.linalg.eig(A)         </span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">L</span><span class="p">))</span>                  <span class="c1"># index sorting descending</span>
+        
+        <span class="c1"># order the results</span>
+        <span class="n">eigval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">L</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">h</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span>
+        
+        <span class="c1"># take the M values</span>
+        <span class="n">eigval</span> <span class="o">=</span> <span class="n">eigval</span><span class="p">[:</span><span class="n">M</span><span class="p">]</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">h</span><span class="p">[:,:</span><span class="n">M</span><span class="p">])</span>
+        
+        <span class="c1"># replace for the actual eigenvectors</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+        
+        <span class="c1"># Nystrom&#39;s interpolation formula</span>
+        <span class="c1"># recompute covariance matrix on partition nodes and quadrature nodes</span>
+        <span class="n">Sigma_nu</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">N_GL</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_GL</span><span class="p">):</span>
+                <span class="n">Sigma_nu</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">C_nu</span><span class="p">(</span><span class="n">xnod</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">xi_s</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                          
+        <span class="n">M1</span> <span class="o">=</span> <span class="n">Sigma_nu</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">matlib</span><span class="o">.</span><span class="n">repmat</span><span class="p">(</span><span class="n">w_s</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">N_GL</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">M2</span> <span class="o">=</span> <span class="n">phi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">eigval</span><span class="p">)</span>
+        <span class="n">eigvec</span> <span class="o">=</span> <span class="n">M1</span> <span class="o">@</span> <span class="n">M2</span>
+
+        <span class="c1"># normalize eigenvectors (not necessary) integrate to 1</span>
+        <span class="c1">#norm_fact = np.zeros((M,1))</span>
+        <span class="c1">#for i in range(M):</span>
+        <span class="c1">#    norm_fact[i] = np.sqrt(np.trapz(eigvec[:,i]**2, xnod))</span>
+        <span class="c1">#eigvec = eigvec/np.matlib.repmat(norm_fact, 1, n)             </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eigval</span> <span class="o">=</span> <span class="n">eigval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eigvec</span> <span class="o">=</span> <span class="n">eigvec</span></div>
+
+
+
+<div class="viewcode-block" id="StepExpansion">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.StepExpansion.html#cuqi.geometry.StepExpansion">[docs]</a>
+<span class="k">class</span> <span class="nc">StepExpansion</span><span class="p">(</span><span class="n">Continuous1D</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class representation of step functions (piecewise constant functions) with `n_steps` </span>
+<span class="sd">    equidistant steps on the interval [x0, xn], with both endpoints included.</span>
+<span class="sd">    The function `par2fun` maps the parameters `p` (which are the step magnitudes) to the </span>
+<span class="sd">    corresponding step function evaluated on the spatial grid (`grid`) of nodes x0, x1, ...xn.</span>
+<span class="sd">    </span>
+<span class="sd">    For example, if `n_steps` is 3 and `grid` is a uniform grid on [0, L] with nodes x0=0, x1=0.1L, ..., xn=L, </span>
+<span class="sd">    then the resulting function evaluated on the grid will be p[0], if x&lt;=L/3, p[1], if L/3&lt;x&lt;=2L/3, </span>
+<span class="sd">    p[2], if 2L/3&lt;x&lt;=L.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    -----------</span>
+<span class="sd">    grid: ndarray</span>
+<span class="sd">        | Regular grid points for the step expansion to be evaluated at. The number of grid points should be equal to or larger than `n_steps`. The latter setting can be useful, for example, when using the StepExpansion geometry as a domain geometry for a cuqipy :class:`Model` that expects the input to be interpolated on a (possibly fine) grid (`grid`). The interval endpoints, [x0, xn], should be included in the grid.</span>
+
+<span class="sd">    n_steps: int</span>
+<span class="sd">        | Number of equidistant steps.</span>
+
+<span class="sd">    fun2par_projection: str, default &#39;mean&#39;</span>
+<span class="sd">        | Projection of the step function (evaluated on the grid) on the parameter space. The supported projections are </span>
+<span class="sd">        | &#39;mean&#39;: the parameter p[i] value will be the average of the function values at the nodes that falls in the interval  I=(x0+i*L/n_steps, x0+(i+1)*L/n_steps].</span>
+<span class="sd">        | &#39;max&#39;: the parameter p[i] value will be the maximum of the function values in I.</span>
+<span class="sd">        | &#39;min&#39;: the parameter p[i] value will be the minimum of the function values in I.</span>
+<span class="sd">        </span>
+<span class="sd">    kwargs: keyword arguments</span>
+<span class="sd">        | keyword arguments are passed to the initializer of :class:`~cuqi.geometry.Continuous1D`</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="StepExpansion.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.StepExpansion.__init__.html#cuqi.geometry.StepExpansion.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">fun2par_projection</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span> <span class="o">=</span> <span class="n">n_steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_grid_setup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fun2par_projection</span> <span class="o">=</span> <span class="n">fun2par_projection</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span><span class="p">):</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">L</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">L</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span>
+            <span class="c1"># Extract indices of the grid points that fall in the ith interval.</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="n">interval_indices</span><span class="p">,</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">&gt;=</span><span class="n">start</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">&lt;=</span><span class="n">end</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">interval_indices</span><span class="p">,</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">&gt;</span><span class="n">start</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="o">&lt;=</span><span class="n">end</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interval_indices</span><span class="p">)</span>    </div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">par_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shape of the parameter space.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span><span class="p">,)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of equidistant steps.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span>
+
+<div class="viewcode-block" id="StepExpansion.par2fun">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.StepExpansion.par2fun.html#cuqi.geometry.StepExpansion.par2fun">[docs]</a>
+    <span class="k">def</span> <span class="nf">par2fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+
+        <span class="c1"># Reshape the parameter vector</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape_par2fun_input</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+        <span class="c1"># Extended fun_shape to include multiple functions.</span>
+        <span class="n">ext_fun_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun_shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],)</span>
+
+        <span class="c1"># Initialize fun to zeros.</span>
+        <span class="n">fun</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ext_fun_shape</span><span class="p">)</span>
+
+        <span class="c1"># Fill fun with the step function values.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span><span class="p">):</span>
+            <span class="n">fun</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">[</span><span class="n">i</span><span class="p">],:]</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+
+        <span class="c1"># Squeeze to return single evaluated function if only one parameter</span>
+        <span class="c1"># vector was given.</span>
+        <span class="k">return</span> <span class="n">fun</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+
+ 
+
+<div class="viewcode-block" id="StepExpansion.fun2par">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.geometry/cuqi.geometry.StepExpansion.fun2par.html#cuqi.geometry.StepExpansion.fun2par">[docs]</a>
+    <span class="k">def</span> <span class="nf">fun2par</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">f</span><span class="p">):</span>
+
+        <span class="c1"># Reshape the function values</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape_fun2par_input</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># Extended par_shape to include multiple parameter vectors.</span>
+        <span class="n">ext_par_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">par_shape</span> <span class="o">+</span> <span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],)</span>
+        
+        <span class="c1"># Initialize par to zeros.</span>
+        <span class="n">par</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">ext_par_shape</span><span class="p">)</span>
+
+        <span class="c1"># Fill par with the projection of the function values.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fun2par_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;mean&#39;</span><span class="p">:</span>
+                <span class="n">projection_method</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fun2par_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;max&#39;</span><span class="p">:</span>
+                <span class="n">projection_method</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fun2par_projection</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;min&#39;</span><span class="p">:</span>
+                <span class="n">projection_method</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid projection option.&quot;</span><span class="p">)</span>
+            
+            <span class="c1"># Apply projection method to the function values in the ith</span>
+            <span class="c1"># interval.</span>
+            <span class="n">par</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">projection_method</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_indices</span><span class="p">[</span><span class="n">i</span><span class="p">],:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Squeeze to return single parameter vector if only one function value</span>
+        <span class="c1"># was given.</span>
+        <span class="k">return</span> <span class="n">par</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span></div>
+
+    
+
+    <span class="k">def</span> <span class="nf">_check_grid_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        
+        <span class="c1"># The grid size is greater than or equal to the number of steps.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_steps</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;n_steps must be smaller than the number of grid points&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Ensure the grid is equally spaced</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The grid must be an equally spaced grid (regular).&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

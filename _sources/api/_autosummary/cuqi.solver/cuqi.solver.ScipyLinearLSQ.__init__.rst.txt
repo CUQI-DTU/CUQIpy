@@ -1,0 +1,6 @@
+cuqi.solver.ScipyLinearLSQ.\_\_init\_\_
+=======================================
+
+.. currentmodule:: cuqi.solver
+
+.. automethod:: ScipyLinearLSQ.__init__

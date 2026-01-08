@@ -1,0 +1,6 @@
+cuqi.distribution.Beta.get\_mutable\_variables
+==============================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Beta.get_mutable_variables

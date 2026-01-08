@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.sample
+============================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.sample

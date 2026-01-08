@@ -1,0 +1,6 @@
+cuqi.sampler.UGLA.warmup
+========================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: UGLA.warmup

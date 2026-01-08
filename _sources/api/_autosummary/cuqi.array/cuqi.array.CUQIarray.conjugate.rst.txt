@@ -1,0 +1,6 @@
+cuqi.array.CUQIarray.conjugate
+==============================
+
+.. currentmodule:: cuqi.array
+
+.. automethod:: CUQIarray.conjugate

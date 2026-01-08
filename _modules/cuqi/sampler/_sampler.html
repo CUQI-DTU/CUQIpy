@@ -1,0 +1,1050 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.sampler._sampler &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/sampler/_sampler';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.sampler._sampler</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.sampler._sampler</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pickle</span> <span class="k">as</span> <span class="nn">pkl</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">from</span> <span class="nn">cuqi.samples</span> <span class="kn">import</span> <span class="n">Samples</span>
+<span class="kn">from</span> <span class="nn">cuqi</span> <span class="kn">import</span> <span class="n">config</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">tqdm</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Module mcmc: tqdm not found. Install tqdm to get sampling progress.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">iterable</span>
+
+<div class="viewcode-block" id="Sampler">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.html#cuqi.sampler.Sampler">[docs]</a>
+<span class="k">class</span> <span class="nc">Sampler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Abstract base class for all samplers.</span>
+<span class="sd">    </span>
+<span class="sd">    Provides a common interface for all samplers. The interface includes methods for sampling, warmup and getting the samples in an object oriented way.</span>
+
+<span class="sd">    Samples are stored in a list to allow for dynamic growth of the sample set. Returning samples is done by creating a new Samples object from the list of samples.</span>
+
+<span class="sd">    The sampler maintains sets of state and history keys, which are used for features like checkpointing and resuming sampling.</span>
+
+<span class="sd">    The state of the sampler represents all variables that are updated (replaced) in a Markov Monte Carlo step, e.g. the current point of the sampler.</span>
+
+<span class="sd">    The history of the sampler represents all variables that are updated (appended) in a Markov Monte Carlo step, e.g. the samples and acceptance rates.</span>
+
+<span class="sd">    Subclasses should ensure that any new variables that are updated in a Markov Monte Carlo step are added to the state or history keys.</span>
+
+<span class="sd">    Saving and loading checkpoints saves and loads the state of the sampler (not the history).</span>
+
+<span class="sd">    Batching samples via the batch_size parameter saves the sampler history to disk in batches of the specified size.</span>
+
+<span class="sd">    Any other attribute stored as part of the sampler (e.g. target, initial_point) is not supposed to be updated</span>
+<span class="sd">    during sampling and should not be part of the state or history.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_STATE_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;current_point&#39;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Set of keys for the state dictionary. &quot;&quot;&quot;</span>
+
+    <span class="n">_HISTORY_KEYS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;_samples&#39;</span><span class="p">,</span> <span class="s1">&#39;_acc&#39;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Set of keys for the history dictionary. &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Sampler.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.__init__.html#cuqi.sampler.Sampler.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span><span class="n">cuqi</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">Density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_point</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initializer for abstract base class for all samplers.</span>
+
+<span class="sd">        Any subclassing samplers should simply store input parameters as part of the __init__ method. </span>
+
+<span class="sd">        The actual initialization of the sampler should be done in the _initialize method.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target : cuqi.density.Density</span>
+<span class="sd">            The target density.</span>
+
+<span class="sd">        initial_point : array-like, optional</span>
+<span class="sd">            The initial point for the sampler. If not given, the sampler will choose an initial point.</span>
+
+<span class="sd">        callback : callable, optional</span>
+<span class="sd">            A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">            The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span> <span class="o">=</span> <span class="n">initial_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Sampler.initialize">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.initialize.html#cuqi.sampler.Sampler.initialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the sampler by setting and allocating the state and history before sampling starts. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sampler is already initialized.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot initialize sampler without a target density.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Default values</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_initial_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+        <span class="c1"># State variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span>
+
+        <span class="c1"># History variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acc</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">1</span> <span class="p">]</span> <span class="c1"># TODO. Check if we need to put 1 here.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span> <span class="c1"># Subclass specific initialization</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_initialization</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+    <span class="c1"># ------------ Abstract methods to be implemented by subclasses ------------</span>
+<div class="viewcode-block" id="Sampler.step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.step.html#cuqi.sampler.Sampler.step">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Perform one step of the sampler by transitioning the current point to a new point according to the sampler&#39;s transition kernel. &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Sampler.tune">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.tune.html#cuqi.sampler.Sampler.tune">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_len</span><span class="p">,</span> <span class="n">update_count</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Tune the parameters of the sampler. This method is called after each step of the warmup phase.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        skip_len : int</span>
+<span class="sd">            Defines the number of steps in between tuning (i.e. the tuning interval).</span>
+
+<span class="sd">        update_count : int</span>
+<span class="sd">            The number of times tuning has been performed. Can be used for internal bookkeeping.</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="Sampler.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.validate_target.html#cuqi.sampler.Sampler.validate_target">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Validate the target is compatible with the sampler. Called when the target is set. Should raise an error if the target is not compatible. &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Subclass specific sampler initialization. Called during the initialization of the sampler which is done before sampling starts. &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># ------------ Public attributes ------------</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Dimension of the target density. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">dim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Geometry</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Geometry of the target density. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">geometry</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">Density</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the target density. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
+
+    <span class="nd">@target</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the target density. Runs validation of the target. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_target</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">current_point</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; The current point of the sampler. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current_point</span>
+
+    <span class="nd">@current_point</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">current_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the current point of the sampler. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current_point</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1"># ------------ Public methods ------------</span>
+<div class="viewcode-block" id="Sampler.get_samples">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.get_samples.html#cuqi.sampler.Sampler.get_samples">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Samples</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the samples. The internal data-structure for the samples is a dynamic list so this creates a copy. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Samples</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sampler.reinitialize">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.reinitialize.html#cuqi.sampler.Sampler.reinitialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">reinitialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Re-initialize the sampler. This clears the state and history and initializes the sampler again by setting state and history to their original values. &quot;&quot;&quot;</span>
+
+        <span class="c1"># Loop over state and reset to None</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Loop over history and reset to None</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_HISTORY_KEYS</span><span class="p">:</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Sampler.save_checkpoint">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.save_checkpoint.html#cuqi.sampler.Sampler.save_checkpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Save the state of the sampler to a file. &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_initialized</span><span class="p">()</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+
+        <span class="c1"># Convert all CUQIarrays to numpy arrays since CUQIarrays do not get pickled correctly</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">CUQIarray</span><span class="p">):</span>
+                <span class="n">state</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">pkl</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pkl</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sampler.load_checkpoint">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.load_checkpoint.html#cuqi.sampler.Sampler.load_checkpoint">[docs]</a>
+    <span class="k">def</span> <span class="nf">load_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Load the state of the sampler from a file. &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_initialized</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">pkl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sampler.sample">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.sample.html#cuqi.sampler.Sampler.sample">[docs]</a>
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Ns</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_path</span><span class="o">=</span><span class="s1">&#39;./CUQI_samples/&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Sampler&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sample Ns samples from the target density.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Ns : int</span>
+<span class="sd">            The number of samples to draw.</span>
+<span class="sd">        </span>
+<span class="sd">        Nt : int, optional, default=1</span>
+<span class="sd">            The thinning interval. If Nt &gt;= 1, every Nt&#39;th sample is stored. The larger Nt, the fewer samples are stored.</span>
+
+<span class="sd">        batch_size : int, optional</span>
+<span class="sd">            The batch size for saving samples to disk. If 0, no batching is used. If positive, samples are saved to disk in batches of the specified size.</span>
+
+<span class="sd">        sample_path : str, optional</span>
+<span class="sd">            The path to save the samples. If not specified, the samples are saved to the current working directory under a folder called &#39;CUQI_samples&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_initialized</span><span class="p">()</span>
+
+        <span class="c1"># Initialize batch handler</span>
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">batch_handler</span> <span class="o">=</span> <span class="n">_BatchHandler</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">sample_path</span><span class="p">)</span>
+
+        <span class="c1"># Progress bar printing settings:</span>
+        <span class="n">refresh</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">PROGRESS_BAR_DYNAMIC_UPDATE</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">miniters</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">PROGRESS_BAR_DYNAMIC_UPDATE</span> <span class="k">else</span> <span class="n">Ns</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">maxinterval</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">PROGRESS_BAR_DYNAMIC_UPDATE</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Draw samples</span>
+        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">Ns</span><span class="p">),</span> <span class="s2">&quot;Sample: &quot;</span><span class="p">,</span> <span class="n">miniters</span><span class="o">=</span><span class="n">miniters</span><span class="p">,</span> <span class="n">maxinterval</span><span class="o">=</span><span class="n">maxinterval</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
+
+            <span class="c1"># Perform one step of the sampler</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="c1"># Store samples</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">Nt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="o">%</span> <span class="n">Nt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+            <span class="c1"># Display acc rate at progress bar</span>
+            <span class="n">pbar</span><span class="o">.</span><span class="n">set_postfix_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;acc rate: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_acc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">idx</span><span class="p">:])</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                 <span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">)</span>
+
+            <span class="c1"># Add sample to batch</span>
+            <span class="k">if</span> <span class="n">batch_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">batch_handler</span><span class="o">.</span><span class="n">add_sample</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+            <span class="c1"># Call callback function if specified</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_callback</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">Ns</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Sampler.warmup">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.warmup.html#cuqi.sampler.Sampler.warmup">[docs]</a>
+    <span class="k">def</span> <span class="nf">warmup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Nb</span><span class="p">,</span> <span class="n">Nt</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">tune_freq</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Sampler&#39;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Warmup the sampler by drawing Nb samples.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Nb : int</span>
+<span class="sd">            The number of samples to draw during warmup.</span>
+
+<span class="sd">        Nt : int, optional, default=1</span>
+<span class="sd">            The thinning interval. If Nt &gt;= 1, every Nt&#39;th sample is stored. The larger Nt, the fewer samples are stored.</span>
+<span class="sd">            </span>
+<span class="sd">        tune_freq : float, optional</span>
+<span class="sd">            The frequency of tuning. Tuning is performed every tune_freq*Nb samples.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_initialized</span><span class="p">()</span>
+
+        <span class="n">tune_interval</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">tune_freq</span> <span class="o">*</span> <span class="n">Nb</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Progress bar printing settings:</span>
+        <span class="n">refresh</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">PROGRESS_BAR_DYNAMIC_UPDATE</span> <span class="k">else</span> <span class="kc">False</span>
+        <span class="n">miniters</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">PROGRESS_BAR_DYNAMIC_UPDATE</span> <span class="k">else</span> <span class="n">Nb</span><span class="o">+</span><span class="mi">1</span>
+        <span class="n">maxinterval</span> <span class="o">=</span> <span class="mf">10.0</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">PROGRESS_BAR_DYNAMIC_UPDATE</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Draw warmup samples with tuning</span>
+        <span class="n">pbar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">Nb</span><span class="p">),</span> <span class="s2">&quot;Warmup: &quot;</span><span class="p">,</span> <span class="n">miniters</span><span class="o">=</span><span class="n">miniters</span><span class="p">,</span> <span class="n">maxinterval</span><span class="o">=</span><span class="n">maxinterval</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">pbar</span><span class="p">:</span>
+
+            <span class="c1"># Perform one step of the sampler</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="c1"># Tune the sampler at tuning intervals</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">tune_interval</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tune</span><span class="p">(</span><span class="n">tune_interval</span><span class="p">,</span> <span class="n">idx</span> <span class="o">//</span> <span class="n">tune_interval</span><span class="p">)</span> 
+
+            <span class="c1"># Store samples</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_acc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">acc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">Nt</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">idx</span> <span class="o">%</span> <span class="n">Nt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+            <span class="c1"># Display acc rate at progress bar</span>
+            <span class="n">pbar</span><span class="o">.</span><span class="n">set_postfix_str</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;acc rate: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_acc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">idx</span><span class="p">:])</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                 <span class="n">refresh</span><span class="o">=</span><span class="n">refresh</span><span class="p">)</span>
+
+            <span class="c1"># Call callback function if specified</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_call_callback</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">Nb</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Sampler.get_state">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.get_state.html#cuqi.sampler.Sampler.get_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the state of the sampler. </span>
+
+<span class="sd">        The state is used when checkpointing the sampler.</span>
+
+<span class="sd">        The state of the sampler is a dictionary with keys &#39;metadata&#39; and &#39;state&#39;.</span>
+<span class="sd">        The &#39;metadata&#39; key contains information about the sampler type.</span>
+<span class="sd">        The &#39;state&#39; key contains the state of the sampler.</span>
+
+<span class="sd">        For example, the state of a &quot;MH&quot; sampler could be:</span>
+
+<span class="sd">        state = {</span>
+<span class="sd">            &#39;metadata&#39;: {</span>
+<span class="sd">                &#39;sampler_type&#39;: &#39;MH&#39;</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;state&#39;: {</span>
+<span class="sd">                &#39;current_point&#39;: np.array([...]),</span>
+<span class="sd">                &#39;current_target_logd&#39;: -123.45,</span>
+<span class="sd">                &#39;scale&#39;: 1.0,</span>
+<span class="sd">                ...</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>   
+        <span class="n">state</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;sampler_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;state&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_STATE_KEYS</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">state</span></div>
+
+
+<div class="viewcode-block" id="Sampler.set_state">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.set_state.html#cuqi.sampler.Sampler.set_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the state of the sampler.</span>
+
+<span class="sd">        The state is used when loading the sampler from a checkpoint.</span>
+
+<span class="sd">        The state of the sampler is a dictionary with keys &#39;metadata&#39; and &#39;state&#39;.</span>
+
+<span class="sd">        For example, the state of a &quot;MH&quot; sampler could be:</span>
+
+<span class="sd">        state = {</span>
+<span class="sd">            &#39;metadata&#39;: {</span>
+<span class="sd">                &#39;sampler_type&#39;: &#39;MH&#39;</span>
+<span class="sd">            },</span>
+<span class="sd">            &#39;state&#39;: {</span>
+<span class="sd">                &#39;current_point&#39;: np.array([...]),</span>
+<span class="sd">                &#39;current_target_logd&#39;: -123.45,</span>
+<span class="sd">                &#39;scale&#39;: 1.0,</span>
+<span class="sd">                ...</span>
+<span class="sd">            }</span>
+<span class="sd">        }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;sampler_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sampler type in state dictionary (</span><span class="si">{</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;sampler_type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">) does not match the type of the sampler (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not recognized in state dictionary of sampler </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Sampler.get_history">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.get_history.html#cuqi.sampler.Sampler.get_history">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_history</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the history of the sampler. &quot;&quot;&quot;</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;metadata&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;sampler_type&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="p">},</span>
+            <span class="s1">&#39;history&#39;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="n">key</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_HISTORY_KEYS</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">history</span></div>
+
+
+<div class="viewcode-block" id="Sampler.set_history">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Sampler.set_history.html#cuqi.sampler.Sampler.set_history">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">history</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the history of the sampler. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">history</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;sampler_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sampler type in history dictionary (</span><span class="si">{</span><span class="n">history</span><span class="p">[</span><span class="s1">&#39;metadata&#39;</span><span class="p">][</span><span class="s1">&#39;sampler_type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">) does not match the type of the sampler (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">).&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">history</span><span class="p">[</span><span class="s1">&#39;history&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_HISTORY_KEYS</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> not recognized in history dictionary of sampler </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># ------------ Private methods ------------</span>
+    <span class="k">def</span> <span class="nf">_call_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_index</span><span class="p">,</span> <span class="n">num_of_samples</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Calls the callback function. Assumes input is sampler, sample index, and total number of samples &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_index</span><span class="p">,</span> <span class="n">num_of_samples</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_initialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Validate the initialization of the sampler by checking all state and history keys are set. &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sampler state key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not set after initialization.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_HISTORY_KEYS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sampler history key </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> is not set after initialization.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ensure_initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Ensure the sampler is initialized. If not initialize it. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_get_default_initial_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the default initial point for the sampler. Defaults to an array of ones. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return a string representation of the sampler. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Sampler: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> Target: None&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Sampler: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> Target: </span><span class="se">\n</span><span class="s2"> </span><span class="se">\t</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s2"> &quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_state</span><span class="p">()</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Current state: </span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="c1"># Sort keys alphabetically</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="c1"># Put _ in the end</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;_&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;_&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;state&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="ProposalBasedSampler">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ProposalBasedSampler.html#cuqi.sampler.ProposalBasedSampler">[docs]</a>
+<span class="k">class</span> <span class="nc">ProposalBasedSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Abstract base class for samplers that use a proposal distribution. &quot;&quot;&quot;</span>
+
+    <span class="n">_STATE_KEYS</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="s1">&#39;current_target_logd&#39;</span><span class="p">,</span> <span class="s1">&#39;scale&#39;</span><span class="p">})</span>
+
+<div class="viewcode-block" id="ProposalBasedSampler.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ProposalBasedSampler.__init__.html#cuqi.sampler.ProposalBasedSampler.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proposal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initializer for abstract base class for samplers that use a proposal distribution.</span>
+
+<span class="sd">        Any subclassing samplers should simply store input parameters as part of the __init__ method.</span>
+
+<span class="sd">        Initialization of the sampler should be done in the _initialize method.</span>
+
+<span class="sd">        See :class:`Sampler` for additional details.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target : cuqi.density.Density</span>
+<span class="sd">            The target density.</span>
+
+<span class="sd">        proposal : cuqi.distribution.Distribution, optional</span>
+<span class="sd">            The proposal distribution. If not specified, the default proposal is used.</span>
+
+<span class="sd">        scale : float, optional</span>
+<span class="sd">            The scale parameter for the proposal distribution.</span>
+
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments passed to the :class:`Sampler` initializer.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proposal</span> <span class="o">=</span> <span class="n">proposal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_scale</span> <span class="o">=</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="ProposalBasedSampler.initialize">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ProposalBasedSampler.initialize.html#cuqi.sampler.ProposalBasedSampler.initialize">[docs]</a>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize the sampler by setting and allocating the state and history before sampling starts. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Sampler is already initialized.&quot;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot initialize sampler without a target density.&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Default values</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_default_initial_point</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">proposal</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">proposal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_proposal</span>
+
+        <span class="c1"># State variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_point</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_scale</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+        <span class="c1"># History variables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samples</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_acc</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">1</span> <span class="p">]</span> <span class="c1"># TODO. Check if we need to put 1 here.</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span> <span class="c1"># Subclass specific initialization</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_initialization</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_initialized</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="ProposalBasedSampler.validate_proposal">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ProposalBasedSampler.validate_proposal.html#cuqi.sampler.ProposalBasedSampler.validate_proposal">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">validate_proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Validate the proposal distribution. &quot;&quot;&quot;</span>
+        <span class="k">pass</span>     </div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_default_proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return the default proposal distribution. Defaults to a Gaussian distribution with zero mean and unit variance. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; The proposal distribution. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span>
+    
+    <span class="nd">@proposal</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proposal</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the proposal distribution. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span> <span class="o">=</span> <span class="n">proposal</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proposal</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_proposal</span><span class="p">()</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">_BatchHandler</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Utility class to handle batching of samples. </span>
+<span class="sd">    </span>
+<span class="sd">    If a batch size is specified, this class will save samples to disk in batches of the specified size.</span>
+<span class="sd">     </span>
+<span class="sd">    This is useful for very large sample sets that do not fit in memory.</span>
+<span class="sd">     </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sample_path</span><span class="o">=</span><span class="s1">&#39;./CUQI_samples/&#39;</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">batch_size</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Batch size should be a non-negative integer&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sample_path</span> <span class="o">=</span> <span class="n">sample_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_batches_dumped</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sample_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; The path to save the samples. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_path</span>
+    
+    <span class="nd">@sample_path</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sample_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Sample path must be a string.&quot;</span><span class="p">)</span>
+        <span class="n">normalized_path</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">normalized_path</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">normalized_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not create directory at </span><span class="si">{</span><span class="n">normalized_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_path</span> <span class="o">=</span> <span class="n">normalized_path</span>
+
+    <span class="k">def</span> <span class="nf">add_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Add a sample to the batch if batching. If the batch is full, flush the batch to disk. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># Batching not used</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_batch_size</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">flush</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Flush the current batch of samples to disk. &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="p">:</span>
+            <span class="k">return</span>  <span class="c1"># No samples to flush</span>
+
+        <span class="c1"># Save the current batch of samples</span>
+        <span class="n">batch_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_path</span><span class="si">}</span><span class="s1">batch_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_batches_dumped</span><span class="si">:</span><span class="s1">04d</span><span class="si">}</span><span class="s1">.npz&#39;</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">savez</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="n">batch_samples</span><span class="p">,</span> <span class="n">batch_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_batches_dumped</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_batches_dumped</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_batch</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Clear the batch after saving</span>
+
+    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Finalize the batch handler. Flush any remaining samples to disk. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

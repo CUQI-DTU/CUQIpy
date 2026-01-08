@@ -1,0 +1,6 @@
+cuqi.distribution.TruncatedNormal.get\_parameter\_names
+=======================================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: TruncatedNormal.get_parameter_names

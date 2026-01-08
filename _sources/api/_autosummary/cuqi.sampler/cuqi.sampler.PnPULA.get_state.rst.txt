@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.get\_state
+==============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.get_state

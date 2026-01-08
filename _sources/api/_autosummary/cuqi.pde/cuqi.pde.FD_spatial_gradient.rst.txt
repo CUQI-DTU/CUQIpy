@@ -1,0 +1,6 @@
+FD\_spatial\_gradient
+=====================
+
+.. currentmodule:: cuqi.pde
+
+.. autofunction:: FD_spatial_gradient

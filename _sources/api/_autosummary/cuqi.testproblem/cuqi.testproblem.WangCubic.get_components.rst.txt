@@ -1,0 +1,6 @@
+cuqi.testproblem.WangCubic.get\_components
+==========================================
+
+.. currentmodule:: cuqi.testproblem
+
+.. automethod:: WangCubic.get_components

@@ -1,0 +1,6 @@
+cuqi.implicitprior.TweediePrior.get\_conditioning\_variables
+============================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: TweediePrior.get_conditioning_variables

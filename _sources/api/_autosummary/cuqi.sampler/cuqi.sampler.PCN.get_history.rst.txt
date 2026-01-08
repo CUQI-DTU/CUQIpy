@@ -1,0 +1,6 @@
+cuqi.sampler.PCN.get\_history
+=============================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PCN.get_history

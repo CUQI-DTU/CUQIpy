@@ -1,0 +1,6 @@
+cuqi.problem.BayesianProblem.set\_data
+======================================
+
+.. currentmodule:: cuqi.problem
+
+.. automethod:: BayesianProblem.set_data

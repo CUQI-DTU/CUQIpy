@@ -1,0 +1,6 @@
+cuqi.implicitprior.MoreauYoshidaPrior.enable\_FD
+================================================
+
+.. currentmodule:: cuqi.implicitprior
+
+.. automethod:: MoreauYoshidaPrior.enable_FD

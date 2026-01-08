@@ -1,0 +1,6 @@
+cuqi.algebra.RandomVariable.distributions
+=========================================
+
+.. currentmodule:: cuqi.algebra
+
+.. autoproperty:: RandomVariable.distributions

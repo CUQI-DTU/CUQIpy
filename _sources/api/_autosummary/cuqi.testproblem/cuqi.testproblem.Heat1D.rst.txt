@@ -1,0 +1,41 @@
+Heat1D
+======
+
+.. currentmodule:: cuqi.testproblem
+
+.. autoclass:: Heat1D
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Heat1D.MAP
+      ~Heat1D.ML
+      ~Heat1D.UQ
+      ~Heat1D.__init__
+      ~Heat1D.get_components
+      ~Heat1D.sample_posterior
+      ~Heat1D.sample_prior
+      ~Heat1D.set_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+      :toctree: .
+   
+      ~Heat1D.data
+      ~Heat1D.likelihood
+      ~Heat1D.model
+      ~Heat1D.posterior
+      ~Heat1D.prior
+   
+   

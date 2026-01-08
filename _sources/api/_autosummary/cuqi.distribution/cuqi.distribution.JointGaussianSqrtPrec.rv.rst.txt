@@ -1,0 +1,6 @@
+cuqi.distribution.JointGaussianSqrtPrec.rv
+==========================================
+
+.. currentmodule:: cuqi.distribution
+
+.. autoproperty:: JointGaussianSqrtPrec.rv

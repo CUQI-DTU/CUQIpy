@@ -1,0 +1,6 @@
+cuqi.distribution.Gamma.\_\_init\_\_
+====================================
+
+.. currentmodule:: cuqi.distribution
+
+.. automethod:: Gamma.__init__

@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.sampler._conjugate &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/sampler/_conjugate';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.sampler._conjugate</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.sampler._conjugate</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">cuqi.sampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+<span class="kn">from</span> <span class="nn">cuqi.distribution</span> <span class="kn">import</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">Gaussian</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">,</span> <span class="n">ModifiedHalfNormal</span>
+<span class="kn">from</span> <span class="nn">cuqi.implicitprior</span> <span class="kn">import</span> <span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span><span class="p">,</span> <span class="n">RegularizedUnboundedUniform</span>
+<span class="kn">from</span> <span class="nn">cuqi.utilities</span> <span class="kn">import</span> <span class="n">get_non_default_args</span><span class="p">,</span> <span class="n">count_nonzero</span><span class="p">,</span> <span class="n">count_within_bounds</span><span class="p">,</span> <span class="n">count_constant_components_1D</span><span class="p">,</span> <span class="n">count_constant_components_2D</span><span class="p">,</span> <span class="n">piecewise_linear_1D_DoF</span>
+<span class="kn">from</span> <span class="nn">cuqi.geometry</span> <span class="kn">import</span> <span class="n">Continuous1D</span><span class="p">,</span> <span class="n">Continuous2D</span><span class="p">,</span> <span class="n">Image2D</span>
+
+<div class="viewcode-block" id="Conjugate">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Conjugate.html#cuqi.sampler.Conjugate">[docs]</a>
+<span class="k">class</span> <span class="nc">Conjugate</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Conjugate sampler</span>
+
+<span class="sd">    Sampler for sampling a posterior distribution which is a so-called &quot;conjugate&quot; distribution, i.e., where the likelihood and prior are conjugate to each other - denoted as a conjugate pair.   </span>
+
+<span class="sd">    Currently supported conjugate pairs are:</span>
+<span class="sd">    - (Gaussian, Gamma) where Gamma is defined on the precision parameter of the Gaussian</span>
+<span class="sd">    - (GMRF, Gamma) where Gamma is defined on the precision parameter of the GMRF</span>
+<span class="sd">    - (RegularizedGaussian, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGaussian</span>
+<span class="sd">    - (RegularizedGMRF, Gamma) with preset constraints only and Gamma is defined on the precision parameter of the RegularizedGMRF</span>
+<span class="sd">    - (RegularizedGaussian, ModifiedHalfNormal) with most of the preset constraints and regularization</span>
+<span class="sd">    - (RegularizedGMRF, ModifiedHalfNormal) with most of the preset constraints and regularization</span>
+
+<span class="sd">    Currently the Gamma and ModifiedHalfNormal distribution must be univariate.</span>
+
+<span class="sd">    A conjugate pair defines implicitly a so-called conjugate distribution which can be sampled from directly.</span>
+
+<span class="sd">    The conjugate parameter is the parameter that both the likelihood and prior PDF depend on.</span>
+
+<span class="sd">    For more information on conjugacy and conjugate distributions see https://en.wikipedia.org/wiki/Conjugate_prior.</span>
+
+<span class="sd">    For implicit regularized Gaussians and the corresponding conjugacy relations, see:</span>
+<span class="sd">    </span>
+<span class="sd">    Section 3.3 from [1] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. &quot;Bayesian inference with projected densities.&quot; SIAM/ASA Journal on Uncertainty Quantification 11.3 (2023): 1025-1043.</span>
+<span class="sd">    Section 4 from [2] Everink, Jasper M., Yiqiu Dong, and Martin S. Andersen. &quot;Sparse Bayesian inference with regularized Gaussian distributions.&quot; Inverse Problems 39.11 (2023): 115004.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@Sampler</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">setter</span> <span class="c1"># Overwrite the target setter to set the conjugate pair</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the target density. Runs validation of the target. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_conjugatepair</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_target</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Conjugate.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Conjugate.validate_target.html#cuqi.sampler.Conjugate.validate_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_target_is_posterior</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span><span class="o">.</span><span class="n">validate_target</span><span class="p">()</span></div>
+
+        
+<div class="viewcode-block" id="Conjugate.step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Conjugate.step.html#cuqi.sampler.Conjugate.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">1</span> <span class="c1"># Returns acceptance rate of 1</span></div>
+
+
+<div class="viewcode-block" id="Conjugate.tune">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Conjugate.tune.html#cuqi.sampler.Conjugate.tune">[docs]</a>
+    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_len</span><span class="p">,</span> <span class="n">update_count</span><span class="p">):</span>
+        <span class="k">pass</span> <span class="c1"># No tuning required for conjugate sampler</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_ensure_target_is_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Ensure that the target is a Posterior distribution. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Posterior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Conjugate sampler requires a target of type Posterior&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_set_conjugatepair</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the conjugate pair based on the likelihood and prior. This requires target to be set. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ensure_target_is_posterior</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="p">(</span><span class="n">Gaussian</span><span class="p">,</span> <span class="n">GMRF</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span> <span class="o">=</span> <span class="n">_GaussianGammaPair</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="n">RegularizedUnboundedUniform</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">):</span>
+            <span class="c1"># Check RegularizedUnboundedUniform before RegularizedGaussian and RegularizedGMRF due to the first inheriting from the second.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span> <span class="o">=</span> <span class="n">_RegularizedUnboundedUniformGammaPair</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="p">(</span><span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">Gamma</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span> <span class="o">=</span> <span class="n">_RegularizedGaussianGammaPair</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="p">(</span><span class="n">RegularizedGaussian</span><span class="p">,</span> <span class="n">RegularizedGMRF</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">ModifiedHalfNormal</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span> <span class="o">=</span> <span class="n">_RegularizedGaussianModifiedHalfNormalPair</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conjugacy is not defined for likelihood </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">)</span><span class="si">}</span><span class="s2"> and prior </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="si">}</span><span class="s2">, in CUQIpy&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Conjugate.conjugate_distribution">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.Conjugate.conjugate_distribution.html#cuqi.sampler.Conjugate.conjugate_distribution">[docs]</a>
+    <span class="k">def</span> <span class="nf">conjugate_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span><span class="o">.</span><span class="n">conjugate_distribution</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_conjugatepair&quot;</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Conjugate pair:</span><span class="se">\n\t</span><span class="s2"> </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_conjugatepair</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">msg</span></div>
+
+        
+<span class="k">class</span> <span class="nc">_ConjugatePair</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Abstract base class for conjugate pairs (likelihood, prior) used in the Conjugate sampler. &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Validate the target distribution for the conjugate pair. &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">conjugate_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Returns the posterior distribution in the form of a CUQIpy distribution &quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Sample from the conjugate distribution. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">conjugate_distribution</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">_GaussianGammaPair</span><span class="p">(</span><span class="n">_ConjugatePair</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; Implementation for the Gaussian-Gamma conjugate pair.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian-Gamma conjugacy only works with univariate Gamma prior&quot;</span><span class="p">)</span>
+
+        <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">_get_conjugate_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_value_pairs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multiple references to conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> found in likelihood. Only one occurance is supported.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">key_value_pairs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;cov&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_linear_reciprocal</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian-Gamma conjugate pair defined via covariance requires cov: lambda x : s/x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;prec&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_linear</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Gaussian-Gamma conjugate pair defined via precision requires prec: lambda x : s*x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> in the </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> attribute. Only cov and prec&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">conjugate_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Extract variables</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span>                                 <span class="c1"># mu</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>                                                      <span class="c1"># n</span>
+        <span class="n">Ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">mean</span>                   <span class="c1"># x_i</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">sqrtprec</span> <span class="c1"># L</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">shape</span>                                 <span class="c1"># alpha</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">rate</span>                                   <span class="c1"># beta</span>
+
+        <span class="c1"># Create Gamma distribution and sample</span>
+        <span class="k">return</span> <span class="n">Gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">m</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">L</span> <span class="o">@</span> <span class="p">(</span><span class="n">Ax</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beta</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_RegularizedGaussianGammaPair</span><span class="p">(</span><span class="n">_ConjugatePair</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation for the Regularized Gaussian-Gamma conjugate pair using the conjugacy rules from [1], Section 3.3.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedGaussian-Gamma conjugacy only works with univariate ModifiedHalfNormal prior&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Raises error if preset is not supported</span>
+        <span class="n">_compute_sparsity_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">_get_conjugate_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_value_pairs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multiple references to conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> found in likelihood. Only one occurance is supported.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">key_value_pairs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;cov&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_linear_reciprocal</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Regularized Gaussian-Gamma conjugacy defined via covariance requires cov: lambda x : s/x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;prec&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_linear</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Regularized Gaussian-Gamma conjugacy defined via precision requires prec: lambda x : s*x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> in the </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> attribute. Only cov and prec&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">conjugate_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Extract variables</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span>                                 <span class="c1"># mu</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_compute_sparsity_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">Ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">mean</span>                   <span class="c1"># x_i</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">sqrtprec</span> <span class="c1"># L</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">shape</span>                                 <span class="c1"># alpha</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">rate</span>                                   <span class="c1"># beta</span>
+
+        <span class="c1"># Create Gamma distribution and sample</span>
+        <span class="k">return</span> <span class="n">Gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">m</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">L</span> <span class="o">@</span> <span class="p">(</span><span class="n">Ax</span> <span class="o">-</span> <span class="n">b</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beta</span><span class="p">)</span>
+    
+    
+<span class="k">class</span> <span class="nc">_RegularizedUnboundedUniformGammaPair</span><span class="p">(</span><span class="n">_ConjugatePair</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation for the RegularizedUnboundedUniform-ModifiedHalfNormal conjugate pair using the conjugacy rules from [2], Section 4.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedUnboundedUniform-Gamma conjugacy only works with univariate Gamma prior&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Raises error if preset is not supported</span>
+        <span class="n">_compute_sparsity_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">_get_conjugate_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_value_pairs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Multiple references to conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> found in likelihood. Only one occurance is supported.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">key_value_pairs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;strength&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_linear</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedUnboundedUniform-Gamma conjugacy defined via strength requires strength: lambda x : s*x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RegularizedUnboundedUniform-Gamma conjugacy does not support the conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> in the </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> attribute. Only strength is supported&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">conjugate_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Extract prior variables</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">rate</span>
+
+        <span class="c1"># Compute likelihood quantities</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_compute_sparsity_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">reg_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">_regularization_oper</span>
+        <span class="n">reg_strength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">strength</span>
+        <span class="n">fx</span> <span class="o">=</span> <span class="n">reg_strength</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">reg_op</span><span class="nd">@x</span><span class="p">,</span> <span class="nb">ord</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create Gamma distribution</span>
+        <span class="k">return</span> <span class="n">Gamma</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">m</span><span class="o">/</span><span class="mi">2</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="n">fx</span> <span class="o">+</span> <span class="n">beta</span><span class="p">)</span>
+    
+<span class="k">class</span> <span class="nc">_RegularizedGaussianModifiedHalfNormalPair</span><span class="p">(</span><span class="n">_ConjugatePair</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Implementation for the Regularized Gaussian-ModifiedHalfNormal conjugate pair using the conjugacy rules from [2], Section 4.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy only works with univariate ModifiedHalfNormal prior&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Raises error if preset is not supported</span>
+        <span class="n">_compute_sparsity_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">_get_conjugate_parameter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_value_pairs</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Incorrect number of references to conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> found in likelihood. Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">key_value_pairs</span><span class="p">)</span><span class="si">}</span><span class="s2"> times, but needs to occur in prec or cov, and in strength&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">key_value_pairs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;strength&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_linear</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy defined via strength requires strength: lambda x : s*x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;prec&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_quadratic</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy defined via precision requires prec: lambda x : s*x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;cov&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">_check_conjugate_parameter_is_scalar_quadratic_reciprocal</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy  defined via covariance requires cov: lambda x : s/x for the conjugate parameter&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RegularizedGaussian-ModifiedHalfNormal conjugacy does not support the conjugate parameter </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> in the </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> attribute. Only cov, prec and strength are supported&quot;</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">conjugate_distribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Extract prior variables</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">alpha</span>
+        <span class="n">beta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">beta</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">gamma</span>
+
+        <span class="c1"># Compute likelihood variables</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">mean</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">sqrtprec</span>
+        
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_compute_sparsity_level</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="n">reg_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">_regularization_oper</span>
+        <span class="n">reg_strength</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]))</span><span class="o">.</span><span class="n">strength</span>
+        <span class="n">fx</span> <span class="o">=</span> <span class="n">reg_strength</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">reg_op</span><span class="nd">@x</span><span class="p">,</span> <span class="nb">ord</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Compute parameters of conjugate distribution</span>
+        <span class="n">conj_alpha</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="n">alpha</span>
+        <span class="n">conj_beta</span> <span class="o">=</span> <span class="mf">0.5</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">L</span> <span class="o">@</span> <span class="p">(</span><span class="n">mu</span> <span class="o">-</span> <span class="n">x</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">beta</span>
+        <span class="n">conj_gamma</span> <span class="o">=</span> <span class="o">-</span><span class="n">fx</span> <span class="o">+</span> <span class="n">gamma</span>
+
+        <span class="c1"># Create conjugate distribution</span>
+        <span class="k">return</span> <span class="n">ModifiedHalfNormal</span><span class="p">(</span><span class="n">conj_alpha</span><span class="p">,</span> <span class="n">conj_beta</span><span class="p">,</span> <span class="n">conj_gamma</span><span class="p">)</span>
+    
+
+<span class="k">def</span> <span class="nf">_compute_sparsity_level</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the sparsity level in accordance with Section 4 from [2],</span>
+<span class="sd">    this can be interpreted as the number of degrees of freedom, that is,</span>
+<span class="sd">    the number of components n minus the dimension the of the subdifferential of the regularized.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="n">constraint</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">preset</span><span class="p">[</span><span class="s2">&quot;constraint&quot;</span><span class="p">]</span>
+    <span class="n">regularization</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">preset</span><span class="p">[</span><span class="s2">&quot;regularization&quot;</span><span class="p">]</span>
+
+    <span class="c1"># There is no reference for some of these conjugacy rules</span>
+    <span class="k">if</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s2">&quot;nonnegativity&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">regularization</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;l1&quot;</span><span class="p">]:</span>
+            <span class="c1"># Number of non-zero components in x</span>
+            <span class="k">return</span> <span class="n">count_nonzero</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Continuous1D</span><span class="p">):</span>
+            <span class="c1"># Number of non-zero constant components in x</span>
+            <span class="k">return</span> <span class="n">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="p">(</span><span class="n">Continuous2D</span><span class="p">,</span> <span class="n">Image2D</span><span class="p">)):</span>
+            <span class="c1"># Number of non-zero constant components in x</span>
+            <span class="k">return</span> <span class="n">count_constant_components_2D</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">lower</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">constraint</span> <span class="o">==</span> <span class="s2">&quot;box&quot;</span><span class="p">:</span>
+        <span class="n">bounds</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">_box_bounds</span>
+        <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Number of components in x that are strictly between the lower and upper bound</span>
+            <span class="k">return</span> <span class="n">count_within_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
+            <span class="c1"># Number of components in x that are strictly between the lower and upper bound and are not zero</span>
+            <span class="k">return</span> <span class="n">count_within_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">exception</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Continuous1D</span><span class="p">):</span>
+            <span class="c1"># Number of constant components in x between are strictly between the lower and upper bound</span>
+            <span class="k">return</span> <span class="n">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="p">(</span><span class="n">Continuous2D</span><span class="p">,</span> <span class="n">Image2D</span><span class="p">)):</span>
+            <span class="c1"># Number of constant components in x between are strictly between the lower and upper bound</span>
+            <span class="k">return</span> <span class="n">count_constant_components_2D</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">lower</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">elif</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;increasing&quot;</span><span class="p">,</span> <span class="s2">&quot;decreasing&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Number of constant components in x</span>
+            <span class="k">return</span> <span class="n">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
+            <span class="c1"># Number of constant components in x that are not zero</span>
+            <span class="k">return</span> <span class="n">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">exception</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Continuous1D</span><span class="p">):</span>
+            <span class="c1"># Number of constant components in x</span>
+            <span class="k">return</span> <span class="n">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="c1"># Increasing and decreasing cannot be done in 2D</span>
+    <span class="k">elif</span> <span class="n">constraint</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;convex&quot;</span><span class="p">,</span> <span class="s2">&quot;concave&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">regularization</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Number of piecewise linear components in x</span>
+            <span class="k">return</span> <span class="n">piecewise_linear_1D_DoF</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
+            <span class="c1"># Number of piecewise linear components in x that are not zero</span>
+            <span class="k">return</span> <span class="n">piecewise_linear_1D_DoF</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">exception_zero</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Continuous1D</span><span class="p">):</span>
+            <span class="c1"># Number of piecewise linear components in x that are not flat</span>
+            <span class="k">return</span> <span class="n">piecewise_linear_1D_DoF</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">exception_flat</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># convex and concave has only been implemented in 1D</span>
+    <span class="k">elif</span> <span class="n">constraint</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span> 
+        <span class="k">if</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;l1&quot;</span><span class="p">:</span>
+            <span class="c1"># Number of non-zero components in x</span>
+            <span class="k">return</span> <span class="n">count_nonzero</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Continuous1D</span><span class="p">):</span>
+            <span class="c1"># Number of non-zero constant components in x</span>
+            <span class="k">return</span> <span class="n">count_constant_components_1D</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">regularization</span> <span class="o">==</span> <span class="s2">&quot;tv&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="p">(</span><span class="n">Continuous2D</span><span class="p">,</span> <span class="n">Image2D</span><span class="p">)):</span>
+            <span class="c1"># Number of non-zero constant components in x</span>
+            <span class="k">return</span> <span class="n">count_constant_components_2D</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">par2fun</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;RegularizedGaussian preset constraint and regularization choice is currently not supported with conjugacy.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_conjugate_parameter</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the conjugate parameter name (e.g. d), and returns the mutable variable that is defined by the conjugate parameter, e.g. cov and its value e.g. lambda d:1/d&quot;&quot;&quot;</span>
+    <span class="n">par_name</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">mutable_likelihood_vars</span>  <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">get_mutable_variables</span><span class="p">()</span>
+
+    <span class="n">found_parameter_pairs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">var_key</span> <span class="ow">in</span> <span class="n">mutable_likelihood_vars</span><span class="p">:</span>
+        <span class="n">attr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">distribution</span><span class="p">,</span> <span class="n">var_key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span> <span class="ow">and</span> <span class="n">par_name</span> <span class="ow">in</span> <span class="n">get_non_default_args</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+            <span class="n">found_parameter_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">var_key</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_parameter_pairs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to find conjugate parameter </span><span class="si">{</span><span class="n">par_name</span><span class="si">}</span><span class="s2"> in likelihood function for conjugate sampler with target </span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">found_parameter_pairs</span>
+
+<span class="k">def</span> <span class="nf">_check_conjugate_parameter_is_scalar_identity</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests whether a function (scalar to scalar) is the identity (lambda x: x).&quot;&quot;&quot;</span>
+    <span class="n">test_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_values</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_check_conjugate_parameter_is_scalar_reciprocal</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tests whether a function (scalar to scalar) is the reciprocal (lambda x : 1.0/x).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">_check_conjugate_parameter_is_scalar_linear</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests whether a function (scalar to scalar) is linear (lambda x: s*x for some s).</span>
+<span class="sd">        The tests checks whether the function is zero and some finite differences are constant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">test_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">]</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="mf">1e-2</span>
+    <span class="n">finite_diffs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">f</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">h</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_values</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mf">0.0</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">finite_diffs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">finite_diffs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+<span class="k">def</span> <span class="nf">_check_conjugate_parameter_is_scalar_linear_reciprocal</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests whether a function (scalar to scalar) is a constant times the inverse of the input (lambda x: s/x for some s).</span>
+<span class="sd">        The tests checks whether the the reciprocal of the function has constant finite differences.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">test_values</span> <span class="o">=</span> <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">]</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="mf">1e-2</span>
+    <span class="n">finite_diffs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">g</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">h</span><span class="o">*</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">g</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">h</span><span class="o">*</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_values</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">finite_diffs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">finite_diffs</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+
+<span class="k">def</span> <span class="nf">_check_conjugate_parameter_is_scalar_quadratic</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests whether a function (scalar to scalar) is linear (lambda x: s*x**2 for some s).</span>
+<span class="sd">        The tests checks whether the function divided by the parameter is linear</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_check_conjugate_parameter_is_scalar_linear</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">x</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="n">f</span><span class="p">(</span><span class="mf">0.0</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">_check_conjugate_parameter_is_scalar_quadratic_reciprocal</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Tests whether a function (scalar to scalar) is linear (lambda x: s*x**-2 for some s).</span>
+<span class="sd">        The tests checks whether the function divided by the parameter is the reciprical of a linear function.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_check_conjugate_parameter_is_scalar_linear_reciprocal</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

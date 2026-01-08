@@ -1,0 +1,814 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>cuqi.sampler._langevin_algorithm &#8212; cuqipy  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=321493ab" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-dropdown.css?v=995e94df" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/panels-bootstrap.min.css?v=21c0b90a" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/cuqi/sampler/_langevin_algorithm';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-light" alt="cuqipy  documentation - Home"/>
+    <img src="https://github.com/CUQI-DTU/CUQIpy/raw/main/logo.png" class="logo__image only-dark pst-js-only" alt="cuqipy  documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Contributor's Guide
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">cuqi.sampler._langevin_algorithm</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for cuqi.sampler._langevin_algorithm</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cuqi</span>
+<span class="kn">from</span> <span class="nn">cuqi.sampler</span> <span class="kn">import</span> <span class="n">Sampler</span>
+<span class="kn">from</span> <span class="nn">cuqi.implicitprior</span> <span class="kn">import</span> <span class="n">RestorationPrior</span><span class="p">,</span> <span class="n">MoreauYoshidaPrior</span>
+<span class="kn">from</span> <span class="nn">cuqi.array</span> <span class="kn">import</span> <span class="n">CUQIarray</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+
+<div class="viewcode-block" id="ULA">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ULA.html#cuqi.sampler.ULA">[docs]</a>
+<span class="k">class</span> <span class="nc">ULA</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span> <span class="c1"># Refactor to Proposal-based sampler?</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unadjusted Langevin algorithm (ULA) (Roberts and Tweedie, 1996)</span>
+
+<span class="sd">    It approximately samples a distribution given its logpdf gradient based on</span>
+<span class="sd">    the Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt, where</span>
+<span class="sd">    W_t is the `dim`-dimensional standard Brownian motion.</span>
+<span class="sd">    ULA results from the Euler-Maruyama discretization of this Langevin stochastic</span>
+<span class="sd">    differential equation (SDE). </span>
+
+<span class="sd">    For more details see: Roberts, G. O., &amp; Tweedie, R. L. (1996). Exponential convergence</span>
+<span class="sd">    of Langevin distributions and their discrete approximations. Bernoulli, 341-363.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    target : `cuqi.distribution.Distribution`</span>
+<span class="sd">        The target distribution to sample. Must have logd and gradient method. Custom logpdfs </span>
+<span class="sd">        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.</span>
+<span class="sd">    </span>
+<span class="sd">    initial_point : ndarray</span>
+<span class="sd">        Initial parameters. *Optional*</span>
+
+<span class="sd">    scale : float</span>
+<span class="sd">        The Langevin diffusion discretization time step (In practice, scale must</span>
+<span class="sd">        be smaller than 1/L, where L is the Lipschitz of the gradient of the log</span>
+<span class="sd">        target density, logd).</span>
+
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Parameters</span>
+<span class="sd">        dim = 5 # Dimension of distribution</span>
+<span class="sd">        mu = np.arange(dim) # Mean of Gaussian</span>
+<span class="sd">        std = 1 # standard deviation of Gaussian</span>
+
+<span class="sd">        # Logpdf function</span>
+<span class="sd">        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)</span>
+<span class="sd">        gradient_func = lambda x: -2/(std**2)*(x - mu)</span>
+
+<span class="sd">        # Define distribution from logpdf and gradient as UserDefinedDistribution</span>
+<span class="sd">        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,</span>
+<span class="sd">            gradient_func=gradient_func)</span>
+
+<span class="sd">        # Set up sampler</span>
+<span class="sd">        sampler = cuqi.sampler.ULA(target, scale=1/dim**2)</span>
+
+<span class="sd">        # Sample</span>
+<span class="sd">        sampler.sample(2000)</span>
+
+<span class="sd">    A Deblur example can be found in demos/demo27_ula.py</span>
+<span class="sd">    # TODO: update demo once sampler merged</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_STATE_KEYS</span> <span class="o">=</span> <span class="n">Sampler</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="s1">&#39;current_target_grad&#39;</span><span class="p">})</span>
+
+<div class="viewcode-block" id="ULA.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ULA.__init__.html#cuqi.sampler.ULA.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_scale</span> <span class="o">=</span> <span class="n">scale</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_target_grad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ULA.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ULA.validate_target.html#cuqi.sampler.ULA.validate_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_eval_target_grad</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">))</span>
+            <span class="k">pass</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The target needs to have a gradient method&quot;</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_eval_target_logd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_eval_target_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_accept_or_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_star</span><span class="p">,</span> <span class="n">target_eval_star</span><span class="p">,</span> <span class="n">target_grad_star</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accepts the proposed state and updates the sampler&#39;s state accordingly, i.e.,</span>
+<span class="sd">        current_point, current_target_eval, and current_target_grad_eval.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_star : </span>
+<span class="sd">            The proposed state</span>
+
+<span class="sd">        target_eval_star: </span>
+<span class="sd">            The log likelihood evaluated at x_star</span>
+
+<span class="sd">        target_grad_star: </span>
+<span class="sd">            The gradient of log likelihood evaluated at x_star</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        scalar</span>
+<span class="sd">            1 (accepted)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="n">x_star</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="n">target_grad_star</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">acc</span>
+
+<div class="viewcode-block" id="ULA.step">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ULA.step.html#cuqi.sampler.ULA.step">[docs]</a>
+    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># propose state</span>
+        <span class="n">xi</span> <span class="o">=</span> <span class="n">cuqi</span><span class="o">.</span><span class="n">distribution</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span><span class="p">),</span> <span class="n">std</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">))</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+        <span class="n">x_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">+</span> <span class="mf">0.5</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">+</span> <span class="n">xi</span>
+
+        <span class="c1"># evaluate target</span>
+        <span class="n">target_eval_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_target_logd</span><span class="p">(</span><span class="n">x_star</span><span class="p">)</span>
+        <span class="n">target_grad_star</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eval_target_grad</span><span class="p">(</span><span class="n">x_star</span><span class="p">)</span>
+
+        <span class="c1"># accept or reject proposal</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accept_or_reject</span><span class="p">(</span><span class="n">x_star</span><span class="p">,</span> <span class="n">target_eval_star</span><span class="p">,</span> <span class="n">target_grad_star</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">acc</span></div>
+
+
+<div class="viewcode-block" id="ULA.tune">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.ULA.tune.html#cuqi.sampler.ULA.tune">[docs]</a>
+    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_len</span><span class="p">,</span> <span class="n">update_count</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MALA">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.MALA.html#cuqi.sampler.MALA">[docs]</a>
+<span class="k">class</span> <span class="nc">MALA</span><span class="p">(</span><span class="n">ULA</span><span class="p">):</span> <span class="c1"># Refactor to Proposal-based sampler?</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;  Metropolis-adjusted Langevin algorithm (MALA) (Roberts and Tweedie, 1996)</span>
+
+<span class="sd">    Samples a distribution given its logd and gradient (up to a constant) based on</span>
+<span class="sd">    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt,</span>
+<span class="sd">    W_t is the `dim`-dimensional standard Brownian motion.</span>
+<span class="sd">    A sample is firstly proposed by ULA and is then accepted or rejected according</span>
+<span class="sd">    to a Metropolis–Hastings step.</span>
+<span class="sd">    This accept-reject step allows us to remove the asymptotic bias of ULA.</span>
+
+<span class="sd">    For more details see: Roberts, G. O., &amp; Tweedie, R. L. (1996). Exponential convergence</span>
+<span class="sd">    of Langevin distributions and their discrete approximations. Bernoulli, 341-363.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    target : `cuqi.distribution.Distribution`</span>
+<span class="sd">        The target distribution to sample. Must have logpdf and gradient method. Custom logpdfs </span>
+<span class="sd">        and gradients are supported by using a :class:`cuqi.distribution.UserDefinedDistribution`.</span>
+<span class="sd">    </span>
+<span class="sd">    initial_point : ndarray</span>
+<span class="sd">        Initial parameters. *Optional*</span>
+
+<span class="sd">    scale : float</span>
+<span class="sd">        The Langevin diffusion discretization time step (In practice, scale must</span>
+<span class="sd">        be smaller than 1/L, where L is the Lipschitz of the gradient of the log</span>
+<span class="sd">        target density, logd).</span>
+
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Parameters</span>
+<span class="sd">        dim = 5 # Dimension of distribution</span>
+<span class="sd">        mu = np.arange(dim) # Mean of Gaussian</span>
+<span class="sd">        std = 1 # standard deviation of Gaussian</span>
+
+<span class="sd">        # Logpdf function</span>
+<span class="sd">        logpdf_func = lambda x: -1/(std**2)*np.sum((x-mu)**2)</span>
+<span class="sd">        gradient_func = lambda x: -2/(std**2)*(x-mu)</span>
+
+<span class="sd">        # Define distribution from logpdf as UserDefinedDistribution (sample and gradients also supported)</span>
+<span class="sd">        target = cuqi.distribution.UserDefinedDistribution(dim=dim, logpdf_func=logpdf_func,</span>
+<span class="sd">            gradient_func=gradient_func)</span>
+
+<span class="sd">        # Set up sampler</span>
+<span class="sd">        sampler = cuqi.sampler.MALA(target, scale=1/5**2)</span>
+
+<span class="sd">        # Sample</span>
+<span class="sd">        sampler.sample(2000)</span>
+
+<span class="sd">    A Deblur example can be found in demos/demo28_mala.py</span>
+<span class="sd">    # TODO: update demo once sampler merged</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_STATE_KEYS</span> <span class="o">=</span> <span class="n">ULA</span><span class="o">.</span><span class="n">_STATE_KEYS</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="s1">&#39;current_target_logd&#39;</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_initialize</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_eval_target_logd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">logd</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_accept_or_reject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_star</span><span class="p">,</span> <span class="n">target_eval_star</span><span class="p">,</span> <span class="n">target_grad_star</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Accepts the proposed state according to a Metropolis step and updates</span>
+<span class="sd">        the sampler&#39;s state accordingly, i.e., current_point, current_target_eval,</span>
+<span class="sd">        and current_target_grad_eval.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x_star : </span>
+<span class="sd">            The proposed state</span>
+
+<span class="sd">        target_eval_star: </span>
+<span class="sd">            The log likelihood evaluated at x_star</span>
+
+<span class="sd">        target_grad_star: </span>
+<span class="sd">            The gradient of log likelihood evaluated at x_star</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        scaler</span>
+<span class="sd">            1 if accepted, 0 otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">log_target_ratio</span> <span class="o">=</span> <span class="n">target_eval_star</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span>
+        <span class="n">log_prop_ratio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_proposal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">,</span> <span class="n">x_star</span><span class="p">,</span> <span class="n">target_grad_star</span><span class="p">)</span> \
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_proposal</span><span class="p">(</span><span class="n">x_star</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span><span class="p">,</span>  <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span><span class="p">)</span>
+        <span class="n">log_alpha</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">log_target_ratio</span> <span class="o">+</span> <span class="n">log_prop_ratio</span><span class="p">)</span>
+
+        <span class="c1"># accept/reject with Metropolis</span>
+        <span class="n">acc</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">log_u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">())</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">log_u</span> <span class="o">&lt;=</span> <span class="n">log_alpha</span><span class="p">)</span> <span class="ow">and</span> \
+           <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">target_eval_star</span><span class="p">))</span> <span class="ow">and</span> \
+           <span class="p">(</span><span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">target_eval_star</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_point</span> <span class="o">=</span> <span class="n">x_star</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_target_logd</span> <span class="o">=</span> <span class="n">target_eval_star</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_target_grad</span> <span class="o">=</span> <span class="n">target_grad_star</span>
+            <span class="n">acc</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">acc</span>
+
+<div class="viewcode-block" id="MALA.tune">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.MALA.tune.html#cuqi.sampler.MALA.tune">[docs]</a>
+    <span class="k">def</span> <span class="nf">tune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_len</span><span class="p">,</span> <span class="n">update_count</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_log_proposal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">theta_star</span><span class="p">,</span> <span class="n">theta_k</span><span class="p">,</span> <span class="n">g_logpi_k</span><span class="p">):</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="n">theta_k</span> <span class="o">+</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">g_logpi_k</span>
+        <span class="n">misfit</span> <span class="o">=</span> <span class="n">theta_star</span> <span class="o">-</span> <span class="n">mu</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span><span class="o">*</span><span class="p">((</span><span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">misfit</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">misfit</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="MYULA">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.MYULA.html#cuqi.sampler.MYULA">[docs]</a>
+<span class="k">class</span> <span class="nc">MYULA</span><span class="p">(</span><span class="n">ULA</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Moreau-Yoshida Unadjusted Langevin algorithm (MYUULA) (Durmus et al., 2018)</span>
+
+<span class="sd">    Samples a smoothed target distribution given its smoothed logpdf gradient.</span>
+<span class="sd">    It is based on the Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt, </span>
+<span class="sd">    where W_t is a `dim`-dimensional standard Brownian motion.</span>
+<span class="sd">    It targets a differentiable density (partially) smoothed by the Moreau-Yoshida</span>
+<span class="sd">    envelope. The smoothed target density can be made arbitrarily closed to the</span>
+<span class="sd">    true unsmoothed target density.</span>
+
+<span class="sd">    For more details see: Durmus, Alain, Eric Moulines, and Marcelo Pereyra.</span>
+<span class="sd">    &quot;Efficient Bayesian</span>
+<span class="sd">    computation by proximal Markov chain Monte Carlo: when Langevin meets Moreau.&quot;</span>
+<span class="sd">    SIAM Journal on Imaging Sciences 11.1 (2018): 473-506.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    target : `cuqi.distribution.Distribution`</span>
+<span class="sd">        The target distribution to sample from. The target distribution results from</span>
+<span class="sd">        a differentiable likelihood and prior of type RestorationPrior.</span>
+<span class="sd">    </span>
+<span class="sd">    initial_point : ndarray</span>
+<span class="sd">        Initial parameters. *Optional*</span>
+
+<span class="sd">    scale : float</span>
+<span class="sd">        The Langevin diffusion discretization time step (In practice, scale must</span>
+<span class="sd">        be smaller than 1/L, where L is the Lipschitz of the gradient of the log</span>
+<span class="sd">        target density, logd).</span>
+<span class="sd">        </span>
+<span class="sd">    smoothing_strength : float</span>
+<span class="sd">        This parameter controls the smoothing strength of MYULA.</span>
+
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+
+<span class="sd">    A Deblur example can be found in demos/howtos/myula.py</span>
+<span class="sd">    # TODO: update demo once sampler merged</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MYULA.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.MYULA.__init__.html#cuqi.sampler.MYULA.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">smoothing_strength</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_strength</span> <span class="o">=</span> <span class="n">smoothing_strength</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+    <span class="nd">@Sampler</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set the target density. Runs validation of the target. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Create a smoothed target</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_smoothed_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_smoothed_target</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="c1"># Validate the target</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">validate_target</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_create_smoothed_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a smoothed target using a Moreau-Yoshida envelope. &quot;&quot;&quot;</span>
+        <span class="n">copied_value</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">copied_value</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">RestorationPrior</span><span class="p">):</span>
+            <span class="c1"># Acceess the prior name</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">copied_value</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">MoreauYoshidaPrior</span><span class="p">(</span>
+                <span class="n">copied_value</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">smoothing_strength</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">copied_value</span>
+
+<div class="viewcode-block" id="MYULA.validate_target">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.MYULA.validate_target.html#cuqi.sampler.MYULA.validate_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">validate_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Call ULA target validation</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">validate_target</span><span class="p">()</span>
+
+        <span class="c1"># Additional validation for MYULA target</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">MoreauYoshidaPrior</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s2">&quot;The prior is already smoothed, apply&quot;</span>
+                              <span class="s2">&quot; ULA when using a MoreauYoshidaPrior.&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="s2">&quot;restore&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="p">(</span><span class="s2">&quot;Using MYULA with a prior that does not have a restore method&quot;</span>
+                <span class="s2">&quot; is not supported.&quot;</span><span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_eval_target_grad</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_smoothed_target</span><span class="o">.</span><span class="n">gradient</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PnPULA">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.PnPULA.html#cuqi.sampler.PnPULA">[docs]</a>
+<span class="k">class</span> <span class="nc">PnPULA</span><span class="p">(</span><span class="n">MYULA</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plug-and-Play Unadjusted Langevin algorithm (PnP-ULA)</span>
+<span class="sd">    (Laumont et al., 2022)</span>
+
+<span class="sd">    Samples a smoothed target distribution given its smoothed logpdf gradient based on</span>
+<span class="sd">    Langevin diffusion dL_t = dW_t + 1/2*Nabla target.logd(L_t)dt, where W_t is</span>
+<span class="sd">    a `dim`-dimensional standard Brownian motion.</span>
+<span class="sd">    It targets a differentiable density (partially) smoothed by a convolution</span>
+<span class="sd">    with Gaussian kernel with zero mean and smoothing_strength variance. The</span>
+<span class="sd">    smoothed target density can be made arbitrarily closed to the</span>
+<span class="sd">    true unsmoothed target density. </span>
+
+<span class="sd">    For more details see: Laumont, R., Bortoli, V. D., Almansa, A., Delon, J.,</span>
+<span class="sd">    Durmus, A., &amp; Pereyra, M. (2022). Bayesian imaging using plug &amp; play priors:</span>
+<span class="sd">    when Langevin meets Tweedie. SIAM Journal on Imaging Sciences, 15(2), 701-737.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    target : `cuqi.distribution.Distribution`</span>
+<span class="sd">        The target distribution to sample. The target distribution result from</span>
+<span class="sd">        a differentiable likelihood and prior of type RestorationPrior.</span>
+<span class="sd">    </span>
+<span class="sd">    initial_point : ndarray</span>
+<span class="sd">        Initial parameters. *Optional*</span>
+
+<span class="sd">    scale : float</span>
+<span class="sd">        The Langevin diffusion discretization time step (In practice, a scale of</span>
+<span class="sd">        1/L, where L is the Lipschitz of the gradient of the log target density</span>
+<span class="sd">        is recommended but not guaranteed to be the optimal choice).</span>
+<span class="sd">        </span>
+<span class="sd">    smoothing_strength : float</span>
+<span class="sd">        This parameter controls the smoothing strength of PnP-ULA.</span>
+
+
+<span class="sd">    callback : callable, optional</span>
+<span class="sd">        A function that will be called after each sampling step. It can be useful for monitoring the sampler during sampling.</span>
+<span class="sd">        The function should take three arguments: the sampler object, the index of the current sampling step, the total number of requested samples. The last two arguments are integers. An example of the callback function signature is: `callback(sampler, sample_index, num_of_samples)`.</span>
+
+<span class="sd">    # TODO: update demo once sampler merged</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="PnPULA.__init__">
+<a class="viewcode-back" href="../../../api/_autosummary/cuqi.sampler/cuqi.sampler.PnPULA.__init__.html#cuqi.sampler.PnPULA.__init__">[docs]</a>
+    <span class="k">def</span> <span class="fm">__init__</span> <span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">smoothing_strength</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="n">scale</span><span class="p">,</span> 
+                         <span class="n">smoothing_strength</span><span class="o">=</span><span class="n">smoothing_strength</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2022, CUQI Project, Technical University of Denmark (DTU).
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

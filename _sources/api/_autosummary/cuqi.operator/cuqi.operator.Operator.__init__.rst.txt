@@ -1,0 +1,6 @@
+cuqi.operator.Operator.\_\_init\_\_
+===================================
+
+.. currentmodule:: cuqi.operator
+
+.. automethod:: Operator.__init__

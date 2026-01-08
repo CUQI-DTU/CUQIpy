@@ -1,0 +1,6 @@
+cuqi.sampler.PnPULA.validate\_target
+====================================
+
+.. currentmodule:: cuqi.sampler
+
+.. automethod:: PnPULA.validate_target
