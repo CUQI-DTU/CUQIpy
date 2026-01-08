@@ -186,8 +186,9 @@ print(z1)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
-sampler = cuqi.legacy.sampler.MH(z1)
-samples = sampler.sample_adapt(8000)
+sampler = cuqi.sampler.MH(z1)
+sampler.warmup(8000)
+samples = sampler.get_samples()
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
@@ -219,8 +220,9 @@ print(z2)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
-sampler = cuqi.legacy.sampler.MH(z2)
-samples = sampler.sample_adapt(8000)
+sampler = cuqi.sampler.MH(z2)
+sampler.warmup(8000)
+samples = sampler.get_samples()
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
@@ -253,8 +255,9 @@ print(z_joint)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Sample from the posterior
-sampler = cuqi.legacy.sampler.MH(z_joint)
-samples = sampler.sample_adapt(8000)
+sampler = cuqi.sampler.MH(z_joint)
+sampler.warmup(8000)
+samples = sampler.get_samples()
 
 # Plot the credible interval and compute the ESS
 samples.burnthin(1000).plot_ci(95, exact=problemInfo1.exactSolution)
