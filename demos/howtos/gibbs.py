@@ -35,7 +35,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from cuqi.testproblem import Deconvolution1D
 from cuqi.distribution import Gaussian, Gamma, JointDistribution, GMRF, LMRF
-from cuqi.legacy.sampler import Gibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
+from cuqi.sampler import HybridGibbs, LinearRTO, Conjugate, UGLA, ConjugateApprox
 
 np.random.seed(0)
 
@@ -150,7 +150,7 @@ print(posterior)
 # efficiently sample from :math:`\mathbf{x}` conditional on the other
 # variables using the ``LinearRTO`` sampler.
 # 
-# Taking these two facts into account, we can define a Gibbs sampler
+# Taking these two facts into account, we can define a HybridGibbs sampler
 # that uses the ``Conjugate`` sampler for :math:`d` and :math:`l` and
 # the ``LinearRTO`` sampler for :math:`\mathbf{x}`.
 #
@@ -158,16 +158,18 @@ print(posterior)
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': LinearRTO,
-    'd': Conjugate,
-    'l': Conjugate
+    'x': LinearRTO(),
+    'd': Conjugate(),
+    'l': Conjugate()
 }
 
-# Define Gibbs sampler
-sampler = Gibbs(posterior, sampling_strategy)
+# Define HybridGibbs sampler
+sampler = HybridGibbs(posterior, sampling_strategy)
 
 # Run sampler
-samples = sampler.sample(Ns=1000, Nb=200)
+sampler.warmup(200)
+sampler.sample(1000)
+samples = sampler.get_samples()
 
 # %%
 # Analyze results
@@ -228,10 +230,10 @@ print(posterior_Ld)
 
 
 # %%
-# Gibbs Sampler (with Laplace prior)
+# HybridGibbs Sampler (with Laplace prior)
 # ----------------------------------
 #
-# Using the same approach as earlier we can define a Gibbs sampler
+# Using the same approach as earlier we can define a HybridGibbs sampler
 # for this new hierarchical model. The only difference is that we
 # now need to use a different sampler for :math:`\mathbf{x}` because
 # the ``LinearRTO`` sampler only works for Gaussian distributions.
@@ -245,16 +247,18 @@ print(posterior_Ld)
 
 # Define sampling strategy
 sampling_strategy = {
-    'x': UGLA,
-    'd': ConjugateApprox,
-    'l': Conjugate
+    'x': UGLA(),
+    'd': ConjugateApprox(),
+    'l': Conjugate()
 }
 
 # Define Gibbs sampler
-sampler_Ld = Gibbs(posterior_Ld, sampling_strategy)
+sampler_Ld = HybridGibbs(posterior_Ld, sampling_strategy)
 
 # Run sampler
-samples_Ld = sampler_Ld.sample(Ns=1000, Nb=200)
+sampler_Ld.warmup(200)
+sampler_Ld.sample(1000)
+samples_Ld = sampler_Ld.get_samples()
 
 # %%
 # Analyze results
