@@ -273,7 +273,7 @@ class Gaussian(Distribution):
             sqrtprec = self.sqrtprec
             prec = sqrtprec.T@sqrtprec
             if spa.issparse(prec):
-                computed_cov = spa.linalg.inv(prec).todense()
+                computed_cov = spa.linalg.inv(prec).toarray()
             else:
                 computed_cov = np.linalg.inv(prec)
         
